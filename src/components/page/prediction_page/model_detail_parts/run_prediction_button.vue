@@ -1,0 +1,55 @@
+<template>
+  <div id="run-prediction-button">
+    <div class="prediction-button" :disabled="!predictModelId" @click="runPrediction">
+      <span class="icon">
+        <i class="fa fa-arrow-right" aria-hidden="true"></i>
+      </span>
+      Start!
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "RunPredictionButton",
+  computed: {
+    predictModelId: function() {
+      return this.$store.state.predict_model_id;
+    }
+  },
+  methods: {
+    runPrediction: function() {
+      this.$store.dispatch("runPrediction");
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+#run-prediction-button {
+  $button-height: 64px;
+  $button-bg-color: #7F9DB5;
+
+  position: absolute;
+  top: 0;
+  width: 100%;
+
+  .prediction-button {
+    width: 96%;
+    height: $button-height;
+    margin: 0;
+    margin-left: 4%;
+
+    background-color: $button-bg-color;
+    color: #ffffff;
+    text-align: center;
+    line-height: $button-height;
+    border-radius: 4px;
+    cursor: pointer;
+
+    .icon {
+      margin-right: 4px;
+    }
+  }
+}
+</style>
