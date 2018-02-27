@@ -7,12 +7,12 @@
     <div class="model-content">
       <div class="model-values">
         <value-item :label="'Algorithm'" :val="getAlgorithmNameById(modelData.algorithm)"></value-item>
-        <value-item :label="'Total Epoch'" :val="modelData.total_epoch"></value-item>
+        <value-item :label="'Total Epoch'" :val="modelData.hyper_parameters['total_epoch']"></value-item>
         <value-item :label="'Batch Size'" :val="modelData.hyper_parameters['batch_size']"></value-item>
         <value-item :label="'Image Width'" :val="modelData.hyper_parameters['image_width']"></value-item>
         <value-item :label="'Image Height'" :val="modelData.hyper_parameters['image_height']"></value-item>
         <br>
-        <component :is="additional_param_components[modelData.algorithm]" :params="modelData.hyper_parameters['additional_params']"></component>
+        <component :is="additional_param_components[modelData.algorithm]" :params="modelData.algorithm_params"></component>
       </div>
 
       <div class="model-values">

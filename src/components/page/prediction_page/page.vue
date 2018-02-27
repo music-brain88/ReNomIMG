@@ -32,12 +32,6 @@ export default {
     this.$store.dispatch("loadProjectData", {
       "project_id": 1
     });
-
-    if(localStorage.getItem("predictModelId")) {
-      this.$store.commit("setPredictModelId", {
-        "model_id": parseInt(localStorage.getItem("predictModelId")),
-      })
-    }
   }
 }
 </script>

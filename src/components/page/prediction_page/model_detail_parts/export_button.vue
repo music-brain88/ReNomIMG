@@ -14,7 +14,9 @@ export default {
   name: "ExportButton",
   computed: {
     predictModelId: function() {
-      return this.$store.state.predict_model_id;
+      if(this.$store.state.project){
+        return this.$store.state.project.deploy_model_id;
+      }
     },
     csv: function() {
       return this.$store.state.csv;
@@ -22,7 +24,7 @@ export default {
   },
   methods: {
     exportCSV: function(){
-      let url = "/api/obj_detector/v1/projects/1/models/" + this.$store.state.predict_model_id + "/export_csv/" + this.csv
+      let url = "/api/obj_detector/v1/projects/1/models/" + this.$store.state.project.deploy_model_id + "/export_csv/" + this.csv
       window.open(url, "__blank");
     }
   }

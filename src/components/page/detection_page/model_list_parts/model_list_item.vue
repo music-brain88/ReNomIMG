@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <div v-if="isPredict" class="predict_icon">
+    <div v-if="isPredict" class="predict_icon" @click.stop='undeployModel'>
     deployed
     </div>
 
@@ -53,10 +53,12 @@ export default {
   },
   computed: {
     selected() {
-      return this.model.model_id == this.$store.getters.getSelectedModelId;
+      if(this.$store.state.project) {
+        return this.model.model_id == this.$store.state.project.selected_model_id;
+      }
     },
     isPredict() {
-      return this.model.model_id == this.$store.state.predict_model_id;
+      return this.model.model_id == this.$store.state.project.deploy_model_id;
     },
   },
   methods: {
@@ -67,7 +69,7 @@ export default {
     },
     deleteModel: function() {
       if(confirm("削除しますか？")){
-        if(localStorage.getItem("predictModelId") && parseInt(localStorage.getItem("predictModelId")) == this.model.model_id) {
+        if(isPredict) {
           this.$store.commit("setPredictModelId", {
             "model_id": undefined,
           });
@@ -78,6 +80,11 @@ export default {
         this.$store.dispatch("deleteModel", {
           "model_id": this.model.model_id
         });
+      }
+    },
+    undeployModel: function() {
+      if(confirm("デプロイをリセットしますか？")){
+        this.$store.dispatch('undeployModel', {'model_id': this.model.model_id});
       }
     },
     getColor: function(model_state, algorithm) {

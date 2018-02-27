@@ -35,7 +35,9 @@ export default {
   },
   computed: {
     predictModelId: function() {
-      return this.$store.state.predict_model_id;
+      if(this.$store.state.project){
+        return this.$store.state.project.deploy_model_id;
+      }
     }
   },
 }

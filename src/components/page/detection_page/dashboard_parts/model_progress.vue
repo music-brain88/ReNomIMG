@@ -13,8 +13,8 @@
       <div class="label">
         Epoch
       </div>
-      <div class="value" v-if="model.epochs">
-        {{spacePadding(Math.max(model.epochs.length - 1, 0), 4)}}/{{spacePadding(model.total_epoch, 4)}}
+      <div class="value">
+        {{spacePadding(model.validation_loss_list.length)}}/{{spacePadding(model.hyper_parameters['total_epoch'], 4)}}
       </div>
     </div>
 

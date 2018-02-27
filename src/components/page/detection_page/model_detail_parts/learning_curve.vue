@@ -26,21 +26,25 @@ export default {
       type: Number,
       required: true
     },
-    "modelLoss": {
-      type: Object,
+    "trainLoss": {
+      type: Array,
       required: true
-    }
+    },
+    "validationLoss": {
+      type: Array,
+      required: true
+    },
   },
   mounted: function() {
-    this.drawLearningCurve(this.modelLoss);
+    this.drawLearningCurve();
   },
   watch: {
-    modelLoss: function(newVal) {
+    trainLoss: function(newVal) {
       this.drawLearningCurve(newVal);
     }
   },
   methods: {
-    drawLearningCurve: function(modelLoss) {
+    drawLearningCurve: function() {
       let curve_area = document.getElementById("learning-curve");
 
       let canvas = document.getElementById("curve-canvas");
@@ -50,11 +54,6 @@ export default {
 
       const colors = ['#0762ad', '#ef8200'];
 
-      if (!this.modelLoss['train_loss']){
-        return
-      }
-
-      let data_length = this.modelLoss['train_loss'].length - 1
       let datasets = [{
         label: "train",
         fill: false,
@@ -63,7 +62,7 @@ export default {
         borderColor: colors[0],
         backgroundColor: colors[0],
         pointRadius: 0.1,
-        data: this.modelLoss["train_loss"].slice(0, data_length),
+        data: this.trainLoss,
       },{
         label: "validation",
         fill: false,
@@ -72,7 +71,7 @@ export default {
         borderColor: colors[1],
         backgroundColor: colors[1],
         pointRadius: 0.1,
-        data: this.modelLoss["validation_loss"].slice(0, data_length),
+        data: this.validationLoss,
       }];
 
       let labels = Array.from(new Array(this.totalEpoch)).map((v,i) => i)

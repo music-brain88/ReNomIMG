@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import os
-import random
 import time
 import threading
 import base64
@@ -35,29 +34,28 @@ ERROR = -1
 
 DEBUG = True
 
+
 class Train(object):
-    def __init__(self, project_id, model_id, dataset_id,
-                 total_epoch, seed, algorithm, hyper_parameter, predict_weight_path=""):
+    def __init__(self, project_id, model_id,
+                 hyper_parameters, algorithm, algorithm_params,
+                 predict_weight_path=""):
         self.stop_event = threading.Event()
         self.thread = threading.Thread(target=self.execute)
         self.prediction_thread = threading.Thread(target=self.execute_prediction)
         self.project_id = project_id
         self.model_id = model_id
-        self.dataset_id = dataset_id
-        self.total_epoch = total_epoch
-        self.seed = seed
+        self.total_epoch = hyper_parameters['total_epoch']
+        self.seed = hyper_parameters['seed']
         self.algorithm = algorithm
         self.best_loss = None
-        self.img_size = (hyper_parameter['image_width'], hyper_parameter['image_height'])
-        self.batch_size = int(hyper_parameter['batch_size'])
-        self.cell_h = int(hyper_parameter['additional_params']['horizontal_cells'])
-        self.cell_v = int(hyper_parameter['additional_params']['vertical_cells'])
-        self.num_bbox = int(hyper_parameter['additional_params']['bounding_box'])
+        self.img_size = (hyper_parameters['image_width'], hyper_parameters['image_height'])
+        self.batch_size = int(hyper_parameters['batch_size'])
+        self.cell_h = int(algorithm_params['cells'])
+        self.cell_v = int(algorithm_params['cells'])
+        self.num_bbox = int(algorithm_params['bounding_box'])
         self.predict_weight_path = predict_weight_path
         self.predict_results = {}
         RUNNING_INFO["{}_{}".format(self.project_id, self.model_id)] = {}
-        info = RUNNING_INFO["{}_{}".format(self.project_id, self.model_id)]
-
 
     def set_train_config(self, class_num):
         self._class_num = int(class_num)
@@ -69,6 +67,14 @@ class Train(object):
         # Prepare validation images for UI.
         valid_img = validation_distributor._data_table
         v_bbox_imgs = valid_img
+
+        storage.update_model_validation_result(
+            model_id=self.model_id,
+            best_validation_result={
+                "bbox_list": [],
+                "bbox_path_list": v_bbox_imgs
+            }
+        )
 
         # Running info setting
         info = RUNNING_INFO["{}_{}".format(self.project_id, self.model_id)]
@@ -82,16 +88,11 @@ class Train(object):
             start_t0 = time.time()
             # stopイベントがセットされたら学習を中断する
             if self.stop_event.is_set():
-               return
+                return
 
             epoch_id = storage.register_epoch(
-                project_id=self.project_id,
                 model_id=self.model_id,
-                nth_epoch=e,
-                validation_results={
-                    "bbox_list": [],
-                    "bbox_path_list": v_bbox_imgs
-                }
+                nth_epoch=e
             )
 
             train_loss = 0
@@ -135,28 +136,33 @@ class Train(object):
 
             start_t1 = time.time()
             if self.stop_event.is_set():
-               return
+                return
             if validation_distributor:
                 validation_loss, v_iou, v_mAP, v_bbox = \
-                      self.run_validation(model, validation_distributor)
+                    self.run_validation(model, validation_distributor)
+                validation_loss_list.append(validation_loss)
 
             if self.best_loss is None or validation_loss < self.best_loss:
                 self.best_loss = validation_loss
-                storage.update_model_best_epoch(self.model_id, e)
+                bbox_list_len = min(len(v_bbox), len(v_bbox_imgs))
+                validation_results = {
+                    "bbox_list": v_bbox[:bbox_list_len],
+                    "bbox_path_list": v_bbox_imgs[:bbox_list_len]
+                }
+                storage.update_model_best_epoch(self.model_id, e, v_iou,
+                                                v_mAP, filename, validation_results)
+                # modelのweightを保存する
+                if not os.path.isdir(WEIGHT_DIR):
+                    os.makedirs(WEIGHT_DIR)
+                model.save(os.path.join(WEIGHT_DIR, filename))
 
             if self.stop_event.is_set():
-               return
+                return
 
-            # modelのweightを保存する
-            if not os.path.isdir(WEIGHT_DIR):
-                os.makedirs(WEIGHT_DIR)
-            model.save(os.path.join(WEIGHT_DIR, filename))
-
-            storage.update_epoch_loss_weight(
-                epoch_id=epoch_id,
-                train_loss=train_loss,
-                validation_loss=validation_loss,
-                weight=filename
+            storage.update_model_loss_list(
+                model_id=self.model_id,
+                train_loss_list=train_loss_list,
+                validation_loss_list=validation_loss_list,
             )
             cur_time = time.time()
             print("epoch %d done. %f. took time %f [s], %f [s]" % (e, train_loss,
@@ -168,12 +174,10 @@ class Train(object):
             bbox_list_len = min(len(v_bbox), len(v_bbox_imgs))
             storage.update_epoch(
                 epoch_id=epoch_id,
-                iou_value=v_iou,
-                map_value=v_mAP,
-                validation_results={
-                    "bbox_list": v_bbox[:bbox_list_len],
-                    "bbox_path_list": v_bbox_imgs[:bbox_list_len]
-                })
+                train_loss=train_loss,
+                validation_loss=validation_loss,
+                epoch_iou=v_iou,
+                epoch_map=v_mAP)
 
         storage.update_model_state(self.model_id, STATE_FINISHED)
 
@@ -193,7 +197,6 @@ class Train(object):
             base64_img_list.append(toBase64(buffered.getvalue()))
 
         return base64_img_list
-
 
     def run_validation(self, model, distributor):
         info = RUNNING_INFO["{}_{}".format(self.project_id, self.model_id)]
@@ -229,7 +232,6 @@ class Train(object):
 
         validation_loss = validation_loss / (i + 1)
         return validation_loss, v_iou, v_mAP, v_bbox
-
 
     def run_prediction(self, model):
         distributor = create_pred_dist(self.img_size)
@@ -355,7 +357,6 @@ class Train(object):
 
 
     def stop(self):
-        info = RUNNING_INFO["{}_{}".format(self.project_id, self.model_id)]
         storage.update_model_state(self.model_id, STATE_FINISHED)
         self.stop_event.set()
         self.thread.join()

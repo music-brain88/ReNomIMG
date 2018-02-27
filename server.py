@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import argparse
 import os
 import json
 import pkg_resources
@@ -76,10 +77,17 @@ def dataset(folder_name, item, file_name):
     return pkg_resources.resource_string(__name__, os.path.join('dataset', folder_name, item, file_name))
 
 
-@route("/api/obj_detector/v1/projects", method="GET")
+@route("/api/renom_img/v1/projects", method="GET")
 def get_projects():
     try:
-        data = storage.fetch_projects()
+        kwargs = {}
+        if request.params.fields != '':
+            kwargs["fields"] = request.params.fields
+
+        if request.params.order_by != '':
+            kwargs["order_by"] = request.params.order_by
+
+        data = storage.fetch_projects(**kwargs)
         body = json.dumps(data)
 
     except sqlite3.Error as e:
@@ -89,7 +97,7 @@ def get_projects():
     return ret
 
 
-@route("/api/obj_detector/v1/projects", method="POST")
+@route("/api/renom_img/v1/projects", method="POST")
 def create_projects():
     name = request.params.project_name
     comment = request.params.project_comment
@@ -107,10 +115,14 @@ def create_projects():
     return ret
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>", method="GET")
+@route("/api/renom_img/v1/projects/<project_id:int>", method="GET")
 def get_project(project_id):
     try:
-        data = storage.fetch_project(project_id)
+        kwargs = {}
+        if request.params.fields != '':
+            kwargs["fields"] = request.params.fields
+
+        data = storage.fetch_project(project_id, **kwargs)
         body = json.dumps(data)
     except sqlite3.Error as e:
         body = json.dumps({"error_msg": e.args[0]})
@@ -119,15 +131,20 @@ def get_project(project_id):
     return ret
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>", method="POST")
+@route("/api/renom_img/v1/projects/<project_id:int>", method="POST")
 def update_project(project_id):
     pass
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>/models", method="GET")
+@route("/api/renom_img/v1/projects/<project_id:int>/models", method="GET")
 def get_models(project_id):
     try:
-        data = storage.fetch_models(project_id)
+        kwargs = {}
+        if request.params.fields != '':
+            kwargs["fields"] = request.params.fields
+
+        data = storage.fetch_models(project_id, **kwargs)
+        # print(data[0]["best_epoch_validation_result"])
         body = json.dumps(data)
     except sqlite3.Error as e:
         body = json.dumps({"error_msg": e.args[0]})
@@ -136,7 +153,7 @@ def get_models(project_id):
     return ret
 
 
-@route("/api/obj_detector/v1/dataset_info", method="GET")
+@route("/api/renom_img/v1/dataset_info", method="GET")
 def get_dataset_info_v0():
     try:
         data = storage.fetch_dataset_v0()
@@ -148,7 +165,7 @@ def get_dataset_info_v0():
     return ret
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>/models", method="POST")
+@route("/api/renom_img/v1/projects/<project_id:int>/models", method="POST")
 def create_model(project_id):
     # check training count
     if len(THREAD_MANAGER) >= 2:
@@ -159,11 +176,9 @@ def create_model(project_id):
     try:
         model_id = storage.register_model(
             project_id=project_id,
-            dataset_id=1,
-            total_epoch=request.params.total_epoch,
-            seed=request.params.seed,
+            hyper_parameters=json.loads(request.params.hyper_parameters),
             algorithm=request.params.algorithm,
-            hyper_parameter=json.loads(request.params.hyper_parameter))
+            algorithm_params=json.loads(request.params.algorithm_params))
 
         data = {"model_id": model_id}
         body = json.dumps(data)
@@ -175,10 +190,14 @@ def create_model(project_id):
     return ret
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>/models/<model_id:int>", method="GET")
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>", method="GET")
 def get_model(project_id, model_id):
     try:
-        data = storage.fetch_model(project_id, model_id)
+        kwargs = {}
+        if request.params.fields != '':
+            kwargs["fields"] = request.params.fields
+
+        data = storage.fetch_model(project_id, model_id, **kwargs)
         body = json.dumps(data)
 
     except sqlite3.Error as e:
@@ -188,7 +207,7 @@ def get_model(project_id, model_id):
     return ret
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>/models/<model_id:int>", method="DELETE")
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>", method="DELETE")
 def delete_model(project_id, model_id):
     # 学習中のスレッドを停止する
     thread_id = "{}_{}".format(project_id, model_id)
@@ -207,23 +226,43 @@ def delete_model(project_id, model_id):
         return ret
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>/models/<model_id:int>/run", method="GET")
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/deploy", method="GET")
+def deploy_model(project_id, model_id):
+    try:
+        storage.update_project_deploy(project_id, model_id)
+    except sqlite3.Error as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/undeploy", method="GET")
+def undeploy_model(project_id, model_id):
+    try:
+        storage.update_project_deploy(project_id, None)
+    except sqlite3.Error as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run", method="GET")
 def run_model(project_id, model_id):
     # 学習データ読み込み
-    data = storage.fetch_model(project_id, model_id)
+    fields = 'hyper_parameters,algorithm,algorithm_params'
+    data = storage.fetch_model(project_id, model_id, fields=fields)
 
     # 学習を実行するスレッドを立てる
     thread_id = "{}_{}".format(project_id, model_id)
 
-    th = Train(project_id, model_id, data["dataset_id"],
-               data["total_epoch"], data["seed"],
-               data["algorithm"], data["hyper_parameter"])
+    th = Train(project_id, model_id, data["hyper_parameters"],
+               data['algorithm'], data['algorithm_params'])
     th.daemon = True
     th.start()
     THREAD_MANAGER.update({thread_id: th})
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>/models/<model_id:int>/stop", method="GET")
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/stop", method="GET")
 def stop_model(project_id, model_id):
     # 学習中のスレッドを停止する
     thread_id = "{}_{}".format(project_id, model_id)
@@ -234,28 +273,21 @@ def stop_model(project_id, model_id):
         del THREAD_MANAGER[thread_id]
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>/models/<model_id:int>/run_prediction", method="GET")
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run_prediction", method="GET")
 def run_prediction(project_id, model_id):
     # 学習データ読み込み
     try:
-        data = storage.fetch_model(project_id, model_id)
-    except sqlite3.Error as e:
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
-
-    try:
-        epoch_data = storage.fetch_epoch(project_id, model_id, data["best_epoch"])
+        fields = 'hyper_parameters,algorithm,algorithm_params,best_epoch_weight'
+        data = storage.fetch_model(project_id, model_id, fields=fields)
     except sqlite3.Error as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
 
     # weightのh5ファイルのパスを取得して予測する
-    th = Train(project_id, model_id, data["dataset_id"],
-               data["total_epoch"], data["seed"],
-               data["algorithm"], data["hyper_parameter"],
-               epoch_data["weight"])
+    th = Train(project_id, model_id, data["hyper_parameters"],
+               data['algorithm'], data['algorithm_params'],
+               data["best_epoch_weight"])
     th.daemon = True
     th.prediction_thread.start()
     th.prediction_thread.join()
@@ -269,41 +301,12 @@ def run_prediction(project_id, model_id):
     return ret
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
 def export_csv(project_id, model_id, file_name):
-    return static_file(file_name.split("/")[0], root="./.storage/csv", download=True)
+    return static_file(file_name, root="./.storage/csv", download=True)
 
 
-@route("/api/obj_detector/v1/projects/<project_id:int>/models/<model_id:int>/epochs", method="GET")
-def get_epochs(project_id, model_id):
-    data = {}
-
-    try:
-        data['epochs'] = storage.fetch_epochs(project_id, model_id)
-    except sqlite3.Error as e:
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
-
-    data['running_info'] = RUNNING_INFO.get('{}_{}'.format(project_id, model_id), "")
-    body = json.dumps(data)
-    ret = create_response(body)
-    return ret
-
-
-@route("/api/obj_detector/v1/projects/<project_id:int>/models/<model_id:int>/epochs/<nth_epoch:int>", method="GET")
-def get_epoch(project_id, model_id, nth_epoch):
-    try:
-        data = storage.fetch_epoch(project_id, model_id, nth_epoch)
-        body = json.dumps(data)
-    except sqlite3.Error as e:
-        body = json.dumps({"error_msg": e.args[0]})
-
-    ret = create_response(body)
-    return ret
-
-
-@route("/api/obj_detector/v1/original_img", method="POST")
+@route("/api/renom_img/v1/original_img", method="POST")
 def get_original_img():
     file_path = request.params.root_dir
 
@@ -317,4 +320,9 @@ def get_original_img():
 
 
 if __name__ == "__main__":
-    run(host="0.0.0.0", port=8070)
+    parser = argparse.ArgumentParser(description='desc')
+    parser.add_argument('--host', default='0.0.0.0', help='Server address')
+    parser.add_argument('--port', default='8070', help='Server port')
+    args = parser.parse_args()
+
+    run(host=args.host, port=args.port, reloader=True)

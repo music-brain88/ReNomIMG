@@ -22,6 +22,7 @@ class Storage:
 
         self.db.execute('PRAGMA journal_mode = WAL')
         self.db.execute('PRAGMA synchronous = OFF')
+        self.db.execute('PRAGMA foreign_keys = ON')
         self._init_db()
 
     def cursor(self):
@@ -34,6 +35,7 @@ class Storage:
                 (project_id INTEGER PRIMARY KEY AUTOINCREMENT,
                  project_name TEXT NOT NULL,
                  project_comment TEXT,
+                 deploy_model_id INTEGER REFERENCES model(model_id) ON DELETE CASCADE,
                  created TIMESTAMP NOT NULL,
                  updated TIMESTAMP NOT NULL)
             """)
@@ -41,16 +43,20 @@ class Storage:
         c.execute("""
                 CREATE TABLE IF NOT EXISTS model
                 (model_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 project_id INTEGER NOT NULL,
-                 dataset_id INTEGER NOT NULL,
-                 total_epoch INTEGER NOT NULL,
-                 seed INTEGER NOT NULL,
+                 project_id INTEGER NOT NULL REFERENCES project(project_id) ON DELETE CASCADE,
+                 hyper_parameters BLOB,
                  algorithm INTEGER NOT NULL,
-                 hyper_parameter BLOB,
-                 state INTEGER NOT NULL,
+                 algorithm_params BLOB,
+                 state INTEGER NOT NULL DEFAULT 0,
+                 train_loss_list BLOB,
+                 validation_loss_list BLOB,
                  best_epoch INTEGER,
-                 max_memory_usage INTEGER,
-                 max_memory_usage_forward INTEGER,
+                 best_epoch_iou NUMBER,
+                 best_epoch_map NUMBER,
+                 best_epoch_validation_result BLOB,
+                 best_epoch_weight TEXT,
+                 last_epoch INTEGER DEFAULT 0,
+                 last_weight TEXT,
                  created TIMESTAMP NOT NULL,
                  updated TIMESTAMP NOT NULL)
             """)
@@ -58,15 +64,12 @@ class Storage:
         c.execute("""
                 CREATE TABLE IF NOT EXISTS epoch
                 (epoch_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 project_id INTEGER NOT NULL,
-                 model_id INTEGER NOT NULL,
+                 model_id INTEGER NOT NULL REFERENCES model(model_id) ON DELETE CASCADE,
                  nth_epoch INTEGER NOT NULL,
                  train_loss NUMBER,
                  validation_loss NUMBER,
-                 weight TEXT,
-                 iou_value NUMBER,
-                 map_value NUMBER,
-                 validation_results BLOB,
+                 epoch_iou NUMBER,
+                 epoch_map NUMBER,
                  created TIMESTAMP NOT NULL,
                  updated TIMESTAMP NOT NULL,
                  UNIQUE(model_id, nth_epoch))
@@ -76,20 +79,6 @@ class Storage:
                 CREATE INDEX IF NOT EXISTS
                 IDX_EPOCH_MODEL_ID
                 ON epoch(model_id, nth_epoch)
-            """)
-
-        c.execute("""
-                CREATE TABLE IF NOT EXISTS dataset
-                (dataset_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 total_class INTEGER,
-                 train_dir_path TEXT,
-                 train_label_path TEXT,
-                 validation_dir_path TEXT,
-                 validation_label_path TEXT,
-                 test_dir_path TEXT,
-                 test_label_path TEXT,
-                 created TIMESTAMP NOT NULL,
-                 updated TIMESTAMP NOT NULL)
             """)
 
         c.execute("""
@@ -122,17 +111,36 @@ class Storage:
                 """, (name, comment, now, now))
             return c.lastrowid
 
-    def register_model(self, project_id, dataset_id, total_epoch, seed, algorithm, hyper_parameter):
+    def update_project_deploy(self, project_id, model_id):
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
-            dumped_hyper_parameter = cPickle.dumps(hyper_parameter)
+            c.execute("""UPDATE project
+                SET deploy_model_id=?, updated=?
+                WHERE project_id=?""", (model_id, now, project_id))
+        return c.lastrowid
+
+    def register_model(self, project_id, hyper_parameters, algorithm, algorithm_params):
+        with self.db:
+            c = self.cursor()
+            now = datetime.datetime.now()
+            dumped_hyper_parameters = cPickle.dumps(hyper_parameters)
+            dumped_algorithm_params = cPickle.dumps(algorithm_params)
+            train_loss_list = cPickle.dumps([])
+            validation_loss_list = cPickle.dumps([])
+            best_epoch_validation_result = cPickle.dumps({})
             c.execute("""
                     INSERT INTO
-                        model(project_id, dataset_id, total_epoch, seed, algorithm, hyper_parameter, state, created, updated)
+                        model(project_id, hyper_parameters, algorithm,
+                            algorithm_params, train_loss_list,
+                            validation_loss_list, best_epoch_validation_result,
+                            created, updated)
                     VALUES
                         (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (project_id, dataset_id, total_epoch, seed, algorithm, dumped_hyper_parameter, 0, now, now))
+                """, (project_id, dumped_hyper_parameters, algorithm,
+                      dumped_algorithm_params, train_loss_list,
+                      validation_loss_list, best_epoch_validation_result,
+                      now, now))
         return c.lastrowid
 
     def update_model_state(self, model_id, state):
@@ -147,46 +155,62 @@ class Storage:
                 """, (state, now, model_id))
         return c.lastrowid
 
-    def update_model_best_epoch(self, model_id, best_epoch):
+    def update_model_loss_list(self, model_id, train_loss_list, validation_loss_list):
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
+            dumped_train_loss_list = cPickle.dumps(train_loss_list)
+            dumped_validation_loss_list = cPickle.dumps(validation_loss_list)
+
+            c.execute("""
+                    UPDATE model
+                    SET
+                        train_loss_list=?, validation_loss_list=?,
+                        updated=?
+                    WHERE model_id=?
+                """, (dumped_train_loss_list, dumped_validation_loss_list, now, model_id))
+        return c.lastrowid
+
+    def update_model_validation_result(self, model_id, best_validation_result):
+        with self.db:
+            c = self.cursor()
+            now = datetime.datetime.now()
+            dumped_best_validation_result = cPickle.dumps(best_validation_result)
             c.execute("""
                       UPDATE model
                       SET
-                          best_epoch=?, updated=?
+                          best_epoch_validation_result=?, updated=?
                       WHERE model_id=?
-                  """, (best_epoch, now, model_id))
+                  """, (dumped_best_validation_result,
+                        now, model_id))
 
-    def register_dataset(self, total_class, train_dir_path, train_label_path,
-                         validation_dir_path, validation_label_path, test_dir_path, test_label_path):
+    def update_model_best_epoch(self, model_id, best_epoch, best_iou,
+                                best_map, best_weight, best_validation_result):
+        with self.db:
+            c = self.cursor()
+            now = datetime.datetime.now()
+            dumped_best_validation_result = cPickle.dumps(best_validation_result)
+            c.execute("""
+                      UPDATE model
+                      SET
+                          best_epoch=?, best_epoch_iou=?,
+                          best_epoch_map=?, best_epoch_weight=?,
+                          best_epoch_validation_result=?, updated=?
+                      WHERE model_id=?
+                  """, (best_epoch, best_iou, best_map,
+                        best_weight, dumped_best_validation_result,
+                        now, model_id))
+
+    def register_epoch(self, model_id, nth_epoch):
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
             c.execute("""
                     INSERT INTO
-                        dataset(total_class, train_dir_path, train_label_path,
-                                validation_dir_path, validation_label_path,
-                                test_dir_path, test_label_path,
-                                created, updated)
+                    epoch(model_id, nth_epoch, created, updated)
                     VALUES
-                        (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (total_class, train_dir_path, train_label_path,
-                      validation_dir_path, validation_label_path,
-                      test_dir_path, test_label_path, now, now))
-        return c.lastrowid
-
-    def register_epoch(self, project_id, model_id, nth_epoch, validation_results):
-        with self.db:
-            c = self.cursor()
-            now = datetime.datetime.now()
-            dumped_result = cPickle.dumps(validation_results)
-            c.execute("""
-                    INSERT INTO
-                    epoch(project_id, model_id, nth_epoch, validation_results, created, updated)
-                    VALUES
-                    (?, ?, ?, ?, ?, ?)
-                """, (project_id, model_id, nth_epoch, dumped_result, now, now))
+                    (?, ?, ?, ?)
+                """, (model_id, nth_epoch, now, now))
         return c.lastrowid
 
     def register_dataset_v0(self, train_data_count, valid_data_count, class_list):
@@ -201,170 +225,91 @@ class Storage:
                         (?, ?, ?, ?);
                 """, (0, train_data_count, valid_data_count, dumped_class_names))
 
-    def update_epoch(self, epoch_id, iou_value, map_value, validation_results):
-        with self.db:
-            c = self.cursor()
-            now = datetime.datetime.now()
-            dumped_result = cPickle.dumps(validation_results)
-            c.execute("""
-                      UPDATE epoch
-                      SET
-                          iou_value=?, map_value=?,
-                          validation_results=?, updated=?
-                      WHERE epoch_id=?
-                  """, (iou_value, map_value,
-                        dumped_result, now, epoch_id))
-
-    def update_epoch_loss_weight(self, epoch_id, train_loss, validation_loss, weight):
+    def update_epoch(self, epoch_id, train_loss, validation_loss, epoch_iou, epoch_map):
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
             c.execute("""
-                      UPDATE epoch
-                      SET
-                          train_loss=?, validation_loss=?, weight=?, updated=?
-                      WHERE epoch_id=?
-                  """, (train_loss, validation_loss, weight, now, epoch_id))
+                    UPDATE epoch
+                    SET
+                        train_loss=?, validation_loss=?, epoch_iou=?, epoch_map=?, updated=?
+                    WHERE epoch_id=?
+                  """, (train_loss, validation_loss, epoch_iou, epoch_map, now, epoch_id))
 
     def delete_project(self, project_id):
         with self.db:
             c = self.cursor()
             c.execute("""
-                    DELETE FROM epoch WHERE project_id=?
-                """, (project_id,))
-            c.execute("""
-                    DELETE FROM model WHERE project_id=?
-                """, (project_id,))
-            c.execute("""
                     DELETE FROM project WHERE project_id=?
                 """, (project_id,))
 
-    def fetch_projects(self):
+    def fetch_projects(self, fields='project_id', order_by='updated DESC'):
         with self.db:
             c = self.cursor()
-            c.execute("""
-                SELECT project_id, project_name, project_comment
-                FROM project
-                ORDER BY updated DESC
-                """)
+            sql = "SELECT " + fields + " FROM project ORDER BY " + order_by
+            c.execute(sql)
+
             ret = {}
             for index, data in enumerate(c):
-                ret.update({index: {
-                    "project_id": data[0],
-                    "project_name": data[1],
-                    "project_comment": data[2]
-                }})
+                item = {}
+                for j, f in enumerate(fields.split(',')):
+                    item[f] = data[j]
+                ret.update({index: item})
             return ret
 
-    def fetch_project(self, project_id):
+    def fetch_project(self, project_id, fields='project_id'):
         with self.db:
             c = self.cursor()
-            c.execute("""
-                SELECT project_name, project_comment
-                FROM project
-                WHERE project_id=?
-                """, (project_id,))
+            sql = "SELECT " + fields + " FROM project WHERE project_id=?"
+            c.execute(sql, (project_id,))
+
             ret = {}
             for index, data in enumerate(c):
-                ret.update({
-                    "project_id": project_id,
-                    "project_name": data[0],
-                    "project_comment": data[1]
-                })
-            return ret
+                item = {}
+                for j, f in enumerate(fields.split(',')):
+                    item[f] = data[j]
+                ret.update({index: item})
+            return ret[0]
 
-    def fetch_models(self, project_id):
+    def fetch_models(self, project_id, fields='model_id', order_by='updated DESC'):
         with self.db:
             c = self.cursor()
-            c.execute("""
-                SELECT model_id, dataset_id, total_epoch, seed, algorithm, hyper_parameter, state, best_epoch
-                FROM model
-                WHERE project_id=? AND state<3
-                ORDER BY model_id DESC
-                """, (project_id,))
+            sql = "SELECT " + fields + " FROM model WHERE project_id=? AND state<3 ORDER BY " + order_by
+            c.execute(sql, (project_id,))
+
+            blob_items = ['hyper_parameters', 'algorithm_params',
+                          'train_loss_list', 'validation_loss_list',
+                          'best_epoch_validation_result']
             ret = {}
             for index, data in enumerate(c):
-                ret.update({index: {
-                    "model_id": data[0],
-                    "dataset_id": data[1],
-                    "total_epoch": data[2],
-                    "seed": data[3],
-                    "algorithm": data[4],
-                    "hyper_parameter": cPickle.loads(data[5], encoding='ascii'),
-                    "state": data[6],
-                    "best_epoch": data[7],
-                }})
+                item = {}
+                for j, f in enumerate(fields.split(',')):
+                    if f in blob_items:
+                        item[f] = cPickle.loads(data[j], encoding='ascii')
+                    else:
+                        item[f] = data[j]
+                ret.update({index: item})
             return ret
 
-    def fetch_model(self, project_id, model_id):
+    def fetch_model(self, project_id, model_id, fields='model_id'):
         with self.db:
             c = self.cursor()
-            c.execute("""
-                SELECT dataset_id, total_epoch, seed, algorithm,
-                       hyper_parameter, state, best_epoch
-                FROM model
-                WHERE project_id=? AND model_id=?
-                """, (project_id, model_id))
+            sql = "SELECT " + fields + " FROM model WHERE project_id=? AND model_id=?"
+            c.execute(sql, (project_id, model_id))
+
+            blob_items = ['hyper_parameters', 'algorithm_params',
+                          'train_loss_list', 'validation_loss_list',
+                          'best_epoch_validation_result']
             ret = {}
             for index, data in enumerate(c):
-                ret.update({
-                    "model_id": model_id,
-                    "dataset_id": data[0],
-                    "total_epoch": data[1],
-                    "seed": data[2],
-                    "algorithm": data[3],
-                    "hyper_parameter": cPickle.loads(data[4], encoding='ascii'),
-                    "state": data[5],
-                    "best_epoch": data[6],
-                })
-            return ret
-
-    def fetch_epochs(self, project_id, model_id):
-        with self.db:
-            c = self.cursor()
-            c.execute("""
-                SELECT epoch_id, nth_epoch, train_loss, validation_loss,
-                       weight, iou_value, map_value, validation_results
-                FROM epoch
-                WHERE project_id=? AND model_id=?
-                ORDER BY nth_epoch
-                """, (project_id, model_id))
-            ret = {}
-            for data in c:
-                ret.update({data[1]: {
-                    "epoch_id": data[0],
-                    "nth_epoch": data[1],
-                    "train_loss": data[2],
-                    "validation_loss": data[3],
-                    "weight": data[4],
-                    "iou_value": data[5],
-                    "map_value": data[6],
-                    "validation_results": cPickle.loads(data[7], encoding='ascii')
-                }})
-            return ret
-
-    def fetch_epoch(self, project_id, model_id, nth_epoch):
-        with self.db:
-            c = self.cursor()
-            c.execute("""
-                SELECT epoch_id, nth_epoch, train_loss, validation_loss,
-                       weight, iou_value, map_value, validation_results
-                FROM epoch
-                WHERE project_id=? AND model_id=? AND nth_epoch=?
-                """, (project_id, model_id, nth_epoch))
-            ret = {}
-            for data in c:
-                ret.update({
-                    "epoch_id": data[0],
-                    "nth_epoch": data[1],
-                    "train_loss": data[2],
-                    "validation_loss": data[3],
-                    "weight": data[4],
-                    "iou_value": data[5],
-                    "map_value": data[6],
-                    "validation_results": cPickle.loads(data[7], encoding='ascii')
-                })
-            return ret
+                item = {}
+                for j, f in enumerate(fields.split(',')):
+                    if f in blob_items:
+                        item[f] = cPickle.loads(data[j], encoding='ascii')
+                    else:
+                        item[f] = data[j]
+                ret.update({index: item})
+            return ret[0]
 
     def fetch_dataset_v0(self):
         with self.db:
