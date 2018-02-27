@@ -22,16 +22,9 @@
           </div>
 
           <div v-if="algorithm == 0" class="param-item">
-            <div class="label">Horizontal Cell</div>
+            <div class="label">Cells</div>
             <div class="item">
-              <input type="text" v-model="horizontal_cells" maxlength="5">
-            </div>
-          </div>
-
-          <div v-if="algorithm == 0" class="param-item">
-            <div class="label">Vertical Cell</div>
-            <div class="item">
-              <input type="text" v-model="vertical_cells" maxlength="5">
+              <input type="text" v-model="cells" maxlength="5">
             </div>
           </div>
 
@@ -114,8 +107,7 @@ export default {
           batch_size: 64,
 
           // YOLO params
-          horizontal_cells: 7,
-          vertical_cells: 7,
+          cells: 7,
           bounding_box: 2,
         }
     },
@@ -126,22 +118,24 @@ export default {
       });
     },
     runModel: function() {
-      let additional_params = {}
+      let algorithm_params = {}
+      let hyper_parameters = {
+        'total_epoch': this.total_epoch,
+        'batch_size': this.batch_size,
+        'seed': this.seed,
+        'image_width': this.image_width,
+        'image_height': this.image_height,
+      }
       if(this.algorithm == 0) {
-        additional_params = {
-          "horizontal_cells": this.horizontal_cells,
-          "vertical_cells": this.vertical_cells,
+        algorithm_params = {
+          "cells": this.cells,
           "bounding_box": this.bounding_box,
         }
       }
       this.$store.dispatch("runModel", {
+        'hyper_parameters': hyper_parameters,
         'algorithm': this.algorithm,
-        'total_epoch': this.total_epoch,
-        'seed': this.seed,
-        'image_width': this.image_width,
-        'image_height': this.image_height,
-        'batch_size': this.batch_size,
-        'additional_params': additional_params,
+        'algorithm_params': algorithm_params,
       });
       this.hideAddModelModal();
     }

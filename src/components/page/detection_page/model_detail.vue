@@ -9,7 +9,7 @@
         <model-detail-text v-if="modelData" :modelData="modelData"></model-detail-text>
       </div>
       <div class="model-detail-learning-curve">
-        <learning-curve v-if="modelLoss" :totalEpoch="modelData.total_epoch" :modelLoss="modelLoss"></learning-curve>
+        <learning-curve v-if='modelData' :totalEpoch="modelData.hyper_parameters['total_epoch']" :trainLoss="modelData.train_loss_list" :validationLoss="modelData.validation_loss_list"></learning-curve>
       </div>
     </div>
   </div>
@@ -28,9 +28,6 @@ export default {
   computed: {
     modelData() {
       return this.$store.getters.getSelectedModel;
-    },
-    modelLoss() {
-      return this.$store.getters.getModelLoss;
     }
   },
 }

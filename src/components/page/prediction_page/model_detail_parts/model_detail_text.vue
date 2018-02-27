@@ -5,7 +5,7 @@
 
       <value-item :label="'Algorithm'" :val="getAlgorithmNameById(predictModel.algorithm)"></value-item>
 
-      <value-item :label="'Hyper parameters - Total Epoch'" :val="predictModel.total_epoch"></value-item>
+      <value-item :label="'Hyper parameters - Total Epoch'" :val="predictModel.hyper_parameters['total_epoch']"></value-item>
 
       <value-item :label="'Hyper parameters - Batch Size'" :val="predictModel.hyper_parameters['batch_size']"></value-item>
 

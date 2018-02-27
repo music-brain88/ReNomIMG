@@ -43,18 +43,13 @@ export default {
   methods: {
     setPredictModel: function() {
       if(this.model.state == this.stateRunning) {
-        alert("You can't deploy running model. Please wait or terminate model.");
+        alert("You can't deploy running model. Please wait or terminate model training.");
         return;
       }
-      console.log(this.model.state);
-      if(!localStorage.getItem("predictModelId") || localStorage.getItem("predictModelId") != this.model.model_id) {
-        console.log("set");
-        localStorage.setItem("predictModelId", this.model.model_id);
-        this.$store.commit("setPredictModelId", {
-          "model_id": this.model.model_id,
-        });
-        this.$store.commit("resetPredictResult");
-      }
+
+      this.$store.dispatch('deployModel', {
+        "model_id": this.model.model_id,
+      });
     },
     hoverDescription: function(val) {
       this.show_description = val;

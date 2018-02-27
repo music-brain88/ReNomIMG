@@ -1,8 +1,7 @@
 <template>
   <div class="yolo-params">
-    <value-item :label="'Horizontal Cell'" :val="params['horizontal_cells']"></value-item>
-      <value-item :label="'Vertical Cell'" :val="params['vertical_cells']"></value-item>
-      <value-item :label="'Bounding Box'" :val="params['bounding_box']"></value-item>
+    <value-item :label="'Vertical Cell'" :val="params['cells']"></value-item>
+    <value-item :label="'Bounding Box'" :val="params['bounding_box']"></value-item>
   </div>
 </template>
 

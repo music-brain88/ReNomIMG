@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 import axios from 'axios'
 import Project from './classes/project.js'
 import Model from './classes/model.js'
-import Epoch from './classes/epoch.js'
 
 Vue.use(Vuex)
 
@@ -14,9 +13,6 @@ const store = new Vuex.Store({
 
     // projectのクラス
     project: undefined,
-
-    // 予測に使うモデルのID
-    predict_model_id: undefined,
 
     // ナビゲーションバーの表示/非表示フラグ
     navigation_bar_shown_flag: false,
@@ -76,7 +72,7 @@ const store = new Vuex.Store({
 
   getters: {
     // get const value
-    getStateIdByName(state) {
+    getAlgorithmIdByName(state) {
       return function(name) {
         return state.const.algorithm_id[name];
       }
@@ -89,11 +85,6 @@ const store = new Vuex.Store({
     getStateColorByName(state, getters) {
       return function(name) {
         return state.const.state_color[getters.getStateIdByName(name)];
-      }
-    },
-    getAlgorithmIdByName(state) {
-      return function(name) {
-        return state.const.algorithm_id[name];
       }
     },
     getAlgorithmNameById(state) {
@@ -175,10 +166,10 @@ const store = new Vuex.Store({
     },
     getModelLoss(state) {
       if(state.project && state.project.selected_model_id) {
-        let s = state.project.getModelFromId(state.project.selected_model_id);
+        let p = state.project.getModelFromId(state.project.selected_model_id);
         let loss = {
-          "train_loss": s.getTrainLoss(),
-          "validation_loss": s.getValidationLoss()
+          "train_loss": p.train_loss_list,
+          "validation_loss": p.validation_loss_list
         }
         return loss
       }
@@ -224,15 +215,15 @@ const store = new Vuex.Store({
 
         for(let index in models) {
           let model = models[index];
-          if(model.epochs && model.epochs.length > 0 && model.best_epoch != undefined) {
+          if(model.best_epoch != undefined) {
             let model_coordinate = {
               "model_id": model.model_id,
               "algorithm": model.algorithm,
               "algorithm_name": getters.getAlgorithmNameById(model.algorithm),
               "iou_value": model.getRoundedIoU()+"%",
               "map_value": model.getRoundedMAP()+"%",
-              "x": model.epochs[model.best_epoch].iou_value*100,
-              "y": model.epochs[model.best_epoch].map_value*100,
+              "x": model.best_epoch_iou*100,
+              "y": model.best_epoch_map*100,
             }
             datas.data.push(model_coordinate);
           }
@@ -277,11 +268,6 @@ const store = new Vuex.Store({
 
       return dataset;
     },
-    getSelectedModelId(state) {
-      if(state.project) {
-        return state.project.selected_model_id;
-      }
-    },
     getNavigationBarShowFlag(state) {
       return state.navigation_bar_shown_flag;
     },
@@ -290,7 +276,7 @@ const store = new Vuex.Store({
     },
     getPredictModel(state) {
       if(state.project) {
-        return state.project.getModelFromId(state.predict_model_id);
+        return state.project.getModelFromId(state.project.deploy_model_id);
       }
     },
     getBBoxCoordinate(state, getters) {
@@ -309,41 +295,31 @@ const store = new Vuex.Store({
       }
     },
     getLastValidationResults(state, getters) {
-      let model = getters.getSelectedModel
+      const model = getters.getSelectedModel
       if (!model)
         return
 
-      let epochs = model.epochs
-      if(epochs && epochs.length > 0){
-        let result
-        for (let i=1 ; i <= epochs.length; i++) {
-          result = epochs[epochs.length - i].validation_result
-	  if(result.bbox_path_list && result.bbox_list && result.bbox_list.length){
-            break
-	  }
-	}
-	if (!result.bbox_path_list)return
-        // Pickup some images here.
-        // This method returns true bboxes and base64 image data.
-        let path = result.bbox_path_list
-        let label_list = result.bbox_list
-        let ret = []
-        for(let i=0; i < path.length; i++) {
-          let bboxes = []
-          if(label_list && label_list.length > 0) {
-            for(let j=0; j < label_list[i].length; j++){
-              let class_label = label_list[i][j].class
-              let box = label_list[i][j].box
-              bboxes.push(getters.getBBoxCoordinate(class_label, box));
-            }
+      const result = model.best_epoch_validation_result;
+      if(!result.bbox_path_list) return;
+
+      const path = result.bbox_path_list;
+      const label_list = result.bbox_list;
+      let ret = []
+      for(let i=0; i<path.length; i++){
+        let bboxes = []
+        if(label_list && label_list.length > 0){
+          for(let j=0; j<label_list[i].length; j++) {
+            const class_label = label_list[i][j].class;
+            const box = label_list[i][j].box;
+            bboxes.push(getters.getBBoxCoordinate(class_label, box));
           }
-          ret.push({
-              "path": path[i],
-              "predicted_bboxes":bboxes
-          })
         }
-        return ret
+        ret.push({
+          "path": path[i],
+          "predicted_bboxes": bboxes,
+        });
       }
+      return ret;
     },
     getPredictResults(state, getters) {
       let result = state.predict_results
@@ -389,28 +365,13 @@ const store = new Vuex.Store({
         const project = new Project(payload.project_id, payload.project_name, payload.project_comment);
         state.project = project;
       }
+      state.project.deploy_model_id = payload.deploy_model_id;
     },
     setModels(state, payload) {
       if(!state.project.models || state.project.models.length == 0){
         state.project.createModels(payload.models);
       }else{
         state.project.updateModels(payload.models);
-      }
-    },
-    setEpochs(state, payload) {
-      let s = state.project.getModelFromId(payload.model_id);
-      if(!s.epochs || Object.keys(s.epochs).length < Object.keys(payload.epochs).length){
-        s.epochs = [];
-        for(let i in payload.epochs) {
-          let d = payload.epochs[i];
-
-          let validation_results = {};
-          if(i == s.best_epoch || i == Object.keys(payload.epochs).length - 1) {
-            validation_results = d.validation_results
-          }
-
-          s.epochs.push(new Epoch(d.epoch_id, d.nth_epoch, d.train_loss, d.validation_loss, d.weight, d.iou_value, d.map_value, validation_results));
-        }
       }
     },
     setSelectedModel(state, payload) {
@@ -485,18 +446,19 @@ const store = new Vuex.Store({
 
   actions: {
     async loadProject(context, payload) {
-      let url = "/api/obj_detector/v1/projects/" + payload.project_id
+      const fields = "project_id,project_name,project_comment,deploy_model_id"
+      let url = "/api/renom_img/v1/projects/" + payload.project_id+"?fields=" + fields
       return axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
             alert("Error: " + response.data.error_msg);
             return;
           }
-
           context.commit("setProject", {
             "project_id": response.data.project_id,
             "project_name": response.data.project_name,
             "project_comment": response.data.project_comment,
+            "deploy_model_id": response.data.deploy_model_id,
           });
         });
     },
@@ -506,21 +468,21 @@ const store = new Vuex.Store({
       });
       await context.dispatch("loadDatasetInfov0");
 
-      let url = "/api/obj_detector/v1/projects/" + payload.project_id + "/models"
+      const fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result";
+      let url = "/api/renom_img/v1/projects/" + payload.project_id + "/models?fields="+fields
       return axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
             alert("Error: " + response.data.error_msg);
             return;
           }
-
           context.commit("setModels", {
             "models": response.data,
           });
         });
     },
     async loadDatasetInfov0(context, payload){
-      let url = "/api/obj_detector/v1/dataset_info"
+      let url = "/api/renom_img/v1/dataset_info"
       return await axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
@@ -537,34 +499,9 @@ const store = new Vuex.Store({
       await context.dispatch("loadProjectModels", {
         "project_id": payload.project_id,
       });
-      for(let index in context.state.project.models){
-        let url = "/api/obj_detector/v1/projects/" + payload.project_id + "/models/" + context.state.project.models[index].model_id + "/epochs"
-        axios.get(url)
-          .then(function(response) {
-            if(response.data.error_msg) {
-              alert("Error: " + response.data.error_msg);
-              return;
-            }
-
-            context.commit("setEpochs", {
-              "model_id": context.state.project.models[index].model_id,
-              "epochs": response.data.epochs,
-            })
-            context.commit("setCurrentLearningInfo", {
-              "model_id": context.state.project.models[index].model_id,
-              "project_id": context.state.project.project_id,
-              "learning_info": response.data.running_info,
-            })
-          });
-      }
-      if(localStorage.getItem("predictModelId") && parseInt(localStorage.getItem("predictModelId")) != context.state.predict_model_id) {
-        context.commit("setPredictModelId",{
-          "model_id": parseInt(localStorage.getItem("predictModelId")),
-        });
-      }
     },
     async loadOriginalImage(context, payload) {
-      let url = "/api/obj_detector/v1/original_img"
+      let url = "/api/renom_img/v1/original_img"
       let fd = new FormData()
       fd.append('root_dir', payload.img_path)
       return await axios.post(url, fd)
@@ -578,7 +515,7 @@ const store = new Vuex.Store({
     deleteModel(context, payload) {
       context.state.project.removeModelFromId(payload.model_id);
 
-      let url = "/api/obj_detector/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id
+      let url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id
       return axios.delete(url)
         .then(function(response) {
           if(response.data.error_msg) {
@@ -590,26 +527,20 @@ const store = new Vuex.Store({
     async createModel(context, payload) {
       // add fd model data
       let fd = new FormData();
-      fd.append('total_epoch', payload.total_epoch);
-      fd.append('seed', payload.seed);
+      fd.append('hyper_parameters', payload.hyper_parameters);
       fd.append('algorithm', payload.algorithm);
-      fd.append('hyper_parameter', payload.hyper_parameter);
+      fd.append('algorithm_params', payload.algorithm_params);
 
-      let url = "/api/obj_detector/v1/projects/" + context.state.project.project_id + "/models"
+      let url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models"
       return axios.post(url, fd);
     },
     async runModel(context, payload) {
-      let hyper_parameter = JSON.stringify({
-        "image_width": payload.image_width,
-        "image_height": payload.image_height,
-        "batch_size": payload.batch_size,
-        "additional_params": payload.additional_params,
-      })
+      const hyper_parameters = JSON.stringify(payload.hyper_parameters);
+      const algorithm_params = JSON.stringify(payload.algorithm_params);
       const result = await context.dispatch("createModel", {
+        'hyper_parameters': hyper_parameters,
         'algorithm': payload.algorithm,
-        'total_epoch': payload.total_epoch,
-        'seed': payload.seed,
-        'hyper_parameter': hyper_parameter,
+        'algorithm_params': algorithm_params,
       });
       if(result.data.error_msg) {
         alert(result.data.error_msg);
@@ -617,10 +548,11 @@ const store = new Vuex.Store({
       }
 
       const model_id = result.data.model_id;
-      context.state.project.models.unshift(new Model(model_id, context.state.project.project_id, 1, payload.total_epoch, payload.seed, payload.algorithm, hyper_parameter, 1, undefined));
+      context.state.project.models.unshift(new Model(model_id, context.state.project.project_id, payload.hyper_parameters, payload.algorithm, payload.algorithm_params, 1));
       context.commit("setModels", context.state.project.models);
+      context.commit("setSelectedModel", {'model_id': model_id});
 
-      const url = "/api/obj_detector/v1/projects/" + context.state.project.project_id + "/models/" + model_id + "/run";
+      const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + model_id + "/run";
       axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
@@ -630,7 +562,7 @@ const store = new Vuex.Store({
         });
     },
     stopModel(context, payload) {
-      const url = "/api/obj_detector/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/stop";
+      const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/stop";
       axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
@@ -646,7 +578,7 @@ const store = new Vuex.Store({
     runPrediction(context, payload) {
       if(context.state.project) {
         context.commit('setPredictRunningFlag', {'flag': true})
-        const url = "/api/obj_detector/v1/projects/" + context.state.project.project_id + "/models/" + context.state.predict_model_id + "/run_prediction";
+        const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + context.state.project.deploy_model_id + "/run_prediction";
         axios.get(url)
           .then(function(response) {
             if(response.data.error_msg) {
@@ -660,6 +592,34 @@ const store = new Vuex.Store({
             })
           });
       }
+    },
+    deployModel(context, payload) {
+      const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/deploy";
+      axios.get(url)
+        .then(function(response) {
+          if(response.data.error_msg) {
+            alert("Error: " + response.data.error_msg);
+            return;
+          }
+
+          context.commit("setPredictModelId", {
+            "model_id": payload.model_id,
+          });
+        });
+    },
+    undeployModel(context, payload) {
+      const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/undeploy";
+      axios.get(url)
+        .then(function(response) {
+          if(response.data.error_msg) {
+            alert("Error: " + response.data.error_msg);
+            return;
+          }
+
+          context.commit("setPredictModelId", {
+            "model_id": undefined,
+          });
+        });
     }
   }
 })
