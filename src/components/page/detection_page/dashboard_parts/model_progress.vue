@@ -117,6 +117,7 @@ export default {
     this.total_batch = "-"
     this.current_batch = "-"
     this.status = TRAIN_STARTING
+    // this.$store.dispatch('getRunningModelInfo', {'model_id': this.model.model_id});
   },
   watch: {
     currentInfo: function(newVal) {

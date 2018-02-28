@@ -620,6 +620,30 @@ const store = new Vuex.Store({
             "model_id": undefined,
           });
         });
+    },
+    getRunningModelInfo(context, payload) {
+      const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/running_info";
+      axios.get(url, {timeout: 10000})
+        .then(function(response) {
+          console.log('response');
+          console.log(response);
+        }).catch(function(error) {
+          console.log('timeout');
+          console.log(error);
+          context.dispatch('getRunningModelInfo', {'model_id': payload.model_id});
+        });
+    },
+    testLongPolling(context,payload) {
+      const url = "/long_polling";
+      axios.get(url, {timeout: 10000})
+        .then(function(response) {
+          console.log('response');
+          console.log(response);
+        }).catch(function(error) {
+          console.log('timeout');
+          console.log(error);
+          context.dispatch('testLongPolling');
+        });
     }
   }
 })

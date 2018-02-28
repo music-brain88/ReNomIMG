@@ -29,6 +29,7 @@ export default {
     }
   },
   created: function() {
+    const self = this;
     this.$store.dispatch("loadProjectData", {
       "project_id": 1
     });

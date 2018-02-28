@@ -58,7 +58,7 @@ export default {
           "project_id": 1,
         });
       }
-    }, 1700);
+    }, 10000);
   },
   beforeDestroyed: function() {
     clearInterval(this.interval);
