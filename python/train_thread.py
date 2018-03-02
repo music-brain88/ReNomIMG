@@ -192,6 +192,7 @@ class TrainThread(threading.Thread):
 
             if validation_distributor:
                 self.running_state = VALID
+                self.last_batch += 1
                 validation_loss, v_iou, v_mAP, v_bbox = \
                     self.run_validation(validation_distributor)
                 validation_loss_list.append(validation_loss)
