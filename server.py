@@ -309,26 +309,26 @@ def run_model(project_id, model_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/running_info", method="GET")
 def get_running_model_info(project_id, model_id):
     try:
-        last_batch = int(request.query.last_batch)
-        running_state = int(request.query.running_state)
+        last_batch = int(request.params.last_batch)
+        running_state = int(request.params.running_state)
 
         thread_id = "{}_{}".format(project_id, model_id)
         th = find_thread(thread_id)
 
         for i in range(60):
-            updated = last_batch != th.last_batch or running_state != th.running_state
             # If thread status updated, return response.
-            if th is not None and updated:
-                body = json.dumps({
-                    "last_batch": th.last_batch,
-                    "total_batch": th.total_batch,
-                    "last_train_loss": th.last_train_loss,
-                    "running_state": th.running_state,
-                })
-                ret = create_response(body)
-                return ret
-            else:
-                time.sleep(1)
+            if th is not None:
+                updated = (last_batch != th.last_batch) or (running_state != th.running_state)
+                if updated is True:
+                    body = json.dumps({
+                        "last_batch": th.last_batch,
+                        "total_batch": th.total_batch,
+                        "last_train_loss": th.last_train_loss,
+                        "running_state": th.running_state,
+                    })
+                    ret = create_response(body)
+                    return ret
+            time.sleep(1)
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
@@ -342,6 +342,7 @@ def stop_model(project_id, model_id):
         thread_id = "{}_{}".format(project_id, model_id)
 
         th = find_thread(thread_id)
+        th.running_state = 4
         if th is not None:
             th.stop()
 

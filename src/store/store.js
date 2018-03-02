@@ -458,6 +458,9 @@ const store = new Vuex.Store({
         });
     },
     async loadModels(context, payload) {
+      await context.dispatch("loadProject", {"project_id": payload.project_id});
+      await context.dispatch("loadDatasetInfov0");
+
       if(context.state.project) {
         const running_models = context.getters.getRunningModels
         // if(context.state.project.models.length == 0 || running_models.length > 0) {
@@ -477,7 +480,7 @@ const store = new Vuex.Store({
               "fields": fields,
               "model_count": context.state.project.models.length,
               "running_model_ids": model_ids.toString(),
-              "last_epochs": last_epochs.toString()
+              "last_epochs": last_epochs.toString(),
             }
           }).then(function(response) {
             if(response.data.error_msg) {
@@ -487,9 +490,9 @@ const store = new Vuex.Store({
             context.commit("setModels", {
               "models": response.data,
             });
-            context.dispatch('loadModels');
+            context.dispatch('loadModels', {"project_id": payload.project_id});
           }).catch(function(error) {
-            context.dispatch('loadModels');
+            context.dispatch('loadModels', {"project_id": payload.project_id});
           });
         }
       }
@@ -497,7 +500,7 @@ const store = new Vuex.Store({
     async initLoadData(context, payload){
       await context.dispatch("loadProject", {"project_id": payload.project_id});
       await context.dispatch("loadDatasetInfov0");
-      await context.dispatch("loadModels");
+      await context.dispatch("loadModels", {"project_id": payload.project_id});
     },
     async loadDatasetInfov0(context, payload){
       let url = "/api/renom_img/v1/dataset_info"
@@ -526,8 +529,6 @@ const store = new Vuex.Store({
         });
     },
     deleteModel(context, payload) {
-      // context.state.project.removeModelFromId(payload.model_id);
-
       let url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id
       return axios.delete(url)
         .then(function(response) {
@@ -578,10 +579,6 @@ const store = new Vuex.Store({
             alert("Error: " + response.data.error_msg);
             return;
           }
-
-          // context.commit("stopModel", {
-          //     "model_id": payload.model_id,
-          //   })
         });
     },
     runPrediction(context, payload) {
@@ -633,8 +630,8 @@ const store = new Vuex.Store({
     getRunningModelInfo(context, payload) {
       let model = context.state.project.getModelFromId(payload.model_id);
 
-      const query = "last_batch="+model.last_batch+"&running_state="+model.running_state;
-      const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/running_info?"+query;
+      const query = "?last_batch="+model.last_batch+"&running_state="+model.running_state;
+      const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/running_info"+query;
 
       axios.get(url, {timeout: 60000})
         .then(function(response) {

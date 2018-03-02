@@ -105,7 +105,7 @@ export default class Project {
       // Validation Lossでソート　小さい順
       this.models.sort(function(a, b) {
         if(!a.best_epoch) return -1;
-        if(!b.best_epoch) return 1;
+        if(!b.best_epoch) return -1;
         return (a.validation_loss_list[a.best_epoch] < b.validation_loss_list[b.best_epoch]) ? -1 : 1;
       })
     }

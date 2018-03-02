@@ -108,14 +108,14 @@ export default {
   },
   methods: {
     updateProgressBar: function() {
-      let epoch = this.model.validation_loss_list.length;
-      let progress_bar_elm = document.getElementsByClassName('progress-bar-back');
-      if(!progress_bar_elm) return;
+      const epoch = this.model.validation_loss_list.length;
+      const progress_bar_elm = document.getElementsByClassName('progress-bar-back');
+      if(progress_bar_elm.length == 0) return;
 
-      let progress_bar_width = document.getElementsByClassName('progress-bar-back')[0].clientWidth;
+      const progress_bar_width = progress_bar_elm[0].clientWidth;
       const current_width = this.model.last_batch / this.model.total_batch * progress_bar_width;
       let e = document.getElementsByClassName("progress-bar");
-      if(e){
+      if(e && e[this.index]){
         e[this.index].style.width = current_width + "px";
       }
     },

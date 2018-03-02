@@ -4,12 +4,10 @@ import threading
 import csv
 import xml.etree.ElementTree as et
 import numpy as np
-import gevent
-from gevent import Greenlet
 from PIL import Image
 from renom.cuda import set_cuda_active
 from .model.yolo import YoloDarknet
-from .utils.data_preparation import create_train_valid_dists, create_pred_dist
+from .utils.data_preparation import create_train_valid_dists
 from .utils.storage import storage
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,7 +28,6 @@ DEBUG = True
 
 
 class TrainThread(threading.Thread):
-# class TrainThread(Greenlet):
     def __init__(self, thread_id, project_id, model_id, hyper_parameters,
                  algorithm, algorithm_params):
         super(TrainThread, self).__init__()
@@ -55,7 +52,7 @@ class TrainThread(threading.Thread):
         self.last_train_loss = None
         self.last_epoch = 0
         self.best_validation_loss = None
-        self.running_state = 0
+        self.running_state = 3
 
         self.model = None
 
