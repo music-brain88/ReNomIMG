@@ -69,7 +69,7 @@ export default {
     },
     deleteModel: function() {
       if(confirm("削除しますか？")){
-        if(isPredict) {
+        if(this.isPredict) {
           this.$store.commit("setPredictModelId", {
             "model_id": undefined,
           });
@@ -83,7 +83,7 @@ export default {
       }
     },
     undeployModel: function() {
-      if(confirm("デプロイをリセットしますか？")){
+      if(confirm("デプロイを取り消しますか？")){
         this.$store.dispatch('undeployModel', {'model_id': this.model.model_id});
       }
     },

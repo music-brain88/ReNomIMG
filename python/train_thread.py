@@ -4,6 +4,8 @@ import threading
 import csv
 import xml.etree.ElementTree as et
 import numpy as np
+import gevent
+from gevent import Greenlet
 from PIL import Image
 from renom.cuda import set_cuda_active
 from .model.yolo import YoloDarknet
@@ -28,11 +30,12 @@ DEBUG = True
 
 
 class TrainThread(threading.Thread):
+# class TrainThread(Greenlet):
     def __init__(self, thread_id, project_id, model_id, hyper_parameters,
                  algorithm, algorithm_params):
         super(TrainThread, self).__init__()
         self.stop_event = threading.Event()
-        self.setDaemon(True)
+        self.setDaemon(False)
 
         self.thread_id = thread_id
         self.project_id = project_id
@@ -48,11 +51,16 @@ class TrainThread(threading.Thread):
         self.num_bbox = int(algorithm_params['bounding_box'])
 
         self.last_batch = 0
+        self.total_batch = 0
         self.last_train_loss = None
+        self.last_epoch = 0
         self.best_validation_loss = None
         self.running_state = 0
 
         self.model = None
+
+    def _run(self):
+        self.run()
 
     def get_iou_and_mAP(self, truth, predict_list):
         iou_list = []
@@ -135,6 +143,7 @@ class TrainThread(threading.Thread):
                 return
 
             self.running_state = TRAIN
+            self.last_epoch = e
 
             epoch_id = storage.register_epoch(
                 model_id=self.model_id,
@@ -148,6 +157,7 @@ class TrainThread(threading.Thread):
 
             i = 0
             self.last_batch = 0
+            self.total_batch = batch_length
             for i, (train_x, train_y) in enumerate(train_distributor.batch(self.batch_size, True)):
                 start_t2 = time.time()
 
@@ -167,8 +177,9 @@ class TrainThread(threading.Thread):
                                    self.total_epoch, batch_length))
 
                 train_loss += num_loss
+
                 self.last_batch = i
-                self.last_train_loss = num_loss
+                self.last_train_loss = float(num_loss)
 
                 if DEBUG:
                     print('##### {}/{} {}'.format(i, batch_length, e))

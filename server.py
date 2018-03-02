@@ -7,12 +7,16 @@ import pkg_resources
 import base64
 import sqlite3
 import threading
+import time
+import bottle
 from bottle import HTTPResponse, route, static_file, request, error
 from bottle import run as bottle_run
 
+import wsgi_server
 from python.train_thread import TrainThread
 from python.prediction_thread import PredictionThread
 from python.utils.storage import storage
+
 
 STATE_DELETED = 3
 
@@ -151,13 +155,45 @@ def get_models(project_id):
         if request.params.fields != '':
             kwargs["fields"] = request.params.fields
 
-        data = storage.fetch_models(project_id, **kwargs)
-        body = json.dumps(data)
+        model_ids = []
+        if request.params.running_model_ids != '':
+            model_ids = list(map(int, request.params.running_model_ids.split(",")))
+
+        last_epochs = []
+        if request.params.last_epochs != '':
+            last_epochs = list(map(int, request.params.last_epochs.split(",")))
+
+        model_count = int(request.params.model_count)
+
+        for j in range(60):
+            data = storage.fetch_models(project_id, **kwargs)
+            # If model created or deleted, return response.
+            if model_count != len(data):
+                body = json.dumps(data)
+                ret = create_response(body)
+                return ret
+            else:
+                for i, v in enumerate(model_ids):
+                    thread_id = "{}_{}".format(project_id, model_ids[i])
+                    th = find_thread(thread_id)
+
+                    if th is not None:
+                        # If thread status updated, return response.
+                        if last_epochs[i] != th.last_epoch:
+                            body = json.dumps(data)
+                            ret = create_response(body)
+                            return ret
+                    else:
+                        # If running thread stopped, return response.
+                        body = json.dumps(data)
+                        ret = create_response(body)
+                        return ret
+            time.sleep(1)
+
     except sqlite3.Error as e:
         body = json.dumps({"error_msg": e.args[0]})
-
-    ret = create_response(body)
-    return ret
+        ret = create_response(body)
+        return ret
 
 
 @route("/api/renom_img/v1/dataset_info", method="GET")
@@ -270,21 +306,29 @@ def run_model(project_id, model_id):
         return ret
 
 
-
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/running_info", method="GET")
 def get_running_model_info(project_id, model_id):
     try:
+        last_batch = int(request.query.last_batch)
+        running_state = int(request.query.running_state)
+
         thread_id = "{}_{}".format(project_id, model_id)
         th = find_thread(thread_id)
 
-        if th is not None:
-            body = {
-                "last_batch": th.last_batch,
-                "last_train_loss": th.last_train_loss,
-                "running_state": th.running_state
-            }
-            ret = create_response(body)
-            return ret
+        for i in range(60):
+            updated = last_batch != th.last_batch or running_state != th.running_state
+            # If thread status updated, return response.
+            if th is not None and updated:
+                body = json.dumps({
+                    "last_batch": th.last_batch,
+                    "total_batch": th.total_batch,
+                    "last_train_loss": th.last_train_loss,
+                    "running_state": th.running_state,
+                })
+                ret = create_response(body)
+                return ret
+            else:
+                time.sleep(1)
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
@@ -357,4 +401,6 @@ if __name__ == "__main__":
     parser.add_argument('--port', default='8070', help='Server port')
     args = parser.parse_args()
 
-    bottle_run(host=args.host, port=args.port, reloader=True)
+    wsgiapp = bottle.default_app()
+    httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
+    httpd.serve_forever()

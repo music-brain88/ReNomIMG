@@ -5,7 +5,7 @@
     </div>
 
     <div class="progress-bar-area">
-      <model-progress v-for="(s, index) in runningModels" :key="index" :index="index" :model="s" :currentInfo="s.current_learning_info" v-if="s"></model-progress>
+      <model-progress v-for="(s, index) in runningModels" :key="index" :index="index" :model="s" v-if="s"></model-progress>
     </div>
   </div>
 </template>

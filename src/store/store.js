@@ -130,7 +130,7 @@ const store = new Vuex.Store({
       if(p) {
         for(let index in p.models) {
           if(p.models[index].state == getters.getStateIdByName("running") || p.models[index].state == getters.getStateIdByName("validating")){
-            ret.push(p.models[index]);
+            ret.unshift(p.models[index]);
           }
         }
       }
@@ -368,7 +368,7 @@ const store = new Vuex.Store({
       state.project.deploy_model_id = payload.deploy_model_id;
     },
     setModels(state, payload) {
-      if(!state.project.models || state.project.models.length == 0){
+      if(state.project.models.length == 0){
         state.project.createModels(payload.models);
       }else{
         state.project.updateModels(payload.models);
@@ -389,11 +389,6 @@ const store = new Vuex.Store({
     stopModel(state, payload) {
       let m = state.project.getModelFromId(payload.model_id);
       m.state = 2;
-    },
-    setModelStopFlag(state, payload) {
-      // Dirty structure.
-      let m = state.project.getModelFromId(payload.model_id);
-      m.state = 4;
     },
     setPredictModelId(state, payload) {
       if(state.project){
@@ -462,24 +457,47 @@ const store = new Vuex.Store({
           });
         });
     },
-    async loadProjectModels(context, payload) {
-      await context.dispatch("loadProject", {
-        "project_id": payload.project_id,
-      });
-      await context.dispatch("loadDatasetInfov0");
+    async loadModels(context, payload) {
+      if(context.state.project) {
+        const running_models = context.getters.getRunningModels
+        // if(context.state.project.models.length == 0 || running_models.length > 0) {
+        if(true){
+          const fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result";
 
-      const fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result";
-      let url = "/api/renom_img/v1/projects/" + payload.project_id + "/models?fields="+fields
-      return axios.get(url)
-        .then(function(response) {
-          if(response.data.error_msg) {
-            alert("Error: " + response.data.error_msg);
-            return;
+          let model_ids = []
+          let last_epochs = []
+          for(let m of running_models) {
+            model_ids.push(m.model_id)
+            last_epochs.push(m.last_epoch)
           }
-          context.commit("setModels", {
-            "models": response.data,
+          let url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models"
+          return axios.get(url, {
+            timeout: 60000,
+            params: {
+              "fields": fields,
+              "model_count": context.state.project.models.length,
+              "running_model_ids": model_ids.toString(),
+              "last_epochs": last_epochs.toString()
+            }
+          }).then(function(response) {
+            if(response.data.error_msg) {
+              alert("Error: " + response.data.error_msg);
+              return;
+            }
+            context.commit("setModels", {
+              "models": response.data,
+            });
+            context.dispatch('loadModels');
+          }).catch(function(error) {
+            context.dispatch('loadModels');
           });
-        });
+        }
+      }
+    },
+    async initLoadData(context, payload){
+      await context.dispatch("loadProject", {"project_id": payload.project_id});
+      await context.dispatch("loadDatasetInfov0");
+      await context.dispatch("loadModels");
     },
     async loadDatasetInfov0(context, payload){
       let url = "/api/renom_img/v1/dataset_info"
@@ -495,11 +513,6 @@ const store = new Vuex.Store({
           })
         });
     },
-    async loadProjectData(context, payload) {
-      await context.dispatch("loadProjectModels", {
-        "project_id": payload.project_id,
-      });
-    },
     async loadOriginalImage(context, payload) {
       let url = "/api/renom_img/v1/original_img"
       let fd = new FormData()
@@ -513,7 +526,7 @@ const store = new Vuex.Store({
         });
     },
     deleteModel(context, payload) {
-      context.state.project.removeModelFromId(payload.model_id);
+      // context.state.project.removeModelFromId(payload.model_id);
 
       let url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id
       return axios.delete(url)
@@ -548,10 +561,6 @@ const store = new Vuex.Store({
       }
 
       const model_id = result.data.model_id;
-      context.state.project.models.unshift(new Model(model_id, context.state.project.project_id, payload.hyper_parameters, payload.algorithm, payload.algorithm_params, 1));
-      context.commit("setModels", context.state.project.models);
-      context.commit("setSelectedModel", {'model_id': model_id});
-
       const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + model_id + "/run";
       axios.get(url)
         .then(function(response) {
@@ -570,9 +579,9 @@ const store = new Vuex.Store({
             return;
           }
 
-          context.commit("stopModel", {
-              "model_id": payload.model_id,
-            })
+          // context.commit("stopModel", {
+          //     "model_id": payload.model_id,
+          //   })
         });
     },
     runPrediction(context, payload) {
@@ -622,29 +631,28 @@ const store = new Vuex.Store({
         });
     },
     getRunningModelInfo(context, payload) {
-      const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/running_info";
-      axios.get(url, {timeout: 10000})
+      let model = context.state.project.getModelFromId(payload.model_id);
+
+      const query = "last_batch="+model.last_batch+"&running_state="+model.running_state;
+      const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/running_info?"+query;
+
+      axios.get(url, {timeout: 60000})
         .then(function(response) {
-          console.log('response');
-          console.log(response);
+          if(response.data) {
+            model.last_batch = response.data.last_batch;
+            model.total_batch = response.data.total_batch;
+            model.last_train_loss = response.data.last_train_loss;
+            model.running_state = response.data.running_state;
+          }
+          if(model.state == context.getters.getStateIdByName('running')) {
+            context.dispatch('getRunningModelInfo', {'model_id': model.model_id});
+          }
         }).catch(function(error) {
-          console.log('timeout');
-          console.log(error);
-          context.dispatch('getRunningModelInfo', {'model_id': payload.model_id});
+          if(model.state == context.getters.getStateIdByName('running')) {
+            context.dispatch('getRunningModelInfo', {'model_id': model.model_id});
+          }
         });
     },
-    testLongPolling(context,payload) {
-      const url = "/long_polling";
-      axios.get(url, {timeout: 10000})
-        .then(function(response) {
-          console.log('response');
-          console.log(response);
-        }).catch(function(error) {
-          console.log('timeout');
-          console.log(error);
-          context.dispatch('testLongPolling');
-        });
-    }
   }
 })
 

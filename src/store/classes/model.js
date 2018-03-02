@@ -14,6 +14,13 @@ export default class Model {
     this.best_epoch_iou = undefined;
     this.best_epoch_map = undefined;
     this.best_epoch_validation_result = {};
+
+    // running information
+    this.last_batch = 0;
+    this.last_train_loss = 0;
+    this.total_batch = 0;
+    this.running_state = 3;
+    this.last_epoch = 0;
   }
 
   getRoundedIoU() {
