@@ -6,12 +6,18 @@ import json
 import pkg_resources
 import base64
 import sqlite3
-from bottle import HTTPResponse, route, run, static_file, request, error
+import threading
+import time
+import bottle
+from bottle import HTTPResponse, route, static_file, request, error
+from bottle import run as bottle_run
 
-from python.train import Train, RUNNING_INFO
+import wsgi_server
+from python.train_thread import TrainThread
+from python.prediction_thread import PredictionThread
 from python.utils.storage import storage
 
-THREAD_MANAGER = {}
+
 STATE_DELETED = 3
 
 
@@ -48,6 +54,12 @@ def create_response(body):
     r = HTTPResponse(status=200, body=body)
     r.set_header('Content-Type', 'application/json')
     return r
+
+
+def find_thread(thread_id):
+    for th in threading.enumerate():
+        if "thread_id" in dir(th) and thread_id == th.thread_id:
+            return th
 
 
 @route("/")
@@ -143,14 +155,45 @@ def get_models(project_id):
         if request.params.fields != '':
             kwargs["fields"] = request.params.fields
 
-        data = storage.fetch_models(project_id, **kwargs)
-        # print(data[0]["best_epoch_validation_result"])
-        body = json.dumps(data)
+        model_ids = []
+        if request.params.running_model_ids != '':
+            model_ids = list(map(int, request.params.running_model_ids.split(",")))
+
+        last_epochs = []
+        if request.params.last_epochs != '':
+            last_epochs = list(map(int, request.params.last_epochs.split(",")))
+
+        model_count = int(request.params.model_count)
+
+        for j in range(60):
+            data = storage.fetch_models(project_id, **kwargs)
+            # If model created or deleted, return response.
+            if model_count != len(data):
+                body = json.dumps(data)
+                ret = create_response(body)
+                return ret
+            else:
+                for i, v in enumerate(model_ids):
+                    thread_id = "{}_{}".format(project_id, model_ids[i])
+                    th = find_thread(thread_id)
+
+                    if th is not None:
+                        # If thread status updated, return response.
+                        if last_epochs[i] != th.last_epoch:
+                            body = json.dumps(data)
+                            ret = create_response(body)
+                            return ret
+                    else:
+                        # If running thread stopped, return response.
+                        body = json.dumps(data)
+                        ret = create_response(body)
+                        return ret
+            time.sleep(1)
+
     except sqlite3.Error as e:
         body = json.dumps({"error_msg": e.args[0]})
-
-    ret = create_response(body)
-    return ret
+        ret = create_response(body)
+        return ret
 
 
 @route("/api/renom_img/v1/dataset_info", method="GET")
@@ -168,10 +211,10 @@ def get_dataset_info_v0():
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="POST")
 def create_model(project_id):
     # check training count
-    if len(THREAD_MANAGER) >= 2:
-        body = json.dumps({"error_msg": "You can create only 2 training thread in this version."})
-        ret = create_response(body)
-        return ret
+    # if len(THREAD_MANAGER) >= 2:
+    #     body = json.dumps({"error_msg": "You can create only 2 training thread in this version."})
+    #     ret = create_response(body)
+    #     return ret
 
     try:
         model_id = storage.register_model(
@@ -209,18 +252,16 @@ def get_model(project_id, model_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>", method="DELETE")
 def delete_model(project_id, model_id):
-    # 学習中のスレッドを停止する
-    thread_id = "{}_{}".format(project_id, model_id)
-    th = THREAD_MANAGER.get(thread_id)
-    if th is not None:
-        if th.thread.is_alive():
-            th.stop()
-        del THREAD_MANAGER[thread_id]
-
     try:
+        thread_id = "{}_{}".format(project_id, model_id)
+
+        # 学習中のスレッドを停止する
+        th = find_thread(thread_id)
+        if th is not None:
+            th.stop()
         storage.update_model_state(model_id, STATE_DELETED)
 
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -248,29 +289,67 @@ def undeploy_model(project_id, model_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run", method="GET")
 def run_model(project_id, model_id):
-    # 学習データ読み込み
-    fields = 'hyper_parameters,algorithm,algorithm_params'
-    data = storage.fetch_model(project_id, model_id, fields=fields)
+    try:
+        # 学習データ読み込み
+        fields = 'hyper_parameters,algorithm,algorithm_params'
+        data = storage.fetch_model(project_id, model_id, fields=fields)
 
-    # 学習を実行するスレッドを立てる
-    thread_id = "{}_{}".format(project_id, model_id)
+        # 学習を実行するスレッドを立てる
+        thread_id = "{}_{}".format(project_id, model_id)
+        th = TrainThread(thread_id, project_id, model_id,
+                         data["hyper_parameters"],
+                         data['algorithm'], data['algorithm_params'])
+        th.start()
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
-    th = Train(project_id, model_id, data["hyper_parameters"],
-               data['algorithm'], data['algorithm_params'])
-    th.daemon = True
-    th.start()
-    THREAD_MANAGER.update({thread_id: th})
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/running_info", method="GET")
+def get_running_model_info(project_id, model_id):
+    try:
+        last_batch = int(request.params.last_batch)
+        running_state = int(request.params.running_state)
+
+        thread_id = "{}_{}".format(project_id, model_id)
+        th = find_thread(thread_id)
+
+        for i in range(60):
+            # If thread status updated, return response.
+            if th is not None:
+                updated = (last_batch != th.last_batch) or (running_state != th.running_state)
+                if updated is True:
+                    body = json.dumps({
+                        "last_batch": th.last_batch,
+                        "total_batch": th.total_batch,
+                        "last_train_loss": th.last_train_loss,
+                        "running_state": th.running_state,
+                    })
+                    ret = create_response(body)
+                    return ret
+            time.sleep(1)
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/stop", method="GET")
 def stop_model(project_id, model_id):
-    # 学習中のスレッドを停止する
-    thread_id = "{}_{}".format(project_id, model_id)
-    th = THREAD_MANAGER.get(thread_id)
-    if th is not None:
-        if th.thread.is_alive():
+    try:
+        # 学習中のスレッドを停止する
+        thread_id = "{}_{}".format(project_id, model_id)
+
+        th = find_thread(thread_id)
+        th.running_state = 4
+        if th is not None:
             th.stop()
-        del THREAD_MANAGER[thread_id]
+
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run_prediction", method="GET")
@@ -279,26 +358,24 @@ def run_prediction(project_id, model_id):
     try:
         fields = 'hyper_parameters,algorithm,algorithm_params,best_epoch_weight'
         data = storage.fetch_model(project_id, model_id, fields=fields)
+
+        # weightのh5ファイルのパスを取得して予測する
+        th = PredictionThread(data["hyper_parameters"], data["algorithm"], data["algorithm_params"], data["best_epoch_weight"])
+        th.start()
+        th.join()
+
+        data = {
+            "predict_results": th.predict_results,
+            "csv": th.csv_filename,
+        }
+        body = json.dumps(data)
+        ret = create_response(body)
+        return ret
+
     except sqlite3.Error as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
-
-    # weightのh5ファイルのパスを取得して予測する
-    th = Train(project_id, model_id, data["hyper_parameters"],
-               data['algorithm'], data['algorithm_params'],
-               data["best_epoch_weight"])
-    th.daemon = True
-    th.prediction_thread.start()
-    th.prediction_thread.join()
-
-    data = {
-        "predict_results": th.predict_results,
-        "csv": th.csv_filename,
-    }
-    body = json.dumps(data)
-    ret = create_response(body)
-    return ret
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
@@ -325,4 +402,6 @@ if __name__ == "__main__":
     parser.add_argument('--port', default='8070', help='Server port')
     args = parser.parse_args()
 
-    run(host=args.host, port=args.port, reloader=True)
+    wsgiapp = bottle.default_app()
+    httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
+    httpd.serve_forever()

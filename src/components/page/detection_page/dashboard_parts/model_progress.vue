@@ -23,7 +23,7 @@
         Batch
       </div>
       <div class="value">
-        {{spacePadding(current_batch, 3)}}/{{spacePadding(total_batch, 3)}}
+        {{spacePadding(model.last_batch, 3)}}/{{spacePadding(model.total_batch, 3)}}
       </div>
     </div>
 
@@ -32,22 +32,22 @@
         <div class="progress-bar">
           <div class="progress-bar-animation"
             v-bind:style="{backgroundColor: getColor(model.state, model.algorithm)}"
-            v-bind:class="{animated: status===0}">
+            v-bind:class="{animated: model.running_state===0}">
           </div>
         </div>
       </div>
     </div>
 
-    <div class="value-item" v-if="status===0">
+    <div class="value-item" v-if="model.running_state===0">
       <div class="label">
         Train Loss
       </div>
       <div class="value">
-        {{spacePadding(train_loss, 7)}}
+        {{spacePadding(round(model.last_train_loss), 5)}}
       </div>
     </div>
 
-    <div class="value-item" v-if="status===3">
+    <div class="value-item" v-if="model.running_state===3">
       <div class="label">
         Starting...
       </div>
@@ -56,7 +56,7 @@
       </div>
     </div>
 
-    <div class="value-item" v-if="status===4">
+    <div class="value-item" v-if="model.running_state===4">
       <div class="label">
         Stopping...
       </div>
@@ -65,7 +65,7 @@
       </div>
     </div>
 
-    <div class="value-item" v-if="status===1">
+    <div class="value-item" v-if="model.running_state===1">
       <div class="label">
         Validating
       </div>
@@ -75,7 +75,7 @@
     </div>
 
     <div class="stop-button-area">
-      <div class="stop-button" @click="stopModel" v-if="status!==4">
+      <div class="stop-button" @click="stopModel" v-if="model.running_state!==4">
         <i class="fa fa-pause-circle-o" aria-hidden="true"></i>
       </div>
     </div>
@@ -98,66 +98,31 @@ export default {
     "model": {
       type: Object,
       require: true
-    },
-    "currentInfo": {
-      type: Object,
-      require: true
     }
   },
-  data: function () {
-    return {
-      train_loss: "-",
-      total_batch: "-",
-      current_batch: "-",
-      status: TRAIN_STARTING,
-    }
-  },
-  created: function () {
-    this.train_loss = "-"
-    this.total_batch = "-"
-    this.current_batch = "-"
-    this.status = TRAIN_STARTING
-  },
-  watch: {
-    currentInfo: function(newVal) {
-      this.updateProgressBar(newVal);
-    }
+  created: function() {
+    this.$store.dispatch("getRunningModelInfo", {'model_id': this.model.model_id});
   },
   updated: function() {
-    this.updateProgressBar(this.currentInfo);
-  },
-  beforeDestroy: function () {
-    this.status = TRAIN
+    this.updateProgressBar();
   },
   methods: {
-    updateProgressBar: function(info) {
-      let epoch = this.model.epochs;
-      if(!(typeof (info) == "string" || info instanceof String || this.model.state===TRAIN_STOPPING)) {
-        const progress_bar_width = document.getElementsByClassName('progress-bar-back')[0].clientWidth;
-        const current_width = info.current_batch / info.total_batch * progress_bar_width;
-        let e = document.getElementsByClassName("progress-bar");
+    updateProgressBar: function() {
+      const epoch = this.model.validation_loss_list.length;
+      const progress_bar_elm = document.getElementsByClassName('progress-bar-back');
+      if(progress_bar_elm.length == 0) return;
 
-        if ('train_loss' in info){
-          this.train_loss = info.train_loss.toFixed(3)
-          this.status = info.status
-          this.current_batch = info.current_batch
-          this.total_batch = info.total_batch
-        } else {
-          this.train_loss = "-"
-          this.total_batch = "-"
-          this.current_batch = "-"
-          this.status = TRAIN_STARTING
-        }
+      const progress_bar_width = progress_bar_elm[0].clientWidth;
+      const current_width = this.model.last_batch / this.model.total_batch * progress_bar_width;
+      let e = document.getElementsByClassName("progress-bar");
+      if(e && e[this.index]){
         e[this.index].style.width = current_width + "px";
       }
     },
     stopModel: function() {
       if(confirm("学習を停止しますか？")){
         let self = this
-        this.status = TRAIN_STOPPING
-        this.$store.commit('setModelStopFlag', {
-          "model_id": this.model.model_id,
-        });
+        this.model.running_state = TRAIN_STOPPING
         this.$store.dispatch('stopModel', {
           "model_id": this.model.model_id,
         });
@@ -168,6 +133,9 @@ export default {
     },
     spacePadding: function (s, count) {
       return (Array(count).join("\u0020") + new String(s)).substr(-(count))
+    },
+    round: function(v) {
+      return Math.floor(v*1000) / 1000;
     }
   }
 }

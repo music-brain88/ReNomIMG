@@ -271,7 +271,7 @@ class Storage:
                 ret.update({index: item})
             return ret[0]
 
-    def fetch_models(self, project_id, fields='model_id', order_by='updated DESC'):
+    def fetch_models(self, project_id, fields='model_id', order_by='model_id'):
         with self.db:
             c = self.cursor()
             sql = "SELECT " + fields + " FROM model WHERE project_id=? AND state<3 ORDER BY " + order_by

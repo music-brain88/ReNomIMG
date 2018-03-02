@@ -47,18 +47,9 @@ export default {
   },
   created: function() {
     let self = this;
-    this.$store.dispatch("loadProjectData", {
+    this.$store.dispatch("initLoadData", {
       "project_id": 1
     });
-
-    // 10秒間隔で非同期にデータを読み込む
-    this.inteval = setInterval(function(){
-      if(self.$router.currentRoute.name == "Training"){
-        self.$store.dispatch("loadProjectData", {
-          "project_id": 1,
-        });
-      }
-    }, 1700);
   },
   beforeDestroyed: function() {
     clearInterval(this.interval);
