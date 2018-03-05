@@ -163,12 +163,18 @@ def get_models(project_id):
         if request.params.last_epochs != '':
             last_epochs = list(map(int, request.params.last_epochs.split(",")))
 
+        deploy_model_id = None
+        if request.params.deploy_model_id != '':
+            deploy_model_id = int(request.params.deploy_model_id)
+
         model_count = int(request.params.model_count)
 
         for j in range(60):
+            project = storage.fetch_project(project_id, fields='deploy_model_id')
             data = storage.fetch_models(project_id, **kwargs)
-            # If model created or deleted, return response.
-            if model_count != len(data):
+
+            # If model created/deleted or deploy model was changed, return response.
+            if model_count != len(data) or deploy_model_id != project["deploy_model_id"]:
                 body = json.dumps(data)
                 ret = create_response(body)
                 return ret

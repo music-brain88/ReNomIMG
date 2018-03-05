@@ -120,7 +120,8 @@ export default {
       }
     },
     stopModel: function() {
-      if(confirm("学習を停止しますか？")){
+      let confirm_text = "Model ID: "+ this.model.model_id +"の学習を停止しますか？"
+      if(confirm(confirm_text)){
         let self = this
         this.model.running_state = TRAIN_STOPPING
         this.$store.dispatch('stopModel', {

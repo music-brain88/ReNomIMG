@@ -481,6 +481,7 @@ const store = new Vuex.Store({
               "model_count": context.state.project.models.length,
               "running_model_ids": model_ids.toString(),
               "last_epochs": last_epochs.toString(),
+              "deploy_model_id": context.state.project.deploy_model_id,
             }
           }).then(function(response) {
             if(response.data.error_msg) {

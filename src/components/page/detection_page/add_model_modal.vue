@@ -151,8 +151,8 @@ export default {
   $modal-color: #000000;
   $modal-opacity: 0.7;
 
-  $modal-content-width: 60%;
-  $modal-content-height: 60%;
+  $modal-content-width: 80%;
+  $modal-content-height: 70%;
   $modal-content-bg-color: #fefefe;
   $modal-content-padding: 32px;
 
