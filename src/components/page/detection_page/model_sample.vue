@@ -36,6 +36,8 @@ export default {
   computed: {
     getValidationResult: function () {
       let result = this.$store.getters.getLastValidationResults
+      console.log('validation result');
+      console.log(result);
       if(result){
         let current = this.currentPage * this.maxImageNum
         let last = Math.min((this.currentPage + 1) * this.maxImageNum, result.length)
@@ -63,6 +65,7 @@ export default {
           img.src = item.path;
         }
 
+        console.log(ret);
         return ret
       }
     },

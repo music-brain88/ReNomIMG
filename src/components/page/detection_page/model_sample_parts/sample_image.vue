@@ -16,11 +16,6 @@
       image_path: undefined,
       bboxes: undefined,
     },
-    data: function () {
-      return {
-        image: undefined,
-      }
-    },
     methods: {
       getColor: function (index) {
         let color_list = ["#f19f36", "#53b05f", "#536cff", "#f86c8e"]
