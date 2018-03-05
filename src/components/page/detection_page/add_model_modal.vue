@@ -97,35 +97,34 @@
 export default {
   name: "AddModelModal",
   data: function() {
-        return {
-          algorithm: 0,
-          total_epoch: 100,
-          seed: 0,
+    return {
+      algorithm: 0,
+      total_epoch: 100,
+      seed: 0,
 
-          image_width: 448,
-          image_height: 448,
-          batch_size: 64,
+      image_width: 448,
+      image_height: 448,
+      batch_size: 64,
 
-          // YOLO params
-          cells: 7,
-          bounding_box: 2,
-        }
-    },
+      // YOLO params
+      cells: 7,
+      bounding_box: 2,
+    }
+  },
   methods: {
     hideAddModelModal: function() {
-      this.$store.commit("setAddModelModalShowFlag", {
-        "add_model_modal_show_flag": false,
-      });
+      this.$store.commit("setAddModelModalShowFlag", {"add_model_modal_show_flag": false});
     },
     runModel: function() {
-      let algorithm_params = {}
-      let hyper_parameters = {
+      const hyper_parameters = {
         'total_epoch': this.total_epoch,
         'batch_size': this.batch_size,
         'seed': this.seed,
         'image_width': this.image_width,
         'image_height': this.image_height,
       }
+
+      let algorithm_params = {}
       if(this.algorithm == 0) {
         algorithm_params = {
           "cells": this.cells,

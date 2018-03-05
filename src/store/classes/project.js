@@ -93,18 +93,24 @@ export default class Project {
   }
 
   sortModels(sort_by) {
-    const sort_columns = ["model_id", "iou_value", "map_value", "validation_loss"];
+    const sort_columns = ["model_id", "best_epoch_iou", "best_epoch_map", "best_epoch_validation_loss"];
     const sort_column = sort_columns[sort_by];
-
-    if(sort_by == 0 || sort_by == 1 || sort_by == 2){
+    if(sort_by == 0) {
       // Model IDでソート　大きい順
       this.models.sort(function(a, b) {
+        return (a[sort_column] < b[sort_column]) ? 1 : -1;
+      });
+    }else if(sort_by == 1 || sort_by == 2){
+      // IoU, mAPでソート　大きい順
+      this.models.sort(function(a, b) {
+        if(!a.best_epoch) return 1;
+        if(!b.best_epoch) return -1;
         return (a[sort_column] < b[sort_column]) ? 1 : -1;
       });
     }else if(sort_by == 3) {
       // Validation Lossでソート　小さい順
       this.models.sort(function(a, b) {
-        if(!a.best_epoch) return -1;
+        if(!a.best_epoch) return 1;
         if(!b.best_epoch) return -1;
         return (a.validation_loss_list[a.best_epoch] < b.validation_loss_list[b.best_epoch]) ? -1 : 1;
       })

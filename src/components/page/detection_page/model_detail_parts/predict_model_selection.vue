@@ -47,9 +47,7 @@ export default {
         return;
       }
 
-      this.$store.dispatch('deployModel', {
-        "model_id": this.model.model_id,
-      });
+      this.$store.dispatch('deployModel', {"model_id": this.model.model_id});
     },
     hoverDescription: function(val) {
       this.show_description = val;

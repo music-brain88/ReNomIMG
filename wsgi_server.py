@@ -15,4 +15,11 @@ class Server:
                                   ThreadingWSGIServer)
 
     def serve_forever(self):
-        self.server.serve_forever()
+        print("Listening on http://{}:{}/".format(self.host, self.port))
+        print("Hit Ctrl-C to quit.")
+        try:
+            self.server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.server.server_close()

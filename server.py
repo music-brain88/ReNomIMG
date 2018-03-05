@@ -7,6 +7,7 @@ import pkg_resources
 import base64
 import sqlite3
 import threading
+import signal
 import time
 import bottle
 from bottle import HTTPResponse, route, static_file, request, error
@@ -18,6 +19,7 @@ from python.prediction_thread import PredictionThread
 from python.utils.storage import storage
 
 
+STATE_FINISHED = 2
 STATE_DELETED = 3
 
 
@@ -60,6 +62,14 @@ def find_thread(thread_id):
     for th in threading.enumerate():
         if "thread_id" in dir(th) and thread_id == th.thread_id:
             return th
+
+
+def get_train_thread_count():
+    count = 0
+    for th in threading.enumerate():
+        if isinstance(th, TrainThread):
+            count += 1
+    return count
 
 
 @route("/")
@@ -217,10 +227,10 @@ def get_dataset_info_v0():
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="POST")
 def create_model(project_id):
     # check training count
-    # if len(THREAD_MANAGER) >= 2:
-    #     body = json.dumps({"error_msg": "You can create only 2 training thread in this version."})
-    #     ret = create_response(body)
-    #     return ret
+    if get_train_thread_count() >= 2:
+        body = json.dumps({"error_msg": "You can create only 2 training thread."})
+        ret = create_response(body)
+        return ret
 
     try:
         model_id = storage.register_model(
@@ -306,6 +316,12 @@ def run_model(project_id, model_id):
                          data["hyper_parameters"],
                          data['algorithm'], data['algorithm_params'])
         th.start()
+        th.join()
+        if th.error_msg is not None:
+            storage.update_model_state(model_id, STATE_FINISHED)
+            body = json.dumps({"error_msg": th.error_msg})
+            ret = create_response(body)
+            return ret
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)

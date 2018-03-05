@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <div class="add-model-modal" v-if="addModelModalShowFlag">
+    <div class="add-model-modal" v-if="$store.state.add_model_modal_show_flag">
       <add-model-modal></add-model-modal>
     </div>
   </div>
@@ -46,18 +46,7 @@ export default {
     "add-model-modal": AddModelModal,
   },
   created: function() {
-    let self = this;
-    this.$store.dispatch("initLoadData", {
-      "project_id": 1
-    });
-  },
-  beforeDestroyed: function() {
-    clearInterval(this.interval);
-  },
-  computed: {
-    addModelModalShowFlag() {
-      return this.$store.state.add_model_modal_show_flag;
-    }
+    this.$store.dispatch("initLoadData", {"project_id": 1});
   }
 }
 </script>

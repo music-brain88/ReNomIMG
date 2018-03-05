@@ -44,9 +44,7 @@ export default {
   },
   methods: {
     sortModels: function() {
-      this.$store.commit("sortModels", {
-        "sort_by": this.selected,
-      });
+      this.$store.commit("sortModels", {"sort_by": this.selected});
     },
     showAddModelModal: function() {
       this.$store.commit("setAddModelModalShowFlag", {
@@ -104,6 +102,8 @@ export default {
     margin: 0;
     margin-top: $selectbox-margin-top;
     padding: 0;
+    padding-left: 4px;
+    padding-right: 16px;
     font-size: $selectbox-font-size;
   }
 
