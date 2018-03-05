@@ -394,9 +394,9 @@ const store = new Vuex.Store({
       if(state.project){
         let m = state.project.getModelFromId(payload.model_id);
         if(m.state == state.const.state_id["running"]) {
-          state.predict_model_id  =undefined;
+          state.project.deploy_model_id  =undefined;
         }else{
-          state.predict_model_id = payload.model_id;
+          state.project.deploy_model_id = payload.model_id;
         }
       }
     },

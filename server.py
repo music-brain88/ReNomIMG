@@ -112,7 +112,7 @@ def get_projects():
         data = storage.fetch_projects(**kwargs)
         body = json.dumps(data)
 
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -130,7 +130,7 @@ def create_projects():
             "project_id": project_id
         }
         body = json.dumps(data)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -146,7 +146,7 @@ def get_project(project_id):
 
         data = storage.fetch_project(project_id, **kwargs)
         body = json.dumps(data)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -206,7 +206,7 @@ def get_models(project_id):
                         return ret
             time.sleep(1)
 
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -217,7 +217,7 @@ def get_dataset_info_v0():
     try:
         data = storage.fetch_dataset_v0()
         body = json.dumps(data)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -242,7 +242,7 @@ def create_model(project_id):
         data = {"model_id": model_id}
         body = json.dumps(data)
 
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -259,7 +259,7 @@ def get_model(project_id, model_id):
         data = storage.fetch_model(project_id, model_id, **kwargs)
         body = json.dumps(data)
 
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -287,7 +287,7 @@ def delete_model(project_id, model_id):
 def deploy_model(project_id, model_id):
     try:
         storage.update_project_deploy(project_id, model_id)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -297,7 +297,7 @@ def deploy_model(project_id, model_id):
 def undeploy_model(project_id, model_id):
     try:
         storage.update_project_deploy(project_id, None)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -391,13 +391,11 @@ def run_prediction(project_id, model_id):
             "csv": th.csv_filename,
         }
         body = json.dumps(data)
-        ret = create_response(body)
-        return ret
-
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+
+    ret = create_response(body)
+    return ret
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
@@ -407,13 +405,17 @@ def export_csv(project_id, model_id, file_name):
 
 @route("/api/renom_img/v1/original_img", method="POST")
 def get_original_img():
-    file_path = request.params.root_dir
+    try:
+        file_path = request.params.root_dir
 
-    with open(file_path, "rb") as image_reader:
-        encoded_img = base64.b64encode(image_reader.read())
-        data = encoded_img.decode('utf8')
+        with open(file_path, "rb") as image_reader:
+            encoded_img = base64.b64encode(image_reader.read())
+            data = encoded_img.decode('utf8')
+        body = json.dumps(data)
 
-    body = json.dumps(data)
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+
     ret = create_response(body)
     return ret
 

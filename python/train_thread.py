@@ -141,6 +141,8 @@ class TrainThread(threading.Thread):
                 if self.stop_event.is_set():
                     return
 
+                self.last_epoch = e
+
                 epoch_id = storage.register_epoch(
                     model_id=self.model_id,
                     nth_epoch=e
@@ -186,15 +188,12 @@ class TrainThread(threading.Thread):
                 train_loss = train_loss / (i + 1)
                 train_loss_list.append(train_loss)
 
-                self.last_epoch = e
-
                 start_t1 = time.time()
                 if self.stop_event.is_set():
                     return
 
                 if validation_distributor:
                     self.running_state = VALID
-                    self.last_batch += 1
                     validation_loss, v_iou, v_mAP, v_bbox = \
                         self.run_validation(validation_distributor)
                     validation_loss_list.append(validation_loss)

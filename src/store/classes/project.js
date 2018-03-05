@@ -15,7 +15,7 @@ export default class Project {
     let m = new Model(model_data.model_id, model_data.project_id,
       model_data.hyper_parameters, model_data.algorithm,
       model_data.algorithm_params, model_data.state);
-    if(model_data.best_epoch) {
+    if(model_data.best_epoch != undefined) {
       m.best_epoch = model_data.best_epoch;
       m.train_loss_list = model_data.train_loss_list;
       m.validation_loss_list = model_data.validation_loss_list;
