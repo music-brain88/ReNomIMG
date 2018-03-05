@@ -6,10 +6,10 @@
 
     <div class="content">
       <div class="model-detail-text">
-        <model-detail-text v-if="modelData" :modelData="modelData"></model-detail-text>
+        <model-detail-text v-if="model" :model="model"></model-detail-text>
       </div>
       <div class="model-detail-learning-curve">
-        <learning-curve v-if='modelData' :totalEpoch="modelData.hyper_parameters['total_epoch']" :trainLoss="modelData.train_loss_list" :validationLoss="modelData.validation_loss_list"></learning-curve>
+        <learning-curve v-if='model' :totalEpoch="model.hyper_parameters['total_epoch']" :trainLoss="model.train_loss_list" :validationLoss="model.validation_loss_list"></learning-curve>
       </div>
     </div>
   </div>
@@ -26,7 +26,7 @@ export default {
     "learning-curve": LearningCurve,
   },
   computed: {
-    modelData() {
+    model() {
       return this.$store.getters.getSelectedModel;
     }
   },

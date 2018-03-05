@@ -394,9 +394,9 @@ const store = new Vuex.Store({
       if(state.project){
         let m = state.project.getModelFromId(payload.model_id);
         if(m.state == state.const.state_id["running"]) {
-          state.predict_model_id  =undefined;
+          state.project.deploy_model_id  =undefined;
         }else{
-          state.predict_model_id = payload.model_id;
+          state.project.deploy_model_id = payload.model_id;
         }
       }
     },
@@ -463,38 +463,36 @@ const store = new Vuex.Store({
 
       if(context.state.project) {
         const running_models = context.getters.getRunningModels
-        // if(context.state.project.models.length == 0 || running_models.length > 0) {
-        if(true){
-          const fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result";
+        const fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result";
 
-          let model_ids = []
-          let last_epochs = []
-          for(let m of running_models) {
-            model_ids.push(m.model_id)
-            last_epochs.push(m.last_epoch)
-          }
-          let url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models"
-          return axios.get(url, {
-            timeout: 60000,
-            params: {
-              "fields": fields,
-              "model_count": context.state.project.models.length,
-              "running_model_ids": model_ids.toString(),
-              "last_epochs": last_epochs.toString(),
-            }
-          }).then(function(response) {
-            if(response.data.error_msg) {
-              alert("Error: " + response.data.error_msg);
-              return;
-            }
-            context.commit("setModels", {
-              "models": response.data,
-            });
-            context.dispatch('loadModels', {"project_id": payload.project_id});
-          }).catch(function(error) {
-            context.dispatch('loadModels', {"project_id": payload.project_id});
-          });
+        let model_ids = []
+        let last_epochs = []
+        for(let m of running_models) {
+          model_ids.push(m.model_id)
+          last_epochs.push(m.last_epoch)
         }
+        let url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models"
+        return axios.get(url, {
+          timeout: 60000,
+          params: {
+            "fields": fields,
+            "model_count": context.state.project.models.length,
+            "running_model_ids": model_ids.toString(),
+            "last_epochs": last_epochs.toString(),
+            "deploy_model_id": context.state.project.deploy_model_id,
+          }
+        }).then(function(response) {
+          if(response.data.error_msg) {
+            alert("Error: " + response.data.error_msg);
+            return;
+          }
+          context.commit("setModels", {
+            "models": response.data,
+          });
+          context.dispatch('loadModels', {"project_id": payload.project_id});
+        }).catch(function(error) {
+          context.dispatch('loadModels', {"project_id": payload.project_id});
+        });
       }
     },
     async initLoadData(context, payload){

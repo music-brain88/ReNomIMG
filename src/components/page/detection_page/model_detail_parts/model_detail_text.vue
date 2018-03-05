@@ -1,26 +1,26 @@
 <template>
   <div id="model-detail-text">
     <div class="title">
-      Model ID {{ modelData.model_id }}
+      Model ID {{ model.model_id }}
     </div>
 
     <div class="model-content">
       <div class="model-values">
-        <value-item :label="'Algorithm'" :val="getAlgorithmNameById(modelData.algorithm)"></value-item>
-        <value-item :label="'Total Epoch'" :val="modelData.hyper_parameters['total_epoch']"></value-item>
-        <value-item :label="'Batch Size'" :val="modelData.hyper_parameters['batch_size']"></value-item>
-        <value-item :label="'Image Width'" :val="modelData.hyper_parameters['image_width']"></value-item>
-        <value-item :label="'Image Height'" :val="modelData.hyper_parameters['image_height']"></value-item>
+        <value-item :label="'Algorithm'" :val="getAlgorithmNameById(model.algorithm)"></value-item>
+        <value-item :label="'Total Epoch'" :val="model.hyper_parameters['total_epoch']"></value-item>
+        <value-item :label="'Batch Size'" :val="model.hyper_parameters['batch_size']"></value-item>
+        <value-item :label="'Image Width'" :val="model.hyper_parameters['image_width']"></value-item>
+        <value-item :label="'Image Height'" :val="model.hyper_parameters['image_height']"></value-item>
         <br>
-        <component :is="additional_param_components[modelData.algorithm]" :params="modelData.algorithm_params"></component>
+        <component :is="additional_param_components[model.algorithm]" :params="model.algorithm_params"></component>
       </div>
 
       <div class="model-values">
-        <value-item :label="'IoU'" :val="modelData.getRoundedIoU() + '%'"></value-item>
-        <value-item :label="'mAP'" :val="modelData.getRoundedMAP() + '%'"></value-item>
-        <value-item :label="'Validation Loss'" :val="modelData.getRoundedValidationLoss()"></value-item>
+        <value-item :label="'IoU'" :val="model.getRoundedIoU() + '%'"></value-item>
+        <value-item :label="'mAP'" :val="model.getRoundedMAP() + '%'"></value-item>
+        <value-item :label="'Validation Loss'" :val="model.getRoundedValidationLoss()"></value-item>
         <div class="predict-model-selection-area">
-          <predict-model-selection :model="modelData"></predict-model-selection>
+          <predict-model-selection :model="model"></predict-model-selection>
         </div>
       </div>
     </div>
@@ -45,7 +45,7 @@ export default {
     }
   },
   props: {
-    "modelData": {
+    "model": {
       type: Object,
       required: true
     }

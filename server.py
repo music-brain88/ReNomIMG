@@ -7,6 +7,7 @@ import pkg_resources
 import base64
 import sqlite3
 import threading
+import signal
 import time
 import bottle
 from bottle import HTTPResponse, route, static_file, request, error
@@ -18,6 +19,7 @@ from python.prediction_thread import PredictionThread
 from python.utils.storage import storage
 
 
+STATE_FINISHED = 2
 STATE_DELETED = 3
 
 
@@ -62,6 +64,14 @@ def find_thread(thread_id):
             return th
 
 
+def get_train_thread_count():
+    count = 0
+    for th in threading.enumerate():
+        if isinstance(th, TrainThread):
+            count += 1
+    return count
+
+
 @route("/")
 def index():
     return pkg_resources.resource_string(__name__, "index.html")
@@ -102,7 +112,7 @@ def get_projects():
         data = storage.fetch_projects(**kwargs)
         body = json.dumps(data)
 
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -120,7 +130,7 @@ def create_projects():
             "project_id": project_id
         }
         body = json.dumps(data)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -136,7 +146,7 @@ def get_project(project_id):
 
         data = storage.fetch_project(project_id, **kwargs)
         body = json.dumps(data)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -163,12 +173,18 @@ def get_models(project_id):
         if request.params.last_epochs != '':
             last_epochs = list(map(int, request.params.last_epochs.split(",")))
 
+        deploy_model_id = None
+        if request.params.deploy_model_id != '':
+            deploy_model_id = int(request.params.deploy_model_id)
+
         model_count = int(request.params.model_count)
 
         for j in range(60):
+            project = storage.fetch_project(project_id, fields='deploy_model_id')
             data = storage.fetch_models(project_id, **kwargs)
-            # If model created or deleted, return response.
-            if model_count != len(data):
+
+            # If model created/deleted or deploy model was changed, return response.
+            if model_count != len(data) or deploy_model_id != project["deploy_model_id"]:
                 body = json.dumps(data)
                 ret = create_response(body)
                 return ret
@@ -190,7 +206,7 @@ def get_models(project_id):
                         return ret
             time.sleep(1)
 
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -201,7 +217,7 @@ def get_dataset_info_v0():
     try:
         data = storage.fetch_dataset_v0()
         body = json.dumps(data)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -211,10 +227,10 @@ def get_dataset_info_v0():
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="POST")
 def create_model(project_id):
     # check training count
-    # if len(THREAD_MANAGER) >= 2:
-    #     body = json.dumps({"error_msg": "You can create only 2 training thread in this version."})
-    #     ret = create_response(body)
-    #     return ret
+    if get_train_thread_count() >= 2:
+        body = json.dumps({"error_msg": "You can create only 2 training thread."})
+        ret = create_response(body)
+        return ret
 
     try:
         model_id = storage.register_model(
@@ -226,7 +242,7 @@ def create_model(project_id):
         data = {"model_id": model_id}
         body = json.dumps(data)
 
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -243,7 +259,7 @@ def get_model(project_id, model_id):
         data = storage.fetch_model(project_id, model_id, **kwargs)
         body = json.dumps(data)
 
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -271,7 +287,7 @@ def delete_model(project_id, model_id):
 def deploy_model(project_id, model_id):
     try:
         storage.update_project_deploy(project_id, model_id)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -281,7 +297,7 @@ def deploy_model(project_id, model_id):
 def undeploy_model(project_id, model_id):
     try:
         storage.update_project_deploy(project_id, None)
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -300,6 +316,12 @@ def run_model(project_id, model_id):
                          data["hyper_parameters"],
                          data['algorithm'], data['algorithm_params'])
         th.start()
+        th.join()
+        if th.error_msg is not None:
+            storage.update_model_state(model_id, STATE_FINISHED)
+            body = json.dumps({"error_msg": th.error_msg})
+            ret = create_response(body)
+            return ret
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
@@ -369,13 +391,11 @@ def run_prediction(project_id, model_id):
             "csv": th.csv_filename,
         }
         body = json.dumps(data)
-        ret = create_response(body)
-        return ret
-
-    except sqlite3.Error as e:
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+
+    ret = create_response(body)
+    return ret
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
@@ -385,13 +405,17 @@ def export_csv(project_id, model_id, file_name):
 
 @route("/api/renom_img/v1/original_img", method="POST")
 def get_original_img():
-    file_path = request.params.root_dir
+    try:
+        file_path = request.params.root_dir
 
-    with open(file_path, "rb") as image_reader:
-        encoded_img = base64.b64encode(image_reader.read())
-        data = encoded_img.decode('utf8')
+        with open(file_path, "rb") as image_reader:
+            encoded_img = base64.b64encode(image_reader.read())
+            data = encoded_img.decode('utf8')
+        body = json.dumps(data)
 
-    body = json.dumps(data)
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+
     ret = create_response(body)
     return ret
 

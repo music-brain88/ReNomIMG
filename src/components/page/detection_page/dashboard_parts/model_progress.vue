@@ -14,7 +14,7 @@
         Epoch
       </div>
       <div class="value">
-        {{spacePadding(model.validation_loss_list.length)}}/{{spacePadding(model.hyper_parameters['total_epoch'], 4)}}
+        {{spacePadding(model.validation_loss_list.length)}}/{{spacePadding(model.hyper_parameters['total_epoch']-1, 4)}}
       </div>
     </div>
 
@@ -23,7 +23,7 @@
         Batch
       </div>
       <div class="value">
-        {{spacePadding(model.last_batch, 3)}}/{{spacePadding(model.total_batch, 3)}}
+        {{spacePadding(model.last_batch, 3)}}/{{spacePadding(model.total_batch-1, 3)}}
       </div>
     </div>
 
@@ -113,14 +113,18 @@ export default {
       if(progress_bar_elm.length == 0) return;
 
       const progress_bar_width = progress_bar_elm[0].clientWidth;
-      const current_width = this.model.last_batch / this.model.total_batch * progress_bar_width;
+      let current_width = this.model.last_batch / this.model.total_batch * progress_bar_width;
+      if(current_width < 10) {
+        current_width = 10;
+      }
       let e = document.getElementsByClassName("progress-bar");
       if(e && e[this.index]){
         e[this.index].style.width = current_width + "px";
       }
     },
     stopModel: function() {
-      if(confirm("学習を停止しますか？")){
+      let confirm_text = "Model ID: "+ this.model.model_id +"の学習を停止しますか？"
+      if(confirm(confirm_text)){
         let self = this
         this.model.running_state = TRAIN_STOPPING
         this.$store.dispatch('stopModel', {

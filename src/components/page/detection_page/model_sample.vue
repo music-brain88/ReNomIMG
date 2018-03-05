@@ -33,10 +33,6 @@ export default {
       maxPageLength: 0,
     }
   },
-  created: function() {
-  },
-  mounted: function() {
-  },
   computed: {
     getValidationResult: function () {
       let result = this.$store.getters.getLastValidationResults
@@ -74,19 +70,19 @@ export default {
       return this.$store.state.validation_page
     },
     hasPrevPage: function () {
-      if (0 < this.currentPage) 
+      if (0 < this.currentPage)
         return true
       else
         return false
     },
     hasNextPage: function () {
-      if (this.maxPageLength - 1 > this.currentPage) 
+      if (this.maxPageLength - 1 > this.currentPage)
         return true
       else
         return false
     },
   },
-  methods:{ 
+  methods:{
     nextPage: function () {
       if(!this.hasNextPage)
         return

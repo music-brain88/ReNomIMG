@@ -20,9 +20,9 @@ export default {
     "tag-item": TagItem
   },
   computed: {
-      labels() {
-          return this.$store.getters.getLabelDict
-      }
+    labels() {
+      return this.$store.getters.getLabelDict
+    }
   }
 }
 </script>
