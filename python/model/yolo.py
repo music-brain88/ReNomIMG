@@ -1,9 +1,12 @@
 import os
 import sys
-import urllib.request as request
 import numpy as np
 import renom as rm
 from .yolo_detector import Yolo, build_truth, apply_nms
+try:
+    import urllib.request as request
+except:
+    from urllib2 import Request as request
 
 
 class YoloBase(rm.Model):

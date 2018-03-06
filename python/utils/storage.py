@@ -1,13 +1,28 @@
 # coding: utf-8
 
-import _pickle as cPickle
 import datetime
 import os
+import sys
 import sqlite3
+try:
+    import _pickle as pickle
+except:
+    import cPickle as pickle
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STRAGE_DIR = os.path.join(BASE_DIR, "../../.storage")
 
+
+def pickle_dump(obj):
+    return pickle.dumps(obj)
+
+def pickle_load(pickled_obj):
+    if sys.version_info.major==2:
+        if isinstance(pickled_obj, unicode):
+            pickled_obj = pickled_obj.encode()
+        return pickle.loads(pickled_obj)
+    else:
+        return pickle.loads(pickled_obj, encoding='ascii')
 
 class Storage:
     def __init__(self):
@@ -124,11 +139,11 @@ class Storage:
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
-            dumped_hyper_parameters = cPickle.dumps(hyper_parameters)
-            dumped_algorithm_params = cPickle.dumps(algorithm_params)
-            train_loss_list = cPickle.dumps([])
-            validation_loss_list = cPickle.dumps([])
-            best_epoch_validation_result = cPickle.dumps({})
+            dumped_hyper_parameters = pickle_dump(hyper_parameters)
+            dumped_algorithm_params = pickle_dump(algorithm_params)
+            train_loss_list = pickle_dump([])
+            validation_loss_list = pickle_dump([])
+            best_epoch_validation_result = pickle_dump({})
             c.execute("""
                     INSERT INTO
                         model(project_id, hyper_parameters, algorithm,
@@ -159,8 +174,8 @@ class Storage:
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
-            dumped_train_loss_list = cPickle.dumps(train_loss_list)
-            dumped_validation_loss_list = cPickle.dumps(validation_loss_list)
+            dumped_train_loss_list = pickle_dump(train_loss_list)
+            dumped_validation_loss_list = pickle_dump(validation_loss_list)
 
             c.execute("""
                     UPDATE model
@@ -175,7 +190,7 @@ class Storage:
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
-            dumped_best_validation_result = cPickle.dumps(best_validation_result)
+            dumped_best_validation_result = pickle_dump(best_validation_result)
             c.execute("""
                       UPDATE model
                       SET
@@ -189,7 +204,7 @@ class Storage:
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
-            dumped_best_validation_result = cPickle.dumps(best_validation_result)
+            dumped_best_validation_result = pickle_dump(best_validation_result)
             c.execute("""
                       UPDATE model
                       SET
@@ -217,7 +232,7 @@ class Storage:
         with self.db:
             c = self.cursor()
             class_names = {i: n for i, n in enumerate(class_list)}
-            dumped_class_names = cPickle.dumps(class_names)
+            dumped_class_names = pickle_dump(class_names)
             c.execute("""
                     REPLACE INTO
                         dataset_v0(dataset_id, train_data_count, valid_data_count, class_names)
@@ -285,7 +300,7 @@ class Storage:
                 item = {}
                 for j, f in enumerate(fields.split(',')):
                     if f in blob_items:
-                        item[f] = cPickle.loads(data[j], encoding='ascii')
+                        item[f] = pickle_load(data[j])
                     else:
                         item[f] = data[j]
                 ret.update({index: item})
@@ -305,7 +320,7 @@ class Storage:
                 item = {}
                 for j, f in enumerate(fields.split(',')):
                     if f in blob_items:
-                        item[f] = cPickle.loads(data[j], encoding='ascii')
+                        item[f] = pickle_load(data[j])
                     else:
                         item[f] = data[j]
                 ret.update({index: item})
@@ -324,7 +339,7 @@ class Storage:
                 ret.update({
                     "train_data_count": data[0],
                     "valid_data_count": data[1],
-                    "class_names": cPickle.loads(data[2], encoding='ascii')
+                    "class_names": pickle_load(data[2])
                 })
         return ret
 
