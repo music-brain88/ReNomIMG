@@ -183,12 +183,27 @@ def get_models(project_id):
             project = storage.fetch_project(project_id, fields='deploy_model_id')
             data = storage.fetch_models(project_id, **kwargs)
 
-            # If model created/deleted or deploy model was changed, return response.
-            if model_count != len(data) or deploy_model_id != project["deploy_model_id"]:
+            if deploy_model_id != project["deploy_model_id"]:
+                # If deploy model changed
                 body = json.dumps(data)
                 ret = create_response(body)
                 return ret
-            else:
+
+            if model_count < len(data):
+                # If model created
+                valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]
+                if "bbox_path_list" in valid_results:
+                    body = json.dumps(data)
+                    ret = create_response(body)
+                    return ret
+
+            elif model_count > len(data):
+                # If model deleted
+                body = json.dumps(data)
+                ret = create_response(body)
+                return ret
+
+            elif model_count == len(data):
                 for i, v in enumerate(model_ids):
                     thread_id = "{}_{}".format(project_id, model_ids[i])
                     th = find_thread(thread_id)
@@ -204,6 +219,7 @@ def get_models(project_id):
                         body = json.dumps(data)
                         ret = create_response(body)
                         return ret
+
             time.sleep(1)
 
     except Exception as e:

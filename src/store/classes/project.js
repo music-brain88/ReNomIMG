@@ -21,8 +21,8 @@ export default class Project {
       m.validation_loss_list = model_data.validation_loss_list;
       m.best_epoch_iou = model_data.best_epoch_iou;
       m.best_epoch_map = model_data.best_epoch_map;
-      m.best_epoch_validation_result = model_data.best_epoch_validation_result;
     }
+    m.best_epoch_validation_result = model_data.best_epoch_validation_result;
     return m;
   }
 

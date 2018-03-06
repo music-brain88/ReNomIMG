@@ -212,9 +212,6 @@ class TrainThread(threading.Thread):
                         os.makedirs(WEIGHT_DIR)
                     self.model.save(os.path.join(WEIGHT_DIR, filename))
 
-                if self.stop_event.is_set():
-                    return
-
                 storage.update_model_loss_list(
                     model_id=self.model_id,
                     train_loss_list=train_loss_list,
