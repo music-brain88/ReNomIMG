@@ -112,6 +112,7 @@ class TrainThread(threading.Thread):
             class_list, train_dist, valid_dist = create_train_valid_dists(self.img_size)
             storage.register_dataset_v0(len(train_dist), len(valid_dist), class_list)
             self.model = self.set_train_config(len(class_list))
+            print(self.model)
             self.run_train(train_dist, valid_dist)
         except Exception as e:
             self.error_msg = e.args[0]

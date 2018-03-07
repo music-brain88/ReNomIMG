@@ -49,7 +49,7 @@ Bibtex
 http://www.robots.ox.ac.uk/~vgg/data/pets/
 
 #### 1.Download weight file of YOLO.
-At first, you must install weight file of yolo from url.
+At first, you must install weight file of yolo from http://docs.renom.jp/downloads/weights/yolo.h5
 
 You can get the file with the following command.
 
@@ -58,6 +58,8 @@ cd ReNomIMG
 
 curl -O http://docs.renom.jp/downloads/weights/yolo.h5
 ```
+
+If you run training before downloading weight, download will start automatically. It takes a few minutes.
 
 #### 2.Create dataset directory
 As following video showing, please create the dataset direcotry in the `ReNomIMG`.

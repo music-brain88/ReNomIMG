@@ -9,6 +9,7 @@ import sqlite3
 import threading
 import signal
 import time
+import urllib
 import bottle
 from bottle import HTTPResponse, route, static_file, request, error
 from bottle import run as bottle_run
@@ -220,7 +221,7 @@ def get_models(project_id):
                         ret = create_response(body)
                         return ret
 
-            time.sleep(1)
+            time.sleep(0.5)
 
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
@@ -366,7 +367,7 @@ def get_running_model_info(project_id, model_id):
                     })
                     ret = create_response(body)
                     return ret
-            time.sleep(1)
+            time.sleep(0.5)
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
@@ -428,6 +429,23 @@ def get_original_img():
             encoded_img = base64.b64encode(image_reader.read())
             data = encoded_img.decode('utf8')
         body = json.dumps(data)
+
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+
+    ret = create_response(body)
+    return ret
+
+
+@route("/api/renom_img/v1/weights/yolo", method="GET")
+def check_yolo_weight_exists():
+    try:
+        if not os.path.exists("yolo.h5"):
+            print("Weight parameters will be downloaded.")
+            url = "http://docs.renom.jp/downloads/weights/yolo.h5"
+            urllib.request.urlretrieve(url, "yolo.h5")
+
+        body = json.dumps({"yolo_weight_exists": 1})
 
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})

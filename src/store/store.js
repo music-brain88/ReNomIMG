@@ -41,6 +41,12 @@ const store = new Vuex.Store({
     // csv file name
     csv: "",
 
+    // yolo_weight_exists
+    yolo_weight_exists: false,
+
+    // show yolo weight downloading modal
+    yolo_weight_downloading_modal: false,
+
     // constant params
     const: {
       algorithm_id: {
@@ -437,6 +443,12 @@ const store = new Vuex.Store({
     resetPredictResult(state, payload) {
       state.predict_results = {"bbox_list": [], "bbox_path_list": []};
     },
+    setYoloWeightExists(state, payload) {
+      state.yolo_weight_exists = payload.yolo_weight_exist;
+    },
+    setYoloWeightDownloadingModal(state, payload) {
+      state.yolo_weight_downloading_modal = payload.yolo_weight_downloading_modal;
+    }
   },
 
   actions: {
@@ -547,6 +559,8 @@ const store = new Vuex.Store({
       return axios.post(url, fd);
     },
     async runModel(context, payload) {
+      await context.dispatch('checkYoloWeightExist');
+
       const hyper_parameters = JSON.stringify(payload.hyper_parameters);
       const algorithm_params = JSON.stringify(payload.algorithm_params);
       const result = await context.dispatch("createModel", {
@@ -648,6 +662,19 @@ const store = new Vuex.Store({
           }
         });
     },
+    async checkYoloWeightExist(context, payload) {
+      if(!context.state.yolo_weight_exists) {
+        context.commit('setYoloWeightDownloadingModal', {'yolo_weight_downloading_modal': true});
+        const url = "/api/renom_img/v1/weights/yolo";
+        return axios.get(url)
+          .then(function(response) {
+            if(response.data.yolo_weight_exists == 1) {
+              context.commit('setYoloWeightExists', {'yolo_weight_exist': true});
+            }
+            context.commit('setYoloWeightDownloadingModal', {'yolo_weight_downloading_modal': false});
+          });
+      }
+    }
   }
 })
 

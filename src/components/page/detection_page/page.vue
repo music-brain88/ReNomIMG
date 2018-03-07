@@ -24,6 +24,10 @@
     <div class="add-model-modal" v-if="$store.state.add_model_modal_show_flag">
       <add-model-modal></add-model-modal>
     </div>
+
+    <div class="weight-downloading-modal" v-if="$store.state.yolo_weight_downloading_modal">
+      <weight-downloading-modal></weight-downloading-modal>
+    </div>
   </div>
 </template>
 
@@ -34,6 +38,7 @@ import ModelDetail from './model_detail.vue'
 import ModelSample from './model_sample.vue'
 import TagList from './tag_list.vue'
 import AddModelModal from './add_model_modal.vue'
+import WeightDownloadingModal from './weight_downloading_modal.vue'
 
 export default {
   name: "DetectionPage",
@@ -44,6 +49,7 @@ export default {
     "model-sample": ModelSample,
     "tag-list": TagList,
     "add-model-modal": AddModelModal,
+    "weight-downloading-modal": WeightDownloadingModal,
   },
   created: function() {
     this.$store.dispatch("initLoadData", {"project_id": 1});
