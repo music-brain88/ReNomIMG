@@ -164,11 +164,13 @@ export default {
       x-index: 10;
       #tag-name {
         color: white;
-        top: -4px;
-        margin-top: -4px;
         width: -webkit-fit-content;
         width: -moz-fit-content;
-        padding-right: 2px;
+        margin-top: -2px;
+        margin-left: -2px;
+        padding-left: 4px;
+        padding-right: 4px;
+
         font-size: 0.8rem;
       }
     }
