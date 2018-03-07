@@ -68,7 +68,7 @@ export default {
       });
     },
     deleteModel: function() {
-      let confirm_text = "Model ID: "+ this.model.model_id +"を削除しますか？"
+      let confirm_text = "Would you like to delete Model ID: "+ this.model.model_id +"?"
       if(confirm(confirm_text)){
         if(this.isPredict) {
           this.$store.commit("setPredictModelId", {
@@ -84,7 +84,7 @@ export default {
       }
     },
     undeployModel: function() {
-      if(confirm("デプロイを取り消しますか？")){
+      if(confirm("Would you like to undeploy this model?")){
         this.$store.dispatch('undeployModel', {'model_id': this.model.model_id});
       }
     },
