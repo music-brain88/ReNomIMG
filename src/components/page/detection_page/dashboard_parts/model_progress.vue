@@ -14,7 +14,7 @@
         Epoch
       </div>
       <div class="value" v-if="model.running_state!==3">
-        {{spacePadding(model.validation_loss_list.length)}}/{{spacePadding(model.hyper_parameters['total_epoch']-1, 4)}}
+        {{spacePadding(model.validation_loss_list.length)}}/{{spacePadding(model.hyper_parameters['total_epoch'], 4)}}
       </div>
       <div class="value" v-if="model.running_state===3">
         -/-
@@ -26,7 +26,7 @@
         Batch
       </div>
       <div class="value" v-if="model.running_state!==3">
-        {{spacePadding(model.last_batch, 3)}}/{{spacePadding(model.total_batch-1, 3)}}
+        {{spacePadding(model.last_batch, 3)}}/{{spacePadding(model.total_batch, 3)}}
       </div>
       <div class="value" v-if="model.running_state===3">
         -/-

@@ -221,7 +221,7 @@ def get_models(project_id):
                         ret = create_response(body)
                         return ret
 
-            time.sleep(0.5)
+            time.sleep(1)
 
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
@@ -367,7 +367,7 @@ def get_running_model_info(project_id, model_id):
                     })
                     ret = create_response(body)
                     return ret
-            time.sleep(0.5)
+            time.sleep(1)
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
