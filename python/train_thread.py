@@ -166,6 +166,9 @@ class TrainThread(threading.Thread):
                     if self.stop_event.is_set():
                         return
 
+                    self.last_batch = i
+                    self.running_state = TRAIN
+
                     self.model.set_models(inference=False)
                     h = self.model.freezed_forward(train_x/255. * 2 - 1)
                     with self.model.train():
@@ -179,10 +182,7 @@ class TrainThread(threading.Thread):
                                        self.total_epoch, batch_length))
 
                     train_loss += num_loss
-
-                    self.last_batch = i
                     self.last_train_loss = float(num_loss)
-                    self.running_state = TRAIN
 
                     if DEBUG:
                         print('##### {}/{} {}'.format(i, batch_length, e))
@@ -197,6 +197,7 @@ class TrainThread(threading.Thread):
                     return
 
                 if validation_distributor:
+                    self.last_batch += 1
                     self.running_state = VALID
                     validation_loss, v_iou, v_mAP, v_bbox = \
                         self.run_validation(validation_distributor)
