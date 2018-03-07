@@ -120,8 +120,8 @@ export default {
 
       const progress_bar_width = progress_bar_elm[0].clientWidth;
       let current_width = this.model.last_batch / this.model.total_batch * progress_bar_width;
-      if(current_width < 10) {
-        current_width = 10;
+      if(current_width < 0.05 * progress_bar_width) {
+        current_width = 0.05 * progress_bar_width;
       }
       let e = document.getElementsByClassName("progress-bar");
       if(e && e[this.index]){
