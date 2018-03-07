@@ -52,6 +52,7 @@ export default {
     "weight-downloading-modal": WeightDownloadingModal,
   },
   created: function() {
+    this.$store.dispatch("checkDatasetDir");
     this.$store.dispatch("initLoadData", {"project_id": 1});
   }
 }
