@@ -5,14 +5,10 @@ import os
 import json
 import pkg_resources
 import base64
-import sqlite3
 import threading
-import signal
 import time
 import urllib
-import bottle
-from bottle import HTTPResponse, route, static_file, request, error
-from bottle import run as bottle_run
+from bottle import HTTPResponse, default_app, route, static_file, request, error
 
 import wsgi_server
 from python.train_thread import TrainThread
@@ -485,6 +481,6 @@ if __name__ == "__main__":
     parser.add_argument('--port', default='8070', help='Server port')
     args = parser.parse_args()
 
-    wsgiapp = bottle.default_app()
+    wsgiapp = default_app()
     httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
     httpd.serve_forever()
