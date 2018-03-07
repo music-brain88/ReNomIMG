@@ -153,11 +153,6 @@ class YoloDarknet(YoloBase):
             rm.Dense(last_dense_size),
         ])
 
-        if not os.path.exists("yolo.h5"):
-            print("Weight parameters will be downloaded.")
-            url = "http://docs.renom.jp/downloads/weights/yolo.h5"
-            request.urlretrieve(url, "yolo.h5")
-
         model.load('yolo.h5')
         self._upper_network = rm.Sequential(model[:-7])
         self._detector_network = rm.Sequential(model[-7:])
