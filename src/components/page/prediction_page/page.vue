@@ -7,7 +7,7 @@
       <prediction-result></prediction-result>
     </div>
 
-    <image-modal v-if="shwoImageModal"></image-modal>
+    <image-modal v-if="$store.state.image_modal_show_flag"></image-modal>
   </div>
 </template>
 
@@ -22,11 +22,6 @@ export default {
     "model-detail": ModelDetail,
     "prediction-result": PredictionResult,
     "image-modal": ImageModal,
-  },
-  computed: {
-    shwoImageModal() {
-      return this.$store.state.image_modal_show_flag;
-    }
   },
   created: function() {
     this.$store.dispatch("initLoadData", {"project_id": 1});
