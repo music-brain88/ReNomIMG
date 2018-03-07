@@ -80,12 +80,12 @@ def index():
 
 @route("/css/<file_name:path>")
 def css(file_name):
-    return pkg_resources.resource_string(__name__, "css/" + file_name)
+    return static_file(file_name, root='css/', mimetype='text/css')
 
 
 @route("/build/<file_name:path>")
 def static(file_name):
-    return pkg_resources.resource_string(__name__, "build/" + file_name)
+    return static_file(file_name, root='build/', mimetype='application/javascript')
 
 
 @error(404)
@@ -97,7 +97,8 @@ def error404(error):
 
 @route("/dataset/<folder_name:path>/<item:path>/<file_name:path>")
 def dataset(folder_name, item, file_name):
-    return pkg_resources.resource_string(__name__, os.path.join('dataset', folder_name, item, file_name))
+    file_dir = os.path.join('dataset', folder_name, item)
+    return static_file(file_name, root=file_dir, mimetype='image/*')
 
 
 @route("/api/renom_img/v1/projects", method="GET")
