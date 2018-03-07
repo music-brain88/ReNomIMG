@@ -668,12 +668,27 @@ const store = new Vuex.Store({
         const url = "/api/renom_img/v1/weights/yolo";
         return axios.get(url)
           .then(function(response) {
+            if(response.data.error_msg) {
+              alert("Error: " + response.data.error_msg);
+              return;
+            }
+
             if(response.data.yolo_weight_exists == 1) {
               context.commit('setYoloWeightExists', {'yolo_weight_exist': true});
             }
             context.commit('setYoloWeightDownloadingModal', {'yolo_weight_downloading_modal': false});
           });
       }
+    },
+    checkDatasetDir(context, payload) {
+      const url = "/api/renom_img/v1/check_dir";
+      return axios.get(url)
+        .then(function(response) {
+          if(response.data.error_msg) {
+            alert("Error: " + response.data.error_msg);
+            return;
+          }
+        });
     }
   }
 })

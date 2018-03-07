@@ -454,6 +454,30 @@ def check_yolo_weight_exists():
     return ret
 
 
+@route("/api/renom_img/v1/check_dir", method="GET")
+def check_dataset_dir():
+    try:
+        files = os.listdir(os.path.join(TRAIN_SET_DIR, "label"))
+        if len(files) == 0:
+            raise Exception("File not found in train_set/label.")
+
+        files = os.listdir(os.path.join(TRAIN_SET_DIR, "img"))
+        if len(files) == 0:
+            raise Exception("File not found in train_set/img.")
+
+        files = os.listdir(os.path.join(VALID_SET_DIR, "label"))
+        if len(files) == 0:
+            raise Exception("File not found in valid_set/label.")
+
+        files = os.listdir(os.path.join(VALID_SET_DIR, "img"))
+        if len(files) == 0:
+            raise Exception("File not found in valid_set/img.")
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='desc')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
