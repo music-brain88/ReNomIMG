@@ -11,9 +11,9 @@
 
       <div v-if="show_description">
         <div class="balloon">
-          If you push this buton,<br>
+          If you push this button,<br>
           you can use current selected<br>
-          model in prediction page.
+          model in prediction.
         </div>
         <div class="triangle"></div>
       </div>
