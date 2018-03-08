@@ -41,11 +41,14 @@ const store = new Vuex.Store({
     // csv file name
     csv: "",
 
-    // yolo_weight_exists
-    yolo_weight_exists: false,
+    // weight_exists
+    weight_exists: false,
 
-    // show yolo weight downloading modal
-    yolo_weight_downloading_modal: false,
+    // weight downloading progress
+    weight_downloading_progress: 0,
+
+    // show weight downloading modal
+    weight_downloading_modal: false,
 
     // constant params
     const: {
@@ -443,11 +446,14 @@ const store = new Vuex.Store({
     resetPredictResult(state, payload) {
       state.predict_results = {"bbox_list": [], "bbox_path_list": []};
     },
-    setYoloWeightExists(state, payload) {
-      state.yolo_weight_exists = payload.yolo_weight_exist;
+    setWeightExists(state, payload) {
+      state.weight_exists = payload.weight_exists;
     },
-    setYoloWeightDownloadingModal(state, payload) {
-      state.yolo_weight_downloading_modal = payload.yolo_weight_downloading_modal;
+    setWeightDownloadModal(state, payload) {
+      state.weight_downloading_modal = payload.weight_downloading_modal;
+    },
+    setWeightDownloadProgress(state, payload) {
+      state.weight_downloading_progress = Math.round(payload.progress*10)/10;
     }
   },
 
@@ -559,7 +565,10 @@ const store = new Vuex.Store({
       return axios.post(url, fd);
     },
     async runModel(context, payload) {
-      await context.dispatch('checkYoloWeightExist');
+      await context.dispatch('checkWeightExist');
+      for(let i=1; i<=10; i++) {
+        await context.dispatch('checkWeightDownloadProgress', {'i': i});
+      }
 
       const hyper_parameters = JSON.stringify(payload.hyper_parameters);
       const algorithm_params = JSON.stringify(payload.algorithm_params);
@@ -662,9 +671,9 @@ const store = new Vuex.Store({
           }
         });
     },
-    async checkYoloWeightExist(context, payload) {
-      if(!context.state.yolo_weight_exists) {
-        context.commit('setYoloWeightDownloadingModal', {'yolo_weight_downloading_modal': true});
+    async checkWeightExist(context, payload) {
+      if(!context.state.weight_exists) {
+        context.commit('setWeightDownloadModal', {'weight_downloading_modal': true});
         const url = "/api/renom_img/v1/weights/yolo";
         return axios.get(url)
           .then(function(response) {
@@ -673,10 +682,30 @@ const store = new Vuex.Store({
               return;
             }
 
-            if(response.data.yolo_weight_exists == 1) {
-              context.commit('setYoloWeightExists', {'yolo_weight_exist': true});
+            if(response.data.weight_exist == 1) {
+              context.commit('setWeightExists', {'weight_exists': true});
+              context.commit('setWeightDownloadModal', {'weight_downloading_modal': false});
             }
-            context.commit('setYoloWeightDownloadingModal', {'yolo_weight_downloading_modal': false});
+          });
+      }
+    },
+    async checkWeightDownloadProgress(context, payload) {
+      if(!context.state.weight_exists) {
+        let url = "/api/renom_img/v1/weights/yolo/progress/"+payload.i;
+        return axios.get(url)
+          .then(function(response) {
+            if(response.data.error_msg) {
+              alert("Error: " + response.data.error_msg);
+              return;
+            }
+
+            if(response.data.progress) {
+              context.commit('setWeightDownloadProgress', {'progress': response.data.progress});
+            }
+            if(response.data.progress >= 100) {
+              context.commit('setWeightExists', {'weight_exists': true});
+              context.commit('setWeightDownloadModal', {'weight_downloading_modal': false});
+            }
           });
       }
     },
