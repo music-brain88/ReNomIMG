@@ -688,7 +688,7 @@ const store = new Vuex.Store({
             alert("Error: " + response.data.error_msg + '\n' + 'You can find hints for this error on "http://www.renom.jp/".');
             return false;
           }
-          return false;
+          return true;
         });
     }
   }

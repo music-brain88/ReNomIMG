@@ -42,6 +42,7 @@
           </div>
         </div>
       </div>
+      <div class="progress-bar-mask" v-if="model.running_state===0"></div>
     </div>
 
     <div class="value-item" v-if="model.running_state===0">
@@ -120,9 +121,6 @@ export default {
 
       const progress_bar_width = progress_bar_elm[0].clientWidth;
       let current_width = this.model.last_batch / this.model.total_batch * progress_bar_width;
-      if(current_width < 0.05 * progress_bar_width) {
-        current_width = 0.05 * progress_bar_width;
-      }
       let e = document.getElementsByClassName("progress-bar");
       if(e && e[this.index]){
         e[this.index].style.width = current_width + "px";
@@ -166,7 +164,7 @@ export default {
 
   $stop-button-color: #999999;
 
-
+  width: 100%;
   display: flex;
   display: -webkit-flex;
 
@@ -232,15 +230,30 @@ export default {
         height: 100%;
       }
       .animated{
-        animation: AnimationName 3s ease infinite;
+        //animation: progress-anime 3s ease infinite;
       }
       :not(.animated){
         width: 100%;
       }
-      @keyframes AnimationName {
+      @keyframes progress-anime {
         0%{width: 0;}
         50%{width: 100%;}
         100%{width: 100%;}
+      }
+    }
+
+    .progress-bar-mask {
+      position: absolute;
+      bottom: 3px;
+      width: 100%;
+      height: calc(#{$progress-bar-height} - 2px);
+      background: linear-gradient(70deg, rgba(255, 255, 255, 0.0), 30%, rgba(200, 200, 200, 1), 50%, rgba(255, 255, 255, 0));
+      background-size: 50%;
+      background-repeat: no-repeat;
+      animation: movegrad 2s infinite linear;
+      @keyframes movegrad {
+          0%{background-position: -100% 0;}
+          100%{background-position: 200% 0;} 
       }
     }
   }
