@@ -11,7 +11,7 @@
         <value-item :label="'Batch Size'" :val="model.hyper_parameters['batch_size']"></value-item>
         <value-item :label="'Image Width'" :val="model.hyper_parameters['image_width']"></value-item>
         <value-item :label="'Image Height'" :val="model.hyper_parameters['image_height']"></value-item>
-        <value-item :label="'Seed'" :val="model.hyper_parameters['seed']"></value-item>
+        <!-- <value-item :label="'Seed'" :val="model.hyper_parameters['seed']"></value-item> -->
         <br>
         <component :is="additional_param_components[model.algorithm]" :params="model.algorithm_params"></component>
       </div>

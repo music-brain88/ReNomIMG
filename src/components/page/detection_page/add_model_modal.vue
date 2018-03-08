@@ -75,12 +75,12 @@
             </div>
           </div>
 
-          <div class="param-item">
+          <!-- <div class="param-item">
             <div class="label">Seed</div>
             <div class="item">
               <input type="text" v-model="seed" maxlength="5">
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
 
