@@ -116,26 +116,32 @@ export default {
       this.$store.commit("setAddModelModalShowFlag", {"add_model_modal_show_flag": false});
     },
     runModel: function() {
-      const hyper_parameters = {
-        'total_epoch': this.total_epoch,
-        'batch_size': this.batch_size,
-        'seed': this.seed,
-        'image_width': this.image_width,
-        'image_height': this.image_height,
-      }
+      const self = this
+      this.$store.dispatch("checkDatasetDir").then(function(success){
+        if(!success)return;
 
-      let algorithm_params = {}
-      if(this.algorithm == 0) {
-        algorithm_params = {
-          "cells": this.cells,
-          "bounding_box": this.bounding_box,
+        const hyper_parameters = {
+          'total_epoch': self.total_epoch,
+          'batch_size': self.batch_size,
+          'seed': self.seed,
+          'image_width': self.image_width,
+          'image_height': self.image_height,
         }
-      }
-      this.$store.dispatch("runModel", {
-        'hyper_parameters': hyper_parameters,
-        'algorithm': this.algorithm,
-        'algorithm_params': algorithm_params,
+
+        let algorithm_params = {}
+        if(self.algorithm == 0) {
+          algorithm_params = {
+            "cells": self.cells,
+            "bounding_box": self.bounding_box,
+          }
+        }
+        self.$store.dispatch("runModel", {
+          'hyper_parameters': hyper_parameters,
+          'algorithm': self.algorithm,
+          'algorithm_params': algorithm_params,
+        });
       });
+
       this.hideAddModelModal();
     }
   }
