@@ -685,9 +685,10 @@ const store = new Vuex.Store({
       return axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
-            alert("Error: " + response.data.error_msg);
-            return;
+            alert("Error: " + response.data.error_msg + '\n' + 'You can find hints for this error on "http://www.renom.jp/".');
+            return false;
           }
+          return false;
         });
     }
   }
