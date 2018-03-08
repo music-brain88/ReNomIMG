@@ -13,6 +13,7 @@ from bottle import HTTPResponse, default_app, route, static_file, request, error
 import wsgi_server
 from python.train_thread import TrainThread
 from python.prediction_thread import PredictionThread
+from python.weight_download_thread import WeightDownloadThread
 from python.utils.storage import storage
 
 
@@ -435,20 +436,41 @@ def get_original_img():
 
 
 @route("/api/renom_img/v1/weights/yolo", method="GET")
-def check_yolo_weight_exists():
+def check_weight_exists():
     try:
         if not os.path.exists("yolo.h5"):
             print("Weight parameters will be downloaded.")
-            url = "http://docs.renom.jp/downloads/weights/yolo.h5"
-            urllib.request.urlretrieve(url, "yolo.h5")
 
-        body = json.dumps({"yolo_weight_exists": 1})
+            url = "http://docs.renom.jp/downloads/weights/yolo.h5"
+            th = WeightDownloadThread("yolo", url, "yolo.h5")
+            th.start()
+        else:
+            print("exists weight")
+            body = json.dumps({"weight_exist": 1})
+            ret = create_response(body)
+            return ret
 
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
-    ret = create_response(body)
-    return ret
+
+@route("/api/renom_img/v1/weights/yolo/progress/<progress_num:int>", method="GET")
+def check_weight_download_progress(progress_num):
+    try:
+        th = find_thread("yolo")
+        for i in range(60):
+            if th.percentage > 10 * progress_num:
+                body = json.dumps({"progress": th.percentage})
+                ret = create_response(body)
+                return ret
+            time.sleep(1)
+
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
 
 @route("/api/renom_img/v1/check_dir", method="GET")
