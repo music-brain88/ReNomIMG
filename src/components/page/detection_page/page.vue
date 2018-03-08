@@ -25,7 +25,7 @@
       <add-model-modal></add-model-modal>
     </div>
 
-    <div class="weight-downloading-modal" v-if="$store.state.yolo_weight_downloading_modal">
+    <div class="weight-downloading-modal" v-if="$store.state.weight_downloading_modal">
       <weight-downloading-modal></weight-downloading-modal>
     </div>
   </div>

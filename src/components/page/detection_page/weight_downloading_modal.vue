@@ -3,7 +3,7 @@
     <div class="modal-background"></div>
     <div class="modal-content">
       <i id='spinner' class="fa fa-spinner fa-spin"></i>
-      Downloading weight parameters, please wait...
+      Downloading weight parameters {{$store.state.weight_downloading_progress}} / 100 %, please wait...
     </div>
   </div>
 </template>
