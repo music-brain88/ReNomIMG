@@ -46,24 +46,7 @@ export default {
             'page': 0
           })
         }
-        let ret = result.slice(current, last)
-
-        // Preload imgs
-        let prev = 0
-        let next = result.length
-        if (this.hasPrevPage)
-          prev = Math.max((this.currentPage - 1) * this.maxImageNum, 0)
-
-        if (this.hasNextPage)
-          next = Math.min((this.currentPage + 2) * this.maxImageNum, result.length)
-
-        let next_list = result.slice(prev, current).concat(result.slice(last, next))
-        for(let item of next_list){
-          const img = new Image();
-          img.src = item.path;
-        }
-
-        return ret
+        return result.slice(current, last)
       }
     },
     currentPage: function(){
