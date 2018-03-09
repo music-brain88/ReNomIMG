@@ -273,8 +273,8 @@ class TrainThread(threading.Thread):
                 v_mAP_count += mAP_obj_count
                 v_bbox.extend(bbox)
 
-                if self.batch_size*(i + 1) > 1024:
-                    break
+                # if self.batch_size*(i + 1) > 1024:
+                #     break
 
             v_iou = np.mean(v_ious)
             v_mAP = v_mAP_true_count/float(v_mAP_count)
