@@ -232,11 +232,6 @@ export default {
         background-color: $progress-bar-color;
         height: 100%;
       }
-      @keyframes progress-anime {
-        0%{width: 0;}
-        50%{width: 100%;}
-        100%{width: 100%;}
-      }
     }
 
     .progress-bar-mask {
@@ -245,10 +240,10 @@ export default {
       width: 100%;
       height: calc(#{$progress-bar-height} - 2px);
       background: linear-gradient(70deg, rgba(255, 255, 255, 0.0), 30%, rgba(200, 200, 200, 1), 50%, rgba(255, 255, 255, 0));
-      background-size: 50%;
+      background-size: 50% 100%;
       background-repeat: no-repeat;
       animation: movegrad 2s infinite linear;
-      @keyframes movegrad {
+      @-webkit-keyframes movegrad {
           0%{background-position: -100% 0;}
           100%{background-position: 200% 0;} 
       }
@@ -260,7 +255,7 @@ export default {
     animation-iteration-count: 1;
     animation-delay: 0.05s;
 }
-@keyframes emphasize {
+@-webkit-keyframes emphasize {
     0%{background-color: #ffffff;}
     30%{background-color: rgba(100, 0, 0, 0.5);}
     100%{background-color: #ffffff;}
