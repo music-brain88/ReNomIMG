@@ -189,15 +189,17 @@ class yolo(Node):
 
             # add 1st-2nd part of the equation
             loss += obj_scale * \
-                np.sum(np.square(x[update_ind, 5 * b + 1:5 * b + 5] - y[update_ind, 1:5]))
+                np.sum(np.square(x[update_ind, 5 * b +
+                                   1:5 * b + 5] - y[update_ind, 1:5]))
 
             deltas[update_ind, 5 * b + 1:5 * b + 5] = obj_scale * \
                 (x[update_ind, 5 * b + 1:5 * b + 5] - y[update_ind, 1:5])
 
-        divs = N*cells*cells*bbox/(7*7*2)
+        divs = N * cells * cells * bbox / (7 * 7 * 2)
 
         loss = loss / 2 / divs
-        deltas = deltas.reshape(-1, cells * cells * (5 * bbox + classes)) / divs
+        deltas = deltas.reshape(-1, cells * cells *
+                                (5 * bbox + classes)) / divs
         ret = cls._create_node(loss)
         ret.attrs._x = raw_x
         ret.attrs._deltas = deltas
@@ -213,7 +215,8 @@ class yolo(Node):
 
     def _backward_gpu(self, context, dy, **kwargs):
         if isinstance(self.attrs._x, Node):
-            self.attrs._x._update_diff(context, get_gpu(self.attrs._deltas) * dy)
+            self.attrs._x._update_diff(
+                context, get_gpu(self.attrs._deltas) * dy)
 
 
 class Yolo(object):

@@ -16,13 +16,15 @@ STRAGE_DIR = os.path.join(BASE_DIR, "../../.storage")
 def pickle_dump(obj):
     return pickle.dumps(obj)
 
+
 def pickle_load(pickled_obj):
-    if sys.version_info.major==2:
+    if sys.version_info.major == 2:
         if isinstance(pickled_obj, unicode):
             pickled_obj = pickled_obj.encode()
         return pickle.loads(pickled_obj)
     else:
         return pickle.loads(pickled_obj, encoding='ascii')
+
 
 class Storage:
     def __init__(self):
@@ -289,7 +291,8 @@ class Storage:
     def fetch_models(self, project_id, fields='model_id', order_by='model_id'):
         with self.db:
             c = self.cursor()
-            sql = "SELECT " + fields + " FROM model WHERE project_id=? AND state<3 ORDER BY " + order_by
+            sql = "SELECT " + fields + \
+                " FROM model WHERE project_id=? AND state<3 ORDER BY " + order_by
             c.execute(sql, (project_id,))
 
             blob_items = ['hyper_parameters', 'algorithm_params',

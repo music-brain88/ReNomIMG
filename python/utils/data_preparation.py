@@ -61,7 +61,8 @@ def create_detection_distributor(xml_root_path, img_root_path, img_size, augment
     file_dir = os.path.join(base_dir, xml_root_path)
 
     file_list = sorted(os.listdir(file_dir))
-    data_set = [get_img_info(os.path.join(file_dir, path)) for path in file_list]
+    data_set = [get_img_info(os.path.join(file_dir, path))
+                for path in file_list]
 
     label_length = len(label_dict)
 
@@ -81,6 +82,7 @@ def create_detection_distributor(xml_root_path, img_root_path, img_size, augment
                                      imsize=img_size,
                                      augmentation=augmentation)
 
+
 def check_class_existence():
     train_img_path = 'dataset/train_set/img'
     train_xml_path = 'dataset/train_set/label'
@@ -90,7 +92,8 @@ def check_class_existence():
     for xml_root_path in [train_xml_path, valid_xml_path]:
         file_dir = xml_root_path
         file_list = sorted(os.listdir(file_dir))
-        data_set = [get_img_info(os.path.join(file_dir, path)) for path in file_list]
+        data_set = [get_img_info(os.path.join(file_dir, path))
+                    for path in file_list]
 
 
 def create_train_valid_dists(img_size):
@@ -116,7 +119,8 @@ def create_train_valid_dists(img_size):
 
     train_dist = create_detection_distributor(
         train_xml_path, train_img_path, img_size, augmentation)
-    valid_dist = create_detection_distributor(valid_xml_path, valid_img_path, img_size, None)
+    valid_dist = create_detection_distributor(
+        valid_xml_path, valid_img_path, img_size, None)
 
     class_list = [c for c, v in sorted(label_dict.items(), key=lambda x:x[0])]
     return class_list, train_dist, valid_dist
@@ -127,7 +131,9 @@ def create_pred_dist(img_size):
         check_class_existence()
     pred_img_path = 'dataset/prediction_set/img'
     pred_img_path_list = sorted(os.listdir(pred_img_path))
-    pred_img_path_list = [os.path.join(pred_img_path,x) for x in pred_img_path_list]
+    pred_img_path_list = [os.path.join(pred_img_path, x)
+                          for x in pred_img_path_list]
     class_list = [c for c, v in sorted(label_dict.items(), key=lambda x:x[0])]
-    pred_dist = ImageDetectionDistributor(pred_img_path_list, None, class_list, img_size, 'RGB', None)
+    pred_dist = ImageDetectionDistributor(
+        pred_img_path_list, None, class_list, img_size, 'RGB', None)
     return pred_dist

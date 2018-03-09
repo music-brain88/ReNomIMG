@@ -7,7 +7,7 @@ import threading
 import csv
 import xml.etree.ElementTree as et
 from PIL import Image
-from renom.cuda import set_cuda_active
+from renom.cuda import set_cuda_active, release_mem_pool
 from .model.yolo import YoloDarknet
 from .utils.data_preparation import create_train_valid_dists, create_pred_dist
 
@@ -38,7 +38,8 @@ class PredictionThread(threading.Thread):
         self.total_epoch = int(hyper_parameters['total_epoch'])
         self.batch_size = int(hyper_parameters['batch_size'])
         self.seed = int(hyper_parameters['seed'])
-        self.img_size = (hyper_parameters['image_width'], hyper_parameters['image_height'])
+        self.img_size = (int(hyper_parameters['image_width']), int(
+            hyper_parameters['image_height']))
 
         self.cell_h = int(algorithm_params['cells'])
         self.cell_v = int(algorithm_params['cells'])
@@ -51,8 +52,10 @@ class PredictionThread(threading.Thread):
 
     def run(self):
         set_cuda_active(True)
+        release_mem_pool()
         print("run prediction")
-        class_list, train_dist, valid_dist = create_train_valid_dists(self.img_size)
+        class_list, train_dist, valid_dist = create_train_valid_dists(
+            self.img_size)
         self.model = self.set_train_config(len(class_list))
         self.model.load(os.path.join(WEIGHT_DIR, self.weight_name))
         self.run_prediction()
@@ -67,7 +70,7 @@ class PredictionThread(threading.Thread):
 
         start_t = time.time()
         for i, prediction_x in enumerate(distributor.batch(self.batch_size, False)):
-            h = self.model.freezed_forward(prediction_x/255. * 2 - 1)
+            h = self.model.freezed_forward(prediction_x / 255. * 2 - 1)
             z = self.model(h)
             bbox = self.model.get_bbox(z.as_ndarray())
             v_bbox.extend(bbox)

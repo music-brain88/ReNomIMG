@@ -28,15 +28,16 @@ class YoloBase(rm.Model):
 
     def optimizer(self, epoch, batch_loop, num_epoch, num_batch_loop):
         lr_list = [0.001] \
-                + [0.01] * int(num_epoch*0.5) \
-                + [0.001] * int(num_epoch*0.25) \
-                + [0.0001] * int(num_epoch*0.25)
+            + [0.01] * int(num_epoch * 0.5) \
+            + [0.001] * int(num_epoch * 0.25) \
+            + [0.0001] * int(num_epoch * 0.25)
         if len(lr_list) < num_epoch:
             lr_list += [0.0001] * (len(num_epoch) - len(lr_list))
         lr_list = lr_list[:num_epoch]
 
         if epoch == 0:
-            lr = batch_loop * ((0.01 - 0.001) / num_batch_loop) + lr_list[epoch]
+            lr = batch_loop * ((0.01 - 0.001) /
+                               num_batch_loop) + lr_list[epoch]
         else:
             lr = lr_list[epoch]
 

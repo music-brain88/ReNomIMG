@@ -6,7 +6,7 @@ import time
 import threading
 import numpy as np
 import traceback
-from renom.cuda import set_cuda_active
+from renom.cuda import set_cuda_active, release_mem_pool
 from .model.yolo import YoloDarknet
 from .utils.data_preparation import create_train_valid_dists
 from .utils.storage import storage
@@ -42,7 +42,8 @@ class TrainThread(threading.Thread):
         self.total_epoch = int(hyper_parameters['total_epoch'])
         self.batch_size = int(hyper_parameters['batch_size'])
         self.seed = int(hyper_parameters['seed'])
-        self.img_size = (int(hyper_parameters['image_width']), int(hyper_parameters['image_height']))
+        self.img_size = (int(hyper_parameters['image_width']), int(
+            hyper_parameters['image_height']))
 
         self.cell_h = int(algorithm_params['cells'])
         self.cell_v = int(algorithm_params['cells'])
@@ -67,7 +68,7 @@ class TrainThread(threading.Thread):
 
             for i in range(len(truth)):
                 label = truth[i].reshape(-1, 4 + self._class_num)
-                pred = sorted(predict_list[i], key=lambda x:x['class'])
+                pred = sorted(predict_list[i], key=lambda x: x['class'])
 
                 for j in range(len(label)):
                     x, y, w, h = label[j, :4]
@@ -118,10 +119,13 @@ class TrainThread(threading.Thread):
     def run(self):
         try:
             set_cuda_active(True)
+            release_mem_pool()
             print("run thread")
             storage.update_model_state(self.model_id, STATE_RUNNING)
-            class_list, train_dist, valid_dist = create_train_valid_dists(self.img_size)
-            storage.register_dataset_v0(len(train_dist), len(valid_dist), class_list)
+            class_list, train_dist, valid_dist = create_train_valid_dists(
+                self.img_size)
+            storage.register_dataset_v0(
+                len(train_dist), len(valid_dist), class_list)
             self.model = self.set_train_config(len(class_list))
             self.run_train(train_dist, valid_dist)
         except Exception as e:
@@ -162,7 +166,8 @@ class TrainThread(threading.Thread):
                 train_loss = 0
                 validation_loss = 0
                 # Train
-                batch_length = int(np.ceil(len(train_distributor)/float(self.batch_size)))
+                batch_length = int(
+                    np.ceil(len(train_distributor) / float(self.batch_size)))
 
                 i = 0
                 self.last_batch = 0
@@ -177,7 +182,7 @@ class TrainThread(threading.Thread):
                     self.running_state = TRAIN
 
                     self.model.set_models(inference=False)
-                    h = self.model.freezed_forward(train_x/255. * 2 - 1)
+                    h = self.model.freezed_forward(train_x / 255. * 2 - 1)
                     with self.model.train():
                         z = self.model(h)
                         label = self.model.transform_label_format(train_y)
@@ -186,7 +191,7 @@ class TrainThread(threading.Thread):
                         loss += self.model.weight_decay()
                     # TODO: Specify batch length
                     loss.grad().update(self.model.optimizer(e, i,
-                                       self.total_epoch, batch_length))
+                                                            self.total_epoch, batch_length))
 
                     train_loss += num_loss
                     self.last_train_loss = float(num_loss)
@@ -194,8 +199,10 @@ class TrainThread(threading.Thread):
                     if DEBUG:
                         print('##### {}/{} {}'.format(i, batch_length, e))
                         print('  train loss', num_loss)
-                        print('  learning rate', self.model.optimizer(e, i, self.total_epoch, batch_length)._lr)
-                        print('  took time {}[s]'.format(time.time() - start_t2))
+                        print('  learning rate', self.model.optimizer(
+                            e, i, self.total_epoch, batch_length)._lr)
+                        print('  took time {}[s]'.format(
+                            time.time() - start_t2))
                 train_loss = train_loss / (i + 1)
                 train_loss_list.append(train_loss)
 
@@ -260,14 +267,15 @@ class TrainThread(threading.Thread):
                 if self.stop_event.is_set():
                     return
                 # Validation
-                h = self.model.freezed_forward(validation_x/255. * 2 - 1)
+                h = self.model.freezed_forward(validation_x / 255. * 2 - 1)
                 z = self.model(h)
                 label = self.model.transform_label_format(validation_y)
                 loss = self.model.loss_func(z, label)
                 validation_loss += loss.as_ndarray()
 
                 bbox = self.model.get_bbox(z.as_ndarray())
-                iou_list, mAP_true_obj_count, mAP_obj_count = self.get_iou_and_mAP(validation_y, bbox)
+                iou_list, mAP_true_obj_count, mAP_obj_count = self.get_iou_and_mAP(
+                    validation_y, bbox)
                 v_ious.extend(iou_list)
                 v_mAP_true_count += mAP_true_obj_count
                 v_mAP_count += mAP_obj_count
@@ -277,7 +285,7 @@ class TrainThread(threading.Thread):
                 #     break
 
             v_iou = np.mean(v_ious)
-            v_mAP = v_mAP_true_count/float(v_mAP_count)
+            v_mAP = v_mAP_true_count / float(v_mAP_count)
             v_iou = float(0 if np.isnan(v_iou) or np.isinf(v_iou) else v_iou)
             v_mAP = float(0 if np.isnan(v_mAP) or np.isinf(v_mAP) else v_mAP)
             v_bbox = v_bbox
