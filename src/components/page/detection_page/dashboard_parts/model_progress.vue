@@ -1,5 +1,5 @@
 <template>
-  <div id="model-progress">
+  <div id="model-progress" v-bind:class='{emphasizeItem: currentModelId==model.model_id}'>
     <div class="value-item">
       <div class="label">
         Model ID
@@ -90,11 +90,11 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 var TRAIN = 0
 var VALID = 1
 var TRAIN_STARTING = 3
 var TRAIN_STOPPING = 4
-
 export default {
   name: "modelProgress",
   props: {
@@ -113,6 +113,9 @@ export default {
   updated: function() {
     this.updateProgressBar();
   },
+  computed: mapState({
+    currentModelId: state => state.project.selected_model_id,
+  }),
   methods: {
     updateProgressBar: function() {
       const epoch = this.model.validation_loss_list.length;
@@ -229,12 +232,6 @@ export default {
         background-color: $progress-bar-color;
         height: 100%;
       }
-      .animated{
-        //animation: progress-anime 3s ease infinite;
-      }
-      :not(.animated){
-        width: 100%;
-      }
       @keyframes progress-anime {
         0%{width: 0;}
         50%{width: 100%;}
@@ -257,5 +254,15 @@ export default {
       }
     }
   }
+}
+.emphasizeItem {
+    animation: emphasize 0.4s;
+    animation-iteration-count: 1;
+    animation-delay: 0.05s;
+}
+@keyframes emphasize {
+    0%{background-color: #ffffff;}
+    30%{background-color: rgba(100, 0, 0, 0.5);}
+    100%{background-color: #ffffff;}
 }
 </style>
