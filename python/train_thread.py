@@ -5,6 +5,7 @@ import os
 import time
 import threading
 import numpy as np
+import traceback
 from renom.cuda import set_cuda_active
 from .model.yolo import YoloDarknet
 from .utils.data_preparation import create_train_valid_dists
@@ -41,7 +42,7 @@ class TrainThread(threading.Thread):
         self.total_epoch = int(hyper_parameters['total_epoch'])
         self.batch_size = int(hyper_parameters['batch_size'])
         self.seed = int(hyper_parameters['seed'])
-        self.img_size = (hyper_parameters['image_width'], hyper_parameters['image_height'])
+        self.img_size = (int(hyper_parameters['image_width']), int(hyper_parameters['image_height']))
 
         self.cell_h = int(algorithm_params['cells'])
         self.cell_v = int(algorithm_params['cells'])
@@ -66,7 +67,7 @@ class TrainThread(threading.Thread):
 
             for i in range(len(truth)):
                 label = truth[i].reshape(-1, 4 + self._class_num)
-                pred = predict_list[i]
+                pred = sorted(predict_list[i], key=lambda x:x['class'])
 
                 for j in range(len(label)):
                     x, y, w, h = label[j, :4]
@@ -82,8 +83,12 @@ class TrainThread(threading.Thread):
                     map_count += 1
                     for k in range(len(pred)):
                         p_class = pred[k]['class']
-                        if p_class != obj_class:
+
+                        if p_class < obj_class:
                             break
+                        if p_class != obj_class:
+                            continue
+
                         p_x = pred[k]['box'][0] * self.img_size[0]
                         p_y = pred[k]['box'][1] * self.img_size[1]
                         p_w = pred[k]['box'][2] * self.img_size[0]
@@ -96,16 +101,18 @@ class TrainThread(threading.Thread):
                         overlapped_dpx = min(px2, x2) - max(px1, x1)
                         overlapped_dpy = min(py2, y2) - max(py1, y1)
                         if overlapped_dpx <= 0 or overlapped_dpy <= 0:
-                            break
+                            continue
+
                         intersection = overlapped_dpx * overlapped_dpy
                         union = p_w * p_h + w * h - intersection
                         iou = intersection / float(union)
                         iou_list.append(iou)
+                        if iou < 0.3:
+                            continue
                         map_true_count += 1
-
-            map = map_true_count / map_count
-            return iou_list, map
+            return iou_list, map_true_count, map_count
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
 
     def run(self):
@@ -245,7 +252,8 @@ class TrainThread(threading.Thread):
         try:
             validation_loss = 0
             v_ious = []
-            v_mAPs = []
+            v_mAP_count = 0
+            v_mAP_true_count = 0
             v_bbox = []
             self.model.set_models(inference=True)
             for i, (validation_x, validation_y) in enumerate(distributor.batch(self.batch_size, False)):
@@ -259,22 +267,25 @@ class TrainThread(threading.Thread):
                 validation_loss += loss.as_ndarray()
 
                 bbox = self.model.get_bbox(z.as_ndarray())
-                iou, mAP = self.get_iou_and_mAP(validation_y, bbox)
-                v_ious.extend(iou)
-                v_mAPs.append(mAP)
+                iou_list, mAP_true_obj_count, mAP_obj_count = self.get_iou_and_mAP(validation_y, bbox)
+                v_ious.extend(iou_list)
+                v_mAP_true_count += mAP_true_obj_count
+                v_mAP_count += mAP_obj_count
                 v_bbox.extend(bbox)
+
                 if self.batch_size*(i + 1) > 1024:
                     break
 
             v_iou = np.mean(v_ious)
-            v_mAP = np.mean(v_mAPs)
-            v_iou = float(0 if np.isnan(v_iou) else v_iou)
-            v_mAP = float(0 if np.isnan(v_mAP) else v_mAP)
+            v_mAP = v_mAP_true_count/float(v_mAP_count)
+            v_iou = float(0 if np.isnan(v_iou) or np.isinf(v_iou) else v_iou)
+            v_mAP = float(0 if np.isnan(v_mAP) or np.isinf(v_mAP) else v_mAP)
             v_bbox = v_bbox
 
             validation_loss = validation_loss / (i + 1)
             return validation_loss, v_iou, v_mAP, v_bbox
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
 
     def set_train_config(self, class_num):
