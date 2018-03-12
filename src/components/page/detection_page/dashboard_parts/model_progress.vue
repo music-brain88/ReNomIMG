@@ -166,6 +166,7 @@ export default {
   $progress-bar-color: #000099;
 
   $stop-button-color: #999999;
+  $stop-button-color-hover: #666666;
 
   width: 100%;
   display: flex;
@@ -203,6 +204,9 @@ export default {
       line-height: $value-font-size;
       font-size: $value-font-size;
       color: $stop-button-color;
+    }
+    .stop-button:hover {
+      color: $stop-button-color-hover;
     }
   }
 
@@ -245,7 +249,7 @@ export default {
       animation: movegrad 2s infinite linear;
       @-webkit-keyframes movegrad {
           0%{background-position: -100% 0;}
-          100%{background-position: 200% 0;} 
+          100%{background-position: 200% 0;}
       }
     }
   }
