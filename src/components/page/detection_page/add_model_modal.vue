@@ -24,15 +24,19 @@
           <div v-if="algorithm == 0" class="param-item">
             <div class="label">Cells</div>
             <div class="item">
-              <input type="text" v-model="cells" maxlength="5">
+              <input type="text" v-model="cells" maxlength="2">
             </div>
+            <div class="input-alert" v-if="cells < 3">Cells must greater than 3</div>
+            <div class="input-alert" v-if="cells > 20">Cells must lower than 20</div>
           </div>
 
           <div v-if="algorithm == 0" class="param-item">
             <div class="label">Bounding Box</div>
             <div class="item">
-              <input type="text" v-model="bounding_box" maxlength="5">
+              <input type="text" v-model="bounding_box" maxlength="2">
             </div>
+            <div class="input-alert" v-if="bounding_box < 1">Bounding Box must greater than 1</div>
+            <div class="input-alert" v-if="bounding_box > 10">Bounding Box must lower than 10</div>
           </div>
         </div>
 
@@ -44,15 +48,19 @@
           <div class="param-item">
             <div class="label">Image Width</div>
             <div class="item">
-              <input type="text" v-model="image_width" maxlength="5">
+              <input type="text" v-model="image_width" maxlength="4">
             </div>
+            <div class="input-alert" v-if="image_width < 32">Image Width must greater than 32</div>
+            <div class="input-alert" v-if="image_width > 1024">Image Width must lower than 1024</div>
           </div>
 
           <div class="param-item">
             <div class="label">Image Height</div>
             <div class="item">
-              <input type="text" v-model="image_height" maxlength="5">
+              <input type="text" v-model="image_height" maxlength="4">
             </div>
+            <div class="input-alert" v-if="image_height < 32">Image Height must greater than 32</div>
+            <div class="input-alert" v-if="image_height > 1024">Image Height must lower than 1024</div>
           </div>
         </div>
 
@@ -64,8 +72,10 @@
           <div class="param-item">
             <div class="label">Total Epoch</div>
             <div class="item">
-              <input type="text" v-model="total_epoch" maxlength="5">
+              <input type="text" v-model="total_epoch" maxlength="4">
             </div>
+            <div class="input-alert" v-if="total_epoch < 1">Epoch must greater than 1</div>
+            <div class="input-alert" v-if="total_epoch > 1000">Epoch must lower than 1000</div>
           </div>
 
           <div class="param-item">
@@ -73,6 +83,8 @@
             <div class="item">
               <input type="text" v-model="batch_size" maxlength="5">
             </div>
+            <div class="input-alert" v-if="batch_size < 1">Batch Size must greater than 1</div>
+            <div class="input-alert" v-if="batch_size > 512">Batch Size must lower than 512</div>
           </div>
 
           <!-- <div class="param-item">
@@ -116,6 +128,16 @@ export default {
       this.$store.commit("setAddModelModalShowFlag", {"add_model_modal_show_flag": false});
     },
     runModel: function() {
+      if(this.cells < 3 || 20 < this.cells ||
+         this.bounding_box < 0 || 512 < this.bounding_box ||
+         this.image_width < 32 || 1024 < this.image_width ||
+         this.image_height < 32 || 1024 < this.image_height ||
+         this.total_epoch < 0 || 1000 < this.total_epoch ||
+         this.batch_size < 0 || 512 < this.batch_size) {
+        alert("Input data has invalid number.");
+        return;
+      }
+
       const self = this
       this.$store.dispatch("checkDatasetDir").then(function(success){
         if(!success)return;
@@ -223,7 +245,7 @@ export default {
 
         .param-item {
           display: flex;
-
+          position: relative;
           margin-top: $content-margin;
 
           .label {
@@ -239,6 +261,15 @@ export default {
               width: 100%;
             }
           }
+          .input-alert {
+            position: absolute;
+            top: 44px;
+            left: 132px;
+            pading: 4px 8px;
+            font-size: 12px;
+            color: #ff0000;
+          }
+
         }
       }
     }
