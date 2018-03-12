@@ -50,112 +50,129 @@ class PredictionThread(threading.Thread):
         self.predict_results = {}
         self.csv_filename = ''
 
+        self.error_msg = None
+
     def run(self):
-        set_cuda_active(True)
-        release_mem_pool()
-        print("run prediction")
-        class_list, train_dist, valid_dist = create_train_valid_dists(
-            self.img_size)
-        self.model = self.set_train_config(len(class_list))
-        self.model.load(os.path.join(WEIGHT_DIR, self.weight_name))
-        self.run_prediction()
+        try:
+            set_cuda_active(True)
+            release_mem_pool()
+            print("run prediction")
+            class_list, train_dist, valid_dist = create_train_valid_dists(
+                self.img_size)
+            self.model = self.set_train_config(len(class_list))
+            self.model.load(os.path.join(WEIGHT_DIR, self.weight_name))
+            self.run_prediction()
+        except Exception as e:
+            self.error_msg = e.args[0]
 
     def run_prediction(self):
-        distributor = create_pred_dist(self.img_size)
+        try:
+            distributor = create_pred_dist(self.img_size)
 
-        v_bbox = []
-        v_bbox_imgs = distributor._data_table
+            v_bbox = []
+            v_bbox_imgs = distributor._data_table
 
-        self.model.set_models(inference=True)
+            self.model.set_models(inference=True)
 
-        start_t = time.time()
-        for i, prediction_x in enumerate(distributor.batch(self.batch_size, False)):
-            h = self.model.freezed_forward(prediction_x / 255. * 2 - 1)
-            z = self.model(h)
-            bbox = self.model.get_bbox(z.as_ndarray())
-            v_bbox.extend(bbox)
+            start_t = time.time()
+            for i, prediction_x in enumerate(distributor.batch(self.batch_size, False)):
+                h = self.model.freezed_forward(prediction_x / 255. * 2 - 1)
+                z = self.model(h)
+                bbox = self.model.get_bbox(z.as_ndarray())
+                v_bbox.extend(bbox)
 
-        end_t = time.time()
-        print("predict time: {} [s]".format(end_t - start_t))
+            end_t = time.time()
+            print("predict time: {} [s]".format(end_t - start_t))
 
-        self.predict_results = {
-            "bbox_list": v_bbox[:len(v_bbox_imgs)],
-            "bbox_path_list": v_bbox_imgs
-        }
-        self.save_predict_result_to_csv()
-        self.save_predict_result_to_xml()
+            self.predict_results = {
+                "bbox_list": v_bbox[:len(v_bbox_imgs)],
+                "bbox_path_list": v_bbox_imgs
+            }
+            self.save_predict_result_to_csv()
+            self.save_predict_result_to_xml()
+        except Exception as e:
+            self.error_msg = e.args[0]
 
     def save_predict_result_to_csv(self):
-        # modelのcsvを保存する
-        if not os.path.isdir(CSV_DIR):
-            os.makedirs(CSV_DIR)
+        try:
+            # modelのcsvを保存する
+            if not os.path.isdir(CSV_DIR):
+                os.makedirs(CSV_DIR)
 
-        self.csv_filename = '{}.csv'.format(int(time.time()))
-        filepath = os.path.join(CSV_DIR, self.csv_filename)
+            self.csv_filename = '{}.csv'.format(int(time.time()))
+            filepath = os.path.join(CSV_DIR, self.csv_filename)
 
-        with open(filepath, 'w') as f:
-            writer = csv.writer(f, lineterminator="\n")
+            with open(filepath, 'w') as f:
+                writer = csv.writer(f, lineterminator="\n")
 
-            for i in range(len(self.predict_results["bbox_path_list"])):
-                row = []
-                row.append(self.predict_results["bbox_path_list"][i])
-                for j in range(len(self.predict_results["bbox_list"][i])):
-                    b = self.predict_results["bbox_list"][i][j]
-                    row.append(b["class"])
-                    row.append(b["box"])
+                for i in range(len(self.predict_results["bbox_path_list"])):
+                    row = []
+                    row.append(self.predict_results["bbox_path_list"][i])
+                    for j in range(len(self.predict_results["bbox_list"][i])):
+                        b = self.predict_results["bbox_list"][i][j]
+                        row.append(b["class"])
+                        row.append(b["box"])
 
-                writer.writerow(row)
+                    writer.writerow(row)
+        except Exception as e:
+            self.error_msg = e.args[0]
 
     def save_predict_result_to_xml(self):
-        for i in range(len(self.predict_results["bbox_path_list"])):
-            img_path = self.predict_results["bbox_path_list"][i]
-            filename = img_path.split("/")[-1]
-            xml_filename = '{}.xml'.format(filename.split(".")[0])
-            filepath = os.path.join(XML_DIR, xml_filename)
+        try:
+            for i in range(len(self.predict_results["bbox_path_list"])):
+                img_path = self.predict_results["bbox_path_list"][i]
+                filename = img_path.split("/")[-1]
+                xml_filename = '{}.xml'.format(filename.split(".")[0])
+                filepath = os.path.join(XML_DIR, xml_filename)
 
-            img_path = os.path.join(IMG_DIR, filename)
-            im = Image.open(img_path)
-            width, height = im.size
+                img_path = os.path.join(IMG_DIR, filename)
+                im = Image.open(img_path)
+                width, height = im.size
 
-            annotation = et.Element("annotation")
-            name = et.SubElement(annotation, "filename")
-            name.text = filename
+                annotation = et.Element("annotation")
+                name = et.SubElement(annotation, "filename")
+                name.text = filename
 
-            for j in range(len(self.predict_results["bbox_list"][i])):
-                b = self.predict_results["bbox_list"][i][j]
-                obj = et.SubElement(annotation, "object")
-                bbox_class = et.SubElement(obj, "class")
-                bbox_class.text = str(b["class"])
+                for j in range(len(self.predict_results["bbox_list"][i])):
+                    b = self.predict_results["bbox_list"][i][j]
+                    obj = et.SubElement(annotation, "object")
+                    bbox_class = et.SubElement(obj, "class")
+                    bbox_class.text = str(b["class"])
 
-                bbox_position = et.SubElement(obj, "bndbox")
-                bbox_xmax = et.SubElement(bbox_position, "xmax")
-                xmax = width * b["box"][0] + (width * b["box"][2] / 2.)
-                bbox_xmax.text = str(xmax)
+                    bbox_position = et.SubElement(obj, "bndbox")
+                    bbox_xmax = et.SubElement(bbox_position, "xmax")
+                    xmax = width * b["box"][0] + (width * b["box"][2] / 2.)
+                    bbox_xmax.text = str(xmax)
 
-                bbox_xmin = et.SubElement(bbox_position, "xmin")
-                xmin = width * b["box"][0] - (width * b["box"][2] / 2.)
-                bbox_xmin.text = str(xmin)
+                    bbox_xmin = et.SubElement(bbox_position, "xmin")
+                    xmin = width * b["box"][0] - (width * b["box"][2] / 2.)
+                    bbox_xmin.text = str(xmin)
 
-                bbox_ymax = et.SubElement(bbox_position, "ymax")
-                ymax = height * b["box"][1] + height * b["box"][3] / 2.
-                bbox_ymax.text = str(ymax)
+                    bbox_ymax = et.SubElement(bbox_position, "ymax")
+                    ymax = height * b["box"][1] + height * b["box"][3] / 2.
+                    bbox_ymax.text = str(ymax)
 
-                bbox_ymin = et.SubElement(bbox_position, "ymin")
-                ymin = height * b["box"][1] - height * b["box"][3] / 2.
-                bbox_ymin.text = str(ymin)
+                    bbox_ymin = et.SubElement(bbox_position, "ymin")
+                    ymin = height * b["box"][1] - height * b["box"][3] / 2.
+                    bbox_ymin.text = str(ymin)
 
-                bbox_score = et.SubElement(obj, "score")
-                bbox_score.text = str(b["score"])
+                    bbox_score = et.SubElement(obj, "score")
+                    bbox_score.text = str(b["score"])
 
-            size = et.SubElement(annotation, "size")
-            size_h = et.SubElement(size, "height")
-            size_h.text = str(height)
-            size_w = et.SubElement(size, "width")
-            size_w.text = str(width)
+                size = et.SubElement(annotation, "size")
+                size_h = et.SubElement(size, "height")
+                size_h.text = str(height)
+                size_w = et.SubElement(size, "width")
+                size_w.text = str(width)
 
-            tree = et.ElementTree(annotation)
-            tree.write(filepath)
+                tree = et.ElementTree(annotation)
+                tree.write(filepath)
+        except Exception as e:
+            self.error_msg = e.args[0]
 
     def set_train_config(self, class_num):
-        self._class_num = int(class_num)
-        return YoloDarknet(cell=self.cell_h, bbox=self.num_bbox, class_num=class_num, img_size=self.img_size)
+        try:
+            self._class_num = int(class_num)
+            return YoloDarknet(cell=self.cell_h, bbox=self.num_bbox, class_num=class_num, img_size=self.img_size)
+        except Exception as e:
+            self.error_msg = e.args[0]

@@ -606,6 +606,7 @@ const store = new Vuex.Store({
           .then(function(response) {
             if(response.data.error_msg) {
               alert("Error: " + response.data.error_msg);
+              context.commit('setPredictRunningFlag', {'flag': false});
               return;
             }
 

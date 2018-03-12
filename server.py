@@ -406,11 +406,14 @@ def run_prediction(project_id, model_id):
         th.start()
         th.join()
 
-        data = {
-            "predict_results": th.predict_results,
-            "csv": th.csv_filename,
-        }
-        body = json.dumps(data)
+        if th.error_msg is not None:
+            body = json.dumps({"error_msg": th.error_msg})
+        else:
+            data = {
+                "predict_results": th.predict_results,
+                "csv": th.csv_filename,
+            }
+            body = json.dumps(data)
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
