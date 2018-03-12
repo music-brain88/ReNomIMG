@@ -176,6 +176,9 @@ export default {
   }
 }
 
+#model-list-item:hover {
+  background-color: #eeeeee;
+}
 #model-list-item.active {
   background-color: #d1d1d1;
 }

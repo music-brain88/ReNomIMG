@@ -77,6 +77,7 @@ export default {
 
   $add-panel-height: 86px;
   $add-panel-bg-color: #7F9DB5;
+  $add-panel-bg-color-hover: #7590A5;
 
   height: 100%;
   margin: 0;
@@ -120,6 +121,9 @@ export default {
     line-height: calc(#{$add-panel-height}*0.5);
     border-radius: 4px;
     cursor: pointer;
+  }
+  .add-panel:hover {
+    background-color: $add-panel-bg-color-hover;
   }
 }
 </style>

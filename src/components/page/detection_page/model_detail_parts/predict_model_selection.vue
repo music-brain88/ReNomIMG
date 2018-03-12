@@ -71,6 +71,7 @@ export default {
 <style lang="scss" scoped>
 #predict-model-selection {
   $button-bg-color: #7F9DB5;
+  $button-bg-color-hover: #7590A5;
 
   $balloon-top: 84px;
   $balloon-color: #000000;
@@ -90,6 +91,9 @@ export default {
     text-align: center;
     border-radius: 4px;
     cursor: pointer;
+  }
+  .set-predict-model:hover {
+    background-color: $button-bg-color-hover;
   }
 
   .button-description {
