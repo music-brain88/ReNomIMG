@@ -1,13 +1,20 @@
 <template>
-  <div id="app" class="container">
+  <div id="app">
     <app-header></app-header>
 
-    <div id="navigation" v-bind:class="{open: isShown}">
-      <div id='mask' @click='hideNavigationBar'></div>
-      <navigation-bar></navigation-bar>
+    <div id="navigation">
+      <transition name="mask">
+        <div id='mask' v-if="isShown" @click='hideNavigationBar'></div>
+      </transition>
+
+      <transition name="nav">
+        <navigation-bar v-if="isShown"></navigation-bar>
+      </transition>
     </div>
 
-    <router-view></router-view>
+    <div class="container">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
@@ -57,27 +64,29 @@ export default {
 
     font-family: 'Inter UI', sans-serif;
   }
-  .container {
+  #app {
     $max-width: 1280px;
     $header-height: 44px;
 
     position: relative;
-    max-width: $max-width;
+    width: 100vw;
     height: calc(100% - #{$header-height});
     margin: 0 auto;
     padding: 0;
     padding-top: $header-height;
 
+    .container {
+      max-width: $max-width;
+    }
+
     #navigation {
-      position: absolute;
-      visibility: hidden;
-      transition: 30ms;
+      position: fixed;
+      z-index: 999;
 
       #navigation-bar {
         position: fixed;
         top: $header-height;
-        left: 0;
-        z-index: 100;
+        z-index: 2;
       }
       #mask {
         position: fixed;
@@ -85,12 +94,35 @@ export default {
         left: 0;
         width: 100vw;
         height: 100vh;
-        z-index: 99;
+        z-index: 1;
         background-color: rgba(0, 0, 0, 0.4);
       }
     }
-    #navigation.open{
-      visibility: visible;
+
+    .nav-enter-active {
+      animation: slide-in 0.4s ease;
+    }
+    .nav-leave-active {
+      animation: slide-in 0.2s ease reverse;
+    }
+
+    @keyframes slide-in {
+      0% {
+        left: -180px;
+      }
+      100% {
+        left: 0;
+      }
+    }
+
+    .mask-enter-active, .mask-leave-active {
+      transition: all 0.3s;
+    }
+    .mask-enter-to, .mask-leave {
+      opacity: 1;
+    }
+    .mask-enter, .mask-leave-to {
+      opacity: 0;
     }
   }
 </style>

@@ -83,7 +83,6 @@ export default {
   margin-top: $component-margin-top;
   border-top: $border-width solid $border-color;
 
-
   .title-selectbox {
     display: flex;
     display: -webkit-flex;

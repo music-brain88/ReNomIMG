@@ -1,7 +1,7 @@
 <template>
   <header>
-    <div class="global-menu-button">
-      <i id="menu-toggle" class="fa fa-bars" aria-hidden="true" @click="toggleMenu"></i>
+    <div class="global-menu-button" @click="toggleMenu">
+      <i id="menu-toggle" class="fa fa-bars" aria-hidden="true"></i>
     </div>
 
     <div id="soft-symbol">
