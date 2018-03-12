@@ -31,6 +31,9 @@ const store = new Vuex.Store({
     predict_results: {"bbox_list": [], "bbox_path_list": []},
     predict_running_flag: false,
 
+    predict_total_batch: 0,
+    predict_last_batch: 0,
+
     // predict page
     predict_page: 0,
     predict_page_image_count: 20,
@@ -423,6 +426,10 @@ const store = new Vuex.Store({
       state.predict_results = payload.predict_results;
       state.csv = payload.csv;
     },
+    setPredictInfo(state, payload) {
+      state.predict_total_batch = payload.predict_total_batch;
+      state.predict_last_batch = payload.predict_last_batch;
+    },
     setPredictPage(state, payload) {
       const max_chunk = Math.floor(state.predict_results.bbox_path_list.length / state.predict_page_image_count);
       if(payload.page > max_chunk) {
@@ -614,6 +621,27 @@ const store = new Vuex.Store({
               "predict_results": response.data.predict_results,
               "csv": response.data.csv,
             })
+          });
+      }
+    },
+    updatePredictionInfo(context, payload) {
+      console.log("hoge");
+      if(context.state.project) {
+        const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + context.state.project.deploy_model_id + "/prediction_info";
+        axios.get(url)
+          .then(function(response) {
+            if(response.data.error_msg) {
+              alert("Error: " + response.data.error_msg);
+              return;
+            }
+            console.log(response.data);
+            context.commit("setPredictInfo", {
+              "predict_total_batch": response.data.predict_total_batch,
+              "predict_last_batch": response.data.predict_last_batch,
+            });
+            if(context.state.predict_running_flag) {
+              context.dispatch('updatePredictionInfo');
+            }
           });
       }
     },

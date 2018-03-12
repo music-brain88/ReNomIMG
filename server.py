@@ -398,11 +398,12 @@ def stop_model(project_id, model_id):
 def run_prediction(project_id, model_id):
     # 学習データ読み込み
     try:
+        thread_id = "{}_{}".format(project_id, model_id)
         fields = 'hyper_parameters,algorithm,algorithm_params,best_epoch_weight'
         data = storage.fetch_model(project_id, model_id, fields=fields)
 
         # weightのh5ファイルのパスを取得して予測する
-        th = PredictionThread(data["hyper_parameters"], data["algorithm"], data["algorithm_params"], data["best_epoch_weight"])
+        th = PredictionThread(thread_id, data["hyper_parameters"], data["algorithm"], data["algorithm_params"], data["best_epoch_weight"])
         th.start()
         th.join()
 
@@ -414,6 +415,25 @@ def run_prediction(project_id, model_id):
                 "csv": th.csv_filename,
             }
             body = json.dumps(data)
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+
+    ret = create_response(body)
+    return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/prediction_info", method="GET")
+def prediction_info(project_id, model_id):
+    # 学習データ読み込み
+    try:
+        time.sleep(1)
+        thread_id = "{}_{}".format(project_id, model_id)
+        th = find_thread(thread_id)
+        data = {
+            "predict_total_batch": th.total_batch,
+            "predict_last_batch": th.last_batch,
+        }
+        body = json.dumps(data)
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
