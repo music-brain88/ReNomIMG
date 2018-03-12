@@ -103,15 +103,15 @@ export default class Project {
     }else if(sort_by == 1 || sort_by == 2){
       // IoU, mAPでソート　大きい順
       this.models.sort(function(a, b) {
-        if(!a.best_epoch) return 1;
-        if(!b.best_epoch) return -1;
+        if(typeof(a.best_epoch) === 'undefined') return 1;
+        if(typeof(b.best_epoch) === 'undefined') return -1;
         return (a[sort_column] < b[sort_column]) ? 1 : -1;
       });
     }else if(sort_by == 3) {
       // Validation Lossでソート　小さい順
       this.models.sort(function(a, b) {
-        if(!a.best_epoch) return 1;
-        if(!b.best_epoch) return -1;
+        if(typeof(a.best_epoch) === 'undefined') return 1;
+        if(typeof(b.best_epoch) === 'undefined') return -1;
         return (a.validation_loss_list[a.best_epoch] < b.validation_loss_list[b.best_epoch]) ? -1 : 1;
       })
     }
