@@ -4,6 +4,7 @@
 import os
 import time
 import threading
+import traceback
 import csv
 import xml.etree.ElementTree as et
 from PIL import Image
@@ -63,6 +64,7 @@ class PredictionThread(threading.Thread):
             self.model.load(os.path.join(WEIGHT_DIR, self.weight_name))
             self.run_prediction()
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
 
     def run_prediction(self):
@@ -91,6 +93,7 @@ class PredictionThread(threading.Thread):
             self.save_predict_result_to_csv()
             self.save_predict_result_to_xml()
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
 
     def save_predict_result_to_csv(self):
@@ -115,6 +118,7 @@ class PredictionThread(threading.Thread):
 
                     writer.writerow(row)
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
 
     def save_predict_result_to_xml(self):
@@ -168,6 +172,7 @@ class PredictionThread(threading.Thread):
                 tree = et.ElementTree(annotation)
                 tree.write(filepath)
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
 
     def set_train_config(self, class_num):
@@ -175,4 +180,5 @@ class PredictionThread(threading.Thread):
             self._class_num = int(class_num)
             return YoloDarknet(cell=self.cell_h, bbox=self.num_bbox, class_num=class_num, img_size=self.img_size)
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
