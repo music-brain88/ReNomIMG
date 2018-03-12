@@ -45,6 +45,8 @@ export default {
   },
   methods: {
     drawLearningCurve: function() {
+      const total_epoch = this.totalEpoch;
+
       let curve_area = document.getElementById("learning-curve");
 
       let canvas = document.getElementById("curve-canvas");
@@ -74,7 +76,14 @@ export default {
         data: this.validationLoss,
       }];
 
-      let labels = Array.from(new Array(this.totalEpoch)).map((v,i) => i)
+      let labels = []
+      let quotient = Math.ceil(this.trainLoss.length/50);
+      if(this.trainLoss.length < 10) {
+        labels = Array.from(new Array(10)).map((v,i) => i)
+      }else{
+        labels = Array.from(new Array(quotient*50)).map((v,i) => i)
+      }
+      // let labels = Array.from(new Array(total_epoch)).map((v,i) => i)
 
       let data = {
         labels: labels,
@@ -101,7 +110,16 @@ export default {
               padding: -4,
               maxRotation: 0,
               minRotation: 0,
-              callback: function(value) {return ((value % 10) == 0)? value : ''},
+              autoSkip: true,
+              // callback: function(value) {
+              //   if(total_epoch <= 10) {
+              //     return value;
+              //   }else if(total_epoch <= 100){
+              //     return ((value % 10) == 0)? value : ''
+              //   }else{
+              //     return ((value % 100) == 0)? value : ''
+              //   }
+              // },
             },
             gridLines: {
               color: "rgba(0,0,0,0.1)",
