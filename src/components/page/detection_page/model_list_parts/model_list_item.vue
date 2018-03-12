@@ -98,6 +98,7 @@ export default {
   $item-margin-bottom: 8px;
   $state-width: 8px;
   $label-color: #999999;
+  $label-color-hover: #666666;
   $label-size: 12px;
 
   display: flex;
@@ -169,6 +170,9 @@ export default {
     bottom: 0;
     right: 0;
     color: $label-color;
+  }
+  .delete-button:hover {
+    color: $label-color-hover;
   }
 }
 
