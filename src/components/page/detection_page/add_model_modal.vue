@@ -121,18 +121,18 @@ export default {
         if(!success)return;
 
         const hyper_parameters = {
-          'total_epoch': self.total_epoch,
-          'batch_size': self.batch_size,
-          'seed': self.seed,
-          'image_width': self.image_width,
-          'image_height': self.image_height,
+          'total_epoch': parseInt(self.total_epoch),
+          'batch_size': parseInt(self.batch_size),
+          'seed': parseInt(self.seed),
+          'image_width': parseInt(self.image_width),
+          'image_height': parseInt(self.image_height),
         }
 
         let algorithm_params = {}
         if(self.algorithm == 0) {
           algorithm_params = {
-            "cells": self.cells,
-            "bounding_box": self.bounding_box,
+            "cells": parseInt(self.cells),
+            "bounding_box": parseInt(self.bounding_box),
           }
         }
         self.$store.dispatch("runModel", {
