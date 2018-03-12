@@ -27,10 +27,10 @@ def build_truth(y, total_w, total_h, cells, classes):
             truth_classes = y[im, obj + 4:obj + 4 + classes]
             if np.all(truth_classes == 0):
                 continue
-            truth_x = y[im, obj]
-            truth_y = y[im, obj + 1]
-            truth_w = y[im, obj + 2]
-            truth_h = y[im, obj + 3]
+            truth_x = np.clip(y[im, obj], 0, total_w)
+            truth_y = np.clip(y[im, obj + 1], 0, total_h)
+            truth_w = np.clip(y[im, obj + 2], 0, total_w)
+            truth_h = np.clip(y[im, obj + 3], 0, total_h)
             norm_x = truth_x * .99 * cells / total_w
             norm_y = truth_y * .99 * cells / total_h
             norm_w = truth_w / total_w

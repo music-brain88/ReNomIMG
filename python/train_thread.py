@@ -42,8 +42,8 @@ class TrainThread(threading.Thread):
         self.total_epoch = int(hyper_parameters['total_epoch'])
         self.batch_size = int(hyper_parameters['batch_size'])
         self.seed = int(hyper_parameters['seed'])
-        self.img_size = (int(hyper_parameters['image_width']), int(
-            hyper_parameters['image_height']))
+        self.img_size = (int(hyper_parameters['image_width']),
+            int(hyper_parameters['image_height']))
 
         self.cell_h = int(algorithm_params['cells'])
         self.cell_v = int(algorithm_params['cells'])
@@ -129,6 +129,7 @@ class TrainThread(threading.Thread):
             self.model = self.set_train_config(len(class_list))
             self.run_train(train_dist, valid_dist)
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
 
     def run_train(self, train_distributor, validation_distributor=None):
@@ -253,6 +254,7 @@ class TrainThread(threading.Thread):
 
             storage.update_model_state(self.model_id, STATE_FINISHED)
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
 
     def run_validation(self, distributor):
@@ -301,6 +303,7 @@ class TrainThread(threading.Thread):
             self._class_num = int(class_num)
             return YoloDarknet(cell=self.cell_h, bbox=self.num_bbox, class_num=class_num, img_size=self.img_size)
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]
 
     def stop(self):
@@ -308,4 +311,5 @@ class TrainThread(threading.Thread):
             self.stop_event.set()
             storage.update_model_state(self.model_id, STATE_FINISHED)
         except Exception as e:
+            traceback.print_exc()
             self.error_msg = e.args[0]

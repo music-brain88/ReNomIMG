@@ -111,7 +111,7 @@ export default {
   left: 0;
   height: 100vh;
   width: 100vw;
-  z-index: 999;
+  z-index: 998;
   background-color: #000000;
   opacity: 0.8;
 
@@ -166,7 +166,8 @@ export default {
   left: 50%;
   -webkit-transform: translateX(-50%);
   transform: translateX(-50%);
-  color: #000;
+  z-index: 999;
+  color: #fff;
   opacity: 1;
 }
 </style>

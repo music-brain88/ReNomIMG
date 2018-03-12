@@ -425,20 +425,17 @@ def run_prediction(project_id, model_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/prediction_info", method="GET")
 def prediction_info(project_id, model_id):
     # 学習データ読み込み
-    try:
-        time.sleep(1)
-        thread_id = "{}_{}".format(project_id, model_id)
-        th = find_thread(thread_id)
+    time.sleep(1)
+    thread_id = "{}_{}".format(project_id, model_id)
+    th = find_thread(thread_id)
+    if th is not None:
         data = {
             "predict_total_batch": th.total_batch,
             "predict_last_batch": th.last_batch,
         }
         body = json.dumps(data)
-    except Exception as e:
-        body = json.dumps({"error_msg": e.args[0]})
-
-    ret = create_response(body)
-    return ret
+        ret = create_response(body)
+        return ret
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")

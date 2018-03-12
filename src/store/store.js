@@ -625,7 +625,6 @@ const store = new Vuex.Store({
       }
     },
     updatePredictionInfo(context, payload) {
-      console.log("hoge");
       if(context.state.project) {
         const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + context.state.project.deploy_model_id + "/prediction_info";
         axios.get(url)
@@ -634,7 +633,7 @@ const store = new Vuex.Store({
               alert("Error: " + response.data.error_msg);
               return;
             }
-            console.log(response.data);
+
             context.commit("setPredictInfo", {
               "predict_total_batch": response.data.predict_total_batch,
               "predict_last_batch": response.data.predict_last_batch,
