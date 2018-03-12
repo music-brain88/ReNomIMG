@@ -1,5 +1,5 @@
 
-# ReNomIMG
+# ReNomIMG 0.1beta
 
 ReNom IMG is model developing tool for object detection.
 
@@ -10,7 +10,7 @@ If you haven't install ReNom, you must install ReNom from www.renom.jp.
 
 For installing ReNomIMG, download the repository from following url.
 
-`git clone https://gitlab.com/suwa/ReNomIMG.git`
+`git clone https://github.com/ReNom-dev-team/ReNomIMG.git`
 
 And move into ReNomIMG directory.
 `cd ReNomIMG`
@@ -49,7 +49,7 @@ Bibtex
 http://www.robots.ox.ac.uk/~vgg/data/pets/
 
 #### 1.Download weight file of YOLO.
-At first, you must install weight file of yolo from http://docs.renom.jp/downloads/weights/yolo.h5
+At first, you must install weight file of yolo from url.
 
 You can get the file with the following command.
 
@@ -58,8 +58,6 @@ cd ReNomIMG
 
 curl -O http://docs.renom.jp/downloads/weights/yolo.h5
 ```
-
-If you run training before downloading weight, download will start automatically. It takes a few minutes.
 
 #### 2.Create dataset directory
 As following video showing, please create the dataset direcotry in the `ReNomIMG`.
@@ -87,32 +85,28 @@ ReNomIMG
             └ out // prediction result xml files
 ```
 
-*The introduction movie will be uploaded later.
-Currently the video is in the folder `static/movie/movie01.mp4`.
+[![Not supported browser](http://img.youtube.com/vi/vKEtrMD0UII/0.jpg)](http://www.youtube.com/watch?v=vKEtrMD0UII)
 
 #### 3.Set image data to ReNomIMG
 As following video showing, please put the image you want to use in the `ReNomIMG/dataset` folder.
 
-*The introduction movie will be uploaded later.
-Currently the video is in the folder `static/movie/movie02.mp4`.
+[![Not supported browser](http://img.youtube.com/vi/BfFY2cg1jjw/0.jpg)](http://www.youtube.com/watch?v=BfFY2cg1jjw)
 
 #### 4.Run ReNomIMG
 Same as before mentioned in 'How to start', following video describes how to start ReNomIMG.
 
-*The introduction movie will be uploaded later.
-Currently the video is in the folder `static/movie/movie03.mp4`.
+[![Not supported browser](http://img.youtube.com/vi/zASwzmWLV9U/0.jpg)](http://www.youtube.com/watch?v=zASwzmWLV9U)
 
 #### 5.How to start training in ReNomIMG
 Following video describes how to start model training in ReNomIMG.
 
-*The introduction movie will be uploaded later.
-Currently the video is in the folder `static/movie/movie04.mp4`.
+[![Not supported browser](http://img.youtube.com/vi/BzNTtdrMtIo/0.jpg)](http://www.youtube.com/watch?v=BzNTtdrMtIo)
 
 #### 6.How to use model for prediction.
 Following video describes how to use model for prediction in ReNomIMG.
 
-*The introduction movie will be uploaded later.
-Currently the video is in the folder `static/movie/movie05.mp4`.
+[![Not supported browser](http://img.youtube.com/vi/RRW8ODUmUfE/0.jpg)](http://www.youtube.com/watch?v=RRW8ODUmUfE)
+
 
 ## Format of xml file.
 
