@@ -402,11 +402,7 @@ const store = new Vuex.Store({
     setPredictModelId(state, payload) {
       if(state.project){
         let m = state.project.getModelFromId(payload.model_id);
-        if(m.state == state.const.state_id["running"]) {
-          state.project.deploy_model_id  =undefined;
-        }else{
-          state.project.deploy_model_id = payload.model_id;
-        }
+        state.project.deploy_model_id = payload.model_id;
       }
     },
     setDatasetInfov0(state, payload) {

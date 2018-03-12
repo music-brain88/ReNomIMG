@@ -1,8 +1,12 @@
 <template>
   <div id="predict-model-selection">
     <div class="button-area">
-      <div class="set-predict-model" @click="setPredictModel">
+      <div class="set-predict-model" v-if="!isPredict" @click="setPredictModel">
         Deploy Model
+      </div>
+
+      <div class="set-predict-model" v-if="isPredict" @click="resetPredictModel">
+        Undeploy Model
       </div>
 
       <div class="button-description" @mouseenter="hoverDescription(true)" @mouseleave="hoverDescription(false)">
@@ -38,7 +42,10 @@ export default {
   computed: {
     stateRunning() {
       return this.$store.state.const.state_id["running"];
-    }
+    },
+    isPredict() {
+      return this.model.model_id == this.$store.state.project.deploy_model_id;
+    },
   },
   methods: {
     setPredictModel: function() {
@@ -48,6 +55,11 @@ export default {
       }
 
       this.$store.dispatch('deployModel', {"model_id": this.model.model_id});
+    },
+    resetPredictModel: function() {
+      if(confirm("Would you like to undeploy this model?")){
+        this.$store.dispatch('undeployModel', {'model_id': this.model.model_id});
+      }
     },
     hoverDescription: function(val) {
       this.show_description = val;
