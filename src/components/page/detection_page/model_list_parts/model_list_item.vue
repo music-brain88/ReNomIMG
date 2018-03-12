@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <div v-if="isPredict" class="predict_icon" @click.stop='undeployModel'>
+    <div v-if="isPredict" class="predict_icon">
     deployed
     </div>
 
@@ -81,11 +81,6 @@ export default {
         this.$store.dispatch("deleteModel", {
           "model_id": this.model.model_id
         });
-      }
-    },
-    undeployModel: function() {
-      if(confirm("Would you like to undeploy this model?")){
-        this.$store.dispatch('undeployModel', {'model_id': this.model.model_id});
       }
     },
     getColor: function(model_state, algorithm) {
