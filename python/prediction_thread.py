@@ -6,6 +6,7 @@ import time
 import threading
 import traceback
 import csv
+import numpy as np
 import xml.etree.ElementTree as et
 from PIL import Image
 from renom.cuda import set_cuda_active, release_mem_pool
@@ -16,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")
 CSV_DIR = os.path.join(BASE_DIR, "../.storage/csv")
 IMG_DIR = os.path.join(BASE_DIR, "../dataset/prediction_set/img")
-XML_DIR = os.path.join(BASE_DIR, "../dataset/prediction_set/label")
+XML_DIR = os.path.join(BASE_DIR, "../dataset/prediction_set/out")
 
 STATE_RUNNING = 1
 STATE_FINISHED = 2
@@ -30,11 +31,12 @@ DEBUG = True
 
 
 class PredictionThread(threading.Thread):
-    def __init__(self, hyper_parameters, algorithm, algorithm_params, weight_name):
+    def __init__(self, thread_id, hyper_parameters, algorithm, algorithm_params, weight_name):
         super(PredictionThread, self).__init__()
         self.stop_event = threading.Event()
         self.setDaemon(True)
 
+        self.thread_id = thread_id
         self.algorithm = algorithm
         self.total_epoch = int(hyper_parameters['total_epoch'])
         self.batch_size = int(hyper_parameters['batch_size'])
@@ -52,6 +54,8 @@ class PredictionThread(threading.Thread):
         self.csv_filename = ''
 
         self.error_msg = None
+        self.total_batch = 0
+        self.last_batch = 0
 
     def run(self):
         try:
@@ -76,8 +80,12 @@ class PredictionThread(threading.Thread):
 
             self.model.set_models(inference=True)
 
+            self.total_batch = np.ceil(len(distributor) / float(self.batch_size))
+
             start_t = time.time()
             for i, prediction_x in enumerate(distributor.batch(self.batch_size, False)):
+                self.last_batch = i
+
                 h = self.model.freezed_forward(prediction_x / 255. * 2 - 1)
                 z = self.model(h)
                 bbox = self.model.get_bbox(z.as_ndarray())
@@ -128,7 +136,6 @@ class PredictionThread(threading.Thread):
                 filename = img_path.split("/")[-1]
                 xml_filename = '{}.xml'.format(filename.split(".")[0])
                 filepath = os.path.join(XML_DIR, xml_filename)
-
                 img_path = os.path.join(IMG_DIR, filename)
                 im = Image.open(img_path)
                 width, height = im.size
@@ -170,6 +177,7 @@ class PredictionThread(threading.Thread):
                 size_w.text = str(width)
 
                 tree = et.ElementTree(annotation)
+
                 tree.write(filepath)
         except Exception as e:
             traceback.print_exc()

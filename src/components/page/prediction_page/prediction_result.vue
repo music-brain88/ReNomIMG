@@ -16,8 +16,20 @@
         :index="index">
       </sample-image>
     </div>
-    <div id='loading' v-if='isPredicting'>
-      <i id='spinner' class="fa fa-spinner fa-spin"></i>
+
+    <div id='loading' v-if='$store.state.predict_running_flag'>
+      <div class="loading">
+        <div class="animation">
+          <div class="bar bar1"></div>
+          <div class="bar bar2"></div>
+          <div class="bar bar3"></div>
+          <div class="bar bar4"></div>
+          <div class="bar bar5"></div>
+        </div>
+      </div>
+      <div class="prediction-progress">
+        Predicting {{$store.state.predict_last_batch}} / {{$store.state.predict_total_batch}}, please wait...
+      </div>
     </div>
 
     <div class="result-foot">
@@ -40,9 +52,6 @@ export default {
     getPredictResults: function () {
       return this.$store.getters.getPredictResults;
     },
-    isPredicting: function () {
-      return this.$store.state.predict_running_flag
-    }
   },
 }
 </script>
@@ -95,20 +104,71 @@ export default {
   }
 }
 
-#loading {
+/* loading animation */
+.loading {
   position: fixed;
-  top:0;
-  left:0;
-  width: 100vw;
+  top: 0;
+  left: 0;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: #ffffff;
-  #spinner {
-    position:absolute;
-    top:50%;
-    left:50%;
-    font-size: 4rem;
+  width: 100vw;
+  z-index: 998;
+  background-color: #000000;
+  opacity: 0.8;
+
+  .animation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translateY(-50%) translateX(-50%);
+    transform: translateY(-50%) translateX(-50%);
   }
+  .animation div {
+    height:30px;
+    width:10px;
+    background-color: #ffffff;
+    display:inline-block;
+    margin-right:10px;
+    -webkit-animation: animation-bar 1s infinite;
+    animation: animation-bar 1s infinite;
+  }
+
+  .animation .bar1 {
+    -webkit-animation-delay: 0.5s;
+    animation-delay: 0.5s;
+  }
+  .animation .bar2 {
+    -webkit-animation-delay: 0.6s;
+    animation-delay: 0.6s;
+  }
+  .animation .bar3 {
+    -webkit-animation-delay: 0.7s;
+    animation-delay: 0.7s;
+  }
+  .animation .bar4 {
+    -webkit-animation-delay: 0.8s;
+    animation-delay: 0.8s;
+  }
+  .animation .bar5 {
+    -webkit-animation-delay: 0.9s;
+    animation-delay: 0.9s;
+  }
+
+  @keyframes animation-bar{
+    30%
+    {
+        transform: scaleY(2);
+    }
+  }
+}
+.prediction-progress {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  z-index: 999;
+  color: #fff;
+  opacity: 1;
 }
 </style>
 

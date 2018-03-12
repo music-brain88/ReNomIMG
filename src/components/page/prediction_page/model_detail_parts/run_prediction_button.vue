@@ -22,6 +22,7 @@ export default {
   methods: {
     runPrediction: function() {
       this.$store.dispatch("runPrediction");
+      this.$store.dispatch("updatePredictionInfo");
     }
   }
 }
