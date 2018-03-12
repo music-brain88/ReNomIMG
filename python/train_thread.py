@@ -25,7 +25,7 @@ VALID = 1
 PRED = 2
 ERROR = -1
 
-DEBUG = True
+DEBUG = False
 
 
 class TrainThread(threading.Thread):
@@ -120,7 +120,7 @@ class TrainThread(threading.Thread):
         try:
             set_cuda_active(True)
             release_mem_pool()
-            print("run thread")
+            if DEBUG: print("run thread")
             storage.update_model_state(self.model_id, STATE_RUNNING)
             class_list, train_dist, valid_dist = create_train_valid_dists(
                 self.img_size)
@@ -238,7 +238,7 @@ class TrainThread(threading.Thread):
                     validation_loss_list=validation_loss_list,
                 )
                 cur_time = time.time()
-                print("epoch %d done. %f. took time %f [s], %f [s]" % (e, train_loss,
+                if DEBUG: print("epoch %d done. %f. took time %f [s], %f [s]" % (e, train_loss,
                                                                        cur_time - start_t0,
                                                                        cur_time - start_t1,
                                                                        ))
