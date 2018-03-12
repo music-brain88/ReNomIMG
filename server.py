@@ -85,6 +85,11 @@ def static(file_name):
     return static_file(file_name, root='build/', mimetype='application/javascript')
 
 
+@route("/static/fonts/<file_name:path>")
+def fonts(file_name):
+    return static_file(file_name, root='static/fonts/')
+
+
 @error(404)
 def error404(error):
     body = json.dumps({"error_msg": "Page Not Found"})
