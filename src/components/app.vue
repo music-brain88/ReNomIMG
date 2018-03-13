@@ -69,7 +69,7 @@ export default {
     $header-height: 44px;
 
     position: relative;
-    width: 100vw;
+    width: 100%;
     height: calc(100% - #{$header-height});
     margin: 0 auto;
     padding: 0;
