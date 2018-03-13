@@ -82,21 +82,45 @@
     </div>
 
     <div class="stop-button-area">
-      <div class="stop-button" @click="stopModel" v-if="model.running_state!==4">
+      <div class="stop-button" @click="show_stop_dialog=true" v-if="model.running_state!==4">
         <i class="fa fa-pause-circle-o" aria-hidden="true"></i>
       </div>
     </div>
+
+    <modal-box v-if='show_stop_dialog'
+      @ok='stopModel'
+      @cancel='show_stop_dialog=false'>
+      <div slot='contents'>
+        Would you like to stop Model ID: {{this.model.model_id}}?
+      </div>
+      <span slot="okbutton">
+        <button id="delete_labels_button" class="modal-default-button"
+          @click="stopModel">
+          Stop
+        </button>
+      </span>
+    </modal-box>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import ModalBox from '@/components/common/modalbox'
+
 var TRAIN = 0
 var VALID = 1
 var TRAIN_STARTING = 3
 var TRAIN_STOPPING = 4
 export default {
   name: "modelProgress",
+  components: {
+    "modal-box": ModalBox,
+  },
+  data: function() {
+    return {
+      show_stop_dialog: false,
+    }
+  },
   props: {
     "index": {
       type: Number,
@@ -130,14 +154,11 @@ export default {
       }
     },
     stopModel: function() {
-      let confirm_text = "Would you like to stop training of Model ID: "+ this.model.model_id +"?"
-      if(confirm(confirm_text)){
-        let self = this
-        this.model.running_state = TRAIN_STOPPING
-        this.$store.dispatch('stopModel', {
-          "model_id": this.model.model_id,
-        });
-      }
+      this.$store.dispatch('stopModel', {
+        "model_id": this.model.model_id,
+      });
+      this.model.running_state = TRAIN_STOPPING
+      this.show_stop_dialog = false;
     },
     getColor: function(model_state, algorithm) {
       return this.$store.getters.getColorByStateAndAlgorithm(model_state, algorithm);

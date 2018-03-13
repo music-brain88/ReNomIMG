@@ -5,7 +5,7 @@
         Deploy Model
       </div>
 
-      <div class="set-predict-model" v-if="isPredict" @click="resetPredictModel">
+      <div class="set-predict-model" v-if="isPredict" @click="show_undeploy_dialog=true">
         Undeploy Model
       </div>
 
@@ -22,12 +22,32 @@
         <div class="triangle"></div>
       </div>
     </div>
+
+    <modal-box v-if='show_undeploy_dialog'
+      @ok='resetPredictModel'
+      @cancel='show_undeploy_dialog=false'>
+      <div slot='contents'>
+        Would you like to undeploy this model?"
+      </div>
+      <span slot="okbutton">
+        <button id="delete_labels_button" class="modal-default-button"
+          @click="resetPredictModel">
+          Undeploy
+        </button>
+      </span>
+    </modal-box>
+
   </div>
 </template>
 
 <script>
+import ModalBox from '@/components/common/modalbox'
+
 export default {
   name: "PredictModelSelection",
+  components: {
+    "modal-box": ModalBox,
+  },
   props: {
     "model": {
       type: Object,
@@ -36,7 +56,8 @@ export default {
   },
   data: function() {
     return {
-      "show_description": false,
+      show_undeploy_dialog: false,
+      show_description: false,
     }
   },
   computed: {
@@ -57,9 +78,8 @@ export default {
       this.$store.dispatch('deployModel', {"model_id": this.model.model_id});
     },
     resetPredictModel: function() {
-      if(confirm("Would you like to undeploy this model?")){
-        this.$store.dispatch('undeployModel', {'model_id': this.model.model_id});
-      }
+      this.$store.dispatch('undeployModel', {'model_id': this.model.model_id});
+      this.show_undeploy_dialog = false;
     },
     hoverDescription: function(val) {
       this.show_description = val;
