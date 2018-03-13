@@ -72,22 +72,22 @@ def get_train_thread_count():
 
 @route("/")
 def index():
-    return pkg_resources.resource_string(__name__, "index.html")
+    return static_file("index.html", root='js/')
 
 
 @route("/css/<file_name:path>")
 def css(file_name):
-    return static_file(file_name, root='css/', mimetype='text/css')
+    return static_file(file_name, root='js/static/css/', mimetype='text/css')
 
 
 @route("/build/<file_name:path>")
 def static(file_name):
-    return static_file(file_name, root='build/', mimetype='application/javascript')
+    return static_file(file_name, root='js/build/', mimetype='application/javascript')
 
 
 @route("/static/fonts/<file_name:path>")
 def fonts(file_name):
-    return static_file(file_name, root='static/fonts/')
+    return static_file(file_name, root='js/static/fonts/')
 
 
 @error(404)
