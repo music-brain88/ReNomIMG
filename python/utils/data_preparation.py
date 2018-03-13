@@ -61,6 +61,7 @@ def create_detection_distributor(xml_root_path, img_root_path, img_size, augment
     file_dir = os.path.join(base_dir, xml_root_path)
 
     file_list = sorted(os.listdir(file_dir))
+
     data_set = [get_img_info(os.path.join(file_dir, path))
                 for path in file_list]
 
@@ -68,6 +69,9 @@ def create_detection_distributor(xml_root_path, img_root_path, img_size, augment
 
     for i in range(len(file_list)):
         img_path = os.path.join(img_root_path, data_set[i][0])
+        if not os.path.exists(img_path):
+            continue
+
         objects = []
         for obj in data_set[i][3]:
             detect_label = {"bndbox": [obj[1], obj[2], obj[3], obj[4]],
@@ -76,6 +80,7 @@ def create_detection_distributor(xml_root_path, img_root_path, img_size, augment
         img_path_list.append(img_path)
         label_list.append(objects)
     class_list = [c for c, v in sorted(label_dict.items(), key=lambda x:x[0])]
+
     return ImageDetectionDistributor(img_path_list,
                                      label_list,
                                      class_list,
