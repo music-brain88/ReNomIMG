@@ -1,4 +1,6 @@
-var webpack = require('webpack');
+const path = require('path');
+const webpack = require('webpack');
+
 module.exports = {
   entry: {
     index: './src/index.js'
@@ -7,6 +9,18 @@ module.exports = {
     path: __dirname + '/build/',
     filename: 'build.js'
   },
+  resolve: {
+     extensions: ['.js', '.vue'],
+     modules: [
+      "node_modules"
+     ],
+     alias: {
+      // vue.js のビルドを指定する
+      vue: 'vue/dist/vue.common.js',
+      '@': path.resolve('./src'),
+     }
+  },
+
   module: {
     rules: [
       {
@@ -33,15 +47,4 @@ module.exports = {
       }
     ]
   },
-
-  resolve: {
-     extensions: ['.js', '.vue'],
-     modules: [
-         "node_modules"
-     ],
-     alias: {
-         // vue.js のビルドを指定する
-         vue: 'vue/dist/vue.common.js'
-     }
-  }
 };

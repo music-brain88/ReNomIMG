@@ -36,15 +36,40 @@
     deployed
     </div>
 
-    <div v-if="!isPredict" class="delete-button" @click.stop="deleteModel">
+    <div v-if="!isPredict" class="delete-button" @click.stop="show_delete_dialog=true">
       <i class="fa fa-times-circle-o" aria-hidden="true"></i>
     </div>
+
+    <modal-box v-if='show_delete_dialog'
+      @ok='deleteModel'
+      @cancel='show_delete_dialog=false'>
+      <div slot='contents'>
+        Would you like to delete Model ID: {{this.model.model_id}}?
+      </div>
+      <span slot="okbutton">
+        <button id="delete_labels_button" class="modal-default-button"
+          @click="deleteModel">
+          Delete
+        </button>
+      </span>
+    </modal-box>
+
   </div>
 </template>
 
 <script>
+import ModalBox from '@/components/common/modalbox'
+
 export default {
   name: "ModelListItem",
+  components: {
+    "modal-box": ModalBox,
+  },
+  data: function() {
+    return {
+      show_delete_dialog: false,
+    }
+  },
   props: {
     "model": {
       type: Object,
@@ -68,20 +93,18 @@ export default {
       });
     },
     deleteModel: function() {
-      let confirm_text = "Would you like to delete Model ID: "+ this.model.model_id +"?"
-      if(confirm(confirm_text)){
-        if(this.isPredict) {
-          this.$store.commit("setPredictModelId", {
-            "model_id": undefined,
-          });
-        }
-        if(this.selected) {
-          this.$store.commit("setSelectedModel", {"model_id": undefined});
-        }
-        this.$store.dispatch("deleteModel", {
-          "model_id": this.model.model_id
+      if(this.isPredict) {
+        this.$store.commit("setPredictModelId", {
+          "model_id": undefined,
         });
       }
+      if(this.selected) {
+        this.$store.commit("setSelectedModel", {"model_id": undefined});
+      }
+      this.$store.dispatch("deleteModel", {
+        "model_id": this.model.model_id
+      });
+      this.show_delete_dialog = false;
     },
     getColor: function(model_state, algorithm) {
       return this.$store.getters.getColorByStateAndAlgorithm(model_state, algorithm);
