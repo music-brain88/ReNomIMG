@@ -1,7 +1,12 @@
 
-# ReNomIMG 0.2beta
+# ReNomIMG 0.3beta
 
 ReNom IMG is model developing tool for object detection.
+
+## Recommended Environment
+- OS: Ubuntu 16.04
+- Browser: Google Chrome(version 63.0.3239.132)
+- Python: >=3.5
 
 ## Install
 ReNomIMG requires ReNom.
