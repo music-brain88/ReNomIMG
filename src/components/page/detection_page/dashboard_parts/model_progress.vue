@@ -180,7 +180,7 @@ export default {
     flex-direction: column;
     -webkit-flex-direction: column;
 
-    margin-right: 12px;
+    width: 64px;
 
     .label {
       color: $label-color;
