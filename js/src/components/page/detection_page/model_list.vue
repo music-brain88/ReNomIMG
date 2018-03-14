@@ -19,7 +19,7 @@
     </div>
 
     <div class="model-item-area">
-      <model-list-item v-for="(s,index) in models" :key="index" :model="s"></model-list-item>
+      <model-list-item v-for="(s,index) in $store.state.models" :key="index" :model="s"></model-list-item>
     </div>
   </div>
 </template>
@@ -35,13 +35,6 @@ export default {
   data: function() {
     return {
       selected: "",
-    }
-  },
-  computed: {
-    models() {
-      if(this.$store.state.project) {
-        return this.$store.state.project.models;
-      }
     }
   },
   methods: {

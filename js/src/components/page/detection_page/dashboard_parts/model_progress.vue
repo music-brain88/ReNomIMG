@@ -1,5 +1,5 @@
 <template>
-  <div id="model-progress" v-bind:class='{emphasizeItem: currentModelId==model.model_id}'>
+  <div id="model-progress" v-bind:class='{emphasizeItem: model.model_id==$store.state.selected_model_id}'>
     <div class="value-item">
       <div class="label">
         Model ID
@@ -13,10 +13,10 @@
       <div class="label">
         Epoch
       </div>
-      <div class="value" v-if="model.running_state!==3">
+      <div class="value" v-if="model.running_state!==running_state['starting']">
         {{spacePadding(model.validation_loss_list.length)}}/{{spacePadding(model.hyper_parameters['total_epoch'], 4)}}
       </div>
-      <div class="value" v-if="model.running_state===3">
+      <div class="value" v-if="model.running_state===running_state['starting']">
         -/-
       </div>
     </div>
@@ -25,10 +25,10 @@
       <div class="label">
         Batch
       </div>
-      <div class="value" v-if="model.running_state!==3">
+      <div class="value" v-if="model.running_state!==running_state['starting']">
         {{spacePadding(model.last_batch, 3)}}/{{spacePadding(model.total_batch, 3)}}
       </div>
-      <div class="value" v-if="model.running_state===3">
+      <div class="value" v-if="model.running_state===running_state['starting']">
         -/-
       </div>
     </div>
@@ -37,15 +37,15 @@
       <div class="progress-bar-back">
         <div class="progress-bar">
           <div class="progress-bar-animation"
-            v-bind:style="{backgroundColor: getColor(model.state, model.algorithm)}"
-            v-bind:class="{animated: model.running_state===0}">
+            v-bind:style="{backgroundColor: progress_bar_color}"
+            v-bind:class="{animated: model.running_state===running_state['training']}">
           </div>
         </div>
       </div>
-      <div class="progress-bar-mask" v-if="model.running_state===0"></div>
+      <div class="progress-bar-mask" v-if="model.running_state===running_state['training']"></div>
     </div>
 
-    <div class="value-item" v-if="model.running_state===0">
+    <div class="value-item" v-if="model.running_state===running_state['training']">
       <div class="label">
         Train Loss
       </div>
@@ -54,7 +54,7 @@
       </div>
     </div>
 
-    <div class="value-item" v-if="model.running_state===3">
+    <div class="value-item" v-if="model.running_state===running_state['starting']">
       <div class="label">
         Starting...
       </div>
@@ -63,7 +63,7 @@
       </div>
     </div>
 
-    <div class="value-item" v-if="model.running_state===4">
+    <div class="value-item" v-if="model.running_state===running_state['stopping']">
       <div class="label">
         Stopping...
       </div>
@@ -72,7 +72,7 @@
       </div>
     </div>
 
-    <div class="value-item" v-if="model.running_state===1">
+    <div class="value-item" v-if="model.running_state===running_state['validating']">
       <div class="label">
         Validating
       </div>
@@ -82,7 +82,7 @@
     </div>
 
     <div class="stop-button-area">
-      <div class="stop-button" @click="show_stop_dialog=true" v-if="model.running_state!==4">
+      <div class="stop-button" @click="show_stop_dialog=true" v-if="model.running_state!==running_state['stopping']">
         <i class="fa fa-pause-circle-o" aria-hidden="true"></i>
       </div>
     </div>
@@ -105,12 +105,10 @@
 
 <script>
 import { mapState } from 'vuex'
+import * as utils from '@/utils'
+import * as constant from '@/constant'
 import ModalBox from '@/components/common/modalbox'
 
-var TRAIN = 0
-var VALID = 1
-var TRAIN_STARTING = 3
-var TRAIN_STOPPING = 4
 export default {
   name: "modelProgress",
   components: {
@@ -118,6 +116,13 @@ export default {
   },
   data: function() {
     return {
+      progress_bar_color: "#953136",
+      running_state: {
+        "training": 0,
+        "validating": 1,
+        "starting": 3,
+        "stopping": 4,
+      },
       show_stop_dialog: false,
     }
   },
@@ -137,9 +142,6 @@ export default {
   updated: function() {
     this.updateProgressBar();
   },
-  computed: mapState({
-    currentModelId: state => state.project.selected_model_id,
-  }),
   methods: {
     updateProgressBar: function() {
       const epoch = this.model.validation_loss_list.length;
@@ -157,17 +159,14 @@ export default {
       this.$store.dispatch('stopModel', {
         "model_id": this.model.model_id,
       });
-      this.model.running_state = TRAIN_STOPPING
+      this.model.running_state = this.running_state["stopping"]
       this.show_stop_dialog = false;
-    },
-    getColor: function(model_state, algorithm) {
-      return this.$store.getters.getColorByStateAndAlgorithm(model_state, algorithm);
     },
     spacePadding: function (s, count) {
       return (Array(count).join("\u0020") + new String(s)).substr(-(count))
     },
     round: function(v) {
-      return Math.floor(v*1000) / 1000;
+      return utils.round(v, 1000);
     }
   }
 }

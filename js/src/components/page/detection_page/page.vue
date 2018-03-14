@@ -48,7 +48,7 @@ export default {
     "weight-downloading-modal": WeightDownloadingModal,
   },
   created: function() {
-    this.$store.dispatch("initLoadData", {"project_id": 1});
+    this.$store.dispatch("initData", {"project_id": 1});
   }
 }
 </script>

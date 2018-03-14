@@ -3,22 +3,24 @@
     <div v-if="predictModel" class="model-content">
       <value-item :label="'Selected Model ID'" :val="predictModel.model_id"></value-item>
 
-      <value-item :label="'Algorithm'" :val="getAlgorithmNameById(predictModel.algorithm)"></value-item>
+      <value-item :label="'Algorithm'" :val="getAlgorithmName(predictModel.algorithm)"></value-item>
 
       <value-item :label="'Hyper parameters - Total Epoch'" :val="predictModel.hyper_parameters['total_epoch']"></value-item>
 
       <value-item :label="'Hyper parameters - Batch Size'" :val="predictModel.hyper_parameters['batch_size']"></value-item>
 
-      <value-item :label="'IoU'" :val="predictModel.getRoundedIoU() + '%'"></value-item>
+      <value-item :label="'IoU'" :val="round(predictModel.best_epoch_iou, 100)*100 + '%'"></value-item>
 
-      <value-item :label="'mAP'" :val="predictModel.getRoundedMAP() + '%'"></value-item>
+      <value-item :label="'mAP'" :val="round(predictModel.best_epoch_map, 100)*100 + '%'"></value-item>
 
-      <value-item :label="'Validation Loss'" :val="predictModel.getRoundedValidationLoss()"></value-item>
+      <value-item :label="'Validation Loss'" :val="round(predictModel.validation_loss_list[predictModel.best_epoch], 1000)"></value-item>
     </div>
   </div>
 </template>
 
 <script>
+import * as utils from '@/utils'
+import * as constant from '@/constant'
 import ValueItem from './value_item.vue'
 
 export default {
@@ -32,9 +34,17 @@ export default {
     }
   },
   methods: {
-    getAlgorithmNameById: function(id) {
-      return this.$store.getters.getAlgorithmNameById(id);
+    getAlgorithmName: function(id) {
+      return constant.ALGORITHM_NAME[id];
     },
+    round: function(v, round_off) {
+      const round_data = utils.round(v, round_off);
+      if(Number.isNaN(round_data)) {
+        return "-";
+      }else{
+        return round_data;
+      }
+    }
   }
 }
 </script>

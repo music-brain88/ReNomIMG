@@ -6,7 +6,7 @@
       </div>
 
       <div class="set-predict-model" v-if="isPredict" @click="show_undeploy_dialog=true">
-        Undeploy Model
+        Undeploy
       </div>
 
       <div class="button-description" @mouseenter="hoverDescription(true)" @mouseleave="hoverDescription(false)">
@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import * as constant from '@/constant'
 import ModalBox from '@/components/common/modalbox'
 
 export default {
@@ -67,7 +68,7 @@ export default {
   },
   methods: {
     setPredictModel: function() {
-      if(this.model.state == this.$store.state.const.state_id["running"]) {
+      if(this.model.state == constant.STATE_ID["Running"]) {
         alert("You can't deploy running model. Please wait or terminate model training.");
         return;
       }

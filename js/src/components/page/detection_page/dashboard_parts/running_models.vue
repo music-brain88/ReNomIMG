@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import { STATE_ID } from '@/constant'
 import ModelProgress from './model_progress.vue'
 
 export default {
@@ -20,7 +21,7 @@ export default {
   },
   computed: {
     runningModels() {
-      return this.$store.getters.getRunningModels;
+      return this.$store.getters.getModelsFromState(STATE_ID["Running"]);
     },
   },
 }

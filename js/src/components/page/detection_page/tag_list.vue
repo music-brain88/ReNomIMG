@@ -5,19 +5,24 @@
     </div>
 
     <div class="content">
-      <tag-item v-for="(name, id) in $store.state.class_names" :key="id" :cls_id="id" :name="name">
-      </tag-item>
+      <div class='tag-item' v-for="(name, id) in $store.state.class_names">
+        <span> {{ name }} </span>
+        <div class='box' v-bind:style="{backgroundColor: color_list[id%4]}"><span>{{id}}</span></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import TagItem from './tag_list_parts/tag_item.vue'
-
 export default {
   name: "TagList",
-  components: {
-    "tag-item": TagItem
+  data: function() {
+    return {
+      color_list: ["#f19f36", "#53b05f", "#536cff", "#f86c8e"],
+    }
+  },
+  created: function() {
+    this.$store.dispatch("loadDatasetInfov0");
   }
 }
 </script>
@@ -54,6 +59,32 @@ export default {
     padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
     background-color: $content-bg-color;
     border: 1px solid $content-border-color;
+
+    .tag-item{
+      display: flex;
+      border-bottom: 1px solid #c3c3c3;
+      box-sizing:border-box;
+      font-size: 0.8rem;
+      color: #5a5a5a;
+      padding-top: 2px;
+      padding-bottom: 2px;
+      .box {
+        display: flex;
+        margin-left: auto;
+        margin-right: 8px;
+        border-radius: 2px;
+        align-self: center;
+        height: 1rem;
+        width: 25px;
+        color: #ffffff;
+        span {
+          width: 100%;
+          text-align: center;
+          align-self: center;
+        }
+      }
+
+    }
   }
 }
 </style>

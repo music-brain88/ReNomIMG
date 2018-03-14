@@ -145,11 +145,11 @@ def create_projects():
 def get_project(project_id):
     try:
         kwargs = {}
-        if request.params.fields != '':
-            kwargs["fields"] = request.params.fields
+        kwargs["fields"] = "project_id,project_name,project_comment,deploy_model_id"
 
         data = storage.fetch_project(project_id, **kwargs)
         body = json.dumps(data)
+
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
 
@@ -166,22 +166,21 @@ def update_project(project_id):
 def get_models(project_id):
     try:
         kwargs = {}
-        if request.params.fields != '':
-            kwargs["fields"] = request.params.fields
-
-        model_ids = []
-        if request.params.running_model_ids != '':
-            model_ids = list(map(int, request.params.running_model_ids.split(",")))
-
-        last_epochs = []
-        if request.params.last_epochs != '':
-            last_epochs = list(map(int, request.params.last_epochs.split(",")))
+        kwargs["fields"] = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch"
 
         deploy_model_id = None
         if request.params.deploy_model_id != '':
             deploy_model_id = int(request.params.deploy_model_id)
 
         model_count = int(request.params.model_count)
+
+        running_models = storage.fetch_running_models(project_id, **kwargs)
+        # set running model information for polling
+        model_ids = []
+        last_epochs = []
+        for k in list(running_models.keys()):
+            model_ids.append(running_models[k]["model_id"])
+            last_epochs.append(running_models[k]["last_epoch"])
 
         for j in range(60):
             project = storage.fetch_project(project_id, fields='deploy_model_id')
@@ -208,6 +207,7 @@ def get_models(project_id):
                 return ret
 
             elif model_count == len(data):
+                # if running information change, return response.
                 for i, v in enumerate(model_ids):
                     thread_id = "{}_{}".format(project_id, model_ids[i])
                     th = find_thread(thread_id)

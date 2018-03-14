@@ -5,25 +5,81 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Chart from 'chart.js'
+import * as utils from '@/utils'
+import * as constant from '@/constant'
 
 export default {
   name: "ModelPlot",
-  computed: {
-    plotDataset() {
-      return this.$store.getters.getPlotDataset;
-    },
-  },
+  computed: mapState(["selected_model_id", "models"]),
   watch: {
-    plotDataset(newVal) {
+    models(newVal) {
       this.drawScatter(newVal);
+    },
+    selected_model_id() {
+      this.drawScatter(this.models);
     }
   },
   mounted: function() {
-    this.drawScatter(this.plotDataset);
+    this.drawScatter(this.models);
   },
   methods: {
-    drawScatter: function(plotDataset) {
+    plotData: function(model_id, algorithm, best_iou, best_map) {
+      return {
+        "model_id": model_id,
+        "algorithm": algorithm,
+        "algorithm_name": constant.ALGORITHM_NAME[algorithm],
+        "iou_value": utils.round(best_iou, 100)*100 +"%",
+        "map_value": utils.round(best_map, 100)*100 +"%",
+        "x": best_iou*100,
+        "y": best_map*100
+      }
+    },
+    drawScatter: function(models) {
+      // calc plot dataset
+      let tooltip_colors = ["#999999", constant.STATE_COLOR["Running"], constant.ALGORITHM_COLOR["YOLO"]]
+      let dataset = {
+        "dataset": []
+      };
+
+      let coordinate_data = {
+        "Selected": {
+          data:[],
+          backgroundColor: "#999999",
+          pointRadius: 10,
+          pointHoverRadius: 12,
+          pointStyle: "rectRot",
+        },
+        "Running": {
+          data:[],
+          backgroundColor: constant.STATE_COLOR["Running"],
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointStyle: "circle",
+        },
+        "YOLO": {
+          data:[],
+          backgroundColor: constant.ALGORITHM_COLOR["YOLO"],
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointStyle: "circle",
+        }
+      }
+
+      for(let model of models) {
+        if(model.model_id == this.$store.state.selected_model_id) {
+          coordinate_data["Selected"].data.push(this.plotData(model.model_id, model.algorithm, model.best_epoch_iou, model.best_epoch_map));
+        }else if(model.state == constant.ALGORITHM_ID["Running"]){
+          coordinate_data["Running"].data.push(this.plotData(model.model_id, model.algorithm, model.best_epoch_iou, model.best_epoch_map));
+        }else if(model.algorithm == 0){
+          coordinate_data["YOLO"].data.push(this.plotData(model.model_id, model.algorithm, model.best_epoch_iou, model.best_epoch_map));
+        }
+      }
+
+      dataset.dataset.push(coordinate_data["Selected"],coordinate_data["Running"],coordinate_data["YOLO"]);
+
+      // canvas
       let parent = document.getElementById("model-plot")
       let parent_width = parent.style.width
       let parent_height = parent.style.height
@@ -33,11 +89,13 @@ export default {
       canvas.width = parent_width
       canvas.height = parent_height
 
+      // set chart data
       let chart_data = {
-        datasets: plotDataset.dataset,
+        datasets: dataset.dataset,
         store: this.$store,
       };
 
+      // set chart options
       var options = {
         events: ['click', 'mousemove'],
         'onClick': function (evt, item) {
@@ -113,6 +171,7 @@ export default {
           xPadding: 12,
           yPadding: 12,
           callbacks: {
+            // set custom tooltips
             title: function(item, data) {
               const model_id = data.datasets[item[0].datasetIndex].data[item[0].index].model_id;
               return "Model ID: " + model_id;
@@ -125,7 +184,7 @@ export default {
               return ["Algorithm: "+algorithm, "IoU: "+iou_value, "mAP: "+map_value];
             },
             labelColor: function(item, chart) {
-              chart.tooltip._model.backgroundColor = plotDataset.colors[item.datasetIndex];
+              chart.tooltip._model.backgroundColor = tooltip_colors[item.datasetIndex];
             }
           }
         },
@@ -133,9 +192,9 @@ export default {
 
       if(this.chart) this.chart.destroy();
       this.chart = new Chart(ctx, {
-          type: 'scatter',
-          data: chart_data,
-          options: options });
+        type: 'scatter',
+        data: chart_data,
+        options: options });
     }
   }
 }

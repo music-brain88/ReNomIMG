@@ -4,7 +4,7 @@
       Model Detail
     </div>
 
-    <div class="information" v-if="!predictModelId">
+    <div class="information" v-if="!$store.state.project || !$store.state.project.deploy_model_id">
       学習画面から予測に使うモデルを選択してください。
     </div>
 
@@ -32,13 +32,6 @@ export default {
     "model-detail-text": ModelDetailText,
     "run-prediction-button": RunPredictionButton,
     "export-button": ExportButton,
-  },
-  computed: {
-    predictModelId: function() {
-      if(this.$store.state.project){
-        return this.$store.state.project.deploy_model_id;
-      }
-    }
   },
 }
 </script>

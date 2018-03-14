@@ -25,7 +25,7 @@ VALID = 1
 PRED = 2
 ERROR = -1
 
-DEBUG = False
+DEBUG = True
 
 
 class TrainThread(threading.Thread):
@@ -158,6 +158,10 @@ class TrainThread(threading.Thread):
                     return
 
                 self.last_epoch = e
+                storage.update_model_last_epoch(
+                    model_id=self.model_id,
+                    last_epoch=e
+                )
 
                 epoch_id = storage.register_epoch(
                     model_id=self.model_id,

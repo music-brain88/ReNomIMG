@@ -9,7 +9,7 @@
       </div>
       <div class="label-value">
         <p class="label">Algorithm</p>
-        <p class="value">{{ getAlgorithmNameById(model.algorithm) }}</p>
+        <p class="value">{{ getAlgorithmName(model.algorithm) }}</p>
       </div>
     </div>
 
@@ -17,18 +17,18 @@
       <div class="model-iou-map">
         <div class="label-value">
           <p class="label">IoU</p>
-          <p class="value value-bold">{{ model.getRoundedIoU() }}%</p>
+          <p class="value value-bold">{{ round(model.best_epoch_iou, 100)*100 }}%</p>
         </div>
 
         <div class="label-value">
           <p class="label">mAP</p>
-          <p class="value value-bold">{{ model.getRoundedMAP() }}%</p>
+          <p class="value value-bold">{{ round(model.best_epoch_map, 100)*100 }}%</p>
         </div>
       </div>
 
       <div class="model-validation-loss">
         <p class="label">Validation Loss</p>
-        <p class="value value-bold">{{ model.getRoundedValidationLoss() }}</p>
+        <p class="value value-bold">{{ round(model.validation_loss_list[model.best_epoch], 1000) }}</p>
       </div>
     </div>
 
@@ -58,6 +58,8 @@
 </template>
 
 <script>
+import * as utils from '@/utils'
+import * as constant from '@/constant'
 import ModalBox from '@/components/common/modalbox'
 
 export default {
@@ -79,7 +81,7 @@ export default {
   computed: {
     selected() {
       if(this.$store.state.project) {
-        return this.model.model_id == this.$store.state.project.selected_model_id;
+        return this.model.model_id == this.$store.state.selected_model_id;
       }
     },
     isPredict() {
@@ -88,9 +90,7 @@ export default {
   },
   methods: {
     selectModel: function() {
-      this.$store.commit("setSelectedModel", {
-        "model_id": this.model.model_id
-      });
+      this.$store.commit("setSelectedModel", {"model_id": this.model.model_id});
     },
     deleteModel: function() {
       if(this.isPredict) {
@@ -107,11 +107,23 @@ export default {
       this.show_delete_dialog = false;
     },
     getColor: function(model_state, algorithm) {
-      return this.$store.getters.getColorByStateAndAlgorithm(model_state, algorithm);
+      if(model_state == constant.STATE_ID["Running"]) {
+        return constant.STATE_COLOR[model_state];
+      }else{
+        return constant.ALGORITHM_COLOR[algorithm];
+      }
     },
-    getAlgorithmNameById: function(id) {
-      return this.$store.getters.getAlgorithmNameById(id);
+    getAlgorithmName: function(id) {
+      return constant.ALGORITHM_NAME[id];
     },
+    round: function(v, round_off) {
+      const round_data = utils.round(v, round_off);
+      if(Number.isNaN(round_data)) {
+        return "-";
+      }else{
+        return round_data;
+      }
+    }
   }
 }
 </script>

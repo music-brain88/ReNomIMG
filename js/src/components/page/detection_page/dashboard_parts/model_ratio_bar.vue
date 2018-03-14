@@ -1,59 +1,61 @@
 <template>
   <div id="model-ratio-bar">
-    <div class='title'>Total Models: {{modelAllCounts}}</div>
+    <div class='title'>Total Models: {{$store.state.models.length}}</div>
     <canvas id="horizontal-stack-bar"></canvas>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Chart from 'chart.js'
+import * as constant from '@/constant'
 
 export default {
   name: "ModelRatioBar",
-  computed: {
-    modelCounts() {
-      return this.$store.getters.getModelCounts;
-    },
-    modelAllCounts() {
-      if(this.$store.state.project){
-        return this.$store.state.project.models.length;
-      }
-    }
-  },
+  computed: mapState(["models"]),
   watch: {
-    modelCounts(newVal) {
+    models(newVal) {
       this.drawBar(newVal);
     }
   },
+  mounted: function() {
+    this.drawBar(this.models);
+  },
   methods: {
-    drawBar: function(modelCounts) {
-      const const_params = this.$store.state.const;
+    drawBar: function(models) {
+      // calc model counts per algorithm&running.
+      let counts = {"YOLO": 0, "SSD": 0, "Running": 0}
+      for(let index in this.models) {
+        if(this.models[index].state == 1){
+          counts["Running"] += 1;
+        }else if(this.models[index].algorithm == 0){
+          counts["YOLO"] += 1;
+        }
+      }
 
-      let parent = document.getElementById("model-ratio-bar")
+      // init canvas
+      let parent = document.getElementById("model-ratio-bar");
       let canvas = document.getElementById("horizontal-stack-bar");
       let ctx = canvas.getContext('2d');
       ctx.canvas.width = parent.clientWidth;
       ctx.canvas.height = 80;
 
+      // set chart data
       let chart_data = {
         labels: [""],
         datasets: [{
           label: "YOLO",
-          data: [modelCounts["YOLO"]],
-          backgroundColor: const_params.algorithm_color[const_params.algorithm_id["YOLO"]],
-        },
-        {
-          label: "SSD",
-          data: [modelCounts["SSD"]],
-          backgroundColor: const_params.algorithm_color[const_params.algorithm_id["SSD"]],
+          data: [counts["YOLO"]],
+          backgroundColor: constant.ALGORITHM_COLOR["YOLO"],
         },
         {
           label: "Running",
-          data: [modelCounts["Running"]],
-          backgroundColor: const_params.state_color[1],
+          data: [counts["Running"]],
+          backgroundColor: constant.STATE_COLOR["Running"],
         }
       ]};
 
+      // set char options
       var options = {
         animation: {
           duration: 0,
@@ -82,7 +84,10 @@ export default {
         }
       };
 
+      // remove chart for redraw.
       if(this.chart) this.chart.destroy();
+
+      // draw chart
       this.chart = new Chart(ctx, {
         type: 'horizontalBar',
         data: chart_data,

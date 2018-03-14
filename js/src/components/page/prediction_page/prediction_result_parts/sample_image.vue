@@ -45,12 +45,8 @@
         return label_dict[index]
       },
       showImageModal: function() {
-        this.$store.commit("setImageIndexOnModal", {
-          "index": this.index,
-        });
-        this.$store.commit("setImageModalShowFlag", {
-        "flag": true,
-      });
+        this.$store.commit("setImageIndexOnModal", {"index": this.index});
+        this.$store.commit("setImageModalShowFlag", {"flag": true});
       }
     }
   }

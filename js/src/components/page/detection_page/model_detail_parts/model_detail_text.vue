@@ -6,7 +6,7 @@
 
     <div class="model-content">
       <div class="model-values">
-        <value-item :label="'Algorithm'" :val="$store.state.const.algorithm_name[model.algorithm]"></value-item>
+        <value-item :label="'Algorithm'" :val="getAlgorithmName(model.algorithm)"></value-item>
         <value-item :label="'Total Epoch'" :val="model.hyper_parameters['total_epoch']"></value-item>
         <value-item :label="'Batch Size'" :val="model.hyper_parameters['batch_size']"></value-item>
         <value-item :label="'Image Width'" :val="model.hyper_parameters['image_width']"></value-item>
@@ -17,9 +17,9 @@
       </div>
 
       <div class="model-values">
-        <value-item :label="'IoU'" :val="model.getRoundedIoU() + '%'"></value-item>
-        <value-item :label="'mAP'" :val="model.getRoundedMAP() + '%'"></value-item>
-        <value-item :label="'Validation Loss'" :val="model.getRoundedValidationLoss()"></value-item>
+        <value-item :label="'IoU'" :val="round(model.best_epoch_iou, 100)*100 + '%'"></value-item>
+        <value-item :label="'mAP'" :val="round(model.best_epoch_map, 100)*100 + '%'"></value-item>
+        <value-item :label="'Validation Loss'" :val="round(model.validation_loss_list[model.best_epoch], 1000)"></value-item>
         <div class="predict-model-selection-area">
           <predict-model-selection :model="model"></predict-model-selection>
         </div>
@@ -29,6 +29,8 @@
 </template>
 
 <script>
+import * as utils from '@/utils'
+import * as constant from '@/constant'
 import ValueItem from './value_item.vue'
 import YoloParams from './yolo_params.vue'
 import PredictModelSelection from './predict_model_selection.vue'
@@ -49,6 +51,19 @@ export default {
     "model": {
       type: Object,
       required: true
+    }
+  },
+  methods: {
+    getAlgorithmName: function(algorithm) {
+      return constant.ALGORITHM_NAME[algorithm];
+    },
+    round: function(v, round_off) {
+      const round_data = utils.round(v, round_off);
+      if(Number.isNaN(round_data)) {
+        return "-";
+      }else{
+        return round_data;
+      }
     }
   }
 }
