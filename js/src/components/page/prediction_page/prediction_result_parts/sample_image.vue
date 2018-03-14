@@ -41,7 +41,7 @@
         return color_list[index%4]
       },
       getTagName: function (index) {
-        let label_dict = this.$store.getters.getLabelDict;
+        let label_dict = this.$store.state.class_names;
         return label_dict[index]
       },
       showImageModal: function() {

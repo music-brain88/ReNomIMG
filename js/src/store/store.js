@@ -72,7 +72,6 @@ const store = new Vuex.Store({
         "running": 1,
         "finished": 2,
         "deleted": 3,
-        "validating": 4,
       },
       state_color: {
         0: "",
@@ -111,7 +110,7 @@ const store = new Vuex.Store({
     },
     getColorByStateAndAlgorithm(state, getters) {
       return function(model_state, algorithm) {
-        if(model_state == getters.getStateIdByName("running")) {
+        if(model_state == 1) {
           return getters.getStateColorByName("running");
         }else{
           return getters.getAlgorithmColorByName(getters.getAlgorithmNameById(algorithm));
@@ -119,18 +118,6 @@ const store = new Vuex.Store({
       }
     },
 
-    getModels(state, getters) {
-      let ret = [];
-      const p = state.project;
-      if(p) {
-        for(let index in p.models) {
-          if(p.models[index].state != getters.getStateIdByName("deleted")){
-            ret.push(p.models[index]);
-          }
-        }
-      }
-      return ret;
-    },
     getSelectedModel(state) {
       if(state.project && state.project.selected_model_id) {
         return state.project.getModelFromId(state.project.selected_model_id);
@@ -141,20 +128,8 @@ const store = new Vuex.Store({
       const p = state.project;
       if(p) {
         for(let index in p.models) {
-          if(p.models[index].state == getters.getStateIdByName("running") || p.models[index].state == getters.getStateIdByName("validating")){
+          if(p.models[index].state == getters.getStateIdByName("running")){
             ret.unshift(p.models[index]);
-          }
-        }
-      }
-      return ret;
-    },
-    getFinishedModels(state, getters) {
-      let ret = [];
-      const p = state.project;
-      if(p) {
-        for(let index in p.models) {
-          if(p.models[index].state == getters.getStateIdByName("finished")){
-            ret.push(p.models[index]);
           }
         }
       }
@@ -165,26 +140,14 @@ const store = new Vuex.Store({
       const p = state.project;
       if(p) {
         for(let index in p.models) {
-          if(p.models[index].state != getters.getStateIdByName("deleted")){
-            if(p.models[index].state == getters.getStateIdByName("running")){
-              ret["Running"] += 1;
-            }else{
-              ret[getters.getAlgorithmNameById(p.models[index].algorithm)] += 1;
-            }
+          if(p.models[index].state == getters.getStateIdByName("running")){
+            ret["Running"] += 1;
+          }else{
+            ret[getters.getAlgorithmNameById(p.models[index].algorithm)] += 1;
           }
         }
       }
       return ret;
-    },
-    getModelLoss(state) {
-      if(state.project && state.project.selected_model_id) {
-        let p = state.project.getModelFromId(state.project.selected_model_id);
-        let loss = {
-          "train_loss": p.train_loss_list,
-          "validation_loss": p.validation_loss_list
-        }
-        return loss
-      }
     },
     getModelsByStateAndAlgorithm(state, getters) {
       return function(model_state, algorithm) {
@@ -279,12 +242,6 @@ const store = new Vuex.Store({
       }
 
       return dataset;
-    },
-    getNavigationBarShowFlag(state) {
-      return state.navigation_bar_shown_flag;
-    },
-    getLabelDict(state) {
-      return state.class_names
     },
     getPredictModel(state) {
       if(state.project) {
@@ -733,17 +690,6 @@ const store = new Vuex.Store({
           });
       }
     },
-    checkDatasetDir(context, payload) {
-      const url = "/api/renom_img/v1/check_dir";
-      return axios.get(url)
-        .then(function(response) {
-          if(response.data.error_msg) {
-            alert("Error: " + response.data.error_msg + '\n' + 'You can find hints for this error on "http://www.renom.jp/".');
-            return false;
-          }
-          return true;
-        });
-    }
   }
 })
 

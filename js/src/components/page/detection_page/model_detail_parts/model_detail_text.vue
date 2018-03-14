@@ -6,7 +6,7 @@
 
     <div class="model-content">
       <div class="model-values">
-        <value-item :label="'Algorithm'" :val="getAlgorithmNameById(model.algorithm)"></value-item>
+        <value-item :label="'Algorithm'" :val="$store.state.const.algorithm_name[model.algorithm]"></value-item>
         <value-item :label="'Total Epoch'" :val="model.hyper_parameters['total_epoch']"></value-item>
         <value-item :label="'Batch Size'" :val="model.hyper_parameters['batch_size']"></value-item>
         <value-item :label="'Image Width'" :val="model.hyper_parameters['image_width']"></value-item>
@@ -50,11 +50,6 @@ export default {
       type: Object,
       required: true
     }
-  },
-  methods: {
-    getAlgorithmNameById: function(id) {
-      return this.$store.getters.getAlgorithmNameById(id);
-    },
   }
 }
 </script>

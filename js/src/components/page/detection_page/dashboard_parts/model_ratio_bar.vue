@@ -10,9 +10,14 @@ import Chart from 'chart.js'
 
 export default {
   name: "ModelRatioBar",
-  mounted: function() {
-    if(this.modelCounts) {
-      this.drawBar(this.modelCounts);
+  computed: {
+    modelCounts() {
+      return this.$store.getters.getModelCounts;
+    },
+    modelAllCounts() {
+      if(this.$store.state.project){
+        return this.$store.state.project.models.length;
+      }
     }
   },
   watch: {
@@ -20,33 +25,10 @@ export default {
       this.drawBar(newVal);
     }
   },
-  computed: {
-    modelCounts() {
-      return this.$store.getters.getModelCounts;
-    },
-    modelAllCounts() {
-      let d = this.$store.getters.getModelCounts;
-      let count = 0
-      for(let attr in d){
-        count += d[attr]
-      }
-      return count
-    },
-    algorithmId() {
-      return this.$store.state.const.algorithm_id;
-    },
-    algorithmColor() {
-      return this.$store.state.const.algorithm_color;
-    },
-    stateId() {
-      return this.$store.state.const.state_id;
-    },
-    stateColor() {
-      return this.$store.state.const.state_color;
-    }
-  },
   methods: {
     drawBar: function(modelCounts) {
+      const const_params = this.$store.state.const;
+
       let parent = document.getElementById("model-ratio-bar")
       let canvas = document.getElementById("horizontal-stack-bar");
       let ctx = canvas.getContext('2d');
@@ -58,17 +40,17 @@ export default {
         datasets: [{
           label: "YOLO",
           data: [modelCounts["YOLO"]],
-          backgroundColor: this.algorithmColor[this.algorithmId["YOLO"]],
+          backgroundColor: const_params.algorithm_color[const_params.algorithm_id["YOLO"]],
         },
         {
           label: "SSD",
           data: [modelCounts["SSD"]],
-          backgroundColor: this.algorithmColor[this.algorithmId["SSD"]],
+          backgroundColor: const_params.algorithm_color[const_params.algorithm_id["SSD"]],
         },
         {
           label: "Running",
           data: [modelCounts["Running"]],
-          backgroundColor: this.stateColor[this.stateId["running"]],
+          backgroundColor: const_params.state_color[1],
         }
       ]};
 

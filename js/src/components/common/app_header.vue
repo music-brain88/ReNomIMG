@@ -1,18 +1,18 @@
 <template>
-  <header>
-    <div class="global-menu-button" @click="toggleMenu">
-      <i id="menu-toggle" class="fa fa-bars" aria-hidden="true"></i>
-    </div>
+<header>
+  <div class="global-menu-button" @click="toggleMenu">
+    <i id="menu-toggle" class="fa fa-bars" aria-hidden="true"></i>
+  </div>
 
-    <div id="soft-symbol">
-      <span class="renom">ReNom</span>
-      <span class="current-page">IMG > {{ currentPage }}</span>
-    </div>
+  <div id="soft-symbol">
+    <span class="renom">ReNom</span>
+    <span class="current-page">IMG > {{ currentPage }}</span>
+  </div>
 
-    <!-- <div class="help-menu-button">
-      <i class="fa fa-th" aria-hidden="true"></i>
-    </div> -->
-  </header>
+  <!-- <div class="help-menu-button">
+    <i class="fa fa-th" aria-hidden="true"></i>
+  </div> -->
+</header>
 </template>
 
 <script>
@@ -25,9 +25,8 @@ export default {
   },
   methods: {
     toggleMenu: function () {
-      var flag = !this.$store.getters.getNavigationBarShowFlag
       this.$store.commit('setNavigationBarShowFlag', {
-        flag: flag,
+        flag: !this.$store.state.navigation_bar_shown_flag,
       })
     }
   }

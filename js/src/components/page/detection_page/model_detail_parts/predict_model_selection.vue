@@ -61,16 +61,13 @@ export default {
     }
   },
   computed: {
-    stateRunning() {
-      return this.$store.state.const.state_id["running"];
-    },
     isPredict() {
       return this.model.model_id == this.$store.state.project.deploy_model_id;
     },
   },
   methods: {
     setPredictModel: function() {
-      if(this.model.state == this.stateRunning) {
+      if(this.model.state == this.$store.state.const.state_id["running"]) {
         alert("You can't deploy running model. Please wait or terminate model training.");
         return;
       }

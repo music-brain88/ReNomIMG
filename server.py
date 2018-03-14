@@ -326,6 +326,24 @@ def undeploy_model(project_id, model_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run", method="GET")
 def run_model(project_id, model_id):
     try:
+        # 学習データが存在するかチェック
+        files = os.listdir(os.path.join(TRAIN_SET_DIR, "label"))
+        if len(files) == 0:
+            raise Exception("Error: File not found in train_set/label. You can find hints for this error on 'http://www.renom.jp/'.")
+
+        files = os.listdir(os.path.join(TRAIN_SET_DIR, "img"))
+        if len(files) == 0:
+            raise Exception("Error: File not found in train_set/img. You can find hints for this error on 'http://www.renom.jp/'.")
+
+        # バリデーションデータが存在するかチェック
+        files = os.listdir(os.path.join(VALID_SET_DIR, "label"))
+        if len(files) == 0:
+            raise Exception("Error: File not found in valid_set/label. You can find hints for this error on 'http://www.renom.jp/'.")
+
+        files = os.listdir(os.path.join(VALID_SET_DIR, "img"))
+        if len(files) == 0:
+            raise Exception("Error: File not found in valid_set/img. You can find hints for this error on 'http://www.renom.jp/'.")
+
         # 学習データ読み込み
         fields = 'hyper_parameters,algorithm,algorithm_params'
         data = storage.fetch_model(project_id, model_id, fields=fields)
@@ -492,30 +510,6 @@ def check_weight_download_progress(progress_num):
                 return ret
             time.sleep(1)
 
-    except Exception as e:
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
-
-
-@route("/api/renom_img/v1/check_dir", method="GET")
-def check_dataset_dir():
-    try:
-        files = os.listdir(os.path.join(TRAIN_SET_DIR, "label"))
-        if len(files) == 0:
-            raise Exception("File not found in train_set/label.")
-
-        files = os.listdir(os.path.join(TRAIN_SET_DIR, "img"))
-        if len(files) == 0:
-            raise Exception("File not found in train_set/img.")
-
-        files = os.listdir(os.path.join(VALID_SET_DIR, "label"))
-        if len(files) == 0:
-            raise Exception("File not found in valid_set/label.")
-
-        files = os.listdir(os.path.join(VALID_SET_DIR, "img"))
-        if len(files) == 0:
-            raise Exception("File not found in valid_set/img.")
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)

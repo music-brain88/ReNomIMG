@@ -39,7 +39,9 @@ export default {
   },
   computed: {
     models() {
-      return this.$store.getters.getModels;
+      if(this.$store.state.project) {
+        return this.$store.state.project.models;
+      }
     }
   },
   methods: {

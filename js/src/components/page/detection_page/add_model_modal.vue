@@ -1,6 +1,7 @@
 <template>
   <div id="add-model-modal">
     <div class="modal-background" @click="hideAddModelModal"></div>
+
     <div class="modal-content">
       <div class="modal-title">
         Setting of New Training Model
@@ -138,30 +139,26 @@ export default {
         return;
       }
 
-      const self = this
-      this.$store.dispatch("checkDatasetDir").then(function(success){
-        if(!success)return;
+      const hyper_parameters = {
+        'total_epoch': parseInt(this.total_epoch),
+        'batch_size': parseInt(this.batch_size),
+        'seed': parseInt(this.seed),
+        'image_width': parseInt(this.image_width),
+        'image_height': parseInt(this.image_height),
+      }
 
-        const hyper_parameters = {
-          'total_epoch': parseInt(self.total_epoch),
-          'batch_size': parseInt(self.batch_size),
-          'seed': parseInt(self.seed),
-          'image_width': parseInt(self.image_width),
-          'image_height': parseInt(self.image_height),
+      let algorithm_params = {}
+      if(this.algorithm == 0) {
+        algorithm_params = {
+          "cells": parseInt(this.cells),
+          "bounding_box": parseInt(this.bounding_box),
         }
+      }
 
-        let algorithm_params = {}
-        if(self.algorithm == 0) {
-          algorithm_params = {
-            "cells": parseInt(self.cells),
-            "bounding_box": parseInt(self.bounding_box),
-          }
-        }
-        self.$store.dispatch("runModel", {
-          'hyper_parameters': hyper_parameters,
-          'algorithm': self.algorithm,
-          'algorithm_params': algorithm_params,
-        });
+      this.$store.dispatch("runModel", {
+        'hyper_parameters': hyper_parameters,
+        'algorithm': this.algorithm,
+        'algorithm_params': algorithm_params,
       });
 
       this.hideAddModelModal();
@@ -193,7 +190,7 @@ export default {
   position: fixed;
   left: 0;
   top: $header-height;
-  width: 100%;
+  width: 100vw;
   height: calc(100vh - #{$header-height});
 
   .modal-background {

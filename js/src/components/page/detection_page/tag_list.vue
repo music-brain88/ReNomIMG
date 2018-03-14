@@ -5,7 +5,7 @@
     </div>
 
     <div class="content">
-      <tag-item v-for="(name, id) in labels" :key="id" :cls_id="id" :name="name">
+      <tag-item v-for="(name, id) in $store.state.class_names" :key="id" :cls_id="id" :name="name">
       </tag-item>
     </div>
   </div>
@@ -18,11 +18,6 @@ export default {
   name: "TagList",
   components: {
     "tag-item": TagItem
-  },
-  computed: {
-    labels() {
-      return this.$store.getters.getLabelDict
-    }
   }
 }
 </script>

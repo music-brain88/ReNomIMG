@@ -22,7 +22,7 @@ export default {
   $modal-opacity: 0.7;
 
   position: fixed;
-  width: 100%;
+  width: 100vw;
   height: calc(100vh - #{$header-height});
   top: $header-height;
   left: 0;

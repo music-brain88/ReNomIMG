@@ -21,13 +21,9 @@
       </div>
     </div>
 
-    <div class="add-model-modal" v-if="$store.state.add_model_modal_show_flag">
-      <add-model-modal></add-model-modal>
-    </div>
 
-    <div class="weight-downloading-modal" v-if="$store.state.weight_downloading_modal">
-      <weight-downloading-modal></weight-downloading-modal>
-    </div>
+    <add-model-modal v-if="$store.state.add_model_modal_show_flag"></add-model-modal>
+    <weight-downloading-modal v-if="$store.state.weight_downloading_modal"></weight-downloading-modal>
   </div>
 </template>
 
@@ -52,7 +48,6 @@ export default {
     "weight-downloading-modal": WeightDownloadingModal,
   },
   created: function() {
-    this.$store.dispatch("checkDatasetDir");
     this.$store.dispatch("initLoadData", {"project_id": 1});
   }
 }
@@ -106,11 +101,6 @@ export default {
     }
   }
 
-  .add-model-modal {
-    position: fixed;
-    width: 100vw;
-    height: calc(100vh - #{$header-height});
-  }
 }
 </style>
 
