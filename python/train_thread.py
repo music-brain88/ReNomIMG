@@ -25,7 +25,7 @@ VALID = 1
 PRED = 2
 ERROR = -1
 
-DEBUG = True
+DEBUG = False
 
 
 class TrainThread(threading.Thread):

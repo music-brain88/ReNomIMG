@@ -22,10 +22,6 @@ import Chart from 'chart.js'
 export default {
   name: "LearningCurve",
   props: {
-    "totalEpoch": {
-      type: Number,
-      required: true
-    },
     "trainLoss": {
       type: Array,
       required: true
@@ -39,14 +35,12 @@ export default {
     this.drawLearningCurve();
   },
   watch: {
-    trainLoss: function(newVal) {
-      this.drawLearningCurve(newVal);
+    trainLoss: function() {
+      this.drawLearningCurve();
     }
   },
   methods: {
     drawLearningCurve: function() {
-      const total_epoch = this.totalEpoch;
-
       let curve_area = document.getElementById("learning-curve");
 
       let canvas = document.getElementById("curve-canvas");
@@ -63,7 +57,7 @@ export default {
         borderWidth: 3,
         borderColor: colors[0],
         backgroundColor: colors[0],
-        pointRadius: 0.1,
+        pointRadius: 0.3,
         data: this.trainLoss,
       },{
         label: "validation",
@@ -72,18 +66,18 @@ export default {
         borderWidth: 3,
         borderColor: colors[1],
         backgroundColor: colors[1],
-        pointRadius: 0.1,
+        pointRadius: 0.3,
         data: this.validationLoss,
       }];
 
+      // create x axis labels
       let labels = []
-      let quotient = Math.ceil(this.trainLoss.length/50);
+      let q = Math.ceil(this.trainLoss.length/50);
       if(this.trainLoss.length < 10) {
         labels = Array.from(new Array(10)).map((v,i) => i)
       }else{
-        labels = Array.from(new Array(quotient*50)).map((v,i) => i)
+        labels = Array.from(new Array(q*50)).map((v,i) => i)
       }
-      // let labels = Array.from(new Array(total_epoch)).map((v,i) => i)
 
       let data = {
         labels: labels,
@@ -111,15 +105,6 @@ export default {
               maxRotation: 0,
               minRotation: 0,
               autoSkip: true,
-              // callback: function(value) {
-              //   if(total_epoch <= 10) {
-              //     return value;
-              //   }else if(total_epoch <= 100){
-              //     return ((value % 10) == 0)? value : ''
-              //   }else{
-              //     return ((value % 100) == 0)? value : ''
-              //   }
-              // },
             },
             gridLines: {
               color: "rgba(0,0,0,0.1)",

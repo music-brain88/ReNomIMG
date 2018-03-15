@@ -5,7 +5,7 @@
         Model ID
       </div>
       <div class="value">
-        {{ spacePadding(model.model_id, 6) }}
+        {{ model.model_id }}
       </div>
     </div>
 
@@ -13,10 +13,12 @@
       <div class="label">
         Epoch
       </div>
-      <div class="value" v-if="model.running_state!==running_state['starting']">
-        {{spacePadding(model.validation_loss_list.length)}}/{{spacePadding(model.hyper_parameters['total_epoch'], 4)}}
+      <div class="value"
+        v-if="model.running_state!==running_state['starting']">
+        {{model.validation_loss_list.length}}/{{model.hyper_parameters['total_epoch']}}
       </div>
-      <div class="value" v-if="model.running_state===running_state['starting']">
+      <div class="value"
+        v-if="model.running_state===running_state['starting']">
         -/-
       </div>
     </div>
@@ -25,10 +27,12 @@
       <div class="label">
         Batch
       </div>
-      <div class="value" v-if="model.running_state!==running_state['starting']">
-        {{spacePadding(model.last_batch, 3)}}/{{spacePadding(model.total_batch, 3)}}
+      <div class="value"
+        v-if="model.running_state!==running_state['starting']">
+        {{model.last_batch}}/{{model.total_batch}}
       </div>
-      <div class="value" v-if="model.running_state===running_state['starting']">
+      <div class="value"
+        v-if="model.running_state===running_state['starting']">
         -/-
       </div>
     </div>
@@ -45,44 +49,35 @@
       <div class="progress-bar-mask" v-if="model.running_state===running_state['training']"></div>
     </div>
 
-    <div class="value-item" v-if="model.running_state===running_state['training']">
+    <div class="value-item">
       <div class="label">
-        Train Loss
+        <span v-if="model.running_state===running_state['starting']">
+          Starting...
+        </span>
+        <span v-if="model.running_state===running_state['training']">
+          Train Loss
+        </span>
+        <span v-if="model.running_state===running_state['validating']">
+          Validating
+        </span>
+        <span v-if="model.running_state===running_state['stopping']">
+          Stopping...
+        </span>
       </div>
+
       <div class="value">
-        {{spacePadding(round(model.last_train_loss, 1000), 5)}}
-      </div>
-    </div>
-
-    <div class="value-item" v-if="model.running_state===running_state['starting']">
-      <div class="label">
-        Starting...
-      </div>
-      <div class="value" style='display: flex; align-items: center;'>
-        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-      </div>
-    </div>
-
-    <div class="value-item" v-if="model.running_state===running_state['stopping']">
-      <div class="label">
-        Stopping...
-      </div>
-      <div class="value" style='display: flex; align-items: center;'>
-        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-      </div>
-    </div>
-
-    <div class="value-item" v-if="model.running_state===running_state['validating']">
-      <div class="label">
-        Validating
-      </div>
-      <div class="value" style='display: flex; align-items: center;'>
-        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+        <span v-if="model.running_state===running_state['training']">
+          {{round(model.last_train_loss, 1000)}}
+        </span>
+        <span v-if="model.running_state!==running_state['training']">
+          <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+        </span>
       </div>
     </div>
 
     <div class="stop-button-area">
-      <div class="stop-button" @click="show_stop_dialog=true" v-if="model.running_state!==running_state['stopping']">
+      <div class="stop-button" @click="show_stop_dialog=true"
+        v-if="model.running_state!==running_state['stopping']">
         <i class="fa fa-pause-circle-o" aria-hidden="true"></i>
       </div>
     </div>
@@ -161,9 +156,6 @@ export default {
       this.model.running_state = this.running_state["stopping"]
       this.show_stop_dialog = false;
     },
-    spacePadding: function (s, count) {
-      return (Array(count).join("\u0020") + new String(s)).substr(-(count))
-    },
     round: function(v, round_off) {
       return utils.round(v, round_off);
     }
@@ -201,13 +193,13 @@ export default {
 
     width: 64px;
 
-    .label {
+    .label, .label span {
       color: $label-color;
       font-size: $label-font-size;
       line-height: $label-font-size;
     }
 
-    .value {
+    .value, .value span {
       font-size: $value-font-size;
       line-height: $value-font-size;
     }
@@ -280,7 +272,7 @@ export default {
 }
 @-webkit-keyframes emphasize {
     0%{background-color: #ffffff;}
-    30%{background-color: rgba(100, 0, 0, 0.5);}
+    30%{background-color: rgba(0, 0, 0, 0.1);}
     100%{background-color: #ffffff;}
 }
 </style>

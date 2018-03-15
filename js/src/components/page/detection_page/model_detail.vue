@@ -10,7 +10,6 @@
       </div>
       <div class="model-detail-learning-curve">
         <learning-curve v-if='model'
-          :totalEpoch="model.hyper_parameters['total_epoch']"
           :trainLoss="model.train_loss_list"
           :validationLoss="model.validation_loss_list"></learning-curve>
       </div>

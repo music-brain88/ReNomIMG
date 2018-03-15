@@ -13,25 +13,51 @@ import * as constant from '@/constant'
 export default {
   name: "ModelRatioBar",
   computed: mapState(["models"]),
-  watch: {
-    models(newVal) {
-      this.drawBar(newVal);
-    }
-  },
   mounted: function() {
-    this.drawBar(this.models);
+    this.drawBar();
+  },
+  updated: function() {
+    this.drawBar();
   },
   methods: {
-    drawBar: function(models) {
+    drawBar: function() {
+      // init counts of running & algorithm
+      let counts = {"Running": 0}
+      for(let k in Object.keys(constant.ALGORITHM_NAME)) {
+        counts[constant.ALGORITHM_NAME[k]] = 0;
+      }
+
       // calc model counts per algorithm&running.
-      let counts = {"YOLO": 0, "SSD": 0, "Running": 0}
       for(let index in this.models) {
         if(this.models[index].state == 1){
           counts["Running"] += 1;
         }else if(this.models[index].algorithm == 0){
-          counts["YOLO"] += 1;
+          for(let k in Object.keys(constant.ALGORITHM_NAME)) {
+            if(this.models[index].algorithm == k) {
+              counts[constant.ALGORITHM_NAME[k]] += 1;
+            }
+          }
         }
       }
+
+      // crate chart dataset
+      let datasets = []
+
+      // add finished counts per algorithm
+      for(let k in Object.keys(constant.ALGORITHM_NAME)) {
+        datasets.push({
+          label: constant.ALGORITHM_NAME[k],
+          data: [counts[constant.ALGORITHM_NAME[k]]],
+          backgroundColor: constant.ALGORITHM_COLOR[k],
+        });
+      }
+
+      // add Running counts
+      datasets.push({
+        label: "Running",
+        data: [counts["Running"]],
+        backgroundColor: constant.STATE_COLOR["Running"],
+      });
 
       // init canvas
       let parent = document.getElementById("model-ratio-bar");
@@ -43,17 +69,8 @@ export default {
       // set chart data
       let chart_data = {
         labels: [""],
-        datasets: [{
-          label: "YOLO",
-          data: [counts["YOLO"]],
-          backgroundColor: constant.ALGORITHM_COLOR["YOLO"],
-        },
-        {
-          label: "Running",
-          data: [counts["Running"]],
-          backgroundColor: constant.STATE_COLOR["Running"],
-        }
-      ]};
+        datasets: datasets
+      };
 
       // set char options
       var options = {
@@ -81,6 +98,9 @@ export default {
             boxWidth: 10,
             fontSize: 10
           }
+        },
+        tooltips: {
+          bodyFontSize: 10,
         }
       };
 
@@ -102,6 +122,8 @@ export default {
   $title-height: 24px;
   $title-font-size: 16px;
   $font-weight-medium: 500;
+
+  overflow: visible;
 
   .title {
     line-height: $title-height;

@@ -19,7 +19,7 @@ export default {
   $header-height: 35px;
 
   $modal-color: #000000;
-  $modal-opacity: 0.7;
+  $modal-opacity: 0.5;
 
   position: fixed;
   width: 100vw;

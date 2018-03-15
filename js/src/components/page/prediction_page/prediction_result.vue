@@ -113,7 +113,7 @@ export default {
   width: 100vw;
   z-index: 998;
   background-color: #000000;
-  opacity: 0.8;
+  opacity: 0.5;
 
   .animation {
     position: absolute;

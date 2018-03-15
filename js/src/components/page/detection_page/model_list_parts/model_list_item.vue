@@ -17,12 +17,12 @@
       <div class="model-iou-map">
         <div class="label-value">
           <p class="label">IoU</p>
-          <p class="value value-bold">{{ round(model.best_epoch_iou, 100)*100 }}%</p>
+          <p class="value value-bold">{{ round_percent(model.best_epoch_iou) }}%</p>
         </div>
 
         <div class="label-value">
           <p class="label">mAP</p>
-          <p class="value value-bold">{{ round(model.best_epoch_map, 100)*100 }}%</p>
+          <p class="value value-bold">{{ round_percent(model.best_epoch_map) }}%</p>
         </div>
       </div>
 
@@ -117,11 +117,17 @@ export default {
       return constant.ALGORITHM_NAME[id];
     },
     round: function(v, round_off) {
-      const round_data = utils.round(v, round_off);
-      if(Number.isNaN(round_data)) {
+      if(v == null) {
         return "-";
       }else{
-        return round_data;
+        return utils.round(v, round_off);
+      }
+    },
+    round_percent: function(v) {
+      if(v == null) {
+        return "-";
+      }else{
+        return utils.round_percent(v);
       }
     }
   }
@@ -203,7 +209,7 @@ export default {
   .delete-button {
     position: absolute;
     bottom: 0;
-    right: 0;
+    right: 4px;
     color: $label-color;
   }
   .delete-button:hover {

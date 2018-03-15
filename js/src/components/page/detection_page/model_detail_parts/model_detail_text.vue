@@ -17,8 +17,8 @@
       </div>
 
       <div class="model-values">
-        <value-item :label="'IoU'" :val="round(model.best_epoch_iou, 100)*100 + '%'"></value-item>
-        <value-item :label="'mAP'" :val="round(model.best_epoch_map, 100)*100 + '%'"></value-item>
+        <value-item :label="'IoU'" :val="round_percent(model.best_epoch_iou) + '%'"></value-item>
+        <value-item :label="'mAP'" :val="round_percent(model.best_epoch_map) + '%'"></value-item>
         <value-item :label="'Validation Loss'" :val="round(model.validation_loss_list[model.best_epoch], 1000)"></value-item>
         <div class="predict-model-selection-area">
           <predict-model-selection :model="model"></predict-model-selection>
@@ -58,11 +58,18 @@ export default {
       return constant.ALGORITHM_NAME[algorithm];
     },
     round: function(v, round_off) {
-      const round_data = utils.round(v, round_off);
-      if(Number.isNaN(round_data)) {
+      if(v == null) {
         return "-";
       }else{
+        const round_data = utils.round(v, round_off);
         return round_data;
+      }
+    },
+    round_percent: function(v) {
+      if(v == null) {
+        return "-";
+      }else{
+        return utils.round_percent(v);
       }
     }
   }

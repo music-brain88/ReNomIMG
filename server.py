@@ -182,10 +182,6 @@ def get_models(project_id):
             last_epochs.append(running_models[k]["last_epoch"])
             last_batchs.append(running_models[k]["last_batch"])
             running_states.append(running_models[k]["running_state"])
-        print(model_ids)
-        print(last_epochs)
-        print(last_batchs)
-        print(running_states)
 
         for j in range(60):
             project = storage.fetch_project(project_id, fields='deploy_model_id')
@@ -436,23 +432,6 @@ def prediction_info(project_id, model_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
 def export_csv(project_id, model_id, file_name):
     return static_file(file_name, root="./.storage/csv", download=True)
-
-
-@route("/api/renom_img/v1/original_img", method="POST")
-def get_original_img():
-    try:
-        file_path = request.params.root_dir
-
-        with open(file_path, "rb") as image_reader:
-            encoded_img = base64.b64encode(image_reader.read())
-            data = encoded_img.decode('utf8')
-        body = json.dumps(data)
-
-    except Exception as e:
-        body = json.dumps({"error_msg": e.args[0]})
-
-    ret = create_response(body)
-    return ret
 
 
 @route("/api/renom_img/v1/weights/yolo", method="GET")
