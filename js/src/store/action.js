@@ -127,6 +127,7 @@ export default {
     }
 
     const model_id = result.data.model_id;
+
     const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + model_id + "/run";
     axios.get(url)
       .then(function(response) {
@@ -159,35 +160,6 @@ export default {
         if(response.data.error_msg) {
           alert("Error: " + response.data.error_msg);
           return;
-        }
-      });
-  },
-
-  getRunningModelInfo(context, payload) {
-    let model = context.getters.getModelFromId(payload.model_id);
-
-    const query = "?last_batch="+model.last_batch+"&running_state="+model.running_state;
-    const url = "/api/renom_img/v1/projects/" + context.state.project.project_id + "/models/" + payload.model_id + "/running_info"+query;
-
-    axios.get(url, {timeout: 60000})
-      .then(function(response) {
-        if(response.data) {
-          // model.last_batch = response.data.last_batch;
-          // model.total_batch = response.data.total_batch;
-          // model.last_train_loss = response.data.last_train_loss;
-          // model.running_state = response.data.running_state;
-          context.commit('setModelProgress', {
-            "model_id": payload.model_id,
-            "running_info": response.data
-          });
-        }
-
-        if(model.state == constant.STATE_ID["Running"]) {
-          context.dispatch('getRunningModelInfo', {'model_id': model.model_id});
-        }
-      }).catch(function(error) {
-        if(model.state == constant.STATE_ID["Running"]) {
-          context.dispatch('getRunningModelInfo', {'model_id': model.model_id});
         }
       });
   },

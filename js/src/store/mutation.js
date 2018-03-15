@@ -21,7 +21,7 @@ export default {
     state.models = []
     for(let index in payload.models) {
       let d = payload.models[index];
-      let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, d.last_epoch);
+      let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state);
       if(d.best_epoch !== undefined) {
         m.best_epoch = d.best_epoch;
         m.train_loss_list = d.train_loss_list;
@@ -82,13 +82,6 @@ export default {
   // change selected model
   setSelectedModel(state, payload) {
     state.selected_model_id = payload.model_id;
-  },
-
-  /*
-  model progress
-  */
-  setModelProgress(state, payload) {
-    state.model_progress
   },
 
   /*

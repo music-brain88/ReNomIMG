@@ -50,7 +50,7 @@
         Train Loss
       </div>
       <div class="value">
-        {{spacePadding(round(model.last_train_loss), 5)}}
+        {{spacePadding(round(model.last_train_loss, 1000), 5)}}
       </div>
     </div>
 
@@ -104,7 +104,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import * as utils from '@/utils'
 import * as constant from '@/constant'
 import ModalBox from '@/components/common/modalbox'
@@ -136,8 +135,8 @@ export default {
       require: true
     }
   },
-  created: function() {
-    this.$store.dispatch("getRunningModelInfo", {'model_id': this.model.model_id});
+  mounted: function() {
+    this.updateProgressBar();
   },
   updated: function() {
     this.updateProgressBar();
@@ -165,8 +164,8 @@ export default {
     spacePadding: function (s, count) {
       return (Array(count).join("\u0020") + new String(s)).substr(-(count))
     },
-    round: function(v) {
-      return utils.round(v, 1000);
+    round: function(v, round_off) {
+      return utils.round(v, round_off);
     }
   }
 }

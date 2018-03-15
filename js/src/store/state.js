@@ -18,11 +18,6 @@ export default {
   models: [],
 
   /*
-  model progress
-  */
-  model_progress: {},
-
-  /*
   model list
   */
   // show model add modal or not

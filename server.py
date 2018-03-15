@@ -165,26 +165,31 @@ def update_project(project_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="GET")
 def get_models(project_id):
     try:
-        kwargs = {}
-        kwargs["fields"] = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch"
-
         deploy_model_id = None
         if request.params.deploy_model_id != '':
             deploy_model_id = int(request.params.deploy_model_id)
 
         model_count = int(request.params.model_count)
 
-        running_models = storage.fetch_running_models(project_id, **kwargs)
+        running_models = storage.fetch_running_models(project_id)
         # set running model information for polling
         model_ids = []
         last_epochs = []
+        last_batchs = []
+        running_states = []
         for k in list(running_models.keys()):
             model_ids.append(running_models[k]["model_id"])
             last_epochs.append(running_models[k]["last_epoch"])
+            last_batchs.append(running_models[k]["last_batch"])
+            running_states.append(running_models[k]["running_state"])
+        print(model_ids)
+        print(last_epochs)
+        print(last_batchs)
+        print(running_states)
 
         for j in range(60):
             project = storage.fetch_project(project_id, fields='deploy_model_id')
-            data = storage.fetch_models(project_id, **kwargs)
+            data = storage.fetch_models(project_id)
 
             if deploy_model_id != project["deploy_model_id"]:
                 # If deploy model changed
@@ -214,7 +219,7 @@ def get_models(project_id):
 
                     if th is not None:
                         # If thread status updated, return response.
-                        if last_epochs[i] != th.last_epoch:
+                        if last_batchs[i] != th.last_batch or running_states[i] != th.running_state or last_epochs[i] != th.last_epoch:
                             body = json.dumps(data)
                             ret = create_response(body)
                             return ret
@@ -227,6 +232,7 @@ def get_models(project_id):
             time.sleep(1)
 
     except Exception as e:
+        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -360,35 +366,6 @@ def run_model(project_id, model_id):
             body = json.dumps({"error_msg": th.error_msg})
             ret = create_response(body)
             return ret
-    except Exception as e:
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
-
-
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/running_info", method="GET")
-def get_running_model_info(project_id, model_id):
-    try:
-        last_batch = int(request.params.last_batch)
-        running_state = int(request.params.running_state)
-
-        thread_id = "{}_{}".format(project_id, model_id)
-        th = find_thread(thread_id)
-
-        for i in range(60):
-            # If thread status updated, return response.
-            if th is not None:
-                updated = (last_batch != th.last_batch) or (running_state != th.running_state)
-                if updated is True:
-                    body = json.dumps({
-                        "last_batch": th.last_batch,
-                        "total_batch": th.total_batch,
-                        "last_train_loss": th.last_train_loss,
-                        "running_state": th.running_state,
-                    })
-                    ret = create_response(body)
-                    return ret
-            time.sleep(1)
     except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
