@@ -74,6 +74,10 @@ class Storage:
                  best_epoch_weight TEXT,
                  last_epoch INTEGER DEFAULT 0,
                  last_weight TEXT,
+                 last_batch INTEGER DEFAULT 0,
+                 total_batch INTEGER DEFAULT 0,
+                 last_train_loss NUMBER DEFAULT 0,
+                 running_state INTEGER DEFAULT 3,
                  created TIMESTAMP NOT NULL,
                  updated TIMESTAMP NOT NULL)
             """)
@@ -170,6 +174,31 @@ class Storage:
                         state=?, updated=?
                     WHERE model_id=?
                 """, (state, now, model_id))
+        return c.lastrowid
+
+    def update_model_last_epoch(self, model_id, last_epoch):
+        with self.db:
+            c = self.cursor()
+            now = datetime.datetime.now()
+            c.execute("""
+                    UPDATE model
+                    SET
+                        last_epoch=?, updated=?
+                    WHERE model_id=?
+                """, (last_epoch, now, model_id))
+        return c.lastrowid
+
+    def update_model_running_info(self, model_id, last_batch, total_batch, last_train_loss, running_state):
+        with self.db:
+            c = self.cursor()
+            now = datetime.datetime.now()
+            c.execute("""
+                    UPDATE model
+                    SET
+                        last_batch=?, total_batch=?,
+                        last_train_loss=?, running_state=?, updated=?
+                    WHERE model_id=?
+                """, (last_batch, total_batch, last_train_loss, running_state, now, model_id))
         return c.lastrowid
 
     def update_model_loss_list(self, model_id, train_loss_list, validation_loss_list):
@@ -288,11 +317,36 @@ class Storage:
                 ret.update({index: item})
             return ret[0]
 
-    def fetch_models(self, project_id, fields='model_id', order_by='model_id'):
+    def fetch_models(self, project_id, order_by='model_id DESC'):
         with self.db:
             c = self.cursor()
+            fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+
             sql = "SELECT " + fields + \
                 " FROM model WHERE project_id=? AND state<3 ORDER BY " + order_by
+            c.execute(sql, (project_id,))
+
+            blob_items = ['hyper_parameters', 'algorithm_params',
+                          'train_loss_list', 'validation_loss_list',
+                          'best_epoch_validation_result']
+            ret = {}
+            for index, data in enumerate(c):
+                item = {}
+                for j, f in enumerate(fields.split(',')):
+                    if f in blob_items:
+                        item[f] = pickle_load(data[j])
+                    else:
+                        item[f] = data[j]
+                ret.update({index: item})
+            return ret
+
+    def fetch_running_models(self, project_id, order_by='model_id'):
+        with self.db:
+            c = self.cursor()
+            fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+
+            sql = "SELECT " + fields + \
+                " FROM model WHERE project_id=? AND state=1 ORDER BY " + order_by
             c.execute(sql, (project_id,))
 
             blob_items = ['hyper_parameters', 'algorithm_params',

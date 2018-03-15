@@ -158,6 +158,13 @@ class TrainThread(threading.Thread):
                     return
 
                 self.last_epoch = e
+                storage.update_model_last_epoch(
+                    model_id=self.model_id,
+                    last_epoch=e
+                )
+                self.last_batch = 0
+                self.running_state = TRAIN
+                self.update_running_info()
 
                 epoch_id = storage.register_epoch(
                     model_id=self.model_id,
@@ -169,18 +176,14 @@ class TrainThread(threading.Thread):
                 # Train
                 batch_length = int(
                     np.ceil(len(train_distributor) / float(self.batch_size)))
+                self.total_batch = batch_length
 
                 i = 0
-                self.last_batch = 0
-                self.total_batch = batch_length
                 for i, (train_x, train_y) in enumerate(train_distributor.batch(self.batch_size, True)):
                     start_t2 = time.time()
 
                     if self.stop_event.is_set():
                         return
-
-                    self.last_batch = i
-                    self.running_state = TRAIN
 
                     self.model.set_models(inference=False)
                     h = self.model.freezed_forward(train_x / 255. * 2 - 1)
@@ -195,7 +198,11 @@ class TrainThread(threading.Thread):
                                                             self.total_epoch, batch_length))
 
                     train_loss += num_loss
+
+                    self.last_batch = i
+                    self.running_state = TRAIN
                     self.last_train_loss = float(num_loss)
+                    self.update_running_info()
 
                     if DEBUG:
                         print('##### {}/{} {}'.format(i, batch_length, e))
@@ -214,6 +221,8 @@ class TrainThread(threading.Thread):
                 if validation_distributor:
                     self.last_batch += 1
                     self.running_state = VALID
+                    self.update_running_info()
+
                     validation_loss, v_iou, v_mAP, v_bbox = \
                         self.run_validation(validation_distributor)
                     validation_loss_list.append(validation_loss)
@@ -313,3 +322,11 @@ class TrainThread(threading.Thread):
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e.args[0]
+
+    def update_running_info(self):
+        storage.update_model_running_info(
+            model_id=self.model_id,
+            last_batch=self.last_batch,
+            total_batch=self.total_batch,
+            last_train_loss=self.last_train_loss,
+            running_state=self.running_state)
