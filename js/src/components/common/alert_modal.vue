@@ -5,19 +5,14 @@
         <div class="modal-container">
 
           <slot name="contents">
-            default content
+            {{$store.state.error_msg}}
           </slot>
 
           <div class="modal-footer">
             <slot name="footer">
               <slot name="okbutton">
-                <button class="modal-default-button" @click="$emit('ok')">
+                <button class="modal-default-button" @click="hide">
                   Ok
-                </button>
-              </slot>
-              <slot name="cancelbutton">
-                <button class="modal-default-button" @click="$emit('cancel')">
-                  Cancel
                 </button>
               </slot>
             </slot>
@@ -32,9 +27,11 @@
 import { mapState } from "vuex";
 
 export default {
-  name: "ModalBox",
-  mounted: function() {
-    document.getElementsByClassName("modal-default-button")[0].focus();
+  name: "AlertModal",
+  methods: {
+    hide: function() {
+      this.$store.commit('setAlertModalFlag', {'flag': false});
+    }
   }
 };
 </script>

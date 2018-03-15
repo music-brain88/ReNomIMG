@@ -24,6 +24,15 @@ export default {
   add_model_modal_show_flag: false,
 
   /*
+  alert modal
+  */
+  // show alert message modal or not
+  alert_modal_flag: false,
+
+  // error msg from server
+  error_msg: "",
+
+  /*
   tag list
   */
   class_names: {},

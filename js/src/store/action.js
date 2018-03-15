@@ -15,7 +15,8 @@ export default {
     return axios.get(url)
       .then(function(response) {
         if(response.data.error_msg) {
-          alert("Error: " + response.data.error_msg);
+          context.commit('setAlertModalFlag', {'flag': true});
+          context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
           return;
         }
         context.commit("setProject", {
@@ -39,7 +40,8 @@ export default {
       }
     }).then(function(response) {
       if(response.data.error_msg) {
-        alert("Error: " + response.data.error_msg);
+        context.commit('setAlertModalFlag', {'flag': true});
+        context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
         return;
       }
 
@@ -61,7 +63,8 @@ export default {
       return axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
-            alert("Error: " + response.data.error_msg);
+            context.commit('setAlertModalFlag', {'flag': true});
+            context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
             return;
           }
 
@@ -80,7 +83,8 @@ export default {
       return axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
-            alert("Error: " + response.data.error_msg);
+            context.commit('setAlertModalFlag', {'flag': true});
+            context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
             return;
           }
 
@@ -122,7 +126,8 @@ export default {
       'algorithm_params': algorithm_params,
     });
     if(result.data.error_msg) {
-      alert(result.data.error_msg);
+      context.commit('setAlertModalFlag', {'flag': true});
+      context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
       return;
     }
 
@@ -132,7 +137,8 @@ export default {
     axios.get(url)
       .then(function(response) {
         if(response.data.error_msg) {
-          alert("Error: " + response.data.error_msg);
+          context.commit('setAlertModalFlag', {'flag': true});
+          context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
           return;
         }
       });
@@ -144,7 +150,8 @@ export default {
     return axios.delete(url)
       .then(function(response) {
         if(response.data.error_msg) {
-          alert("Error: " + response.data.error_msg);
+          context.commit('setAlertModalFlag', {'flag': true});
+          context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
           return;
         }
       });
@@ -158,7 +165,8 @@ export default {
     axios.get(url)
       .then(function(response) {
         if(response.data.error_msg) {
-          alert("Error: " + response.data.error_msg);
+          context.commit('setAlertModalFlag', {'flag': true});
+          context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
           return;
         }
       });
@@ -172,7 +180,8 @@ export default {
     axios.get(url)
       .then(function(response) {
         if(response.data.error_msg) {
-          alert("Error: " + response.data.error_msg);
+          context.commit('setAlertModalFlag', {'flag': true});
+          context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
           return;
         }
 
@@ -186,7 +195,8 @@ export default {
     axios.get(url)
       .then(function(response) {
         if(response.data.error_msg) {
-          alert("Error: " + response.data.error_msg);
+          context.commit('setAlertModalFlag', {'flag': true});
+          context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
           return;
         }
 
@@ -204,7 +214,8 @@ export default {
     return await axios.get(url)
       .then(function(response) {
         if(response.data.error_msg) {
-          alert("Error: " + response.data.error_msg);
+          context.commit('setAlertModalFlag', {'flag': true});
+          context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
           return;
         }
 
@@ -225,7 +236,8 @@ export default {
       axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
-            alert("Error: " + response.data.error_msg);
+            context.commit('setAlertModalFlag', {'flag': true});
+            context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
             context.commit('setPredictRunningFlag', {'flag': false});
             return;
           }
@@ -243,7 +255,8 @@ export default {
       axios.get(url)
         .then(function(response) {
           if(response.data.error_msg) {
-            alert("Error: " + response.data.error_msg);
+            context.commit('setAlertModalFlag', {'flag': true});
+            context.commit('setErrorMsg', {'error_msg': response.data.error_msg});
             return;
           }
 

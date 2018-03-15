@@ -135,7 +135,9 @@ export default {
          this.image_height < 32 || 1024 < this.image_height ||
          this.total_epoch < 0 || 1000 < this.total_epoch ||
          this.batch_size < 0 || 512 < this.batch_size) {
-        alert("Input data has invalid number.");
+
+        this.$store.commit('setAlertModalFlag', {'flag': true});
+        this.$store.commit('setErrorMsg', {'error_msg': "Input data has invalid number."});
         return;
       }
 

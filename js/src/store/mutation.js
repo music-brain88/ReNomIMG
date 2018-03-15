@@ -45,6 +45,17 @@ export default {
   },
 
   /*
+  alert modal
+  */
+  setAlertModalFlag(state, payload) {
+    state.alert_modal_flag = payload.flag;
+  },
+
+  setErrorMsg(state, payload) {
+    state.error_msg = payload.error_msg;
+  },
+
+  /*
   model list area
   */
   // set add model modal

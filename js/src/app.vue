@@ -2,6 +2,7 @@
 <div id="app">
   <app-header></app-header>
   <navigation-bar></navigation-bar>
+  <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
 
   <div class="container">
     <router-view></router-view>
@@ -12,12 +13,14 @@
 <script>
 import AppHeader from '@/components/common/app_header.vue'
 import NavigationBar from '@/components/common/navigation_bar.vue'
+import AlertModal from '@/components/common/alert_modal.vue'
 
 export default {
   name: "App",
   components:{
     'app-header': AppHeader,
-    'navigation-bar': NavigationBar
+    'navigation-bar': NavigationBar,
+    'alert-modal': AlertModal,
   },
   created: function() {
     this.$store.commit("setPageName", {
