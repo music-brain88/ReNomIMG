@@ -1,13 +1,13 @@
 <template>
   <div id="predict-model-selection">
     <div class="button-area">
-      <div class="set-predict-model" v-if="!isPredict" @click="setPredictModel">
+      <button class="set-predict-model" v-if="!isPredict" :disabled="model.train_loss_list.length == 0" @click="setPredictModel">
         Deploy Model
-      </div>
+      </button>
 
-      <div class="set-predict-model" v-if="isPredict" @click="show_undeploy_dialog=true">
+      <button class="set-predict-model" v-if="isPredict" @click="show_undeploy_dialog=true">
         Undeploy
-      </div>
+      </button>
 
       <div class="button-description" @mouseenter="hoverDescription(true)" @mouseleave="hoverDescription(false)">
         <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -132,7 +132,7 @@ export default {
 
   .triangle {
     position: absolute;
-    bottom: 28px;
+    top: -4px;
     right: calc(#{$balloon-border-width});
     border-top: $balloon-border-width solid $balloon-color;
     border-left: $balloon-border-width solid transparent;
