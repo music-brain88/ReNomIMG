@@ -43,7 +43,7 @@ class TrainThread(threading.Thread):
         self.batch_size = int(hyper_parameters['batch_size'])
         self.seed = int(hyper_parameters['seed'])
         self.img_size = (int(hyper_parameters['image_width']),
-            int(hyper_parameters['image_height']))
+                         int(hyper_parameters['image_height']))
 
         self.cell_h = int(algorithm_params['cells'])
         self.cell_v = int(algorithm_params['cells'])
@@ -120,7 +120,8 @@ class TrainThread(threading.Thread):
         try:
             set_cuda_active(True)
             release_mem_pool()
-            if DEBUG: print("run thread")
+            if DEBUG:
+                print("run thread")
             storage.update_model_state(self.model_id, STATE_RUNNING)
             class_list, train_dist, valid_dist = create_train_valid_dists(
                 self.img_size)
@@ -247,10 +248,11 @@ class TrainThread(threading.Thread):
                     validation_loss_list=validation_loss_list,
                 )
                 cur_time = time.time()
-                if DEBUG: print("epoch %d done. %f. took time %f [s], %f [s]" % (e, train_loss,
-                                                                       cur_time - start_t0,
-                                                                       cur_time - start_t1,
-                                                                       ))
+                if DEBUG:
+                    print("epoch %d done. %f. took time %f [s], %f [s]" % (e, train_loss,
+                                                                           cur_time - start_t0,
+                                                                           cur_time - start_t1,
+                                                                           ))
 
                 # このエポック時点でのiouとmapをDBに保存する
                 bbox_list_len = min(len(v_bbox), len(v_bbox_imgs))

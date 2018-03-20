@@ -61,7 +61,8 @@ class PredictionThread(threading.Thread):
         try:
             set_cuda_active(True)
             release_mem_pool()
-            if DEBUG: print("run prediction")
+            if DEBUG:
+                print("run prediction")
             class_list, train_dist, valid_dist = create_train_valid_dists(
                 self.img_size)
             self.model = self.set_train_config(len(class_list))
@@ -92,7 +93,8 @@ class PredictionThread(threading.Thread):
                 v_bbox.extend(bbox)
 
             end_t = time.time()
-            if DEBUG: print("predict time: {} [s]".format(end_t - start_t))
+            if DEBUG:
+                print("predict time: {} [s]".format(end_t - start_t))
 
             self.predict_results = {
                 "bbox_list": v_bbox[:len(v_bbox_imgs)],
