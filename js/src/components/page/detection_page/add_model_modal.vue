@@ -98,8 +98,8 @@
       </div>
 
       <div class="modal-button-area">
-        <button @click="hideAddModelModal">キャンセル</button>
-        <button @click="runModel">RUN</button>
+        <button @click="hideAddModelModal">Cancel</button>
+        <button @click="runModel" :disabled="!isRunnable">Run</button>
       </div>
 
     </div>
@@ -124,23 +124,24 @@ export default {
       bounding_box: 2,
     }
   },
+  computed: {
+    isRunnable: function () {
+      if(this.cells < 3 || 20 < this.cells ||
+         this.bounding_box < 0 || 10 < this.bounding_box ||
+         this.image_width < 32 || 1024 < this.image_width ||
+         this.image_height < 32 || 1024 < this.image_height ||
+         this.total_epoch < 0 || 1000 < this.total_epoch ||
+         this.batch_size < 0 || 512 < this.batch_size) {
+        return false
+      }
+      return true
+    },
+  },
   methods: {
     hideAddModelModal: function() {
       this.$store.commit("setAddModelModalShowFlag", {"add_model_modal_show_flag": false});
     },
     runModel: function() {
-      if(this.cells < 3 || 20 < this.cells ||
-         this.bounding_box < 0 || 512 < this.bounding_box ||
-         this.image_width < 32 || 1024 < this.image_width ||
-         this.image_height < 32 || 1024 < this.image_height ||
-         this.total_epoch < 0 || 1000 < this.total_epoch ||
-         this.batch_size < 0 || 512 < this.batch_size) {
-
-        this.$store.commit('setAlertModalFlag', {'flag': true});
-        this.$store.commit('setErrorMsg', {'error_msg': "Input data has invalid number."});
-        return;
-      }
-
       const hyper_parameters = {
         'total_epoch': parseInt(this.total_epoch),
         'batch_size': parseInt(this.batch_size),
