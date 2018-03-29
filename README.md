@@ -37,7 +37,7 @@ Then install all required packages.
 
 If the server starts, you will see a message like below.
 
-<img src='./static/img/server_run.png' width='60%'/>
+<img src='./js/static/img/server_run.png' width='60%'/>
 
 ## How to use
 
