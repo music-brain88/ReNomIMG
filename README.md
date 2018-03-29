@@ -1,5 +1,5 @@
 
-# ReNomIMG 0.4beta
+# ReNomIMG 0.5beta
 
 ReNom IMG is model developing tool for object detection.
 
