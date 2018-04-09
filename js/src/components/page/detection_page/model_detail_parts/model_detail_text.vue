@@ -36,40 +36,40 @@ import YoloParams from './yolo_params.vue'
 import PredictModelSelection from './predict_model_selection.vue'
 
 export default {
-  name: "ModelDetailText",
+  name: 'ModelDetailText',
   components: {
-    "value-item": ValueItem,
-    "yolo-params": YoloParams,
-    "predict-model-selection": PredictModelSelection,
+    'value-item': ValueItem,
+    'yolo-params': YoloParams,
+    'predict-model-selection': PredictModelSelection
   },
-  data: function() {
+  data: function () {
     return {
-      additional_param_components: ["yolo-params"],
+      additional_param_components: ['yolo-params']
     }
   },
   props: {
-    "model": {
+    'model': {
       type: Object,
       required: true
     }
   },
   methods: {
-    getAlgorithmName: function(algorithm) {
-      return constant.ALGORITHM_NAME[algorithm];
+    getAlgorithmName: function (algorithm) {
+      return constant.ALGORITHM_NAME[algorithm]
     },
-    round: function(v, round_off) {
-      if(v == null) {
-        return "-";
-      }else{
-        const round_data = utils.round(v, round_off);
-        return round_data;
+    round: function (v, round_off) {
+      if (v == null) {
+        return '-'
+      } else {
+        const round_data = utils.round(v, round_off)
+        return round_data
       }
     },
-    round_percent: function(v) {
-      if(v == null) {
-        return "-";
-      }else{
-        return utils.round_percent(v);
+    round_percent: function (v) {
+      if (v == null) {
+        return '-'
+      } else {
+        return utils.round_percent(v)
       }
     }
   }

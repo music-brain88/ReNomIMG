@@ -10,13 +10,13 @@
 
 <script>
   export default {
-    name: "ProjectPlus",
+    name: 'ProjectPlus',
     methods: {
-      showAddProject: function() {
+      showAddProject: function () {
         // Fire parent(ProjectsWrapper vue)'s event.
         this.$emit('showAddProject')
-      },
-    },  
+      }
+    }
   }
 </script>
 

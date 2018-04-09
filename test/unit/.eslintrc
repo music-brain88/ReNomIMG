@@ -1,9 +1,6 @@
 {
-  "env": {
-    "mocha": true
+  "env": { 
   },
-  "globals": {
-    "expect": true,
-    "sinon": true
+  "globals": { 
   }
 }

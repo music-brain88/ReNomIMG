@@ -11,16 +11,16 @@
 
 <script>
 export default {
-  name: "ValueItem",
+  name: 'ValueItem',
   props: {
-    "label": {
+    'label': {
       type: String,
       required: true
     },
-    "val": {
+    'val': {
       required: true
     }
-  },
+  }
 }
 </script>
 

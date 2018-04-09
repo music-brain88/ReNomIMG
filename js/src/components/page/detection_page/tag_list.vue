@@ -15,14 +15,14 @@
 
 <script>
 export default {
-  name: "TagList",
-  data: function() {
+  name: 'TagList',
+  data: function () {
     return {
-      color_list: ["#f19f36", "#53b05f", "#536cff", "#f86c8e"],
+      color_list: ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
     }
   },
-  created: function() {
-    this.$store.dispatch("loadDatasetInfov0");
+  created: function () {
+    this.$store.dispatch('loadDatasetInfov0')
   }
 }
 </script>

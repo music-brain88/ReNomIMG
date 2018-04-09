@@ -22,16 +22,16 @@ import ModelDetailText from './model_detail_parts/model_detail_text.vue'
 import LearningCurve from './model_detail_parts/learning_curve.vue'
 
 export default {
-  name: "ModelDetail",
+  name: 'ModelDetail',
   components: {
-    "model-detail-text": ModelDetailText,
-    "learning-curve": LearningCurve,
+    'model-detail-text': ModelDetailText,
+    'learning-curve': LearningCurve
   },
   computed: {
-    model() {
-      return this.$store.getters.getSelectedModel;
+    model () {
+      return this.$store.getters.getSelectedModel
     }
-  },
+  }
 }
 </script>
 

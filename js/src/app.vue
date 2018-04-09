@@ -16,17 +16,17 @@ import NavigationBar from '@/components/common/navigation_bar.vue'
 import AlertModal from '@/components/common/alert_modal.vue'
 
 export default {
-  name: "App",
-  components:{
+  name: 'App',
+  components: {
     'app-header': AppHeader,
     'navigation-bar': NavigationBar,
-    'alert-modal': AlertModal,
+    'alert-modal': AlertModal
   },
-  created: function() {
-    this.$store.commit("setPageName", {
-      "page_name": this.$router.currentRoute.name,
-    });
-  },
+  created: function () {
+    this.$store.commit('setPageName', {
+      'page_name': this.$router.currentRoute.name
+    })
+  }
 }
 </script>
 

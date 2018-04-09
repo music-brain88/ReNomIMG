@@ -29,14 +29,13 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 
 export default {
-  name: "ModalBox",
-  mounted: function() {
-    document.getElementsByClassName("modal-default-button")[0].focus();
+  name: 'ModalBox',
+  mounted: function () {
+    document.getElementsByClassName('modal-default-button')[0].focus()
   }
-};
+}
 </script>
 
 <style lang='scss'>

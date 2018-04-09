@@ -24,16 +24,15 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 
 export default {
-  name: "AlertModal",
+  name: 'AlertModal',
   methods: {
-    hide: function() {
-      this.$store.commit('setAlertModalFlag', {'flag': false});
+    hide: function () {
+      this.$store.commit('setAlertModalFlag', {'flag': false})
     }
   }
-};
+}
 </script>
 
 <style lang='scss'>

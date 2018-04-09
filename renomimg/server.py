@@ -8,13 +8,16 @@ import base64
 import threading
 import time
 import urllib
+import pkg_resources
+import mimetypes
+import posixpath
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
-import wsgi_server
-from python.train_thread import TrainThread
-from python.prediction_thread import PredictionThread
-from python.weight_download_thread import WeightDownloadThread
-from python.utils.storage import storage
+from . import wsgi_server
+from .train_thread import TrainThread
+from .prediction_thread import PredictionThread
+from .weight_download_thread import WeightDownloadThread
+from .utils.storage import storage
 
 
 STATE_FINISHED = 2
@@ -70,24 +73,39 @@ def get_train_thread_count():
     return count
 
 
+def strip_path(filename):
+    if os.path.isabs(filename):
+        raise ValueError('Invalid path')
+    if '..' in filename:
+        raise ValueError('Invalid path')
+    if ':' in filename:
+        raise ValueError('Invalid path')
+
+    filename = filename.strip().strip('./\\')
+    return filename
+
+
+def _get_resource(path, filename):
+    filename = strip_path(filename)
+    body = pkg_resources.resource_string(__name__, posixpath.join('.build', path, filename))
+
+    headers = {}
+    mimetype, encoding = mimetypes.guess_type(filename)
+    if mimetype:
+        headers['Content-Type'] = mimetype
+    if encoding:
+        headers['encoding'] = encoding
+    return HTTPResponse(body, **headers)
+
+
 @route("/")
 def index():
-    return static_file("index.html", root='js/')
+    return _get_resource('', 'index.html')
 
 
-@route("/css/<file_name:path>")
-def css(file_name):
-    return static_file(file_name, root='js/static/css/', mimetype='text/css')
-
-
-@route("/build/<file_name:path>")
+@route("/static/<file_name:re:.+>")
 def static(file_name):
-    return static_file(file_name, root='js/build/', mimetype='application/javascript')
-
-
-@route("/static/fonts/<file_name:path>")
-def fonts(file_name):
-    return static_file(file_name, root='js/static/fonts/')
+    return _get_resource('static', file_name)
 
 
 @error(404)
@@ -471,8 +489,7 @@ def check_weight_download_progress(progress_num):
         ret = create_response(body)
         return ret
 
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description='desc')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
     parser.add_argument('--port', default='8070', help='Server port')
@@ -481,3 +498,6 @@ if __name__ == "__main__":
     wsgiapp = default_app()
     httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
     httpd.serve_forever()
+
+if __name__ == "__main__":
+    main()

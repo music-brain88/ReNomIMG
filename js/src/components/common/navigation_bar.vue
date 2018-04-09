@@ -28,20 +28,20 @@
 <script>
 
 export default {
-  name: "NavigationBar",
+  name: 'NavigationBar',
   methods: {
-    goTraining: function() {
-      this.$store.commit("setPageName", {"page_name": "Training"});
-      this.$router.push({path: "/"});
-      this.hideMenu();
+    goTraining: function () {
+      this.$store.commit('setPageName', {'page_name': 'Training'})
+      this.$router.push({path: '/'})
+      this.hideMenu()
     },
-    goPrediction: function() {
-      this.$store.commit("setPageName", {"page_name": "Prediction"});
-      this.$router.push({path: "/prediction"});
-      this.hideMenu();
+    goPrediction: function () {
+      this.$store.commit('setPageName', {'page_name': 'Prediction'})
+      this.$router.push({path: '/prediction'})
+      this.hideMenu()
     },
-    hideMenu: function() {
-      this.$store.commit('setNavigationBarShowFlag', {flag: false});
+    hideMenu: function () {
+      this.$store.commit('setNavigationBarShowFlag', {flag: false})
     }
   }
 }

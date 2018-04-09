@@ -14,23 +14,23 @@
 
 <script>
 export default {
-  name: "Pager",
+  name: 'Pager',
   computed: {
     getPredictResults: function () {
-      return this.$store.getters.getPredictResults;
+      return this.$store.getters.getPredictResults
     },
-    currentPage: function() {
-      return this.$store.state.predict_page;
+    currentPage: function () {
+      return this.$store.state.predict_page
     },
-    pageMax: function() {
-      return this.$store.getters.getPageMax;
+    pageMax: function () {
+      return this.$store.getters.getPageMax
     }
   },
   methods: {
-    setPredictPage(page) {
-      this.$store.commit("setPredictPage", {
-        "page": page,
-      });
+    setPredictPage (page) {
+      this.$store.commit('setPredictPage', {
+        'page': page
+      })
     }
   }
 }

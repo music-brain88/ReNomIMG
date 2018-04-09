@@ -11,18 +11,18 @@
 
 <script>
 export default {
-  name: "RunPredictionButton",
+  name: 'RunPredictionButton',
   computed: {
-    predictModelId: function() {
-      if(this.$store.state.project){
-        return this.$store.state.project.deploy_model_id;
+    predictModelId: function () {
+      if (this.$store.state.project) {
+        return this.$store.state.project.deploy_model_id
       }
     }
   },
   methods: {
-    runPrediction: function() {
-      this.$store.dispatch("runPrediction");
-      this.$store.dispatch("updatePredictionInfo");
+    runPrediction: function () {
+      this.$store.dispatch('runPrediction')
+      this.$store.dispatch('updatePredictionInfo')
     }
   }
 }

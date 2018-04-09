@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: "WeightDownloadingModal",
+  name: 'WeightDownloadingModal'
 }
 </script>
 

@@ -17,15 +17,15 @@ import PredictionResult from './prediction_result.vue'
 import ImageModal from './image_modal.vue'
 
 export default {
-  name: "PredictionPage",
+  name: 'PredictionPage',
   components: {
-    "model-detail": ModelDetail,
-    "prediction-result": PredictionResult,
-    "image-modal": ImageModal,
+    'model-detail': ModelDetail,
+    'prediction-result': PredictionResult,
+    'image-modal': ImageModal
   },
-  created: function() {
-    this.$store.dispatch("initData", {"project_id": 1});
-    this.$store.dispatch("loadDatasetInfov0");
+  created: function () {
+    this.$store.dispatch('initData', {'project_id': 1})
+    this.$store.dispatch('loadDatasetInfov0')
   }
 }
 </script>

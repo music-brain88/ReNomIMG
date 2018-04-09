@@ -9,16 +9,16 @@
 import ValueItem from './value_item.vue'
 
 export default {
-  name: "YoloParams",
+  name: 'YoloParams',
   components: {
-    "value-item": ValueItem,
+    'value-item': ValueItem
   },
   props: {
-    "params": {
+    'params': {
       type: Object,
       required: true
     }
-  },
+  }
 }
 </script>
 

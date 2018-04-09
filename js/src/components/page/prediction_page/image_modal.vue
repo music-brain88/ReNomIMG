@@ -13,93 +13,93 @@
 
 <script>
 export default {
-  name: "ImageModal",
-  data: function() {
+  name: 'ImageModal',
+  data: function () {
     return {
-      image: undefined,
+      image: undefined
     }
   },
   computed: {
-    getPredictResults: function() {
-      return this.$store.getters.getPredictResults;
+    getPredictResults: function () {
+      return this.$store.getters.getPredictResults
     },
-    imageIndex: function() {
-      return this.$store.state.image_index_on_modal;
+    imageIndex: function () {
+      return this.$store.state.image_index_on_modal
     },
-    imgPath: function() {
-      return this.getPredictResults[this.imageIndex].path;
+    imgPath: function () {
+      return this.getPredictResults[this.imageIndex].path
     },
-    bboxes: function() {
-      return this.getPredictResults[this.imageIndex].predicted_bboxes;
+    bboxes: function () {
+      return this.getPredictResults[this.imageIndex].predicted_bboxes
     },
-    currentPage: function() {
-      return this.$store.state.predict_page;
+    currentPage: function () {
+      return this.$store.state.predict_page
     },
-    pageMax: function() {
-      return this.$store.getters.getPageMax;
+    pageMax: function () {
+      return this.$store.getters.getPageMax
     }
   },
-  created: function() {
-    window.onkeyup = this.keyupFunc;
-    this.loadImg();
+  created: function () {
+    window.onkeyup = this.keyupFunc
+    this.loadImg()
   },
-  updated: function() {
-    this.loadImg();
+  updated: function () {
+    this.loadImg()
   },
   methods: {
-    loadImg: function() {
+    loadImg: function () {
       var self = this
       let path = this.imgPath
-      if(path){
+      if (path) {
         self.image = path
       }
     },
     getColor: function (index) {
-      let color_list = ["#f19f36", "#53b05f", "#536cff", "#f86c8e"]
-      return color_list[index%4]
+      let color_list = ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
+      return color_list[index % 4]
     },
     getTagName: function (index) {
-      let label_dict = this.$store.state.class_names;
+      let label_dict = this.$store.state.class_names
       return label_dict[index]
     },
-    hideModal: function() {
-      this.$store.commit("setImageModalShowFlag", {
-        "flag": false,
-      });
+    hideModal: function () {
+      this.$store.commit('setImageModalShowFlag', {
+        'flag': false
+      })
     },
-    keyLeft: function() {
-      if(this.imageIndex > 0) {
-        this.$store.commit("setImageIndexOnModal", {
-          "index": this.imageIndex - 1,
-        });
-      }else if(this.currentPage > 0) {
-        this.$store.commit("setPredictPage", {
-          "page": this.currentPage - 1,
-        });
-        this.$store.commit("setImageIndexOnModal", {
-          "index": this.getPredictResults.length - 1,
-        });
+    keyLeft: function () {
+      if (this.imageIndex > 0) {
+        this.$store.commit('setImageIndexOnModal', {
+          'index': this.imageIndex - 1
+        })
+      } else if (this.currentPage > 0) {
+        this.$store.commit('setPredictPage', {
+          'page': this.currentPage - 1
+        })
+        this.$store.commit('setImageIndexOnModal', {
+          'index': this.getPredictResults.length - 1
+        })
       }
     },
-    keyRight: function() {
-      if(this.imageIndex < this.getPredictResults.length - 1) {
-        this.$store.commit("setImageIndexOnModal", {
-          "index": this.imageIndex + 1,
-        });
-      }else if(this.currentPage < this.pageMax) {
-        this.$store.commit("setPredictPage", {
-          "page": this.currentPage + 1,
-        });
-        this.$store.commit("setImageIndexOnModal", {
-          "index": 0,
-        });
+    keyRight: function () {
+      if (this.imageIndex < this.getPredictResults.length - 1) {
+        this.$store.commit('setImageIndexOnModal', {
+          'index': this.imageIndex + 1
+        })
+      } else if (this.currentPage < this.pageMax) {
+        this.$store.commit('setPredictPage', {
+          'page': this.currentPage + 1
+        })
+        this.$store.commit('setImageIndexOnModal', {
+          'index': 0
+        })
       }
     },
-    keyupFunc: function(e) {
-      if(e.keyCode == 37) {
-        this.keyLeft();
-      }else if(e.keyCode == 39){
-        this.keyRight();
+    keyupFunc: function (e) {
+      if (e.keyCode === 37) {
+        this.keyLeft()
+      } else if (e.keyCode === 39) {
+        this.keyRight()
       }
     }
   }

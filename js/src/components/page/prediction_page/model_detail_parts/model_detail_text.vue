@@ -24,25 +24,25 @@ import * as constant from '@/constant'
 import ValueItem from './value_item.vue'
 
 export default {
-  name: "ModelDetailText",
+  name: 'ModelDetailText',
   components: {
-    "value-item": ValueItem,
+    'value-item': ValueItem
   },
   computed: {
-    predictModel() {
-      return this.$store.getters.getPredictModel;
+    predictModel () {
+      return this.$store.getters.getPredictModel
     }
   },
   methods: {
-    getAlgorithmName: function(id) {
-      return constant.ALGORITHM_NAME[id];
+    getAlgorithmName: function (id) {
+      return constant.ALGORITHM_NAME[id]
     },
-    round: function(v, round_off) {
-      const round_data = utils.round(v, round_off);
-      if(Number.isNaN(round_data)) {
-        return "-";
-      }else{
-        return round_data;
+    round: function (v, round_off) {
+      const round_data = utils.round(v, round_off)
+      if (Number.isNaN(round_data)) {
+        return '-'
+      } else {
+        return round_data
       }
     }
   }

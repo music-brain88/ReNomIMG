@@ -9,20 +9,19 @@
 </template>
 
 <script>
-
   export default {
     name: 'SampleImage',
     props: {
       image_path: undefined,
-      bboxes: undefined,
+      bboxes: undefined
     },
     methods: {
       getColor: function (index) {
-        let color_list = ["#f19f36", "#53b05f", "#536cff", "#f86c8e"]
-        return color_list[index%4]
+        let color_list = ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
+        return color_list[index % 4]
       },
       getTagName: function (index) {
-        let label_dict = this.$store.state.class_names;
+        let label_dict = this.$store.state.class_names
         return label_dict[index]
       }
     }

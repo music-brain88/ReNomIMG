@@ -11,18 +11,18 @@
 
 <script>
 export default {
-  name: "ExportButton",
+  name: 'ExportButton',
   computed: {
-    predictModelId: function() {
-      if(this.$store.state.project){
-        return this.$store.state.project.deploy_model_id;
+    predictModelId: function () {
+      if (this.$store.state.project) {
+        return this.$store.state.project.deploy_model_id
       }
     }
   },
   methods: {
-    exportCSV: function(){
-      let url = "/api/renom_img/v1/projects/1/models/" + this.$store.state.project.deploy_model_id + "/export_csv/" + this.$store.state.csv
-      window.open(url, "__blank");
+    exportCSV: function () {
+      let url = '/api/renom_img/v1/projects/1/models/' + this.$store.state.project.deploy_model_id + '/export_csv/' + this.$store.state.csv
+      window.open(url, '__blank')
     }
   }
 }

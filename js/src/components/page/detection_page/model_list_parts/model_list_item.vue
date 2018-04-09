@@ -63,71 +63,71 @@ import * as constant from '@/constant'
 import ModalBox from '@/components/common/modalbox'
 
 export default {
-  name: "ModelListItem",
+  name: 'ModelListItem',
   components: {
-    "modal-box": ModalBox,
+    'modal-box': ModalBox
   },
-  data: function() {
+  data: function () {
     return {
-      show_delete_dialog: false,
+      show_delete_dialog: false
     }
   },
   props: {
-    "model": {
+    'model': {
       type: Object,
       require: true
     }
   },
   computed: {
-    selected() {
-      if(this.$store.state.project) {
-        return this.model.model_id == this.$store.state.selected_model_id;
+    selected () {
+      if (this.$store.state.project) {
+        return this.model.model_id === this.$store.state.selected_model_id
       }
     },
-    isPredict() {
-      return this.model.model_id == this.$store.state.project.deploy_model_id;
-    },
+    isPredict () {
+      return this.model.model_id === this.$store.state.project.deploy_model_id
+    }
   },
   methods: {
-    selectModel: function() {
-      this.$store.commit("setSelectedModel", {"model_id": this.model.model_id});
+    selectModel: function () {
+      this.$store.commit('setSelectedModel', {'model_id': this.model.model_id})
     },
-    deleteModel: function() {
-      if(this.isPredict) {
-        this.$store.commit("setPredictModelId", {
-          "model_id": undefined,
-        });
+    deleteModel: function () {
+      if (this.isPredict) {
+        this.$store.commit('setPredictModelId', {
+          'model_id': undefined
+        })
       }
-      if(this.selected) {
-        this.$store.commit("setSelectedModel", {"model_id": undefined});
+      if (this.selected) {
+        this.$store.commit('setSelectedModel', {'model_id': undefined})
       }
-      this.$store.dispatch("deleteModel", {
-        "model_id": this.model.model_id
-      });
-      this.show_delete_dialog = false;
+      this.$store.dispatch('deleteModel', {
+        'model_id': this.model.model_id
+      })
+      this.show_delete_dialog = false
     },
-    getColor: function(model_state, algorithm) {
-      if(model_state == constant.STATE_ID["Running"]) {
-        return constant.STATE_COLOR[model_state];
-      }else{
-        return constant.ALGORITHM_COLOR[algorithm];
-      }
-    },
-    getAlgorithmName: function(id) {
-      return constant.ALGORITHM_NAME[id];
-    },
-    round: function(v, round_off) {
-      if(v == null) {
-        return "-";
-      }else{
-        return utils.round(v, round_off);
+    getColor: function (model_state, algorithm) {
+      if (model_state === constant.STATE_ID['Running']) {
+        return constant.STATE_COLOR[model_state]
+      } else {
+        return constant.ALGORITHM_COLOR[algorithm]
       }
     },
-    round_percent: function(v) {
-      if(v == null) {
-        return "-";
-      }else{
-        return utils.round_percent(v);
+    getAlgorithmName: function (id) {
+      return constant.ALGORITHM_NAME[id]
+    },
+    round: function (v, round_off) {
+      if (v == null) {
+        return '-'
+      } else {
+        return utils.round(v, round_off)
+      }
+    },
+    round_percent: function (v) {
+      if (v == null) {
+        return '-'
+      } else {
+        return utils.round_percent(v)
       }
     }
   }

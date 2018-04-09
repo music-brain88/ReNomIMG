@@ -1,6 +1,6 @@
 <template>
   <div id="project-panel">
-    <div class="outer-project-panel" v-on:click="goDetectionPage">
+    <div class="outer-project-panel">
       <div class="project-panel">
         <div id="row1">
           <div id="project-name">
@@ -66,27 +66,17 @@
 
 <script>
   export default {
-    name: "ProjectPanel",
-    props: ["project"],
+    name: 'ProjectPanel',
+    props: ['project'],
     data: function () {
       return {
-        showCommentFlag:false
+        showCommentFlag: false
       }
     },
     methods: {
-      goDetectionPage: function() {
-        let self = this;
-        // this.$store.commit("setProjectId", {
-        //   "project_id": this.project["project_id"]
-        // });
-        // this.$store.dispatch("loadPastLearnings")
-        //   .then(function(response){
-        //     self.$router.push({ path: '/detection_page' });
-        // });
-      },
       toggleComment: function () {
         this.showCommentFlag = !this.showCommentFlag
-      },
+      }
     }
   }
 </script>

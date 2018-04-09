@@ -20,75 +20,75 @@
 import Chart from 'chart.js'
 
 export default {
-  name: "LearningCurve",
+  name: 'LearningCurve',
   props: {
-    "trainLoss": {
+    'trainLoss': {
       type: Array,
       required: true
     },
-    "validationLoss": {
+    'validationLoss': {
       type: Array,
       required: true
-    },
+    }
   },
-  mounted: function() {
-    this.drawLearningCurve();
+  mounted: function () {
+    this.drawLearningCurve()
   },
   watch: {
-    trainLoss: function() {
-      this.drawLearningCurve();
+    trainLoss: function () {
+      this.drawLearningCurve()
     }
   },
   methods: {
-    drawLearningCurve: function() {
-      let curve_area = document.getElementById("learning-curve");
+    drawLearningCurve: function () {
+      let curve_area = document.getElementById('learning-curve')
 
-      let canvas = document.getElementById("curve-canvas");
-      let ctx = canvas.getContext('2d');
-      ctx.canvas.width = curve_area.clientWidth;
-      ctx.canvas.height = curve_area.clientHeight - 24; // minus title height
+      let canvas = document.getElementById('curve-canvas')
+      let ctx = canvas.getContext('2d')
+      ctx.canvas.width = curve_area.clientWidth
+      ctx.canvas.height = curve_area.clientHeight - 24 // minus title height
 
-      const colors = ['#0762ad', '#ef8200'];
+      const colors = ['#0762ad', '#ef8200']
 
       let datasets = [{
-        label: "train",
+        label: 'train',
         fill: false,
         lineTension: 0,
         borderWidth: 3,
         borderColor: colors[0],
         backgroundColor: colors[0],
         pointRadius: 0.3,
-        data: this.trainLoss,
-      },{
-        label: "validation",
+        data: this.trainLoss
+      }, {
+        label: 'validation',
         fill: false,
         lineTension: 0,
         borderWidth: 3,
         borderColor: colors[1],
         backgroundColor: colors[1],
         pointRadius: 0.3,
-        data: this.validationLoss,
-      }];
+        data: this.validationLoss
+      }]
 
       // create x axis labels
       let labels = []
-      let q = Math.ceil(this.trainLoss.length/50);
-      if(this.trainLoss.length < 10) {
-        labels = Array.from(new Array(10)).map((v,i) => i)
-      }else{
-        labels = Array.from(new Array(q*50)).map((v,i) => i)
+      let q = Math.ceil(this.trainLoss.length / 50)
+      if (this.trainLoss.length < 10) {
+        labels = Array.from(new Array(10)).map((v, i) => i)
+      } else {
+        labels = Array.from(new Array(q * 50)).map((v, i) => i)
       }
 
       let data = {
         labels: labels,
         datasets: datasets
-      };
+      }
       let options = {
         animation: {
-          duration: 0,
+          duration: 0
         },
         hover: {
-          animationDuration: 0,
+          animationDuration: 0
         },
         layout: {
           padding: {
@@ -104,50 +104,50 @@ export default {
               padding: -4,
               maxRotation: 0,
               minRotation: 0,
-              autoSkip: true,
+              autoSkip: true
             },
             gridLines: {
-              color: "rgba(0,0,0,0.1)",
-              borderDash: [1,1,1],
+              color: 'rgba(0,0,0,0.1)',
+              borderDash: [1, 1, 1]
             },
             scaleLabel: {
               display: true,
               labelString: 'Epoch',
               padding: {
-                top: -4,
+                top: -4
               }
             }
           }],
           yAxes: [{
             ticks: {
-              min: 0,
+              min: 0
             },
             gridLines: {
-              color: "rgba(0,0,0,0.1)",
-              borderDash: [1,1,1],
+              color: 'rgba(0,0,0,0.1)',
+              borderDash: [1, 1, 1]
             },
             scaleLabel: {
               display: true,
               labelString: 'Loss',
               padding: {
-                bottom: 4,
+                bottom: 4
               }
             }
           }]
         },
         legend: {
-          display: false,
+          display: false
         },
         responsive: false,
         maintainAspectRatio: false
       }
 
-      if(this.learning_curve_chart) this.learning_curve_chart.destroy();
+      if (this.learning_curve_chart) this.learning_curve_chart.destroy()
       this.learning_curve_chart = new Chart(ctx, {
         type: 'line',
         data: data,
         options: options
-      });
+      })
     }
   }
 }

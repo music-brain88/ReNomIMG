@@ -108,8 +108,8 @@
 
 <script>
 export default {
-  name: "AddModelModal",
-  data: function() {
+  name: 'AddModelModal',
+  data: function () {
     return {
       algorithm: 0,
       total_epoch: 100,
@@ -121,50 +121,50 @@ export default {
 
       // YOLO params
       cells: 7,
-      bounding_box: 2,
+      bounding_box: 2
     }
   },
   computed: {
     isRunnable: function () {
-      if(this.cells < 3 || 20 < this.cells ||
-         this.bounding_box < 0 || 10 < this.bounding_box ||
-         this.image_width < 32 || 1024 < this.image_width ||
-         this.image_height < 32 || 1024 < this.image_height ||
-         this.total_epoch < 0 || 1000 < this.total_epoch ||
-         this.batch_size < 0 || 512 < this.batch_size) {
+      if (this.cells < 3 || this.cells > 20 ||
+         this.bounding_box < 0 || this.bounding_box > 10 ||
+         this.image_width < 32 || this.image_width > 1024 ||
+         this.image_height < 32 || this.image_height > 1024 ||
+         this.total_epoch < 0 || this.total_epoch > 1000 ||
+         this.batch_size < 0 || this.batch_size > 512) {
         return false
       }
       return true
-    },
+    }
   },
   methods: {
-    hideAddModelModal: function() {
-      this.$store.commit("setAddModelModalShowFlag", {"add_model_modal_show_flag": false});
+    hideAddModelModal: function () {
+      this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
     },
-    runModel: function() {
+    runModel: function () {
       const hyper_parameters = {
         'total_epoch': parseInt(this.total_epoch),
         'batch_size': parseInt(this.batch_size),
         'seed': parseInt(this.seed),
         'image_width': parseInt(this.image_width),
-        'image_height': parseInt(this.image_height),
+        'image_height': parseInt(this.image_height)
       }
 
       let algorithm_params = {}
-      if(this.algorithm == 0) {
+      if (parseInt(this.algorithm) === 0) {
         algorithm_params = {
-          "cells": parseInt(this.cells),
-          "bounding_box": parseInt(this.bounding_box),
+          'cells': parseInt(this.cells),
+          'bounding_box': parseInt(this.bounding_box)
         }
       }
 
-      this.$store.dispatch("runModel", {
+      this.$store.dispatch('runModel', {
         'hyper_parameters': hyper_parameters,
         'algorithm': this.algorithm,
-        'algorithm_params': algorithm_params,
-      });
+        'algorithm_params': algorithm_params
+      })
 
-      this.hideAddModelModal();
+      this.hideAddModelModal()
     }
   }
 }

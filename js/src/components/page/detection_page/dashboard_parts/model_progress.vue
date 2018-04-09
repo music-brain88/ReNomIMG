@@ -100,64 +100,62 @@
 
 <script>
 import * as utils from '@/utils'
-import * as constant from '@/constant'
 import ModalBox from '@/components/common/modalbox'
 
 export default {
-  name: "modelProgress",
+  name: 'modelProgress',
   components: {
-    "modal-box": ModalBox,
+    'modal-box': ModalBox
   },
-  data: function() {
+  data: function () {
     return {
-      progress_bar_color: "#953136",
+      progress_bar_color: '#953136',
       running_state: {
-        "training": 0,
-        "validating": 1,
-        "starting": 3,
-        "stopping": 4,
+        'training': 0,
+        'validating': 1,
+        'starting': 3,
+        'stopping': 4
       },
-      show_stop_dialog: false,
+      show_stop_dialog: false
     }
   },
   props: {
-    "index": {
+    'index': {
       type: Number,
       require: true
     },
-    "model": {
+    'model': {
       type: Object,
       require: true
     }
   },
-  mounted: function() {
-    this.updateProgressBar();
+  mounted: function () {
+    this.updateProgressBar()
   },
-  updated: function() {
-    this.updateProgressBar();
+  updated: function () {
+    this.updateProgressBar()
   },
   methods: {
-    updateProgressBar: function() {
-      const epoch = this.model.validation_loss_list.length;
-      const progress_bar_elm = document.getElementsByClassName('progress-bar-back');
-      if(progress_bar_elm.length == 0) return;
+    updateProgressBar: function () {
+      const progress_bar_elm = document.getElementsByClassName('progress-bar-back')
+      if (progress_bar_elm.length === 0) return
 
-      const progress_bar_width = progress_bar_elm[0].clientWidth;
-      let current_width = this.model.last_batch / this.model.total_batch * progress_bar_width;
-      let e = document.getElementsByClassName("progress-bar");
-      if(e && e[this.index]){
-        e[this.index].style.width = current_width + "px";
+      const progress_bar_width = progress_bar_elm[0].clientWidth
+      let current_width = this.model.last_batch / this.model.total_batch * progress_bar_width
+      let e = document.getElementsByClassName('progress-bar')
+      if (e && e[this.index]) {
+        e[this.index].style.width = current_width + 'px'
       }
     },
-    stopModel: function() {
+    stopModel: function () {
       this.$store.dispatch('stopModel', {
-        "model_id": this.model.model_id,
-      });
-      this.model.running_state = this.running_state["stopping"]
-      this.show_stop_dialog = false;
+        'model_id': this.model.model_id
+      })
+      this.model.running_state = this.running_state['stopping']
+      this.show_stop_dialog = false
     },
-    round: function(v, round_off) {
-      return utils.round(v, round_off);
+    round: function (v, round_off) {
+      return utils.round(v, round_off)
     }
   }
 }

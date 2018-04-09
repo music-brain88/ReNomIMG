@@ -27,12 +27,12 @@ import RunPredictionButton from './model_detail_parts/run_prediction_button.vue'
 import ExportButton from './model_detail_parts/export_button.vue'
 
 export default {
-  name: "ModelDetail",
+  name: 'ModelDetail',
   components: {
-    "model-detail-text": ModelDetailText,
-    "run-prediction-button": RunPredictionButton,
-    "export-button": ExportButton,
-  },
+    'model-detail-text': ModelDetailText,
+    'run-prediction-button': RunPredictionButton,
+    'export-button': ExportButton
+  }
 }
 </script>
 

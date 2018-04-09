@@ -28,28 +28,28 @@ import ProjectPanel from './projects_wrapper_parts/project_panel.vue'
 import ProjectSetting from './projects_wrapper_parts/project_setting.vue'
 
 export default {
-  name: "ProjectsWrapper",
+  name: 'ProjectsWrapper',
   components: {
-    "project-add-panel": ProjectAddPanel,
-    "project-panel": ProjectPanel,
-    "project-setting": ProjectSetting
+    'project-add-panel': ProjectAddPanel,
+    'project-panel': ProjectPanel,
+    'project-setting': ProjectSetting
   },
-  data: function() {
+  data: function () {
     return {
-      show_project_setting: false,
+      show_project_setting: false
     }
   },
-  created: function() {
+  created: function () {
     // this.$store.dispatch("loadProjects");
   },
   computed: {
-    projects() {
-      return this.$store.getters.getProjects;
+    projects () {
+      return this.$store.getters.getProjects
     }
   },
   methods: {
-    showAddProject: function() {
-      this.show_project_setting = !this.show_project_setting;
+    showAddProject: function () {
+      this.show_project_setting = !this.show_project_setting
     }
   }
 }

@@ -6,10 +6,10 @@ import PredictionPage from '../components/page/prediction_page/page.vue'
 Vue.use(Router)
 
 const router = new Router({
-    routes: [
+  routes: [
         { path: '/', name: 'Training', component: DetectionPage },
-        { path: '/prediction', name: 'Prediction', component: PredictionPage },
-    ]
+        { path: '/prediction', name: 'Prediction', component: PredictionPage }
+  ]
 })
 
 export default router

@@ -8,9 +8,9 @@
 import ProjectsWrapper from './projects_wrapper.vue'
 
 export default {
-  name: "LoadPage",
+  name: 'LoadPage',
   components: {
-    "projects-wrapper": ProjectsWrapper
+    'projects-wrapper': ProjectsWrapper
   }
 }
 </script>

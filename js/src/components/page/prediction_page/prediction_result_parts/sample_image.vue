@@ -9,44 +9,43 @@
 </template>
 
 <script>
-
   export default {
     name: 'SampleImage',
     props: {
       image_path: undefined,
       bboxes: undefined,
-      index: undefined,
+      index: undefined
     },
     data: function () {
       return {
-        image: undefined,
+        image: undefined
       }
     },
     created: function () {
-      this.loadImg();
+      this.loadImg()
     },
-    updated: function() {
-      this.loadImg();
+    updated: function () {
+      this.loadImg()
     },
     methods: {
-      loadImg: function() {
+      loadImg: function () {
         var self = this
         let path = this.$props.image_path
-        if(path){
+        if (path) {
           self.image = path
         }
       },
       getColor: function (index) {
-        let color_list = ["#f19f36", "#53b05f", "#536cff", "#f86c8e"]
-        return color_list[index%4]
+        let color_list = ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
+        return color_list[index % 4]
       },
       getTagName: function (index) {
-        let label_dict = this.$store.state.class_names;
+        let label_dict = this.$store.state.class_names
         return label_dict[index]
       },
-      showImageModal: function() {
-        this.$store.commit("setImageIndexOnModal", {"index": this.index});
-        this.$store.commit("setImageModalShowFlag", {"flag": true});
+      showImageModal: function () {
+        this.$store.commit('setImageIndexOnModal', {'index': this.index})
+        this.$store.commit('setImageModalShowFlag', {'flag': true})
       }
     }
   }

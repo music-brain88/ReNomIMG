@@ -17,16 +17,16 @@
 
 <script>
 export default {
-  name: "AppHeader",
+  name: 'AppHeader',
   computed: {
-    currentPage() {
-      return this.$store.state.page_name;
+    currentPage () {
+      return this.$store.state.page_name
     }
   },
   methods: {
     toggleMenu: function () {
       this.$store.commit('setNavigationBarShowFlag', {
-        flag: !this.$store.state.navigation_bar_shown_flag,
+        flag: !this.$store.state.navigation_bar_shown_flag
       })
     }
   }

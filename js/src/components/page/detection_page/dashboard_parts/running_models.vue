@@ -15,15 +15,15 @@ import { STATE_ID } from '@/constant'
 import ModelProgress from './model_progress.vue'
 
 export default {
-  name: "RunningModels",
+  name: 'RunningModels',
   components: {
-    "model-progress": ModelProgress,
+    'model-progress': ModelProgress
   },
   computed: {
-    runningModels() {
-      return this.$store.getters.getModelsFromState(STATE_ID["Running"]);
-    },
-  },
+    runningModels () {
+      return this.$store.getters.getModelsFromState(STATE_ID['Running'])
+    }
+  }
 }
 </script>
 

@@ -28,22 +28,22 @@
 import ModelListItem from './model_list_parts/model_list_item.vue'
 
 export default {
-  name: "ModelList",
+  name: 'ModelList',
   components: {
-    "model-list-item": ModelListItem,
+    'model-list-item': ModelListItem
   },
-  data: function() {
+  data: function () {
     return {
-      selected: "",
+      selected: ''
     }
   },
   methods: {
-    sortModels: function() {
-      this.$store.commit("sortModels", {"sort_by": this.selected});
+    sortModels: function () {
+      this.$store.commit('sortModels', {'sort_by': this.selected})
     },
-    showAddModelModal: function() {
-      this.$store.commit("setAddModelModalShowFlag", {
-        "add_model_modal_show_flag": true,
+    showAddModelModal: function () {
+      this.$store.commit('setAddModelModalShowFlag', {
+        'add_model_modal_show_flag': true
       })
     }
   }

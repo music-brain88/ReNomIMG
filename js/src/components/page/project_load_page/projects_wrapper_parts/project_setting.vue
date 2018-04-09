@@ -26,27 +26,27 @@
 
 <script>
   export default {
-    name: "ProjectSetting",
-    data: function() {
+    name: 'ProjectSetting',
+    data: function () {
       return {
-        project_name: "",
-        project_comment: "",
-        thumbnail_path: ""
+        project_name: '',
+        project_comment: '',
+        thumbnail_path: ''
       }
     },
     methods: {
-      createProject() {
-        let self = this 
-        let ret = this.$store.dispatch("createProject", {
-          "project_name": this.project_name,
-          "project_comment": this.project_comment,
-          "thumbnail_path": this.thumbnail_path
-        });
-        ret.then(function (responce){
-          self.$router.push({ path: '/detection_page' });
+      createProject () {
+        let self = this
+        let ret = this.$store.dispatch('createProject', {
+          'project_name': this.project_name,
+          'project_comment': this.project_comment,
+          'thumbnail_path': this.thumbnail_path
+        })
+        ret.then(function (responce) {
+          self.$router.push({ path: '/detection_page' })
         })
       },
-      closeProjectSetting() {
+      closeProjectSetting () {
         this.$parent.showAddProject()
       }
     }

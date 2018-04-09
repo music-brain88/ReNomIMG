@@ -11,30 +11,30 @@ import Chart from 'chart.js'
 import * as constant from '@/constant'
 
 export default {
-  name: "ModelRatioBar",
-  computed: mapState(["models"]),
-  mounted: function() {
-    this.drawBar();
+  name: 'ModelRatioBar',
+  computed: mapState(['models']),
+  mounted: function () {
+    this.drawBar()
   },
-  updated: function() {
-    this.drawBar();
+  updated: function () {
+    this.drawBar()
   },
   methods: {
-    drawBar: function() {
+    drawBar: function () {
       // init counts of running & algorithm
-      let counts = {"Running": 0}
-      for(let k in Object.keys(constant.ALGORITHM_NAME)) {
-        counts[constant.ALGORITHM_NAME[k]] = 0;
+      let counts = {'Running': 0}
+      for (let k in Object.keys(constant.ALGORITHM_NAME)) {
+        counts[constant.ALGORITHM_NAME[k]] = 0
       }
 
       // calc model counts per algorithm&running.
-      for(let index in this.models) {
-        if(this.models[index].state == 1){
-          counts["Running"] += 1;
-        }else if(this.models[index].algorithm == 0){
-          for(let k in Object.keys(constant.ALGORITHM_NAME)) {
-            if(this.models[index].algorithm == k) {
-              counts[constant.ALGORITHM_NAME[k]] += 1;
+      for (let index in this.models) {
+        if (this.models[index].state === 1) {
+          counts['Running'] += 1
+        } else if (this.models[index].algorithm === 0) {
+          for (let k in Object.keys(constant.ALGORITHM_NAME)) {
+            if (this.models[index].algorithm === k) {
+              counts[constant.ALGORITHM_NAME[k]] += 1
             }
           }
         }
@@ -44,38 +44,38 @@ export default {
       let datasets = []
 
       // add finished counts per algorithm
-      for(let k in Object.keys(constant.ALGORITHM_NAME)) {
+      for (let k in Object.keys(constant.ALGORITHM_NAME)) {
         datasets.push({
           label: constant.ALGORITHM_NAME[k],
           data: [counts[constant.ALGORITHM_NAME[k]]],
-          backgroundColor: constant.ALGORITHM_COLOR[k],
-        });
+          backgroundColor: constant.ALGORITHM_COLOR[k]
+        })
       }
 
       // add Running counts
       datasets.push({
-        label: "Running",
-        data: [counts["Running"]],
-        backgroundColor: constant.STATE_COLOR["Running"],
-      });
+        label: 'Running',
+        data: [counts['Running']],
+        backgroundColor: constant.STATE_COLOR['Running']
+      })
 
       // init canvas
-      let parent = document.getElementById("model-ratio-bar");
-      let canvas = document.getElementById("horizontal-stack-bar");
-      let ctx = canvas.getContext('2d');
-      ctx.canvas.width = parent.clientWidth;
-      ctx.canvas.height = 80;
+      let parent = document.getElementById('model-ratio-bar')
+      let canvas = document.getElementById('horizontal-stack-bar')
+      let ctx = canvas.getContext('2d')
+      ctx.canvas.width = parent.clientWidth
+      ctx.canvas.height = 80
 
       // set chart data
       let chart_data = {
-        labels: [""],
+        labels: [''],
         datasets: datasets
-      };
+      }
 
       // set char options
       var options = {
         animation: {
-          duration: 0,
+          duration: 0
         },
         scales: {
           xAxes: [{
@@ -86,13 +86,13 @@ export default {
             display: false,
             stacked: true,
             barParcentage: 0.5,
-            categoryPercentage: 0.5,
+            categoryPercentage: 0.5
           }]
         },
         responsive: false,
         maintainAspectRatio: false,
         legend: {
-          display:true,
+          display: true,
           position: 'bottom',
           labels: {
             boxWidth: 10,
@@ -100,18 +100,18 @@ export default {
           }
         },
         tooltips: {
-          bodyFontSize: 10,
+          bodyFontSize: 10
         }
-      };
+      }
 
       // remove chart for redraw.
-      if(this.chart) this.chart.destroy();
+      if (this.chart) this.chart.destroy()
 
       // draw chart
       this.chart = new Chart(ctx, {
         type: 'horizontalBar',
         data: chart_data,
-        options: options });
+        options: options })
     }
   }
 }

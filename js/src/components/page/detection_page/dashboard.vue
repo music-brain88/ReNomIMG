@@ -23,11 +23,11 @@ import RunningModels from './dashboard_parts/running_models.vue'
 import ModelPlot from './dashboard_parts/model_plot.vue'
 
 export default {
-  name: "DashBoard",
+  name: 'DashBoard',
   components: {
-    "model-ratio-bar": ModelRatioBar,
-    "running-models": RunningModels,
-    "model-plot": ModelPlot,
+    'model-ratio-bar': ModelRatioBar,
+    'running-models': RunningModels,
+    'model-plot': ModelPlot
   }
 }
 </script>

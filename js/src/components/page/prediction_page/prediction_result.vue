@@ -43,16 +43,16 @@ import SampleImage from './prediction_result_parts/sample_image.vue'
 import Pager from './prediction_result_parts/pager.vue'
 
 export default {
-  name: "PredictionResult",
+  name: 'PredictionResult',
   components: {
-    "sample-image": SampleImage,
-    "pager": Pager,
+    'sample-image': SampleImage,
+    'pager': Pager
   },
   computed: {
     getPredictResults: function () {
-      return this.$store.getters.getPredictResults;
-    },
-  },
+      return this.$store.getters.getPredictResults
+    }
+  }
 }
 </script>
 

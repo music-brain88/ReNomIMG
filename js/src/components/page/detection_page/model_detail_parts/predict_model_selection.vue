@@ -45,42 +45,42 @@ import * as constant from '@/constant'
 import ModalBox from '@/components/common/modalbox'
 
 export default {
-  name: "PredictModelSelection",
+  name: 'PredictModelSelection',
   components: {
-    "modal-box": ModalBox,
+    'modal-box': ModalBox
   },
   props: {
-    "model": {
+    'model': {
       type: Object,
-      required: true,
+      required: true
     }
   },
-  data: function() {
+  data: function () {
     return {
       show_undeploy_dialog: false,
-      show_description: false,
+      show_description: false
     }
   },
   computed: {
-    isPredict() {
-      return this.model.model_id == this.$store.state.project.deploy_model_id;
-    },
+    isPredict () {
+      return this.model.model_id === this.$store.state.project.deploy_model_id
+    }
   },
   methods: {
-    setPredictModel: function() {
-      if(this.model.state == constant.STATE_ID["Running"]) {
-        alert("You can't deploy running model. Please wait or terminate model training.");
-        return;
+    setPredictModel: function () {
+      if (this.model.state === constant.STATE_ID['Running']) {
+        alert("You can't deploy running model. Please wait or terminate model training.")
+        return
       }
 
-      this.$store.dispatch('deployModel', {"model_id": this.model.model_id});
+      this.$store.dispatch('deployModel', {'model_id': this.model.model_id})
     },
-    resetPredictModel: function() {
-      this.$store.dispatch('undeployModel', {'model_id': this.model.model_id});
-      this.show_undeploy_dialog = false;
+    resetPredictModel: function () {
+      this.$store.dispatch('undeployModel', {'model_id': this.model.model_id})
+      this.show_undeploy_dialog = false
     },
-    hoverDescription: function(val) {
-      this.show_description = val;
+    hoverDescription: function (val) {
+      this.show_description = val
     }
   }
 }

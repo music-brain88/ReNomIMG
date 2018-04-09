@@ -23,25 +23,25 @@
 import SampleImage from './model_sample_parts/sample_image.vue'
 
 export default {
-  name: "ModelSample",
+  name: 'ModelSample',
   components: {
-    "sample-image": SampleImage
+    'sample-image': SampleImage
   },
   data: function () {
     return {
       maxImageNum: 12,
-      maxPageLength: 0,
+      maxPageLength: 0
     }
   },
   computed: {
     getValidationResult: function () {
       let result = this.$store.getters.getLastValidationResults
-      if(result){
+      if (result) {
         let current = this.currentPage * this.maxImageNum
         let last = Math.min((this.currentPage + 1) * this.maxImageNum, result.length)
 
         this.maxPageLength = Math.floor(result.length / this.maxImageNum)
-        if (this.maxPageLength <= this.currentPage){
+        if (this.maxPageLength <= this.currentPage) {
           this.$store.commit('setValidationPage', {
             'page': 0
           })
@@ -49,37 +49,29 @@ export default {
         return result.slice(current, last)
       }
     },
-    currentPage: function(){
+    currentPage: function () {
       return this.$store.state.validation_page
     },
     hasPrevPage: function () {
-      if (0 < this.currentPage)
-        return true
-      else
-        return false
+      if (this.currentPage > 0) { return true } else { return false }
     },
     hasNextPage: function () {
-      if (this.maxPageLength - 1 > this.currentPage)
-        return true
-      else
-        return false
-    },
+      if (this.maxPageLength - 1 > this.currentPage) { return true } else { return false }
+    }
   },
-  methods:{
+  methods: {
     nextPage: function () {
-      if(!this.hasNextPage)
-        return
+      if (!this.hasNextPage) { return }
       this.$store.commit('setValidationPage', {
         'page': this.currentPage + 1
       })
     },
     prevPage: function () {
-      if(!this.hasPrevPage)
-        return
+      if (!this.hasPrevPage) { return }
       this.$store.commit('setValidationPage', {
         'page': this.currentPage - 1
       })
-    },
+    }
   }
 }
 </script>

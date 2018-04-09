@@ -3,7 +3,7 @@ export default {
   header
   */
   // page name
-  page_name: "",
+  page_name: '',
 
   // show nav bar or not
   navigation_bar_shown_flag: false,
@@ -30,7 +30,7 @@ export default {
   alert_modal_flag: false,
 
   // error msg from server
-  error_msg: "",
+  error_msg: '',
 
   /*
   tag list
@@ -47,9 +47,9 @@ export default {
   prediction page
   */
   // predicted result
-  predict_results: {"bbox_list": [], "bbox_path_list": []},
+  predict_results: {'bbox_list': [], 'bbox_path_list': []},
   // predicted csv file name
-  csv: "",
+  csv: '',
 
   // prediction progress
   predict_running_flag: false,
@@ -75,6 +75,6 @@ export default {
   weight_downloading_progress: 0,
 
   // show weight downloading modal
-  weight_downloading_modal: false,
+  weight_downloading_modal: false
 
 }

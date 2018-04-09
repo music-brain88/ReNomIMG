@@ -37,18 +37,18 @@ import AddModelModal from './add_model_modal.vue'
 import WeightDownloadingModal from './weight_downloading_modal.vue'
 
 export default {
-  name: "DetectionPage",
+  name: 'DetectionPage',
   components: {
-    "model-list": ModelList,
-    "dashboard": DashBoard,
-    "model-detail": ModelDetail,
-    "model-sample": ModelSample,
-    "tag-list": TagList,
-    "add-model-modal": AddModelModal,
-    "weight-downloading-modal": WeightDownloadingModal,
+    'model-list': ModelList,
+    'dashboard': DashBoard,
+    'model-detail': ModelDetail,
+    'model-sample': ModelSample,
+    'tag-list': TagList,
+    'add-model-modal': AddModelModal,
+    'weight-downloading-modal': WeightDownloadingModal
   },
-  created: function() {
-    this.$store.dispatch("initData", {"project_id": 1});
+  created: function () {
+    this.$store.dispatch('initData', {'project_id': 1})
   }
 }
 </script>
