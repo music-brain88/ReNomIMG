@@ -492,7 +492,7 @@ def check_weight_download_progress(progress_num):
 def main():
     parser = argparse.ArgumentParser(description='desc')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
-    parser.add_argument('--port', default='8070', help='Server port')
+    parser.add_argument('--port', default='8080', help='Server port')
     args = parser.parse_args()
 
     wsgiapp = default_app()

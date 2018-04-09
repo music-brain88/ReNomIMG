@@ -7,8 +7,8 @@ Vue.use(Router)
 
 const router = new Router({
   routes: [
-        { path: '/', name: 'Training', component: DetectionPage },
-        { path: '/prediction', name: 'Prediction', component: PredictionPage }
+    { path: '/', name: 'Training', component: DetectionPage },
+    { path: '/prediction', name: 'Prediction', component: PredictionPage }
   ]
 })
 
