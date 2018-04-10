@@ -23,6 +23,30 @@ entry_points = {
     ]
 }
 
+class BuildNPM(distutils.command.build.build):
+    """Custom build command."""
+
+    def run(self):
+        shutil.rmtree(os.path.join(DIR, 'renomimg/.build'), ignore_errors=True)
+        curdir = os.getcwd()
+        try:
+            jsdir = os.path.join(DIR, 'js')
+
+            # skip if js directory not exists.
+            if os.path.isdir(jsdir):
+                os.chdir(jsdir)
+                ret = os.system('npm install')
+                if ret:
+                    raise RuntimeError('Failed to install npm modules')
+
+                ret = os.system('npm run build')
+                if ret:
+                    raise RuntimeError('Failed to build npm modules')
+
+        finally:
+            os.chdir(curdir)
+
+        super().run()
 
 setup(
     name="renomimg",
@@ -32,4 +56,7 @@ setup(
     install_requires=requires,
     include_package_data=True,
     zip_safe=True,
+    cmdclass={
+        'build': BuildNPM,
+    },
 )
