@@ -1,5 +1,5 @@
 
-# ReNomIMG 0.5beta
+# ReNomIMG 0.6beta
 
 ReNom IMG is model developing tool for object detection.
 
@@ -24,20 +24,24 @@ Then install all required packages.
 
 `pip install -r requirements.txt`
 
+At last, install renomimg module using following command.
+
+`pip install -e .`
+
 
 ## How to start
 
-1.Move to ReNomIMG directory using following command.
+1.Type following command.
 
-`cd ReNomIMG`
-
-2.Run server.py script and the application server starts.
-
-`python server.py`
+`python -m renomimg`
 
 If the server starts, you will see a message like below.
 
 <img src='./js/static/img/server_run.png' width='60%'/>
+
+Then 'dataset' folder will be created in your current directory.  
+Please set images and labels according `2.Create dataset directory` description.
+
 
 ## How to use
 
@@ -65,7 +69,7 @@ curl -O http://docs.renom.jp/downloads/weights/yolo.h5
 ```
 
 #### 2.Create dataset directory
-As following video showing, please create the dataset direcotry in the `ReNomIMG`.
+As following video showing, please create the dataset directory in the `ReNomIMG`.
 
 When you finish, you can show following folder structure.
 

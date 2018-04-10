@@ -26,7 +26,7 @@ entry_points = {
 
 setup(
     name="renomimg",
-    version="0.4b",
+    version="0.6b",
     entry_points=entry_points,
     packages=['renomimg'],
     install_requires=requires,
