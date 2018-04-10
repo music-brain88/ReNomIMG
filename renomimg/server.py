@@ -24,7 +24,7 @@ STATE_FINISHED = 2
 STATE_DELETED = 3
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.abspath(os.getcwd())
 DATASET_DIR = os.path.join(BASE_DIR, 'dataset')
 TRAIN_SET_DIR = os.path.join(DATASET_DIR, 'train_set')
 VALID_SET_DIR = os.path.join(DATASET_DIR, 'valid_set')
@@ -106,6 +106,11 @@ def index():
 @route("/static/<file_name:re:.+>")
 def static(file_name):
     return _get_resource('static', file_name)
+
+
+@route("/css/<file_name:path>")
+def css(file_name):
+    return _get_resource('static/css/', file_name)
 
 
 @error(404)

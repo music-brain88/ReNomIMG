@@ -256,7 +256,7 @@ export default {
       background-size: 50% 100%;
       background-repeat: no-repeat;
       animation: movegrad 2s infinite linear;
-      @-webkit-keyframes movegrad {
+      @keyframes movegrad {
           0%{background-position: -100% 0;}
           100%{background-position: 200% 0;}
       }
@@ -268,7 +268,7 @@ export default {
     animation-iteration-count: 1;
     animation-delay: 0.05s;
 }
-@-webkit-keyframes emphasize {
+@keyframes emphasize {
     0%{background-color: #ffffff;}
     30%{background-color: rgba(0, 0, 0, 0.1);}
     100%{background-color: #ffffff;}
