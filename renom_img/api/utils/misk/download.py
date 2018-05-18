@@ -19,7 +19,8 @@ def download(url, save_path=None):
     request = urllib.request.urlopen(url=url)
     filesize = int(request.headers['Content-length'])
     bar = tqdm(total=filesize, unit='B', unit_scale=True,
-        unit_divisor=1024, desc="Download %s"%filename)
+               unit_divisor=1024, desc="Download %s" % filename)
+
     def progress(block_count, block_size, total_size):
         percentage = block_count * block_size
         bar.update(percentage - bar.n)

@@ -42,8 +42,8 @@ def parse_xml_detection(xml_path_list):
             ymax = float(bounding_box.find('ymax').text)
             w = xmax - xmin
             h = ymax - ymin
-            x = xmin + w/2.
-            y = ymin + h/2.
+            x = xmin + w / 2.
+            y = ymin + h / 2.
             bounding_box = [x, y, w, h]
             class_name = object_tree.find('name').text.strip()
             image_data.append({'box': bounding_box, 'name': class_name})

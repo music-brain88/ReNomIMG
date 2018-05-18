@@ -354,20 +354,24 @@ def run_model(project_id, model_id):
         # 学習データが存在するかチェック
         files = os.listdir(os.path.join(TRAIN_SET_DIR, "label"))
         if len(files) == 0:
-            raise Exception("Error: File not found in train_set/label. You can find hints for this error on 'http://www.renom.jp/'.")
+            raise Exception(
+                "Error: File not found in train_set/label. You can find hints for this error on 'http://www.renom.jp/'.")
 
         files = os.listdir(os.path.join(TRAIN_SET_DIR, "img"))
         if len(files) == 0:
-            raise Exception("Error: File not found in train_set/img. You can find hints for this error on 'http://www.renom.jp/'.")
+            raise Exception(
+                "Error: File not found in train_set/img. You can find hints for this error on 'http://www.renom.jp/'.")
 
         # バリデーションデータが存在するかチェック
         files = os.listdir(os.path.join(VALID_SET_DIR, "label"))
         if len(files) == 0:
-            raise Exception("Error: File not found in valid_set/label. You can find hints for this error on 'http://www.renom.jp/'.")
+            raise Exception(
+                "Error: File not found in valid_set/label. You can find hints for this error on 'http://www.renom.jp/'.")
 
         files = os.listdir(os.path.join(VALID_SET_DIR, "img"))
         if len(files) == 0:
-            raise Exception("Error: File not found in valid_set/img. You can find hints for this error on 'http://www.renom.jp/'.")
+            raise Exception(
+                "Error: File not found in valid_set/img. You can find hints for this error on 'http://www.renom.jp/'.")
 
         # 学習データ読み込み
         fields = 'hyper_parameters,algorithm,algorithm_params'
@@ -417,7 +421,8 @@ def run_prediction(project_id, model_id):
         data = storage.fetch_model(project_id, model_id, fields=fields)
 
         # weightのh5ファイルのパスを取得して予測する
-        th = PredictionThread(thread_id, data["hyper_parameters"], data["algorithm"], data["algorithm_params"], data["best_epoch_weight"])
+        th = PredictionThread(thread_id, data["hyper_parameters"], data["algorithm"],
+                              data["algorithm_params"], data["best_epoch_weight"])
         th.start()
         th.join()
 
@@ -494,6 +499,7 @@ def check_weight_download_progress(progress_num):
         ret = create_response(body)
         return ret
 
+
 def main():
     parser = argparse.ArgumentParser(description='desc')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
@@ -503,6 +509,7 @@ def main():
     wsgiapp = default_app()
     httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
     httpd.serve_forever()
+
 
 if __name__ == "__main__":
     main()

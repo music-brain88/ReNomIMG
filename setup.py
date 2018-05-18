@@ -25,6 +25,7 @@ entry_points = {
     ]
 }
 
+
 class BuildNPM(distutils.command.build.build):
     """Custom build command."""
 
@@ -50,6 +51,7 @@ class BuildNPM(distutils.command.build.build):
 
         super().run()
 
+
 setup(
     name="renom_img",
     version="0.6b",
@@ -62,5 +64,5 @@ setup(
         'build': BuildNPM,
     },
     ext_modules=cythonize("renom_img/api/utils/*.pyx",
-        include_path=[numpy.get_include()])
+                          include_path=[numpy.get_include()])
 )
