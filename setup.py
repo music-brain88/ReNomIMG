@@ -19,7 +19,7 @@ requires = [
 
 entry_points = {
     'console_scripts': [
-        'renom_img = server:main',
+        'renom_img = renom_img.server:main',
     ]
 }
 
