@@ -4,12 +4,11 @@ import numpy as np
 import renom as rm
 
 
-class Darknet(rm.Model):
+class Darknet(rm.Sequential):
     WEIGHT_URL = ""
 
-    def __init__(self, class_num, cell=7, bbox=2, load_weight=False):
-        last_dense_size = cell * cell * (5 * bbox + class_num)
-        model = rm.Sequential([
+    def __init__(self, last_unit_size, load_weight=False):
+        super(Darknet, self).__init__([
             # 1st Block
             rm.Conv2d(channel=64, filter=7, stride=2, padding=3),
             rm.LeakyRelu(slope=0.1),
@@ -83,9 +82,9 @@ class Darknet(rm.Model):
             rm.Dropout(0.5),
 
             # 8th Block
-            rm.Dense(last_dense_size),
+            rm.Dense(last_unit_size),
         ])
 
-        if pretrained:
+        if load_weight:
             # Call download method.
             model.load('yolo.h5')

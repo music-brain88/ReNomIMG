@@ -7,9 +7,9 @@ import threading
 import numpy as np
 import traceback
 from renom.cuda import set_cuda_active, release_mem_pool
-from .model.yolo import YoloDarknet
-from .utils.data_preparation import create_train_valid_dists
-from .utils.storage import storage
+from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
+from renom_img.server.utils.data_preparation import create_train_valid_dists
+from renom_img.server.utils.storage import storage
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")
@@ -190,7 +190,7 @@ class TrainThread(threading.Thread):
                     h = self.model.freezed_forward(train_x / 255. * 2 - 1)
                     with self.model.train():
                         z = self.model(h)
-                        label = self.model.transform_label_format(train_y)
+                        label = self.model.build_target(train_y)
                         loss = self.model.loss_func(z, label)
                         num_loss = loss.as_ndarray().astype(np.float64)
                         loss += self.model.weight_decay()
@@ -312,7 +312,7 @@ class TrainThread(threading.Thread):
     def set_train_config(self, class_num):
         try:
             self._class_num = int(class_num)
-            return YoloDarknet(cell=self.cell_h, bbox=self.num_bbox, class_num=class_num, img_size=self.img_size)
+            return WrapperYoloDarknet(cell=self.cell_h, bbox=self.num_bbox, num_class=class_num, img_size=self.img_size)
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e.args[0]
