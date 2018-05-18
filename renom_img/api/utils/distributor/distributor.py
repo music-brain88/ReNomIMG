@@ -89,20 +89,3 @@ class ImageDistributor(ImageDistributorBase):
     def batch(self, batch_size=64): 
         return super(ImageDistributor, self).batch(batch_size)
 
-
-if __name__ == "__main__":
-    import os
-    import time
-    start_t = time.time()
-    file_list = [os.path.join('img', path) for path in os.listdir("img")]
-    loader = ImageDistributor(file_list, file_list)
-    for i, data in enumerate(loader.batch(64)):
-        # print(data[0][0])
-        pass
-    print("Multithreading", time.time() - start_t)
-
-    start_t = time.time()
-    for path in file_list:
-        img = Image.open(path)
-        img.load()
-    print("Normal", time.time() - start_t)
