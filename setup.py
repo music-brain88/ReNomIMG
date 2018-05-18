@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 import distutils.command.build
 
 if sys.version_info < (3, 4):
-    raise RuntimeError('renomimg requires Python3')
+    raise RuntimeError('renom_img requires Python3')
 
 DIR = str(pathlib.Path(__file__).resolve().parent)
 
@@ -19,7 +19,7 @@ requires = [
 
 entry_points = {
     'console_scripts': [
-        'renomimg = server:main',
+        'renom_img = server:main',
     ]
 }
 
@@ -27,7 +27,7 @@ class BuildNPM(distutils.command.build.build):
     """Custom build command."""
 
     def run(self):
-        shutil.rmtree(os.path.join(DIR, 'renomimg/.build'), ignore_errors=True)
+        shutil.rmtree(os.path.join(DIR, 'renom_img/.build'), ignore_errors=True)
         curdir = os.getcwd()
         try:
             jsdir = os.path.join(DIR, 'js')
@@ -49,10 +49,10 @@ class BuildNPM(distutils.command.build.build):
         super().run()
 
 setup(
-    name="renomimg",
+    name="renom_img",
     version="0.6b",
     entry_points=entry_points,
-    packages=['renomimg'],
+    packages=['renom_img'],
     install_requires=requires,
     include_package_data=True,
     zip_safe=True,
