@@ -7,7 +7,7 @@ class WhiteNoise(object):
         self._std = std
 
     def __call__(self, x):
-        return
+        return self.transform(x)
 
     def transform(self, x):
         assert len(x.shape) == 4
