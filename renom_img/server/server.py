@@ -18,6 +18,7 @@ from renom_img.server.train_thread import TrainThread
 from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.weight_download_thread import WeightDownloadThread
 from renom_img.server.utils.storage import storage
+from renom_img.server.utils.console_funcs import divide_datasets
 
 
 STATE_FINISHED = 2
@@ -501,14 +502,31 @@ def check_weight_download_progress(progress_num):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='desc')
+    ## Parser settings.
+    parser = argparse.ArgumentParser(description='ReNomIMG')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
     parser.add_argument('--port', default='8080', help='Server port')
-    args = parser.parse_args()
 
-    wsgiapp = default_app()
-    httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
-    httpd.serve_forever()
+    ## Add divide function.
+    help = 'Divide image and labels into train set and valid set. '
+    help += 'Users can pass division ratio, with this argument. '
+    help += 'If the ratio is not passed, default ratio(0.8) will be used. '
+
+    subparsers = parser.add_subparsers()
+    parser_divide = subparsers.add_parser('divide')
+
+    help = 'Division ratio. If r=0.8, dataset will be divided into train(0.8):varid(0.2).'
+    parser_divide.add_argument('r', type=float, default=0.8, help=help, nargs='?')
+    parser_divide.set_defaults(divide_func=divide_datasets)
+
+
+    args = parser.parse_args()
+    if hasattr(args, 'divide_func'):
+        args.divide_func(args.r)
+    else:
+        wsgiapp = default_app()
+        httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
+        httpd.serve_forever()
 
 
 if __name__ == "__main__":

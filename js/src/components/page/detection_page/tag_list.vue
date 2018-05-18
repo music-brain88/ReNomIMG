@@ -59,6 +59,7 @@ export default {
     padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
     background-color: $content-bg-color;
     border: 1px solid $content-border-color;
+    border-radius: 4px;
 
     .tag-item{
       display: flex;

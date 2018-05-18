@@ -87,6 +87,8 @@ export default {
   $title-font-size: 15pt;
   $font-weight-medium: 500;
 
+  $content-border-color: #cccccc;
+
   margin: 0;
   margin-top: $component-margin-top;
   border-top: $border-width solid $border-color;
@@ -116,6 +118,8 @@ export default {
   .content {
     width: 100%;
     min-height: calc(170px * 3);
+    border: 1px solid $content-border-color;
+    border-radius: 4px;
 
     display: flex;
     display: -webkit-flex;
