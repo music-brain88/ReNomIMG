@@ -21,7 +21,7 @@ requires = [
 
 entry_points = {
     'console_scripts': [
-        'renom_img = renom_img.server:main',
+        'renom_img = renom_img.server.server:main',
     ]
 }
 
@@ -29,7 +29,7 @@ class BuildNPM(distutils.command.build.build):
     """Custom build command."""
 
     def run(self):
-        shutil.rmtree(os.path.join(DIR, 'renom_img/.build'), ignore_errors=True)
+        shutil.rmtree(os.path.join(DIR, 'renom_img/server/.build'), ignore_errors=True)
         curdir = os.getcwd()
         try:
             jsdir = os.path.join(DIR, 'js')

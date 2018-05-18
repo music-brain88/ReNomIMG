@@ -13,11 +13,11 @@ import mimetypes
 import posixpath
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
-from . import wsgi_server
-from .train_thread import TrainThread
-from .prediction_thread import PredictionThread
-from .weight_download_thread import WeightDownloadThread
-from .utils.storage import storage
+from renom_img.server import wsgi_server
+from renom_img.server.train_thread import TrainThread
+from renom_img.server.prediction_thread import PredictionThread
+from renom_img.server.weight_download_thread import WeightDownloadThread
+from renom_img.server.utils.storage import storage
 
 
 STATE_FINISHED = 2
