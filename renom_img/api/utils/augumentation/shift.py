@@ -1,6 +1,6 @@
 import numpy as np
 
-class Translate(object):
+class Shift(object):
 
     def __init__(self, horizontal, vertivcal):
         self._h = horizontal
@@ -34,5 +34,5 @@ class Translate(object):
                 x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
         return new_x
 
-def translate(x, horizontal, vertivcal):
-    return Translate(horizontal, vertivcal)(x)
+def shift(x, horizontal, vertivcal):
+    return Shift(horizontal, vertivcal)(x)
