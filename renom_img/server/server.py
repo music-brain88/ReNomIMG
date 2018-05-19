@@ -502,12 +502,12 @@ def check_weight_download_progress(progress_num):
 
 
 def main():
-    ## Parser settings.
+    # Parser settings.
     parser = argparse.ArgumentParser(description='ReNomIMG')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
     parser.add_argument('--port', default='8080', help='Server port')
 
-    ## Add divide function.
+    # Add divide function.
     help = 'Divide image and labels into train set and valid set. '
     help += 'Users can pass division ratio, with this argument. '
     help += 'If the ratio is not passed, default ratio(0.8) will be used. '
@@ -518,7 +518,6 @@ def main():
     help = 'Division ratio. If r=0.8, dataset will be divided into train(0.8):varid(0.2).'
     parser_divide.add_argument('r', type=float, default=0.8, help=help, nargs='?')
     parser_divide.set_defaults(divide_func=divide_datasets)
-
 
     args = parser.parse_args()
     if hasattr(args, 'divide_func'):

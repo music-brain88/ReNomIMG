@@ -15,6 +15,37 @@ see the function 'parse_xml_detection' written in load.py.
 """
 
 
+def build_target(annotation_list, img_size, class_mapping=None, class_num=None):
+    # Check the class mapping.
+    if class_mapping is None:
+        class_dict = {}
+        for annotation in annotation_list:
+            for obj in annotation:
+                class_dict[obj['name']] = 1
+        class_mapping = {k: i for i, k in enumerate(sorted(class_dict.keys()))}
+    else:
+        assert isinstance(class_mapping, dict)
+
+    # Check the total class number is not less than given mapping.
+    if class_num is not None:
+        assert len(class_mapping) <= class_num
+        assert max(class_mapping.values()) < class_num
+    else:
+        class_num = len(class_mapping)
+
+    # Get max number of objects in one image.
+    dlt = 4 + class_num
+    max_obj_num = np.max([len(annotation) for annotation in annotation_list])
+    target = np.zeros((len(annotation_list), max_obj_num * dlt), dtype=np.float32)
+
+    for i, annotation in enumerate(annotation_list):
+        for j, obj in enumerate(annotation):
+            target[i, j * dlt:(j + 1) * dlt - class_num] = obj['box']
+            target[i, j * dlt - class_num:(j + 1) * dlt] = class_mapping[obj['name']]
+
+    return target, class_mapping
+
+
 def build_target_yolo(annotation_list, cells, img_size, class_mapping=None, class_num=None):
     """Use to transform a list of objects per image into a image*cells*cells*(5+classes) matrix.
 

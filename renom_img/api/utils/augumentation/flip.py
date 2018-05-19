@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Flip(object):
 
     def __init__(self):
@@ -20,7 +21,8 @@ class Flip(object):
                 new_x[i, :, :, :] = x[i, :, :, ::-1]
             elif f == 2:
                 new_x[i, :, :, :] = x[i, :, ::-1, :]
-        return new_x        
+        return new_x
+
 
 def flip(x):
     return Flip()(x)

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Rotate(object):
 
     def __init__(self):
@@ -18,6 +19,7 @@ class Rotate(object):
             new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))
 
         return new_x
+
 
 def rotate(x):
     return Rotate()(x)

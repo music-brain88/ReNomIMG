@@ -194,4 +194,3 @@ class Yolo(object):
 
     def __call__(self, x, y):
         return yolo(x, y, self._cells, self._bbox, self._classes, self._image_size)
-

@@ -2,6 +2,7 @@ import os
 import shutil
 import numpy as np
 
+
 def divide_datasets(r=0.8):
     """This method creates directories, 'train_set' and 'valid_set'.
     And automatically copies images and labels into them.
@@ -13,7 +14,8 @@ def divide_datasets(r=0.8):
         "The `dataset` folder not found. Please confirm `dataset` folder exists in current directory."
 
     ext_candidates = ['.jpg', '.jpeg', '.png']
-    data_path_list = [p for p in sorted(os.listdir("dataset")) if os.path.splitext(p)[1] in ext_candidates]
+    data_path_list = [p for p in sorted(os.listdir("dataset"))
+                      if os.path.splitext(p)[1] in ext_candidates]
     print("# {} data found.".format(len(data_path_list)))
 
     train_set_img_path = os.path.join('train_set', 'img')
@@ -27,12 +29,13 @@ def divide_datasets(r=0.8):
 
     perm = np.random.permutation(len(data_path_list))
 
-    if not len(perm): return
+    if not len(perm):
+        return
 
-    train_perm, valid_perm = np.split(perm, [int(len(data_path_list)*r)])
+    train_perm, valid_perm = np.split(perm, [int(len(data_path_list) * r)])
     print("# Data will be divided according following number.")
     print("# | Train data size | Valid data size |")
-    print("# |{: 17}|{: 17}|".format(len(train_perm), len(valid_perm))) 
+    print("# |{: 17}|{: 17}|".format(len(train_perm), len(valid_perm)))
 
     train_count = 0
     valid_count = 0
@@ -66,4 +69,4 @@ def divide_datasets(r=0.8):
 
     print("# Number of accutual copied data")
     print("# | Train data size | Valid data size | Not copied |")
-    print("# |{: 17}|{: 17}|{: 12}|".format(train_count, valid_count, error_count)) 
+    print("# |{: 17}|{: 17}|{: 12}|".format(train_count, valid_count, error_count))

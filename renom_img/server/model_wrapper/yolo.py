@@ -8,6 +8,7 @@ from renom_img.api.model.darknet import Darknet
 
 from renom_img.server.model_wrapper.wrapper_base import Wrapper
 
+
 class WrapperYoloDarknet(Wrapper):
 
     def __init__(self, num_class, cell, bbox, img_size):
@@ -32,10 +33,9 @@ class WrapperYoloDarknet(Wrapper):
 
         if epoch == 0:
             lr = nth_batch * ((0.01 - 0.001) /
-                               total_batch_loop) + lr_list[nth_epoch]
+                              total_batch_loop) + lr_list[nth_epoch]
         else:
             lr = lr_list[nth_epoch]
 
         self._optimizer._lr = lr
         return self._optimizer
-
