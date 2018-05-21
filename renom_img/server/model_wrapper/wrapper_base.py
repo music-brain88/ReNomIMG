@@ -11,7 +11,7 @@ class Wrapper(rm.Model):
         self._learnable_model = None
         self._optimizer = None
 
-    def build_target(self):
+    def build_target(self, label):
         pass
 
     def optimizer(self, nth_epoch, nth_batch, total_epoch, total_batch_loop):
@@ -19,6 +19,7 @@ class Wrapper(rm.Model):
         Algorithm specific optimizer.
         """
         raise NotImplemented
+
 
     def freezed_forward(self, x):
         """
@@ -29,16 +30,18 @@ class Wrapper(rm.Model):
     def forward(self, x):
         return self._learnable_model(x)
 
+    def loss_func(self):
+        pass
+
     def _walk(self):
         yield self
         for layer in self.iter_models():
             yield layer.iter_models()
-
+  
     def weight_decay(self):
-        if self._wd == 0:
-            return 0
+        if self._wd == 0: return 0
         reg = 0
         for layer in self._walk():
-            if hasattr(layer, 'params'):
+            if hasattr(layer, 'params') and layer.params:
                 reg += rm.sum(layer.params.w * layer.params.w)
         return reg

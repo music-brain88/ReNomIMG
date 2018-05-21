@@ -4,10 +4,13 @@
 from __future__ import division, print_function
 import os
 import sys
-from xml.etree import ElementTree
 import numpy as np
-from renom.utility.distributor import ImageDetectionDistributor
-from renom.utility.image import *
+from xml.etree import ElementTree
+
+from renom_img.api.utils.target import build_target
+from renom_img.api.utils.distributor.distributor import ImageDetectionDistributor
+from renom_img.api.utils.load import parse_xml_detection
+
 
 label_dict = {}
 label_length = 0
@@ -106,29 +109,22 @@ def create_train_valid_dists(img_size):
     train_xml_path = 'dataset/train_set/label'
     valid_img_path = 'dataset/valid_set/img'
     valid_xml_path = 'dataset/valid_set/label'
+    def create_label(xml_path_list, class_mapping=None):
+        annotation_list = parse_xml_detection(xml_path_list)
+        return build_target(annotation_list, img_size, class_mapping)
 
-    check_class_existence()
+    train_xml_path_list = [os.path.join(train_xml_path, path) for path in sorted(os.listdir(train_xml_path))]
+    train_img_path_list = [os.path.join(train_img_path, path) for path in sorted(os.listdir(train_img_path))]
+    valid_xml_path_list = [os.path.join(valid_xml_path, path) for path in sorted(os.listdir(valid_xml_path))]
+    valid_img_path_list = [os.path.join(valid_img_path, path) for path in sorted(os.listdir(valid_img_path))]
 
-    augmentation = DataAugmentation(
-        [
-            Flip(3),
-            Rotate(90),
-            # Resize(size=img_size),
-            Shift((30, 30)),
-            ColorJitter(v=(0.85, 1.15)),
-            Zoom(zoom_rate=(1, 1.2)),
-            # Rescale(option=[-1, 1])
-        ],
-        random=True
-    )
+    ## Check if the xml filename and img name is same.
+    train_label, class_mapping = create_label(train_xml_path_list)
+    valid_label, _ = create_label(valid_xml_path_list, class_mapping)
 
-    train_dist = create_detection_distributor(
-        train_xml_path, train_img_path, img_size, augmentation)
-    valid_dist = create_detection_distributor(
-        valid_xml_path, valid_img_path, img_size, None)
-
-    class_list = [c for c, v in sorted(label_dict.items(), key=lambda x:x[0])]
-    return class_list, train_dist, valid_dist
+    train_dist = ImageDetectionDistributor(train_img_path_list, train_label, img_size)
+    valid_dist = ImageDetectionDistributor(valid_img_path_list, valid_label, img_size)
+    return class_mapping, train_dist, valid_dist
 
 
 def create_pred_dist(img_size):

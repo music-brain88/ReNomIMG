@@ -37,7 +37,7 @@ def make_box(box):
     return [x1, y1, x2, y2]
 
 
-def apply_nms(x, cells, bbox, classes, image_size, thresh=0.2, iou_thresh=0.3):
+def apply_nms(x, cells, bbox, classes, thresh=0.2, iou_thresh=0.3):
     u"""Apply to X predicted out of yolo_detector layer to get list of detected objects.
     Default threshold for detection is prob < 0.2.
     Default threshold for suppression is IOU > 0.4
@@ -110,11 +110,11 @@ class yolo(Node):
               |---1st bbox--||---2nd bbox--||-classes-|
     """
 
-    def __new__(cls, x, y, cells, bbox, classes, image_size):
-        return cls.calc_value(x, y, cells, bbox, classes, image_size)
+    def __new__(cls, x, y, cells, bbox, classes):
+        return cls.calc_value(x, y, cells, bbox, classes)
 
     @classmethod
-    def _oper_cpu(cls, x, y, cells, bbox, classes, image_size):
+    def _oper_cpu(cls, x, y, cells, bbox, classes):
         x.to_cpu()
         noobj_scale = 0.5
         obj_scale = 5
@@ -171,8 +171,8 @@ class yolo(Node):
         return ret
 
     @classmethod
-    def _oper_gpu(cls, x, y, cells, bbox, classes, image_size):
-        return cls._oper_cpu(x, y, cells, bbox, classes, image_size)
+    def _oper_gpu(cls, x, y, cells, bbox, classes):
+        return cls._oper_cpu(x, y, cells, bbox, classes)
 
     def _backward_cpu(self, context, dy, **kwargs):
         if isinstance(self.attrs._x, Node):
@@ -186,11 +186,10 @@ class yolo(Node):
 
 class Yolo(object):
 
-    def __init__(self, cells=7, bbox=2, classes=10, image_size=(448, 448)):
+    def __init__(self, cells=7, bbox=2, classes=10):
         self._cells = cells
         self._bbox = bbox
         self._classes = classes
-        self._image_size = image_size
 
     def __call__(self, x, y):
-        return yolo(x, y, self._cells, self._bbox, self._classes, self._image_size)
+        return yolo(x, y, self._cells, self._bbox, self._classes)

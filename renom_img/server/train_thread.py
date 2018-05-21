@@ -67,12 +67,11 @@ class TrainThread(threading.Thread):
             map_count = 0
 
             for i in range(len(truth)):
-                label = truth[i].reshape(-1, 4 + self._class_num)
+                label = truth[i].reshape(-1, 4 + 1) # Note: This is not onehot.
                 pred = sorted(predict_list[i], key=lambda x: x['class'])
 
                 for j in range(len(label)):
-                    x, y, w, h = label[j, :4]
-                    obj_class = np.argmax(label[j, 4:])
+                    x, y, w, h, obj_class = label[j]
 
                     x1 = x - w / 2.
                     y1 = y - h / 2.
@@ -136,7 +135,7 @@ class TrainThread(threading.Thread):
     def run_train(self, train_distributor, validation_distributor=None):
         try:
             # Prepare validation images for UI.
-            valid_img = validation_distributor._data_table
+            valid_img = validation_distributor.img_path_list
             v_bbox_imgs = valid_img
 
             storage.update_model_validation_result(
@@ -180,7 +179,7 @@ class TrainThread(threading.Thread):
                 self.total_batch = batch_length
 
                 i = 0
-                for i, (train_x, train_y) in enumerate(train_distributor.batch(self.batch_size, True)):
+                for i, (train_x, train_y) in enumerate(train_distributor.batch(self.batch_size)):
                     start_t2 = time.time()
 
                     if self.stop_event.is_set():
@@ -190,8 +189,7 @@ class TrainThread(threading.Thread):
                     h = self.model.freezed_forward(train_x / 255. * 2 - 1)
                     with self.model.train():
                         z = self.model(h)
-                        label = self.model.build_target(train_y)
-                        loss = self.model.loss_func(z, label)
+                        loss = self.model.loss_func(z, train_y)
                         num_loss = loss.as_ndarray().astype(np.float64)
                         loss += self.model.weight_decay()
                     # TODO: Specify batch length
@@ -276,26 +274,21 @@ class TrainThread(threading.Thread):
             v_mAP_true_count = 0
             v_bbox = []
             self.model.set_models(inference=True)
-            for i, (validation_x, validation_y) in enumerate(distributor.batch(self.batch_size, False)):
+            for i, (validation_x, validation_y) in enumerate(distributor.batch(self.batch_size)):
                 if self.stop_event.is_set():
                     return
                 # Validation
                 h = self.model.freezed_forward(validation_x / 255. * 2 - 1)
                 z = self.model(h)
-                label = self.model.transform_label_format(validation_y)
-                loss = self.model.loss_func(z, label)
+                loss = self.model.loss_func(z, validation_y)
                 validation_loss += loss.as_ndarray()
 
                 bbox = self.model.get_bbox(z.as_ndarray())
-                iou_list, mAP_true_obj_count, mAP_obj_count = self.get_iou_and_mAP(
-                    validation_y, bbox)
+                iou_list, mAP_true_obj_count, mAP_obj_count = self.get_iou_and_mAP(validation_y, bbox)
                 v_ious.extend(iou_list)
                 v_mAP_true_count += mAP_true_obj_count
                 v_mAP_count += mAP_obj_count
                 v_bbox.extend(bbox)
-
-                # if self.batch_size*(i + 1) > 1024:
-                #     break
 
             v_iou = np.mean(v_ious)
             v_mAP = v_mAP_true_count / float(v_mAP_count)
@@ -308,11 +301,12 @@ class TrainThread(threading.Thread):
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e.args[0]
+            
 
     def set_train_config(self, class_num):
         try:
             self._class_num = int(class_num)
-            return WrapperYoloDarknet(cell=self.cell_h, bbox=self.num_bbox, num_class=class_num, img_size=self.img_size)
+            return WrapperYoloDarknet(cells=self.cell_h, bbox=self.num_bbox, num_class=class_num, img_size=self.img_size)
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e.args[0]

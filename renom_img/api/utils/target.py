@@ -15,7 +15,7 @@ see the function 'parse_xml_detection' written in load.py.
 """
 
 
-def build_target(annotation_list, img_size, class_mapping=None, class_num=None):
+def build_target(annotation_list, img_size, class_mapping=None):
     # Check the class mapping.
     if class_mapping is None:
         class_dict = {}
@@ -26,42 +26,34 @@ def build_target(annotation_list, img_size, class_mapping=None, class_num=None):
     else:
         assert isinstance(class_mapping, dict)
 
-    # Check the total class number is not less than given mapping.
-    if class_num is not None:
-        assert len(class_mapping) <= class_num
-        assert max(class_mapping.values()) < class_num
-    else:
-        class_num = len(class_mapping)
-
     # Get max number of objects in one image.
-    dlt = 4 + class_num
+    dlt = 4 + 1
     max_obj_num = np.max([len(annotation) for annotation in annotation_list])
     target = np.zeros((len(annotation_list), max_obj_num * dlt), dtype=np.float32)
 
     for i, annotation in enumerate(annotation_list):
         for j, obj in enumerate(annotation):
-            target[i, j * dlt:(j + 1) * dlt - class_num] = obj['box']
-            target[i, j * dlt - class_num:(j + 1) * dlt] = class_mapping[obj['name']]
-
+            target[i, j * dlt:(j + 1) * dlt - 1] = obj['box']
+            target[i, j * dlt - 1:(j + 1) * dlt] = class_mapping[obj['name']]
     return target, class_mapping
 
 
-def build_target_yolo(annotation_list, cells, img_size, class_mapping=None, class_num=None):
+def build_target_yolo(annotation_list, cells, img_size, class_mapping=None):
     """Use to transform a list of objects per image into a image*cells*cells*(5+classes) matrix.
 
     Returns:
         (ndarray): Yolo formatted target array.
 
-    This method returns yolo formatted target array which shape is (N, cell*cell*(5 + classes_num).
+    This method returns yolo formatted target array which shape is (N, cell*cell*(5 + 1).
     N is batch size. The array consists of following data.
 
     1. existence flag: A flag which indicates if an object exists in the cell.
     2. Coordinates and size(x, y, w, h): Coordinate and size of each objects.
-    3. One hot represented class: The object's class number.
+    3. Class id: The object's class number.
 
     [
-        [existence x y w h 0 1 0 0 existence x y w h 1 0 0 0 ... ],
-        [existence x y w h 0 0 1 0 existence x y w h 0 0 0 1 ... ],
+        [existence x y w h 2 existence x y w h 2 ... ],
+        [existence x y w h 3 existence x y w h 1 ... ],
     ]
     """
     # Check the class mapping.
@@ -74,13 +66,6 @@ def build_target_yolo(annotation_list, cells, img_size, class_mapping=None, clas
     else:
         assert isinstance(class_mapping, dict)
 
-    # Check the total class number is not less than given mapping.
-    if class_num is not None:
-        assert len(class_mapping) <= class_num
-        assert max(class_mapping.values()) < class_num
-    else:
-        class_num = len(class_mapping)
-
     # Cell can be tuple, list or int.
     if isinstance(cells, (tuple, list)):
         cell_w = cells[0]
@@ -90,13 +75,12 @@ def build_target_yolo(annotation_list, cells, img_size, class_mapping=None, clas
         cell_h = cells
 
     img_w, img_h = img_size
-    target = np.zeros((len(annotation_list), cell_h, cell_w, 5 + class_num))
+    target = np.zeros((len(annotation_list), cell_h, cell_w, 5 + 1))
     for ind_img in range(len(target)):
         annotation = annotation_list[ind_img]
         for ind_obj in range(len(annotation)):
             obj = annotation[ind_obj]
             class_id = class_mapping[obj['name']]
-            one_hot_class_id = [0] * class_id + [1] + [0] * (class_num - class_id - 1)
             truth_x = np.clip(obj['box'][0], 0, img_w)
             truth_y = np.clip(obj['box'][1], 0, img_h)
             truth_w = np.clip(obj['box'][2], 0, img_w)
@@ -106,6 +90,6 @@ def build_target_yolo(annotation_list, cells, img_size, class_mapping=None, clas
             norm_w = int(truth_w / img_w)
             norm_h = int(truth_h / img_h)
             target[ind_img, norm_y, norm_x] = \
-                np.concatenate(([1, norm_x % 1, norm_y % 1, norm_w, norm_h], one_hot_class_id))
+                np.concatenate(([1, norm_x % 1, norm_y % 1, norm_w, norm_h], [class_id]))
     target = target.reshape(len(annotation_list), -1)
     return target, class_mapping
