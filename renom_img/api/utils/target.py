@@ -34,7 +34,7 @@ def build_target(annotation_list, img_size, class_mapping=None):
     for i, annotation in enumerate(annotation_list):
         for j, obj in enumerate(annotation):
             target[i, j * dlt:(j + 1) * dlt - 1] = obj['box']
-            target[i, j * dlt - 1:(j + 1) * dlt] = class_mapping[obj['name']]
+            target[i, (j + 1) * dlt - 1] = class_mapping[obj['name']]
     return target, class_mapping
 
 

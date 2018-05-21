@@ -11,6 +11,7 @@ import urllib
 import pkg_resources
 import mimetypes
 import posixpath
+import traceback
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
 from renom_img.server import wsgi_server
@@ -141,6 +142,7 @@ def get_projects():
         body = json.dumps(data)
 
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -159,6 +161,7 @@ def create_projects():
         }
         body = json.dumps(data)
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -175,6 +178,7 @@ def get_project(project_id):
         body = json.dumps(data)
 
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -240,6 +244,7 @@ def get_models(project_id):
                     if th is not None:
                         # If thread status updated, return response.
                         if last_batchs[i] != th.last_batch or running_states[i] != th.running_state or last_epochs[i] != th.last_epoch:
+
                             body = json.dumps(data)
                             ret = create_response(body)
                             return ret
@@ -252,6 +257,7 @@ def get_models(project_id):
             time.sleep(1)
 
     except Exception as e:
+        traceback.print_exc()
         print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
@@ -264,6 +270,7 @@ def get_dataset_info_v0():
         data = storage.fetch_dataset_v0()
         body = json.dumps(data)
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -289,6 +296,7 @@ def create_model(project_id):
         body = json.dumps(data)
 
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -306,6 +314,7 @@ def get_model(project_id, model_id):
         body = json.dumps(data)
 
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -324,6 +333,7 @@ def delete_model(project_id, model_id):
         storage.update_model_state(model_id, STATE_DELETED)
 
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -334,6 +344,7 @@ def deploy_model(project_id, model_id):
     try:
         storage.update_project_deploy(project_id, model_id)
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -344,6 +355,7 @@ def undeploy_model(project_id, model_id):
     try:
         storage.update_project_deploy(project_id, None)
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -391,6 +403,7 @@ def run_model(project_id, model_id):
             ret = create_response(body)
             return ret
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -408,6 +421,7 @@ def stop_model(project_id, model_id):
             th.stop()
 
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -436,6 +450,7 @@ def run_prediction(project_id, model_id):
             }
             body = json.dumps(data)
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
 
     ret = create_response(body)
@@ -479,6 +494,7 @@ def check_weight_exists():
             return ret
 
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -496,6 +512,7 @@ def check_weight_download_progress(progress_num):
             time.sleep(1)
 
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret

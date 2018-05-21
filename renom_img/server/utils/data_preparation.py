@@ -109,22 +109,27 @@ def create_train_valid_dists(img_size):
     train_xml_path = 'dataset/train_set/label'
     valid_img_path = 'dataset/valid_set/img'
     valid_xml_path = 'dataset/valid_set/label'
+
     def create_label(xml_path_list, class_mapping=None):
         annotation_list = parse_xml_detection(xml_path_list)
         return build_target(annotation_list, img_size, class_mapping)
 
-    train_xml_path_list = [os.path.join(train_xml_path, path) for path in sorted(os.listdir(train_xml_path))]
-    train_img_path_list = [os.path.join(train_img_path, path) for path in sorted(os.listdir(train_img_path))]
-    valid_xml_path_list = [os.path.join(valid_xml_path, path) for path in sorted(os.listdir(valid_xml_path))]
-    valid_img_path_list = [os.path.join(valid_img_path, path) for path in sorted(os.listdir(valid_img_path))]
+    train_xml_path_list = [os.path.join(train_xml_path, path)
+                           for path in sorted(os.listdir(train_xml_path))]
+    train_img_path_list = [os.path.join(train_img_path, path)
+                           for path in sorted(os.listdir(train_img_path))]
+    valid_xml_path_list = [os.path.join(valid_xml_path, path)
+                           for path in sorted(os.listdir(valid_xml_path))]
+    valid_img_path_list = [os.path.join(valid_img_path, path)
+                           for path in sorted(os.listdir(valid_img_path))]
 
-    ## Check if the xml filename and img name is same.
+    # Check if the xml filename and img name is same.
     train_label, class_mapping = create_label(train_xml_path_list)
     valid_label, _ = create_label(valid_xml_path_list, class_mapping)
-
     train_dist = ImageDetectionDistributor(train_img_path_list, train_label, img_size)
     valid_dist = ImageDetectionDistributor(valid_img_path_list, valid_label, img_size)
-    return class_mapping, train_dist, valid_dist
+    class_list = [k for k, v in sorted(class_mapping.items(), key=lambda x: x[0])]
+    return class_list, train_dist, valid_dist
 
 
 def create_pred_dist(img_size):

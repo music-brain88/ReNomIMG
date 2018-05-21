@@ -20,7 +20,6 @@ class Wrapper(rm.Model):
         """
         raise NotImplemented
 
-
     def freezed_forward(self, x):
         """
         Layers that are not learnt.
@@ -30,18 +29,18 @@ class Wrapper(rm.Model):
     def forward(self, x):
         return self._learnable_model(x)
 
-    def loss_func(self):
+    def loss_func(self, x, y):
         pass
 
     def _walk(self):
-        yield self
-        for layer in self.iter_models():
-            yield layer.iter_models()
-  
+        for layer in self._learnable_model.iter_models():
+            yield layer
+
     def weight_decay(self):
-        if self._wd == 0: return 0
+        if self._wd == 0:
+            return 0
         reg = 0
         for layer in self._walk():
             if hasattr(layer, 'params') and layer.params:
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return reg
+        return reg * self._wd

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 import numpy as np
-from renom.core import Node, to_value, get_gpu
 from renom.utility.image import *
+from renom.core import Node, to_value, get_gpu
 
 
 def build_truth(y, total_w, total_h, cells, classes):

@@ -87,4 +87,4 @@ class Darknet(rm.Sequential):
 
         if load_weight:
             # Call download method.
-            model.load('yolo.h5')
+            self.load('yolo.h5')

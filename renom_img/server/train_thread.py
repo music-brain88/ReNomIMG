@@ -62,12 +62,13 @@ class TrainThread(threading.Thread):
 
     def get_iou_and_mAP(self, truth, predict_list):
         try:
+            # TODO: Cythonize
             iou_list = []
             map_true_count = 0
             map_count = 0
 
             for i in range(len(truth)):
-                label = truth[i].reshape(-1, 4 + 1) # Note: This is not onehot.
+                label = truth[i].reshape(-1, 4 + 1)  # Note: This is not onehot.
                 pred = sorted(predict_list[i], key=lambda x: x['class'])
 
                 for j in range(len(label)):
@@ -81,6 +82,7 @@ class TrainThread(threading.Thread):
                     if x == y == w == h == 0:
                         break
                     map_count += 1
+
                     for k in range(len(pred)):
                         p_class = pred[k]['class']
 
@@ -191,8 +193,7 @@ class TrainThread(threading.Thread):
                         z = self.model(h)
                         loss = self.model.loss_func(z, train_y)
                         num_loss = loss.as_ndarray().astype(np.float64)
-                        loss += self.model.weight_decay()
-                    # TODO: Specify batch length
+                        # loss += self.model.weight_decay()
                     loss.grad().update(self.model.optimizer(e, i,
                                                             self.total_epoch, batch_length))
 
@@ -284,7 +285,8 @@ class TrainThread(threading.Thread):
                 validation_loss += loss.as_ndarray()
 
                 bbox = self.model.get_bbox(z.as_ndarray())
-                iou_list, mAP_true_obj_count, mAP_obj_count = self.get_iou_and_mAP(validation_y, bbox)
+                iou_list, mAP_true_obj_count, mAP_obj_count = self.get_iou_and_mAP(
+                    validation_y, bbox)
                 v_ious.extend(iou_list)
                 v_mAP_true_count += mAP_true_obj_count
                 v_mAP_count += mAP_obj_count
@@ -295,13 +297,12 @@ class TrainThread(threading.Thread):
             v_iou = float(0 if np.isnan(v_iou) or np.isinf(v_iou) else v_iou)
             v_mAP = float(0 if np.isnan(v_mAP) or np.isinf(v_mAP) else v_mAP)
             v_bbox = v_bbox
-
             validation_loss = validation_loss / (i + 1)
+
             return validation_loss, v_iou, v_mAP, v_bbox
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e.args[0]
-            
 
     def set_train_config(self, class_num):
         try:

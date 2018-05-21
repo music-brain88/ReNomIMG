@@ -17,8 +17,7 @@ class LoadThread(threading.Thread):
         for filenames in self._filenames:
             img = Image.open(filenames)
             img.load()
-            img = np.asarray(img.resize(self._img_size)).transpose(2, 0, 1)[None, ...]
-            self._results.append(img.astype(np.float32))
+            self._results.append(img)
 
 
 class ThreadRunner(threading.Thread):
@@ -36,13 +35,15 @@ class ThreadRunner(threading.Thread):
         que = Queue()
         b = self._batch_size
         filelist = self._filelist
+        b_count = 0
         for n in range(len(filelist) // b):
             for i in range(self._num_threads - que.qsize()):
                 result = []
-                th = LoadThread(filelist[(n + i) * b:(n + i + 1) * b], result, self._img_size)
+                th = LoadThread(filelist[b_count * b:(b_count + 1) * b], result, self._img_size)
                 self._results.append(result)
                 th.start()
                 que.put(th)
+                b_count += 1
             que.get().join()
             self._event.set()
 
@@ -72,26 +73,42 @@ class ImageDistributorBase(object):
         return self._class_num
 
     def batch(self, batch_size, callback=lambda x: x):
+        N = len(self)
         ind = 0
         result = []
+        size_w, size_h = self._img_size
         total_batch_num = len(self._img_path_list) // batch_size
         event = threading.Event()
-        th = ThreadRunner(self._img_path_list, batch_size, result,
+        perm = np.random.permutation(N)
+        label_list = self._label_list[perm]
+        img_list = np.array(self._img_path_list)[perm]
+        th = ThreadRunner(img_list, batch_size, result,
                           event, self._img_size, self._num_threads)
         th.start()
         label = None
         while ind < total_batch_num:
             if self._label_list is not None and label is None:
-                label = callback(self._label_list[ind * batch_size:(ind + 1) * batch_size])
+                label = callback(label_list[ind * batch_size:(ind + 1) * batch_size])
             if len(result[ind]) != batch_size:
                 event.clear()
                 event.wait()
             else:
                 # Perform argumentation here.
+                # Resize.
+                X = np.vstack([np.asarray(img.resize((size_w, size_h))).transpose(
+                    2, 0, 1).astype(np.float32)[np.newaxis].copy() for img in result[ind]])
                 if label is None:
-                    yield np.vstack(result[ind])
+                    yield X
                 else:
-                    yield np.vstack(result[ind]), label
+                    sizes = np.array([(img.size[0] / size_w, img.size[1] / size_h)
+                                      for img in result[ind]])
+                    resized_label = np.zeros((batch_size, len(label[0])))
+                    resized_label[:, 0::5] = label[:, 0::5] / sizes[:, 0][..., None]
+                    resized_label[:, 1::5] = label[:, 1::5] / sizes[:, 1][..., None]
+                    resized_label[:, 2::5] = label[:, 2::5] / sizes[:, 0][..., None]
+                    resized_label[:, 3::5] = label[:, 3::5] / sizes[:, 1][..., None]
+                    resized_label[:, 4::5] = label[:, 4::5]
+                    yield X, resized_label
                 label = None
                 ind += 1
         th.join()
@@ -108,26 +125,16 @@ class ImageDistributor(ImageDistributorBase):
         """
         return super(ImageDistributor, self).batch(batch_size)
 
+
 class ImageDetectionDistributor(ImageDistributorBase):
 
     def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augumentation=None, num_threads=8):
-        super(ImageDetectionDistributor, self).__init__(img_path_list, label_list, img_size, num_threads)
+        super(ImageDetectionDistributor, self).__init__(
+            img_path_list, label_list, img_size, num_threads)
         self._augumentation = augumentation
 
     def batch(self, batch_size=64):
         """This returns generator object.
         Make the class label onehot.
         """
-        def make_onehot(target):
-            N, D = target.shape
-            D = D//5
-            new_target = np.zeros((N, D*(4+self.class_num)))
-            new_target[:, 0::4+self.class_num] = target[:, 0::5]
-            new_target[:, 1::4+self.class_num] = target[:, 1::5]
-            new_target[:, 2::4+self.class_num] = target[:, 2::5]
-            new_target[:, 3::4+self.class_num] = target[:, 3::5]
-            active = ((self._class_num+4)*np.arange(D) + target[:, 4::5]).astype(np.int)
-            new_target[:, active] = 1
-            return new_target 
         return super(ImageDetectionDistributor, self).batch(batch_size)
-
