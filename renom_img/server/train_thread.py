@@ -193,12 +193,11 @@ class TrainThread(threading.Thread):
                         z = self.model(h)
                         loss = self.model.loss_func(z, train_y)
                         num_loss = loss.as_ndarray().astype(np.float64)
-                        # loss += self.model.weight_decay()
+                        loss += self.model.weight_decay()
                     loss.grad().update(self.model.optimizer(e, i,
                                                             self.total_epoch, batch_length))
 
                     train_loss += num_loss
-
                     self.last_batch = i
                     self.running_state = TRAIN
                     self.last_train_loss = float(num_loss)

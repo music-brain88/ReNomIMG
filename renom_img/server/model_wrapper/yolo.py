@@ -72,7 +72,7 @@ class WrapperYoloDarknet(Wrapper):
                         if calc_iou(b1, b2) > self._nms_thresh:
                             probs[n, argsort[n, comp, cl], cl] = 0
 
-        indexes = np.nonzero(probs)
+        indexes = np.nonzero(np.clip(probs, 0, 1))
         result = [[] for _ in range(N)]
         for i in range(len(indexes[0])):
             # Note: Take care types.

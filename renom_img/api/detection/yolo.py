@@ -3,7 +3,6 @@
 from __future__ import division
 import numpy as np
 from renom.core import Node, to_value, get_gpu
-from renom.utility.image import *
 
 
 def box_iou(box1, box2):
