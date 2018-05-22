@@ -11,8 +11,8 @@ from renom_img.api.utils.target import build_target
 from renom_img.api.utils.distributor.distributor import ImageDetectionDistributor
 from renom_img.api.utils.load import parse_xml_detection
 
-from renom_img.api.utils.augumentation.augumentation import Augumentation
-from renom_img.api.utils.augumentation.process import Flip, Shift, Rotate, WhiteNoise
+from renom_img.api.utils.augmentation.augmentation import Augmentation
+from renom_img.api.utils.augmentation.process import Flip, Shift, Rotate, WhiteNoise
 
 
 label_dict = {}
@@ -130,7 +130,7 @@ def create_train_valid_dists(img_size):
     train_label, class_mapping = create_label(train_xml_path_list)
     valid_label, _ = create_label(valid_xml_path_list, class_mapping)
 
-    aug = Augumentation([
+    aug = Augmentation([
         Flip(),
         Shift(20, 20),
         Rotate(),

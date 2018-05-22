@@ -1,8 +1,8 @@
 
 import numpy as np
-from renom_img.api.utils.augumentation.process import MODE
+from renom_img.api.utils.augmentation.process import MODE
 
-class Augumentation(object):
+class Augmentation(object):
 
     def __init__(self, process_list):
         self._process_list = process_list

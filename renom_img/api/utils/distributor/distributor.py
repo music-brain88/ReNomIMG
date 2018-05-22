@@ -54,13 +54,13 @@ class ThreadRunner(threading.Thread):
 
 class ImageDistributorBase(object):
 
-    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augumentation=None, num_threads=8):
+    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augmentation=None, num_threads=8):
         self._img_path_list = img_path_list
         self._label_list = label_list
         self._num_threads = num_threads
         self._img_size = img_size
         self._class_num = int(np.max([d[::5] for d in label_list]))
-        self._augumentation = augumentation
+        self._augmentation = augmentation
 
     def __len__(self):
         return len(self._img_path_list)
@@ -114,15 +114,15 @@ class ImageDistributorBase(object):
 
 class ImageDistributor(ImageDistributorBase):
 
-    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augumentation=None, num_threads=8):
-        super(ImageDistributor, self).__init__(img_path_list, label_list, img_size, augumentation, num_threads)
+    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augmentation=None, num_threads=8):
+        super(ImageDistributor, self).__init__(img_path_list, label_list, img_size, augmentation, num_threads)
 
 
 class ImageDetectionDistributor(ImageDistributorBase):
 
-    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augumentation=None, num_threads=8):
+    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augmentation=None, num_threads=8):
         super(ImageDetectionDistributor, self).__init__(
-            img_path_list, label_list, img_size, augumentation, num_threads)
+            img_path_list, label_list, img_size, augmentation, num_threads)
 
     def batch(self, batch_size=64, shuffle=True):
         """This returns generator object.
@@ -168,10 +168,10 @@ class ImageDetectionDistributor(ImageDistributorBase):
                     resized_label[:, 2::5] = label[:, 2::5] / sizes[:, 0][..., None]
                     resized_label[:, 3::5] = label[:, 3::5] / sizes[:, 1][..., None]
                     resized_label[:, 4::5] = label[:, 4::5]
-                    if self._augumentation is None:
+                    if self._augmentation is None:
                         yield X, resized_label
                     else:
-                        yield self._augumentation(X, resized_label, mode="detection")
+                        yield self._augmentation(X, resized_label, mode="detection")
                 label = None
                 ind += 1
         th.join()
