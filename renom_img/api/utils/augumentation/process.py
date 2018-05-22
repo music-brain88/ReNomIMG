@@ -93,7 +93,8 @@ def flip(x, y=None, mode="classification"):
 
 class Shift(ProcessBase):
 
-    def __init__(self, horizontal, vertivcal):
+    def __init__(self, horizontal=10, vertivcal=10):
+        super(Shift, self).__init__()
         self._h = horizontal
         self._v = vertivcal
 
@@ -117,7 +118,7 @@ class Shift(ProcessBase):
         for i in range(n):
             new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
                 x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-        return new_x ,y
+        return new_x, y
 
     def _transform_detection(self, x, y):
         assert len(x.shape) == 4
@@ -141,12 +142,97 @@ class Shift(ProcessBase):
         for i in range(n):
             new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
                 x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-        new_y[:, 0::5] = np.clip(y[:, 0::5]+rand_h[:, None], 0, w) * (y[:, 2::5]!=0)
-        new_y[:, 1::5] = np.clip(y[:, 1::5]+rand_v[:, None], 0, h) * (y[:, 3::5]!=0)
+        flag = y[:, 2::5]!=0
+        new_y[:, 0::5] = np.clip(y[:, 0::5]+rand_h[:, None], 0, w) * flag
+        new_y[:, 1::5] = np.clip(y[:, 1::5]+rand_v[:, None], 0, h) * flag
         new_y[:, 2::5] = y[:, 2::5]
         new_y[:, 3::5] = y[:, 3::5]
         new_y[:, 4::5] = y[:, 4::5]
-        return new_x ,new_y
+        return new_x, new_y
 
-def shift(x, y, horizontal, vertivcal, mode="classification"):
+def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
     return Shift(horizontal, vertivcal)(x)
+
+
+class Rotate(ProcessBase):
+
+    def __init__(self):
+        super(Rotate, self).__init__()
+
+    def _transform_classification(self, x, y):
+        assert len(x.shape) == 4
+        n = x.shape[0]
+        new_x = np.empty_like(x)
+
+        is_square = True
+        if h != w:
+            is_square = False
+        if is_square:
+            rotate_frag = np.random.randint(4, size=(n, ))
+        else:
+            rotate_frag = np.random.randint(2, size=(n, ))*2
+
+        for i, r in enumerate(rotate_frag):
+            new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))
+        return new_x, y
+
+    def _transform_detection(self, x, y):
+        assert len(x.shape) == 4
+        n, c, h, w = x.shape
+        c_w = w//2
+        c_h = h//2
+        new_x = np.empty_like(x)
+        new_y = np.empty_like(y)
+
+        if w==h:
+            rotate_frag = np.random.randint(4, size=(n, ))
+        else:
+            rotate_frag = np.random.randint(2, size=(n, ))*2
+
+        for i, r in enumerate(rotate_frag):
+            new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))
+            flag = y[i, 2::5]!=0
+            if r == 0:
+                new_y[i, 0::5] = y[i, 0::5]
+                new_y[i, 1::5] = y[i, 1::5]
+                new_y[i, 2::5] = y[i, 2::5]
+                new_y[i, 3::5] = y[i, 3::5]
+            elif r == 1:
+                new_y[i, 0::5] = y[i, 1::5]
+                new_y[i, 1::5] = (2*c_h - y[i, 0::5])*flag
+                new_y[i, 2::5] = y[i, 3::5]
+                new_y[i, 3::5] = y[i, 2::5]
+            elif r == 2:
+                new_y[i, 0::5] = (2*c_w - y[i, 0::5])*flag
+                new_y[i, 1::5] = (2*c_h - y[i, 1::5])*flag
+                new_y[i, 2::5] = y[i, 2::5]
+                new_y[i, 3::5] = y[i, 3::5]
+            elif r == 3:
+                new_y[i, 0::5] = (2*c_w - y[i, 1::5])*flag
+                new_y[i, 1::5] = y[i, 0::5]
+                new_y[i, 2::5] = y[i, 3::5]
+                new_y[i, 3::5] = y[i, 2::5]
+            new_y[i, 4::5] = y[i, 4::5]
+        return new_x, new_y
+
+def rotate(x, y=None, mode="classification"):
+    return Rotate()(x, y, mode)
+
+
+class WhiteNoise(ProcessBase):
+
+    def __init__(self, std=0.01):
+        super(WhiteNoise, self).__init__()
+        self._std = std
+
+    def _transform_classification(self, x, y):
+        assert len(x.shape) == 4
+        return x + self._std * np.random.randn(*x.shape), y
+
+    def _transform_detection(self, x, y):
+        assert len(x.shape) == 4
+        return x + self._std * np.random.randn(*x.shape), y
+
+
+def white_noise(x, y=None, std=0.01, mode="classification"):
+    return WhiteNoise(std)(x, y, mode)
