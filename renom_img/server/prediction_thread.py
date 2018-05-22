@@ -10,8 +10,9 @@ import numpy as np
 import xml.etree.ElementTree as et
 from PIL import Image
 from renom.cuda import set_cuda_active, release_mem_pool
+from renom_img.server.utils.storage import storage
 from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
-from renom_img.server.utils.data_preparation import create_train_valid_dists, create_pred_dist
+from renom_img.server.utils.data_preparation import create_pred_dist, create_train_valid_dists
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
@@ -63,8 +64,7 @@ class PredictionThread(threading.Thread):
             release_mem_pool()
             if DEBUG:
                 print("run prediction")
-            class_list, train_dist, valid_dist = create_train_valid_dists(
-                self.img_size)
+            class_list = storage.fetch_dataset_v0()["class_names"]
             self.model = self.set_train_config(len(class_list))
             self.model.load(os.path.join(WEIGHT_DIR, self.weight_name))
             self.run_prediction()
@@ -77,16 +77,13 @@ class PredictionThread(threading.Thread):
             distributor = create_pred_dist(self.img_size)
 
             v_bbox = []
-            v_bbox_imgs = distributor._data_table
+            v_bbox_imgs = distributor.img_path_list
 
             self.model.set_models(inference=True)
-
             self.total_batch = np.ceil(len(distributor) / float(self.batch_size))
-
             start_t = time.time()
             for i, prediction_x in enumerate(distributor.batch(self.batch_size, False)):
                 self.last_batch = i
-
                 h = self.model.freezed_forward(prediction_x / 255. * 2 - 1)
                 z = self.model(h)
                 bbox = self.model.get_bbox(z.as_ndarray())
@@ -100,6 +97,8 @@ class PredictionThread(threading.Thread):
                 "bbox_list": v_bbox[:len(v_bbox_imgs)],
                 "bbox_path_list": v_bbox_imgs
             }
+            print(len(self.predict_results["bbox_list"]))
+            print(len(self.predict_results["bbox_path_list"]))
             self.save_predict_result_to_csv()
             self.save_predict_result_to_xml()
         except Exception as e:
@@ -188,7 +187,7 @@ class PredictionThread(threading.Thread):
     def set_train_config(self, class_num):
         try:
             self._class_num = int(class_num)
-            return YoloDarknet(cell=self.cell_h, bbox=self.num_bbox, class_num=class_num, img_size=self.img_size)
+            return WrapperYoloDarknet(cells=self.cell_h, bbox=self.num_bbox, num_class=class_num, img_size=self.img_size)
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e.args[0]

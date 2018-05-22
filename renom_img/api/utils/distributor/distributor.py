@@ -36,7 +36,7 @@ class ThreadRunner(threading.Thread):
         b = self._batch_size
         filelist = self._filelist
         b_count = 0
-        for n in range(len(filelist) // b):
+        for n in range(int(np.ceil(len(filelist)/b))):
             for i in range(self._num_threads - que.qsize()):
                 result = []
                 th = LoadThread(filelist[b_count * b:(b_count + 1) * b], result, self._img_size)
@@ -46,6 +46,8 @@ class ThreadRunner(threading.Thread):
                 b_count += 1
             que.get().join()
             self._event.set()
+            if b_count >= int(np.ceil(len(filelist)/b)):
+                break
 
         for _ in range(que.qsize()):
             que.get().join()
@@ -59,7 +61,7 @@ class ImageDistributorBase(object):
         self._label_list = label_list
         self._num_threads = num_threads
         self._img_size = img_size
-        self._class_num = int(np.max([d[::5] for d in label_list]))
+        self._class_num = None
         self._augmentation = augmentation
 
     def __len__(self):
@@ -78,7 +80,7 @@ class ImageDistributorBase(object):
         ind = 0
         result = []
         size_w, size_h = self._img_size
-        total_batch_num = len(self._img_path_list) // batch_size
+        total_batch_num = int(np.ceil(len(self._img_path_list)/batch_size))
         event = threading.Event()
         if shuffle:
             perm = np.random.permutation(N)
@@ -88,6 +90,8 @@ class ImageDistributorBase(object):
             label_list = self._label_list
             img_list = np.array(self._img_path_list)
 
+        each_batch_size = [batch_size if N-i*batch_size > batch_size else N-i*batch_size \
+             for i in range(total_batch_num)]
         th = ThreadRunner(img_list, batch_size, result,
                           event, self._img_size, self._num_threads)
         th.start()
@@ -95,7 +99,8 @@ class ImageDistributorBase(object):
         while ind < total_batch_num:
             if self._label_list is not None and label is None:
                 label = callback(label_list[ind * batch_size:(ind + 1) * batch_size])
-            if len(result[ind]) != batch_size:
+
+            if len(result[ind]) != each_batch_size[ind]:
                 event.clear()
                 event.wait()
             else:
@@ -123,6 +128,8 @@ class ImageDetectionDistributor(ImageDistributorBase):
     def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augmentation=None, num_threads=8):
         super(ImageDetectionDistributor, self).__init__(
             img_path_list, label_list, img_size, augmentation, num_threads)
+        if label_list is not None:
+            self._class_num = int(np.max([d[::5] for d in label_list]))
 
     def batch(self, batch_size=64, shuffle=True):
         """This returns generator object.
@@ -132,7 +139,7 @@ class ImageDetectionDistributor(ImageDistributorBase):
         ind = 0
         result = []
         size_w, size_h = self._img_size
-        total_batch_num = len(self._img_path_list) // batch_size
+        total_batch_num = int(np.ceil(len(self._img_path_list)/batch_size))
         event = threading.Event()
         if shuffle:
             perm = np.random.permutation(N)
@@ -141,7 +148,8 @@ class ImageDetectionDistributor(ImageDistributorBase):
         else:
             label_list = self._label_list
             img_list = np.array(self._img_path_list)
-
+        each_batch_size = [batch_size if N-i*batch_size > batch_size else N-i*batch_size \
+             for i in range(total_batch_num)]
         th = ThreadRunner(img_list, batch_size, result,
                           event, self._img_size, self._num_threads)
         th.start()
@@ -149,7 +157,7 @@ class ImageDetectionDistributor(ImageDistributorBase):
         while ind < total_batch_num:
             if self._label_list is not None and label is None:
                 label = label_list[ind * batch_size:(ind + 1) * batch_size]
-            if len(result[ind]) != batch_size:
+            if len(result[ind]) != each_batch_size[ind]:
                 event.clear()
                 event.wait()
             else:
@@ -162,7 +170,7 @@ class ImageDetectionDistributor(ImageDistributorBase):
                 else:
                     sizes = np.array([(img.size[0] / size_w, img.size[1] / size_h)
                                       for img in result[ind]])
-                    resized_label = np.zeros((batch_size, len(label[0])))
+                    resized_label = np.zeros((len(label), len(label[0])))
                     resized_label[:, 0::5] = label[:, 0::5] / sizes[:, 0][..., None]
                     resized_label[:, 1::5] = label[:, 1::5] / sizes[:, 1][..., None]
                     resized_label[:, 2::5] = label[:, 2::5] / sizes[:, 0][..., None]

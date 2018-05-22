@@ -150,7 +150,11 @@ def create_pred_dist(img_size):
     pred_img_path_list = sorted(os.listdir(pred_img_path))
     pred_img_path_list = [os.path.join(pred_img_path, x)
                           for x in pred_img_path_list]
-    class_list = [c for c, v in sorted(label_dict.items(), key=lambda x:x[0])]
-    pred_dist = ImageDetectionDistributor(
-        pred_img_path_list, None, class_list, img_size, 'RGB', None)
+    pred_dist = ImageDetectionDistributor(pred_img_path_list, None, img_size)
     return pred_dist
+
+
+
+
+
+

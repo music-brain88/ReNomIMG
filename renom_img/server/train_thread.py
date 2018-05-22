@@ -12,10 +12,7 @@ from renom_img.server.utils.data_preparation import create_train_valid_dists
 from renom_img.server.utils.storage import storage
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")
-CSV_DIR = os.path.join(BASE_DIR, "../.storage/csv")
-IMG_DIR = os.path.join(BASE_DIR, "../dataset/prediction_set/img")
-XML_DIR = os.path.join(BASE_DIR, "../dataset/prediction_set/label")
+WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
 
 STATE_RUNNING = 1
 STATE_FINISHED = 2
