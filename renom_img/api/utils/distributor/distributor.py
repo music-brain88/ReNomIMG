@@ -83,7 +83,10 @@ class ImageDistributorBase(object):
         total_batch_num = int(np.ceil(len(self._img_path_list)/batch_size))
         event = threading.Event()
         if shuffle:
-            perm = np.random.permutation(N)
+            if N < 100000:
+                perm = np.random.permutation(N)
+            else:
+                perm = np.random.randint(0, N, size=(N, )) 
             label_list = self._label_list[perm]
             img_list = np.array(self._img_path_list)[perm]
         else:
@@ -142,7 +145,10 @@ class ImageDetectionDistributor(ImageDistributorBase):
         total_batch_num = int(np.ceil(len(self._img_path_list)/batch_size))
         event = threading.Event()
         if shuffle:
-            perm = np.random.permutation(N)
+            if N < 100000:
+                perm = np.random.permutation(N)
+            else:
+                perm = np.random.randint(0, N, size=(N, ))
             label_list = self._label_list[perm]
             img_list = np.array(self._img_path_list)[perm]
         else:
