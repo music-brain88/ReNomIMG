@@ -11,6 +11,9 @@ from renom_img.api.utils.target import build_target
 from renom_img.api.utils.distributor.distributor import ImageDetectionDistributor
 from renom_img.api.utils.load import parse_xml_detection
 
+from renom_img.api.utils.augumentation.augumentation import Augumentation
+from renom_img.api.utils.augumentation.process import Flip, Shift
+
 
 label_dict = {}
 label_length = 0
@@ -126,7 +129,13 @@ def create_train_valid_dists(img_size):
     # Check if the xml filename and img name is same.
     train_label, class_mapping = create_label(train_xml_path_list)
     valid_label, _ = create_label(valid_xml_path_list, class_mapping)
-    train_dist = ImageDetectionDistributor(train_img_path_list, train_label, img_size)
+
+    aug = Augumentation([
+        Flip(),
+        Shift(20, 20),
+    ])
+
+    train_dist = ImageDetectionDistributor(train_img_path_list, train_label, img_size, aug)
     valid_dist = ImageDetectionDistributor(valid_img_path_list, valid_label, img_size)
     class_list = [k for k, v in sorted(class_mapping.items(), key=lambda x: x[0])]
     return class_list, train_dist, valid_dist

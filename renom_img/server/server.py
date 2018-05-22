@@ -192,6 +192,7 @@ def update_project(project_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="GET")
 def get_models(project_id):
+    #TODO: Cache validation img path on browser.
     try:
         deploy_model_id = None
         if request.params.deploy_model_id != '':
