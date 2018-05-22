@@ -6,10 +6,12 @@ MODE = [
     "segmentation"
 ]
 
+
 class ProcessBase(object):
     """
     X and Y must be resized as specified img size.
     """
+
     def __init__(self):
         pass
 
@@ -18,7 +20,7 @@ class ProcessBase(object):
 
     def transform(self, x, y=None, mode="classification"):
         assert_msg = "{} is not supported transformation mode. {} are available."
-        assert mode in MODE, assert_msg.format(mode, MODE) 
+        assert mode in MODE, assert_msg.format(mode, MODE)
 
         if mode == MODE[0]:
             # Returns only x.
@@ -30,7 +32,7 @@ class ProcessBase(object):
 
     def _transform_classification(self, x, y):
         raise NotImplemented
- 
+
     def _transform_detection(self, x, y):
         raise NotImplemented
 
@@ -70,22 +72,23 @@ class Flip(ProcessBase):
                 new_y[i, :] = y[i, :]
             elif f == 1:
                 # Horizontal flip.
-                c_x = x.shape[3]//2
+                c_x = x.shape[3] // 2
                 new_x[i, :, :, :] = x[i, :, :, ::-1]
-                new_y[i, 0::5] = (2*c_x - y[i, 0::5])*(y[i, 2::5] != 0) # X
-                new_y[i, 1::5] = y[i, 1::5] # Y
-                new_y[i, 2::5] = y[i, 2::5] # W
-                new_y[i, 3::5] = y[i, 3::5] # H
-                new_y[i, 4::5] = y[i, 4::5] # C
+                new_y[i, 0::5] = (2 * c_x - y[i, 0::5]) * (y[i, 2::5] != 0)  # X
+                new_y[i, 1::5] = y[i, 1::5]  # Y
+                new_y[i, 2::5] = y[i, 2::5]  # W
+                new_y[i, 3::5] = y[i, 3::5]  # H
+                new_y[i, 4::5] = y[i, 4::5]  # C
             elif f == 2:
-                c_y = x.shape[2]//2
+                c_y = x.shape[2] // 2
                 new_x[i, :, :, :] = x[i, :, ::-1, :]
-                new_y[i, 0::5] = y[i, 0::5] # X
-                new_y[i, 1::5] = (2*c_y - y[i, 1::5])*(y[i, 3::5]!=0)# Y
-                new_y[i, 2::5] = y[i, 2::5] # W
-                new_y[i, 3::5] = y[i, 3::5] # H
-                new_y[i, 4::5] = y[i, 4::5] # C
+                new_y[i, 0::5] = y[i, 0::5]  # X
+                new_y[i, 1::5] = (2 * c_y - y[i, 1::5]) * (y[i, 3::5] != 0)  # Y
+                new_y[i, 2::5] = y[i, 2::5]  # W
+                new_y[i, 3::5] = y[i, 3::5]  # H
+                new_y[i, 4::5] = y[i, 4::5]  # C
         return new_x, new_y
+
 
 def flip(x, y=None, mode="classification"):
     return Flip()(x, y, mode)
@@ -142,13 +145,14 @@ class Shift(ProcessBase):
         for i in range(n):
             new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
                 x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-        flag = y[:, 2::5]!=0
-        new_y[:, 0::5] = np.clip(y[:, 0::5]+rand_h[:, None], 0, w) * flag
-        new_y[:, 1::5] = np.clip(y[:, 1::5]+rand_v[:, None], 0, h) * flag
+        flag = y[:, 2::5] != 0
+        new_y[:, 0::5] = np.clip(y[:, 0::5] + rand_h[:, None], 0, w) * flag
+        new_y[:, 1::5] = np.clip(y[:, 1::5] + rand_v[:, None], 0, h) * flag
         new_y[:, 2::5] = y[:, 2::5]
         new_y[:, 3::5] = y[:, 3::5]
         new_y[:, 4::5] = y[:, 4::5]
         return new_x, new_y
+
 
 def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
     return Shift(horizontal, vertivcal)(x)
@@ -170,7 +174,7 @@ class Rotate(ProcessBase):
         if is_square:
             rotate_frag = np.random.randint(4, size=(n, ))
         else:
-            rotate_frag = np.random.randint(2, size=(n, ))*2
+            rotate_frag = np.random.randint(2, size=(n, )) * 2
 
         for i, r in enumerate(rotate_frag):
             new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))
@@ -179,19 +183,19 @@ class Rotate(ProcessBase):
     def _transform_detection(self, x, y):
         assert len(x.shape) == 4
         n, c, h, w = x.shape
-        c_w = w//2
-        c_h = h//2
+        c_w = w // 2
+        c_h = h // 2
         new_x = np.empty_like(x)
         new_y = np.empty_like(y)
 
-        if w==h:
+        if w == h:
             rotate_frag = np.random.randint(4, size=(n, ))
         else:
-            rotate_frag = np.random.randint(2, size=(n, ))*2
+            rotate_frag = np.random.randint(2, size=(n, )) * 2
 
         for i, r in enumerate(rotate_frag):
             new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))
-            flag = y[i, 2::5]!=0
+            flag = y[i, 2::5] != 0
             if r == 0:
                 new_y[i, 0::5] = y[i, 0::5]
                 new_y[i, 1::5] = y[i, 1::5]
@@ -199,21 +203,22 @@ class Rotate(ProcessBase):
                 new_y[i, 3::5] = y[i, 3::5]
             elif r == 1:
                 new_y[i, 0::5] = y[i, 1::5]
-                new_y[i, 1::5] = (2*c_h - y[i, 0::5])*flag
+                new_y[i, 1::5] = (2 * c_h - y[i, 0::5]) * flag
                 new_y[i, 2::5] = y[i, 3::5]
                 new_y[i, 3::5] = y[i, 2::5]
             elif r == 2:
-                new_y[i, 0::5] = (2*c_w - y[i, 0::5])*flag
-                new_y[i, 1::5] = (2*c_h - y[i, 1::5])*flag
+                new_y[i, 0::5] = (2 * c_w - y[i, 0::5]) * flag
+                new_y[i, 1::5] = (2 * c_h - y[i, 1::5]) * flag
                 new_y[i, 2::5] = y[i, 2::5]
                 new_y[i, 3::5] = y[i, 3::5]
             elif r == 3:
-                new_y[i, 0::5] = (2*c_w - y[i, 1::5])*flag
+                new_y[i, 0::5] = (2 * c_w - y[i, 1::5]) * flag
                 new_y[i, 1::5] = y[i, 0::5]
                 new_y[i, 2::5] = y[i, 3::5]
                 new_y[i, 3::5] = y[i, 2::5]
             new_y[i, 4::5] = y[i, 4::5]
         return new_x, new_y
+
 
 def rotate(x, y=None, mode="classification"):
     return Rotate()(x, y, mode)

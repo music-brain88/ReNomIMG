@@ -152,9 +152,3 @@ def create_pred_dist(img_size):
                           for x in pred_img_path_list]
     pred_dist = ImageDetectionDistributor(pred_img_path_list, None, img_size)
     return pred_dist
-
-
-
-
-
-

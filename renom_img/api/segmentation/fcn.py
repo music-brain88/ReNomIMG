@@ -1,6 +1,8 @@
-import os, sys
+import os
+import sys
 import numpy as np
 import renom as rm
+
 
 class FCN_Base(rm.Model):
     def __init__(self, nb_class, load_weight=False):
@@ -30,12 +32,13 @@ class FCN_Base(rm.Model):
         self.fc6 = rm.Conv2d(4096, filter=7, padding=3)
         self.fc7 = rm.Conv2d(4096, filter=1)
 
+
 class FCN_32s(FCN_Base):
     def __init__(self, nb_class, load_weight=False):
         super(FCN_32s, super).__init__(nb_class, load_weight)
 
-        self.score_fr = rm.Conv2d(nb_class, filter=1) #nb_classes
-        self.upscore = rm.Deconv2d(nb_class, stride=32, padding=0, filter=32) #nb_classes
+        self.score_fr = rm.Conv2d(nb_class, filter=1)  # nb_classes
+        self.upscore = rm.Deconv2d(nb_class, stride=32, padding=0, filter=32)  # nb_classes
 
     def forward(self, x):
         t = x
@@ -127,6 +130,7 @@ class FCN_16s(FCN_Base):
 
         return t
 
+
 class FCN_8s(FCN_Base):
     def __init__(self, nb_class, load_weight=False):
         super(FCN_8s, self).__init__(nb_class, load_weight)
@@ -145,16 +149,16 @@ class FCN_8s(FCN_Base):
         t = x
         t = rm.relu(self.conv1_1(t))
         t = rm.relu(self.conv1_2(t))
-        t = self.max_pool1(t) #112
+        t = self.max_pool1(t)  # 112
 
         t = rm.relu(self.conv2_1(t))
         t = rm.relu(self.conv2_2(t))
-        t = self.max_pool2(t) #56
+        t = self.max_pool2(t)  # 56
 
         t = rm.relu(self.conv3_1(t))
         t = rm.relu(self.conv3_2(t))
         t = rm.relu(self.conv3_3(t))
-        t = self.max_pool3(t) #28
+        t = self.max_pool3(t)  # 28
         pool3 = t
 
         t = rm.relu(self.conv4_1(t))
@@ -189,7 +193,6 @@ class FCN_8s(FCN_Base):
 
         t = self.score_pool3(pool3)
         score_pool3 = t
-
 
         t = self.upscore_pool4(fuse_pool4)
         upscore_pool4 = t

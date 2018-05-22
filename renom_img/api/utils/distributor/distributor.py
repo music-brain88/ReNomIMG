@@ -36,7 +36,7 @@ class ThreadRunner(threading.Thread):
         b = self._batch_size
         filelist = self._filelist
         b_count = 0
-        for n in range(int(np.ceil(len(filelist)/b))):
+        for n in range(int(np.ceil(len(filelist) / b))):
             for i in range(self._num_threads - que.qsize()):
                 result = []
                 th = LoadThread(filelist[b_count * b:(b_count + 1) * b], result, self._img_size)
@@ -46,7 +46,7 @@ class ThreadRunner(threading.Thread):
                 b_count += 1
             que.get().join()
             self._event.set()
-            if b_count >= int(np.ceil(len(filelist)/b)):
+            if b_count >= int(np.ceil(len(filelist) / b)):
                 break
 
         for _ in range(que.qsize()):
@@ -80,21 +80,21 @@ class ImageDistributorBase(object):
         ind = 0
         result = []
         size_w, size_h = self._img_size
-        total_batch_num = int(np.ceil(len(self._img_path_list)/batch_size))
+        total_batch_num = int(np.ceil(len(self._img_path_list) / batch_size))
         event = threading.Event()
         if shuffle:
             if N < 100000:
                 perm = np.random.permutation(N)
             else:
-                perm = np.random.randint(0, N, size=(N, )) 
+                perm = np.random.randint(0, N, size=(N, ))
             label_list = self._label_list[perm]
             img_list = np.array(self._img_path_list)[perm]
         else:
             label_list = self._label_list
             img_list = np.array(self._img_path_list)
 
-        each_batch_size = [batch_size if N-i*batch_size > batch_size else N-i*batch_size \
-             for i in range(total_batch_num)]
+        each_batch_size = [batch_size if N - i * batch_size > batch_size else N - i * batch_size
+                           for i in range(total_batch_num)]
         th = ThreadRunner(img_list, batch_size, result,
                           event, self._img_size, self._num_threads)
         th.start()
@@ -123,7 +123,8 @@ class ImageDistributorBase(object):
 class ImageDistributor(ImageDistributorBase):
 
     def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augmentation=None, num_threads=8):
-        super(ImageDistributor, self).__init__(img_path_list, label_list, img_size, augmentation, num_threads)
+        super(ImageDistributor, self).__init__(img_path_list,
+                                               label_list, img_size, augmentation, num_threads)
 
 
 class ImageDetectionDistributor(ImageDistributorBase):
@@ -142,7 +143,7 @@ class ImageDetectionDistributor(ImageDistributorBase):
         ind = 0
         result = []
         size_w, size_h = self._img_size
-        total_batch_num = int(np.ceil(len(self._img_path_list)/batch_size))
+        total_batch_num = int(np.ceil(len(self._img_path_list) / batch_size))
         event = threading.Event()
         if shuffle:
             if N < 100000:
@@ -154,8 +155,8 @@ class ImageDetectionDistributor(ImageDistributorBase):
         else:
             label_list = self._label_list
             img_list = np.array(self._img_path_list)
-        each_batch_size = [batch_size if N-i*batch_size > batch_size else N-i*batch_size \
-             for i in range(total_batch_num)]
+        each_batch_size = [batch_size if N - i * batch_size > batch_size else N - i * batch_size
+                           for i in range(total_batch_num)]
         th = ThreadRunner(img_list, batch_size, result,
                           event, self._img_size, self._num_threads)
         th.start()

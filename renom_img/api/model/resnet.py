@@ -1,19 +1,24 @@
-import os, sys
+import os
+import sys
 import renom as rm
 import numpy as np
 
+
 def layer_block(channel, filter):
     return [
-                rm.Conv2d(filter=filter, channel=channel, padding=1),
-                rm.BatchNormalize(epsilon=0.001, mode='feature'),
-                rm.Relu()
-            ]
+        rm.Conv2d(filter=filter, channel=channel, padding=1),
+        rm.BatchNormalize(epsilon=0.001, mode='feature'),
+        rm.Relu()
+    ]
+
+
 def downsample_block(channel, filter):
     return [
-                rm.Conv2d(filter=filter, channel=channel, padding=1, stride=2),
-                rm.BatchNormalize(epsilon=0.001, mode='feature'),
-                rm.Relu(),
-            ]
+        rm.Conv2d(filter=filter, channel=channel, padding=1, stride=2),
+        rm.BatchNormalize(epsilon=0.001, mode='feature'),
+        rm.Relu(),
+    ]
+
 
 def build_block(channels):
     """
@@ -28,6 +33,7 @@ def build_block(channels):
         layers.extend(layer_block(channels[1], (3, 3)))
         layers.extend(layer_block(channels[2], (1, 1)))
     return rm.Sequential(layers)
+
 
 def build_downsample_block(channels):
     """
@@ -54,7 +60,7 @@ class ResNet(rm.Sequential):
         layers.append(rm.Conv2d(channel=16, padding=1))
         layers.append(rm.BatchNormalize(epsilon=0.001, mode='feature'))
 
-        # First block which doesn't have down-sampling 
+        # First block which doesn't have down-sampling
         for _ in range(num_layers[0]):
             layers.append(build_block(channels[0]))
 
@@ -62,20 +68,19 @@ class ResNet(rm.Sequential):
         for i, num in enumerate(num_layers[1:]):
             for j in range(num):
                 if j == 0:
-                    layers.append(build_downsample_block(channels[i+1]))
+                    layers.append(build_downsample_block(channels[i + 1]))
                 else:
-                    layers.append(build_block(channels[i+1]))
+                    layers.append(build_block(channels[i + 1]))
 
         # Add the last dense layer
         layers.append(rm.Dense(nb_classes))
         super(ResNet, self).__init__(layers)
 
-
     def forward(self, x):
         index = 0
         t = self._layers[index](x)
         index += 1
-        t = rm.relu(self._layers[index](t)) ## Batch normalization
+        t = rm.relu(self._layers[index](t))  # Batch normalization
         index += 1
 
         # First block
@@ -100,19 +105,20 @@ class ResNet(rm.Sequential):
         t = self._layers[index](t)
         return t
 
+
 class ResNet32(ResNet):
     '''
     6n + 2(The first conv + the last dense) = 32
     → n = 5
     5 sets of a layer block in each block
     '''
+
     def __init__(self, nb_classes, load_weigh=False):
         num_layers = 5
         CHANNELS = [16, 32, 64]
         super(ResNet32, self).__init__(nb_classes, CHANNELS, num_layers)
         if load_weight:
             self.load('resnet32.h5')
-
 
 
 class ResNet44(ResNet):
@@ -132,6 +138,7 @@ class ResNet56(ResNet):
         if load_weight:
             self.load('resnet56.h5')
 
+
 class ResNet110(ResNet):
     def __init__(self, nb_classes, load_weight=False):
         num_layers = 18
@@ -139,6 +146,7 @@ class ResNet110(ResNet):
         super(ResNet110, self).__init__(nb_classes, CHANNELS, num_layers)
         if load_weight:
             self.load('resnet110.h5')
+
 
 class ResNet34(ResNet):
     def __init__(self, nb_classes, load_weight=False):
@@ -148,6 +156,7 @@ class ResNet34(ResNet):
         if load_weight:
             self.load('resnet34.h5')
 
+
 class ResNet50(ResNet):
     def __init__(self, nb_classes, load_weight=False):
         num_layers = [3, 4, 6, 3]
@@ -156,10 +165,11 @@ class ResNet50(ResNet):
         if load_weight:
             self.load('resnet50.h5')
 
+
 class ResNet101(ResNet):
     def __init__(self, nb_classes, load_weight=False):
         num_layers = [3, 4, 23, 3]
-        CHANNELS = [[64, 64, 256], [128, 128, 512], [256, 256 ,1024], [512, 512, 2048]]
+        CHANNELS = [[64, 64, 256], [128, 128, 512], [256, 256, 1024], [512, 512, 2048]]
         super(ResNet101, self).__init__(nb_classes, CHANNELS, num_layers)
         if load_weight:
             self.load('resnet101.h5')

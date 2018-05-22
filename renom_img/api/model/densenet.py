@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import renom as rm
 
+
 class DenseNet(rm.Sequential):
     def __init__(self, num_classes, layer_per_block=[6, 12, 24, 16], growth_rate=32):
         """
@@ -72,10 +73,10 @@ class DenseNet169(DenseNet):
         if load_weight:
             self.load('densenet169.h5')
 
+
 class DenseNet201(DenseNet):
     def __init__(self, num_classes, growth_rate=32, load_weight=False):
         layer_per_block = [6, 12, 48, 32]
         super(DenseNet121, self).__init__(num_classes, layer_per_block, growth_rate=32)
         if load_weight:
             self.load('densenet201.h5')
-
