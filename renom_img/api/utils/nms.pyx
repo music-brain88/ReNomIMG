@@ -53,4 +53,3 @@ def nms(box_list, threshold, return_type='box'):
             result.append(i)
     return result
 
-def calc_iou_map_with_nms(box_list):
