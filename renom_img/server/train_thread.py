@@ -275,7 +275,7 @@ class TrainThread(threading.Thread):
             v_mAP_true_count = 0
             v_bbox = []
             self.model.set_models(inference=True)
-            for i, (validation_x, validation_y) in enumerate(distributor.batch(self.batch_size)):
+            for i, (validation_x, validation_y) in enumerate(distributor.batch(self.batch_size, False)):
                 if self.stop_event.is_set():
                     return
                 # Validation

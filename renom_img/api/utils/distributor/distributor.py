@@ -72,16 +72,21 @@ class ImageDistributorBase(object):
     def class_num(self):
         return self._class_num
 
-    def batch(self, batch_size, callback=lambda x: x):
+    def batch(self, batch_size, shuffle=True):
         N = len(self)
         ind = 0
         result = []
         size_w, size_h = self._img_size
         total_batch_num = len(self._img_path_list) // batch_size
         event = threading.Event()
-        perm = np.random.permutation(N)
-        label_list = self._label_list[perm]
-        img_list = np.array(self._img_path_list)[perm]
+        if shuffle:
+            perm = np.random.permutation(N)
+            label_list = self._label_list[perm]
+            img_list = np.array(self._img_path_list)[perm]
+        else:
+            label_list = self._label_list
+            img_list = np.array(self._img_path_list)
+
         th = ThreadRunner(img_list, batch_size, result,
                           event, self._img_size, self._num_threads)
         th.start()
@@ -89,6 +94,62 @@ class ImageDistributorBase(object):
         while ind < total_batch_num:
             if self._label_list is not None and label is None:
                 label = callback(label_list[ind * batch_size:(ind + 1) * batch_size])
+            if len(result[ind]) != batch_size:
+                event.clear()
+                event.wait()
+            else:
+                # Perform argumentation here.
+                # Resize.
+                X = np.vstack([np.asarray(img.resize((size_w, size_h))).transpose(
+                    2, 0, 1).astype(np.float32)[np.newaxis].copy() for img in result[ind]])
+                if label is None:
+                    yield X
+                else:
+                    yield X, label
+                label = None
+                ind += 1
+        th.join()
+
+
+class ImageDistributor(ImageDistributorBase):
+
+    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augumentation=None, num_threads=8):
+        super(ImageDistributor, self).__init__(img_path_list, label_list, img_size, num_threads)
+        self._augumentation = augumentation
+
+
+class ImageDetectionDistributor(ImageDistributorBase):
+
+    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augumentation=None, num_threads=8):
+        super(ImageDetectionDistributor, self).__init__(
+            img_path_list, label_list, img_size, num_threads)
+        self._augumentation = augumentation
+
+    def batch(self, batch_size=64, shuffle=True):
+        """This returns generator object.
+        Make the class label onehot.
+        """
+        N = len(self)
+        ind = 0
+        result = []
+        size_w, size_h = self._img_size
+        total_batch_num = len(self._img_path_list) // batch_size
+        event = threading.Event()
+        if shuffle:
+            perm = np.random.permutation(N)
+            label_list = self._label_list[perm]
+            img_list = np.array(self._img_path_list)[perm]
+        else:
+            label_list = self._label_list
+            img_list = np.array(self._img_path_list)
+
+        th = ThreadRunner(img_list, batch_size, result,
+                          event, self._img_size, self._num_threads)
+        th.start()
+        label = None
+        while ind < total_batch_num:
+            if self._label_list is not None and label is None:
+                label = label_list[ind * batch_size:(ind + 1) * batch_size]
             if len(result[ind]) != batch_size:
                 event.clear()
                 event.wait()
@@ -112,29 +173,3 @@ class ImageDistributorBase(object):
                 label = None
                 ind += 1
         th.join()
-
-
-class ImageDistributor(ImageDistributorBase):
-
-    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augumentation=None, num_threads=8):
-        super(ImageDistributor, self).__init__(img_path_list, label_list, img_size, num_threads)
-        self._augumentation = augumentation
-
-    def batch(self, batch_size=64):
-        """This returns generator object.
-        """
-        return super(ImageDistributor, self).batch(batch_size)
-
-
-class ImageDetectionDistributor(ImageDistributorBase):
-
-    def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augumentation=None, num_threads=8):
-        super(ImageDetectionDistributor, self).__init__(
-            img_path_list, label_list, img_size, num_threads)
-        self._augumentation = augumentation
-
-    def batch(self, batch_size=64):
-        """This returns generator object.
-        Make the class label onehot.
-        """
-        return super(ImageDetectionDistributor, self).batch(batch_size)
