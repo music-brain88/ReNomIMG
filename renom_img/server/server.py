@@ -340,7 +340,7 @@ def delete_model(project_id, model_id):
             weight_path = os.path.join(WEIGHT_DIR, file_name)
             if os.path.exists(weight_path):
                 os.remove(weight_path)
-        
+
     except Exception as e:
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})

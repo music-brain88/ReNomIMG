@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import numpy as np
 import renom as rm
 
@@ -6,6 +7,7 @@ import renom as rm
 U-Net: Convolutional Networks for Biomedical Image Segmentation
 https://arxiv.org/pdf/1505.04597.pdf
 """
+
 
 class UNet(rm.Model):
     def __init__(self, num_classes, load_weight=False):
@@ -24,7 +26,7 @@ class UNet(rm.Model):
         self.conv4_2 = rm.Conv2d(512, padding=1, filter=3)
         self.conv5_1 = rm.Conv2d(1024, padding=1, filter=3)
         self.conv5_2 = rm.Conv2d(1024, padding=1, filter=3)
-        
+
         self.deconv1 = rm.Deconv2d(512, stride=2)
         self.conv6_1 = rm.Conv2d(256, padding=1)
         self.conv6_2 = rm.Conv2d(256, padding=1)
@@ -76,4 +78,3 @@ class UNet(rm.Model):
         t = self.conv9(t)
 
         return t
-
