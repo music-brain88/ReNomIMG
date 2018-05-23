@@ -15,7 +15,7 @@ import traceback
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
 from renom_img.server import wsgi_server
-from renom_img.server.train_thread import TrainThread
+from renom_img.server.train_thread import TrainThread, WEIGHT_DIR
 from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.weight_download_thread import WeightDownloadThread
 from renom_img.server.utils.storage import storage
@@ -331,8 +331,16 @@ def delete_model(project_id, model_id):
         th = find_thread(thread_id)
         if th is not None:
             th.stop()
+        th.join()
         storage.update_model_state(model_id, STATE_DELETED)
 
+        ret = storage.fetch_model(project_id, model_id, "best_epoch_weight")
+        file_name = ret.get('best_epoch_weight', None)
+        if file_name is not None:
+            weight_path = os.path.join(WEIGHT_DIR, file_name)
+            if os.path.exists(weight_path):
+                os.remove(weight_path)
+        
     except Exception as e:
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
