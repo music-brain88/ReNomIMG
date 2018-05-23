@@ -53,6 +53,7 @@ class Storage:
                  project_name TEXT NOT NULL,
                  project_comment TEXT,
                  deploy_model_id INTEGER REFERENCES model(model_id) ON DELETE CASCADE,
+                 dataset_id INTEGER REFERENCES model(model_id) ON DELETE CASCADE,
                  created TIMESTAMP NOT NULL,
                  updated TIMESTAMP NOT NULL)
             """)
@@ -100,6 +101,28 @@ class Storage:
                 CREATE INDEX IF NOT EXISTS
                 IDX_EPOCH_MODEL_ID
                 ON epoch(model_id, nth_epoch)
+            """)
+
+        c.execute("""
+                CREATE TABLE IF NOT EXISTS dataset
+                (dataset_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 dataset_name TEXT NOT NULL,
+                 train_size NUMBER NOT NULL,
+                 type INTEGER NOT NULL,
+                 invalid INTEGER NOT NULL DEFAULT 0,
+                 train_num INTEGER,
+                 valid_num INTEGER,
+                 train_class_num INTEGER,
+                 valid_class_num INTEGER,
+                 img_dir TEXT,
+                 label_dir TEXT,
+                 train_img_list BLOB,
+                 valid_img_list BLOB,
+                 train_label_list BLOB,
+                 valid_label_list BLOB,
+                 class_names BLOB,
+                 created TIMESTAMP NOT NULL,
+                 updated TIMESTAMP NOT NULL)
             """)
 
         c.execute("""
@@ -421,6 +444,109 @@ class Storage:
                 })
         return ret
 
+    def register_dataset(self, dataset_name, train_size, type):
+        with self.db:
+            c = self.cursor()
+            now = datetime.datetime.now()
+            c.execute("""
+                INSERT INTO
+                dataset(dataset_name, train_size, type,
+                        created, updated)
+                VALUES
+                    (?, ?, ?, ?, ?)
+            """, (dataset_name, train_size, type, now, now))
+            return c.lastrowid
+
+    def update_dataset(self, dataset_id, train_num, valid_num, train_class_num,
+                       valid_class_num, train_img_list, valid_img_list,
+                       train_label_list, valid_label_list, class_names,
+                       img_dir, label_dir):
+        with self.db:
+            c = self.cursor()
+            now = datetime.datetime.now()
+            dumped_train_img_list = pickle_dump(train_img_list)
+            dumped_valid_img_list = pickle_dump(valid_img_list)
+            dumped_train_label_list = pickle_dump(train_label_list)
+            dumped_valid_label_list = pickle_dump(valid_label_list)
+            dumped_class_names = pickle_dump(class_names)
+            c.execute("""
+                UPDATE dataset
+                SET train_num=?, valid_num=?, train_class_num=?,
+                    valid_class_num=?, train_img_list=?,
+                    valid_img_list=?, train_label_list=?,
+                    valid_label_list=?, class_names=?,
+                    img_dir=?, label_dir=?, updated=?
+                WHERE dataset_id=?
+            """, (train_num, valid_num, train_class_num,
+                  valid_class_num, dumped_train_img_list,
+                  dumped_valid_img_list, dumped_train_label_list,
+                  dumped_valid_label_list, dumped_class_names,
+                  img_dir, label_dir, now, dataset_id))
+
+    def fetch_datasets(self):
+        with self.db:
+            c = self.cursor()
+            c.execute("""
+                SELECT dataset_id, dataset_name
+                FROM dataset
+                WHERE invalid=0
+                """)
+
+            ret = {}
+            for index, data in enumerate(c):
+                ret.update({index: {
+                    "dataset_id": data[0],
+                    "dataset_name": data[1]
+                }})
+            return ret
+
+    def fetch_dataset(self, dataset_id):
+        with self.db:
+            c = self.cursor()
+            c.execute("""
+                SELECT dataset_name, train_size, type,
+                       train_num, valid_num, train_class_num,
+                       valid_class_num, train_img_list,
+                       valid_img_list, train_label_list,
+                       valid_label_list, class_names
+                FROM dataset
+                WHERE dataset_id=? AND invalid=0
+                """, (dataset_id,))
+
+            ret = {}
+            for index, data in enumerate(c):
+                ret.update({index: {
+                    "dataset_id": dataset_id,
+                    "dataset_name": data[0],
+                    "train_size": data[1],
+                    "type": data[2],
+                    "train_num": data[3],
+                    "valid_num": data[4],
+                    "train_class_num": data[5],
+                    "valid_class_num": data[6],
+                    "train_img_list": pickle_load(data[7]),
+                    "valid_img_list": pickle_load(data[8]),
+                    "train_label_list": pickle_load(data[9]),
+                    "valid_label_list": pickle_load(data[10]),
+                    "class_names": pickle_load(data[11])
+                }})
+            return ret
+
+    def fetch_dataset_train_size(self, dataset_id):
+        with self.db:
+            c = self.cursor()
+            c.execute("""
+                SELECT train_size
+                FROM dataset
+                WHERE dataset_id=? AND invalid=0
+                """, (dataset_id,))
+
+            ret = {}
+            for index, data in enumerate(c):
+                ret.update({
+                    "train_size": data[0]
+                })
+            return ret
 
 global storage
 storage = Storage()

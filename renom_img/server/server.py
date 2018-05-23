@@ -12,7 +12,9 @@ import pkg_resources
 import mimetypes
 import posixpath
 import traceback
+import xmltodict
 from bottle import HTTPResponse, default_app, route, static_file, request, error
+from sklearn.model_selection import train_test_split
 
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread, WEIGHT_DIR
@@ -555,6 +557,101 @@ def check_weight_download_progress(progress_num):
 
     except Exception as e:
         traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/datasets", method="GET")
+def load_datasets():
+    try:
+        datasets = storage.fetch_datasets()
+        body = json.dumps({"datasets": datasets})
+        ret = create_response(body)
+        return ret
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/datasets", method="POST")
+def create_dataset():
+    try:
+        dataste_name = request.params.dataset_name
+        train_size = float(request.params.train_size)
+        type = int(request.params.type)
+        row = storage.register_dataset(dataste_name, train_size, type)
+        body = json.dumps({"row": row})
+        ret = create_response(body)
+        return ret
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/datasets/<dataset_id:int>", method="GET")
+def load_dataset(dataset_id):
+    try:
+        dataset = storage.fetch_dataset(dataset_id)
+        body = json.dumps({"dataset": dataset})
+        ret = create_response(body)
+        return ret
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+def xml2json(xml_file, xml_attribs=True):
+    with open(xml_file, "rb") as f:  # notice the "rb" mode
+        d = xmltodict.parse(f, xml_attribs=xml_attribs)
+        return json.dumps(d, indent=4)
+
+
+@route("/api/renom_img/v1/datasets/<dataset_id:int>", method="POST")
+def update_dataset(dataset_id):
+    try:
+        data = storage.fetch_dataset_train_size(dataset_id)
+        img_dir = request.params.img_dir
+        label_dir = request.params.label_dir
+
+        imgs = os.listdir(img_dir)
+        labels = os.listdir(label_dir)
+
+        train_imgs, valid_imgs, train_labels, valid_labels = train_test_split(imgs, labels,     train_size=float(data["train_size"]))
+
+        # get class name info form xml
+        class_names = []
+        for l in labels:
+            json_data = xml2json(os.path.join(label_dir, l))
+            json_dict = json.loads(json_data)
+            try:
+                # object dataが1つだけの場合、dictになってしまうのでlistに変換する
+                if isinstance(json_dict['annotation']['object'], dict):
+                    temp = [json_dict['annotation']['object']]
+                    json_dict['annotation']['object'] = temp
+            except KeyError:
+                json_dict['annotation']['object'] = ''
+
+            objects = json_dict["annotation"]["object"]
+            for o in objects:
+                if o["name"] not in class_names:
+                    class_names.append(o["name"])
+
+        storage.update_dataset(dataset_id, len(train_imgs),
+                               len(valid_imgs), len(class_names),
+                               len(class_names), train_imgs,
+                               valid_imgs, train_labels,
+                               valid_labels, class_names,
+                               img_dir, label_dir)
+
+        body = json.dumps({})
+        ret = create_response(body)
+        return ret
+    except Exception as e:
+        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
