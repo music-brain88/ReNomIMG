@@ -22,3 +22,6 @@ pages:
   artifacts:
     paths:
     - public
+
+  only:
+    - beta
