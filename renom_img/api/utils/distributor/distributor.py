@@ -73,7 +73,7 @@ class ImageDistributorBase(object):
     def img_path_list(self):
         return self._img_path_list
 
-    def batch(self, batch_size, shuffle=True, augmentation_mode="classification", callback=lambda x, y: x, y):
+    def batch(self, batch_size, shuffle=True, augmentation_mode="classification", callback=lambda x, y: (x, y)):
         N = len(self)
         ind = 0
         result = []
