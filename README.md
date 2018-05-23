@@ -33,7 +33,7 @@ At last, install renomimg module using following command.
 
 1.Type following command.
 
-`python -m renomimg`
+`python -m renom_img`
 
 If the server starts, you will see a message like below.
 
