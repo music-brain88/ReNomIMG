@@ -132,7 +132,7 @@ def create_train_valid_dists(img_size):
 
     aug = Augmentation([
         Flip(),
-        Shift(20, 20),
+        Shift(40, 40),
         Rotate(),
         WhiteNoise(0.05),
     ])

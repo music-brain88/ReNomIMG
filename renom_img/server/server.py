@@ -362,6 +362,38 @@ def undeploy_model(project_id, model_id):
         return ret
 
 
+@route("/api/renom_img/v1/projects/<project_id:int>/deployed_model", method="GET")
+def pull_deployed_model(project_id):
+    # This method will be called from python script.
+    try:
+        deployed_id = storage.fetch_deployed_model_id(project_id)[0]['deploy_model_id']
+        ret = storage.fetch_model(project_id, deployed_id, "best_epoch_weight")
+        file_name = ret['best_epoch_weight']
+        path = pkg_resources.resource_filename(__name__,
+            posixpath.join('.build', '..', '..', '..', '.storage', 'weight'))
+        return static_file(file_name, root=path, download='deployed_model.h5')
+    except Exception as e:
+        print(e)
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/deployed_model_info", method="GET")
+def get_deployed_model_info(project_id):
+    # This method will be called from python script.
+    try:
+        deployed_id = storage.fetch_deployed_model_id(project_id)[0]['deploy_model_id']
+        ret = storage.fetch_model(project_id, deployed_id, "algorithm,algorithm_params,hyper_parameters")
+        body = json.dumps(ret)
+        ret = create_response(body)
+        return ret
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run", method="GET")
 def run_model(project_id, model_id):
     try:

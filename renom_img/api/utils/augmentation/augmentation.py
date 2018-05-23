@@ -15,7 +15,7 @@ class Augmentation(object):
         assert_msg = "{} is not supported transformation mode. {} are available."
         assert mode in MODE, assert_msg.format(mode, MODE)
         for process in self._process_list:
-            if np.random.rand() >= 0.5:
+            if np.random.rand() >= 0.9:
                 continue
             x, y = process(x, y, mode)
         return x, y

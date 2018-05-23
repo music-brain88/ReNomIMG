@@ -11,6 +11,9 @@ class Wrapper(rm.Model):
         self._learnable_model = None
         self._optimizer = None
 
+    def load(self, path):
+        super(Wrapper, self).load(path)
+
     def build_target(self, label):
         pass
 

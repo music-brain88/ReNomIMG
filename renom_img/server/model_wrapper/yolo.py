@@ -38,6 +38,13 @@ class WrapperYoloDarknet(Wrapper):
         self._optimizer = rm.Sgd(momentum=0.9)
         self._yolo_detector_loss = Yolo(cell_w, bbox, num_class)
 
+    def load(self, path):
+        super(WrapperYoloDarknet, self).load(path)
+        bbox = self._bbox
+        cell = self._cell[0]
+        last_size = self._learnable_model[-1].params.w.shape[1]/(cell**2) - 5*bbox
+        self._num_class = int(last_size)
+
     def get_bbox(self, model_original_formatted_out):
         assert len(model_original_formatted_out.shape) == 2
         N = len(model_original_formatted_out)
@@ -71,15 +78,17 @@ class WrapperYoloDarknet(Wrapper):
                         b2 = xy12(boxes[n, argsort[n, comp, cl], :])
                         if calc_iou(b1, b2) > self._nms_thresh:
                             probs[n, argsort[n, comp, cl], cl] = 0
-
-        indexes = np.nonzero(np.clip(probs, 0, 1))
+        
         result = [[] for _ in range(N)]
+        max_class = np.argmax(probs, axis=2)
+        max_probs = np.max(probs, axis=2)
+        indexes = np.nonzero(np.clip(max_probs, 0, 1))
         for i in range(len(indexes[0])):
             # Note: Take care types.
             result[indexes[0][i]].append({
-                "class": int(indexes[2][i]),
+                "class": int(max_class[indexes[0][i], indexes[1][i]]),
                 "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
-                "score": float(probs[indexes[0][i], indexes[1][i], indexes[2][i]])
+                "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
         return result
 

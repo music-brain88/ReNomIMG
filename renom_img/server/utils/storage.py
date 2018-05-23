@@ -383,6 +383,28 @@ class Storage:
                 ret.update({index: item})
             return ret[0]
 
+    def fetch_deployed_model_id(self, project_id):
+        with self.db:
+            c = self.cursor()
+            fields = "deploy_model_id"
+
+            sql = "SELECT " + fields + \
+                " FROM project WHERE project_id=?"
+            c.execute(sql, (project_id,))
+
+            blob_items = []
+            ret = {}
+            for index, data in enumerate(c):
+                item = {}
+                for j, f in enumerate(fields.split(',')):
+                    if f in blob_items:
+                        item[f] = pickle_load(data[j])
+                    else:
+                        item[f] = data[j]
+                ret.update({index: item})
+            return ret
+
+
     def fetch_dataset_v0(self):
         with self.db:
             c = self.cursor()
