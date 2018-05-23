@@ -404,7 +404,6 @@ class Storage:
                 ret.update({index: item})
             return ret
 
-
     def fetch_dataset_v0(self):
         with self.db:
             c = self.cursor()

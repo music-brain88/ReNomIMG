@@ -1,5 +1,5 @@
 
-def transform2xywh(box):
+cpdef transform2xywh(box):
     cdef float x1, y1, x2, y2;
     cdef float x, y, w, h;
     x1, y1, x2, y2 = box
@@ -9,7 +9,7 @@ def transform2xywh(box):
     y = y1 + h/2.0
     return (x, y, w, h)
 
-def transform2xy12(box):
+cpdef transform2xy12(box):
     cdef float x1, y1, x2, y2;
     cdef float x, y, w, h;
     x, y, w, h = box
@@ -19,7 +19,6 @@ def transform2xy12(box):
     y2 = y + h/2.0
     return (x1, y1, x2, y2)
     
-
 def calc_iou(box1, box2):
     cdef float x1b1, y1b1, x2b1, y2b1;
     cdef float x1b2, y1b2, x2b2, y2b2;

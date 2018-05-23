@@ -5,6 +5,9 @@ from PIL import Image
 from queue import Queue
 
 
+RESIZE_METHOD = Image.BILINEAR
+
+
 class LoadThread(threading.Thread):
 
     def __init__(self, filenames, results, img_size=(224, 224), color="RGB"):
@@ -61,7 +64,6 @@ class ImageDistributorBase(object):
         self._label_list = label_list
         self._num_threads = num_threads
         self._img_size = img_size
-        self._class_num = None
         self._augmentation = augmentation
 
     def __len__(self):
@@ -71,15 +73,10 @@ class ImageDistributorBase(object):
     def img_path_list(self):
         return self._img_path_list
 
-    @property
-    def class_num(self):
-        return self._class_num
-
-    def batch(self, batch_size, shuffle=True):
+    def batch(self, batch_size, shuffle=True, augmentation_mode="classification", callback=lambda x, y: x, y):
         N = len(self)
         ind = 0
         result = []
-        size_w, size_h = self._img_size
         total_batch_num = int(np.ceil(len(self._img_path_list) / batch_size))
         event = threading.Event()
         if shuffle:
@@ -95,26 +92,24 @@ class ImageDistributorBase(object):
 
         each_batch_size = [batch_size if N - i * batch_size > batch_size else N - i * batch_size
                            for i in range(total_batch_num)]
-        th = ThreadRunner(img_list, batch_size, result,
-                          event, self._img_size, self._num_threads)
+        th = ThreadRunner(img_list, batch_size, result, event, self._img_size, self._num_threads)
         th.start()
         label = None
         while ind < total_batch_num:
             if self._label_list is not None and label is None:
-                label = callback(label_list[ind * batch_size:(ind + 1) * batch_size])
-
+                label = label_list[ind * batch_size:(ind + 1) * batch_size]
             if len(result[ind]) != each_batch_size[ind]:
                 event.clear()
                 event.wait()
             else:
-                # Perform argumentation here.
-                # Resize.
-                X = np.vstack([np.asarray(img.resize((size_w, size_h))).transpose(
-                    2, 0, 1).astype(np.float32)[np.newaxis].copy() for img in result[ind]])
-                if label is None:
+                X, Y = callback(result[ind], label)
+                if Y is None:
                     yield X
                 else:
-                    yield X, label
+                    if self._augmentation is None:
+                        yield X, Y
+                    else:
+                        yield self._augmentation(X, Y, mode=augmentation_mode)
                 label = None
                 ind += 1
         th.join()
@@ -126,67 +121,40 @@ class ImageDistributor(ImageDistributorBase):
         super(ImageDistributor, self).__init__(img_path_list,
                                                label_list, img_size, augmentation, num_threads)
 
+    def batch(self, batch_size, shuffle=True):
+        def build_data(imgs, labels):
+            size_w, size_h = self._img_size
+            X = np.vstack([np.asarray(img.resize((size_w, size_h), RESIZE_METHOD)).transpose(
+                2, 0, 1).astype(np.float32)[np.newaxis].copy() for img in imgs])
+            return X, labels
+        return super(ImageDistributor, self).batch(batch_size, shuffle, augmentation_mode="classification", callback=build_data)
+
 
 class ImageDetectionDistributor(ImageDistributorBase):
 
     def __init__(self, img_path_list, label_list=None, img_size=(224, 224), augmentation=None, num_threads=8):
         super(ImageDetectionDistributor, self).__init__(
             img_path_list, label_list, img_size, augmentation, num_threads)
-        if label_list is not None:
-            self._class_num = int(np.max([d[::5] for d in label_list]))
 
     def batch(self, batch_size=64, shuffle=True):
         """This returns generator object.
         Make the class label onehot.
         """
-        N = len(self)
-        ind = 0
-        result = []
-        size_w, size_h = self._img_size
-        total_batch_num = int(np.ceil(len(self._img_path_list) / batch_size))
-        event = threading.Event()
-        if shuffle:
-            if N < 100000:
-                perm = np.random.permutation(N)
+        def build_data(imgs, labels):
+            size_w, size_h = self._img_size
+            X = np.vstack([np.asarray(img.resize((size_w, size_h), RESIZE_METHOD)).transpose(
+                2, 0, 1).astype(np.float32)[np.newaxis].copy() for img in imgs])
+
+            if labels is not None:
+                sizes = np.array([(img.size[0] / size_w, img.size[1] / size_h)
+                                  for img in imgs])
+                resized_label = np.zeros((len(labels), len(labels[0])))
+                resized_label[:, 0::5] = labels[:, 0::5] / sizes[:, 0][..., None]
+                resized_label[:, 1::5] = labels[:, 1::5] / sizes[:, 1][..., None]
+                resized_label[:, 2::5] = labels[:, 2::5] / sizes[:, 0][..., None]
+                resized_label[:, 3::5] = labels[:, 3::5] / sizes[:, 1][..., None]
+                resized_label[:, 4::5] = labels[:, 4::5]
+                return X, resized_label
             else:
-                perm = np.random.randint(0, N, size=(N, ))
-            label_list = self._label_list[perm]
-            img_list = np.array(self._img_path_list)[perm]
-        else:
-            label_list = self._label_list
-            img_list = np.array(self._img_path_list)
-        each_batch_size = [batch_size if N - i * batch_size > batch_size else N - i * batch_size
-                           for i in range(total_batch_num)]
-        th = ThreadRunner(img_list, batch_size, result,
-                          event, self._img_size, self._num_threads)
-        th.start()
-        label = None
-        while ind < total_batch_num:
-            if self._label_list is not None and label is None:
-                label = label_list[ind * batch_size:(ind + 1) * batch_size]
-            if len(result[ind]) != each_batch_size[ind]:
-                event.clear()
-                event.wait()
-            else:
-                # Perform argumentation here.
-                # Resize.
-                X = np.vstack([np.asarray(img.resize((size_w, size_h))).transpose(
-                    2, 0, 1).astype(np.float32)[np.newaxis].copy() for img in result[ind]])
-                if label is None:
-                    yield X
-                else:
-                    sizes = np.array([(img.size[0] / size_w, img.size[1] / size_h)
-                                      for img in result[ind]])
-                    resized_label = np.zeros((len(label), len(label[0])))
-                    resized_label[:, 0::5] = label[:, 0::5] / sizes[:, 0][..., None]
-                    resized_label[:, 1::5] = label[:, 1::5] / sizes[:, 1][..., None]
-                    resized_label[:, 2::5] = label[:, 2::5] / sizes[:, 0][..., None]
-                    resized_label[:, 3::5] = label[:, 3::5] / sizes[:, 1][..., None]
-                    resized_label[:, 4::5] = label[:, 4::5]
-                    if self._augmentation is None:
-                        yield X, resized_label
-                    else:
-                        yield self._augmentation(X, resized_label, mode="detection")
-                label = None
-                ind += 1
-        th.join()
+                return X, labels
+        return super(ImageDetectionDistributor, self).batch(batch_size, shuffle, augmentation_mode="detection", callback=build_data)

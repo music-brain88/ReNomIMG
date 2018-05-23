@@ -165,7 +165,7 @@ class Rotate(ProcessBase):
 
     def _transform_classification(self, x, y):
         assert len(x.shape) == 4
-        n = x.shape[0]
+        n, c, h, w = x.shape
         new_x = np.empty_like(x)
 
         is_square = True
@@ -241,3 +241,33 @@ class WhiteNoise(ProcessBase):
 
 def white_noise(x, y=None, std=0.01, mode="classification"):
     return WhiteNoise(std)(x, y, mode)
+
+
+class Jitter(ProcessBase):
+
+    def __init__(self):
+        pass
+
+    def _transform_classification(self, x, y):
+        """
+        Color is "RGB" 0~255 image.
+        """
+        raise NotImplementedError
+        N = len(x)
+        dim0 = np.arange(N)
+        scale_h = np.random.uniform(0.9, 1.1)
+        scale_s = np.random.uniform(0.9, 1.1)
+        scale_v = np.random.uniform(0.9, 1.1)
+        new_x = np.zeros_like(x)
+        max_color_index = np.argmax(x, axis=1)
+        max_color = x[(dim0, max_color_index)]
+        min_color = np.min(x, axis=1)
+        h = (x[(dim0, max_color_index - 2)] - x[(dim0, max_color_index - 1)]) / \
+            (max_color - min_color) * 60 + max_color_index * 120
+        s = (max_color - min_color) / max_color
+        v = max_color
+
+        h = np.clip(h * scale_h, 0, 359)
+        s = np.clip(s * scale_s, 0, 1)
+        v = np.clip(v * scale_v, 0, 255)
+        return x, y

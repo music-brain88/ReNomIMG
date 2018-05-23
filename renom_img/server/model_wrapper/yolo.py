@@ -42,7 +42,7 @@ class WrapperYoloDarknet(Wrapper):
         super(WrapperYoloDarknet, self).load(path)
         bbox = self._bbox
         cell = self._cell[0]
-        last_size = self._learnable_model[-1].params.w.shape[1]/(cell**2) - 5*bbox
+        last_size = self._learnable_model[-1].params.w.shape[1] / (cell**2) - 5 * bbox
         self._num_class = int(last_size)
 
     def get_bbox(self, model_original_formatted_out):
@@ -78,7 +78,7 @@ class WrapperYoloDarknet(Wrapper):
                         b2 = xy12(boxes[n, argsort[n, comp, cl], :])
                         if calc_iou(b1, b2) > self._nms_thresh:
                             probs[n, argsort[n, comp, cl], cl] = 0
-        
+
         result = [[] for _ in range(N)]
         max_class = np.argmax(probs, axis=2)
         max_probs = np.max(probs, axis=2)
