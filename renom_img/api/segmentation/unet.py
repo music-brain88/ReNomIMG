@@ -2,8 +2,18 @@ import os, sys
 import numpy as np
 import renom as rm
 
+"""
+U-Net: Convolutional Networks for Biomedical Image Segmentation
+https://arxiv.org/pdf/1505.04597.pdf
+"""
+
 class UNet(rm.Model):
     def __init__(self, num_classes, load_weight=False):
+        """
+        Arguments:
+            num_classes: The number of classes
+            load_weight: Loading the pretrained weight
+        """
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
         self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
         self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
@@ -66,3 +76,4 @@ class UNet(rm.Model):
         t = self.conv9(t)
 
         return t
+
