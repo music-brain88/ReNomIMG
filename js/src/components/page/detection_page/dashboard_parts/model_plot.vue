@@ -36,7 +36,7 @@ export default {
         'y': best_map * 100
       }
     },
-    drawScatter: function (models) {
+    drawScatter: function () {
       const self = this
 
       // calc plot dataset
@@ -81,7 +81,7 @@ export default {
           coordinate_data['Running'].data.push(this.plotData(model.model_id, model.algorithm, model.best_epoch_iou, model.best_epoch_map))
         } else {
           for (let k in Object.keys(constant.ALGORITHM_NAME)) {
-            if (model.algorithm === k) {
+            if (model.algorithm === parseInt(k)) {
               coordinate_data[constant.ALGORITHM_NAME[k]].data.push(this.plotData(model.model_id, model.algorithm, model.best_epoch_iou, model.best_epoch_map))
             }
           }
@@ -212,4 +212,3 @@ export default {
 
 
 </style>
-
