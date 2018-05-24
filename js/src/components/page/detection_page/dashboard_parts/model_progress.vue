@@ -67,7 +67,7 @@
 
       <div class="value">
         <span v-if="model.running_state===running_state['training']">
-          {{round(model.last_train_loss, 1000)}}
+          {{round(model.last_train_loss, 1000).toFixed(3)}}
         </span>
         <span v-if="model.running_state!==running_state['training']">
           <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>

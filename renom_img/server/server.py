@@ -13,8 +13,11 @@ import mimetypes
 import posixpath
 import traceback
 import xmltodict
+from signal import signal, SIGPIPE, SIG_DFL
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 from sklearn.model_selection import train_test_split
+
+signal(SIGPIPE,SIG_DFL) 
 
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread, WEIGHT_DIR
