@@ -99,7 +99,7 @@
 
       <div class="modal-button-area">
         <button @click="hideAddModelModal">Cancel</button>
-        <button @click="runModel" :disabled="!isRunnable">Run</button>
+        <button @click="runModel" :disabled="!isRunnable">{{ status }}</button>
       </div>
 
     </div>
@@ -125,6 +125,9 @@ export default {
     }
   },
   computed: {
+    status: function () {
+      return this.$store.getters.getModelsFromState(1).length < 2 ? 'Run' : 'Reserve'
+    },
     isRunnable: function () {
       if (this.cells < 3 || this.cells > 20 ||
          this.bounding_box < 0 || this.bounding_box > 10 ||
