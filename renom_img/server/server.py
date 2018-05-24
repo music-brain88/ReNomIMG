@@ -333,7 +333,8 @@ def delete_model(project_id, model_id):
         th = find_thread(thread_id)
         if th is not None:
             th.stop()
-        th.join()
+        if th is not None:
+            th.join()
         storage.update_model_state(model_id, STATE_DELETED)
 
         ret = storage.fetch_model(project_id, model_id, "best_epoch_weight")
