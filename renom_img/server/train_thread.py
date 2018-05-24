@@ -78,7 +78,7 @@ class TrainThread(threading.Thread):
                     map_count += 1
                     for k in range(len(pred)):
                         p_class = pred[k]['class']
-                        if p_class > obj_class:
+                        if p_class < obj_class:
                             break
                         if p_class != obj_class:
                             continue
