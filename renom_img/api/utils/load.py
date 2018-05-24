@@ -49,3 +49,5 @@ def parse_xml_detection(xml_path_list):
             image_data.append({'box': bounding_box, 'name': class_name})
         annotation_list.append(image_data)
     return annotation_list
+
+
