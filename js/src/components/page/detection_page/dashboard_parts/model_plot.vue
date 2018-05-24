@@ -77,7 +77,7 @@ export default {
       for (let model of this.models) {
         if (model.model_id === this.$store.state.selected_model_id) {
           coordinate_data['Selected'].data.push(this.plotData(model.model_id, model.algorithm, model.best_epoch_iou, model.best_epoch_map))
-        } else if (model.state === constant.ALGORITHM_ID['Running']) {
+        } else if (model.state === constant.STATE_ID['Running']) {
           coordinate_data['Running'].data.push(this.plotData(model.model_id, model.algorithm, model.best_epoch_iou, model.best_epoch_map))
         } else {
           for (let k in Object.keys(constant.ALGORITHM_NAME)) {
