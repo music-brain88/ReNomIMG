@@ -276,7 +276,6 @@ def update_models(project_id):
         return ret
 
 
-
 @route("/api/renom_img/v1/dataset_info", method="GET")
 def get_dataset_info_v0():
     try:
@@ -367,7 +366,11 @@ def progress_model(project_id, model_id):
 
         fields = "model_id,project_id,last_epoch,last_batch,total_batch,last_train_loss,running_state"
         model = storage.fetch_model(project_id, model_id, fields=fields)
-
+        if not model:
+            body = json.dumps(model)
+            ret = create_response(body)
+            time.sleep(1)
+            return ret
         for j in range(60):
             th = find_thread(thread_id)
             if th is not None:
@@ -656,7 +659,8 @@ def update_dataset(dataset_id):
         imgs = os.listdir(img_dir)
         labels = os.listdir(label_dir)
 
-        train_imgs, valid_imgs, train_labels, valid_labels = train_test_split(imgs, labels,     train_size=float(data["train_size"]))
+        train_imgs, valid_imgs, train_labels, valid_labels = train_test_split(
+            imgs, labels,     train_size=float(data["train_size"]))
 
         # get class name info form xml
         class_names = []

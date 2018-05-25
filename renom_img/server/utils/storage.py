@@ -404,7 +404,10 @@ class Storage:
                     else:
                         item[f] = data[j]
                 ret.update({index: item})
-            return ret[0]
+            if ret:
+                return ret[0]
+            else:
+                return {}
 
     def fetch_deployed_model_id(self, project_id):
         with self.db:
@@ -547,6 +550,7 @@ class Storage:
                     "train_size": data[0]
                 })
             return ret
+
 
 global storage
 storage = Storage()
