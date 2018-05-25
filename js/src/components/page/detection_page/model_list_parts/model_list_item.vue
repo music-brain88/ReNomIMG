@@ -28,7 +28,7 @@
 
       <div class="model-validation-loss">
         <p class="label">Validation Loss</p>
-        <p class="value value-bold">{{ round(model.validation_loss_list[model.best_epoch], 1000).toFixed(3) }}</p>
+        <p class="value value-bold">{{ round(model.validation_loss_list[model.best_epoch], 1000) }}</p>
       </div>
     </div>
 
@@ -224,4 +224,3 @@ export default {
   background-color: #d1d1d1;
 }
 </style>
-

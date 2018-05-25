@@ -233,7 +233,6 @@ def update_models(project_id):
         for j in range(300):
             data = storage.fetch_models(project_id)
             running_models = storage.fetch_running_models(project_id)
-
             if model_count < len(data) or running_count != len(running_models):
                 # If model created
                 valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]

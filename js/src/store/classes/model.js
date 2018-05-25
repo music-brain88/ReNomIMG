@@ -10,9 +10,9 @@ export default class Model {
     this.train_loss_list = []
     this.validation_loss_list = []
 
-    this.best_epoch = undefined
-    this.best_epoch_iou = undefined
-    this.best_epoch_map = undefined
+    this.best_epoch = 0
+    this.best_epoch_iou = 0
+    this.best_epoch_map = 0
     this.best_epoch_validation_result = best_epoch_validation_result
 
     this.last_epoch = last_epoch
