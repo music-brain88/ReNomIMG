@@ -13,8 +13,11 @@ import mimetypes
 import posixpath
 import traceback
 import xmltodict
+from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 from sklearn.model_selection import train_test_split
+
+# signal(SIGPIPE, SIG_DFL)
 
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread, WEIGHT_DIR
@@ -200,69 +203,6 @@ def get_models(project_id):
         body = json.dumps(data)
         ret = create_response(body)
         return ret
-
-        # deploy_model_id = None
-        # if request.params.deploy_model_id != '':
-        #     deploy_model_id = int(request.params.deploy_model_id)
-        #
-        # model_count = int(request.params.model_count)
-        #
-        # running_models = storage.fetch_running_models(project_id)
-        # # set running model information for polling
-        # model_ids = []
-        # last_epochs = []
-        # last_batchs = []
-        # running_states = []
-        # for k in list(running_models.keys()):
-        #     model_ids.append(running_models[k]["model_id"])
-        #     last_epochs.append(running_models[k]["last_epoch"])
-        #     last_batchs.append(running_models[k]["last_batch"])
-        #     running_states.append(running_models[k]["running_state"])
-        #
-        # for j in range(60):
-        #     project = storage.fetch_project(project_id, fields='deploy_model_id')
-        #     data = storage.fetch_models(project_id)
-        #
-        #     if deploy_model_id != project["deploy_model_id"]:
-        #         # If deploy model changed
-        #         body = json.dumps(data)
-        #         ret = create_response(body)
-        #         return ret
-        #
-        #     if model_count < len(data):
-        #         # If model created
-        #         valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]
-        #         if "bbox_path_list" in valid_results:
-        #             body = json.dumps(data)
-        #             ret = create_response(body)
-        #             return ret
-        #
-        #     elif model_count > len(data):
-        #         # If model deleted
-        #         body = json.dumps(data)
-        #         ret = create_response(body)
-        #         return ret
-        #
-        #     elif model_count == len(data):
-        #         # if running information change, return response.
-        #         for i, v in enumerate(model_ids):
-        #             thread_id = "{}_{}".format(project_id, model_ids[i])
-        #             th = find_thread(thread_id)
-        #
-        #             if th is not None:
-        #                 # If thread status updated, return response.
-        #                 if last_batchs[i] != th.last_batch or running_states[i] != th.running_state or last_epochs[i] != th.last_epoch:
-        #
-        #                     body = json.dumps(data)
-        #                     ret = create_response(body)
-        #                     return ret
-        #             else:
-        #                 # If running thread stopped, return response.
-        #                 body = json.dumps(data)
-        #                 ret = create_response(body)
-        #                 return ret
-        #
-        #     time.sleep(1)
 
     except Exception as e:
         traceback.print_exc()

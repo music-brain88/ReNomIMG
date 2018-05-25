@@ -1,4 +1,3 @@
-
 import os
 import sys
 import numpy as np
@@ -103,7 +102,7 @@ class WrapperYoloDarknet(Wrapper):
         num_class = self._num_class
         img_w, img_h = self._img_size
         cell_w, cell_h = self._cell
-        target = np.zeros((N, cell_h, cell_w, 5 + num_class))
+        target = np.zeros((N, cell_h, cell_w, 5 + num_class), dtype=np.float32)
         for ind_img in range(N):
             annotation = label[ind_img]
             for ind_obj in range(D // 5):

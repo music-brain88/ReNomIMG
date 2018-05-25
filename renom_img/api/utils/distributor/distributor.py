@@ -20,7 +20,7 @@ class LoadThread(threading.Thread):
         for filenames in self._filenames:
             img = Image.open(filenames)
             img.load()
-            self._results.append(img)
+            self._results.append(img.convert("RGB"))
 
 
 class ThreadRunner(threading.Thread):

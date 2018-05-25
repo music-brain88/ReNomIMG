@@ -10,6 +10,7 @@ from renom.cuda import set_cuda_active, release_mem_pool
 from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
 from renom_img.server.utils.data_preparation import create_train_valid_dists
 from renom_img.server.utils.storage import storage
+from renom_img.api.utils.nms import calc_iou, transform2xy12
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
@@ -70,19 +71,13 @@ class TrainThread(threading.Thread):
 
                 for j in range(len(label)):
                     x, y, w, h, obj_class = label[j]
-
-                    x1 = x - w / 2.
-                    y1 = y - h / 2.
-                    x2 = x + w / 2.
-                    y2 = y + h / 2.
-
                     if x == y == w == h == 0:
                         break
-                    map_count += 1
 
+                    x1, y1, x2, y2 = transform2xy12((x, y, w, h))
+                    map_count += 1
                     for k in range(len(pred)):
                         p_class = pred[k]['class']
-
                         if p_class < obj_class:
                             break
                         if p_class != obj_class:
@@ -92,20 +87,13 @@ class TrainThread(threading.Thread):
                         p_y = pred[k]['box'][1] * self.img_size[1]
                         p_w = pred[k]['box'][2] * self.img_size[0]
                         p_h = pred[k]['box'][3] * self.img_size[1]
-                        px1 = p_x - p_w / 2.
-                        py1 = p_y - p_h / 2.
-                        px2 = p_x + p_w / 2.
-                        py2 = p_y + p_h / 2.
 
-                        overlapped_dpx = min(px2, x2) - max(px1, x1)
-                        overlapped_dpy = min(py2, y2) - max(py1, y1)
-                        if overlapped_dpx <= 0 or overlapped_dpy <= 0:
+                        px1, py1, px2, py2 = transform2xy12((p_x, p_y, p_w, p_h))
+                        iou = calc_iou((px1, py1, px2, py2), (x1, y1, x2, y2))
+                        if iou == 0:
                             continue
-
-                        intersection = overlapped_dpx * overlapped_dpy
-                        union = p_w * p_h + w * h - intersection
-                        iou = intersection / float(union)
                         iou_list.append(iou)
+
                         if iou < 0.3:
                             continue
                         map_true_count += 1
