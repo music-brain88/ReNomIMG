@@ -29,10 +29,63 @@ export default {
         m.best_epoch_iou = d.best_epoch_iou
         m.best_epoch_map = d.best_epoch_map
       }
-      if (state.selected_model_id === undefined && index === 0) {
+
+      if (state.selected_model_id === undefined && parseInt(index) === 0) {
         state.selected_model_id = m.model_id
       }
       state.models.push(m)
+    }
+  },
+
+  updateModels (state, payload) {
+    if (payload.update_type < 2) {
+      state.models = []
+    }
+
+    for (let index in payload.models) {
+      let d = payload.models[index]
+      let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
+      if (d.best_epoch !== undefined) {
+        m.best_epoch = d.best_epoch
+        m.train_loss_list = d.train_loss_list
+        m.validation_loss_list = d.validation_loss_list
+        m.best_epoch_iou = d.best_epoch_iou
+        m.best_epoch_map = d.best_epoch_map
+      }
+
+      if (payload.update_type < 2) {
+        if (state.selected_model_id === undefined && parseInt(index) === 0) {
+          state.selected_model_id = m.model_id
+        }
+        state.models.push(m)
+      } else if (payload.update_type === 2) {
+        for (let i in state.models) {
+          if (state.models[i].model_id === d.model_id) {
+            state.models.splice(parseInt(i), 1, m)
+          }
+        }
+      }
+    }
+  },
+
+  // update progress
+  updateProgress (state, payload) {
+    let p = payload.model
+    for (let index in state.models) {
+      let d = state.models[index]
+      if (p.model_id === d.model_id) {
+        let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, p.last_epoch, p.last_batch, p.total_batch, p.last_train_loss, p.running_state)
+        if (d.best_epoch !== undefined) {
+          m.best_epoch = d.best_epoch
+          m.train_loss_list = d.train_loss_list
+          m.validation_loss_list = d.validation_loss_list
+          m.best_epoch_iou = d.best_epoch_iou
+          m.best_epoch_map = d.best_epoch_map
+        }
+        // update array
+        state.models.splice(index, 1, m)
+        break
+      }
     }
   },
 

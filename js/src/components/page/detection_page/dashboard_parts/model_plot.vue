@@ -113,7 +113,6 @@ export default {
       var options = {
         events: ['click', 'mousemove'],
         'onClick': function (evt, item) {
-          console.log(item)
           if (item.length > 0) {
             const index = item[0]._index
             const datasetIndex = item[0]._datasetIndex

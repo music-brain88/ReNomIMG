@@ -28,14 +28,23 @@ export default {
   },
 
   async loadModels (context, payload) {
-    await context.dispatch('loadProject', {'project_id': payload.project_id})
-
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models'
+    return axios.get(url).then(function (response) {
+      if (response.data.error_msg) {
+        context.commit('setAlertModalFlag', {'flag': true})
+        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
+        return
+      }
+      context.commit('setModels', {'models': response.data})
+    })
+  },
+
+  updateModels (context, payload) {
+    const url = '/api/renom_img/v1/projects/' + payload.project_id + '/models/update'
     return axios.get(url, {
-      timeout: 60000,
+      timeout: 300000,
       params: {
-        'model_count': context.state.models.length,
-        'deploy_model_id': context.state.project.deploy_model_id
+        'model_count': context.state.models.length
       }
     }).then(function (response) {
       if (response.data.error_msg) {
@@ -43,10 +52,13 @@ export default {
         context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
         return
       }
-      context.commit('setModels', {'models': response.data})
-      context.dispatch('loadModels', {'project_id': payload.project_id})
+      context.commit('updateModels', {
+        'update_type': parseInt(response.data.update_type),
+        'models': response.data.models
+      })
+      context.dispatch('updateModels', {'project_id': payload.project_id})
     }).catch(function (error) {
-      context.dispatch('loadModels', {'project_id': payload.project_id})
+      context.dispatch('updateModels', {'project_id': payload.project_id})
     })
   },
 
@@ -165,6 +177,26 @@ export default {
           context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
         }
       })
+  },
+
+  // update model progress info
+  updateProgress (context, payload) {
+    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/progress'
+    return axios.get(url, {
+      timeout: 60000
+    }).then(function (response) {
+      if (response.data.error_msg) {
+        context.commit('setAlertModalFlag', {'flag': true})
+        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
+        return
+      }
+      context.commit('updateProgress', {
+        'model': response.data
+      })
+      context.dispatch('updateProgress', {'model_id': payload.model_id})
+    }).catch(function (error) {
+      context.dispatch('updateProgress', {'model_id': payload.model_id})
+    })
   },
 
   /*

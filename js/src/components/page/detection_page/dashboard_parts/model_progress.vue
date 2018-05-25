@@ -129,6 +129,9 @@ export default {
       require: true
     }
   },
+  created: function () {
+    this.$store.dispatch('updateProgress', {'model_id': this.model.model_id})
+  },
   mounted: function () {
     this.updateProgressBar()
   },

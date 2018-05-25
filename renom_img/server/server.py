@@ -196,13 +196,89 @@ def update_project(project_id):
 def get_models(project_id):
     # TODO: Cache validation img path on browser.
     try:
-        deploy_model_id = None
-        if request.params.deploy_model_id != '':
-            deploy_model_id = int(request.params.deploy_model_id)
+        data = storage.fetch_models(project_id)
+        body = json.dumps(data)
+        ret = create_response(body)
+        return ret
 
+        # deploy_model_id = None
+        # if request.params.deploy_model_id != '':
+        #     deploy_model_id = int(request.params.deploy_model_id)
+        #
+        # model_count = int(request.params.model_count)
+        #
+        # running_models = storage.fetch_running_models(project_id)
+        # # set running model information for polling
+        # model_ids = []
+        # last_epochs = []
+        # last_batchs = []
+        # running_states = []
+        # for k in list(running_models.keys()):
+        #     model_ids.append(running_models[k]["model_id"])
+        #     last_epochs.append(running_models[k]["last_epoch"])
+        #     last_batchs.append(running_models[k]["last_batch"])
+        #     running_states.append(running_models[k]["running_state"])
+        #
+        # for j in range(60):
+        #     project = storage.fetch_project(project_id, fields='deploy_model_id')
+        #     data = storage.fetch_models(project_id)
+        #
+        #     if deploy_model_id != project["deploy_model_id"]:
+        #         # If deploy model changed
+        #         body = json.dumps(data)
+        #         ret = create_response(body)
+        #         return ret
+        #
+        #     if model_count < len(data):
+        #         # If model created
+        #         valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]
+        #         if "bbox_path_list" in valid_results:
+        #             body = json.dumps(data)
+        #             ret = create_response(body)
+        #             return ret
+        #
+        #     elif model_count > len(data):
+        #         # If model deleted
+        #         body = json.dumps(data)
+        #         ret = create_response(body)
+        #         return ret
+        #
+        #     elif model_count == len(data):
+        #         # if running information change, return response.
+        #         for i, v in enumerate(model_ids):
+        #             thread_id = "{}_{}".format(project_id, model_ids[i])
+        #             th = find_thread(thread_id)
+        #
+        #             if th is not None:
+        #                 # If thread status updated, return response.
+        #                 if last_batchs[i] != th.last_batch or running_states[i] != th.running_state or last_epochs[i] != th.last_epoch:
+        #
+        #                     body = json.dumps(data)
+        #                     ret = create_response(body)
+        #                     return ret
+        #             else:
+        #                 # If running thread stopped, return response.
+        #                 body = json.dumps(data)
+        #                 ret = create_response(body)
+        #                 return ret
+        #
+        #     time.sleep(1)
+
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/update", method="GET")
+def update_models(project_id):
+    try:
         model_count = int(request.params.model_count)
 
         running_models = storage.fetch_running_models(project_id)
+        running_count = len(running_models)
         # set running model information for polling
         model_ids = []
         last_epochs = []
@@ -214,27 +290,26 @@ def get_models(project_id):
             last_batchs.append(running_models[k]["last_batch"])
             running_states.append(running_models[k]["running_state"])
 
-        for j in range(60):
-            project = storage.fetch_project(project_id, fields='deploy_model_id')
+        for j in range(300):
             data = storage.fetch_models(project_id)
+            running_models = storage.fetch_running_models(project_id)
 
-            if deploy_model_id != project["deploy_model_id"]:
-                # If deploy model changed
-                body = json.dumps(data)
-                ret = create_response(body)
-                return ret
-
-            if model_count < len(data):
+            if model_count < len(data) or running_count != len(running_models):
                 # If model created
                 valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]
                 if "bbox_path_list" in valid_results:
-                    body = json.dumps(data)
+                    body = json.dumps({
+                        "models": data,
+                        "update_type": 0
+                    })
                     ret = create_response(body)
                     return ret
 
             elif model_count > len(data):
-                # If model deleted
-                body = json.dumps(data)
+                body = json.dumps({
+                    "models": {},
+                    "update_type": 1
+                })
                 ret = create_response(body)
                 return ret
 
@@ -246,25 +321,21 @@ def get_models(project_id):
 
                     if th is not None:
                         # If thread status updated, return response.
-                        if last_batchs[i] != th.last_batch or running_states[i] != th.running_state or last_epochs[i] != th.last_epoch:
-
-                            body = json.dumps(data)
+                        if last_epochs[i] != th.last_epoch or running_states[i] != th.running_state:
+                            body = json.dumps({
+                                "models": running_models,
+                                "update_type": 2
+                            })
                             ret = create_response(body)
                             return ret
-                    else:
-                        # If running thread stopped, return response.
-                        body = json.dumps(data)
-                        ret = create_response(body)
-                        return ret
-
             time.sleep(1)
-
     except Exception as e:
         traceback.print_exc()
         print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
+
 
 
 @route("/api/renom_img/v1/dataset_info", method="GET")
@@ -333,7 +404,7 @@ def delete_model(project_id, model_id):
         th = find_thread(thread_id)
         if th is not None:
             th.stop()
-        th.join()
+            th.join()
         storage.update_model_state(model_id, STATE_DELETED)
 
         ret = storage.fetch_model(project_id, model_id, "best_epoch_weight")
@@ -345,6 +416,31 @@ def delete_model(project_id, model_id):
 
     except Exception as e:
         traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/progress", method="GET")
+def progress_model(project_id, model_id):
+    try:
+        thread_id = "{}_{}".format(project_id, model_id)
+
+        fields = "model_id,project_id,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+        model = storage.fetch_model(project_id, model_id, fields=fields)
+
+        for j in range(60):
+            th = find_thread(thread_id)
+            if th is not None:
+                # If thread status updated, return response.
+                if model["last_batch"] != th.last_batch or model["running_state"] != th.running_state or model["last_epoch"] != th.last_epoch:
+                    body = json.dumps(model)
+                    ret = create_response(body)
+                    return ret
+            time.sleep(1)
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -460,8 +556,9 @@ def stop_model(project_id, model_id):
         thread_id = "{}_{}".format(project_id, model_id)
 
         th = find_thread(thread_id)
-        th.running_state = 4
         if th is not None:
+            storage.update_model_state(model_id, STATE_FINISHED)
+            th.running_state = 4
             th.stop()
 
     except Exception as e:

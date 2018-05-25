@@ -311,7 +311,6 @@ class TrainThread(threading.Thread):
     def stop(self):
         try:
             self.stop_event.set()
-            storage.update_model_state(self.model_id, STATE_FINISHED)
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e.args[0]
