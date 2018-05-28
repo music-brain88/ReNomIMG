@@ -17,6 +17,8 @@ WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
 
 STATE_RUNNING = 1
 STATE_FINISHED = 2
+STATE_DELETED = 3
+STATE_RESERVED = 4
 
 TRAIN = 0
 VALID = 1
@@ -28,8 +30,8 @@ DEBUG = False
 
 class TrainThread(threading.Thread):
     def __init__(self, thread_id, project_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params):
-        super(TrainThread, self).__init__()
+                 algorithm, algorithm_params, semaphore):
+        super(TrainThread, self).__init__(args=semaphore)
         self.stop_event = threading.Event()
         self.setDaemon(False)
 
@@ -53,6 +55,7 @@ class TrainThread(threading.Thread):
         self.last_epoch = 0
         self.best_validation_loss = None
         self.running_state = 3
+        self.semaphore = semaphore
 
         self.model = None
         self.error_msg = None
@@ -104,17 +107,18 @@ class TrainThread(threading.Thread):
 
     def run(self):
         try:
-            set_cuda_active(True)
-            release_mem_pool()
-            if DEBUG:
-                print("run thread")
-            storage.update_model_state(self.model_id, STATE_RUNNING)
-            class_list, train_dist, valid_dist = create_train_valid_dists(
-                self.img_size)
-            storage.register_dataset_v0(
-                len(train_dist), len(valid_dist), class_list)
-            self.model = self.set_train_config(len(class_list))
-            self.run_train(train_dist, valid_dist)
+            with self.semaphore:
+                set_cuda_active(True)
+                release_mem_pool()
+                if DEBUG:
+                    print("run thread")
+                storage.update_model_state(self.model_id, STATE_RUNNING)
+                class_list, train_dist, valid_dist = create_train_valid_dists(
+                    self.img_size)
+                storage.register_dataset_v0(
+                    len(train_dist), len(valid_dist), class_list)
+                self.model = self.set_train_config(len(class_list))
+                self.run_train(train_dist, valid_dist)
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e.args[0]

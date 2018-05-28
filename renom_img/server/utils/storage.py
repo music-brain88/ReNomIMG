@@ -346,7 +346,7 @@ class Storage:
             fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
 
             sql = "SELECT " + fields + \
-                " FROM model WHERE project_id=? AND state<3 ORDER BY " + order_by
+                " FROM model WHERE project_id=? AND state!=3 ORDER BY " + order_by
             c.execute(sql, (project_id,))
 
             blob_items = ['hyper_parameters', 'algorithm_params',

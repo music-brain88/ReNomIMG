@@ -26,16 +26,18 @@ from renom_img.server.weight_download_thread import WeightDownloadThread
 from renom_img.server.utils.storage import storage
 from renom_img.server.utils.console_funcs import divide_datasets
 
-
+STATE_RUNNING = 1
 STATE_FINISHED = 2
 STATE_DELETED = 3
-
+STATE_RESERVED = 4
 
 BASE_DIR = os.path.abspath(os.getcwd())
 DATASET_DIR = os.path.join(BASE_DIR, 'dataset')
 TRAIN_SET_DIR = os.path.join(DATASET_DIR, 'train_set')
 VALID_SET_DIR = os.path.join(DATASET_DIR, 'valid_set')
 PREDICTION_SET_DIR = os.path.join(DATASET_DIR, 'prediction_set')
+
+MAX_THREAD_NUMBER = 2
 
 if not os.path.exists(DATASET_DIR):
     os.makedirs(DATASET_DIR)
@@ -58,6 +60,8 @@ for path in [TRAIN_SET_DIR, VALID_SET_DIR]:
     IMG_DIR = os.path.join(path, 'img')
     if not os.path.exists(IMG_DIR):
         os.makedirs(IMG_DIR)
+
+semaphore = threading.BoundedSemaphore(MAX_THREAD_NUMBER)
 
 
 def create_response(body):
@@ -293,9 +297,11 @@ def get_dataset_info_v0():
 def create_model(project_id):
     # check training count
     if get_train_thread_count() >= 2:
-        body = json.dumps({"error_msg": "You can create only 2 training thread."})
-        ret = create_response(body)
-        return ret
+        pass
+        # Todo: Insert model with reserved state
+        # body = json.dumps({"error_msg": "You can create only 2 training thread."})
+        # ret = create_response(body)
+        # return ret
 
     try:
         model_id = storage.register_model(
@@ -473,10 +479,13 @@ def run_model(project_id, model_id):
         data = storage.fetch_model(project_id, model_id, fields=fields)
 
         # 学習を実行するスレッドを立てる
+        if get_train_thread_count() > 2:
+            storage.update_model_state(model_id, STATE_RESERVED)
+
         thread_id = "{}_{}".format(project_id, model_id)
         th = TrainThread(thread_id, project_id, model_id,
                          data["hyper_parameters"],
-                         data['algorithm'], data['algorithm_params'])
+                         data['algorithm'], data['algorithm_params'], semaphore)
         th.start()
         th.join()
         if th.error_msg is not None:
