@@ -138,6 +138,7 @@ export default {
     if (result.data.error_msg) {
       context.commit('setAlertModalFlag', {'flag': true})
       context.commit('setErrorMsg', {'error_msg': result.data.error_msg})
+      context.dispatch('loadModels', {'project_id': payload.project_id})
       return
     }
 

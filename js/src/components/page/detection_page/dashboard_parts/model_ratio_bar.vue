@@ -52,19 +52,20 @@ export default {
         })
       }
 
-      // add Running counts
-      datasets.push({
-        label: 'Running',
-        data: [counts['Running']],
-        backgroundColor: constant.STATE_COLOR['Running']
-      })
-
+      // add Running and Reserved counts
+      for (let s of ['Running', 'Reserved']) {
+        datasets.push({
+          label: s,
+          data: [this.models.filter(model => model.state === constant.STATE_ID[s]).length],
+          backgroundColor: constant.STATE_COLOR[s]
+        })
+      }
       // init canvas
       let parent = document.getElementById('model-ratio-bar')
       let canvas = document.getElementById('horizontal-stack-bar')
       let ctx = canvas.getContext('2d')
       ctx.canvas.width = parent.clientWidth
-      ctx.canvas.height = 80
+      ctx.canvas.height = 100
 
       // set chart data
       let chart_data = {
