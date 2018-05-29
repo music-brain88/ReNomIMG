@@ -20,13 +20,13 @@ Other os user can't install from Wheel package but can install from source.
 
 The Wheel package is provided at:
 
-`https://suwa.gitlab.io/ReNomIMG/bin/renom_img-VERSION-cp35-cp35m-linux_x86_64.whl`
+`https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-VERSION-cp35-cp35m-linux_x86_64.whl`
 
 (VERSION is stands for actual version number e.g. 0.0.1)
 
 You can install the wheel package with pip3 command::
 
-`pip3 install https://suwa.gitlab.io/ReNomIMG/bin/renom_img-0.6b0-cp35-cp35m-linux_x86_64.whl`
+`pip3 install https://grid-devs .gitlab.io/ReNomIMG/bin/renom_img-0.7b0-cp35-cp35m-linux_x86_64.whl`
 
 ## Install from source
 For installing ReNomIMG, download the repository from following url.
