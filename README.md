@@ -1,5 +1,5 @@
 
-# ReNomIMG 0.6beta
+# ReNomIMG 0.7beta
 
 ReNom IMG is model developing tool for object detection.
 
@@ -47,9 +47,17 @@ At last, install renomimg module using following command.
 
 ## How to start
 
-1.Type following command.
+1.Type following command in ReNomIMG directory.
 
 `python -m renom_img`
+
+Or, following command is available from 0.7beta.
+
+`renom_img`
+
+Second command can be called in any folder and creates `dataset` folder in current directory.
+Please set your dataset to the created directory.
+
 
 If the server starts, you will see a message like below.
 
