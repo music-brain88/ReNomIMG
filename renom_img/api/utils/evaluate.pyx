@@ -1,5 +1,4 @@
 import numpy as np
-import renom_img.api.utils.nms import 
 
 cpdef calc_mAP(predicted, target):
     """
@@ -36,3 +35,4 @@ cpdef calc_IOU(predicted, target):
     The function `renom_img.api.utils.load.parse_xml_detection` returns 
     this formatted dictionary.
     """
+    pass
