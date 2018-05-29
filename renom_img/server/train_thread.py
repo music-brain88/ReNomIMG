@@ -121,6 +121,7 @@ class TrainThread(threading.Thread):
 
     def run_train(self, train_distributor, validation_distributor=None):
         try:
+            release_mem_pool()
             # Prepare validation images for UI.
             valid_img = validation_distributor.img_path_list
             v_bbox_imgs = valid_img

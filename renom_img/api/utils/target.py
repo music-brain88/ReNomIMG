@@ -85,11 +85,11 @@ def build_target_yolo(annotation_list, cells, img_size, class_mapping=None):
             truth_y = np.clip(obj['box'][1], 0, img_h)
             truth_w = np.clip(obj['box'][2], 0, img_w)
             truth_h = np.clip(obj['box'][3], 0, img_h)
-            norm_x = int(truth_x * .99 * cell_w / img_w)
-            norm_y = int(truth_y * .99 * cell_h / img_h)
-            norm_w = int(truth_w / img_w)
-            norm_h = int(truth_h / img_h)
-            target[ind_img, norm_y, norm_x] = \
+            norm_x = truth_x * .99 * cell_w / img_w
+            norm_y = truth_y * .99 * cell_h / img_h
+            norm_w = truth_w / img_w
+            norm_h = truth_h / img_h
+            target[ind_img, int(norm_y), int(norm_x)] = \
                 np.concatenate(([1, norm_x % 1, norm_y % 1, norm_w, norm_h], [class_id]))
     target = target.reshape(len(annotation_list), -1)
     return target, class_mapping
