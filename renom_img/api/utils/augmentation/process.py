@@ -89,6 +89,26 @@ class Flip(ProcessBase):
                 new_y[i, 4::5] = y[i, 4::5]  # C
         return new_x, new_y
 
+    def _transform_segmentation(self, x, y):
+        assert len(x.shape) == 4
+        n = x.shape[0]
+        new_x = np.empty_like(x)
+        new_y = np.empty_like(y)
+        flip_flag = np.random.randint(3, size=(n, ))
+        for i, f in enumerate(flip_flag):
+            if f == 0:
+                new_x[i, :, :, :] = x[i, :, :, :]
+                new_y[i, :, :, :] = y[i, :, :, :]
+            elif f == 1:
+                new_x[i, :, :, :] = x[i, :, :, ::-1]
+                new_y[i, :, :, :] = y[i, :, :, ::-1]
+            elif f == 2:
+                new_x[i, :, :, :] = x[i, :, ::-1, :]
+                new_y[i, :, :, :] = y[i, :, ::-1, :]
+        return new_x, new_y
+
+
+
 
 def flip(x, y=None, mode="classification"):
     return Flip()(x, y, mode)
@@ -168,13 +188,12 @@ class Rotate(ProcessBase):
         n, c, h, w = x.shape
         new_x = np.empty_like(x)
 
-        is_square = True
-        if h != w:
-            is_square = False
-        if is_square:
+        if h==w:
+            # 0, 90, 180 or 270 degree.
             rotate_frag = np.random.randint(4, size=(n, ))
         else:
-            rotate_frag = np.random.randint(2, size=(n, )) * 2
+            # 0 or 180 degree.
+            rotate_frag = np.random.randint(2, size=(n, ))*2
 
         for i, r in enumerate(rotate_frag):
             new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))

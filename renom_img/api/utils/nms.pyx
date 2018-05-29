@@ -54,3 +54,14 @@ def nms(box_list, threshold, return_type='box'):
             result.append(i)
     return result
 
+
+def soft_nms(box_list, threshold, return_type='box'):
+    """
+    Soft-NMS.
+
+    Reference:
+        Navaneeth Bodla, Bharat Singh, Rama Chellappa, Larry S. Davis, 
+        Soft-NMS -- Improving Object Detection With One Line of Code
+        https://arxiv.org/abs/1704.04503
+    """
+    pass
