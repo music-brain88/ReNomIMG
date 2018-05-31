@@ -329,6 +329,8 @@ def create_model(project_id):
         # 学習中のモデルが2つ以上ある場合には、モデルの状態をReservedに変更する
         if get_train_thread_count() >= MAX_THREAD_NUMBER:
             storage.update_model_state(model_id, STATE_RESERVED)
+        else:
+            storage.update_model_state(model_id, STATE_RUNNING)
         data = {"model_id": model_id}
         body = json.dumps(data)
 
@@ -498,16 +500,14 @@ def run_model(project_id, model_id):
         fields = 'hyper_parameters,algorithm,algorithm_params'
         data = storage.fetch_model(project_id, model_id, fields=fields)
 
-        # 学習を実行するスレッドを立てる
-        if get_train_thread_count() > 2:
-            storage.update_model_state(model_id, STATE_RESERVED)
-
         thread_id = "{}_{}".format(project_id, model_id)
         th = TrainThread(thread_id, project_id, model_id,
                          data["hyper_parameters"],
                          data['algorithm'], data['algorithm_params'], semaphore)
         th.start()
         th.join()
+        # Following line should be implemented here. Not in train_thread.py
+        storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
         if th.error_msg is not None:
             storage.update_model_state(model_id, STATE_FINISHED)
