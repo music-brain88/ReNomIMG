@@ -94,7 +94,7 @@ export default {
     },
     deleteModel: function () {
       if (this.isPredict) {
-        this.$store.commit('setPredictModelId', {
+        this.$store.commit('resetPredictResult', {
           'model_id': undefined
         })
       }
@@ -107,7 +107,9 @@ export default {
       this.show_delete_dialog = false
     },
     getColor: function (model_state, algorithm) {
-      if (model_state === constant.STATE_ID['Running']) {
+      if (model_state === constant.STATE_ID['Reserved']) {
+        return constant.STATE_COLOR[model_state]
+      } else if (model_state === constant.STATE_ID['Running']) {
         return constant.STATE_COLOR[model_state]
       } else {
         return constant.ALGORITHM_COLOR[algorithm]

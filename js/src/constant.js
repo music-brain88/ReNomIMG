@@ -20,20 +20,22 @@ export const STATE_ID = {
   'Created': 0,
   'Running': 1,
   'Finished': 2,
-  'Deleted': 3
+  'Deleted': 3,
+  'Reserved': 4
 }
 
 export const STATE_NAME = {
   0: 'Created',
   1: 'Running',
   2: 'Finished',
-  3: 'Deleted'
+  3: 'Deleted',
+  4: 'Reserved'
 }
 
 export const STATE_COLOR = {
   1: '#953136',
   'Running': '#953136',
 
-  2: '#e4b520',
-  'Finished': '#e4b520'
+  4: '#e4b520',
+  'Reserved': '#e4b520'
 }

@@ -67,7 +67,17 @@ export default {
       }
     }
   },
-
+  // update model state
+  updateModelsState (state, payload) {
+    for (let index in state.models) {
+      for (let id in payload) {
+        if (state.models[index] === id) {
+          state.models[index].running_state = payload[id]
+          break
+        }
+      }
+    }
+  },
   // update progress
   updateProgress (state, payload) {
     let p = payload.model

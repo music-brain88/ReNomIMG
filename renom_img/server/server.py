@@ -18,7 +18,7 @@ from bottle import HTTPResponse, default_app, route, static_file, request, error
 from sklearn.model_selection import train_test_split
 
 # signal(SIGPIPE, SIG_DFL)
-
+from renom.cuda import release_mem_pool
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread, WEIGHT_DIR
 from renom_img.server.prediction_thread import PredictionThread
@@ -239,6 +239,7 @@ def update_models(project_id):
             running_models = storage.fetch_running_models(project_id)
             if model_count < len(data) or running_count != len(running_models):
                 # If model created
+                print(list(data.keys()))
                 valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]
                 if "bbox_path_list" in valid_results:
                     body = json.dumps({
@@ -280,6 +281,30 @@ def update_models(project_id):
         return ret
 
 
+@route("/api/renom_img/v1/projects/<project_id:int>/models/update/state", method="GET")
+def update_models_state(project_id):
+    try:
+        models = storage.fetch_models(project_id)
+        # set running model information for polling
+        body = {}
+        for k in list(models.keys()):
+            model_id = models[k]["model_id"]
+            running_state = models[k]["running_state"]
+            body[model_id] = running_state
+            
+        body = json.dumps(body)
+        ret = create_response(body)
+        return ret
+    except Exception as e:
+        traceback.print_exc()
+        print(e)
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+
+
 @route("/api/renom_img/v1/dataset_info", method="GET")
 def get_dataset_info_v0():
     try:
@@ -295,21 +320,15 @@ def get_dataset_info_v0():
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="POST")
 def create_model(project_id):
-    # check training count
-    if get_train_thread_count() >= 2:
-        pass
-        # Todo: Insert model with reserved state
-        # body = json.dumps({"error_msg": "You can create only 2 training thread."})
-        # ret = create_response(body)
-        # return ret
-
     try:
         model_id = storage.register_model(
             project_id=project_id,
             hyper_parameters=json.loads(request.params.hyper_parameters),
             algorithm=request.params.algorithm,
             algorithm_params=json.loads(request.params.algorithm_params))
-
+        # 学習中のモデルが2つ以上ある場合には、モデルの状態をReservedに変更する
+        if get_train_thread_count() >= MAX_THREAD_NUMBER:
+            storage.update_model_state(model_id, STATE_RESERVED)
         data = {"model_id": model_id}
         body = json.dumps(data)
 
@@ -382,6 +401,7 @@ def progress_model(project_id, model_id):
             if th is not None:
                 # If thread status updated, return response.
                 if model["last_batch"] != th.last_batch or model["running_state"] != th.running_state or model["last_epoch"] != th.last_epoch:
+                    print(model["model_id"])
                     body = json.dumps(model)
                     ret = create_response(body)
                     return ret
@@ -488,12 +508,14 @@ def run_model(project_id, model_id):
                          data['algorithm'], data['algorithm_params'], semaphore)
         th.start()
         th.join()
+        release_mem_pool()
         if th.error_msg is not None:
             storage.update_model_state(model_id, STATE_FINISHED)
             body = json.dumps({"error_msg": th.error_msg})
             ret = create_response(body)
             return ret
     except Exception as e:
+        release_mem_pool()
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
