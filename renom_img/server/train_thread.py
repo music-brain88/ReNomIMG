@@ -30,7 +30,7 @@ DEBUG = False
 
 class TrainThread(threading.Thread):
     def __init__(self, thread_id, project_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params, semaphore):
+                 algorithm, algorithm_params, train_imgs, valid_imgs, semaphore):
         super(TrainThread, self).__init__(args=semaphore)
         self.stop_event = threading.Event()
         self.setDaemon(False)
@@ -48,6 +48,9 @@ class TrainThread(threading.Thread):
         self.cell_h = int(algorithm_params['cells'])
         self.cell_v = int(algorithm_params['cells'])
         self.num_bbox = int(algorithm_params['bounding_box'])
+
+        self.train_imgs = train_imgs
+        self.valid_imgs = valid_imgs
 
         self.last_batch = 0
         self.total_batch = 0
@@ -116,7 +119,7 @@ class TrainThread(threading.Thread):
                     print("run thread")
                 storage.update_model_state(self.model_id, STATE_RUNNING)
                 class_list, train_dist, valid_dist = create_train_valid_dists(
-                    self.img_size)
+                    self.img_size, self.train_imgs, self.valid_imgs)
                 storage.register_dataset_v0(
                     len(train_dist), len(valid_dist), class_list)
                 self.model = self.set_train_config(len(class_list))

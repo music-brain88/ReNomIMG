@@ -2,6 +2,7 @@
 # encoding:utf-8
 
 from __future__ import division, print_function
+import pathlib
 import os
 import sys
 import numpy as np
@@ -14,30 +15,25 @@ from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 from renom_img.api.utility.augmentation.process import Flip, Shift, Rotate, WhiteNoise
 
+from .. import server
 
-def create_train_valid_dists(img_size):
-    train_img_path = 'dataset/train_set/img'
-    train_xml_path = 'dataset/train_set/label'
-    valid_img_path = 'dataset/valid_set/img'
-    valid_xml_path = 'dataset/valid_set/label'
+def create_train_valid_dists(img_size, train_imgs, valid_imgs):
+    datasrc = pathlib.Path('datasrc')
+    imgdir = (datasrc / "img")
+    xmldir = (datasrc / "label")
+
+    train_img_path_list = [str(imgdir / img) for img in train_imgs]
+    train_xml_path_list = [str((xmldir / img).with_suffix(".xml")) for img in train_imgs]
+    valid_img_path_list = [str(imgdir / img) for img in valid_imgs]
+    valid_xml_path_list = [str((xmldir / img).with_suffix(".xml")) for img in valid_imgs]
 
     def create_label(xml_path_list, class_mapping=None):
         annotation_list = parse_xml_detection(xml_path_list)
         return build_target(annotation_list, img_size, class_mapping)
 
-    train_xml_path_list = [os.path.join(train_xml_path, path)
-                           for path in sorted(os.listdir(train_xml_path))]
-    train_img_path_list = [os.path.join(train_img_path, path)
-                           for path in sorted(os.listdir(train_img_path))]
-    valid_xml_path_list = [os.path.join(valid_xml_path, path)
-                           for path in sorted(os.listdir(valid_xml_path))]
-    valid_img_path_list = [os.path.join(valid_img_path, path)
-                           for path in sorted(os.listdir(valid_img_path))]
-
     # Check if the xml filename and img name is same.
     train_label, class_mapping = create_label(train_xml_path_list)
     valid_label, _ = create_label(valid_xml_path_list, class_mapping)
-
     aug = Augmentation([
         Flip(),
         Shift(40, 40),

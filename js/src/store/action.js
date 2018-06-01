@@ -113,6 +113,7 @@ export default {
   async createModel (context, payload) {
     // add fd model data
     let fd = new FormData()
+    fd.append('dataset_def_id', payload.dataset_def_id)
     fd.append('hyper_parameters', payload.hyper_parameters)
     fd.append('algorithm', payload.algorithm)
     fd.append('algorithm_params', payload.algorithm_params)
@@ -127,10 +128,11 @@ export default {
     for (let i = 1; i <= 10; i++) {
       await context.dispatch('checkWeightDownloadProgress', {'i': i})
     }
-
+    const dataset_def_id = JSON.stringify(payload.dataset_def_id)
     const hyper_parameters = JSON.stringify(payload.hyper_parameters)
     const algorithm_params = JSON.stringify(payload.algorithm_params)
     const result = await context.dispatch('createModel', {
+      'dataset_def_id': dataset_def_id,
       'hyper_parameters': hyper_parameters,
       'algorithm': payload.algorithm,
       'algorithm_params': algorithm_params
@@ -328,5 +330,30 @@ export default {
           }
         })
     }
+  },
+
+  async registerDatasetDef (context, payload) {
+    // add fd model data
+    let fd = new FormData()
+    fd.append('ratio', payload.ratio)
+    fd.append('name', payload.name)
+
+    let url = '/api/renom_img/v1/dataset_defs/'
+    await axios.post(url, fd)
+    context.dispatch('loadDatasetDef')
+  },
+
+  async loadDatasetDef (context) {
+    let url = '/api/renom_img/v1/dataset_defs'
+    const response = await axios.get(url)
+    if (response.data.error_msg) {
+      context.commit('setAlertModalFlag', {'flag': true})
+      context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
+    } else {
+      context.commit('setDatasetDefs', {
+        'dataset_defs': response.data.dataset_defs
+      })
+    }
   }
+
 }

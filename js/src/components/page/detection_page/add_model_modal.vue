@@ -10,6 +10,17 @@
       <div class="modal-param-area">
         <div class="sub-param-area">
           <div class="sub-param-title">
+            Dataset
+          </div>
+
+          <div class="param-item">
+            <div class="label">Dataset ID</div>
+            <div class="item">
+              <input type="number" v-model="dataset_def_id"/>
+            </div>
+          </div>
+          <hr>
+          <div class="sub-param-title">
             Algorithm Setting
           </div>
 
@@ -111,6 +122,7 @@ export default {
   name: 'AddModelModal',
   data: function () {
     return {
+      dataset_def_id: 1,
       algorithm: 0,
       total_epoch: 100,
       seed: 0,
@@ -160,8 +172,8 @@ export default {
           'bounding_box': parseInt(this.bounding_box)
         }
       }
-
       this.$store.dispatch('runModel', {
+        dataset_def_id: parseInt(this.dataset_def_id),
         'hyper_parameters': hyper_parameters,
         'algorithm': this.algorithm,
         'algorithm_params': algorithm_params
