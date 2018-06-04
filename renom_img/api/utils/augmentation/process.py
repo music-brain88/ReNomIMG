@@ -6,7 +6,6 @@ MODE = [
     "segmentation"
 ]
 
-
 class ProcessBase(object):
     """
     X and Y must be resized as specified img size.
@@ -106,8 +105,6 @@ class Flip(ProcessBase):
                 new_x[i, :, :, :] = x[i, :, ::-1, :]
                 new_y[i, :, :, :] = y[i, :, ::-1, :]
         return new_x, new_y
-
-
 
 
 def flip(x, y=None, mode="classification"):
