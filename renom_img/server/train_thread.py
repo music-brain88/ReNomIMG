@@ -108,6 +108,8 @@ class TrainThread(threading.Thread):
     def run(self):
         try:
             with self.semaphore:
+                if self.stop_event.is_set():
+                    return
                 set_cuda_active(True)
                 release_mem_pool()
                 if DEBUG:
