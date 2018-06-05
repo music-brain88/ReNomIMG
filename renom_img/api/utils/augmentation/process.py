@@ -6,6 +6,7 @@ MODE = [
     "segmentation"
 ]
 
+
 class ProcessBase(object):
     """
     X and Y must be resized as specified img size.
@@ -185,12 +186,12 @@ class Rotate(ProcessBase):
         n, c, h, w = x.shape
         new_x = np.empty_like(x)
 
-        if h==w:
+        if h == w:
             # 0, 90, 180 or 270 degree.
             rotate_frag = np.random.randint(4, size=(n, ))
         else:
             # 0 or 180 degree.
-            rotate_frag = np.random.randint(2, size=(n, ))*2
+            rotate_frag = np.random.randint(2, size=(n, )) * 2
 
         for i, r in enumerate(rotate_frag):
             new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))

@@ -291,7 +291,7 @@ def update_models_state(project_id):
             model_id = models[k]["model_id"]
             running_state = models[k]["running_state"]
             body[model_id] = running_state
-            
+
         body = json.dumps(body)
         ret = create_response(body)
         return ret
@@ -301,8 +301,6 @@ def update_models_state(project_id):
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
-
-
 
 
 @route("/api/renom_img/v1/dataset_info", method="GET")
