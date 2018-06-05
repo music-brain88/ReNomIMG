@@ -33,6 +33,7 @@ cpdef calc_iou(box1, box2):
     intersection = intersection_w*intersection_h
     union = (x2b1 - x1b1) * (y2b1 - y1b1) + (x2b2 - x1b2) * (y2b2 - y1b2)
     iou = intersection/(union - intersection)
+    iou = max(min(iou, 1.), 0)
     return iou 
 
 def nms(box_list, threshold, return_type='box'):
