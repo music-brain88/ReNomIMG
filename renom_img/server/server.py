@@ -383,6 +383,23 @@ def delete_model(project_id, model_id):
         ret = create_response(body)
         return ret
 
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/cancel", method="DELETE")
+def cancel_model(project_id, model_id):
+    print('cancel')
+    try:
+        thread_id = "{}_{}".format(project_id, model_id)
+        storage.update_model_state(model_id, STATE_DELETED)
+
+        # 学習中のスレッドを停止する
+        th = find_thread(thread_id)
+        if th is not None:
+            th.stop()
+
+    except Exception as e:
+        traceback.print_exec()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/progress", method="GET")
 def progress_model(project_id, model_id):

@@ -101,9 +101,15 @@ export default {
       if (this.selected) {
         this.$store.commit('setSelectedModel', {'model_id': undefined})
       }
-      this.$store.dispatch('deleteModel', {
-        'model_id': this.model.model_id
-      })
+      if (this.model.state === constant.STATE_ID['Reserved']) {
+        this.$store.dispatch('cancelModel', {
+          'model_id': this.model.model_id
+        })
+      } else {
+        this.$store.dispatch('deleteModel', {
+          'model_id': this.model.model_id
+        })
+      }
       this.show_delete_dialog = false
     },
     getColor: function (model_state, algorithm) {

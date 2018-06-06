@@ -47,11 +47,10 @@ export default {
       for (let k in Object.keys(constant.ALGORITHM_NAME)) {
         datasets.push({
           label: constant.ALGORITHM_NAME[k],
-          data: [counts[constant.ALGORITHM_NAME[k]]],
+          data: [this.models.filter(model => model.state === constant.STATE_ID['Finished'] && model.algorithm === parseInt(k)).length],
           backgroundColor: constant.ALGORITHM_COLOR[k]
         })
       }
-
       // add Running and Reserved counts
       for (let s of ['Running', 'Reserved']) {
         datasets.push({

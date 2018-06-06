@@ -168,6 +168,18 @@ export default {
       })
   },
 
+  // cancel model
+  cancelModel (context, payload) {
+    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/cancel'
+    return axios.delete(url)
+      .then(function (response) {
+        if (response.data.error_msg) {
+          context.commit('setAlertModalFlag', {'flag': true})
+          context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
+        }
+      })
+  },
+
   /*
   model progress
   */
