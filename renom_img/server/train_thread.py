@@ -13,7 +13,7 @@ from renom_img.server.utils.storage import storage
 from renom_img.api.utils.nms import calc_iou, transform2xy12
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
+WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")
 
 STATE_RUNNING = 1
 STATE_FINISHED = 2

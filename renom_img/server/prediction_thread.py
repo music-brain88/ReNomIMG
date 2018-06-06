@@ -15,10 +15,10 @@ from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
 from renom_img.server.utils.data_preparation import create_pred_dist, create_train_valid_dists
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
-CSV_DIR = os.path.join(BASE_DIR, "../../.storage/csv")
-IMG_DIR = os.path.join(BASE_DIR, "../../dataset/prediction_set/img")
-XML_DIR = os.path.join(BASE_DIR, "../../dataset/prediction_set/out")
+WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")
+CSV_DIR = os.path.join(BASE_DIR, "../.storage/csv")
+IMG_DIR = os.path.join("dataset/prediction_set/img")
+XML_DIR = os.path.join("dataset/prediction_set/out")
 
 STATE_RUNNING = 1
 STATE_FINISHED = 2

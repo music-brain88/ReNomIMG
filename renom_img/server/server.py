@@ -444,7 +444,7 @@ def pull_deployed_model(project_id):
         ret = storage.fetch_model(project_id, deployed_id, "best_epoch_weight")
         file_name = ret['best_epoch_weight']
         path = pkg_resources.resource_filename(__name__,
-                                               posixpath.join('.build', '..', '..', '..', '.storage', 'weight'))
+                                               posixpath.join('.build', '..', '..', '.storage', 'weight'))
         return static_file(file_name, root=path, download='deployed_model.h5')
     except Exception as e:
         print(e)
@@ -470,7 +470,7 @@ def get_deployed_model_info(project_id):
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run", method="GET")
-def run_model(project_id, model_id):
+def rul(project_id, model_id):
     try:
         # 学習データが存在するかチェック
         files = os.listdir(os.path.join(TRAIN_SET_DIR, "label"))
@@ -587,7 +587,9 @@ def prediction_info(project_id, model_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
 def export_csv(project_id, model_id, file_name):
-    return static_file(file_name, root="./.storage/csv", download=True)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    csv_dir = os.path.join(BASE_DIR, "../.storage/csv")
+    return static_file(file_name, root=csv_dir, download=True)
 
 
 @route("/api/renom_img/v1/weights/yolo", method="GET")
