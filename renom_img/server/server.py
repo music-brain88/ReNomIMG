@@ -487,7 +487,7 @@ def get_deployed_model_info(project_id):
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run", method="GET")
-def rul(project_id, model_id):
+def run(project_id, model_id):
     try:
         # 学習データが存在するかチェック
         files = os.listdir(os.path.join(TRAIN_SET_DIR, "label"))
