@@ -180,11 +180,21 @@ export default {
   setImageModalShowFlag (state, payload) {
     state.image_modal_show_flag = payload.flag
   },
+
   setImageIndexOnModal (state, payload) {
     state.image_index_on_modal = payload.index
   },
+
   setValidationPage (state, payload) {
     state.validation_page = payload.page
+  },
+
+  setShowModalImageSample (state, payload) {
+    state.show_modal_image_sample = payload.modal
+    state.idx_active_image_sample = payload.img_idx
+    if (state.show_modal_image_sample) {
+      state.validation_page = Math.floor(payload.img_idx / state.validation_num_img_per_page)
+    }
   },
 
   /*
@@ -213,6 +223,7 @@ export default {
   setPredictRunningFlag (state, payload) {
     state.predict_running_flag = payload.flag
   },
+
   resetPredictResult (state, payload) {
     state.predict_results = {'bbox_list': [], 'bbox_path_list': []}
   },

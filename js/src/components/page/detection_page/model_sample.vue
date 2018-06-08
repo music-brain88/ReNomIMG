@@ -11,6 +11,7 @@
       <sample-image
         v-for="(item, index) in getValidationResult"
         :key="index"
+        :image_idx="index + (currentPage * validation_num_img_per_page)"
         :image_path="item.path"
         :bboxes="item.predicted_bboxes">
       </sample-image>
@@ -20,6 +21,7 @@
 
 <script>
 
+import { mapState } from 'vuex'
 import SampleImage from './model_sample_parts/sample_image.vue'
 
 export default {
@@ -29,18 +31,19 @@ export default {
   },
   data: function () {
     return {
-      maxImageNum: 12,
       maxPageLength: 0
     }
   },
   computed: {
+    ...mapState(['validation_num_img_per_page']),
+
     getValidationResult: function () {
       let result = this.$store.getters.getLastValidationResults
       if (result) {
-        let current = this.currentPage * this.maxImageNum
-        let last = Math.min((this.currentPage + 1) * this.maxImageNum, result.length)
+        let current = this.currentPage * this.validation_num_img_per_page
+        let last = Math.min((this.currentPage + 1) * this.validation_num_img_per_page, result.length)
 
-        this.maxPageLength = Math.floor(result.length / this.maxImageNum)
+        this.maxPageLength = Math.floor(result.length / this.validation_num_img_per_page)
         if (this.maxPageLength <= this.currentPage) {
           this.$store.commit('setValidationPage', {
             'page': 0
