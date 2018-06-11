@@ -101,4 +101,3 @@ class VGG19(rm.Sequential):
             self.load(self.WEIGHT_PATH)
         if num_class != 1000:
             self._layers[-1].params = {}
-
