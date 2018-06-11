@@ -383,6 +383,7 @@ def delete_model(project_id, model_id):
         ret = create_response(body)
         return ret
 
+
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/cancel", method="DELETE")
 def cancel_model(project_id, model_id):
     print('cancel')
@@ -400,6 +401,7 @@ def cancel_model(project_id, model_id):
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
+
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/progress", method="GET")
 def progress_model(project_id, model_id):
