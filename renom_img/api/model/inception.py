@@ -6,6 +6,7 @@ class InceptionV1Block(rm.Model):
         self.conv3_reduced = rm.Conv2d(channels[1], filter=1)
         self.conv3 = rm.Conv2d(channels[2], filter=5, padding=2)
         self.conv4 = rm.Conv2d(channels[1], filter=1)
+
     def forward(self, x):
         t1 = rm.relu(self.conv1(x))
         t2 = rm.relu(self.conv2_reduced(x))
@@ -26,7 +27,7 @@ class InceptionV1(rm.Model):
         self.conv3 = rm.Conv2d(192, filter=3, padding=1, stride=1)
         self.batch_norm2 = rm.BatchNormalize(mode='feature')
         self.a3 = InceptionBlock()
-        self.b3 = InceptionBlock([128, 128,192, 32, 96, 64])
+        self.b3 = InceptionBlock([128, 128, 192, 32, 96, 64])
         self.a4 = InceptionBlock([192, 96, 208, 16, 48, 64])
         self.fc1_1 = rm.Dense(1024)
         self.fc1_2 = rm.Dense(n_class)
@@ -42,6 +43,7 @@ class InceptionV1(rm.Model):
 
         if load_weight:
             self.load('inceptionv1.h5')
+
     def forward(self, x):
         t = rm.relu(self.conv1(x))
         t = rm.max_pool2d(t, filter=3, stride=2, padding=1)
@@ -65,7 +67,7 @@ class InceptionV1(rm.Model):
         t = self.c4(t)
         t = self.d4(t)
 
-        #2nd output ------------------
+        # 2nd output ------------------
         out2 = rm.average_pool2d(t, filter=5, stride=3)
         out2 = rm.flatten(out2)
         out2 = self.fc2_1(out2)
