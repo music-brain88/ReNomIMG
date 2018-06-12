@@ -66,6 +66,7 @@ class WrapperYoloDarknet(Wrapper):
         boxes = boxes.reshape(N, -1, 4)
 
         probs[probs < self._prob_thresh] = 0
+        # Perform NMS
         argsort = np.argsort(probs, axis=1)[:, ::-1]
         for n in range(N):
             for cl in range(self._num_class):

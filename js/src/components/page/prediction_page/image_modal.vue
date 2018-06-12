@@ -4,7 +4,7 @@
     <div class="modal-content" @keyup.37="keyLeft" @keyup.39="keyRight">
       <img id='image' :src="image"></img>
       <div id='box'
-        v-for="(item, index) in bboxes" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'2px solid '+getColor(item[0])}">
+        v-for="(item, index) in bboxes" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'4px solid '+getColor(item[0])}">
         <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
       </div>
     </div>
@@ -171,7 +171,7 @@ export default {
         padding-left: 4px;
         padding-right: 4px;
 
-        font-size: 0.8rem;
+        font-size: 1.4rem;
       }
     }
   }

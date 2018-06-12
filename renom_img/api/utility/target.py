@@ -16,6 +16,8 @@ see the function 'parse_xml_detection' written in load.py.
 
 
 def build_target(annotation_list, img_size, class_mapping=None):
+    """ 
+    """
     # Check the class mapping.
     if class_mapping is None:
         class_dict = {}

@@ -27,6 +27,8 @@ class Detector(object):
         download(download_weight_api, "deployed_model.h5")
 
         ret = requests.get(download_param_api).json()
+
+        # TODO: Check algorithm.
         cell = ret["algorithm_params"]["cells"]
         bbox = ret["algorithm_params"]["bounding_box"]
         img_w = ret["hyper_parameters"]["image_width"]

@@ -4,13 +4,15 @@ from xml.etree import ElementTree
 
 
 def parse_xml_detection(xml_path_list):
-    """XML format must be Pascal VOC format.
+    """
+    This function parses object xml formatted annotation file to list object.  
+    XML format must be Pascal VOC format.
 
     Args: 
         xml_path_list (list): List of xml-file's path.
 
     Returns:
-        (list): This returns list of annotations.
+        (list): Returns list of annotations.
             Each annotation has a list of dictionary which includes keys 'box' and 'name'.
             The structure is bellow.
         [

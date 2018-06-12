@@ -4,7 +4,7 @@
       <div id="imagediv" ref="imagediv">
         <img id='image' :src="getImage(idx_active_image_sample).path" ref="image" @load='onResize'/>
         <div class='bbox' 
-          v-for="(item, index) in getImage(idx_active_image_sample).predicted_bboxes" :key="index" ref='box' :style="{border:'2px solid '+getColor(item[0])}">
+          v-for="(item, index) in getImage(idx_active_image_sample).predicted_bboxes" :key="index" ref='box' :style="{border:'5px solid '+getColor(item[0])}">
           <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default {
         padding-left: 4px;
         padding-right: 4px;
 
-        font-size: 0.8rem;
+        font-size: 1.4rem;
       }
     }
   }
