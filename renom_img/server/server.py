@@ -210,7 +210,6 @@ def get_models(project_id):
 
     except Exception as e:
         traceback.print_exc()
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -239,7 +238,6 @@ def update_models(project_id):
             running_models = storage.fetch_running_models(project_id)
             if model_count < len(data) or running_count != len(running_models):
                 # If model created
-                print(list(data.keys()))
                 valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]
                 if "bbox_path_list" in valid_results:
                     body = json.dumps({
@@ -275,7 +273,6 @@ def update_models(project_id):
             time.sleep(1)
     except Exception as e:
         traceback.print_exc()
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -297,7 +294,6 @@ def update_models_state(project_id):
         return ret
     except Exception as e:
         traceback.print_exc()
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -420,14 +416,12 @@ def progress_model(project_id, model_id):
             if th is not None:
                 # If thread status updated, return response.
                 if model["last_batch"] != th.last_batch or model["running_state"] != th.running_state or model["last_epoch"] != th.last_epoch:
-                    print(model["model_id"])
                     body = json.dumps(model)
                     ret = create_response(body)
                     return ret
             time.sleep(1)
     except Exception as e:
         traceback.print_exc()
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -466,7 +460,6 @@ def pull_deployed_model(project_id):
                                                posixpath.join('.build', '..', '..', '.storage', 'weight'))
         return static_file(file_name, root=path, download='deployed_model.h5')
     except Exception as e:
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -659,6 +652,7 @@ def load_datasets():
         ret = create_response(body)
         return ret
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -675,6 +669,7 @@ def create_dataset():
         ret = create_response(body)
         return ret
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -688,6 +683,7 @@ def load_dataset(dataset_id):
         ret = create_response(body)
         return ret
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -741,7 +737,7 @@ def update_dataset(dataset_id):
         ret = create_response(body)
         return ret
     except Exception as e:
-        print(e)
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
