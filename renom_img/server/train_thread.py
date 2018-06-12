@@ -8,9 +8,9 @@ import numpy as np
 import traceback
 from renom.cuda import set_cuda_active, release_mem_pool
 from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
-from renom_img.server.utils.data_preparation import create_train_valid_dists
-from renom_img.server.utils.storage import storage
-from renom_img.api.utils.nms import calc_iou, transform2xy12
+from renom_img.server.utility.data_preparation import create_train_valid_dists
+from renom_img.server.utility.storage import storage
+from renom_img.api.utility.nms import calc_iou, transform2xy12
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")

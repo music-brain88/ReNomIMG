@@ -23,8 +23,8 @@ from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread, WEIGHT_DIR
 from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.weight_download_thread import WeightDownloadThread
-from renom_img.server.utils.storage import storage
-from renom_img.server.utils.console_funcs import divide_datasets
+from renom_img.server.utility.storage import storage
+from renom_img.server.utility.console_funcs import divide_datasets
 
 STATE_RUNNING = 1
 STATE_FINISHED = 2

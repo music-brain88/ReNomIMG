@@ -38,6 +38,12 @@ cpdef calc_iou(box1, box2):
 
 def nms(box_list, threshold, return_type='box'):
     """
+    NMS(Non maximum suppression)
+
+    Args:
+        box_list:
+        threshold:
+        return_type:
     """
     cdef float iou;
     result = []

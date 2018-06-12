@@ -7,12 +7,12 @@ import sys
 import numpy as np
 from xml.etree import ElementTree
 
-from renom_img.api.utils.target import build_target
-from renom_img.api.utils.distributor.distributor import ImageDetectionDistributor
-from renom_img.api.utils.load import parse_xml_detection
+from renom_img.api.utility.target import build_target
+from renom_img.api.utility.distributor.distributor import ImageDetectionDistributor
+from renom_img.api.utility.load import parse_xml_detection
 
-from renom_img.api.utils.augmentation.augmentation import Augmentation
-from renom_img.api.utils.augmentation.process import Flip, Shift, Rotate, WhiteNoise
+from renom_img.api.utility.augmentation.augmentation import Augmentation
+from renom_img.api.utility.augmentation.process import Flip, Shift, Rotate, WhiteNoise
 
 
 def create_train_valid_dists(img_size):

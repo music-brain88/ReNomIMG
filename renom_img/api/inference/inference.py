@@ -4,7 +4,7 @@ import urllib.request
 
 import numpy as np
 from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
-from renom_img.api.utils.misc.download import download
+from renom_img.api.utility.misc.download import download
 
 pre = 0
 

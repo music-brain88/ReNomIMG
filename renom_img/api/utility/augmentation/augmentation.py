@@ -1,6 +1,6 @@
 
 import numpy as np
-from renom_img.api.utils.augmentation.process import MODE
+from renom_img.api.utility.augmentation.process import MODE
 
 
 class Augmentation(object):

@@ -10,9 +10,9 @@ import numpy as np
 import xml.etree.ElementTree as et
 from PIL import Image
 from renom.cuda import set_cuda_active, release_mem_pool
-from renom_img.server.utils.storage import storage
+from renom_img.server.utility.storage import storage
 from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
-from renom_img.server.utils.data_preparation import create_pred_dist, create_train_valid_dists
+from renom_img.server.utility.data_preparation import create_pred_dist, create_train_valid_dists
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")

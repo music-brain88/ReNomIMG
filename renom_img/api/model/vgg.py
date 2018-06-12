@@ -4,7 +4,7 @@ from __future__ import print_function, division
 import os
 import numpy as np
 import renom as rm
-from renom_img.api.utils.misc.download import download
+from renom_img.api.utility.misc.download import download
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
 

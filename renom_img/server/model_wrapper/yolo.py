@@ -4,8 +4,8 @@ import numpy as np
 import renom as rm
 from renom_img.api.detection.yolo import Yolo
 from renom_img.api.model.darknet import Darknet
-from renom_img.api.utils.nms import transform2xy12 as xy12
-from renom_img.api.utils.nms import calc_iou
+from renom_img.api.utility.nms import transform2xy12 as xy12
+from renom_img.api.utility.nms import calc_iou
 from renom_img.server.model_wrapper.wrapper_base import Wrapper
 
 
