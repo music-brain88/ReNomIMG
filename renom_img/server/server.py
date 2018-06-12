@@ -287,8 +287,11 @@ def update_models_state(project_id):
         for k in list(models.keys()):
             model_id = models[k]["model_id"]
             running_state = models[k]["running_state"]
-            body[model_id] = running_state
-
+            state = model[k]['state']
+            body[model_id] = {
+                'running_state': running_state,
+                'state': state
+            }
         body = json.dumps(body)
         ret = create_response(body)
         return ret
@@ -404,7 +407,7 @@ def progress_model(project_id, model_id):
     try:
         thread_id = "{}_{}".format(project_id, model_id)
 
-        fields = "model_id,project_id,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+        fields = "model_id,project_id,state,last_epoch,last_batch,total_batch,last_train_loss,running_state"
         model = storage.fetch_model(project_id, model_id, fields=fields)
         if not model:
             body = json.dumps(model)
@@ -419,7 +422,15 @@ def progress_model(project_id, model_id):
                     body = json.dumps(model)
                     ret = create_response(body)
                     return ret
-            time.sleep(1)
+                time.sleep(1)
+            else:
+                # If thread status updated, return response.
+                print(model["state"])
+                body = json.dumps(model)
+                ret = create_response(body)
+                return ret
+                time.sleep(1)
+
     except Exception as e:
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})

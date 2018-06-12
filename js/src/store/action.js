@@ -216,7 +216,12 @@ export default {
       context.commit('updateProgress', {
         'model': response.data
       })
-      context.dispatch('updateProgress', {'model_id': payload.model_id})
+      // updata progress if state is not finished or deleted
+      if (response.data.state !== 2 && response.data.state !== 3) {
+        context.dispatch('updateProgress', {'model_id': payload.model_id})
+      } else {
+        context.dispatch('updateModelsState')
+      }
     }).catch(function (error) {
       context.dispatch('updateProgress', {'model_id': payload.model_id})
     })

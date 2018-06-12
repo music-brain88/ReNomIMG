@@ -69,11 +69,16 @@ export default {
   },
   // update model state
   updateModelsState (state, payload) {
-    for (let index in state.models) {
-      for (let id in payload) {
-        if (state.models[index] === id) {
-          state.models[index].running_state = payload[id]
+    for (let index in state['models']) {
+      if (!('running_state' in state['models'][index])) {
+        if (state['models'][index].running_state !== payload[state['models'][index].model_id]['running_state']) {
+          state['models'][index].running_state = payload[state['models'][index].model_id]['running_state']
           break
+        }
+      }
+      if (!('state' in state['models'][index])) {
+        if (state['models'][index].state !== payload[state['models'][index].model_id]['state']) {
+          state['models'][index].state = payload[state['models'][index].model_id]['state']
         }
       }
     }
@@ -84,7 +89,7 @@ export default {
     for (let index in state.models) {
       let d = state.models[index]
       if (p.model_id === d.model_id) {
-        let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, p.last_epoch, p.last_batch, p.total_batch, p.last_train_loss, p.running_state)
+        let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, p.state, d.best_epoch_validation_result, p.last_epoch, p.last_batch, p.total_batch, p.last_train_loss, p.running_state)
         if (d.best_epoch !== undefined) {
           m.best_epoch = d.best_epoch
           m.train_loss_list = d.train_loss_list
