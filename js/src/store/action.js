@@ -177,6 +177,7 @@ export default {
           context.commit('setAlertModalFlag', {'flag': true})
           context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
         }
+        context.dispatch('updateModelsState')
       })
   },
 
