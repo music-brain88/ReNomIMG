@@ -234,9 +234,10 @@ def update_models(project_id):
             running_states.append(running_models[k]["running_state"])
 
         for j in range(300):
+            time.sleep(1)
             data = storage.fetch_models(project_id)
             running_models = storage.fetch_running_models(project_id)
-            if model_count < len(data) or running_count != len(running_models):
+            if model_count < len(data):
                 # If model created
                 valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]
                 if "bbox_path_list" in valid_results:
@@ -247,15 +248,15 @@ def update_models(project_id):
                     ret = create_response(body)
                     return ret
 
-            elif model_count > len(data):
-                body = json.dumps({
-                    "models": {},
-                    "update_type": 1
-                })
-                ret = create_response(body)
-                return ret
+            # elif model_count > len(data):
+            #     body = json.dumps({
+            #         "models": {},
+            #         "update_type": 1
+            #     })
+            #     ret = create_response(body)
+            #     return ret
 
-            elif model_count == len(data):
+            elif model_count == len(data) or model_count >len(data):
                 # if running information change, return response.
                 for i, v in enumerate(model_ids):
                     thread_id = "{}_{}".format(project_id, model_ids[i])
@@ -270,8 +271,8 @@ def update_models(project_id):
                             })
                             ret = create_response(body)
                             return ret
-            time.sleep(1)
     except Exception as e:
+        time.sleep(1000)
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
@@ -287,7 +288,7 @@ def update_models_state(project_id):
         for k in list(models.keys()):
             model_id = models[k]["model_id"]
             running_state = models[k]["running_state"]
-            state = model[k]['state']
+            state = models[k]['state']
             body[model_id] = {
                 'running_state': running_state,
                 'state': state
@@ -385,11 +386,9 @@ def delete_model(project_id, model_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/cancel", method="DELETE")
 def cancel_model(project_id, model_id):
-    print('cancel')
     try:
         thread_id = "{}_{}".format(project_id, model_id)
         storage.update_model_state(model_id, STATE_DELETED)
-
         # 学習中のスレッドを停止する
         th = find_thread(thread_id)
         if th is not None:
@@ -425,7 +424,6 @@ def progress_model(project_id, model_id):
                 time.sleep(1)
             else:
                 # If thread status updated, return response.
-                print(model["state"])
                 body = json.dumps(model)
                 ret = create_response(body)
                 return ret

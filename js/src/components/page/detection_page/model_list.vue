@@ -19,7 +19,7 @@
     </div>
 
     <div class="model-item-area">
-      <model-list-item v-for="(s,index) in $store.state.models" :key="index" :model="s"></model-list-item>
+      <model-list-item v-for="(s,index) in $store.state.models.filter(model => model.state !== 3)" :key="index" :model="s"></model-list-item>
     </div>
   </div>
 </template>
