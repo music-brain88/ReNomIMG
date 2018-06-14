@@ -31,7 +31,7 @@ class DataBuilderBase(object):
         pass
 
     def reverce_label(self, label_list):
-        pass 
+        pass
 
     def load_img(self, path):
         img = Image.open(path)
@@ -52,6 +52,7 @@ class DataBuilderBase(object):
 
 class DataBuilderDefault(DataBuilderBase):
     pass
+
 
 class DataBuilderClassification(DataBuilderBase):
     """
@@ -118,7 +119,6 @@ class DataBuilderDetection(DataBuilderBase):
         else:
             img_list, annotation_list = np.array(img_list), new_annotation_list
 
-
         # Get max number of objects in one image.
         dlt = 4 + 1
         max_obj_num = np.max([len(annotation) for annotation in annotation_list])
@@ -146,7 +146,6 @@ class DataBuilderYolov1(DataBuilderBase):
                 for obj in annotation:
                     class_dict[obj['name']] = 1
             self.class_mapping = {k: i for i, k in enumerate(sorted(class_dict.keys()))}
-
 
     def build(self, img_path_list, annotation_list, augmentation):
         """Use to transform a list of objects per image into a image*cells*cells*(5+classes) matrix.

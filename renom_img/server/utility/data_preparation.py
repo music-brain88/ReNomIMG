@@ -21,7 +21,8 @@ def create_train_valid_dists(img_size, cell):
     valid_img_path = 'dataset/valid_set/img'
     valid_xml_path = 'dataset/valid_set/label'
 
-    train_xml_path_list = [os.path.join(train_xml_path, path) for path in sorted(os.listdir(train_xml_path))]
+    train_xml_path_list = [os.path.join(train_xml_path, path)
+                           for path in sorted(os.listdir(train_xml_path))]
     train_img_path_list = [os.path.join(train_img_path, path)
                            for path in sorted(os.listdir(train_img_path))]
     valid_xml_path_list = [os.path.join(valid_xml_path, path)
@@ -40,7 +41,8 @@ def create_train_valid_dists(img_size, cell):
         WhiteNoise(0.1),
     ])
 
-    train_dist = ImageDetectionDistributor(train_img_path_list, train_label, TargetBuilderYolov1(), aug)
+    train_dist = ImageDetectionDistributor(
+        train_img_path_list, train_label, TargetBuilderYolov1(), aug)
     valid_dist = ImageDetectionDistributor(valid_img_path_list, valid_label)
     class_list = [k for k, v in sorted(class_mapping.items(), key=lambda x: x[0])]
     return class_list, train_dist, valid_dist

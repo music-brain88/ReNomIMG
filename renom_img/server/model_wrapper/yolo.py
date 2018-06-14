@@ -92,7 +92,6 @@ class WrapperYoloDarknet(Wrapper):
             })
         return result
 
-
     def optimizer(self, nth_epoch, nth_batch, total_epoch, total_batch_loop):
         lr_list = [0.001] \
             + [0.01] * int(total_epoch * 0.5) \
@@ -110,7 +109,6 @@ class WrapperYoloDarknet(Wrapper):
 
         self._optimizer._lr = lr
         return self._optimizer
-
 
     def loss_func(self, x, y):
         return self._yolo_detector_loss(x, y)

@@ -81,7 +81,7 @@ class PredictionThread(threading.Thread):
         try:
             pred_img_path_list = sorted(os.listdir(pred_img_path))
             pred_img_path_list = [os.path.join(pred_img_path, x)
-                          for x in pred_img_path_list]
+                                  for x in pred_img_path_list]
 
             builder = DataBuilderYolov1(self.cell_h, self.img_size)
             distributor = ImageDistributor(pred_img_path, target_builder=builder, num_worker=2)

@@ -127,18 +127,18 @@ class TrainThread(threading.Thread):
                     print("run thread")
                 storage.update_model_state(self.model_id, STATE_RUNNING)
 
-                ### Create distributor
-                
-                train_xml_path_list = [os.path.join(train_xml_path, path) 
-                    for path in sorted(os.listdir(train_xml_path))]
-                train_img_path_list = [os.path.join(train_img_path, path) 
-                    for path in sorted(os.listdir(train_img_path))]
+                # Create distributor
+
+                train_xml_path_list = [os.path.join(train_xml_path, path)
+                                       for path in sorted(os.listdir(train_xml_path))]
+                train_img_path_list = [os.path.join(train_img_path, path)
+                                       for path in sorted(os.listdir(train_img_path))]
                 train_label_list = parse_xml_detection(train_xml_path_list)
 
-                valid_xml_path_list = [os.path.join(valid_xml_path, path) 
-                    for path in sorted(os.listdir(valid_xml_path))]
-                valid_img_path_list = [os.path.join(valid_img_path, path) 
-                    for path in sorted(os.listdir(valid_img_path))]
+                valid_xml_path_list = [os.path.join(valid_xml_path, path)
+                                       for path in sorted(os.listdir(valid_xml_path))]
+                valid_img_path_list = [os.path.join(valid_img_path, path)
+                                       for path in sorted(os.listdir(valid_img_path))]
                 valid_label_list = parse_xml_detection(valid_xml_path_list)
 
                 builder = DataBuilderYolov1(self.cell_h, self.img_size)
