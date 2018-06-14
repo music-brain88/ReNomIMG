@@ -114,7 +114,6 @@ class TrainThread(threading.Thread):
                 release_mem_pool()
                 if DEBUG:
                     print("run thread")
-                print('thread is running' + str(self.thread_id))
                 storage.update_model_state(self.model_id, STATE_RUNNING)
                 class_list, train_dist, valid_dist = create_train_valid_dists(
                     self.img_size)

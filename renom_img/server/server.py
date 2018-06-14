@@ -388,6 +388,7 @@ def delete_model(project_id, model_id):
 def cancel_model(project_id, model_id):
     try:
         thread_id = "{}_{}".format(project_id, model_id)
+        print('cancel', STATE_DELETED)
         storage.update_model_state(model_id, STATE_DELETED)
         # 学習中のスレッドを停止する
         th = find_thread(thread_id)
@@ -526,7 +527,8 @@ def run(project_id, model_id):
         th.start()
         th.join()
         # Following line should be implemented here. Not in train_thread.py
-        storage.update_model_state(model_id, STATE_FINISHED)
+        if not th.stop_event.is_set():
+            storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
         if th.error_msg is not None:
             storage.update_model_state(model_id, STATE_FINISHED)
