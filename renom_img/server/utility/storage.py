@@ -188,6 +188,7 @@ class Storage:
         return c.lastrowid
 
     def update_model_state(self, model_id, state):
+        print('state ', state, ' model_id ', model_id)
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
