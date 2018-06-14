@@ -389,7 +389,6 @@ def cancel_model(project_id, model_id):
     try:
         thread_id = "{}_{}".format(project_id, model_id)
         storage.update_model_state(model_id, STATE_DELETED)
-
         # 学習中のスレッドを停止する
         th = find_thread(thread_id)
         if th is not None:
@@ -425,7 +424,6 @@ def progress_model(project_id, model_id):
                 time.sleep(1)
             else:
                 # If thread status updated, return response.
-                print(model["state"])
                 body = json.dumps(model)
                 ret = create_response(body)
                 return ret

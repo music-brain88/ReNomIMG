@@ -114,6 +114,7 @@ class TrainThread(threading.Thread):
                 release_mem_pool()
                 if DEBUG:
                     print("run thread")
+                print('thread is running' + str(self.thread_id))
                 storage.update_model_state(self.model_id, STATE_RUNNING)
                 class_list, train_dist, valid_dist = create_train_valid_dists(
                     self.img_size)
@@ -252,7 +253,7 @@ class TrainThread(threading.Thread):
                     validation_loss=validation_loss,
                     epoch_iou=v_iou,
                     epoch_map=v_mAP)
-
+            print('storage run train ' + str(self.model_id))
             storage.update_model_state(self.model_id, STATE_FINISHED)
         except Exception as e:
             traceback.print_exc()
