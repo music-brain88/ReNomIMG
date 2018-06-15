@@ -65,7 +65,7 @@ def prepare_detection_data(img_path_list, annotation_list, imsize):
     for path, obj_list in zip(img_path_list, annotation_list):
         img = Image.open(path)
         w, h = img.size
-        sw, sh = imsize[0]/w, imsize[1]/h
+        sw, sh = imsize[0]/float(w), imsize[1]/float(h)
         img = img.resize(imsize).convert('RGB')
         new_obj_list = [{
             "box": [obj["box"][0]*sw, obj["box"][1]*sh, obj["box"][2]*sw, obj["box"][3]*sh],

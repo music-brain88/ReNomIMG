@@ -3,7 +3,7 @@ import renom as rm
 from PIL import Image
 from renom_img.api.model.darknet import Darknet
 from renom_img.api.utility.load import prepare_detection_data, load_img
-from renom_img.api.utility.nms import transform2xy12
+from renom_img.api.utility.nms import transform2xy12, nms
 
 
 def make_box(box):
@@ -81,6 +81,13 @@ class Yolov1(rm.Model):
         self.freezed_network.set_auto_update(False)
         return self.network(self.freezed_network(x).as_ndarray())
 
+    def regularize(self):
+        reg = 0
+        for layer in self.network.iter_models():
+            if hasattr(layer, "params") and hasattr(layer.params, "w"):
+                reg += rm.sum(layer.params.w * layer.params.w)
+        return 0.0005 * reg
+
     def predict(self, img_path_list):
         self.set_models(inference=True)
         if isinstance(img_path_list, (tuple, list)):
@@ -114,6 +121,7 @@ class Yolov1(rm.Model):
 
         probs[probs < 0.2] = 0
         # Perform NMS
+
         argsort = np.argsort(probs, axis=1)[:, ::-1]
         for n in range(N):
             for cl in range(self._num_class):
@@ -138,6 +146,7 @@ class Yolov1(rm.Model):
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
         return result
+
 
     def build_data(self, img_path_list, annotation_list, augmentation=None):
         """
@@ -186,7 +195,6 @@ class Yolov1(rm.Model):
         mask[no_obj_flag[0], no_obj_flag[1], no_obj_flag[2], :] = 0
         for b in range(num_bbox):
             # No obj
-            # target[n, no_obj_flag[0], no_obj_flag[1], 5*b] = 0
             mask[no_obj_flag[0], no_obj_flag[1], no_obj_flag[2], 5 * b] = 0.5
 
             # Search best iou target. 1:5, 6:10
