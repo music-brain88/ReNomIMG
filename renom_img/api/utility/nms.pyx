@@ -1,3 +1,4 @@
+import numpy as np
 
 cpdef transform2xywh(box):
     cdef float x1, y1, x2, y2;
@@ -19,25 +20,15 @@ cpdef transform2xy12(box):
     y2 = y + h/2.0
     return (x1, y1, x2, y2)
     
-cpdef calc_iou(box1, box2):
-    cdef float x1b1, y1b1, x2b1, y2b1;
-    cdef float x1b2, y1b2, x2b2, y2b2;
-    cdef float intersection;
-    cdef float union;
-    
-    x1b1, y1b1, x2b1, y2b1 = box1
-    x1b2, y1b2, x2b2, y2b2 = box2
-
-    intersection_w = max((min(x2b1, x2b2) - max(x1b1, x1b2)), 0)
-    intersection_h = max((min(y2b1, y2b2) - max(y1b1, y1b2)), 0)
-    intersection = intersection_w*intersection_h
-    union = (x2b1 - x1b1) * (y2b1 - y1b1) + (x2b2 - x1b2) * (y2b2 - y1b2)
-    iou = intersection/(union - intersection)
-    iou = max(min(iou, 1.), 0)
-    return iou 
 
 def nms(preds, threshold, return_type='box'):
     """
+    NMS(Non maximum suppression)
+
+    Args:
+        box_list:
+        threshold:
+        return_type:
     """
     cdef float iou;
     result = []

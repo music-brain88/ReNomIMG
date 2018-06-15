@@ -23,8 +23,8 @@ from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread, WEIGHT_DIR
 from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.weight_download_thread import WeightDownloadThread
-from renom_img.server.utils.storage import storage
-from renom_img.server.utils.console_funcs import divide_datasets
+from renom_img.server.utility.storage import storage
+from renom_img.server.utility.console_funcs import divide_datasets
 
 STATE_RUNNING = 1
 STATE_FINISHED = 2
@@ -210,7 +210,6 @@ def get_models(project_id):
 
     except Exception as e:
         traceback.print_exc()
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -239,7 +238,6 @@ def update_models(project_id):
             running_models = storage.fetch_running_models(project_id)
             if model_count < len(data) or running_count != len(running_models):
                 # If model created
-                print(list(data.keys()))
                 valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]
                 if "bbox_path_list" in valid_results:
                     body = json.dumps({
@@ -275,7 +273,6 @@ def update_models(project_id):
             time.sleep(1)
     except Exception as e:
         traceback.print_exc()
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -297,7 +294,6 @@ def update_models_state(project_id):
         return ret
     except Exception as e:
         traceback.print_exc()
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -384,6 +380,27 @@ def delete_model(project_id, model_id):
         return ret
 
 
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/cancel", method="DELETE")
+def cancel_model(project_id, model_id):
+    print('cancel')
+    try:
+        thread_id = "{}_{}".format(project_id, model_id)
+        storage.update_model_state(model_id, STATE_DELETED)
+
+        # 学習中のスレッドを停止する
+        print("Reached")
+  
+        th = find_thread(thread_id)
+        if th is not None:
+            th.stop()
+
+    except Exception as e:
+        traceback.print_exec()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/progress", method="GET")
 def progress_model(project_id, model_id):
     try:
@@ -401,14 +418,12 @@ def progress_model(project_id, model_id):
             if th is not None:
                 # If thread status updated, return response.
                 if model["last_batch"] != th.last_batch or model["running_state"] != th.running_state or model["last_epoch"] != th.last_epoch:
-                    print(model["model_id"])
                     body = json.dumps(model)
                     ret = create_response(body)
                     return ret
             time.sleep(1)
     except Exception as e:
         traceback.print_exc()
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -444,10 +459,9 @@ def pull_deployed_model(project_id):
         ret = storage.fetch_model(project_id, deployed_id, "best_epoch_weight")
         file_name = ret['best_epoch_weight']
         path = pkg_resources.resource_filename(__name__,
-                                               posixpath.join('.build', '..', '..', '..', '.storage', 'weight'))
+                                               posixpath.join('.build', '..', '..', '.storage', 'weight'))
         return static_file(file_name, root=path, download='deployed_model.h5')
     except Exception as e:
-        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -470,7 +484,7 @@ def get_deployed_model_info(project_id):
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run", method="GET")
-def run_model(project_id, model_id):
+def run(project_id, model_id):
     try:
         # 学習データが存在するかチェック
         files = os.listdir(os.path.join(TRAIN_SET_DIR, "label"))
@@ -508,7 +522,7 @@ def run_model(project_id, model_id):
         storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
         if th.error_msg is not None:
-            storage.update_model_state(model_id, STATE_FINISHED)
+            # storage.update_model_state(model_id, STATE_FINISHED)
             body = json.dumps({"error_msg": th.error_msg})
             ret = create_response(body)
             return ret
@@ -587,7 +601,9 @@ def prediction_info(project_id, model_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
 def export_csv(project_id, model_id, file_name):
-    return static_file(file_name, root="./.storage/csv", download=True)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    csv_dir = os.path.join(BASE_DIR, "../.storage/csv")
+    return static_file(file_name, root=csv_dir, download=True)
 
 
 @route("/api/renom_img/v1/weights/yolo", method="GET")
@@ -638,6 +654,7 @@ def load_datasets():
         ret = create_response(body)
         return ret
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -654,6 +671,7 @@ def create_dataset():
         ret = create_response(body)
         return ret
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -667,6 +685,7 @@ def load_dataset(dataset_id):
         ret = create_response(body)
         return ret
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -720,7 +739,7 @@ def update_dataset(dataset_id):
         ret = create_response(body)
         return ret
     except Exception as e:
-        print(e)
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret

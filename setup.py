@@ -63,6 +63,6 @@ setup(
     cmdclass={
         'build': BuildNPM,
     },
-    ext_modules=cythonize("renom_img/api/utils/*.pyx",
+    ext_modules=cythonize("renom_img/api/utility/*.pyx",
                           include_path=[numpy.get_include()])
 )

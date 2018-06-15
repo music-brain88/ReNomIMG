@@ -3,8 +3,18 @@ from nms import *
 
 def get_prec_and_rec(gt_list, pred_list, class_list, iou_threshold=0.5):
     """
+    This function calculates precision and recall value of provided ground truth box list(gt_list) and
+    predicted box list(pred_list).
+
+    # TODO: write reference
+
+    Args:
+      gt_list (list):
+      pred_list (list): A list of predicted bounding boxes.
+      class_list (list): A list of class name. Examle: x["aeroplane", "bicycle", "bird", ...].
+
     predict_list:
-    [
+      [
             [ # Objects of 1st image.
                 {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
                 {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},

@@ -4,7 +4,7 @@ import urllib.request
 
 import numpy as np
 from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
-from renom_img.api.utils.misc.download import download
+from renom_img.api.utility.misc.download import download
 
 pre = 0
 
@@ -27,6 +27,8 @@ class Detector(object):
         download(download_weight_api, "deployed_model.h5")
 
         ret = requests.get(download_param_api).json()
+
+        # TODO: Check algorithm.
         cell = ret["algorithm_params"]["cells"]
         bbox = ret["algorithm_params"]["bounding_box"]
         img_w = ret["hyper_parameters"]["image_width"]

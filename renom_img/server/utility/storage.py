@@ -10,7 +10,7 @@ except:
     import cPickle as pickle
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STRAGE_DIR = os.path.join(BASE_DIR, "../../../.storage")
+STRAGE_DIR = os.path.join(BASE_DIR, "../../.storage")
 
 
 def pickle_dump(obj):

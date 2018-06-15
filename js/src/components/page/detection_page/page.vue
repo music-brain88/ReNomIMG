@@ -21,6 +21,7 @@
       </div>
     </div>
 
+    <image-modal v-if='show_modal_image_sample'/>
 
     <add-model-modal v-if="$store.state.add_model_modal_show_flag"></add-model-modal>
     <weight-downloading-modal v-if="$store.state.weight_downloading_modal"></weight-downloading-modal>
@@ -28,6 +29,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import ModelList from './model_list.vue'
 import DashBoard from './dashboard.vue'
 import ModelDetail from './model_detail.vue'
@@ -35,6 +38,7 @@ import ModelSample from './model_sample.vue'
 import TagList from './tag_list.vue'
 import AddModelModal from './add_model_modal.vue'
 import WeightDownloadingModal from './weight_downloading_modal.vue'
+import ImageModal from './image_modal.vue'
 
 export default {
   name: 'DetectionPage',
@@ -45,7 +49,13 @@ export default {
     'model-sample': ModelSample,
     'tag-list': TagList,
     'add-model-modal': AddModelModal,
-    'weight-downloading-modal': WeightDownloadingModal
+    'weight-downloading-modal': WeightDownloadingModal,
+    'image-modal': ImageModal
+  },
+  computed: {
+    ...mapState([
+      'show_modal_image_sample'
+    ])
   },
   created: function () {
     this.$store.dispatch('initData', {'project_id': 1})

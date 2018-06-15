@@ -75,7 +75,7 @@ export default {
 
       // add model coordinate to coordinate_data
       for (let model of this.models) {
-        if (model.model_id === this.$store.state.selected_model_id) {
+        if (model.model_id === this.$store.state.selected_model_id && model.state !== constant.STATE_ID['Reserved']) {
           coordinate_data['Selected'].data.push(this.plotData(model.model_id, model.algorithm, model.best_epoch_iou, model.best_epoch_map))
         } else if (model.state === constant.STATE_ID['Running']) {
           coordinate_data['Running'].data.push(this.plotData(model.model_id, model.algorithm, model.best_epoch_iou, model.best_epoch_map))
@@ -93,7 +93,6 @@ export default {
       for (let k in Object.keys(constant.ALGORITHM_NAME)) {
         datasets.push(coordinate_data[constant.ALGORITHM_NAME[k]])
       }
-
       // canvas
       let parent = document.getElementById('model-plot')
       let parent_width = parent.style.width

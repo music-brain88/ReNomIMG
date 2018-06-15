@@ -42,6 +42,12 @@ export default {
   */
   // prediction sample of detection page
   validation_page: 0,
+  validation_num_img_per_page: 12,
+  /*
+  Show sample images with modal window
+  */
+  show_modal_image_sample: false,
+  idx_active_image_sample: 0,
 
   /*
   prediction page
