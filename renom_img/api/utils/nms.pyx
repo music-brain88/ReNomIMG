@@ -36,27 +36,37 @@ cpdef calc_iou(box1, box2):
     iou = max(min(iou, 1.), 0)
     return iou 
 
-def nms(box_list, threshold, return_type='box'):
+def nms(preds, threshold, return_type='box'):
     """
     """
     cdef float iou;
     result = []
+    for pred in preds:
+        boxes = [obj['box'] for obj in pred]
+        scores = [obj['score'] for obj in pred]
+        index = np.argsort(scores).tolist()
+        tmp = []
+        while len(index) > 0:
+            last = len(index) - 1
+            i = index[last]
+            box1 = boxes[i]
+            score = scores[i]
 
-    for i, box1 in enumerate(box_list):
-        broken = False
-        for j, box2 in enumerate(box_list[i+1:]):
-            iou = calc_iou(box1, box2)
-            if iou > threshold:
-                broken = True
-                break
-        if return_type=='box' and not broken:
-            result.append(box1)
-        elif return_type=='index' and not broken:
-            result.append(i)
+            tmp.append({
+                    'box': box1,
+                    'score': score
+                })
+            index.pop(last)
+
+            for j in index:
+                box2 = boxes[j]
+                iou = calc_iou(box1, box2)
+                if iou > threshold:
+                    index.remove(j)
+        result.append(tmp)
     return result
 
-
-def soft_nms(box_list, threshold, return_type='box'):
+def soft_nms(preds, threshold, return_type='box'):
     """
     Soft-NMS.
 
@@ -65,4 +75,34 @@ def soft_nms(box_list, threshold, return_type='box'):
         Soft-NMS -- Improving Object Detection With One Line of Code
         https://arxiv.org/abs/1704.04503
     """
-    pass
+
+    cdef float iou;
+    result = []
+    for pred in preds:
+        boxes = [obj['box'] for obj in pred]
+        scores = [obj['score'] for obj in pred]
+        tmp = []
+        index = np.argsort(scores).tolist()
+        while len(index) > 0:
+            last = len(index) - 1
+            i = index[last]
+            box1 = boxes[i]
+            score = scores[i]
+
+            tmp.append({
+                    'box': box1,
+                    'score': score
+                })
+
+            index.pop(last)
+            boxes.pop(i)
+            scores.pop(i)
+
+            for j, box2 in enumerate(boxes):
+                iou = calc_iou(box1, box2)
+                if iou > threshold:
+                    scores[j] *= (1-iou)
+            index = np.argsort(scores).tolist()
+        result.append(tmp)
+    return result
+
