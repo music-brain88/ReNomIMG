@@ -256,7 +256,7 @@ def update_models(project_id):
             #     ret = create_response(body)
             #     return ret
 
-            elif model_count == len(data) or model_count >len(data):
+            elif model_count == len(data) or model_count > len(data):
                 # if running information change, return response.
                 for i, v in enumerate(model_ids):
                     thread_id = "{}_{}".format(project_id, model_ids[i])
@@ -530,11 +530,11 @@ def run(project_id, model_id):
         th.start()
         th.join()
         # Following line should be implemented here. Not in train_thread.py
-        if not th.stop_event.is_set():
+        model = storage.fetch_model(project_id, model_id, fields='state')
+        if model['state'] != STATE_DELETED:
             storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
         if th.error_msg is not None:
-            storage.update_model_state(model_id, STATE_FINISHED)
             body = json.dumps({"error_msg": th.error_msg})
             ret = create_response(body)
             return ret
