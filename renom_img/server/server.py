@@ -427,7 +427,7 @@ def progress_model(project_id, model_id):
             th = find_thread(thread_id)
             if th is not None:
                 # If thread status updated, return response.
-                if model["last_batch"] != th.last_batch or model["running_state"] != th.running_state or model["last_epoch"] != th.last_epoch:
+                if isinstance(th, TrainThread) and (model["last_batch"] != th.last_batch or model["running_state"] != th.running_state or model["last_epoch"] != th.last_epoch):
                     body = json.dumps(model)
                     ret = create_response(body)
                     return ret

@@ -255,6 +255,5 @@ export default {
 
   setDatasetDefs (state, payload) {
     state.dataset_defs = payload.dataset_defs
-    console.log(payload.dataset_defs)
   }
 }
