@@ -374,10 +374,10 @@ def delete_model(project_id, model_id):
 
         # 学習中のスレッドを停止する
         th = find_thread(thread_id)
+        storage.update_model_state(model_id, STATE_DELETED)
         if th is not None:
             th.stop()
             th.join()
-        storage.update_model_state(model_id, STATE_DELETED)
 
         ret = storage.fetch_model(project_id, model_id, "best_epoch_weight")
         file_name = ret.get('best_epoch_weight', None)
