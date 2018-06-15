@@ -234,9 +234,10 @@ def update_models(project_id):
             running_states.append(running_models[k]["running_state"])
 
         for j in range(300):
+            time.sleep(1)
             data = storage.fetch_models(project_id)
             running_models = storage.fetch_running_models(project_id)
-            if model_count < len(data) or running_count != len(running_models):
+            if model_count < len(data):
                 # If model created
                 valid_results = data[list(data.keys())[-1]]["best_epoch_validation_result"]
                 if "bbox_path_list" in valid_results:
@@ -247,15 +248,15 @@ def update_models(project_id):
                     ret = create_response(body)
                     return ret
 
-            elif model_count > len(data):
-                body = json.dumps({
-                    "models": {},
-                    "update_type": 1
-                })
-                ret = create_response(body)
-                return ret
+            # elif model_count > len(data):
+            #     body = json.dumps({
+            #         "models": {},
+            #         "update_type": 1
+            #     })
+            #     ret = create_response(body)
+            #     return ret
 
-            elif model_count == len(data):
+            elif model_count == len(data) or model_count > len(data):
                 # if running information change, return response.
                 for i, v in enumerate(model_ids):
                     thread_id = "{}_{}".format(project_id, model_ids[i])
@@ -270,8 +271,8 @@ def update_models(project_id):
                             })
                             ret = create_response(body)
                             return ret
-            time.sleep(1)
     except Exception as e:
+        time.sleep(1000)
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
@@ -287,8 +288,11 @@ def update_models_state(project_id):
         for k in list(models.keys()):
             model_id = models[k]["model_id"]
             running_state = models[k]["running_state"]
-            body[model_id] = running_state
-
+            state = models[k]['state']
+            body[model_id] = {
+                'running_state': running_state,
+                'state': state
+            }
         body = json.dumps(body)
         ret = create_response(body)
         return ret
@@ -382,15 +386,17 @@ def delete_model(project_id, model_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/cancel", method="DELETE")
 def cancel_model(project_id, model_id):
-    print('cancel')
     try:
         thread_id = "{}_{}".format(project_id, model_id)
+        print('cancel', STATE_DELETED)
         storage.update_model_state(model_id, STATE_DELETED)
-
         # 学習中のスレッドを停止する
         th = find_thread(thread_id)
         if th is not None:
             th.stop()
+        while True:
+            print('stop flag', th.stop_event.is_set(), 'thread_id ', thread_id)
+            time.sleep(1)
 
     except Exception as e:
         traceback.print_exec()
@@ -404,7 +410,7 @@ def progress_model(project_id, model_id):
     try:
         thread_id = "{}_{}".format(project_id, model_id)
 
-        fields = "model_id,project_id,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+        fields = "model_id,project_id,state,last_epoch,last_batch,total_batch,last_train_loss,running_state"
         model = storage.fetch_model(project_id, model_id, fields=fields)
         if not model:
             body = json.dumps(model)
@@ -419,7 +425,14 @@ def progress_model(project_id, model_id):
                     body = json.dumps(model)
                     ret = create_response(body)
                     return ret
-            time.sleep(1)
+                time.sleep(1)
+            else:
+                # If thread status updated, return response.
+                body = json.dumps(model)
+                ret = create_response(body)
+                return ret
+                time.sleep(1)
+
     except Exception as e:
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
@@ -517,10 +530,11 @@ def run(project_id, model_id):
         th.start()
         th.join()
         # Following line should be implemented here. Not in train_thread.py
-        storage.update_model_state(model_id, STATE_FINISHED)
+        model = storage.fetch_model(project_id, model_id, fields='state')
+        if model['state'] != STATE_DELETED:
+            storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
         if th.error_msg is not None:
-            storage.update_model_state(model_id, STATE_FINISHED)
             body = json.dumps({"error_msg": th.error_msg})
             ret = create_response(body)
             return ret

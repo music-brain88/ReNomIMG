@@ -42,7 +42,7 @@ export default {
   updateModels (context, payload) {
     const url = '/api/renom_img/v1/projects/' + payload.project_id + '/models/update'
     return axios.get(url, {
-      timeout: 300000,
+      timeout: 10000,
       params: {
         'model_count': context.state.models.length
       }
@@ -177,6 +177,7 @@ export default {
           context.commit('setAlertModalFlag', {'flag': true})
           context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
         }
+        context.dispatch('updateModelsState')
       })
   },
 
@@ -197,8 +198,12 @@ export default {
 
   updateModelsState (context, payload) {
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/update/state'
-    return axios.get(url).then(function (response) {
+    return axios.get(url, {
+      timeout: 10000
+    }).then(function (response) {
       context.commit('updateModelsState', response.data)
+    }).catch(function (error) {
+      context.dispatch('updateModelsState')
     })
   },
 
@@ -206,7 +211,7 @@ export default {
   updateProgress (context, payload) {
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/progress'
     return axios.get(url, {
-      timeout: 60000
+      timeout: 10000
     }).then(function (response) {
       if (response.data.error_msg) {
         context.commit('setAlertModalFlag', {'flag': true})
@@ -216,7 +221,12 @@ export default {
       context.commit('updateProgress', {
         'model': response.data
       })
-      context.dispatch('updateProgress', {'model_id': payload.model_id})
+      // updata progress if state is not finished or deleted
+      if (response.data.state !== 2 && response.data.state !== 3) {
+        context.dispatch('updateProgress', {'model_id': payload.model_id})
+      } else {
+        context.dispatch('updateModelsState')
+      }
     }).catch(function (error) {
       context.dispatch('updateProgress', {'model_id': payload.model_id})
     })

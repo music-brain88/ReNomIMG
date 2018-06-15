@@ -38,43 +38,55 @@ export default {
   },
 
   updateModels (state, payload) {
-    if (payload.update_type < 2) {
-      state.models = []
-    }
-
     for (let index in payload.models) {
-      let d = payload.models[index]
-      let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
-      if (d.best_epoch !== undefined) {
-        m.best_epoch = d.best_epoch
-        m.train_loss_list = d.train_loss_list
-        m.validation_loss_list = d.validation_loss_list
-        m.best_epoch_iou = d.best_epoch_iou
-        m.best_epoch_map = d.best_epoch_map
+      let d = payload.models[parseInt(index)]
+      if (state.models.length !== 0) {
+        for (let m in state.models) {
+          if (d.model_id === m.model_id) {
+            m.hyper_parameters = d.hyper_parameters
+            m.algorithm = d.algorithm
+            m.algorithm_params = d.algorithm_params
+            m.state = d.state
+            m.best_epoch_validation_result = d.best_epoch_validation_result
+            m.last_epoch = d.last_epoch
+            m.last_batch = d.last_batch
+            m.total_batch = d.total_batch
+            m.last_train_loss = d.last_train_loss
+            m.running_state = d.running_state
+            if (d.best_epoch !== undefined) {
+              m.best_epoch = d.best_epoch
+              m.train_loss_list = d.train_loss_list
+              m.best_epoch_map = d.best_epoch_map
+            }
+          }
+        }
       }
-
+      if (state.models.length === 0 || !(state.models.map(mo => mo.model_id).indexOf(parseInt(d.model_id)) >= 0)) {
+        let s = state.models.filter(mo => mo.state === 1).length < 2 ? 1 : 4
+        let model = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, s, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
+        state.models.unshift(model)
+      }
       if (payload.update_type < 2) {
         if (state.selected_model_id === undefined && parseInt(index) === 0) {
-          state.selected_model_id = m.model_id
-        }
-        state.models.push(m)
-      } else if (payload.update_type === 2) {
-        for (let i in state.models) {
-          if (state.models[i].model_id === d.model_id) {
-            state.models.splice(parseInt(i), 1, m)
-          }
+          state.selected_model_id = d.model_id
         }
       }
     }
   },
   // update model state
   updateModelsState (state, payload) {
-    for (let index in state.models) {
-      for (let id in payload) {
-        if (state.models[index] === id) {
-          state.models[index].running_state = payload[id]
-          break
+    for (let index in state['models']) {
+      let d = state['models'][index]
+      let p = payload[parseInt(d.model_id)]
+      if (p !== undefined) {
+        if ('running_state' in p && d.running_state && d.running_state !== p['running_state']) {
+          d.running_state = p['running_state']
         }
+        if ('state' in p && d.state && d.state !== p['state']) {
+          d.state = p['state']
+        }
+      } else {
+        d.state = 3
       }
     }
   },
@@ -84,7 +96,7 @@ export default {
     for (let index in state.models) {
       let d = state.models[index]
       if (p.model_id === d.model_id) {
-        let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, p.last_epoch, p.last_batch, p.total_batch, p.last_train_loss, p.running_state)
+        let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, p.state, d.best_epoch_validation_result, p.last_epoch, p.last_batch, p.total_batch, p.last_train_loss, p.running_state)
         if (d.best_epoch !== undefined) {
           m.best_epoch = d.best_epoch
           m.train_loss_list = d.train_loss_list

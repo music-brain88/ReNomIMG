@@ -188,6 +188,7 @@ class Storage:
         return c.lastrowid
 
     def update_model_state(self, model_id, state):
+        print('state ', state, ' model_id ', model_id)
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
@@ -197,6 +198,7 @@ class Storage:
                         state=?, updated=?
                     WHERE model_id=?
                 """, (state, now, model_id))
+        self.db.commit()
         return c.lastrowid
 
     def update_model_last_epoch(self, model_id, last_epoch):

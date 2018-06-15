@@ -252,7 +252,7 @@ class TrainThread(threading.Thread):
                     validation_loss=validation_loss,
                     epoch_iou=v_iou,
                     epoch_map=v_mAP)
-
+            print('storage run train ' + str(self.model_id))
             storage.update_model_state(self.model_id, STATE_FINISHED)
         except Exception as e:
             traceback.print_exc()
