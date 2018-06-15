@@ -5,16 +5,13 @@ from PIL import Image
 from queue import Queue
 from concurrent.futures import ThreadPoolExecutor as Executor
 
-from renom_img.api.utility.target import DataBuilderClassification
-
-
-RESIZE_METHOD = Image.BILINEAR
+from renom_img.api.utility.load import load_img
 
 
 class ImageDistributorBase(object):
 
     def __init__(self, img_path_list, label_list=None,
-                 target_builder=DataBuilderClassification((224, 224)),
+                 target_builder=None,
                  augmentation=None, num_worker=4):
         self._img_path_list = img_path_list
         self._label_list = label_list
@@ -45,6 +42,8 @@ class ImageDistributorBase(object):
         builder = callback
         if builder is None:
             builder = self._builder
+        if builder is None:
+            builder = lambda x, y, aug: aug(np.vstack([load_img(path) for path in x]), y)
 
         if shuffle:
             if N < 100000:
@@ -74,7 +73,7 @@ class ImageDistributorBase(object):
 class ImageDistributor(ImageDistributorBase):
 
     def __init__(self, img_path_list, label_list=None,
-                 target_builder=DataBuilderClassification((224, 224)),
+                 target_builder=None,
                  augmentation=None, num_worker=4):
         super(ImageDistributor, self).__init__(img_path_list,
                                                label_list, target_builder, augmentation, num_worker)

@@ -75,6 +75,9 @@ class Yolov1(rm.Model):
         assert isinstance(new_network, rm.Model)
         self._network = new_network
 
+    def preprocess(self, x):
+        return x/255.*2 - 1
+
     def forward(self, x):
         self.freezed_network.set_auto_update(False)
         return self.network(self.freezed_network(x).as_ndarray())
@@ -86,7 +89,7 @@ class Yolov1(rm.Model):
         else:
             img_array = load_img(img_path_list, self.imsize)[None]
 
-        pred = self(img_array).as_ndarray()
+        pred = self(self.preprocess(img_array)).as_ndarray()
         # Do NMS
 
         N = len(pred)
@@ -166,7 +169,7 @@ class Yolov1(rm.Model):
                 one_hot = [0] * obj["class"] + [1] + [0] * (self._num_class - obj["class"] - 1)
                 target[n, int(ty), int(tx)] = \
                     np.concatenate(([1, tx % 1, ty % 1, tw, th] * num_bbox, one_hot))
-        return (img_data / 255. * 2 - 1), target.reshape(N, -1)
+        return self.preprocess(img_data), target.reshape(N, -1)
 
     def loss(self, x, y):
         N = len(x)
@@ -194,9 +197,8 @@ class Yolov1(rm.Model):
         # Obj
         for fn, fy, fx in zip(*obj_flag):
             mask[fn, fy, fx, :5 * num_bbox] = 0
-            mask[fn, fy, fx, iou_ind[fn, fy, fx] * 5] = 5
-            mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 1
+            mask[fn, fy, fx, iou_ind[fn, fy, fx] * 5] = 1
+            mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 5
 
         diff = x - y
         return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
-

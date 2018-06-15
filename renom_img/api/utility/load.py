@@ -79,5 +79,5 @@ def prepare_detection_data(img_path_list, annotation_list, imsize):
 def load_img(img_path, imsize=None):
     img = Image.open(img_path)
     if imsize is not None:
-        img = img.resize(imsize)
+        img = img.resize(imsize, Image.BILINEAR)
     return np.asarray(img).transpose(2, 0, 1).astype(np.float32)
