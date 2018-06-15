@@ -388,6 +388,8 @@ def cancel_model(project_id, model_id):
         storage.update_model_state(model_id, STATE_DELETED)
 
         # 学習中のスレッドを停止する
+        print("Reached")
+  
         th = find_thread(thread_id)
         if th is not None:
             th.stop()
@@ -520,7 +522,7 @@ def run(project_id, model_id):
         storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
         if th.error_msg is not None:
-            storage.update_model_state(model_id, STATE_FINISHED)
+            # storage.update_model_state(model_id, STATE_FINISHED)
             body = json.dumps({"error_msg": th.error_msg})
             ret = create_response(body)
             return ret
