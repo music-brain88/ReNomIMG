@@ -394,9 +394,6 @@ def cancel_model(project_id, model_id):
         th = find_thread(thread_id)
         if th is not None:
             th.stop()
-        while True:
-            print('stop flag', th.stop_event.is_set(), 'thread_id ', thread_id)
-            time.sleep(1)
 
     except Exception as e:
         traceback.print_exec()
