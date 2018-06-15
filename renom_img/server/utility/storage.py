@@ -11,7 +11,7 @@ except:
     import cPickle as pickle
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STRAGE_DIR = os.path.join(BASE_DIR, "../../.storage")
+STRAGE_DIR = os.path.join(BASE_DIR, "../../../.storage")
 
 
 def pickle_dump(obj):
@@ -220,7 +220,6 @@ class Storage:
         return c.lastrowid
 
     def update_model_state(self, model_id, state):
-        print('state ', state, ' model_id ', model_id)
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
@@ -625,4 +624,3 @@ global storage
 storage = Storage()
 if not storage.is_poject_exists():
     storage.register_project('objdetection', 'comment')
-    print("Project Created")

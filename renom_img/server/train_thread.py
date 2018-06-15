@@ -13,7 +13,7 @@ from renom_img.server.utility.storage import storage
 from renom_img.api.utility.nms import calc_iou, transform2xy12
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")
+WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
 
 STATE_RUNNING = 1
 STATE_FINISHED = 2
@@ -255,7 +255,6 @@ class TrainThread(threading.Thread):
                     validation_loss=validation_loss,
                     epoch_iou=v_iou,
                     epoch_map=v_mAP)
-            print('storage run train ' + str(self.model_id))
             storage.update_model_state(self.model_id, STATE_FINISHED)
         except Exception as e:
             traceback.print_exc()

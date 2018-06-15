@@ -397,7 +397,6 @@ def delete_model(project_id, model_id):
 def cancel_model(project_id, model_id):
     try:
         thread_id = "{}_{}".format(project_id, model_id)
-        print('cancel', STATE_DELETED)
         storage.update_model_state(model_id, STATE_DELETED)
         # 学習中のスレッドを停止する
         th = find_thread(thread_id)
@@ -626,7 +625,7 @@ def prediction_info(project_id, model_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
 def export_csv(project_id, model_id, file_name):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    csv_dir = os.path.join(BASE_DIR, "../.storage/csv")
+    csv_dir = os.path.join(BASE_DIR, "../../.storage/csv")
     return static_file(file_name, root=csv_dir, download=True)
 
 
