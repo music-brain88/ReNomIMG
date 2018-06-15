@@ -102,7 +102,6 @@ export default {
         this.$store.commit('setSelectedModel', {'model_id': undefined})
       }
       if (this.model.state === constant.STATE_ID['Reserved']) {
-        console.log('canceled')
         this.$store.dispatch('cancelModel', {
           'model_id': this.model.model_id
         })
