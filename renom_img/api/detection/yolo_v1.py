@@ -1,7 +1,6 @@
 import numpy as np
 import renom as rm
 from PIL import Image
-
 from renom_img.api.model.darknet import Darknet
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.nms import transform2xy12
