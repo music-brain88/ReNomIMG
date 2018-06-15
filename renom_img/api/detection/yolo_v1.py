@@ -76,6 +76,7 @@ class Yolov1(rm.Model):
         self._network = new_network
 
     def forward(self, x):
+        self.freezed_network.set_auto_update(False)
         return self.network(self.freezed_network(x).as_ndarray())
 
     def predict(self, img_path_list):
@@ -109,7 +110,7 @@ class Yolov1(rm.Model):
         probs = probs.reshape(N, -1, self._num_class)
         boxes = boxes.reshape(N, -1, 4)
 
-        probs[probs < 0.3] = 0
+        probs[probs < 0.2] = 0
         # Perform NMS
         argsort = np.argsort(probs, axis=1)[:, ::-1]
         for n in range(N):
@@ -198,3 +199,4 @@ class Yolov1(rm.Model):
 
         diff = x - y
         return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
+
