@@ -4,13 +4,14 @@ import datetime
 import os
 import sys
 import sqlite3
+import json
 try:
     import _pickle as pickle
 except:
     import cPickle as pickle
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STRAGE_DIR = os.path.join(BASE_DIR, "../../.storage")
+STRAGE_DIR = os.path.join(BASE_DIR, "../../../.storage")
 
 
 def pickle_dump(obj):
@@ -58,11 +59,24 @@ class Storage:
                  updated TIMESTAMP NOT NULL)
             """)
 
+
+        c.execute("""
+                CREATE TABLE IF NOT EXISTS dataset_def
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 name VARCHAR(256),
+                 ratio FLOAT,
+                 train_imgs CLOB,
+                 valid_imgs CLOB,
+                 created TIMESTAMP NOT NULL,
+                 updated TIMESTAMP NOT NULL);
+          """)
+
         c.execute("""
                 CREATE TABLE IF NOT EXISTS model
                 (model_id INTEGER PRIMARY KEY AUTOINCREMENT,
                  project_id INTEGER NOT NULL REFERENCES project(project_id) ON DELETE CASCADE,
                  hyper_parameters BLOB,
+                 dataset_def_id INTEGER NOT NULL REFERENCES dataset_def(id) ON DELETE CASCADE,
                  algorithm INTEGER NOT NULL,
                  algorithm_params BLOB,
                  state INTEGER NOT NULL DEFAULT 0,
@@ -133,6 +147,23 @@ class Storage:
                  class_names BLOB)
             """)
 
+
+        c.execute("""
+                CREATE TABLE IF NOT EXISTS epoch
+                (epoch_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 model_id INTEGER NOT NULL REFERENCES model(model_id) ON DELETE CASCADE,
+                 nth_epoch INTEGER NOT NULL,
+                 train_loss NUMBER,
+                 validation_loss NUMBER,
+                 epoch_iou NUMBER,
+                 epoch_map NUMBER,
+                 created TIMESTAMP NOT NULL,
+                 updated TIMESTAMP NOT NULL,
+                 UNIQUE(model_id, nth_epoch))
+          """)
+
+
+
     def is_poject_exists(self):
         with self.db:
             project_id = 1
@@ -164,7 +195,7 @@ class Storage:
                 WHERE project_id=?""", (model_id, now, project_id))
         return c.lastrowid
 
-    def register_model(self, project_id, hyper_parameters, algorithm, algorithm_params):
+    def register_model(self, project_id, dataset_def_id, hyper_parameters, algorithm, algorithm_params):
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
@@ -173,15 +204,16 @@ class Storage:
             train_loss_list = pickle_dump([])
             validation_loss_list = pickle_dump([])
             best_epoch_validation_result = pickle_dump({})
+
             c.execute("""
                     INSERT INTO
-                        model(project_id, hyper_parameters, algorithm,
+                        model(project_id, dataset_def_id, hyper_parameters, algorithm,
                             algorithm_params, train_loss_list,
                             validation_loss_list, best_epoch_validation_result,
                             created, updated)
                     VALUES
-                        (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (project_id, dumped_hyper_parameters, algorithm,
+                        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (project_id, dataset_def_id, dumped_hyper_parameters, algorithm,
                       dumped_algorithm_params, train_loss_list,
                       validation_loss_list, best_epoch_validation_result,
                       now, now))
@@ -197,6 +229,7 @@ class Storage:
                         state=?, updated=?
                     WHERE model_id=?
                 """, (state, now, model_id))
+        self.db.commit()
         return c.lastrowid
 
     def update_model_last_epoch(self, model_id, last_epoch):
@@ -552,8 +585,42 @@ class Storage:
             return ret
 
 
+    def register_dataset_def(self, name, ratio, train_imgs, valid_imgs):
+
+        train_imgs = json.dumps(train_imgs)
+        valid_imgs = json.dumps(valid_imgs)
+
+        now = datetime.datetime.now()
+        with self.db:
+            c = self.cursor()
+            c.execute("""
+                INSERT INTO dataset_def(name, ratio, train_imgs, valid_imgs,
+                    created, updated)
+                VALUES(?, ?, ?, ?, ?, ?)
+            """, (name, ratio, train_imgs, valid_imgs, now, now))
+            return c.lastrowid
+
+    def fetch_dataset_defs(self):
+        with self.db:
+            c = self.cursor()
+            c.execute("""SELECT id, name, ratio, created, updated FROM dataset_def""")
+            return list(c.fetchall())
+
+    def fetch_dataset_def(self, id):
+        with self.db:
+            c = self.cursor()
+            c.execute("""SELECT id, name, ratio, train_imgs, valid_imgs, created, updated FROM dataset_def""")
+
+            for rec in c:
+                id, name, ratio, train_imgs, valid_imgs, created, updated = rec
+                train_imgs = json.loads(train_imgs)
+                valid_imgs = json.loads(valid_imgs)
+                return (id, name, ratio, train_imgs, valid_imgs, created, updated)
+
+            return None
+
+
 global storage
 storage = Storage()
 if not storage.is_poject_exists():
     storage.register_project('objdetection', 'comment')
-    print("Project Created")

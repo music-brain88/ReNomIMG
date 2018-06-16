@@ -18,8 +18,8 @@ from renom_img.api.utility.target import DataBuilderYolov1
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")
-CSV_DIR = os.path.join(BASE_DIR, "../.storage/csv")
+WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
+CSV_DIR = os.path.join(BASE_DIR, "../../.storage/csv")
 IMG_DIR = os.path.join("dataset/prediction_set/img")
 XML_DIR = os.path.join("dataset/prediction_set/out")
 

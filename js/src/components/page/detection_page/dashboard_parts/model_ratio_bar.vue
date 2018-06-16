@@ -1,6 +1,6 @@
 <template>
   <div id="model-ratio-bar">
-    <div class='title'>Total Models: {{$store.state.models.length}}</div>
+    <div class='title'>Total Models: {{$store.state.models.filter(model => model.state !== 3).length}}</div>
     <canvas id="horizontal-stack-bar"></canvas>
   </div>
 </template>

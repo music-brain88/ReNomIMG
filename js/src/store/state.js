@@ -81,6 +81,8 @@ export default {
   weight_downloading_progress: 0,
 
   // show weight downloading modal
-  weight_downloading_modal: false
+  weight_downloading_modal: false,
 
+  // dataset defs
+  dataset_defs: []
 }

@@ -18,7 +18,7 @@ from renom_img.api.utility.load import parse_xml_detection
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")
+WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
 
 STATE_RUNNING = 1
 STATE_FINISHED = 2
@@ -41,7 +41,7 @@ DEBUG = False
 
 class TrainThread(threading.Thread):
     def __init__(self, thread_id, project_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params, semaphore):
+                 algorithm, algorithm_params, train_imgs, valid_imgs, semaphore):
         super(TrainThread, self).__init__(args=semaphore)
         self.stop_event = threading.Event()
         self.setDaemon(False)
@@ -59,6 +59,9 @@ class TrainThread(threading.Thread):
         self.cell_h = int(algorithm_params['cells'])
         self.cell_v = int(algorithm_params['cells'])
         self.num_bbox = int(algorithm_params['bounding_box'])
+
+        self.train_imgs = train_imgs
+        self.valid_imgs = valid_imgs
 
         self.last_batch = 0
         self.total_batch = 0
@@ -126,7 +129,6 @@ class TrainThread(threading.Thread):
                 if DEBUG:
                     print("run thread")
                 storage.update_model_state(self.model_id, STATE_RUNNING)
-
                 # Create distributor
 
                 train_xml_path_list = [os.path.join(train_xml_path, path)
@@ -299,7 +301,6 @@ class TrainThread(threading.Thread):
                     validation_loss=validation_loss,
                     epoch_iou=v_iou,
                     epoch_map=v_mAP)
-
             storage.update_model_state(self.model_id, STATE_FINISHED)
         except Exception as e:
             traceback.print_exc()
