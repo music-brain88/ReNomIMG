@@ -43,7 +43,7 @@ class ImageDistributorBase(object):
         if builder is None:
             builder = self._builder
         if builder is None:
-            builder = lambda x, y, aug: aug(np.vstack([load_img(path) for path in x]), y)
+            def builder(x, y, aug): return aug(np.vstack([load_img(path) for path in x]), y)
 
         if shuffle:
             if N < 100000:

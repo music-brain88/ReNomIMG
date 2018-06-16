@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import renom as rm
 
+
 class Darknet(rm.Sequential):
     WEIGHT_URL = ""
 

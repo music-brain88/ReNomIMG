@@ -139,6 +139,7 @@ def dataset(folder_name, item, file_name):
     file_dir = os.path.join('dataset', folder_name, item)
     return static_file(file_name, root=file_dir, mimetype='image/*')
 
+
 @route("/datasrc/<folder_name:path>/<file_name:path>")
 def datasrc(folder_name, file_name):
     file_dir = os.path.join('datasrc', folder_name)
@@ -227,7 +228,6 @@ def get_models(project_id):
 def update_models(project_id):
     try:
         model_count = int(request.params.model_count)
-
         running_models = storage.fetch_running_models(project_id)
         running_count = len(running_models)
         # set running model information for polling
@@ -255,14 +255,6 @@ def update_models(project_id):
                     })
                     ret = create_response(body)
                     return ret
-
-            # elif model_count > len(data):
-            #     body = json.dumps({
-            #         "models": {},
-            #         "update_type": 1
-            #     })
-            #     ret = create_response(body)
-            #     return ret
 
             elif model_count == len(data) or model_count > len(data):
                 # if running information change, return response.
@@ -326,6 +318,7 @@ def get_dataset_info_v0():
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="POST")
 def create_model(project_id):
+    # This method is called by createModel
     try:
         model_id = storage.register_model(
             project_id=project_id,
@@ -400,7 +393,7 @@ def cancel_model(project_id, model_id):
         storage.update_model_state(model_id, STATE_DELETED)
         # 学習中のスレッドを停止する
         print("Reached")
-  
+
         th = find_thread(thread_id)
         if th is not None:
             th.stop()
@@ -533,7 +526,6 @@ def run(project_id, model_id):
         rec = storage.fetch_dataset_def(data['dataset_def_id'])
         (id, name, ratio, train_imgs, valid_imgs, created, updated) = rec
 
-
         # 学習を実行するスレッドを立てる
         thread_id = "{}_{}".format(project_id, model_id)
         th = TrainThread(thread_id, project_id, model_id,
@@ -547,6 +539,7 @@ def run(project_id, model_id):
         if model['state'] != STATE_DELETED:
             storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
+
         if th.error_msg is not None:
             body = json.dumps({"error_msg": th.error_msg})
             ret = create_response(body)
@@ -769,6 +762,7 @@ def update_dataset(dataset_id):
         ret = create_response(body)
         return ret
 
+
 @route("/api/renom_img/v1/dataset_defs", method="GET")
 def get_datasets():
     try:
@@ -822,7 +816,7 @@ def create_dataset_def():
         body = json.dumps({"id": id})
         ret = create_response(body)
         return ret
-   
+
     except Exception as e:
         print(e)
         body = json.dumps({"error_msg": e.args[0]})
@@ -855,8 +849,6 @@ def main():
         wsgiapp = default_app()
         httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
         httpd.serve_forever()
-
-
 
 
 if __name__ == "__main__":

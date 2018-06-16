@@ -17,6 +17,7 @@ from renom_img.api.utility.augmentation.process import Flip, Shift, Rotate, Whit
 
 from .. import server
 
+
 def create_train_valid_dists(img_size, train_imgs, valid_imgs):
     datasrc = pathlib.Path('datasrc')
     imgdir = (datasrc / "img")

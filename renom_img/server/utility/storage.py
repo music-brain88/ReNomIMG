@@ -59,7 +59,6 @@ class Storage:
                  updated TIMESTAMP NOT NULL)
             """)
 
-
         c.execute("""
                 CREATE TABLE IF NOT EXISTS dataset_def
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -147,7 +146,6 @@ class Storage:
                  class_names BLOB)
             """)
 
-
         c.execute("""
                 CREATE TABLE IF NOT EXISTS epoch
                 (epoch_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -161,8 +159,6 @@ class Storage:
                  updated TIMESTAMP NOT NULL,
                  UNIQUE(model_id, nth_epoch))
           """)
-
-
 
     def is_poject_exists(self):
         with self.db:
@@ -583,7 +579,6 @@ class Storage:
                     "train_size": data[0]
                 })
             return ret
-
 
     def register_dataset_def(self, name, ratio, train_imgs, valid_imgs):
 

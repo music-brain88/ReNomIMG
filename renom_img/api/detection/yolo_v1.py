@@ -75,7 +75,7 @@ class Yolov1(rm.Model):
         self._network = new_network
 
     def preprocess(self, x):
-        return x/255.*2 - 1
+        return x / 255. * 2 - 1
 
     def forward(self, x):
         self.freezed_network.set_auto_update(False)
@@ -146,7 +146,6 @@ class Yolov1(rm.Model):
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
         return result
-
 
     def build_data(self, img_path_list, annotation_list, augmentation=None):
         """

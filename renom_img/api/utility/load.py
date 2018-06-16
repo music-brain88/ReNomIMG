@@ -51,11 +51,12 @@ def parse_xml_detection(xml_path_list):
             class_map[class_name] = 1
             image_data.append({'box': bounding_box, 'name': class_name})
         annotation_list.append(image_data)
-    class_map = {k:i for i, k in enumerate(sorted(class_map.keys()))}
+    class_map = {k: i for i, k in enumerate(sorted(class_map.keys()))}
     for annotation in annotation_list:
         for obj in annotation:
             obj["class"] = class_map[obj["name"]]
     return annotation_list, class_map
+
 
 def prepare_detection_data(img_path_list, annotation_list, imsize):
     N = len(img_path_list)
@@ -65,16 +66,17 @@ def prepare_detection_data(img_path_list, annotation_list, imsize):
     for path, obj_list in zip(img_path_list, annotation_list):
         img = Image.open(path)
         w, h = img.size
-        sw, sh = imsize[0]/float(w), imsize[1]/float(h)
+        sw, sh = imsize[0] / float(w), imsize[1] / float(h)
         img = img.resize(imsize).convert('RGB')
         new_obj_list = [{
-            "box": [obj["box"][0]*sw, obj["box"][1]*sh, obj["box"][2]*sw, obj["box"][3]*sh],
+            "box": [obj["box"][0] * sw, obj["box"][1] * sh, obj["box"][2] * sw, obj["box"][3] * sh],
             "name": obj["name"],
             "class": obj["class"]
-        } for obj in obj_list] 
+        } for obj in obj_list]
         img_list.append(np.asarray(img))
         label_list.append(new_obj_list)
     return np.asarray(img_list).transpose(0, 3, 1, 2).astype(np.float32), label_list
+
 
 def load_img(img_path, imsize=None):
     img = Image.open(img_path)
