@@ -15,6 +15,8 @@ export default {
   getPredictModel (state, getters) {
     if (state.project) {
       return getters.getModelFromId(state.project.deploy_model_id)
+    } else {
+      return undefined
     }
   },
   getSelectedModel (state, getters) {
@@ -61,11 +63,19 @@ export default {
       }
     }
     if (!model) return
-
     const result = model.best_epoch_validation_result
-    if (!result.bbox_path_list) return
+    const dataset_id = model.dataset_id
+    let dataset
 
-    const path = result.bbox_path_list
+    for (let index in state.dataset_defs) {
+      if (state.dataset_defs[index].id === dataset_id) {
+        dataset = state.dataset_defs[index]
+      }
+    }
+
+    if (!dataset) return
+
+    const path = dataset.valid_imgs
     const label_list = result.bbox_list
     let ret = []
     for (let i = 0; i < path.length; i++) {

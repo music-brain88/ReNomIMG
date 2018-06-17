@@ -772,7 +772,8 @@ def get_datasets():
             id, name, ratio, created, updated = rec
             created = created.isoformat()
             updated = updated.isoformat()
-            ret.append(dict(id=id, name=name, ratio=ratio, created=created, updated=updated))
+            ret.append(dict(id=id, name=name, ratio=ratio,
+                class_map=class_map, created=created, updated=updated))
         return create_response(json.dumps({'dataset_defs': ret}))
 
     except Exception as e:

@@ -136,6 +136,7 @@ export default {
     this.updateProgressBar()
   },
   updated: function () {
+    console.log('Updated:' + this.model.model_id)
     this.updateProgressBar()
   },
   methods: {

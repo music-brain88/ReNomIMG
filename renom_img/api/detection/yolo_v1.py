@@ -53,6 +53,8 @@ class Yolov1(rm.Model):
         self._freezed_network = rm.Sequential(model[:-7])
         self._network = rm.Sequential(model[-7:])
 
+        self._opt = rm.Sgd(0.01, 0.9)
+
         for layer in self._network.iter_models():
             layer.params = {}
 
@@ -73,6 +75,21 @@ class Yolov1(rm.Model):
     def network(self, new_network):
         assert isinstance(new_network, rm.Model)
         self._network = new_network
+
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+            return self._opt
+        else:
+            ind1 = int(total_epoch*0.5)
+            ind2 = int(total_epoch*0.3)
+            ind3 = total_epoch - (ind1 + ind2 + 1)
+            lr_list = [0] + [0.01]*ind1 + [0.001]*ind2 + [0.0001]*ind3
+            if current_epoch == 0:
+                lr = 0.0001 + (0.01 - 0.0001)/float(total_batch)*current_epoch
+            else:
+                lr = lr_list[current_epoch]
+            self._opt._lr = lr
+            return self._opt
 
     def preprocess(self, x):
         return x / 255. * 2 - 1

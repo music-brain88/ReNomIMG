@@ -1,7 +1,8 @@
 export default class Model {
-  constructor (model_id, project_id, hyper_parameters, algorithm, algorithm_params, state, best_epoch_validation_result, last_epoch, last_batch, total_batch, last_train_loss, running_state) {
+  constructor (model_id, project_id, dataset_id, hyper_parameters, algorithm, algorithm_params, state, best_epoch_validation_result, last_epoch, last_batch, total_batch, last_train_loss, running_state) {
     this.model_id = model_id
     this.project_id = project_id
+    this.dataset_id = dataset_id
     this.hyper_parameters = hyper_parameters
     this.algorithm = algorithm
     this.algorithm_params = algorithm_params

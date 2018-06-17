@@ -28,6 +28,7 @@ export default {
   },
 
   async loadModels (context, payload) {
+    // This API calls "get_models"
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models'
     return axios.get(url).then(function (response) {
       if (response.data.error_msg) {
@@ -53,12 +54,15 @@ export default {
         return
       }
       context.commit('updateModels', {
-        'update_type': parseInt(response.data.update_type),
         'models': response.data.models
       })
       context.dispatch('updateModels', {'project_id': payload.project_id})
     }).catch(function (error) {
-      context.dispatch('updateModels', {'project_id': payload.project_id})
+      if (error.name !== 'NetworkError') {
+        context.dispatch('updateModels', {'project_id': payload.project_id})
+      } else {
+        console.log(error)
+      }
     })
   },
 
@@ -118,16 +122,18 @@ export default {
     fd.append('algorithm', payload.algorithm)
     fd.append('algorithm_params', payload.algorithm_params)
 
-    let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models'
+    let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/model/create'
     return axios.post(url, fd)
   },
 
   // run model
   async runModel (context, payload) {
+    /*
     await context.dispatch('checkWeightExist')
     for (let i = 1; i <= 10; i++) {
       await context.dispatch('checkWeightDownloadProgress', {'i': i})
     }
+    */
     const dataset_def_id = JSON.stringify(payload.dataset_def_id)
     const hyper_parameters = JSON.stringify(payload.hyper_parameters)
     const algorithm_params = JSON.stringify(payload.algorithm_params)
@@ -145,7 +151,6 @@ export default {
     }
 
     const model_id = result.data.model_id
-
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + model_id + '/run'
     axios.get(url)
       .then(function (response) {
@@ -211,26 +216,38 @@ export default {
 
   // update model progress info
   updateProgress (context, payload) {
+    // // Called from model_progress.vue.
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/progress'
-    return axios.get(url, {
-      timeout: 10000
-    }).then(function (response) {
+
+    let fd = new FormData()
+    let model = context.getters.getModelFromId(payload.model_id)
+    fd.append('last_batch', model.last_batch)
+    fd.append('last_epoch', model.last_epoch)
+    fd.append('running_state', model.running_state)
+    fd.append('timeout', 10000)
+
+    return axios.get(url, fd).then(function (response) {
       if (response.data.error_msg) {
         context.commit('setAlertModalFlag', {'flag': true})
         context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
         return
       }
       context.commit('updateProgress', {
-        'model': response.data
+        'model_id': payload.model_id,
+        'total_batch': response.data.total_batch,
+        'last_batch': response.data.last_batch,
+        'last_epoch': response.data.last_epoch,
+        'batch_loss': response.data.batch_loss,
+        'running_state': response.data.running_state
       })
       // updata progress if state is not finished or deleted
-      if (response.data.state !== 2 && response.data.state !== 3) {
+      if (response.data.state === 1 || response.data.state === 4) { // If model is running
         context.dispatch('updateProgress', {'model_id': payload.model_id})
       } else {
         context.dispatch('updateModelsState')
       }
     }).catch(function (error) {
-      context.dispatch('updateProgress', {'model_id': payload.model_id})
+
     })
   },
 
@@ -355,5 +372,4 @@ export default {
       })
     }
   }
-
 }

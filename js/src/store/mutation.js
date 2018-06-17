@@ -21,7 +21,7 @@ export default {
     state.models = []
     for (let index in payload.models) {
       let d = payload.models[index]
-      let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
+      let m = new Model(d.model_id, d.project_id, d.dataset_def_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
       if (d.best_epoch !== undefined) {
         m.best_epoch = d.best_epoch
         m.train_loss_list = d.train_loss_list
@@ -63,13 +63,11 @@ export default {
       }
       if (state.models.length === 0 || !(state.models.map(mo => mo.model_id).indexOf(parseInt(d.model_id)) >= 0)) {
         let s = state.models.filter(mo => mo.state === 1).length < 2 ? 1 : 4
-        let model = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, s, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
+        let model = new Model(d.model_id, d.project_id, d.dataset_def_id, d.hyper_parameters, d.algorithm, d.algorithm_params, s, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
         state.models.unshift(model)
       }
-      if (payload.update_type < 2) {
-        if (state.selected_model_id === undefined && parseInt(index) === 0) {
-          state.selected_model_id = d.model_id
-        }
+      if (state.selected_model_id === undefined && parseInt(index) === 0) {
+        state.selected_model_id = d.model_id
       }
     }
   },
@@ -92,23 +90,21 @@ export default {
   },
   // update progress
   updateProgress (state, payload) {
-    let p = payload.model
+    let model_id = payload.model_id
+    let current_model
     for (let index in state.models) {
-      let d = state.models[index]
-      if (p.model_id === d.model_id) {
-        let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, p.state, d.best_epoch_validation_result, p.last_epoch, p.last_batch, p.total_batch, p.last_train_loss, p.running_state)
-        if (d.best_epoch !== undefined) {
-          m.best_epoch = d.best_epoch
-          m.train_loss_list = d.train_loss_list
-          m.validation_loss_list = d.validation_loss_list
-          m.best_epoch_iou = d.best_epoch_iou
-          m.best_epoch_map = d.best_epoch_map
-        }
-        // update array
-        state.models.splice(index, 1, m)
+      if (state.models[index].model_id === model_id) {
+        current_model = state.models[index]
         break
       }
     }
+    if (!current_model) return
+
+    current_model.total_batch = payload.total_batch
+    current_model.last_epoch = payload.last_epoch
+    current_model.last_batch = payload.last_batch
+    current_model.running_state = payload.running_state
+    current_model.last_train_loss = payload.batch_loss
   },
 
   /*
@@ -252,7 +248,6 @@ export default {
   setWeightDownloadProgress (state, payload) {
     state.weight_downloading_progress = Math.round(payload.progress * 10) / 10
   },
-
   setDatasetDefs (state, payload) {
     state.dataset_defs = payload.dataset_defs
   }

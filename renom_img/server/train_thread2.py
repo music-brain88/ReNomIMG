@@ -14,14 +14,17 @@ from renom_img.api.utility.augmentation.augmentation import Augmentation
 from renom_img.server import ALG_YOLOV1
 from renom_img.server import DB_DIR_TRAINED_WEIGHT
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL
+from renom_img.server import STATE_RUNNING
 from renom_img.server import RUN_STATE_TRAINING, RUN_STATE_VALIDATING, \
     RUN_STATE_PREDICTING, RUN_STATE_STARTING, RUN_STATE_STOPPING
+
+from renom_img.server.utility.storage import storage
 
 
 class TrainThread(object):
 
-    def __init__(self, thread_id, project_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params, train_data_list, valid_data_list):
+    def __init__(self, thread_id, project_id, model_id, dataset_id, hyper_parameters,
+                 algorithm, algorithm_params):
 
         self.model_id = model_id
 
@@ -31,6 +34,7 @@ class TrainThread(object):
         self.nth_batch = 0
         self.total_batch = 0
         self.last_batch_loss = 0
+        self.nth_epoch = 0
 
         # Error message caused in thread.
         self.error_msg = None
@@ -43,10 +47,10 @@ class TrainThread(object):
         self.stop_event = Event()
 
         # Prepare dataset
-        self.train_dist, class_map_train = self.create_dist(train_data_list)
-        self.valid_dist, class_map_valid = self.create_dist(valid_data_list, False)
-        assert class_map_valid == class_map_train
-        class_map = class_map_train
+        rec = storage.fetch_dataset_def(dataset_id)
+        (_, name, ratio, train_files, valid_files, class_map, _, _) = rec
+        self.train_dist = self.create_dist(train_files)
+        self.valid_dist = self.create_dist(valid_files, False)
 
         # Algorithm
         # Pretrained weights are must be prepared.
@@ -72,6 +76,8 @@ class TrainThread(object):
             self._running_state = state
 
     def __call__(self):
+
+        storage.update_model_state(self.model_id, STATE_RUNNING)
         # This func works as thread.
         epoch = self.total_epoch
         batch_size = self.batch_size
@@ -88,14 +94,15 @@ class TrainThread(object):
                 batch_gen = self.train_dist.batch(batch_size, self.model.build_data)
                 self.total_batch = int(np.ceil(len(self.train_dist) // batch_size))
                 for i, (train_x, train_y) in enumerate(batch_gen):
-                    self.nth_batch = i + 1
+                    self.nth_batch = i
                     if self.is_stopped():
                         return
                     self.model.set_models(inference=False)
                     with self.model.train():
-                        loss = self.model.loss(self.model(train_y), train_y)
-                        reg_loss = loss + self.model.reguralize()
-                    reg_loss.grad().update()
+                        loss = self.model.loss(self.model(train_x), train_y)
+                        reg_loss = loss + self.model.regularize()
+                    reg_loss.grad().update(self.model.get_optimizer(e, epoch,
+                        i, self.total_batch))
                     display_loss += float(loss.as_ndarray()[0])
                     self.last_batch_loss = float(loss.as_ndarray()[0])
                 avg_train_loss = display_loss / (i + 1)
@@ -181,9 +188,9 @@ class TrainThread(object):
                 label_path_list.append(label_path)
             else:
                 print("{} not found.".format(name))
-        annotation_list, class_map = parse_xml_detection(label_path_list)
+        annotation_list, _ = parse_xml_detection(label_path_list)
         augmentation = Augmentation([
             Shift(40, 40)
         ])
         return ImageDistributor(img_path_list, annotation_list,
-                                augmentation=augmentation), class_map
+                                augmentation=augmentation)
