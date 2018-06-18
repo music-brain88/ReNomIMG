@@ -40,32 +40,6 @@ export default {
     })
   },
 
-  updateModels (context, payload) {
-    const url = '/api/renom_img/v1/projects/' + payload.project_id + '/models/update'
-    return axios.get(url, {
-      timeout: 10000,
-      params: {
-        'model_count': context.state.models.length
-      }
-    }).then(function (response) {
-      if (response.data.error_msg) {
-        context.commit('setAlertModalFlag', {'flag': true})
-        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-        return
-      }
-      context.commit('updateModels', {
-        'models': response.data.models
-      })
-      context.dispatch('updateModels', {'project_id': payload.project_id})
-    }).catch(function (error) {
-      if (error.name !== 'NetworkError') {
-        context.dispatch('updateModels', {'project_id': payload.project_id})
-      } else {
-        console.log(error)
-      }
-    })
-  },
-
   /*
   model list area
   */
@@ -125,7 +99,6 @@ export default {
     let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/model/create'
     return axios.post(url, fd)
   },
-
   // run model
   async runModel (context, payload) {
     /*
@@ -149,8 +122,24 @@ export default {
       context.dispatch('loadModels', {'project_id': payload.project_id})
       return
     }
-
     const model_id = result.data.model_id
+    context.commit('addModelTemporarily', {
+      'model_id': model_id,
+      'project_id': context.state.project.project_id,
+      'dataset_def_id': payload.dataset_def_id,
+      'hyper_parameters': payload.hyper_parameters,
+      'algorithm': payload.algorithm,
+      'algorithm_params': payload.algorithm_params,
+      'state': 0,
+      'best_epoch_validation_result': 0,
+      'last_epoch': '-',
+      'last_batch': '-',
+      'total_batch': '-',
+      'last_train_loss': '-',
+      'running_state': 0
+    })
+    await context.dispatch('updateModelsState')
+
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + model_id + '/run'
     axios.get(url)
       .then(function (response) {
@@ -165,19 +154,6 @@ export default {
   // delete model
   deleteModel (context, payload) {
     let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id
-    return axios.delete(url)
-      .then(function (response) {
-        if (response.data.error_msg) {
-          context.commit('setAlertModalFlag', {'flag': true})
-          context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-        }
-        context.dispatch('updateModelsState')
-      })
-  },
-
-  // cancel model
-  cancelModel (context, payload) {
-    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/cancel'
     return axios.delete(url)
       .then(function (response) {
         if (response.data.error_msg) {
@@ -209,8 +185,6 @@ export default {
       timeout: 10000
     }).then(function (response) {
       context.commit('updateModelsState', response.data)
-    }).catch(function (error) {
-      context.dispatch('updateModelsState')
     })
   },
 
@@ -224,9 +198,10 @@ export default {
     fd.append('last_batch', model.last_batch)
     fd.append('last_epoch', model.last_epoch)
     fd.append('running_state', model.running_state)
-    fd.append('timeout', 10000)
 
-    return axios.get(url, fd).then(function (response) {
+    return axios.post(url, fd, {
+      timeout: 10000
+    }).then(function (response) {
       if (response.data.error_msg) {
         context.commit('setAlertModalFlag', {'flag': true})
         context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
@@ -238,8 +213,19 @@ export default {
         'last_batch': response.data.last_batch,
         'last_epoch': response.data.last_epoch,
         'batch_loss': response.data.batch_loss,
-        'running_state': response.data.running_state
+        'running_state': response.data.running_state,
+
+        // Following variables are possible to be empty list.
+        // Then update will not be performed.
+        'validation_loss_list': response.data.validation_loss_list,
+        'train_loss_list': response.data.train_loss_list,
+
+        'best_epoch': response.data.best_epoch,
+        'best_epoch_iou': response.data.best_epoch_iou,
+        'best_epoch_map': response.data.best_epoch_map,
+        'best_epoch_validation_result': response.data.best_epoch_validation_result
       })
+
       // updata progress if state is not finished or deleted
       if (response.data.state === 1 || response.data.state === 4) { // If model is running
         context.dispatch('updateProgress', {'model_id': payload.model_id})

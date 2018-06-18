@@ -29,14 +29,12 @@ export default {
         m.best_epoch_iou = d.best_epoch_iou
         m.best_epoch_map = d.best_epoch_map
       }
-
       if (state.selected_model_id === undefined && parseInt(index) === 0) {
         state.selected_model_id = m.model_id
       }
       state.models.push(m)
     }
   },
-
   updateModels (state, payload) {
     for (let index in payload.models) {
       let d = payload.models[parseInt(index)]
@@ -71,6 +69,14 @@ export default {
       }
     }
   },
+  addModelTemporarily (state, payload) {
+    let d = payload
+    let m = new Model(d.model_id, d.project_id, d.dataset_def_id,
+      d.hyper_parameters, d.algorithm, d.algorithm_params, d.state,
+      d.best_epoch_validation_result, d.last_epoch, d.last_batch,
+      d.total_batch, d.last_train_loss, d.running_state)
+    state.models = [m, ...state.models]
+  },
   // update model state
   updateModelsState (state, payload) {
     for (let index in state['models']) {
@@ -80,7 +86,7 @@ export default {
         if ('running_state' in p && d.running_state && d.running_state !== p['running_state']) {
           d.running_state = p['running_state']
         }
-        if ('state' in p && d.state && d.state !== p['state']) {
+        if ('state' in p && d.state !== p['state']) {
           d.state = p['state']
         }
       } else {
@@ -105,6 +111,16 @@ export default {
     current_model.last_batch = payload.last_batch
     current_model.running_state = payload.running_state
     current_model.last_train_loss = payload.batch_loss
+
+    if (payload.train_loss_list.length > 0 &&
+        payload.validation_loss_list.length > 0) {
+      current_model.train_loss_list = payload.train_loss_list
+      current_model.validation_loss_list = payload.validation_loss_list
+      current_model.best_epoch = payload.best_epoch
+      current_model.best_epoch_iou = payload.best_epoch_iou
+      current_model.best_epoch_map = payload.best_epoch_map
+      current_model.best_epoch_validation_result = payload.best_epoch_validation_result
+    }
   },
 
   /*

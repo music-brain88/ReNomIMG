@@ -111,6 +111,8 @@ export default {
         return constant.STATE_COLOR[model_state]
       } else if (model_state === constant.STATE_ID['Running']) {
         return constant.STATE_COLOR[model_state]
+      } else if (model_state === constant.STATE_ID['Created']) {
+        return constant.STATE_COLOR[model_state]
       } else {
         return constant.ALGORITHM_COLOR[algorithm]
       }

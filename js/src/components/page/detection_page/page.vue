@@ -60,9 +60,6 @@ export default {
   created: function () {
     this.$store.dispatch('initData', {'project_id': 1})
     this.$store.dispatch('loadDatasetDef')
-  },
-  mounted: function () {
-    this.$store.dispatch('updateModels', {'project_id': 1})
   }
 }
 </script>

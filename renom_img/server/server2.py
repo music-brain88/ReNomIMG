@@ -14,6 +14,7 @@ import traceback
 import pathlib
 import random
 import xmltodict
+import numpy as np
 from concurrent.futures import ThreadPoolExecutor as Executor
 from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
 from bottle import HTTPResponse, default_app, route, static_file, request, error
@@ -21,7 +22,6 @@ from bottle import HTTPResponse, default_app, route, static_file, request, error
 from renom.cuda import release_mem_pool
 
 from renom_img.api.utility.load import parse_xml_detection
-
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread2 import TrainThread
 from renom_img.server.utility.storage import storage
@@ -223,16 +223,6 @@ def update_models(project_id):
         # This gets running models only.
         running_models = storage.fetch_running_models(project_id)
         running_count = len(running_models)
-        # set running model information for polling
-        model_ids = []
-        last_epochs = []
-        last_batchs = []
-        running_states = []
-        for k in list(running_models.keys()):
-            model_ids.append(running_models[k]["model_id"])
-            last_epochs.append(running_models[k]["last_epoch"])
-            last_batchs.append(running_models[k]["last_batch"])
-            running_states.append(running_models[k]["running_state"])
 
         for j in range(300):
             time.sleep(1)
@@ -252,36 +242,63 @@ def update_models(project_id):
         traceback.print_exc()
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/progress", method="GET")
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/progress", method="POST")
 def progress_model(project_id, model_id):
     try:
-        req_last_batch = request.params.last_batch
-        req_last_batch = int(req_last_batch) if req_last_batch else 0
-
-        req_last_epoch = request.params.last_epoch
-        req_last_epoch = int(req_last_epoch) if req_last_epoch else 0
-
-        req_running_state = request.params.running_state
-        req_running_state = int(req_running_state) if req_running_state else 0
+        try:
+            req_last_batch = request.params.get("last_batch", None)
+            req_last_batch = int(req_last_batch) if req_last_batch is not None else 0
+            req_last_epoch = request.params.get("last_epoch", None)
+            req_last_epoch = int(req_last_epoch) if req_last_epoch is not None else 0
+            req_running_state = request.params.get("running_state", None)
+            req_running_state = int(req_running_state) if req_running_state is not None else 0
+        except:
+            req_last_batch = 0
+            req_last_epoch = 0
+            req_running_state = 0
 
         thread_id = "{}_{}".format(project_id, model_id)
         for j in range(60):
-            time.sleep(1.5)
+            time.sleep(0.5)
             th = thread_pool.get(thread_id, None)
             model_state = storage.fetch_model(project_id, model_id, "state")["state"]
             if th is not None:
                 th = th[1]
                 # If thread status updated, return response.
-                if th.nth_batch != req_last_batch or \
-                        th.running_state != req_running_state or \
-                        th.nth_epoch != req_last_epoch:
+                if th.nth_epoch != req_last_epoch and th.valid_loss_list:
+                    best_epoch = int(np.argmin(th.valid_loss_list))
                     body = json.dumps({
                         "total_batch": th.total_batch,
                         "last_batch": th.nth_batch,
                         "last_epoch": th.nth_epoch,
                         "batch_loss": th.last_batch_loss,
                         "running_state": th.running_state,
-                        "state": model_state
+                        "state": model_state,
+                        "validation_loss_list": th.valid_loss_list,
+                        "train_loss_list": th.train_loss_list,
+                        "best_epoch": best_epoch,
+                        "best_epoch_iou": th.valid_iou_list[best_epoch],
+                        "best_epoch_map": th.valid_map_list[best_epoch],
+                        "best_epoch_validation_result": th.valid_loss_list[best_epoch]
+                    })
+                    ret = create_response(body)
+                    return ret
+
+                elif th.nth_batch != req_last_batch or \
+                        th.running_state != req_running_state:
+                    body = json.dumps({
+                        "total_batch": th.total_batch,
+                        "last_batch": th.nth_batch,
+                        "last_epoch": th.nth_epoch,
+                        "batch_loss": th.last_batch_loss,
+                        "running_state": th.running_state,
+                        "state": model_state,
+                        "validation_loss_list": [],
+                        "train_loss_list": [],
+                        "best_epoch": 0,
+                        "best_epoch_iou": 0,
+                        "best_epoch_map": 0,
+                        "best_epoch_validation_result": 0
                     })
                     ret = create_response(body)
                     return ret
@@ -317,9 +334,8 @@ def stop_model(project_id, model_id):
 def delete_model(project_id, model_id):
     try:
         thread_id = "{}_{}".format(project_id, model_id)
-
         storage.update_model_state(model_id, STATE_DELETED)
-        th = thread_pool[thread_id]
+        th = thread_pool.get(thread_id, None)
         if th is not None:
             if not th[0].cancel():
                 th[1].stop()
@@ -430,6 +446,59 @@ def create_dataset_def():
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run_prediction", method="GET")
+def run_prediction(project_id, model_id):
+    # 学習データ読み込み
+    try:
+        thread_id = "{}_{}".format(project_id, model_id)
+        fields = 'hyper_parameters,algorithm,algorithm_params,best_epoch_weight'
+        data = storage.fetch_model(project_id, model_id, fields=fields)
+
+        # weightのh5ファイルのパスを取得して予測する
+        th = PredictionThread(thread_id, data["hyper_parameters"], data["algorithm"],
+                              data["algorithm_params"], data["best_epoch_weight"])
+        th.start()
+        th.join()
+
+        if th.error_msg is not None:
+            body = json.dumps({"error_msg": th.error_msg})
+        else:
+            data = {
+                "predict_results": th.predict_results,
+                "csv": th.csv_filename,
+            }
+            body = json.dumps(data)
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+
+    ret = create_response(body)
+    return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/prediction_info", method="GET")
+def prediction_info(project_id, model_id):
+    # 学習データ読み込み
+    time.sleep(1)
+    thread_id = "{}_{}".format(project_id, model_id)
+    th = find_thread(thread_id)
+    if th is not None:
+        data = {
+            "predict_total_batch": th.total_batch,
+            "predict_last_batch": th.last_batch,
+        }
+        body = json.dumps(data)
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
+def export_csv(project_id, model_id, file_name):
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    csv_dir = os.path.join(BASE_DIR, "../../.storage/csv")
+    return static_file(file_name, root=csv_dir, download=True)
 
 
 def main():

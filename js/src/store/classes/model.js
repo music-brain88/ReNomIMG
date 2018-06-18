@@ -23,5 +23,8 @@ export default class Model {
     this.total_batch = total_batch
     this.last_train_loss = last_train_loss
     this.running_state = running_state
+
+    // This is a flag whether updateProgress action has been run or not.
+    this.has_executed_progress_api = false
   }
 }

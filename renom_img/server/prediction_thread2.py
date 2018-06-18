@@ -2,7 +2,6 @@ import os
 import numpy as np
 import traceback
 from threading import Event
-
 from renom.cuda import set_cuda_active, release_mem_pool
 
 from renom_img.api.detection.yolo_v1 import Yolov1
@@ -21,9 +20,9 @@ from renom_img.server import RUN_STATE_TRAINING, RUN_STATE_VALIDATING, \
 from renom_img.server.utility.storage import storage
 
 
-class TrainThread(object):
+class PredictionThread(object):
 
-    def __init__(self, thread_id, project_id, model_id, dataset_id, hyper_parameters,
+    def __init__(self, thread_id, project_id, model_id, hyper_parameters,
                  algorithm, algorithm_params):
 
         self.model_id = model_id
@@ -34,28 +33,18 @@ class TrainThread(object):
         self.nth_batch = 0
         self.total_batch = 0
         self.last_batch_loss = 0
-        self.nth_epoch = 0
-        self.train_loss_list = []
-        self.valid_loss_list = []
-        self.valid_iou_list = []
-        self.valid_map_list = []
-
 
         # Error message caused in thread.
         self.error_msg = None
 
-        # Train hyperparameters
-        self.total_epoch = int(hyper_parameters["total_epoch"])
+        # hyperparameters
         self.batch_size = int(hyper_parameters["batch_size"])
         self.imsize = (int(hyper_parameters["image_width"]),
                        int(hyper_parameters["image_height"]))
         self.stop_event = Event()
 
         # Prepare dataset
-        rec = storage.fetch_dataset_def(dataset_id)
-        (_, name, ratio, train_files, valid_files, class_map, _, _) = rec
-        self.train_dist = self.create_dist(train_files)
-        self.valid_dist = self.create_dist(valid_files, False)
+        self.prediction_dist = self.create_dist(train_files)
 
         # Algorithm
         # Pretrained weights are must be prepared.
@@ -66,6 +55,9 @@ class TrainThread(object):
             self.model = Yolov1(len(class_map), cell_size, num_bbox, load_weight=True)
         else:
             self.error_msg = "{} is not supported algorithm id.".format(algorithm)
+
+        self.predict_results = {}
+
 
     @property
     def running_state(self):
@@ -81,60 +73,30 @@ class TrainThread(object):
             self._running_state = state
 
     def __call__(self):
-
         storage.update_model_state(self.model_id, STATE_RUNNING)
         # This func works as thread.
-        epoch = self.total_epoch
         batch_size = self.batch_size
 
         try:
             i = 0
             set_cuda_active(True)
             release_mem_pool()
-            for e in range(epoch):
-                # Train
-                self.nth_epoch = e
-                self.running_state = RUN_STATE_TRAINING
+            self.model.set_models(inference=True)
+            result = []
+            # Prediction
+            self.running_state = RUN_STATE_VALIDATING
+            if self.is_stopped():
+                return
+            display_loss = 0
+            batch_gen = self.prediction_dist.batch(batch_size, self.model.build_data)
+            for i, pred_x in enumerate(batch_gen):
                 if self.is_stopped():
                     return
-                display_loss = 0
-                batch_gen = self.train_dist.batch(batch_size, self.model.build_data)
-                self.total_batch = int(np.ceil(len(self.train_dist) // batch_size))
-                for i, (train_x, train_y) in enumerate(batch_gen):
-                    self.nth_batch = i
-                    if self.is_stopped():
-                        return
-                    self.model.set_models(inference=False)
-                    with self.model.train():
-                        loss = self.model.loss(self.model(train_x), train_y)
-                        reg_loss = loss + self.model.regularize()
-                    reg_loss.grad().update(self.model.get_optimizer(e, epoch,
-                        i, self.total_batch))
-                    display_loss += float(loss.as_ndarray()[0])
-                    self.last_batch_loss = float(loss.as_ndarray()[0])
-                avg_train_loss = display_loss / (i + 1)
+                result.extend(self.model.predict(pred_x))
+            ## Set result.
+            
 
-                # Validation
-                self.running_state = RUN_STATE_VALIDATING
-                if self.is_stopped():
-                    return
-                display_loss = 0
-                batch_gen = self.valid_dist.batch(batch_size, self.model.build_data)
-                self.model.set_models(inference=True)
-                for i, (valid_x, valid_y) in enumerate(batch_gen):
-                    if self.is_stopped():
-                        return
-                    loss = self.model.loss(self.model(valid_x), valid_y)
-                    display_loss += float(loss.as_ndarray()[0])
-                avg_valid_loss = display_loss / (i + 1)
-
-                self.train_loss_list.append(avg_train_loss)
-                self.valid_loss_list.append(avg_valid_loss)
-                self.valid_iou_list.append(1)
-                self.valid_map_list.append(1)
-
-            # Store epoch data tp DB.
-
+        # Store epoch data tp DB.
         except Exception as e:
             traceback.print_exc()
             self.error_msg = str(e)
@@ -206,3 +168,54 @@ class TrainThread(object):
         ])
         return ImageDistributor(img_path_list, annotation_list,
                                 augmentation=augmentation)
+
+    def save_predict_result_to_csv(self):
+        try:
+            # modelのcsvを保存する
+            if not os.path.isdir(CSV_DIR):
+                os.makedirs(CSV_DIR)
+
+            self.csv_filename = '{}.csv'.format(int(time.time()))
+            filepath = os.path.join(CSV_DIR, self.csv_filename)
+
+            with open(filepath, 'w') as f:
+                writer = csv.writer(f, lineterminator="\n")
+
+                for i in range(len(self.predict_results["bbox_path_list"])):
+                    row = []
+                    row.append(self.predict_results["bbox_path_list"][i])
+                    for j in range(len(self.predict_results["bbox_list"][i])):
+                        b = self.predict_results["bbox_list"][i][j]
+                        row.append(b["class"])
+                        row.append(b["box"])
+
+                    writer.writerow(row)
+        except Exception as e:
+            traceback.print_exc()
+            self.error_msg = e.args[0]
+
+    def save_predict_result_to_xml(self):
+        try:
+            for i in range(len(self.predict_results["bbox_path_list"])):
+                img_path = self.predict_results["bbox_path_list"][i]
+                filename = img_path.split("/")[-1]
+                xml_filename = '{}.xml'.format(filename.split(".")[0])
+                filepath = os.path.join(XML_DIR, xml_filename)
+                img_path = os.path.join(IMG_DIR, filename)
+                im = Image.open(img_path)
+                width, height = im.size
+
+                annotation = et.Element("annotation")
+                name = et.SubElement(annotation, "filename")
+                name.text = filename
+
+                for j in range(len(self.predict_results["bbox_list"][i])):
+                    b = self.predict_results["bbox_list"][i][j]
+                    obj = et.SubElement(annotation, "object")
+                    bbox_class = et.SubElement(obj, "class")
+                    bbox_class.text = str(b["class"])
+
+                    bbox_position = et.SubElement(obj, "bndbox")
+                    bbox_xmax = et.SubElement(bbox_position, "xmax")
+                    xmax = width * b["box"][0] + (width * b["box"][2] / 2.)
+                    bbox_xmax.text = str(xmax)
