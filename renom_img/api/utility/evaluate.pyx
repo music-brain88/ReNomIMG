@@ -14,7 +14,7 @@ def get_prec_and_rec(gt_list, pred_list, class_list, iou_threshold=0.5):
       class_list (list): A list of class name. Examle: x["aeroplane", "bicycle", "bird", ...].
 
     predict_list:
-    [
+      [
             [ # Objects of 1st image.
                 {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
                 {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},

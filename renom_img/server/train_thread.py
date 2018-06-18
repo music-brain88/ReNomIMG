@@ -8,9 +8,14 @@ import numpy as np
 import traceback
 from renom.cuda import set_cuda_active, release_mem_pool
 from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
-from renom_img.server.utility.data_preparation import create_train_valid_dists
 from renom_img.server.utility.storage import storage
 from renom_img.api.utility.nms import calc_iou, transform2xy12
+from renom_img.api.utility.target import DataBuilderYolov1
+from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.augmentation.augmentation import Augmentation
+from renom_img.api.utility.augmentation.process import Flip, Shift, Rotate, WhiteNoise
+from renom_img.api.utility.load import parse_xml_detection
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
@@ -24,6 +29,12 @@ TRAIN = 0
 VALID = 1
 PRED = 2
 ERROR = -1
+
+train_img_path = 'dataset/train_set/img'
+train_xml_path = 'dataset/train_set/label'
+valid_img_path = 'dataset/valid_set/img'
+valid_xml_path = 'dataset/valid_set/label'
+
 
 DEBUG = False
 
@@ -70,13 +81,13 @@ class TrainThread(threading.Thread):
             iou_list = []
             map_true_count = 0
             map_count = 0
-
+            num_class = self._class_num
             for i in range(len(truth)):
-                label = truth[i].reshape(-1, 4 + 1)  # Note: This is not onehot.
+                label = truth[i]  # Note: This is not onehot.
                 pred = sorted(predict_list[i], key=lambda x: x['class'])
-
                 for j in range(len(label)):
-                    x, y, w, h, obj_class = label[j]
+                    x, y, w, h = label[j]["box"]
+                    obj_class = self.class_list[label[j]["name"]]
                     if x == y == w == h == 0:
                         break
 
@@ -118,12 +129,47 @@ class TrainThread(threading.Thread):
                 if DEBUG:
                     print("run thread")
                 storage.update_model_state(self.model_id, STATE_RUNNING)
-                class_list, train_dist, valid_dist = create_train_valid_dists(
-                    self.img_size, self.train_imgs, self.valid_imgs)
+                # Create distributor
+
+                train_xml_path_list = [os.path.join(train_xml_path, path)
+                                       for path in sorted(os.listdir(train_xml_path))]
+                train_img_path_list = [os.path.join(train_img_path, path)
+                                       for path in sorted(os.listdir(train_img_path))]
+                train_label_list = parse_xml_detection(train_xml_path_list)
+
+                valid_xml_path_list = [os.path.join(valid_xml_path, path)
+                                       for path in sorted(os.listdir(valid_xml_path))]
+                valid_img_path_list = [os.path.join(valid_img_path, path)
+                                       for path in sorted(os.listdir(valid_img_path))]
+                valid_label_list = parse_xml_detection(valid_xml_path_list)
+
+                builder = DataBuilderYolov1(self.cell_h, self.img_size)
+                builder.create_class_mapping(valid_label_list)
+                aug = Augmentation([
+                    Shift(40, 40),
+                    Rotate(),
+                    Flip(),
+                    WhiteNoise()
+                ])
+                train_dist = ImageDistributor(
+                    train_img_path_list,
+                    train_label_list,
+                    builder,
+                    aug,
+                    num_worker=2
+                )
+                valid_dist = ImageDistributor(
+                    valid_img_path_list,
+                    valid_label_list,
+                    builder,
+                    num_worker=2
+                )
+                self.class_list = builder.class_list
                 storage.register_dataset_v0(
-                    len(train_dist), len(valid_dist), class_list)
-                self.model = self.set_train_config(len(class_list))
+                    len(train_dist), len(valid_dist), self.class_list)
+                self.model = self.set_train_config(len(self.class_list))
                 self.run_train(train_dist, valid_dist)
+
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e.args[0]
@@ -268,7 +314,7 @@ class TrainThread(threading.Thread):
             v_mAP_true_count = 0
             v_bbox = []
             self.model.set_models(inference=True)
-            for i, (validation_x, validation_y) in enumerate(distributor.batch(self.batch_size, False)):
+            for i, (validation_x, validation_y) in enumerate(distributor.batch(self.batch_size, shuffle=False)):
                 if self.stop_event.is_set():
                     return
                 # Validation
@@ -276,20 +322,15 @@ class TrainThread(threading.Thread):
                 z = self.model(h)
                 loss = self.model.loss_func(z, validation_y)
                 validation_loss += loss.as_ndarray()
+                v_bbox.extend(self.model.get_bbox(z.as_ndarray()))
 
-                bbox = self.model.get_bbox(z.as_ndarray())
-                iou_list, mAP_true_obj_count, mAP_obj_count = self.get_iou_and_mAP(
-                    validation_y, bbox)
-                v_ious.extend(iou_list)
-                v_mAP_true_count += mAP_true_obj_count
-                v_mAP_count += mAP_obj_count
-                v_bbox.extend(bbox)
+            iou_list, mAP_true_obj_count, mAP_obj_count = \
+                self.get_iou_and_mAP(distributor.annotation_list, v_bbox)
 
-            v_iou = np.mean(v_ious)
-            v_mAP = v_mAP_true_count / float(v_mAP_count)
+            v_iou = np.mean(iou_list)
+            v_mAP = 0 if v_mAP_count == 0 else v_mAP_true_count / float(v_mAP_count)
             v_iou = float(0 if np.isnan(v_iou) or np.isinf(v_iou) else v_iou)
             v_mAP = float(0 if np.isnan(v_mAP) or np.isinf(v_mAP) else v_mAP)
-            v_bbox = v_bbox
             validation_loss = validation_loss / (i + 1)
 
             return validation_loss, v_iou, v_mAP, v_bbox

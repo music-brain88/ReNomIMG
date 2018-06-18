@@ -12,7 +12,10 @@ from PIL import Image
 from renom.cuda import set_cuda_active, release_mem_pool
 from renom_img.server.utility.storage import storage
 from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
-from renom_img.server.utility.data_preparation import create_pred_dist, create_train_valid_dists
+from renom_img.api.utility.augmentation.augmentation import Augmentation
+from renom_img.api.utility.augmentation.process import Flip, Shift, Rotate, WhiteNoise
+from renom_img.api.utility.target import DataBuilderYolov1
+from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEIGHT_DIR = os.path.join(BASE_DIR, "../../.storage/weight")
@@ -27,6 +30,8 @@ TRAIN = 0
 VALID = 1
 PRED = 2
 ERROR = -1
+
+pred_img_path = 'dataset/prediction_set/img'
 
 DEBUG = False
 
@@ -74,7 +79,12 @@ class PredictionThread(threading.Thread):
 
     def run_prediction(self):
         try:
-            distributor = create_pred_dist(self.img_size)
+            pred_img_path_list = sorted(os.listdir(pred_img_path))
+            pred_img_path_list = [os.path.join(pred_img_path, x)
+                                  for x in pred_img_path_list]
+
+            builder = DataBuilderYolov1(self.cell_h, self.img_size)
+            distributor = ImageDistributor(pred_img_path, target_builder=builder, num_worker=2)
 
             v_bbox = []
             v_bbox_imgs = distributor.img_path_list

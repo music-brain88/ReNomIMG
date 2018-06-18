@@ -92,39 +92,6 @@ class WrapperYoloDarknet(Wrapper):
             })
         return result
 
-    def build_target(self, label):
-        """
-        [
-            [x0, y0, w0, h0, c0, x1, y1, w1, h1, c1, ...],
-            [x0, y0, w0, h0, c0, x1, y1, w1, h1, c1, ...],
-        ]
-        """
-        N, D = label.shape
-        num_class = self._num_class
-        img_w, img_h = self._img_size
-        cell_w, cell_h = self._cell
-        target = np.zeros((N, cell_h, cell_w, 5 + num_class), dtype=np.float32)
-        for ind_img in range(N):
-            annotation = label[ind_img]
-            for ind_obj in range(D // 5):
-                x, y, w, h, c = annotation[ind_obj * 5:(1 + ind_obj) * 5]
-                if x == y == w == h == c == 0:
-                    break
-                c = int(c)
-                onehot_class = [0] * c + [1] + [0] * (num_class - c - 1)
-                truth_x = np.clip(x, 0, img_w)
-                truth_y = np.clip(y, 0, img_h)
-                truth_w = np.clip(w, 0, img_w)
-                truth_h = np.clip(h, 0, img_h)
-                norm_x = truth_x * .99 * cell_w / img_w
-                norm_y = truth_y * .99 * cell_h / img_h
-                norm_w = truth_w / img_w
-                norm_h = truth_h / img_h
-                target[ind_img, int(norm_y), int(norm_x)] = \
-                    np.concatenate(([1, norm_x % 1, norm_y % 1, norm_w, norm_h], onehot_class))
-        target = target.reshape(N, -1)
-        return target
-
     def optimizer(self, nth_epoch, nth_batch, total_epoch, total_batch_loop):
         lr_list = [0.001] \
             + [0.01] * int(total_epoch * 0.5) \
@@ -144,5 +111,4 @@ class WrapperYoloDarknet(Wrapper):
         return self._optimizer
 
     def loss_func(self, x, y):
-        y = self.build_target(y)
         return self._yolo_detector_loss(x, y)

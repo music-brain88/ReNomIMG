@@ -36,69 +36,7 @@ def make_box(box):
     return [x1, y1, x2, y2]
 
 
-def apply_nms(x, cells, bbox, classes, thresh=0.2, iou_thresh=0.3):
-    u"""Apply to X predicted out of yolo_detector layer to get list of detected objects.
-    Default threshold for detection is prob < 0.2.
-    Default threshold for suppression is IOU > 0.4
-    """
-    probs = np.zeros((cells, cells, bbox, classes))
-    boxes = np.zeros((cells, cells, bbox, 4))  # 4 is x y w h
-    for b in range(bbox):
-        # bbox prob is "confidence of a bbox * probability of a class"
-        prob = x[:, :, b * 5] * x[:, :, bbox * 5:].transpose(2, 0, 1)
-        probs[:, :, b, :] = prob.transpose(1, 2, 0)
-        boxes[:, :, b, :] = x[:, :, b * 5 + 1:b * 5 + 5]
-        boxes[:, :, b, 2] = boxes[:, :, b, 2]
-        boxes[:, :, b, 3] = boxes[:, :, b, 3]
-    offset = np.array([np.arange(cells)] * (cells * bbox)
-                      ).reshape(bbox, cells, cells).transpose(1, 2, 0)
-    # offset x and y values to be 0<xy<1 for the whole image, not a cell
-    boxes[:, :, :, 0] += offset
-    boxes[:, :, :, 1] += offset.transpose(1, 0, 2)
-    boxes[:, :, :, 0:2] = boxes[:, :, :, 0:2] / float(cells)
-    # get a single list of all bbox and pred for this image
-    probs = probs.reshape(-1, classes)
-    boxes = boxes.reshape(-1, 4)  # 4 is x y w h
-    # filter bbox with prob less than thresh (default 0.2)
-    probs[probs < thresh] = 0
-    # reorder results by highest prob
-    argsort = np.argsort(probs, axis=0)[::-1]
-    # perform nms for boxes of same class
-
-    def get_xy12(box):
-        x1 = box[0] - box[2] / 2
-        y1 = box[1] - box[3] / 2
-        x2 = box[0] + box[2] / 2
-        y2 = box[1] + box[3] / 2
-        return [x1, y1, x2, y2]
-    for cl in range(classes):
-        for b in range(boxes.shape[0]):
-            if probs[argsort[b, cl], cl] == 0:
-                continue
-            b1 = boxes[argsort[b, cl], :]
-            b1 = get_xy12(b1)
-            for compar in range(b + 1, boxes.shape[0]):
-                b2 = boxes[argsort[compar, cl], :]
-                b2 = get_xy12(b2)
-                if box_iou(b1, b2) > iou_thresh:
-                    probs[argsort[compar, cl], cl] = 0
-    classes = np.argmax(probs, axis=1)
-    # filter only remaining boxes
-    filter_iou = probs > 0
-    indexes = np.nonzero(filter_iou)
-    # save results
-    results = []
-    for b in range(len(indexes[0])):
-        result = {
-            "class": int(indexes[1][b]),
-            "box": boxes[indexes[0][b]].astype(np.float64).tolist(),
-            "score": float(probs[indexes[0][b], indexes[1][b]])
-        }
-        results.append(result)
-    return results
-
-
-class yolo(Node):
+class yolo_loss(Node):
     u"""Loss function for Yolo detection.
     Last layer of the network needs to be following size:
     cells*cells*(bbox*5+classes)
@@ -183,12 +121,12 @@ class yolo(Node):
                 context, get_gpu(self.attrs._deltas) * dy)
 
 
-class Yolo(object):
+class YoloLoss(object):
 
-    def __init__(self, cells=7, bbox=2, classes=10):
+    def __init__(self, cells=7, bbox=2, classes=20):
         self._cells = cells
         self._bbox = bbox
         self._classes = classes
 
     def __call__(self, x, y):
-        return yolo(x, y, self._cells, self._bbox, self._classes)
+        return yolo_loss(x, y, self._cells, self._bbox, self._classes)

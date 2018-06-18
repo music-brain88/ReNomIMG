@@ -39,7 +39,7 @@ class Storage:
                                   isolation_level=None)
 
         self.db.execute('PRAGMA journal_mode = WAL')
-        self.db.execute('PRAGMA synchronous = OFF')
+        # self.db.execute('PRAGMA synchronous = OFF')
         self.db.execute('PRAGMA foreign_keys = ON')
         self._init_db()
 
@@ -59,7 +59,6 @@ class Storage:
                  updated TIMESTAMP NOT NULL)
             """)
 
-
         c.execute("""
                 CREATE TABLE IF NOT EXISTS dataset_def
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,6 +66,7 @@ class Storage:
                  ratio FLOAT,
                  train_imgs CLOB,
                  valid_imgs CLOB,
+                 class_map BLOB,
                  created TIMESTAMP NOT NULL,
                  updated TIMESTAMP NOT NULL);
           """)
@@ -140,15 +140,6 @@ class Storage:
             """)
 
         c.execute("""
-                CREATE TABLE IF NOT EXISTS dataset_v0
-                (dataset_id INTEGER PRIMARY KEY,
-                 train_data_count INTEGER,
-                 valid_data_count INTEGER,
-                 class_names BLOB)
-            """)
-
-
-        c.execute("""
                 CREATE TABLE IF NOT EXISTS epoch
                 (epoch_id INTEGER PRIMARY KEY AUTOINCREMENT,
                  model_id INTEGER NOT NULL REFERENCES model(model_id) ON DELETE CASCADE,
@@ -161,8 +152,6 @@ class Storage:
                  updated TIMESTAMP NOT NULL,
                  UNIQUE(model_id, nth_epoch))
           """)
-
-
 
     def is_poject_exists(self):
         with self.db:
@@ -376,7 +365,7 @@ class Storage:
     def fetch_models(self, project_id, order_by='model_id DESC'):
         with self.db:
             c = self.cursor()
-            fields = "model_id,project_id,hyper_parameters,dataset_def_id,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+            fields = "model_id,project_id,dataset_def_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
 
             sql = "SELECT " + fields + \
                 " FROM model WHERE project_id=? AND state!=3 ORDER BY " + order_by
@@ -584,39 +573,47 @@ class Storage:
                 })
             return ret
 
-
-    def register_dataset_def(self, name, ratio, train_imgs, valid_imgs):
+    def register_dataset_def(self, name, ratio, train_imgs, valid_imgs, class_map):
 
         train_imgs = json.dumps(train_imgs)
         valid_imgs = json.dumps(valid_imgs)
+        class_map = pickle_dump(class_map)
 
         now = datetime.datetime.now()
         with self.db:
             c = self.cursor()
             c.execute("""
-                INSERT INTO dataset_def(name, ratio, train_imgs, valid_imgs,
+                INSERT INTO dataset_def(name, ratio, train_imgs, valid_imgs, class_map,
                     created, updated)
-                VALUES(?, ?, ?, ?, ?, ?)
-            """, (name, ratio, train_imgs, valid_imgs, now, now))
+                VALUES(?, ?, ?, ?, ?, ?, ?)
+            """, (name, ratio, train_imgs, valid_imgs, class_map, now, now))
             return c.lastrowid
 
     def fetch_dataset_defs(self):
         with self.db:
+            ret = []
             c = self.cursor()
-            c.execute("""SELECT id, name, ratio, created, updated FROM dataset_def""")
-            return list(c.fetchall())
+            c.execute("""SELECT id, name, ratio, valid_imgs, class_map, created, updated FROM dataset_def""")
+            for rec in c:
+                ret.append([
+                    rec[0], rec[1], rec[2],
+                    json.loads(rec[3]),
+                     pickle_load(rec[4]),
+                    rec[5].isoformat(), rec[6].isoformat()
+                ])
+            return ret
 
     def fetch_dataset_def(self, id):
         with self.db:
             c = self.cursor()
-            c.execute("""SELECT id, name, ratio, train_imgs, valid_imgs, created, updated FROM dataset_def""")
+            c.execute("""SELECT id, name, ratio, train_imgs, valid_imgs, class_map, created, updated FROM dataset_def""")
 
             for rec in c:
-                id, name, ratio, train_imgs, valid_imgs, created, updated = rec
+                id, name, ratio, train_imgs, valid_imgs, class_map, created, updated = rec
                 train_imgs = json.loads(train_imgs)
                 valid_imgs = json.loads(valid_imgs)
-                return (id, name, ratio, train_imgs, valid_imgs, created, updated)
-
+                class_map = pickle_load(class_map)
+                return (id, name, ratio, train_imgs, valid_imgs, class_map, created, updated)
             return None
 
 

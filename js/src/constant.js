@@ -33,6 +33,9 @@ export const STATE_NAME = {
 }
 
 export const STATE_COLOR = {
+  0: '#898989',
+  'Created': '#898989',
+
   1: '#953136',
   'Running': '#953136',
 

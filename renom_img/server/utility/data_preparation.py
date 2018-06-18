@@ -8,14 +8,15 @@ import sys
 import numpy as np
 from xml.etree import ElementTree
 
-from renom_img.api.utility.target import build_target
-from renom_img.api.utility.distributor.distributor import ImageDetectionDistributor
+from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.target import TargetBuilderYolov1
 from renom_img.api.utility.load import parse_xml_detection
 
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 from renom_img.api.utility.augmentation.process import Flip, Shift, Rotate, WhiteNoise
 
 from .. import server
+
 
 def create_train_valid_dists(img_size, train_imgs, valid_imgs):
     datasrc = pathlib.Path('datasrc')
@@ -41,8 +42,9 @@ def create_train_valid_dists(img_size, train_imgs, valid_imgs):
         WhiteNoise(0.1),
     ])
 
-    train_dist = ImageDetectionDistributor(train_img_path_list, train_label, img_size, aug)
-    valid_dist = ImageDetectionDistributor(valid_img_path_list, valid_label, img_size)
+    train_dist = ImageDetectionDistributor(
+        train_img_path_list, train_label, TargetBuilderYolov1(), aug)
+    valid_dist = ImageDetectionDistributor(valid_img_path_list, valid_label)
     class_list = [k for k, v in sorted(class_mapping.items(), key=lambda x: x[0])]
     return class_list, train_dist, valid_dist
 
