@@ -74,11 +74,11 @@ export default {
     }
     if (!model) return
     const result = model.best_epoch_validation_result
-    const dataset_id = model.dataset_def_id
+    const dataset_def_id = model.dataset_def_id
     let dataset
 
     for (let index in state.dataset_defs) {
-      if (state.dataset_defs[index].id === dataset_id) {
+      if (state.dataset_defs[index].id === dataset_def_id) {
         dataset = state.dataset_defs[index]
       }
     }
