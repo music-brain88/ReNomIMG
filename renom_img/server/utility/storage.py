@@ -376,7 +376,7 @@ class Storage:
     def fetch_models(self, project_id, order_by='model_id DESC'):
         with self.db:
             c = self.cursor()
-            fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+            fields = "model_id,project_id,hyper_parameters,dataset_def_id,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
 
             sql = "SELECT " + fields + \
                 " FROM model WHERE project_id=? AND state!=3 ORDER BY " + order_by
@@ -399,7 +399,7 @@ class Storage:
     def fetch_running_models(self, project_id, order_by='model_id'):
         with self.db:
             c = self.cursor()
-            fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+            fields = "model_id,project_id,hyper_parameters,dataset_def_id,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
 
             sql = "SELECT " + fields + \
                 " FROM model WHERE project_id=? AND state=1 ORDER BY " + order_by

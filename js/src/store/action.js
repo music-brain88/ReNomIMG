@@ -7,6 +7,7 @@ export default {
   async initData (context, payload) {
     await context.dispatch('loadProject', {'project_id': payload.project_id})
     await context.dispatch('loadModels', {'project_id': payload.project_id})
+    await context.dispatch('loadDatasetDef', {'project_id': payload.project_id})
   },
 
   async loadProject (context, payload) {
@@ -355,5 +356,4 @@ export default {
       })
     }
   }
-
 }

@@ -34,7 +34,17 @@ export default {
       return ret
     }
   },
-
+  /*
+  Detail
+  */
+  getDatasetName (state) {
+    return function (dataset_def_id) {
+      if (state.dataset_defs.length !== 0) {
+        return state.dataset_defs.filter(d => d.id === dataset_def_id)[0].name
+      }
+      return ''
+    }
+  },
   /*
   model samples, prediction sample
   */
