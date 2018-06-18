@@ -2,12 +2,29 @@ import Project from './classes/project'
 import Model from './classes/model'
 
 export default {
-  // set header page name
+  /**
+   * Set header page name
+   *
+   * @param {String} payload.page_name : String which is put on header.
+   *
+   */
   setPageName (state, payload) {
     state.page_name = payload.page_name
   },
 
-  // set project data
+  /**
+   * Set project data
+   * This function is always called when app stars.
+   * This creates new project if there is no project.
+   *
+   * This function used for changing deploying model.
+   *
+   * @param {Integer} payload.project_id : Id of project.
+   * @param {String} payload.project_name : Name of project.
+   * @param {String} payload.project_comment : Comment of project.
+   * @param {Integer} payload.deploy_model_id : Deployed model id.
+   *
+   */
   setProject (state, payload) {
     if (!state.project || state.project.project_id !== payload.project_id) {
       const project = new Project(payload.project_id, payload.project_name, payload.project_comment)
@@ -16,16 +33,43 @@ export default {
     state.project.deploy_model_id = payload.deploy_model_id
   },
 
-  // set model data
+  /**
+   * Set model data.
+   * This resets the variable 'state.models'. It will cause screen update.
+   *
+   * @param {Array} payload.models : Array of model.
+   *
+   */
   setModels (state, payload) {
     state.models = []
     for (let index in payload.models) {
-      // Deleted model(=3) is removed.
+      // 'Deleted model'(=3) is removed.
       if (payload.models[index].state !== 3) {
         state.models.push(payload.models[index])
       }
     }
   },
+
+  /**
+   * Add newly created model to state.models. The model's state should be 'Created'.
+   * Newly created model will be registered in server side during this method is running.
+   *
+   * This function will recreate 'state.models'. It will cause screen update.
+   *
+   * @param {Integer} payload.project_id
+   * @param {Integer} payload.model_id
+   * @param {Integer} payload.dataset_def_id
+   * @param {Object} payload.hyper_parameters
+   * @param {Integer} payload.algorithm
+   * @param {Object} payload.algorithm_params
+   * @param {Integer} payload.state
+   * @param {Integer} payload.total_batch
+   * @param {Integer} payload.last_train_loss
+   * @param {Integer} payload.last_epoch
+   * @param {Integer} payload.last_batch
+   * @param {Integer} payload.running_state
+   * @param {Array} payload.best_epoch_validation_result
+   */
   addModelTemporarily (state, payload) {
     let d = payload
     let m = new Model(d.model_id, d.project_id, d.dataset_def_id,
@@ -34,23 +78,31 @@ export default {
       d.total_batch, d.last_train_loss, d.running_state)
     state.models = [m, ...state.models]
   },
-  // update model state
+
+  /**
+   * Changes model' state.
+   *
+   * @param {Object} payload : Array of Object.
+   *  The object has attributes {'model_id': {'running_state':(Int), 'state':(Int)}}
+   *
+   */
   updateModelsState (state, payload) {
     for (let index in state['models']) {
-      let d = state['models'][index]
-      let p = payload[parseInt(d.model_id)]
-      if (p !== undefined) {
-        if ('running_state' in p && d.running_state && d.running_state !== p['running_state']) {
-          d.running_state = p['running_state']
+      let model = state['models'][index]
+      let new_state = payload[parseInt(model.model_id)]
+      if (new_state !== undefined) {
+        if ('running_state' in new_state && model.running_state && model.running_state !== new_state['running_state']) {
+          model.running_state = new_state['running_state']
         }
-        if ('state' in p && d.state !== p['state']) {
-          d.state = p['state']
+        if ('state' in new_state && model.state !== new_state['state']) {
+          model.state = new_state['state']
         }
       } else {
-        d.state = 3
+        model.state = 3
       }
     }
   },
+
   // update progress
   updateProgress (state, payload) {
     let model_id = payload.model_id
