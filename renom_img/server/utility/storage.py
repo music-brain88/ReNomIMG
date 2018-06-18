@@ -598,7 +598,7 @@ class Storage:
                 ret.append([
                     rec[0], rec[1], rec[2],
                     json.loads(rec[3]),
-                     pickle_load(rec[4]),
+                    pickle_load(rec[4]),
                     rec[5].isoformat(), rec[6].isoformat()
                 ])
             return ret
@@ -606,7 +606,8 @@ class Storage:
     def fetch_dataset_def(self, id):
         with self.db:
             c = self.cursor()
-            c.execute("""SELECT id, name, ratio, train_imgs, valid_imgs, class_map, created, updated FROM dataset_def""")
+            c.execute(
+                """SELECT id, name, ratio, train_imgs, valid_imgs, class_map, created, updated FROM dataset_def""")
 
             for rec in c:
                 id, name, ratio, train_imgs, valid_imgs, class_map, created, updated = rec

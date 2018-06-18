@@ -96,7 +96,6 @@ export default {
     fd.append('hyper_parameters', payload.hyper_parameters)
     fd.append('algorithm', payload.algorithm)
     fd.append('algorithm_params', payload.algorithm_params)
-
     let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/model/create'
     return axios.post(url, fd)
   },
@@ -132,7 +131,7 @@ export default {
       'algorithm': payload.algorithm,
       'algorithm_params': payload.algorithm_params,
       'state': 0,
-      'best_epoch_validation_result': 0,
+      'best_epoch_validation_result': [],
       'last_epoch': '-',
       'last_batch': '-',
       'total_batch': '-',
@@ -220,7 +219,6 @@ export default {
         // Then update will not be performed.
         'validation_loss_list': response.data.validation_loss_list,
         'train_loss_list': response.data.train_loss_list,
-
         'best_epoch': response.data.best_epoch,
         'best_epoch_iou': response.data.best_epoch_iou,
         'best_epoch_map': response.data.best_epoch_map,
@@ -268,25 +266,6 @@ export default {
 
         context.commit('setDeployModelId', {
           'model_id': undefined
-        })
-      })
-  },
-
-  /*
-  tag list
-  */
-  async loadDatasetInfov0 (context, payload) {
-    let url = '/api/renom_img/v1/dataset_info'
-    return axios.get(url)
-      .then(function (response) {
-        if (response.data.error_msg) {
-          context.commit('setAlertModalFlag', {'flag': true})
-          context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-          return
-        }
-
-        context.commit('setDatasetInfov0', {
-          'class_names': response.data['class_names']
         })
       })
   },

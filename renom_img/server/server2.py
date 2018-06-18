@@ -27,7 +27,7 @@ from renom_img.server.train_thread2 import TrainThread
 from renom_img.server.utility.storage import storage
 
 # Constants
-from renom_img.server import MAX_THREAD_NUM
+from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR
 from renom_img.server import STATE_FINISHED, STATE_RUNNING, STATE_DELETED, STATE_RESERVED
 
@@ -94,10 +94,12 @@ def error404(error):
     ret = create_response(body)
     return ret
 
+
 @route("/datasrc/<folder_name:path>/<file_name:path>")
 def datasrc(folder_name, file_name):
     file_dir = os.path.join('datasrc', folder_name)
     return static_file(file_name, root=file_dir, mimetype='image/*')
+
 
 @route("/api/renom_img/v1/projects/<project_id:int>", method="GET")
 def get_project(project_id):
@@ -114,6 +116,7 @@ def get_project(project_id):
 
     ret = create_response(body)
     return ret
+
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>", method="GET")
 def get_model(project_id, model_id):
@@ -216,32 +219,6 @@ def run_model(project_id, model_id):
         return ret
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/update", method="GET")
-def update_models(project_id):
-    try:
-        model_count = int(request.params.model_count)
-        # This gets running models only.
-        running_models = storage.fetch_running_models(project_id)
-        running_count = len(running_models)
-
-        for j in range(300):
-            time.sleep(1)
-            data = storage.fetch_models(project_id)
-            running_models = storage.fetch_running_models(project_id)
-            if model_count < len(data):
-                body = json.dumps({
-                    "models": data,
-                })
-                ret = create_response(body)
-                return ret
-            else:
-                raise Exception("Never reach here.")
-
-    except Exception as e:
-        time.sleep(1000)
-        traceback.print_exc()
-
-
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/progress", method="POST")
 def progress_model(project_id, model_id):
     try:
@@ -276,10 +253,10 @@ def progress_model(project_id, model_id):
                         "state": model_state,
                         "validation_loss_list": th.valid_loss_list,
                         "train_loss_list": th.train_loss_list,
-                        "best_epoch": best_epoch,
+                        "best_epoch": th.valid_loss_list[best_epoch],
                         "best_epoch_iou": th.valid_iou_list[best_epoch],
                         "best_epoch_map": th.valid_map_list[best_epoch],
-                        "best_epoch_validation_result": th.valid_loss_list[best_epoch]
+                        "best_epoch_validation_result": th.valid_predict_box[best_epoch]
                     })
                     ret = create_response(body)
                     return ret
@@ -298,11 +275,10 @@ def progress_model(project_id, model_id):
                         "best_epoch": 0,
                         "best_epoch_iou": 0,
                         "best_epoch_map": 0,
-                        "best_epoch_validation_result": 0
+                        "best_epoch_validation_result": []
                     })
                     ret = create_response(body)
                     return ret
-
 
     except Exception as e:
         traceback.print_exc()
@@ -320,7 +296,7 @@ def stop_model(project_id, model_id):
         if th is not None:
             if not th[0].cancel():
                 th[1].stop()
-                th[0].result() # Same as join.
+                th[0].result()  # Same as join.
             storage.update_model_state(model_id, STATE_FINISHED)
 
     except Exception as e:
@@ -344,7 +320,7 @@ def delete_model(project_id, model_id):
         ret = storage.fetch_model(project_id, model_id, "best_epoch_weight")
         file_name = ret.get('best_epoch_weight', None)
         if file_name is not None:
-            weight_path = os.path.join(WEIGHT_DIR, file_name)
+            weight_path = os.path.join(DB_DIR_TRAINED_WEIGHT, file_name)
             if os.path.exists(weight_path):
                 os.remove(weight_path)
 
@@ -353,7 +329,6 @@ def delete_model(project_id, model_id):
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
-
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/update/state", method="GET")
@@ -379,6 +354,7 @@ def update_models_state(project_id):
         ret = create_response(body)
         return ret
 
+
 @route("/api/renom_img/v1/dataset_defs", method="GET")
 def get_datasets():
     try:
@@ -388,7 +364,7 @@ def get_datasets():
             id, name, ratio, valid_imgs, class_map, created, updated = rec
             valid_imgs = [os.path.join("datasrc/img/", path) for path in valid_imgs]
             ret.append(dict(id=id, name=name, ratio=ratio,
-                valid_imgs=valid_imgs, class_map=class_map, created=created, updated=updated))
+                            valid_imgs=valid_imgs, class_map=class_map, created=created, updated=updated))
         return create_response(json.dumps({'dataset_defs': ret}))
 
     except Exception as e:

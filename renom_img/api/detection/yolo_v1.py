@@ -80,12 +80,12 @@ class Yolov1(rm.Model):
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            ind1 = int(total_epoch*0.5)
-            ind2 = int(total_epoch*0.3)
+            ind1 = int(total_epoch * 0.5)
+            ind2 = int(total_epoch * 0.3)
             ind3 = total_epoch - (ind1 + ind2 + 1)
-            lr_list = [0] + [0.01]*ind1 + [0.001]*ind2 + [0.0001]*ind3
+            lr_list = [0] + [0.01] * ind1 + [0.001] * ind2 + [0.0001] * ind3
             if current_epoch == 0:
-                lr = 0.0001 + (0.01 - 0.0001)/float(total_batch)*current_epoch
+                lr = 0.0001 + (0.01 - 0.0001) / float(total_batch) * current_batch
             else:
                 lr = lr_list[current_epoch]
             self._opt._lr = lr
@@ -105,14 +105,18 @@ class Yolov1(rm.Model):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 
-    def predict(self, img_path_list):
+    def predict(self, img_list):
         self.set_models(inference=True)
-        if isinstance(img_path_list, (tuple, list)):
-            img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_path_list])
+        if isinstance(img_list, (list, str)):
+            if isinstance(img_list, (tuple, list)):
+                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+            else:
+                img_array = load_img(img_list, self.imsize)[None]
+            img_array = self.preprocess(img_array)
         else:
-            img_array = load_img(img_path_list, self.imsize)[None]
+            img_array = img_list
 
-        pred = self(self.preprocess(img_array)).as_ndarray()
+        pred = self(img_array).as_ndarray()
         # Do NMS
 
         N = len(pred)
@@ -136,7 +140,7 @@ class Yolov1(rm.Model):
         probs = probs.reshape(N, -1, self._num_class)
         boxes = boxes.reshape(N, -1, 4)
 
-        probs[probs < 0.2] = 0
+        probs[probs < 0.3] = 0
         # Perform NMS
 
         argsort = np.argsort(probs, axis=1)[:, ::-1]

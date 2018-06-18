@@ -7,7 +7,7 @@ ALG_YOLOV2 = 1
 ALG_SSD = 2
 
 # Model state
-STATE_CREATED = 0 # This is used only client env.
+STATE_CREATED = 0  # This is used only client env.
 STATE_RUNNING = 1
 STATE_FINISHED = 2
 STATE_DELETED = 3

@@ -58,7 +58,6 @@ class PredictionThread(object):
 
         self.predict_results = {}
 
-
     @property
     def running_state(self):
         return self._running_state
@@ -93,8 +92,7 @@ class PredictionThread(object):
                 if self.is_stopped():
                     return
                 result.extend(self.model.predict(pred_x))
-            ## Set result.
-            
+            # Set result.
 
         # Store epoch data tp DB.
         except Exception as e:

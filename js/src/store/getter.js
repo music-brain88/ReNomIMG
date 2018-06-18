@@ -85,7 +85,7 @@ export default {
     if (!dataset) return
 
     const path = dataset.valid_imgs
-    const label_list = result.bbox_list
+    const label_list = result
     let ret = []
     for (let i = 0; i < path.length; i++) {
       let bboxes = []

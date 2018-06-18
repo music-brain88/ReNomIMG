@@ -1,4 +1,5 @@
 import os
+import time
 import numpy as np
 import traceback
 from threading import Event
@@ -8,7 +9,7 @@ from renom.cuda import set_cuda_active, release_mem_pool
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.distributor.distributor import ImageDistributor
-from renom_img.api.utility.augmentation.process import Shift
+from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 
 from renom_img.server import ALG_YOLOV1
@@ -39,7 +40,7 @@ class TrainThread(object):
         self.valid_loss_list = []
         self.valid_iou_list = []
         self.valid_map_list = []
-
+        self.valid_predict_box = []
 
         # Error message caused in thread.
         self.error_msg = None
@@ -63,7 +64,8 @@ class TrainThread(object):
         if algorithm == ALG_YOLOV1:
             cell_size = int(algorithm_params["cells"])
             num_bbox = int(algorithm_params["bounding_box"])
-            self.model = Yolov1(len(class_map), cell_size, num_bbox, load_weight=True)
+            self.model = Yolov1(len(class_map), cell_size, num_bbox,
+                                imsize=self.imsize, load_weight=True)
         else:
             self.error_msg = "{} is not supported algorithm id.".format(algorithm)
 
@@ -86,12 +88,20 @@ class TrainThread(object):
         # This func works as thread.
         epoch = self.total_epoch
         batch_size = self.batch_size
+        filename = '{}.h5'.format(int(time.time()))
+        best_valid_loss = np.Inf
 
         try:
             i = 0
             set_cuda_active(True)
             release_mem_pool()
             for e in range(epoch):
+
+                epoch_id = storage.register_epoch(
+                    model_id=self.model_id,
+                    nth_epoch=e
+                )
+
                 # Train
                 self.nth_epoch = e
                 self.running_state = RUN_STATE_TRAINING
@@ -109,7 +119,7 @@ class TrainThread(object):
                         loss = self.model.loss(self.model(train_x), train_y)
                         reg_loss = loss + self.model.regularize()
                     reg_loss.grad().update(self.model.get_optimizer(e, epoch,
-                        i, self.total_batch))
+                                                                    i, self.total_batch))
                     display_loss += float(loss.as_ndarray()[0])
                     self.last_batch_loss = float(loss.as_ndarray()[0])
                 avg_train_loss = display_loss / (i + 1)
@@ -118,22 +128,42 @@ class TrainThread(object):
                 self.running_state = RUN_STATE_VALIDATING
                 if self.is_stopped():
                     return
+                valid_predict_box = []
                 display_loss = 0
-                batch_gen = self.valid_dist.batch(batch_size, self.model.build_data)
+                batch_gen = self.valid_dist.batch(batch_size, self.model.build_data, shuffle=False)
                 self.model.set_models(inference=True)
                 for i, (valid_x, valid_y) in enumerate(batch_gen):
                     if self.is_stopped():
                         return
+                    valid_predict_box.extend(self.model.predict(valid_x))
                     loss = self.model.loss(self.model(valid_x), valid_y)
                     display_loss += float(loss.as_ndarray()[0])
                 avg_valid_loss = display_loss / (i + 1)
 
+                self.valid_predict_box.append(valid_predict_box)
                 self.train_loss_list.append(avg_train_loss)
                 self.valid_loss_list.append(avg_valid_loss)
                 self.valid_iou_list.append(1)
                 self.valid_map_list.append(1)
 
-            # Store epoch data tp DB.
+                # Store epoch data tp DB.
+                storage.update_model_loss_list(
+                    model_id=self.model_id,
+                    train_loss_list=self.train_loss_list,
+                    validation_loss_list=self.valid_loss_list,
+                )
+                if best_valid_loss > avg_valid_loss:
+                    # modelのweightを保存する
+                    self.model.save(os.path.join(DB_DIR_TRAINED_WEIGHT, filename))
+                    storage.update_model_best_epoch(self.model_id, e, 1,
+                                                    1, filename, self.valid_predict_box)
+
+                storage.update_epoch(
+                    epoch_id=epoch_id,
+                    train_loss=avg_train_loss,
+                    validation_loss=avg_valid_loss,
+                    epoch_iou=1,
+                    epoch_map=1)
 
         except Exception as e:
             traceback.print_exc()
@@ -202,7 +232,10 @@ class TrainThread(object):
                 print("{} not found.".format(name))
         annotation_list, _ = parse_xml_detection(label_path_list)
         augmentation = Augmentation([
-            Shift(40, 40)
+            Shift(40, 40),
+            Flip(),
+            Rotate(),
+            WhiteNoise()
         ])
         return ImageDistributor(img_path_list, annotation_list,
                                 augmentation=augmentation)

@@ -25,9 +25,6 @@ export default {
         state.models.push(payload.models[index])
       }
     }
-    if (state.selected_model_id === undefined) {
-      state.selected_model_id = state.models[0].model_id
-    }
   },
   addModelTemporarily (state, payload) {
     let d = payload
@@ -226,6 +223,5 @@ export default {
   },
   setDatasetDefs (state, payload) {
     state.dataset_defs = payload.dataset_defs
-    console.log(payload.dataset_defs)
   }
 }
