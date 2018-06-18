@@ -74,7 +74,7 @@ export default {
     }
     if (!model) return
     const result = model.best_epoch_validation_result
-    const dataset_id = model.dataset_id
+    const dataset_id = model.dataset_def_id
     let dataset
 
     for (let index in state.dataset_defs) {
@@ -82,7 +82,6 @@ export default {
         dataset = state.dataset_defs[index]
       }
     }
-
     if (!dataset) return
 
     const path = dataset.valid_imgs
