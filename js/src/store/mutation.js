@@ -20,53 +20,13 @@ export default {
   setModels (state, payload) {
     state.models = []
     for (let index in payload.models) {
-      let d = payload.models[index]
-      let m = new Model(d.model_id, d.project_id, d.dataset_def_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
-      if (d.best_epoch !== undefined) {
-        m.best_epoch = d.best_epoch
-        m.train_loss_list = d.train_loss_list
-        m.validation_loss_list = d.validation_loss_list
-        m.best_epoch_iou = d.best_epoch_iou
-        m.best_epoch_map = d.best_epoch_map
+      // Deleted model(=3) is removed.
+      if (payload.models[index].state !== 3) {
+        state.models.push(payload.models[index])
       }
-      if (state.selected_model_id === undefined && parseInt(index) === 0) {
-        state.selected_model_id = m.model_id
-      }
-      state.models.push(m)
     }
-  },
-  updateModels (state, payload) {
-    for (let index in payload.models) {
-      let d = payload.models[parseInt(index)]
-      if (state.models.length !== 0) {
-        for (let m in state.models) {
-          if (d.model_id === m.model_id) {
-            m.hyper_parameters = d.hyper_parameters
-            m.algorithm = d.algorithm
-            m.algorithm_params = d.algorithm_params
-            m.state = d.state
-            m.best_epoch_validation_result = d.best_epoch_validation_result
-            m.last_epoch = d.last_epoch
-            m.last_batch = d.last_batch
-            m.total_batch = d.total_batch
-            m.last_train_loss = d.last_train_loss
-            m.running_state = d.running_state
-            if (d.best_epoch !== undefined) {
-              m.best_epoch = d.best_epoch
-              m.train_loss_list = d.train_loss_list
-              m.best_epoch_map = d.best_epoch_map
-            }
-          }
-        }
-      }
-      if (state.models.length === 0 || !(state.models.map(mo => mo.model_id).indexOf(parseInt(d.model_id)) >= 0)) {
-        let s = state.models.filter(mo => mo.state === 1).length < 2 ? 1 : 4
-        let model = new Model(d.model_id, d.project_id, d.dataset_def_id, d.hyper_parameters, d.algorithm, d.algorithm_params, s, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
-        state.models.unshift(model)
-      }
-      if (state.selected_model_id === undefined && parseInt(index) === 0) {
-        state.selected_model_id = d.model_id
-      }
+    if (state.selected_model_id === undefined) {
+      state.selected_model_id = state.models[0].model_id
     }
   },
   addModelTemporarily (state, payload) {
