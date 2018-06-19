@@ -30,6 +30,21 @@ class ImageDistributorBase(object):
     def annotation_list(self):
         return self._label_list
 
+    def get_resized_annotation_list(self, imsize):
+        """This function only for object detection.
+        """
+        resized_annotation_list = []
+        for path, annotation in zip(self.img_path_list, self.annotation_list):
+            ims = Image.open(path).size
+            sw = 1./ims[0]
+            sh = 1./ims[1]
+            resized_annotation_list.append([{
+                'box': [obj['box'][0]*sw, obj['box'][1]*sh, obj['box'][2]*sw, obj['box'][3]*sh],
+                'class': obj['class'],
+                'name': obj['name']}
+            for obj in annotation])
+        return resized_annotation_list
+
     def batch(self, batch_size, callback=None, shuffle=True):
         """
         Default: Classification

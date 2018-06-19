@@ -15,13 +15,13 @@ def get_prec_and_rec(gt_list, pred_list, n_class=None, iou_threshold=0.5):
     predict_list:
       [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score(float)},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score(float)},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'clas': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score(float)},
+                {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score(float)},
                 ...
             ]
         ]
@@ -50,7 +50,7 @@ def get_prec_and_rec(gt_list, pred_list, n_class=None, iou_threshold=0.5):
 
         pred_labels = [obj['class'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
-        pred_confs = [float(obj['confidence']) for obj in pred_list_per_img]
+        pred_confs = [float(obj['score']) for obj in pred_list_per_img]
 
         for l in gt_labels:
             n_pos_list[l] += 1
@@ -104,7 +104,7 @@ def get_prec_and_rec(gt_list, pred_list, n_class=None, iou_threshold=0.5):
     return precisions, recalls
 
 
-def get_ap_and_map(prec, rec, n_class=None, n_round_off=2):
+def get_ap_and_map(prec, rec, n_round_off=2):
     """
     prec: List of precision for each class returned by get_prec_and_rec method
     rec: List of recall for each class returned by get_prec_and_rec method
@@ -123,7 +123,7 @@ def get_ap_and_map(prec, rec, n_class=None, n_round_off=2):
                 p = np.max(np.nan_to_num(prec[c])[rec[c]>=t])
             ap += p / 11
         aps[c] = round(ap * 100, n_round_off)
-    mAP = round(np.nanmean(aps.values()), n_round_off)
+    mAP = round(np.nanmean(np.array(list(aps.values()))), n_round_off)
     return aps, mAP
 
 
@@ -132,13 +132,13 @@ def get_mean_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
     predict_list:
     [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ]
         ]
@@ -198,13 +198,13 @@ def get_prec_rec_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
     predict_list:
     [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ]
         ]
@@ -235,7 +235,7 @@ def get_prec_rec_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
 
         pred_labels = [obj['class'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
-        pred_confs = [obj['confidence'] for obj in pred_list_per_img]
+        pred_confs = [obj['score'] for obj in pred_list_per_img]
 
         for l in gt_labels:
             n_pos_list[l] += 1
@@ -292,5 +292,6 @@ def get_prec_rec_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
 
     mean_iou_per_cls = [np.mean(iou_list) for iou_list in ious.values()]
     mean_iou = np.nanmean(mean_iou_per_cls)
+    mean_iou = mean_iou if not np.isnan(mean_iou) else 0.0
     return precisions, recalls, mean_iou_per_cls, mean_iou
 
