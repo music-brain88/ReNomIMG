@@ -5,13 +5,11 @@ import os
 import sys
 import sqlite3
 import json
+from renom_img.server import DB_DIR
 try:
     import _pickle as pickle
 except:
     import cPickle as pickle
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STRAGE_DIR = os.path.join(BASE_DIR, "../../../.storage")
 
 
 def pickle_dump(obj):
@@ -29,17 +27,12 @@ def pickle_load(pickled_obj):
 
 class Storage:
     def __init__(self):
-        if not os.path.isdir(STRAGE_DIR):
-            os.makedirs(STRAGE_DIR)
-
-        dbname = os.path.join(STRAGE_DIR, 'test_storage.db')
+        dbname = os.path.join(DB_DIR, 'test_storage.db')
         self.db = sqlite3.connect(dbname,
                                   check_same_thread=False,
                                   detect_types=sqlite3.PARSE_DECLTYPES,
                                   isolation_level=None)
-
         self.db.execute('PRAGMA journal_mode = WAL')
-        # self.db.execute('PRAGMA synchronous = OFF')
         self.db.execute('PRAGMA foreign_keys = ON')
         self._init_db()
 

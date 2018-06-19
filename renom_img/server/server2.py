@@ -16,6 +16,7 @@ import random
 import xmltodict
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor as Executor
+from concurrent.futures import CancelledError
 from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
@@ -202,7 +203,7 @@ def run_model(project_id, model_id):
         except CancelledError as ce:
             # If the model is deleted or stopped,
             # program reaches here.
-            traceback.print_exc()
+            pass
         model = storage.fetch_model(project_id, model_id, fields='state')
         if model['state'] != STATE_DELETED:
             storage.update_model_state(model_id, STATE_FINISHED)
