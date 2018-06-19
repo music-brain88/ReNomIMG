@@ -151,8 +151,8 @@ class TrainThread(object):
                         reg_loss = loss + self.model.regularize()
                     reg_loss.grad().update(self.model.get_optimizer(e, epoch,
                                                                     i, self.total_batch))
-                    display_loss += float(loss.as_ndarray()[0])
-                    self.last_batch_loss = float(loss.as_ndarray()[0])
+                    display_loss += float(loss.as_ndarray())
+                    self.last_batch_loss = float(loss.as_ndarray())
                 avg_train_loss = display_loss / (i + 1)
 
                 # Validation

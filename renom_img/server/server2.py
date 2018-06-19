@@ -25,6 +25,7 @@ from renom.cuda import release_mem_pool
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread2 import TrainThread
+from renom_img.server.prediction_thread2 import PredictionThread
 from renom_img.server.utility.storage import storage
 
 # Constants
@@ -48,6 +49,12 @@ def create_response(body):
     r = HTTPResponse(status=200, body=body)
     r.set_header('Content-Type', 'application/json')
     return r
+
+
+def find_thread(thread_id):
+    for th in threading.enumerate():
+        if "thread_id" in dir(th) and thread_id == th.thread_id:
+            return th
 
 
 def strip_path(filename):
@@ -246,7 +253,7 @@ def progress_model(project_id, model_id):
         for j in range(60):
             time.sleep(0.75)
             th = thread_pool.get(thread_id, None)
-            model_state = storage.fetch_model(project_id, model_id, "state")["state"]
+            model_state = storage.fetch_model(project_id, model_id, fields="state")["state"]
             if th is not None:
                 th = th[1]
                 # If thread status updated, return response.
@@ -463,14 +470,14 @@ def run_prediction(project_id, model_id):
     # 学習データ読み込み
     try:
         thread_id = "{}_{}".format(project_id, model_id)
-        fields = 'hyper_parameters,algorithm,algorithm_params,best_epoch_weight'
+        fields = 'hyper_parameters,algorithm,algorithm_params,best_epoch_weight,dataset_def_id'
         data = storage.fetch_model(project_id, model_id, fields=fields)
-
+        (id, name, ratio, train_imgs, valid_imgs, class_map, created, updated) = storage.fetch_dataset_def(data['dataset_def_id'])
         # weightのh5ファイルのパスを取得して予測する
-        th = PredictionThread(thread_id, data["hyper_parameters"], data["algorithm"],
-                              data["algorithm_params"], data["best_epoch_weight"])
-        th.start()
-        th.join()
+        th = PredictionThread(thread_id, model_id, data["hyper_parameters"], data["algorithm"],
+                              data["algorithm_params"], len(class_map))
+        ft = executor.submit(th)
+        thread_pool[thread_id] = [ft, th]
 
         if th.error_msg is not None:
             body = json.dumps({"error_msg": th.error_msg})
@@ -484,6 +491,7 @@ def run_prediction(project_id, model_id):
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
 
+    print(body)
     ret = create_response(body)
     return ret
 
@@ -509,6 +517,28 @@ def export_csv(project_id, model_id, file_name):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     csv_dir = os.path.join(BASE_DIR, "../../.storage/csv")
     return static_file(file_name, root=csv_dir, download=True)
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/deploy", method="GET")
+def deploy_model(project_id, model_id):
+    try:
+        storage.update_project_deploy(project_id, model_id)
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/undeploy", method="GET")
+def undeploy_model(project_id, model_id):
+    try:
+        storage.update_project_deploy(project_id, None)
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
 
 def main():

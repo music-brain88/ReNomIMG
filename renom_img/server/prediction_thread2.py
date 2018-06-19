@@ -1,6 +1,8 @@
 import os
+import time
 import numpy as np
 import traceback
+import csv
 from threading import Event
 from renom.cuda import set_cuda_active, release_mem_pool
 
@@ -22,8 +24,8 @@ from renom_img.server.utility.storage import storage
 
 class PredictionThread(object):
 
-    def __init__(self, thread_id, project_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params):
+    def __init__(self, thread_id, model_id, hyper_parameters,
+                 algorithm, algorithm_params, class_num):
 
         self.model_id = model_id
 
@@ -44,6 +46,9 @@ class PredictionThread(object):
         self.stop_event = Event()
 
         # Prepare dataset
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        IMG_DIR = os.path.join(BASE_DIR, "datasrc/prediction_set/img")
+        train_files = os.listdir(IMG_DIR)
         self.prediction_dist = self.create_dist(train_files)
 
         # Algorithm
@@ -52,11 +57,12 @@ class PredictionThread(object):
         if algorithm == ALG_YOLOV1:
             cell_size = int(algorithm_params["cells"])
             num_bbox = int(algorithm_params["bounding_box"])
-            self.model = Yolov1(len(class_map), cell_size, num_bbox, load_weight=True)
+            self.model = Yolov1(class_num, cell_size, num_bbox, load_weight=True)
         else:
             self.error_msg = "{} is not supported algorithm id.".format(algorithm)
 
         self.predict_results = {}
+        self.csv_filename = ''
 
     @property
     def running_state(self):
@@ -91,17 +97,20 @@ class PredictionThread(object):
             for i, pred_x in enumerate(batch_gen):
                 if self.is_stopped():
                     return
-                result.extend(self.model.predict(pred_x))
+                print(pred_x[0].shape)
+                result.extend(self.model.predict(pred_x[0]))
             # Set result.
+            self.predict_results = result
 
         # Store epoch data tp DB.
+
         except Exception as e:
             traceback.print_exc()
             self.error_msg = str(e)
             self.model = None
             release_mem_pool()
 
-    def get_running_info():
+    def get_running_info(self):
         return {
             "model_id": self.model_id,
             "total_batch": self.total_batch,
@@ -169,6 +178,7 @@ class PredictionThread(object):
 
     def save_predict_result_to_csv(self):
         try:
+            CSV_DIR = '.'
             # modelのcsvを保存する
             if not os.path.isdir(CSV_DIR):
                 os.makedirs(CSV_DIR)
@@ -217,3 +227,31 @@ class PredictionThread(object):
                     bbox_xmax = et.SubElement(bbox_position, "xmax")
                     xmax = width * b["box"][0] + (width * b["box"][2] / 2.)
                     bbox_xmax.text = str(xmax)
+
+                    bbox_xmin = et.SubElement(bbox_position, "xmin")
+                    xmin = width * b["box"][0] - (width * b["box"][2] / 2.)
+                    bbox_xmin.text = str(xmin)
+
+                    bbox_ymax = et.SubElement(bbox_position, "ymax")
+                    ymax = height * b["box"][1] + height * b["box"][3] / 2.
+                    bbox_ymax.text = str(ymax)
+
+                    bbox_ymin = et.SubElement(bbox_position, "ymin")
+                    ymin = height * b["box"][1] - height * b["box"][3] / 2.
+                    bbox_ymin.text = str(ymin)
+
+                    bbox_score = et.SubElement(obj, "score")
+                    bbox_score.text = str(b["score"])
+
+                size = et.SubElement(annotation, "size")
+                size_h = et.SubElement(size, "height")
+                size_h.text = str(height)
+                size_w = et.SubElement(size, "width")
+                size_w.text = str(width)
+
+                tree = et.ElementTree(annotation)
+
+                tree.write(filepath)
+        except Exception as e:
+            traceback.print_exc()
+            self.error_msg = e.args[0]
