@@ -120,8 +120,8 @@ class TrainThread(object):
                         reg_loss = loss + self.model.regularize()
                     reg_loss.grad().update(self.model.get_optimizer(e, epoch,
                                                                     i, self.total_batch))
-                    display_loss += float(loss.as_ndarray()[0])
-                    self.last_batch_loss = float(loss.as_ndarray()[0])
+                    display_loss += float(loss.as_ndarray())
+                    self.last_batch_loss = float(loss.as_ndarray())
                 avg_train_loss = display_loss / (i + 1)
 
                 # Validation
@@ -137,7 +137,7 @@ class TrainThread(object):
                         return
                     valid_predict_box.extend(self.model.predict(valid_x))
                     loss = self.model.loss(self.model(valid_x), valid_y)
-                    display_loss += float(loss.as_ndarray()[0])
+                    display_loss += float(loss.as_ndarray())
                 avg_valid_loss = display_loss / (i + 1)
 
                 self.valid_predict_box.append(valid_predict_box)
