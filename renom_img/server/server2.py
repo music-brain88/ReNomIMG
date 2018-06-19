@@ -184,7 +184,6 @@ def run_model(project_id, model_id):
     """
     Create thread(Future object) and submit it to executor.
     The thread is stored to thread_pool as a pair of thread_id and thread.
-
     """
     try:
         fields = 'hyper_parameters,algorithm,algorithm_params,dataset_def_id'
@@ -200,16 +199,23 @@ def run_model(project_id, model_id):
         try:
             # This will wait for end of thread.
             print("Return of thread", ft.result())
+            ft.cancel()
         except CancelledError as ce:
             # If the model is deleted or stopped,
             # program reaches here.
             pass
+        error_msg = th.error_msg
+        del thread_pool[thread_id]
+        ft = None
+        th = None
+
+        print("Num thread ", get_train_thread_count())
         model = storage.fetch_model(project_id, model_id, fields='state')
         if model['state'] != STATE_DELETED:
             storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
-        if th.error_msg is not None:
-            body = json.dumps({"error_msg": th.error_msg})
+        if error_msg is not None:
+            body = json.dumps({"error_msg": error_msg})
             ret = create_response(body)
             return ret
 
@@ -255,7 +261,7 @@ def progress_model(project_id, model_id):
                         "state": model_state,
                         "validation_loss_list": th.valid_loss_list,
                         "train_loss_list": th.train_loss_list,
-                        "best_epoch": th.valid_loss_list[best_epoch],
+                        "best_epoch": best_epoch,
                         "best_epoch_iou": th.valid_iou_list[best_epoch],
                         "best_epoch_map": th.valid_map_list[best_epoch],
                         "best_epoch_validation_result": th.valid_predict_box[best_epoch]

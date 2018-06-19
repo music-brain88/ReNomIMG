@@ -109,26 +109,16 @@ class Yolov1(rm.Model):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 
-    def predict(self, img_list):
-        self.set_models(inference=True)
-        if isinstance(img_list, (list, str)):
-            if isinstance(img_list, (tuple, list)):
-                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-            else:
-                img_array = load_img(img_list, self.imsize)[None]
-            img_array = self.preprocess(img_array)
-        else:
-            img_array = img_list
+    def get_bbox(self, z):
+        if hasattr(z, 'as_ndarray'):
+            z = z.as_ndarray()
 
-        pred = self(img_array).as_ndarray()
-        # Do NMS
-
-        N = len(pred)
+        N = len(z)
         cell = self._cells[0]
         bbox = self._bbox
         probs = np.zeros((N, cell, cell, bbox, self._num_class))
         boxes = np.zeros((N, cell, cell, bbox, 4))
-        yolo_format_out = pred.reshape(
+        yolo_format_out = z.reshape(
             N, cell, cell, bbox * 5 + self._num_class)
         offset = np.vstack([np.arange(cell) for c in range(cell)])
 
@@ -171,6 +161,19 @@ class Yolov1(rm.Model):
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
         return result
+
+    def predict(self, img_list):
+        self.set_models(inference=True)
+        if isinstance(img_list, (list, str)):
+            if isinstance(img_list, (tuple, list)):
+                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+            else:
+                img_array = load_img(img_list, self.imsize)[None]
+            img_array = self.preprocess(img_array)
+        else:
+            img_array = img_list
+        pred = self(img_array).as_ndarray()
+        return self.get_bbox(pred)
 
     def build_data(self, img_path_list, annotation_list, augmentation=None):
         """

@@ -13,6 +13,8 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 
+from renom_img.api.utility.evaluate import get_ap_and_map, get_prec_rec_iou
+
 from renom_img.server import ALG_YOLOV1
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 from renom_img.server import DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT
@@ -100,29 +102,30 @@ class TrainThread(object):
             self._running_state = state
 
     def __call__(self):
-        # Algorithm and model preparation.
-        # Pretrained weights are must be prepared.
-        # This have to be done in thread.
-        if self.algorithm == ALG_YOLOV1:
-            cell_size = int(self.algorithm_params["cells"])
-            num_bbox = int(self.algorithm_params["bounding_box"])
-            path = self.download_weight(Yolov1.WEIGHT_URL, Yolov1.__name__ + '.h5')
-            self.model = Yolov1(len(self.class_map), cell_size, num_bbox,
-                                imsize=self.imsize, load_weight_path=path)
-        else:
-            self.error_msg = "{} is not supported algorithm id.".format(algorithm)
-
-        storage.update_model_state(self.model_id, STATE_RUNNING)
         # This func works as thread.
-        epoch = self.total_epoch
-        batch_size = self.batch_size
-        filename = '{}.h5'.format(int(time.time()))
-        best_valid_loss = np.Inf
-
         try:
+            # Algorithm and model preparation.
+            # Pretrained weights are must be prepared.
+            # This have to be done in thread.
+            if self.algorithm == ALG_YOLOV1:
+                cell_size = int(self.algorithm_params["cells"])
+                num_bbox = int(self.algorithm_params["bounding_box"])
+                path = self.download_weight(Yolov1.WEIGHT_URL, Yolov1.__name__ + '.h5')
+                self.model = Yolov1(len(self.class_map), cell_size, num_bbox,
+                                    imsize=self.imsize, load_weight_path=path)
+            else:
+                self.error_msg = "{} is not supported algorithm id.".format(algorithm)
+
             i = 0
             set_cuda_active(True)
             release_mem_pool()
+            filename = '{}.h5'.format(int(time.time()))
+
+            epoch = self.total_epoch
+            batch_size = self.batch_size
+            best_valid_loss = np.Inf
+            valid_annotation_list = self.valid_dist.get_resized_annotation_list(self.imsize)
+            storage.update_model_state(self.model_id, STATE_RUNNING)
             for e in range(epoch):
 
                 epoch_id = storage.register_epoch(
@@ -163,16 +166,26 @@ class TrainThread(object):
                 for i, (valid_x, valid_y) in enumerate(batch_gen):
                     if self.is_stopped():
                         return
-                    valid_predict_box.extend(self.model.predict(valid_x))
-                    loss = self.model.loss(self.model(valid_x), valid_y)
+                    valid_z = self.model(valid_x)
+                    valid_predict_box.extend(self.model.get_bbox(valid_z))
+                    loss = self.model.loss(valid_z, valid_y)
                     display_loss += float(loss.as_ndarray()[0])
+
+                if self.is_stopped():
+                    return
+                prec, recl, _, iou = get_prec_rec_iou(valid_annotation_list, valid_predict_box)
+                _, mAP = get_ap_and_map(prec, recl)
+
+                if self.is_stopped():
+                    return
+
                 avg_valid_loss = display_loss / (i + 1)
 
                 self.valid_predict_box.append(valid_predict_box)
                 self.train_loss_list.append(avg_train_loss)
                 self.valid_loss_list.append(avg_valid_loss)
-                self.valid_iou_list.append(1)
-                self.valid_map_list.append(1)
+                self.valid_iou_list.append(iou)
+                self.valid_map_list.append(mAP)
 
                 # Store epoch data tp DB.
                 storage.update_model_loss_list(
@@ -183,15 +196,15 @@ class TrainThread(object):
                 if best_valid_loss > avg_valid_loss:
                     # modelのweightを保存する
                     self.model.save(os.path.join(DB_DIR_TRAINED_WEIGHT, filename))
-                    storage.update_model_best_epoch(self.model_id, e, 1,
-                                                    1, filename, self.valid_predict_box)
+                    storage.update_model_best_epoch(self.model_id, e, iou,
+                                                    mAP, filename, self.valid_predict_box)
 
                 storage.update_epoch(
                     epoch_id=epoch_id,
                     train_loss=avg_train_loss,
                     validation_loss=avg_valid_loss,
-                    epoch_iou=1,
-                    epoch_map=1)
+                    epoch_iou=iou,
+                    epoch_map=mAP)
 
         except Exception as e:
             traceback.print_exc()
@@ -248,7 +261,7 @@ class TrainThread(object):
         """
         img_path_list = []
         label_path_list = []
-        for path in sorted(filename_list):
+        for path in filename_list:
             name = os.path.splitext(path)[0]
             img_path = os.path.join(DATASRC_IMG, path)
             label_path = os.path.join(DATASRC_LABEL, name + ".xml")
@@ -259,11 +272,14 @@ class TrainThread(object):
             else:
                 print("{} not found.".format(name))
         annotation_list, _ = parse_xml_detection(label_path_list)
-        augmentation = Augmentation([
-            Shift(40, 40),
-            Flip(),
-            Rotate(),
-            WhiteNoise()
-        ])
-        return ImageDistributor(img_path_list, annotation_list,
-                                augmentation=augmentation)
+        if train:
+            augmentation = Augmentation([
+                Shift(20, 20),
+                Flip(),
+                Rotate(),
+                WhiteNoise()
+            ])
+            return ImageDistributor(img_path_list, annotation_list,
+                                    augmentation=augmentation)
+        else:
+            return ImageDistributor(img_path_list, annotation_list)

@@ -175,7 +175,7 @@ export default {
     fd.append('running_state', model.running_state)
 
     return axios.post(url, fd, {
-      timeout: 10000
+      timeout: 60000
     }).then(function (response) {
       if (response.data.error_msg) {
         context.commit('setAlertModalFlag', {'flag': true})
