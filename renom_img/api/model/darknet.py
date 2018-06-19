@@ -5,9 +5,11 @@ import renom as rm
 
 
 class Darknet(rm.Sequential):
-    WEIGHT_URL = ""
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/yolo.h5"
 
-    def __init__(self, last_unit_size, load_weight=False):
+    def __init__(self, last_unit_size, load_weight_path=None):
+        assert load_weight_path is None or isinstance(load_weight_path, str)
+
         super(Darknet, self).__init__([
             # 1st Block
             rm.Conv2d(channel=64, filter=7, stride=2, padding=3),
@@ -85,6 +87,10 @@ class Darknet(rm.Sequential):
             rm.Dense(last_unit_size),
         ])
 
-        if load_weight:
+        if load_weight_path is not None:
             # Call download method.
-            self.load('yolo.h5')
+            path, ext = os.path.splitext(load_weight_path)
+            if ext:
+                self.load(load_weight_path)
+            else:
+                self.load(path + '.h5')

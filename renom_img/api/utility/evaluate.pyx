@@ -13,7 +13,7 @@ def get_prec_and_rec(gt_list, pred_list, n_class=None, iou_threshold=0.5):
       pred_list (list): A list of predicted bounding boxes.
 
     predict_list:
-    [
+      [
             [ # Objects of 1st image.
                 {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
                 {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},

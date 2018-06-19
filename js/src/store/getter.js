@@ -15,6 +15,8 @@ export default {
   getPredictModel (state, getters) {
     if (state.project) {
       return getters.getModelFromId(state.project.deploy_model_id)
+    } else {
+      return undefined
     }
   },
   getSelectedModel (state, getters) {
@@ -34,7 +36,17 @@ export default {
       return ret
     }
   },
-
+  /*
+  Detail
+  */
+  getDatasetName (state) {
+    return function (dataset_def_id) {
+      if (state.dataset_defs.length !== 0) {
+        return state.dataset_defs.filter(d => d.id === dataset_def_id)[0].name
+      }
+      return ''
+    }
+  },
   /*
   model samples, prediction sample
   */
@@ -61,12 +73,19 @@ export default {
       }
     }
     if (!model) return
-
     const result = model.best_epoch_validation_result
-    if (!result.bbox_path_list) return
+    const dataset_def_id = model.dataset_def_id
+    let dataset
 
-    const path = result.bbox_path_list
-    const label_list = result.bbox_list
+    for (let index in state.dataset_defs) {
+      if (state.dataset_defs[index].id === dataset_def_id) {
+        dataset = state.dataset_defs[index]
+      }
+    }
+    if (!dataset) return
+
+    const path = dataset.valid_imgs
+    const label_list = result
     let ret = []
     for (let i = 0; i < path.length; i++) {
       let bboxes = []

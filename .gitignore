@@ -4,6 +4,7 @@ node_modules/
 build/
 .build/
 dataset
+datasrc
 *.h5
 
 # Byte-compiled / optimized / DLL files

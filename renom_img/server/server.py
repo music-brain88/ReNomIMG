@@ -12,6 +12,8 @@ import pkg_resources
 import mimetypes
 import posixpath
 import traceback
+import pathlib
+import random
 import xmltodict
 from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
 from bottle import HTTPResponse, default_app, route, static_file, request, error
@@ -38,6 +40,7 @@ VALID_SET_DIR = os.path.join(DATASET_DIR, 'valid_set')
 PREDICTION_SET_DIR = os.path.join(DATASET_DIR, 'prediction_set')
 
 MAX_THREAD_NUMBER = 2
+DATASRC_DIR = os.path.join(BASE_DIR, 'datasrc')
 
 if not os.path.exists(DATASET_DIR):
     os.makedirs(DATASET_DIR)
@@ -137,6 +140,12 @@ def dataset(folder_name, item, file_name):
     return static_file(file_name, root=file_dir, mimetype='image/*')
 
 
+@route("/datasrc/<folder_name:path>/<file_name:path>")
+def datasrc(folder_name, file_name):
+    file_dir = os.path.join('datasrc', folder_name)
+    return static_file(file_name, root=file_dir, mimetype='image/*')
+
+
 @route("/api/renom_img/v1/projects", method="GET")
 def get_projects():
     try:
@@ -219,7 +228,6 @@ def get_models(project_id):
 def update_models(project_id):
     try:
         model_count = int(request.params.model_count)
-
         running_models = storage.fetch_running_models(project_id)
         running_count = len(running_models)
         # set running model information for polling
@@ -248,14 +256,6 @@ def update_models(project_id):
                     ret = create_response(body)
                     return ret
 
-            # elif model_count > len(data):
-            #     body = json.dumps({
-            #         "models": {},
-            #         "update_type": 1
-            #     })
-            #     ret = create_response(body)
-            #     return ret
-
             elif model_count == len(data) or model_count > len(data):
                 # if running information change, return response.
                 for i, v in enumerate(model_ids):
@@ -264,7 +264,7 @@ def update_models(project_id):
 
                     if th is not None:
                         # If thread status updated, return response.
-                        if last_epochs[i] != th.last_epoch or running_states[i] != th.running_state:
+                        if isinstance(th, TrainThread) and (last_epochs[i] != th.last_epoch or running_states[i] != th.running_state):
                             body = json.dumps({
                                 "models": running_models,
                                 "update_type": 2
@@ -318,9 +318,11 @@ def get_dataset_info_v0():
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="POST")
 def create_model(project_id):
+    # This method is called by createModel
     try:
         model_id = storage.register_model(
             project_id=project_id,
+            dataset_def_id=json.loads(request.params.dataset_def_id),
             hyper_parameters=json.loads(request.params.hyper_parameters),
             algorithm=request.params.algorithm,
             algorithm_params=json.loads(request.params.algorithm_params))
@@ -365,10 +367,10 @@ def delete_model(project_id, model_id):
 
         # 学習中のスレッドを停止する
         th = find_thread(thread_id)
+        storage.update_model_state(model_id, STATE_DELETED)
         if th is not None:
             th.stop()
             th.join()
-        storage.update_model_state(model_id, STATE_DELETED)
 
         ret = storage.fetch_model(project_id, model_id, "best_epoch_weight")
         file_name = ret.get('best_epoch_weight', None)
@@ -388,9 +390,10 @@ def delete_model(project_id, model_id):
 def cancel_model(project_id, model_id):
     try:
         thread_id = "{}_{}".format(project_id, model_id)
-        print('cancel', STATE_DELETED)
         storage.update_model_state(model_id, STATE_DELETED)
         # 学習中のスレッドを停止する
+        print("Reached")
+
         th = find_thread(thread_id)
         if th is not None:
             th.stop()
@@ -418,7 +421,7 @@ def progress_model(project_id, model_id):
             th = find_thread(thread_id)
             if th is not None:
                 # If thread status updated, return response.
-                if model["last_batch"] != th.last_batch or model["running_state"] != th.running_state or model["last_epoch"] != th.last_epoch:
+                if isinstance(th, TrainThread) and (model["last_batch"] != th.last_batch or model["running_state"] != th.running_state or model["last_epoch"] != th.last_epoch):
                     body = json.dumps(model)
                     ret = create_response(body)
                     return ret
@@ -517,13 +520,18 @@ def run(project_id, model_id):
                 "Error: File not found in valid_set/img. You can find hints for this error on 'http://www.renom.jp/'.")
 
         # 学習データ読み込み
-        fields = 'hyper_parameters,algorithm,algorithm_params'
+        fields = 'hyper_parameters,algorithm,algorithm_params,dataset_def_id'
         data = storage.fetch_model(project_id, model_id, fields=fields)
 
+        rec = storage.fetch_dataset_def(data['dataset_def_id'])
+        (id, name, ratio, train_imgs, valid_imgs, created, updated) = rec
+
+        # 学習を実行するスレッドを立てる
         thread_id = "{}_{}".format(project_id, model_id)
         th = TrainThread(thread_id, project_id, model_id,
                          data["hyper_parameters"],
-                         data['algorithm'], data['algorithm_params'], semaphore)
+                         data['algorithm'], data['algorithm_params'],
+                         train_imgs, valid_imgs, semaphore)
         th.start()
         th.join()
         # Following line should be implemented here. Not in train_thread.py
@@ -531,6 +539,7 @@ def run(project_id, model_id):
         if model['state'] != STATE_DELETED:
             storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
+
         if th.error_msg is not None:
             body = json.dumps({"error_msg": th.error_msg})
             ret = create_response(body)
@@ -611,7 +620,7 @@ def prediction_info(project_id, model_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
 def export_csv(project_id, model_id, file_name):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    csv_dir = os.path.join(BASE_DIR, "../.storage/csv")
+    csv_dir = os.path.join(BASE_DIR, "../../.storage/csv")
     return static_file(file_name, root=csv_dir, download=True)
 
 
@@ -749,6 +758,68 @@ def update_dataset(dataset_id):
         return ret
     except Exception as e:
         traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/dataset_defs", method="GET")
+def get_datasets():
+    try:
+        recs = storage.fetch_dataset_defs()
+        ret = []
+        for rec in recs:
+            id, name, ratio, created, updated = rec
+            created = created.isoformat()
+            updated = updated.isoformat()
+            ret.append(dict(id=id, name=name, ratio=ratio,
+                            class_map=class_map, created=created, updated=updated))
+        return create_response(json.dumps({'dataset_defs': ret}))
+
+    except Exception as e:
+        print(e)
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/dataset_defs/", method="POST")
+def create_dataset_def():
+    try:
+        datasrc = pathlib.Path(DATASRC_DIR)
+        imgdirname = pathlib.Path("img")
+        xmldirname = pathlib.Path("label")
+
+        imgdir = (datasrc / imgdirname)
+        xmldir = (datasrc / xmldirname)
+
+        name = request.params.name
+        ratio = float(request.params.ratio)
+
+        # search image files
+        imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
+
+        # remove images without label
+        imgs = {img for img in imgs if (xmldir / img).with_suffix('.xml').is_file()}
+
+        # split files into trains and validations
+        n_imgs = len(imgs)
+
+        trains = set(random.sample(imgs, int(ratio * n_imgs)))
+        valids = imgs - trains
+
+        # build filename of images and labels
+        train_imgs = [str(img) for img in trains]
+        valid_imgs = [str(img) for img in valids]
+
+        # register dataset
+        id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs)
+        body = json.dumps({"id": id})
+        ret = create_response(body)
+        return ret
+
+    except Exception as e:
+        print(e)
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret

@@ -19,6 +19,12 @@
             Prediction
           </tt>
         </button>
+        <button class="bar-button" @click="goDataset">
+          <tt>
+            <i class="fa fa-area-chart" aria-hidden="true"></i>
+            Dataset
+          </tt>
+        </button>
       </div>
     </div>
   </transition>
@@ -38,6 +44,11 @@ export default {
     goPrediction: function () {
       this.$store.commit('setPageName', {'page_name': 'Prediction'})
       this.$router.push({path: '/prediction'})
+      this.hideMenu()
+    },
+    goDataset: function () {
+      this.$store.commit('setPageName', {'page_name': 'Datasets'})
+      this.$router.push({path: '/datasets'})
       this.hideMenu()
     },
     hideMenu: function () {

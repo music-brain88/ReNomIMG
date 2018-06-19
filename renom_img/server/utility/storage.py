@@ -4,13 +4,12 @@ import datetime
 import os
 import sys
 import sqlite3
+import json
+from renom_img.server import DB_DIR
 try:
     import _pickle as pickle
 except:
     import cPickle as pickle
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STRAGE_DIR = os.path.join(BASE_DIR, "../../.storage")
 
 
 def pickle_dump(obj):
@@ -28,17 +27,12 @@ def pickle_load(pickled_obj):
 
 class Storage:
     def __init__(self):
-        if not os.path.isdir(STRAGE_DIR):
-            os.makedirs(STRAGE_DIR)
-
-        dbname = os.path.join(STRAGE_DIR, 'test_storage.db')
+        dbname = os.path.join(DB_DIR, 'test_storage.db')
         self.db = sqlite3.connect(dbname,
                                   check_same_thread=False,
                                   detect_types=sqlite3.PARSE_DECLTYPES,
                                   isolation_level=None)
-
         self.db.execute('PRAGMA journal_mode = WAL')
-        self.db.execute('PRAGMA synchronous = OFF')
         self.db.execute('PRAGMA foreign_keys = ON')
         self._init_db()
 
@@ -59,10 +53,23 @@ class Storage:
             """)
 
         c.execute("""
+                CREATE TABLE IF NOT EXISTS dataset_def
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 name VARCHAR(256),
+                 ratio FLOAT,
+                 train_imgs CLOB,
+                 valid_imgs CLOB,
+                 class_map BLOB,
+                 created TIMESTAMP NOT NULL,
+                 updated TIMESTAMP NOT NULL);
+          """)
+
+        c.execute("""
                 CREATE TABLE IF NOT EXISTS model
                 (model_id INTEGER PRIMARY KEY AUTOINCREMENT,
                  project_id INTEGER NOT NULL REFERENCES project(project_id) ON DELETE CASCADE,
                  hyper_parameters BLOB,
+                 dataset_def_id INTEGER NOT NULL REFERENCES dataset_def(id) ON DELETE CASCADE,
                  algorithm INTEGER NOT NULL,
                  algorithm_params BLOB,
                  state INTEGER NOT NULL DEFAULT 0,
@@ -126,12 +133,18 @@ class Storage:
             """)
 
         c.execute("""
-                CREATE TABLE IF NOT EXISTS dataset_v0
-                (dataset_id INTEGER PRIMARY KEY,
-                 train_data_count INTEGER,
-                 valid_data_count INTEGER,
-                 class_names BLOB)
-            """)
+                CREATE TABLE IF NOT EXISTS epoch
+                (epoch_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 model_id INTEGER NOT NULL REFERENCES model(model_id) ON DELETE CASCADE,
+                 nth_epoch INTEGER NOT NULL,
+                 train_loss NUMBER,
+                 validation_loss NUMBER,
+                 epoch_iou NUMBER,
+                 epoch_map NUMBER,
+                 created TIMESTAMP NOT NULL,
+                 updated TIMESTAMP NOT NULL,
+                 UNIQUE(model_id, nth_epoch))
+          """)
 
     def is_poject_exists(self):
         with self.db:
@@ -164,7 +177,7 @@ class Storage:
                 WHERE project_id=?""", (model_id, now, project_id))
         return c.lastrowid
 
-    def register_model(self, project_id, hyper_parameters, algorithm, algorithm_params):
+    def register_model(self, project_id, dataset_def_id, hyper_parameters, algorithm, algorithm_params):
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
@@ -173,22 +186,22 @@ class Storage:
             train_loss_list = pickle_dump([])
             validation_loss_list = pickle_dump([])
             best_epoch_validation_result = pickle_dump({})
+
             c.execute("""
                     INSERT INTO
-                        model(project_id, hyper_parameters, algorithm,
+                        model(project_id, dataset_def_id, hyper_parameters, algorithm,
                             algorithm_params, train_loss_list,
                             validation_loss_list, best_epoch_validation_result,
                             created, updated)
                     VALUES
-                        (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (project_id, dumped_hyper_parameters, algorithm,
+                        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (project_id, dataset_def_id, dumped_hyper_parameters, algorithm,
                       dumped_algorithm_params, train_loss_list,
                       validation_loss_list, best_epoch_validation_result,
                       now, now))
         return c.lastrowid
 
     def update_model_state(self, model_id, state):
-        print('state ', state, ' model_id ', model_id)
         with self.db:
             c = self.cursor()
             now = datetime.datetime.now()
@@ -345,7 +358,7 @@ class Storage:
     def fetch_models(self, project_id, order_by='model_id DESC'):
         with self.db:
             c = self.cursor()
-            fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+            fields = "model_id,project_id,dataset_def_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
 
             sql = "SELECT " + fields + \
                 " FROM model WHERE project_id=? AND state!=3 ORDER BY " + order_by
@@ -368,7 +381,7 @@ class Storage:
     def fetch_running_models(self, project_id, order_by='model_id'):
         with self.db:
             c = self.cursor()
-            fields = "model_id,project_id,hyper_parameters,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
+            fields = "model_id,project_id,hyper_parameters,dataset_def_id,algorithm,algorithm_params,state,train_loss_list,validation_loss_list,best_epoch,best_epoch_iou,best_epoch_map,best_epoch_validation_result,last_epoch,last_batch,total_batch,last_train_loss,running_state"
 
             sql = "SELECT " + fields + \
                 " FROM model WHERE project_id=? AND state=1 ORDER BY " + order_by
@@ -553,9 +566,52 @@ class Storage:
                 })
             return ret
 
+    def register_dataset_def(self, name, ratio, train_imgs, valid_imgs, class_map):
+
+        train_imgs = json.dumps(train_imgs)
+        valid_imgs = json.dumps(valid_imgs)
+        class_map = pickle_dump(class_map)
+
+        now = datetime.datetime.now()
+        with self.db:
+            c = self.cursor()
+            c.execute("""
+                INSERT INTO dataset_def(name, ratio, train_imgs, valid_imgs, class_map,
+                    created, updated)
+                VALUES(?, ?, ?, ?, ?, ?, ?)
+            """, (name, ratio, train_imgs, valid_imgs, class_map, now, now))
+            return c.lastrowid
+
+    def fetch_dataset_defs(self):
+        with self.db:
+            ret = []
+            c = self.cursor()
+            c.execute("""SELECT id, name, ratio, valid_imgs, class_map, created, updated FROM dataset_def""")
+            for rec in c:
+                ret.append([
+                    rec[0], rec[1], rec[2],
+                    json.loads(rec[3]),
+                    pickle_load(rec[4]),
+                    rec[5].isoformat(), rec[6].isoformat()
+                ])
+            return ret
+
+    def fetch_dataset_def(self, id):
+        with self.db:
+            c = self.cursor()
+            c.execute(
+                """SELECT id, name, ratio, train_imgs, valid_imgs, class_map, created, updated FROM dataset_def""")
+
+            for rec in c:
+                id, name, ratio, train_imgs, valid_imgs, class_map, created, updated = rec
+                train_imgs = json.loads(train_imgs)
+                valid_imgs = json.loads(valid_imgs)
+                class_map = pickle_load(class_map)
+                return (id, name, ratio, train_imgs, valid_imgs, class_map, created, updated)
+            return None
+
 
 global storage
 storage = Storage()
 if not storage.is_poject_exists():
     storage.register_project('objdetection', 'comment')
-    print("Project Created")
