@@ -82,3 +82,316 @@ class InceptionV1(rm.Model):
         out3 = self.fc3(t)
 
         return out1, out2, out3
+
+
+
+class Stem(rm.Model):
+    def __init__(self):
+        self.conv1 = rm.Conv2d(32, filter=3, padding=0, stride=2)
+        self.batch_norm1 = rm.BatchNormalize(mode='feature')
+
+        self.conv2 = rm.Conv2d(32, filter=3, padding=0, stride=1)
+        self.batch_norm2 = rm.BatchNormalize(mode='feature')
+
+        self.conv3 = rm.Conv2d(64, filter=3, padding=1, stride=1)
+        self.batch_norm3 = rm.BatchNormalize(mode='feature')
+
+        self.conv4 = rm.Conv2d(96, filter=3, stride=2)
+        self.batch_norm4 = rm.BatchNormalize(mode='feature')
+
+        self.conv5_1_1 = rm.Conv2d(64, filter=1)
+        self.batch_norm5_1_1 = rm.BatchNormalize(mode='feature')
+        self.conv5_1_2 = rm.Conv2d(96, filter=3)
+        self.batch_norm5_1_2 = rm.BatchNormalize(mode='feature')
+
+        self.conv5_2_1 = rm.Conv2d(64, filter=1)
+        self.batch_norm5_2_1 = rm.BatchNormalize(mode='feature')
+        self.conv5_2_2 = rm.Conv2d(64, filter=(7, 1), padding=(3, 0))
+        self.batch_norm5_2_2 = rm.BatchNormalize(mode='feature')
+        self.conv5_2_3 = rm.Conv2d(64, filter=(1, 7), padding=(0, 3))
+        self.batch_norm5_2_3 = rm.BatchNormalize(mode='feature')
+        self.conv5_2_4 = rm.Conv2d(96, filter=3)
+        self.batch_norm5_2_4 = rm.BatchNormalize(mode='feature')
+
+        self.conv6 = rm.Conv2d(192, filter=3, stride=2)
+        self.batch_norm6 = rm.BatchNormalize(mode='feature')
+
+    def forward(self, x):
+        t = rm.relu(self.batch_norm1(self.conv1(x)))
+        t = rm.relu(self.batch_norm2(self.conv2(t)))
+        t = rm.relu(self.batch_norm3(self.conv3(t)))
+
+        t1 = rm.max_pool2d(t, filter=3, stride=2)
+        t2 = rm.relu(self.batch_norm4(self.conv4(t)))
+
+        t = rm.concat([t1, t2])
+
+
+        t1 = rm.relu(self.batch_norm5_1_1(self.conv5_1_1(t)))
+        t1 = rm.relu(self.batch_norm5_1_2(self.conv5_1_2(t1)))
+
+        t2 = rm.relu(self.batch_norm5_2_1(self.conv5_2_1(t)))
+        t2 = rm.relu(self.batch_norm5_2_2(self.conv5_2_2(t2)))
+        t2 = rm.relu(self.batch_norm5_2_3(self.conv5_2_3(t2)))
+        t2 = rm.relu(self.batch_norm5_2_4(self.conv5_2_4(t2)))
+        t = rm.concat([t1, t2])
+
+        t1 = rm.relu(self.batch_norm6(self.conv6(t)))
+        t2 = rm.max_pool2d(t, filter=3, stride=2)
+        return rm.concat([t1, t2])
+
+class InceptionV4BlockA(rm.Model):
+    def __init__(self, channels=[64, 48, 64, 64, 96, 32]):
+        self.conv1 = rm.Conv2d(96, filter=1)
+        self.batch_norm1 = rm.BatchNormalize(mode='feature')
+
+        self.conv2_reduced = rm.Conv2d(64, filter=1)
+        self.batch_norm2_reduced = rm.BatchNormalize(mode='feature')
+        self.conv2 = rm.Conv2d(96, filter=3, padding=1)
+        self.batch_norm2 = rm.BatchNormalize(mode='feature')
+
+        self.conv3_reduced = rm.Conv2d(64, filter=1)
+        self.batch_norm3_reduced = rm.BatchNormalize(mode='feature')
+        self.conv3_1 = rm.Conv2d(96, filter=3, padding=1)
+        self.batch_norm3_1 = rm.BatchNormalize(mode='feature')
+        self.conv3_2 = rm.Conv2d(96, filter=3, padding=1)
+        self.batch_norm3_2 = rm.BatchNormalize(mode='feature')
+
+        self.conv4 = rm.Conv2d(96, filter=1)
+        self.batch_norm4 = rm.BatchNormalize(mode='feature')
+    def forward(self, x):
+        t1 = rm.relu(self.batch_norm1(self.conv1(x)))
+
+        t2 = rm.relu(self.batch_norm2_reduced(self.conv2_reduced(x)))
+        t2 = rm.relu(self.batch_norm2(self.conv2(t2)))
+
+        t3 = rm.relu(self.batch_norm3_reduced(self.conv3_reduced(x)))
+        t3 = rm.relu(self.batch_norm3_1(self.conv3_1(t3)))
+        t3 = rm.relu(self.batch_norm3_2(self.conv3_2(t3)))
+
+        t4 = rm.max_pool2d(x, filter=3, stride=1, padding=1)
+        t4 = rm.relu(self.batch_norm4(self.conv4(t4)))
+
+        return rm.concat([
+            t1, t2, t3, t4
+        ])
+
+
+class InceptionV4ReductionA(rm.Model):
+    def __init__(self):
+        # k, l, m, n
+        # 192, 224, 256, 384
+        self.conv1 = rm.Conv2d(384, filter=3, stride=2)
+        self.batch_norm1 = rm.BatchNormalize(mode='feature')
+
+        self.conv2_red = rm.Conv2d(192, filter=1)
+        self.batch_norm2_red = rm.BatchNormalize(mode='feature')
+        self.conv2_1 = rm.Conv2d(224, filter=3, padding=1)
+        self.batch_norm2_1 = rm.BatchNormalize(mode='feature')
+        self.conv2_2 = rm.Conv2d(256, filter=3, stride=2)
+        self.batch_norm2_2 = rm.BatchNormalize(mode='feature')
+
+    def forward(self, x):
+        t1 = rm.max_pool2d(x, filter=3, stride=2)
+
+        t2 = rm.relu(self.batch_norm1(self.conv1(x)))
+
+        t3 = rm.relu(self.batch_norm2_red(self.conv2_red(x)))
+        t3 = rm.relu(self.batch_norm2_1(self.conv2_1(t3)))
+        t3 = rm.relu(self.batch_norm2_2(self.conv2_2(t3)))
+
+
+        return rm.concat([
+            t1, t2, t3
+        ])
+
+
+
+class InceptionV4BlockB(rm.Model):
+    def __init__(self):
+        self.conv1 = rm.Conv2d(128, filter=1)
+        self.batch_norm1 = rm.BatchNormalize(mode='feature')
+
+        self.conv2 = rm.Conv2d(384, filter=3, padding=1)
+        self.batch_norm2 = rm.BatchNormalize(mode='feature')
+
+        self.conv3_1 = rm.Conv2d(192, filter=1)
+        self.batch_norm3_1 = rm.BatchNormalize(mode='feature')
+        self.conv3_2 = rm.Conv2d(224, filter=(1, 7), padding=(0, 3))
+        self.batch_norm3_2 = rm.BatchNormalize(mode='feature')
+        self.conv3_3 = rm.Conv2d(256, filter=(7, 1), padding=(3, 0))
+        self.batch_norm3_3 = rm.BatchNormalize(mode='feature')
+
+        self.conv4_1 = rm.Conv2d(192, filter=1)
+        self.batch_norm4_1 = rm.BatchNormalize(mode='feature')
+        self.conv4_2 = rm.Conv2d(192, filter=(1, 7), padding=(0, 3))
+        self.batch_norm4_2 = rm.BatchNormalize(mode='feature')
+        self.conv4_3 = rm.Conv2d(224, filter=(7, 1), padding=(3, 0))
+        self.batch_norm4_3 = rm.BatchNormalize(mode='feature')
+        self.conv4_4 = rm.Conv2d(224, filter=(1, 7), padding=(0, 3))
+        self.batch_norm4_4 = rm.BatchNormalize(mode='feature')
+        self.conv4_5 = rm.Conv2d(256, filter=(7, 1), padding=(3, 0))
+        self.batch_norm4_5 = rm.BatchNormalize(mode='feature')
+
+    def forward(self, x):
+        t1 = rm.average_pool2d(x, filter=3, padding=1)
+        t1 = rm.relu(self.batch_norm1(self.conv1(t1)))
+
+        t2 = rm.relu(self.batch_norm2(self.conv2(x)))
+
+
+        t3 = rm.relu(self.batch_norm3_1(self.conv3_1(x)))
+        t3 = rm.relu(self.batch_norm3_2(self.conv3_2(t3)))
+        t3 = rm.relu(self.batch_norm3_3(self.conv3_3(t3)))
+
+        t4 = rm.relu(self.batch_norm4_1(self.conv4_1(x)))
+        t4 = rm.relu(self.batch_norm4_2(self.conv4_2(t4)))
+        t4 = rm.relu(self.batch_norm4_3(self.conv4_3(t4)))
+        t4 = rm.relu(self.batch_norm4_4(self.conv4_4(t4)))
+        t4 = rm.relu(self.batch_norm4_5(self.conv4_5(t4)))
+        return rm.concat([t1, t2, t3, t4])
+
+
+class InceptionV4ReductionB(rm.Model):
+    def __init__(self):
+        # k, l, m, n
+        # 192, 224, 256, 384
+        self.conv1_red = rm.Conv2d(192, filter=1)
+        self.batch_norm1_red = rm.BatchNormalize(mode='feature')
+        self.conv1 = rm.Conv2d(192, filter=3, stride=2)
+        self.batch_norm1 = rm.BatchNormalize(mode='feature')
+
+        self.conv2_red = rm.Conv2d(256, filter=1)
+        self.batch_norm2_red = rm.BatchNormalize(mode='feature')
+        self.conv2_1 = rm.Conv2d(256, filter=(1, 7), padding=(0, 3))
+        self.batch_norm2_1 = rm.BatchNormalize(mode='feature')
+        self.conv2_2 = rm.Conv2d(320, filter=(7, 1), padding=(3, 0))
+        self.batch_norm2_2 = rm.BatchNormalize(mode='feature')
+        self.conv2_3 = rm.Conv2d(320, filter=3, stride=2)
+        self.batch_norm2_3 = rm.BatchNormalize(mode='feature')
+
+    def forward(self, x):
+        t1 = rm.max_pool2d(x, filter=3, stride=2)
+
+        t2 = rm.relu(self.batch_norm1_red(self.conv1_red(x)))
+        t2 = rm.relu(self.batch_norm1(self.conv1(t2)))
+
+        t3 = rm.relu(self.batch_norm2_red(self.conv2_red(x)))
+        t3 = rm.relu(self.batch_norm2_1(self.conv2_1(t3)))
+        t3 = rm.relu(self.batch_norm2_2(self.conv2_2(t3)))
+        t3 = rm.relu(self.batch_norm2_3(self.conv2_3(t3)))
+
+        return rm.concat([
+            t1, t2, t3
+        ])
+
+
+
+class InceptionV4BlockC(rm.Model):
+    def __init__(self):
+        self.conv1 = rm.Conv2d(256, filter=1)
+        self.batch_norm1 = rm.BatchNormalize(mode='feature')
+
+        self.conv2 = rm.Conv2d(256, filter=1)
+        self.batch_norm2 = rm.BatchNormalize(mode='feature')
+
+        self.conv3_red = rm.Conv2d(384, filter=1)
+        self.batch_norm3_red = rm.BatchNormalize(mode='feature')
+        self.conv3_1 = rm.Conv2d(256, filter=(1, 3), padding=(0, 1))
+        self.batch_norm3_1 = rm.BatchNormalize(mode='feature')
+        self.conv3_2 = rm.Conv2d(256, filter=(3, 1), padding=(1, 0))
+        self.batch_norm3_2 = rm.BatchNormalize(mode='feature')
+
+        self.conv4_red = rm.Conv2d(384, filter=1)
+        self.batch_norm4_red = rm.BatchNormalize(mode='feature')
+        self.conv4_1 = rm.Conv2d(448, filter=(1, 3), padding=(0, 1))
+        self.batch_norm4_1 = rm.BatchNormalize(mode='feature')
+        self.conv4_2 = rm.Conv2d(512, filter=(3, 1), padding=(1, 0))
+        self.batch_norm4_2 = rm.BatchNormalize(mode='feature')
+        self.conv4_3 = rm.Conv2d(256, filter=(1, 3), padding=(0, 1))
+        self.batch_norm4_3 = rm.BatchNormalize(mode='feature')
+        self.conv4_4 = rm.Conv2d(256, filter=(3, 1), padding=(1, 0))
+        self.batch_norm4_4 = rm.BatchNormalize(mode='feature')
+
+    def forward(self, x):
+        t1 = rm.average_pool2d(x, filter=3, stride=1, padding=1)
+        t1 = rm.relu(self.batch_norm1(self.conv1(t1)))
+
+        t2 = rm.relu(self.batch_norm2(self.conv2(x)))
+
+        t3 = rm.relu(self.batch_norm3_red(self.conv3_red(x)))
+        t3_1 = rm.relu(self.batch_norm3_1(self.conv3_1(t3)))
+        t3_2 = rm.relu(self.batch_norm3_2(self.conv3_2(t3)))
+
+        t4 = rm.relu(self.batch_norm4_red(self.conv4_red(x)))
+        t4 = rm.relu(self.batch_norm4_1(self.conv4_1(t4)))
+        t4 = rm.relu(self.batch_norm4_2(self.conv4_2(t4)))
+        t4_1 = rm.relu(self.batch_norm4_3(self.conv4_3(t4)))
+        t4_2 = rm.relu(self.batch_norm4_4(self.conv4_4(t4)))
+
+        return rm.concat([
+            t1, t2, t3_1, t3_2, t4_1, t4_2
+        ])
+
+
+class InceptionV4(rm.Model):
+    def __init__(self, n_classes):
+        self.stem = Stem()
+
+        self.a1 = InceptionV4BlockA()
+        self.a2 = InceptionV4BlockA()
+        self.a3 = InceptionV4BlockA()
+        self.a4 = InceptionV4BlockA()
+
+        self.a_red = InceptionV4ReductionA()
+
+        self.b1 = InceptionV4BlockB()
+        self.b2 = InceptionV4BlockB()
+        self.b3 = InceptionV4BlockB()
+        self.b4 = InceptionV4BlockB()
+        self.b5 = InceptionV4BlockB()
+        self.b6 = InceptionV4BlockB()
+        self.b7 = InceptionV4BlockB()
+
+        self.b_red = InceptionV4ReductionB()
+
+        self.c1 = InceptionV4BlockC()
+        self.c2 = InceptionV4BlockC()
+        self.c3 = InceptionV4BlockC()
+
+        self.dropout = rm.Dropout(0.2)
+        self.fc1 = rm.Dense(1000)
+        self.fc2 = rm.Dense(n_classes)
+    def forward(self, x):
+        t = self.stem(x)
+        t = self.a1(t)
+        t = self.a2(t)
+        t = self.a3(t)
+        t = self.a4(t)
+
+        t = self.a_red(t)
+
+        t = self.b1(t)
+        t = self.b2(t)
+        t = self.b3(t)
+        t = self.b4(t)
+        t = self.b5(t)
+        t = self.b6(t)
+        t = self.b7(t)
+
+        t = self.b_red(t)
+
+        t = self.c1(t)
+        t = self.c2(t)
+        t = self.c3(t)
+
+        t = rm.average_pool2d(t, filter=8)
+        t = rm.flatten(t)
+        t = self.dropout(t)
+
+        t = self.fc1(t)
+        t = self.fc2(t)
+        return t
+
+
+
