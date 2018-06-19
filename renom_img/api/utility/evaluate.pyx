@@ -104,7 +104,7 @@ def get_prec_and_rec(gt_list, pred_list, n_class=None, iou_threshold=0.5):
     return precisions, recalls
 
 
-def get_ap_and_map(prec, rec, n_class=None, n_round_off=2):
+def get_ap_and_map(prec, rec, n_class=None, n_round_off=3):
     """
     prec: List of precision for each class returned by get_prec_and_rec method
     rec: List of recall for each class returned by get_prec_and_rec method
@@ -122,12 +122,12 @@ def get_ap_and_map(prec, rec, n_class=None, n_round_off=2):
             else:
                 p = np.max(np.nan_to_num(prec[c])[rec[c]>=t])
             ap += p / 11
-        aps[c] = round(ap * 100, n_round_off)
+        aps[c] = round(ap, n_round_off)
     mAP = round(np.nanmean(aps.values()), n_round_off)
     return aps, mAP
 
 
-def get_mean_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
+def get_mean_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5, n_round_off=3):
     """
     predict_list:
     [
@@ -189,11 +189,11 @@ def get_mean_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
                     continue
             else:
                 continue
-    mean_iou_per_cls = [np.mean(iou_list) for iou_list in ious.values()]
+    mean_iou_per_cls = [round(np.mean(iou_list), n_round_off) for iou_list in ious.values()]
     mean_iou = np.nanmean(mean_iou_per_cls)
     return mean_iou_per_cls, mean_iou
 
-def get_prec_rec_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
+def get_prec_rec_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5, n_round_off=3):
     """
     predict_list:
     [
@@ -290,7 +290,7 @@ def get_prec_rec_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
             recall = None
         recalls.append(recall)
 
-    mean_iou_per_cls = [np.mean(iou_list) for iou_list in ious.values()]
-    mean_iou = np.nanmean(mean_iou_per_cls)
+    mean_iou_per_cls = [round(np.mean(iou_list), n_round_off) for iou_list in ious.values()]
+    mean_iou = round(np.nanmean(mean_iou_per_cls), n_round_off)
     return precisions, recalls, mean_iou_per_cls, mean_iou
 
