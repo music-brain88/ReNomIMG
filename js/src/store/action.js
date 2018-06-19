@@ -44,31 +44,10 @@ export default {
   /*
   model list area
   */
-  // check weight exists on server
-  async checkWeightExist (context, payload) {
-    if (!context.state.weight_exists) {
-      context.commit('setWeightDownloadModal', {'weight_downloading_modal': true})
-      const url = '/api/renom_img/v1/weights/yolo'
-      return axios.get(url)
-        .then(function (response) {
-          if (response.data.error_msg) {
-            context.commit('setAlertModalFlag', {'flag': true})
-            context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-            return
-          }
-
-          if (response.data.weight_exist === 1) {
-            context.commit('setWeightExists', {'weight_exists': true})
-            context.commit('setWeightDownloadModal', {'weight_downloading_modal': false})
-          }
-        })
-    }
-  },
-
   // check weight downloading process
   async checkWeightDownloadProgress (context, payload) {
     if (!context.state.weight_exists) {
-      let url = '/api/renom_img/v1/weights/yolo/progress/' + payload.i
+      let url = '/api/renom_img/v1/weights/progress/' + payload.i
       return axios.get(url)
         .then(function (response) {
           if (response.data.error_msg) {
@@ -76,8 +55,8 @@ export default {
             context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
             return
           }
-
           if (response.data.progress) {
+            context.commit('setWeightDownloadModal', {'weight_downloading_modal': true})
             context.commit('setWeightDownloadProgress', {'progress': response.data.progress})
           }
           if (response.data.progress >= 100) {
@@ -101,12 +80,6 @@ export default {
   },
   // run model
   async runModel (context, payload) {
-    /*
-    await context.dispatch('checkWeightExist')
-    for (let i = 1; i <= 10; i++) {
-      await context.dispatch('checkWeightDownloadProgress', {'i': i})
-    }
-    */
     const dataset_def_id = JSON.stringify(payload.dataset_def_id)
     const hyper_parameters = JSON.stringify(payload.hyper_parameters)
     const algorithm_params = JSON.stringify(payload.algorithm_params)
@@ -139,7 +112,6 @@ export default {
       'running_state': 0
     })
     await context.dispatch('updateModelsState')
-
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + model_id + '/run'
     axios.get(url)
       .then(function (response) {
@@ -149,6 +121,9 @@ export default {
         }
         context.dispatch('updateModelsState')
       })
+    for (let i = 1; i <= 10; i++) {
+      await context.dispatch('checkWeightDownloadProgress', {'i': i})
+    }
   },
 
   // delete model

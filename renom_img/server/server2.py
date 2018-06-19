@@ -30,8 +30,10 @@ from renom_img.server.utility.storage import storage
 from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR
 from renom_img.server import STATE_FINISHED, STATE_RUNNING, STATE_DELETED, STATE_RESERVED
+from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 
 executor = Executor(max_workers=MAX_THREAD_NUM)
+
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
 thread_pool = {}
@@ -138,7 +140,6 @@ def get_model(project_id, model_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="GET")
 def get_models(project_id):
-    # TODO: Cache validation img path on browser.
     try:
         data = storage.fetch_models(project_id)
         body = json.dumps(data)
@@ -236,7 +237,7 @@ def progress_model(project_id, model_id):
 
         thread_id = "{}_{}".format(project_id, model_id)
         for j in range(60):
-            time.sleep(0.5)
+            time.sleep(0.75)
             th = thread_pool.get(thread_id, None)
             model_state = storage.fetch_model(project_id, model_id, "state")["state"]
             if th is not None:
@@ -262,7 +263,8 @@ def progress_model(project_id, model_id):
                     return ret
 
                 elif th.nth_batch != req_last_batch or \
-                        th.running_state != req_running_state:
+                        th.running_state != req_running_state or \
+                        th.weight_existance == WEIGHT_DOWNLOADING:
                     body = json.dumps({
                         "total_batch": th.total_batch,
                         "last_batch": th.nth_batch,
@@ -366,6 +368,31 @@ def get_datasets():
             ret.append(dict(id=id, name=name, ratio=ratio,
                             valid_imgs=valid_imgs, class_map=class_map, created=created, updated=updated))
         return create_response(json.dumps({'dataset_defs': ret}))
+
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/weights/progress/<progress_num:int>", method="GET")
+def weight_download_progress(progress_num):
+    try:
+        for i in range(60):
+            for th in thread_pool.values():
+                if th[1].weight_existance == WEIGHT_CHECKING:
+                    pass
+                elif th[1].weight_existance == WEIGHT_EXISTS:
+                    body = json.dumps({"progress": 100})
+                    ret = create_response(body)
+                    return ret
+                elif th[1].weight_existance == WEIGHT_DOWNLOADING:
+                    if th[1].percentage > 10 * progress_num:
+                        body = json.dumps({"progress": th[1].percentage})
+                        ret = create_response(body)
+                        return ret
+            time.sleep(1)
 
     except Exception as e:
         traceback.print_exc()

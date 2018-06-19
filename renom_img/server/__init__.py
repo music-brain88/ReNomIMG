@@ -23,6 +23,11 @@ RUN_STATE_STOPPING = 4
 # Thread
 MAX_THREAD_NUM = 2
 
+# Weight
+WEIGHT_EXISTS = 0
+WEIGHT_CHECKING = 1
+WEIGHT_DOWNLOADING = 2
+
 # Directories
 BASE_DIR = os.path.abspath(os.getcwd())
 DATASRC_DIR = os.path.join(BASE_DIR, "datasrc")

@@ -39,7 +39,11 @@ def calc_iou(box1, box2):
 
 class Yolov1(rm.Model):
 
-    def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight=False):
+    WEIGHT_URL = Darknet.WEIGHT_URL
+
+    def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None):
+        assert load_weight_path is None or isinstance(load_weight_path, str)
+
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
 
@@ -47,7 +51,7 @@ class Yolov1(rm.Model):
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
-        model = Darknet(self._last_dense_size, load_weight=load_weight)
+        model = Darknet(self._last_dense_size, load_weight_path=load_weight_path)
 
         self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:-7])

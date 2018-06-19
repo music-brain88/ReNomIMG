@@ -6,6 +6,7 @@ import urllib.request
 
 
 class WeightDownloadThread(threading.Thread):
+
     def __init__(self, thread_id, url, file_name):
         super(WeightDownloadThread, self).__init__()
         self.setDaemon(False)

@@ -3,6 +3,7 @@ import time
 import numpy as np
 import traceback
 from threading import Event
+import urllib.request
 
 from renom.cuda import set_cuda_active, release_mem_pool
 
@@ -13,7 +14,8 @@ from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, Whit
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 
 from renom_img.server import ALG_YOLOV1
-from renom_img.server import DB_DIR_TRAINED_WEIGHT
+from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
+from renom_img.server import DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL
 from renom_img.server import STATE_RUNNING
 from renom_img.server import RUN_STATE_TRAINING, RUN_STATE_VALIDATING, \
@@ -27,7 +29,14 @@ class TrainThread(object):
     def __init__(self, thread_id, project_id, model_id, dataset_id, hyper_parameters,
                  algorithm, algorithm_params):
 
+        # Model will be created in __call__ function.
+        self.model = None
+
         self.model_id = model_id
+
+        # For weight download
+        self.percentage = 0
+        self.weight_existance = WEIGHT_CHECKING
 
         # State of thread.
         # The variable _running_state has setter and getter.
@@ -50,24 +59,32 @@ class TrainThread(object):
         self.batch_size = int(hyper_parameters["batch_size"])
         self.imsize = (int(hyper_parameters["image_width"]),
                        int(hyper_parameters["image_height"]))
+        self.algorithm = algorithm
+        self.algorithm_params = algorithm_params
+
         self.stop_event = Event()
 
         # Prepare dataset
         rec = storage.fetch_dataset_def(dataset_id)
         (_, name, ratio, train_files, valid_files, class_map, _, _) = rec
+        self.class_map = class_map
         self.train_dist = self.create_dist(train_files)
         self.valid_dist = self.create_dist(valid_files, False)
 
-        # Algorithm
-        # Pretrained weights are must be prepared.
-        self.algorithm = algorithm
-        if algorithm == ALG_YOLOV1:
-            cell_size = int(algorithm_params["cells"])
-            num_bbox = int(algorithm_params["bounding_box"])
-            self.model = Yolov1(len(class_map), cell_size, num_bbox,
-                                imsize=self.imsize, load_weight=True)
-        else:
-            self.error_msg = "{} is not supported algorithm id.".format(algorithm)
+    def download_weight(self, url, filename):
+        pretrained_weight_path = os.path.join(DB_DIR_PRETRAINED_WEIGHT, filename)
+        if os.path.exists(pretrained_weight_path):
+            self.weight_existance = WEIGHT_EXISTS
+            return pretrained_weight_path
+
+        self.weight_existance = WEIGHT_DOWNLOADING
+
+        def progress(block_count, block_size, total_size):
+            self.percentage = 100.0 * block_count * block_size / total_size
+        urllib.request.urlretrieve(url, pretrained_weight_path, progress)
+        self.weight_existance = WEIGHT_EXISTS
+
+        return pretrained_weight_path
 
     @property
     def running_state(self):
@@ -83,6 +100,17 @@ class TrainThread(object):
             self._running_state = state
 
     def __call__(self):
+        # Algorithm and model preparation.
+        # Pretrained weights are must be prepared.
+        # This have to be done in thread.
+        if self.algorithm == ALG_YOLOV1:
+            cell_size = int(self.algorithm_params["cells"])
+            num_bbox = int(self.algorithm_params["bounding_box"])
+            path = self.download_weight(Yolov1.WEIGHT_URL, Yolov1.__name__ + '.h5')
+            self.model = Yolov1(len(self.class_map), cell_size, num_bbox,
+                                imsize=self.imsize, load_weight_path=path)
+        else:
+            self.error_msg = "{} is not supported algorithm id.".format(algorithm)
 
         storage.update_model_state(self.model_id, STATE_RUNNING)
         # This func works as thread.
