@@ -2,14 +2,35 @@ import numpy as np
 from collections import defaultdict
 
 def precision_score(y_pred, y_true):
+    """
+    Precision score for classification
+
+    Args:
+        y_pred: [class_id(int), class_id(int), ...]
+        y_true: [class_id(int), class_id(int), ...]
+    """
     p, _ = precision_recall_score(y_pred, y_true)
     return p
 
 def recall_score(y_pred, y_true):
+    """
+    Recall score for classification
+
+    Args:
+        y_pred: [class_id(int), class_id(int), ...]
+        y_true: [class_id(int), class_id(int), ...]
+    """
     _, r = precision_recall_score(y_pred, y_true)
     return r
 
 def precision_recall_score(y_pred, y_true):
+    """
+    Recall score for classification
+
+    Args:
+        y_pred: [class_id(int), class_id(int), ...]
+        y_true: [class_id(int), class_id(int), ...]
+    """
     tp = defaultdict(int)
     pred_sum = defaultdict(int)
     true_sum = defaultdict(int)
