@@ -39,7 +39,7 @@ def calc_iou(box1, box2):
 
 class Yolov1(rm.Model):
 
-    WEIGHT_URL = Darknet.WEIGHT_URL
+    WEIGHT_URL = "Yolov1.h5"
 
     def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None):
         assert load_weight_path is None or isinstance(load_weight_path, str)
@@ -51,7 +51,7 @@ class Yolov1(rm.Model):
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
-        model = Darknet(self._last_dense_size, load_weight_path=load_weight_path)
+        model = Darknet(self._last_dense_size, load_weight_path)
 
         self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:-7])
@@ -59,26 +59,17 @@ class Yolov1(rm.Model):
 
         self._opt = rm.Sgd(0.01, 0.9)
 
-        for layer in self._network.iter_models():
-            layer.params = {}
+        if load_weight_path is not None:
+            self.load(load_weight_path)
+            self.network.params = {}
 
     @property
     def freezed_network(self):
         return self._freezed_network
 
-    @freezed_network.setter
-    def freezed_network(self, new_network):
-        assert isinstance(new_network, rm.Model)
-        self._freezed_network = new_network
-
     @property
     def network(self):
         return self._network
-
-    @network.setter
-    def network(self, new_network):
-        assert isinstance(new_network, rm.Model)
-        self._network = new_network
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
@@ -236,5 +227,5 @@ class Yolov1(rm.Model):
             mask[fn, fy, fx, iou_ind[fn, fy, fx] * 5] = 1
             mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 5
 
-        diff = x - y
-        return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
+        diff = (x - y)*mask.reshape(N, -1)
+        return rm.sum(diff * diff) / N / 2.

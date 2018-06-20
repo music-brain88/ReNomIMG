@@ -5,9 +5,10 @@ import renom as rm
 
 
 class Darknet(rm.Sequential):
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/yolo.h5"
+    WEIGHT_URL = "Darknet"
 
     def __init__(self, last_unit_size, load_weight_path=None):
+        # TODO: Passing last_unit_size is not good.
         assert load_weight_path is None or isinstance(load_weight_path, str)
 
         super(Darknet, self).__init__([
@@ -94,3 +95,79 @@ class Darknet(rm.Sequential):
                 self.load(load_weight_path)
             else:
                 self.load(path + '.h5')
+
+## Darknet19
+class DarknetConv2dBN(rm.Model):
+
+    def __init__(self, channel, filter=3):
+        pad = int((filter - 1) / 2)
+        self._conv = rm.Conv2d(channel=channel, filter=filter, padding=pad)
+        self._bn = rm.BatchNormalize(mode='feature', momentum=0.01)
+
+    def forward(self, x):
+        return rm.leaky_relu(self._bn(self._conv(x)), 0.1)
+
+class Darknet19Base(rm.Model):
+
+    def __init__(self):
+        self.block1 = rm.Sequential([
+            DarknetConv2dBN(32),
+            rm.MaxPool2d(filter=2, stride=2)
+        ])
+        self.block2 = rm.Sequential([
+            DarknetConv2dBN(64),
+            rm.MaxPool2d(filter=2, stride=2)
+        ])
+        self.block3 = rm.Sequential([
+            DarknetConv2dBN(128),
+            DarknetConv2dBN(64, filter=1),
+            DarknetConv2dBN(128),
+            rm.MaxPool2d(filter=2, stride=2)
+        ])
+        self.block4 = rm.Sequential([
+            DarknetConv2dBN(256),
+            DarknetConv2dBN(128, filter=1),
+            DarknetConv2dBN(256),
+            rm.MaxPool2d(filter=2, stride=2)
+        ])
+        self.block5 = rm.Sequential([
+            DarknetConv2dBN(512),
+            DarknetConv2dBN(256, filter=1),
+            DarknetConv2dBN(512),
+            DarknetConv2dBN(256, filter=1),
+            DarknetConv2dBN(512),
+        ])
+        self.block6 = rm.Sequential([
+            # For concatenation.
+            rm.MaxPool2d(filter=2, stride=2),
+            DarknetConv2dBN(1024),
+            DarknetConv2dBN(512, filter=1),
+            DarknetConv2dBN(1024),
+            DarknetConv2dBN(512, filter=1),
+            DarknetConv2dBN(1024),
+        ])
+
+    def forward(self, x):
+        h = self.block1(x)
+        h = self.block2(h)
+        h = self.block3(h)
+        h = self.block4(h)
+        f = self.block5(h)
+        h = self.block6(f)
+        return h, f
+
+class Darknet19(rm.Model):
+
+    WEIGHT_URL = "Darknet19"
+
+    def __init__(self):
+        self._base = Darknet19Base()
+        self._last = rm.Conv2d(1000, filter=1)
+
+    def forward(self, x):
+        N = len(x)
+        h, _ = self._base(x)
+        D = h.shape[2] * h.shape[3]
+        h = rm.sum(self._last(h).reshape(N, 1000, -1), axis=2)
+        h /= D
+        return h
