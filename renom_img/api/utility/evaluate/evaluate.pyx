@@ -1,7 +1,7 @@
 import numpy as np
 from nms import *
 
-def get_prec_and_rec(gt_list, pred_list, class_list, iou_threshold=0.5):
+def get_prec_and_rec(gt_list, pred_list, n_class=None, iou_threshold=0.5):
     """
     This function calculates precision and recall value of provided ground truth box list(gt_list) and
     predicted box list(pred_list).
@@ -11,41 +11,49 @@ def get_prec_and_rec(gt_list, pred_list, class_list, iou_threshold=0.5):
     Args:
       gt_list (list):
       pred_list (list): A list of predicted bounding boxes.
-      class_list (list): A list of class name. Examle: x["aeroplane", "bicycle", "bird", ...].
 
     predict_list:
-    [
+      [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score(float)},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score(float)},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score(float)},
+                {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score(float)},
                 ...
             ]
         ]
     """
 
-    n_class = len(class_list)
-    match = [[] for _ in range(n_class)]
-    scores = [[] for _ in range(n_class)]
-    n_pos_list = np.zeros(n_class)
+    if not n_class:
+        class_map = np.unique(np.concatenate([[g['class'] for gt in gt_list for g in gt], [p['class'] for pre in pred_list for p in pre]]))
+        n_class = len(class_map)
+    else:
+        class_map = np.arange(n_class)
+
+    n_pos_list = dict()
+    match = {}
+    scores = {}
+    for c in class_map:
+        n_pos_list[c] = 0
+        match[c] = []
+        scores[c] = []
 
     for i in range(len(gt_list)):
         gt_list_per_img = gt_list[i]
         pred_list_per_img = pred_list[i]
 
-        gt_labels = [obj['name'] for obj in gt_list_per_img]
+        gt_labels = [obj['class'] for obj in gt_list_per_img]
         gt_boxes = [obj['box'] for obj in gt_list_per_img]
 
-        pred_labels = [obj['name'] for obj in pred_list_per_img]
+        pred_labels = [obj['class'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
-        pred_confs = [float(obj['confidence']) for obj in pred_list_per_img]
+        pred_confs = [float(obj['score']) for obj in pred_list_per_img]
 
         for l in gt_labels:
-            n_pos_list[class_list.index(l)] += 1
+            n_pos_list[l] += 1
 
         gt_seen = np.zeros(len(gt_boxes), dtype=bool)
         for label, box, conf in zip(pred_labels, pred_boxes, pred_confs):
@@ -64,19 +72,19 @@ def get_prec_and_rec(gt_list, pred_list, class_list, iou_threshold=0.5):
                     maxiou_id = j
 
             if maxiou < 0:
-                match[class_list.index(label)].append(0)
-                scores[class_list.index(label)].append(conf)
+                match[label].append(0)
+                scores[label].append(conf)
                 continue
 
             if maxiou >= iou_threshold:
                 if not gt_seen[maxiou_id]:
-                    match[class_list.index(label)].append(1)
+                    match[label].append(1)
                     gt_seen[maxiou_id] = True
                 else:
-                    match[class_list.index(label)].append(0)
+                    match[label].append(0)
             else:
-                match[class_list.index(label)].append(0)
-            scores[class_list.index(label)].append(conf)
+                match[label].append(0)
+            scores[label].append(conf)
 
     precisions = []
     recalls = []
@@ -89,19 +97,23 @@ def get_prec_and_rec(gt_list, pred_list, class_list, iou_threshold=0.5):
         precision = tp.astype(float) / (tp+fp).astype(float)
         precisions.append(precision)
         if n_pos_list[l] > 0:
-            recall = tp.astype(float) / n_pos_list[l].astype(float)
+            recall = tp.astype(float) / float(n_pos_list[l])
         else:
             recall = None
         recalls.append(recall)
     return precisions, recalls
 
 
-def get_ap_and_map(prec, rec, class_list, n_round_off=2):
+def get_ap_and_map(prec, rec, n_round_off=2):
+    """
+    prec: List of precision for each class returned by get_prec_and_rec method
+    rec: List of recall for each class returned by get_prec_and_rec method
+    """
     n_class = len(prec)
     aps = {}
     for c in range(n_class):
         if prec[c] is None or rec[c] is None:
-            aps[class_list[c]] = np.nan
+            aps[c] = np.nan
             continue
         ap = 0
         for t in np.arange(0, 1.1, 0.1):
@@ -110,39 +122,47 @@ def get_ap_and_map(prec, rec, class_list, n_round_off=2):
             else:
                 p = np.max(np.nan_to_num(prec[c])[rec[c]>=t])
             ap += p / 11
-        aps[class_list[c]] = round(ap * 100, n_round_off)
-    mAP = round(np.nanmean(aps.values()), n_round_off)
+        aps[c] = round(ap * 100, n_round_off)
+    mAP = round(np.nanmean(np.array(list(aps.values()))), n_round_off)
     return aps, mAP
 
 
-def get_mean_iou(gt_list, pred_list, class_list, iou_threshold=0.5):
+def get_mean_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
     """
     predict_list:
     [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ]
         ]
     """
 
-    n_class = len(class_list)
-    ious = [[] for _ in range(n_class)]
+    if not n_class:
+        class_map = np.unique(np.concatenate([[g['class'] for gt in gt_list for g in gt], [p['class'] for pre in pred_list for p in pre]]))
+        n_class = len(class_map)
+    else:
+        class_map = np.arange(n_class)
+
+    ious = {}
+    for c in class_map:
+        ious[c] = []
+
 
     for i in range(len(gt_list)):
         gt_list_per_img = gt_list[i]
         pred_list_per_img = pred_list[i]
 
-        gt_labels = [obj['name'] for obj in gt_list_per_img]
+        gt_labels = [obj['class'] for obj in gt_list_per_img]
         gt_boxes = [obj['box'] for obj in gt_list_per_img]
 
-        pred_labels = [obj['name'] for obj in pred_list_per_img]
+        pred_labels = [obj['class'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
 
         gt_seen = np.zeros(len(gt_boxes), dtype=bool)
@@ -163,52 +183,62 @@ def get_mean_iou(gt_list, pred_list, class_list, iou_threshold=0.5):
 
             if maxiou >= iou_threshold:
                 if not gt_seen[maxiou_id]:
-                    ious[class_list.index(label)].append(maxiou)
+                    ious[label].append(maxiou)
                     gt_seen[maxiou_id] = True
                 else:
                     continue
             else:
                 continue
-    mean_iou_per_cls = [np.mean(iou_list) for iou_list in ious]
+    mean_iou_per_cls = [np.mean(iou_list) for iou_list in ious.values()]
     mean_iou = np.nanmean(mean_iou_per_cls)
     return mean_iou_per_cls, mean_iou
 
-def get_prec_rec_iou(gt_list, pred_list, class_list, iou_threshold=0.5):
+def get_prec_rec_iou(gt_list, pred_list, n_class=None, iou_threshold=0.5):
     """
     predict_list:
     [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
-                {'box': [x(float), y, w, h], 'name': class_name(string), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ]
         ]
     """
 
-    n_class = len(class_list)
-    match = [[] for _ in range(n_class)]
-    scores = [[] for _ in range(n_class)]
-    n_pos_list = np.zeros(n_class)
-    ious = [[] for _ in range(n_class)]
+    if not n_class:
+        class_map = np.unique(np.concatenate([[g['class'] for gt in gt_list for g in gt], [p['class'] for pre in pred_list for p in pre]]))
+        n_class = len(class_map)
+    else:
+        class_map = np.arange(n_class)
+
+    n_pos_list = dict()
+    match = {}
+    scores = {}
+    ious = {}
+    for c in class_map:
+        n_pos_list[c] = 0
+        match[c] = []
+        scores[c] = []
+        ious[c] = []
 
     for i in range(len(gt_list)):
         gt_list_per_img = gt_list[i]
         pred_list_per_img = pred_list[i]
 
-        gt_labels = [obj['name'] for obj in gt_list_per_img]
+        gt_labels = [obj['class'] for obj in gt_list_per_img]
         gt_boxes = [obj['box'] for obj in gt_list_per_img]
 
-        pred_labels = [obj['name'] for obj in pred_list_per_img]
+        pred_labels = [obj['class'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
-        pred_confs = [obj['confidence'] for obj in pred_list_per_img]
+        pred_confs = [obj['score'] for obj in pred_list_per_img]
 
         for l in gt_labels:
-            n_pos_list[class_list.index(l)] += 1
+            n_pos_list[l] += 1
 
         gt_seen = np.zeros(len(gt_boxes), dtype=bool)
         for label, box, conf in zip(pred_labels, pred_boxes, pred_confs):
@@ -229,20 +259,20 @@ def get_prec_rec_iou(gt_list, pred_list, class_list, iou_threshold=0.5):
                     maxiou_id = j
 
             if maxiou < 0:
-                match[class_list.index(label)].append(0)
-                scores[class_list.index(label)].append(conf)
+                match[label].append(0)
+                scores[label].append(conf)
                 continue
 
             if maxiou >= iou_threshold:
                 if not gt_seen[maxiou_id]:
-                    match[class_list.index(label)].append(1)
-                    ious[class_list.index(label)].append(maxiou)
+                    match[label].append(1)
+                    ious[label].append(maxiou)
                     gt_seen[maxiou_id] = True
                 else:
-                    match[class_list.index(label)].append(0)
+                    match[label].append(0)
             else:
-                match[class_list.index(label)].append(0)
-            scores[class_list.index(label)].append(conf)
+                match[label].append(0)
+            scores[label].append(conf)
 
     precisions = []
     recalls = []
@@ -255,12 +285,13 @@ def get_prec_rec_iou(gt_list, pred_list, class_list, iou_threshold=0.5):
         precision = tp.astype(float) / (tp+fp).astype(float)
         precisions.append(precision)
         if n_pos_list[l] > 0:
-            recall = tp.astype(float) / n_pos_list[l].astype(float)
+            recall = tp.astype(float) / float(n_pos_list[l])
         else:
             recall = None
         recalls.append(recall)
 
-    mean_iou_per_cls = [np.mean(iou_list) for iou_list in ious]
+    mean_iou_per_cls = [np.mean(iou_list) for iou_list in ious.values()]
     mean_iou = np.nanmean(mean_iou_per_cls)
+    mean_iou = mean_iou if not np.isnan(mean_iou) else 0.0
     return precisions, recalls, mean_iou_per_cls, mean_iou
 

@@ -1,9 +1,11 @@
 node_modules/
 .DS_Store
 .storage
+storage
 build/
 .build/
 dataset
+datasrc
 *.h5
 
 # Byte-compiled / optimized / DLL files

@@ -1,319 +1,285 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import os
 import time
-import threading
 import numpy as np
 import traceback
+from threading import Event
+import urllib.request
+
 from renom.cuda import set_cuda_active, release_mem_pool
-from renom_img.server.model_wrapper.yolo import WrapperYoloDarknet
-from renom_img.server.utility.data_preparation import create_train_valid_dists
+
+from renom_img.api.detection.yolo_v1 import Yolov1
+from renom_img.api.utility.load import parse_xml_detection
+from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise
+from renom_img.api.utility.augmentation.augmentation import Augmentation
+
+from renom_img.api.utility.evaluate import get_ap_and_map, get_prec_rec_iou
+
+from renom_img.server import ALG_YOLOV1
+from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
+from renom_img.server import DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT
+from renom_img.server import DATASRC_IMG, DATASRC_LABEL
+from renom_img.server import STATE_RUNNING
+from renom_img.server import RUN_STATE_TRAINING, RUN_STATE_VALIDATING, \
+    RUN_STATE_PREDICTING, RUN_STATE_STARTING, RUN_STATE_STOPPING
+
 from renom_img.server.utility.storage import storage
-from renom_img.api.utility.nms import calc_iou, transform2xy12
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WEIGHT_DIR = os.path.join(BASE_DIR, "../.storage/weight")
-
-STATE_RUNNING = 1
-STATE_FINISHED = 2
-STATE_DELETED = 3
-STATE_RESERVED = 4
-
-TRAIN = 0
-VALID = 1
-PRED = 2
-ERROR = -1
-
-DEBUG = False
 
 
-class TrainThread(threading.Thread):
-    def __init__(self, thread_id, project_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params, semaphore):
-        super(TrainThread, self).__init__(args=semaphore)
-        self.stop_event = threading.Event()
-        self.setDaemon(False)
+class TrainThread(object):
 
-        self.thread_id = thread_id
-        self.project_id = project_id
-        self.model_id = model_id
-        self.algorithm = algorithm
-        self.total_epoch = int(hyper_parameters['total_epoch'])
-        self.batch_size = int(hyper_parameters['batch_size'])
-        self.seed = int(hyper_parameters['seed'])
-        self.img_size = (int(hyper_parameters['image_width']),
-                         int(hyper_parameters['image_height']))
+    def __init__(self, thread_id, project_id, model_id, dataset_id, hyper_parameters,
+                 algorithm, algorithm_params):
 
-        self.cell_h = int(algorithm_params['cells'])
-        self.cell_v = int(algorithm_params['cells'])
-        self.num_bbox = int(algorithm_params['bounding_box'])
-
-        self.last_batch = 0
-        self.total_batch = 0
-        self.last_train_loss = None
-        self.last_epoch = 0
-        self.best_validation_loss = None
-        self.running_state = 3
-        self.semaphore = semaphore
-
+        # Model will be created in __call__ function.
         self.model = None
+
+        self.model_id = model_id
+
+        # For weight download
+        self.percentage = 0
+        self.weight_existance = WEIGHT_CHECKING
+
+        # State of thread.
+        # The variable _running_state has setter and getter.
+        self._running_state = RUN_STATE_STARTING
+        self.nth_batch = 0
+        self.total_batch = 0
+        self.last_batch_loss = 0
+        self.nth_epoch = 0
+        self.train_loss_list = []
+        self.valid_loss_list = []
+        self.valid_iou_list = []
+        self.valid_map_list = []
+        self.valid_predict_box = []
+
+        # Error message caused in thread.
         self.error_msg = None
-        np.random.seed(self.seed)
 
-    def get_iou_and_mAP(self, truth, predict_list):
+        # Train hyperparameters
+        self.total_epoch = int(hyper_parameters["total_epoch"])
+        self.batch_size = int(hyper_parameters["batch_size"])
+        self.imsize = (int(hyper_parameters["image_width"]),
+                       int(hyper_parameters["image_height"]))
+        self.algorithm = algorithm
+        self.algorithm_params = algorithm_params
+
+        self.stop_event = Event()
+
+        # Prepare dataset
+        rec = storage.fetch_dataset_def(dataset_id)
+        (_, name, ratio, train_files, valid_files, class_map, _, _) = rec
+        self.class_map = class_map
+        self.train_dist = self.create_dist(train_files)
+        self.valid_dist = self.create_dist(valid_files, False)
+
+    def download_weight(self, url, filename):
+        pretrained_weight_path = os.path.join(DB_DIR_PRETRAINED_WEIGHT, filename)
+        if os.path.exists(pretrained_weight_path):
+            self.weight_existance = WEIGHT_EXISTS
+            return pretrained_weight_path
+
+        self.weight_existance = WEIGHT_DOWNLOADING
+
+        def progress(block_count, block_size, total_size):
+            self.percentage = 100.0 * block_count * block_size / total_size
+        urllib.request.urlretrieve(url, pretrained_weight_path, progress)
+        self.weight_existance = WEIGHT_EXISTS
+
+        return pretrained_weight_path
+
+    @property
+    def running_state(self):
+        return self._running_state
+
+    @running_state.setter
+    def running_state(self, state):
+        """
+        If thread's state becomes RUN_STATE_STOPPING once, 
+        state will never be changed.
+        """
+        if self._running_state != RUN_STATE_STOPPING:
+            self._running_state = state
+
+    def __call__(self):
+        # This func works as thread.
         try:
-            # TODO: Cythonize
-            iou_list = []
-            map_true_count = 0
-            map_count = 0
+            # Algorithm and model preparation.
+            # Pretrained weights are must be prepared.
+            # This have to be done in thread.
+            if self.algorithm == ALG_YOLOV1:
+                cell_size = int(self.algorithm_params["cells"])
+                num_bbox = int(self.algorithm_params["bounding_box"])
+                path = self.download_weight(Yolov1.WEIGHT_URL, Yolov1.__name__ + '.h5')
+                self.model = Yolov1(len(self.class_map), cell_size, num_bbox,
+                                    imsize=self.imsize, load_weight_path=path)
+            else:
+                self.error_msg = "{} is not supported algorithm id.".format(algorithm)
 
-            for i in range(len(truth)):
-                label = truth[i].reshape(-1, 4 + 1)  # Note: This is not onehot.
-                pred = sorted(predict_list[i], key=lambda x: x['class'])
-
-                for j in range(len(label)):
-                    x, y, w, h, obj_class = label[j]
-                    if x == y == w == h == 0:
-                        break
-
-                    x1, y1, x2, y2 = transform2xy12((x, y, w, h))
-                    map_count += 1
-                    for k in range(len(pred)):
-                        p_class = pred[k]['class']
-                        if p_class < obj_class:
-                            break
-                        if p_class != obj_class:
-                            continue
-
-                        p_x = pred[k]['box'][0] * self.img_size[0]
-                        p_y = pred[k]['box'][1] * self.img_size[1]
-                        p_w = pred[k]['box'][2] * self.img_size[0]
-                        p_h = pred[k]['box'][3] * self.img_size[1]
-
-                        px1, py1, px2, py2 = transform2xy12((p_x, p_y, p_w, p_h))
-                        iou = calc_iou((px1, py1, px2, py2), (x1, y1, x2, y2))
-                        if iou == 0:
-                            continue
-                        iou_list.append(iou)
-
-                        if iou < 0.3:
-                            continue
-                        map_true_count += 1
-            return iou_list, map_true_count, map_count
-        except Exception as e:
-            traceback.print_exc()
-            self.error_msg = e.args[0]
-
-    def run(self):
-        try:
-            with self.semaphore:
-                if self.stop_event.is_set():
-                    return
-                set_cuda_active(True)
-                release_mem_pool()
-                if DEBUG:
-                    print("run thread")
-                storage.update_model_state(self.model_id, STATE_RUNNING)
-                class_list, train_dist, valid_dist = create_train_valid_dists(
-                    self.img_size)
-                storage.register_dataset_v0(
-                    len(train_dist), len(valid_dist), class_list)
-                self.model = self.set_train_config(len(class_list))
-                self.run_train(train_dist, valid_dist)
-        except Exception as e:
-            traceback.print_exc()
-            self.error_msg = e.args[0]
-
-    def run_train(self, train_distributor, validation_distributor=None):
-        try:
-            # Prepare validation images for UI.
-            valid_img = validation_distributor.img_path_list
-            v_bbox_imgs = valid_img
-
-            storage.update_model_validation_result(
-                model_id=self.model_id,
-                best_validation_result={
-                    "bbox_list": [],
-                    "bbox_path_list": v_bbox_imgs
-                }
-            )
-
-            train_loss_list = []
-            validation_loss_list = []
-
+            i = 0
+            set_cuda_active(True)
+            release_mem_pool()
             filename = '{}.h5'.format(int(time.time()))
 
-            release_mem_pool()
-            for e in range(self.total_epoch):
-                start_t0 = time.time()
-                # stopイベントがセットされたら学習を中断する
-                if self.stop_event.is_set():
-                    return
-
-                self.last_epoch = e
-                storage.update_model_last_epoch(
-                    model_id=self.model_id,
-                    last_epoch=e
-                )
-                self.last_batch = 0
-                self.running_state = TRAIN
-                self.update_running_info()
+            epoch = self.total_epoch
+            batch_size = self.batch_size
+            best_valid_loss = np.Inf
+            valid_annotation_list = self.valid_dist.get_resized_annotation_list(self.imsize)
+            storage.update_model_state(self.model_id, STATE_RUNNING)
+            for e in range(epoch):
 
                 epoch_id = storage.register_epoch(
                     model_id=self.model_id,
                     nth_epoch=e
                 )
 
-                train_loss = 0
-                validation_loss = 0
                 # Train
-                batch_length = int(
-                    np.ceil(len(train_distributor) / float(self.batch_size)))
-                self.total_batch = batch_length
-
-                i = 0
-                for i, (train_x, train_y) in enumerate(train_distributor.batch(self.batch_size)):
-                    start_t2 = time.time()
-
-                    if self.stop_event.is_set():
+                self.nth_epoch = e
+                self.running_state = RUN_STATE_TRAINING
+                if self.is_stopped():
+                    return
+                display_loss = 0
+                batch_gen = self.train_dist.batch(batch_size, self.model.build_data)
+                self.total_batch = int(np.ceil(len(self.train_dist) // batch_size))
+                for i, (train_x, train_y) in enumerate(batch_gen):
+                    self.nth_batch = i
+                    if self.is_stopped():
                         return
-
                     self.model.set_models(inference=False)
-                    h = self.model.freezed_forward(train_x / 255. * 2 - 1)
                     with self.model.train():
-                        z = self.model(h)
-                        loss = self.model.loss_func(z, train_y)
-                        num_loss = loss.as_ndarray().astype(np.float64)
-                        loss += self.model.weight_decay()
-                    loss.grad().update(self.model.optimizer(e, i,
-                                                            self.total_epoch, batch_length))
+                        loss = self.model.loss(self.model(train_x), train_y)
+                        reg_loss = loss + self.model.regularize()
+                    reg_loss.grad().update(self.model.get_optimizer(e, epoch,
+                                                                    i, self.total_batch))
+                    display_loss += float(loss.as_ndarray()[0])
+                    self.last_batch_loss = float(loss.as_ndarray()[0])
+                avg_train_loss = display_loss / (i + 1)
 
-                    train_loss += num_loss
-                    self.last_batch = i
-                    self.running_state = TRAIN
-                    self.last_train_loss = float(num_loss)
-                    self.update_running_info()
+                # Validation
+                self.running_state = RUN_STATE_VALIDATING
+                if self.is_stopped():
+                    return
+                valid_predict_box = []
+                display_loss = 0
+                batch_gen = self.valid_dist.batch(batch_size, self.model.build_data, shuffle=False)
+                self.model.set_models(inference=True)
+                for i, (valid_x, valid_y) in enumerate(batch_gen):
+                    if self.is_stopped():
+                        return
+                    valid_z = self.model(valid_x)
+                    valid_predict_box.extend(self.model.get_bbox(valid_z))
+                    loss = self.model.loss(valid_z, valid_y)
+                    display_loss += float(loss.as_ndarray()[0])
 
-                    if DEBUG:
-                        print('##### {}/{} {}'.format(i, batch_length, e))
-                        print('  train loss', num_loss)
-                        print('  learning rate', self.model.optimizer(
-                            e, i, self.total_epoch, batch_length)._lr)
-                        print('  took time {}[s]'.format(
-                            time.time() - start_t2))
-                train_loss = train_loss / (i + 1)
-                train_loss_list.append(train_loss)
+                if self.is_stopped():
+                    return
+                prec, recl, _, iou = get_prec_rec_iou(valid_annotation_list, valid_predict_box)
+                _, mAP = get_ap_and_map(prec, recl)
 
-                start_t1 = time.time()
-                if self.stop_event.is_set():
+                if self.is_stopped():
                     return
 
-                if validation_distributor:
-                    self.last_batch += 1
-                    self.running_state = VALID
-                    self.update_running_info()
+                avg_valid_loss = display_loss / (i + 1)
 
-                    validation_loss, v_iou, v_mAP, v_bbox = \
-                        self.run_validation(validation_distributor)
-                    validation_loss_list.append(validation_loss)
+                self.valid_predict_box.append(valid_predict_box)
+                self.train_loss_list.append(avg_train_loss)
+                self.valid_loss_list.append(avg_valid_loss)
+                self.valid_iou_list.append(iou)
+                self.valid_map_list.append(mAP)
 
-                if self.best_validation_loss is None or validation_loss < self.best_validation_loss:
-                    self.best_validation_loss = validation_loss
-                    bbox_list_len = min(len(v_bbox), len(v_bbox_imgs))
-                    validation_results = {
-                        "bbox_list": v_bbox[:bbox_list_len],
-                        "bbox_path_list": v_bbox_imgs[:bbox_list_len]
-                    }
-                    storage.update_model_best_epoch(self.model_id, e, v_iou,
-                                                    v_mAP, filename, validation_results)
-                    # modelのweightを保存する
-                    if not os.path.isdir(WEIGHT_DIR):
-                        os.makedirs(WEIGHT_DIR)
-                    self.model.save(os.path.join(WEIGHT_DIR, filename))
-
+                # Store epoch data tp DB.
                 storage.update_model_loss_list(
                     model_id=self.model_id,
-                    train_loss_list=train_loss_list,
-                    validation_loss_list=validation_loss_list,
+                    train_loss_list=self.train_loss_list,
+                    validation_loss_list=self.valid_loss_list,
                 )
-                cur_time = time.time()
-                if DEBUG:
-                    print("epoch %d done. %f. took time %f [s], %f [s]" % (e, train_loss,
-                                                                           cur_time - start_t0,
-                                                                           cur_time - start_t1,
-                                                                           ))
+                if best_valid_loss > avg_valid_loss:
+                    # modelのweightを保存する
+                    self.model.save(os.path.join(DB_DIR_TRAINED_WEIGHT, filename))
+                    storage.update_model_best_epoch(self.model_id, e, iou,
+                                                    mAP, filename, self.valid_predict_box)
 
-                # このエポック時点でのiouとmapをDBに保存する
-                bbox_list_len = min(len(v_bbox), len(v_bbox_imgs))
                 storage.update_epoch(
                     epoch_id=epoch_id,
-                    train_loss=train_loss,
-                    validation_loss=validation_loss,
-                    epoch_iou=v_iou,
-                    epoch_map=v_mAP)
-            print('storage run train ' + str(self.model_id))
-            storage.update_model_state(self.model_id, STATE_FINISHED)
+                    train_loss=avg_train_loss,
+                    validation_loss=avg_valid_loss,
+                    epoch_iou=iou,
+                    epoch_map=mAP)
+
         except Exception as e:
             traceback.print_exc()
-            self.error_msg = e.args[0]
+            self.error_msg = str(e)
+            self.model = None
+            release_mem_pool()
 
-    def run_validation(self, distributor):
-        try:
-            validation_loss = 0
-            v_ious = []
-            v_mAP_count = 0
-            v_mAP_true_count = 0
-            v_bbox = []
-            self.model.set_models(inference=True)
-            for i, (validation_x, validation_y) in enumerate(distributor.batch(self.batch_size, False)):
-                if self.stop_event.is_set():
-                    return
-                # Validation
-                h = self.model.freezed_forward(validation_x / 255. * 2 - 1)
-                z = self.model(h)
-                loss = self.model.loss_func(z, validation_y)
-                validation_loss += loss.as_ndarray()
-
-                bbox = self.model.get_bbox(z.as_ndarray())
-                iou_list, mAP_true_obj_count, mAP_obj_count = self.get_iou_and_mAP(
-                    validation_y, bbox)
-                v_ious.extend(iou_list)
-                v_mAP_true_count += mAP_true_obj_count
-                v_mAP_count += mAP_obj_count
-                v_bbox.extend(bbox)
-
-            v_iou = np.mean(v_ious)
-            v_mAP = v_mAP_true_count / float(v_mAP_count)
-            v_iou = float(0 if np.isnan(v_iou) or np.isinf(v_iou) else v_iou)
-            v_mAP = float(0 if np.isnan(v_mAP) or np.isinf(v_mAP) else v_mAP)
-            v_bbox = v_bbox
-            validation_loss = validation_loss / (i + 1)
-
-            return validation_loss, v_iou, v_mAP, v_bbox
-        except Exception as e:
-            traceback.print_exc()
-            self.error_msg = e.args[0]
-
-    def set_train_config(self, class_num):
-        try:
-            self._class_num = int(class_num)
-            return WrapperYoloDarknet(cells=self.cell_h, bbox=self.num_bbox, num_class=class_num, img_size=self.img_size)
-        except Exception as e:
-            traceback.print_exc()
-            self.error_msg = e.args[0]
+    def get_running_info():
+        return {
+            "model_id": self.model_id,
+            "total_batch": self.total_batch,
+            "nth_batch": self.nth_batch,
+            "last_batch_loss": self.last_batch_loss,
+            "running_state": self.running_state,
+        }
 
     def stop(self):
-        try:
-            self.stop_event.set()
-        except Exception as e:
-            traceback.print_exc()
-            self.error_msg = e.args[0]
+        # Thread can be canceled only if it have not been started.
+        # This method is for stopping running thread.
+        self.stop_event.set()
+        self.running_state = RUN_STATE_STOPPING
 
-    def update_running_info(self):
-        storage.update_model_running_info(
-            model_id=self.model_id,
-            last_batch=self.last_batch,
-            total_batch=self.total_batch,
-            last_train_loss=self.last_train_loss,
-            running_state=self.running_state)
+    def is_stopped(self):
+        return self.stop_event.is_set()
+
+    def create_dist(self, filename_list, train=True):
+        """
+        This function creates img path list and annotation list from
+        filename list.
+
+        Image file name and label file must be same.
+        Because of that, data_list is a list of file names.
+
+        Data formats are bellow.  
+
+        image path list: [path_to_img1, path_to_img2, ...]
+        annotation list: [
+                            [ # Annotations of each image.
+                                {"box":[x, y, w, h], "name":"dog", "class":1},
+                                {"box":[x, y, w, h], "name":"cat", "class":0},
+                            ],
+                            [
+                                {"box":[x, y, w, h], "name":"cat", "class":0},
+                            ],
+                            ...
+                          ]
+
+        Args:
+            filename_list(list): [filename1, filename2, ...]
+            train(bool): If it's ture, augmentation will be added to distributor.
+
+        Returns:
+            (ImageDistributor): ImageDistributor object with augmentation.
+        """
+        img_path_list = []
+        label_path_list = []
+        for path in filename_list:
+            name = os.path.splitext(path)[0]
+            img_path = os.path.join(DATASRC_IMG, path)
+            label_path = os.path.join(DATASRC_LABEL, name + ".xml")
+
+            if os.path.exists(img_path) and os.path.exists(label_path):
+                img_path_list.append(img_path)
+                label_path_list.append(label_path)
+            else:
+                print("{} not found.".format(name))
+        annotation_list, _ = parse_xml_detection(label_path_list)
+        if train:
+            augmentation = Augmentation([
+                Shift(20, 20),
+                Flip(),
+                Rotate(),
+                WhiteNoise()
+            ])
+            return ImageDistributor(img_path_list, annotation_list,
+                                augmentation=augmentation)
+        else:
+            return ImageDistributor(img_path_list, annotation_list)
