@@ -1,5 +1,6 @@
 import numpy as np
 from renom_img.api.utility.evaluate.detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
+from renom_img.api.utility.evaluate.classification import precision_score, recall_score, accuracy_score
 import matplotlib.pyplot as plt
 
 
@@ -9,8 +10,23 @@ class EvaluatorBase(object):
         self.prediction = prediction
         self.target = target
 
-    def report(self):
-        raise NotImplemented
+    def report(self, class_names, headers, rows, last_line_heading, last_row=None, digits=3):
+        last_line_heading = 'mAP / mean IoU'
+        name_width = max(len(cn) for cn in class_names)
+        width = max(name_width, len(last_line_heading), digits)
+
+        head_fmt = '{:>{width}s} ' + ' {:>9}' * len(headers)
+        report = head_fmt.format('', *headers, width=width)
+        report += ' \n\n'
+
+        row_fmt = '{:>{width}s} ' + ' {:>9.{digits}f}' * len(headers) + ' \n'
+        for row in rows:
+            report += row_fmt.format(*row, width=width, digits=digits)
+        report += '\n'
+        report += row_fmt.format(last_line_heading,
+                             *last_row,
+                             width=width, digits=digits)
+        return report
 
     def plot_graph(self, x, y, title=None, x_label=None, y_label=None):
         plt.figure()
@@ -94,15 +110,41 @@ class EvaluatorDetection(EvaluatorBase):
                     continue
                 self.plot_graph(r, p, c, 'Recall', 'Precision')
 
+    def detection_report(self, digits=3):
+        AP = self.AP()
+        class_names = list(AP.keys())
+        AP = list(AP.values())
+        mAP = self.mAP()
+        iou = list(self.iou().values())
+        mean_iou = self.mean_iou()
+
+        headers = ["AP", "IoU"]
+        rows = zip(class_names, AP, iou)
+        last_line_heading = 'mAP / mean IoU'
+        last_row = (mAP, mean_iou)
+
+        return self.report(class_names, headers, rows, last_line_heading, last_row, digits)
+
 class EvaluatorClassification(EvaluatorBase):
 
-    def __init__(self):
-        pass
+    def __init__(self, prediction, target):
+        super(EvaluatorClassification, self).__init__(prediction, target)
+
+    def precision(self):
+        precision = precision_score(self.prediction, self.target)
+        return precision
+
+    def recall(self):
+        recall = recall_score(self.prediction, self.target)
+        return recall
+
+    def accuracy(self):
+        accuracy = accuracy_score(self.prediction, self.target)
+        return accuracy
 
     def confusion_matrix(self):
         raise NotImplemented
 
 class EvaluatorSegmentation(EvaluatorBase):
-
     def __init__(self):
         pass

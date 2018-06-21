@@ -56,3 +56,7 @@ cpdef precision_recall_score(y_pred, y_true):
 
     return precision, recall
 
+cpdef accuracy_score(y_pred, y_true):
+    accuracy = np.sum(y_pred==y_true)
+    return accuracy
+
