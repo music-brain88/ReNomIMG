@@ -58,11 +58,8 @@ class ImageDistributorBase(object):
         if builder is None:
             builder = self._builder
         if builder is None:
-            def builder(x, aug, y=None):
-                if y is not None:
-                    return aug(np.vstack([load_img(path) for path in x]), y)
-                else:
-                    return aug(np.vstack([load_img(path) for path in x]), None)
+            builder = lambda x, y: self._augmentation(np.vstack([load_img(path) for path in x]), y)
+
         if shuffle:
             if N < 100000:
                 perm = np.random.permutation(N)
@@ -72,28 +69,22 @@ class ImageDistributorBase(object):
             perm = np.arange(N)
 
         def build(args):
-            if isinstance(args[1], list):
-                img_path_list, annotation_list = args
-                return builder(img_path_list, self._augmentation, y=annotation_list)
-            else:
-                img_path_list = args
-                # Otherwise, callback owns what transformation will be performed.
-                return builder(img_path_list, self._augmentation)
+            img_path_list, annotation_list = args
+            return builder(img_path_list, annotation_list, self._augmentation)
 
         with Executor(max_workers=self._num_worker) as exector:
             batch_perm = [perm[nth * batch_size:(nth + 1) * batch_size]
                           for nth in range(batch_loop)]
             if self._label_list is None:
-                generator = [[self._img_path_list[p] for p in bp] for bp in batch_perm]
+                arg = [([self._img_path_list[p] for p in bp], None) for bp in batch_perm]
             else:
                 arg = [
-                    ([self._img_path_list[p] for p in bp], [self._label_list[p] for p in bp])
-                    for bp in batch_perm
-                ]
-                # for result in exector.map(build, arg):
-                #     yield result
-                generator = exector.map(build, arg)
+                    ([self._img_path_list[p] for p in bp],
+                      [self._label_list[p] for p in bp])
+                      for bp in batch_perm
+                    ]
 
+            generator = exector.map(build, arg)
             for gen in generator:
                 yield gen
 
