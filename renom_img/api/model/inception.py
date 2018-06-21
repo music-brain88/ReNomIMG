@@ -1,5 +1,6 @@
 import renom as rm
 
+
 class InceptionV1Block(rm.Model):
     def __init__(self, channels=[64, 96, 128, 16, 32]):
         self.conv1 = rm.Conv2d(channels[0], filter=1)
@@ -88,7 +89,6 @@ class InceptionV1(rm.Model):
         return out1, out2, out3
 
 
-
 class InceptionV2BlockA(rm.Model):
     def __init__(self, channels=[64, 48, 64, 64, 96, 64]):
         self.conv1 = rm.Conv2d(channels[0], filter=1)
@@ -108,6 +108,7 @@ class InceptionV2BlockA(rm.Model):
 
         self.conv4 = rm.Conv2d(channels[5], filter=1)
         self.batch_norm4 = rm.BatchNormalize(mode='feature')
+
     def forward(self, x):
         t1 = rm.relu(self.batch_norm1(self.conv1(x)))
 
@@ -123,6 +124,7 @@ class InceptionV2BlockA(rm.Model):
         return rm.concat([
             t1, t2, t3, t4
         ])
+
 
 class InceptionV2BlockB(rm.Model):
     def __init__(self, channels=[64, 96, 384]):
@@ -172,6 +174,7 @@ class InceptionV2BlockC(rm.Model):
 
         self.conv4 = rm.Conv2d(channels[5], filter=1)
         self.batch_norm4 = rm.BatchNormalize(mode='feature')
+
     def forward(self, x):
         t1 = rm.relu(self.batch_norm1(self.conv1(x)))
 
@@ -185,13 +188,13 @@ class InceptionV2BlockC(rm.Model):
         t3 = rm.relu(self.batch_norm3_3(self.conv3_3(t3)))
         t3 = rm.relu(self.batch_norm3_4(self.conv3_4(t3)))
 
-
         t4 = rm.max_pool2d(x, filter=3, stride=1, padding=1)
         t4 = rm.relu(self.batch_norm4(self.conv4(t4)))
 
         return rm.concat([
             t1, t2, t3, t4
         ])
+
 
 class InceptionV2BlockD(rm.Model):
     def __init__(self, channels=[192, 320, 192, 192]):
@@ -219,6 +222,7 @@ class InceptionV2BlockD(rm.Model):
         return rm.concat([
             t1, t2, t3
         ])
+
 
 class InceptionV2BlockE(rm.Model):
     def __init__(self, channels=[320, 384, 384, 448, 384, 192]):
@@ -263,6 +267,7 @@ class InceptionV2BlockE(rm.Model):
         return rm.concat([
             t1, t2, t3, t4
         ])
+
 
 class InceptionV3(rm.Model):
     """
@@ -320,7 +325,6 @@ class InceptionV3(rm.Model):
         t = rm.relu(self.batch_norm4(self.conv4(t)))
         t = rm.relu(self.batch_norm5(self.conv5(t)))
         t = rm.relu(self.batch_norm6(self.conv6(t)))
-
 
         t = self.a1(t)
         t = self.a2(t)
@@ -404,7 +408,6 @@ class InceptionV2(rm.Model):
         t = rm.relu(self.batch_norm5(self.conv5(t)))
         t = rm.relu(self.batch_norm6(self.conv6(t)))
 
-
         t = self.a1(t)
         t = self.a2(t)
         t = self.a3(t)
@@ -430,6 +433,7 @@ class InceptionV2(rm.Model):
         t = self.fc(t)
 
         return t, aux
+
 
 class Stem(rm.Model):
     def __init__(self):
@@ -472,7 +476,6 @@ class Stem(rm.Model):
 
         t = rm.concat([t1, t2])
 
-
         t1 = rm.relu(self.batch_norm5_1_1(self.conv5_1_1(t)))
         t1 = rm.relu(self.batch_norm5_1_2(self.conv5_1_2(t1)))
 
@@ -485,6 +488,7 @@ class Stem(rm.Model):
         t1 = rm.relu(self.batch_norm6(self.conv6(t)))
         t2 = rm.max_pool2d(t, filter=3, stride=2)
         return rm.concat([t1, t2])
+
 
 class InceptionV4BlockA(rm.Model):
     def __init__(self, channels=[64, 48, 64, 64, 96, 32]):
@@ -505,6 +509,7 @@ class InceptionV4BlockA(rm.Model):
 
         self.conv4 = rm.Conv2d(96, filter=1)
         self.batch_norm4 = rm.BatchNormalize(mode='feature')
+
     def forward(self, x):
         t1 = rm.relu(self.batch_norm1(self.conv1(x)))
 
@@ -546,11 +551,9 @@ class InceptionV4ReductionA(rm.Model):
         t3 = rm.relu(self.batch_norm2_1(self.conv2_1(t3)))
         t3 = rm.relu(self.batch_norm2_2(self.conv2_2(t3)))
 
-
         return rm.concat([
             t1, t2, t3
         ])
-
 
 
 class InceptionV4BlockB(rm.Model):
@@ -584,7 +587,6 @@ class InceptionV4BlockB(rm.Model):
         t1 = rm.relu(self.batch_norm1(self.conv1(t1)))
 
         t2 = rm.relu(self.batch_norm2(self.conv2(x)))
-
 
         t3 = rm.relu(self.batch_norm3_1(self.conv3_1(x)))
         t3 = rm.relu(self.batch_norm3_2(self.conv3_2(t3)))
@@ -630,7 +632,6 @@ class InceptionV4ReductionB(rm.Model):
         return rm.concat([
             t1, t2, t3
         ])
-
 
 
 class InceptionV4BlockC(rm.Model):
@@ -742,5 +743,3 @@ class InceptionV4(rm.Model):
 
         t = self.fc(t)
         return t
-
-
