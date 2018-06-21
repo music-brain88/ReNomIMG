@@ -1,5 +1,5 @@
 import numpy as np
-from nms import *
+from box import *
 
 def get_prec_and_rec(gt_list, pred_list, class_list, iou_threshold=0.5):
     """
@@ -58,7 +58,7 @@ def get_prec_and_rec(gt_list, pred_list, class_list, iou_threshold=0.5):
                     continue
                 gt_x1, gt_y1, gt_x2, gt_y2 = transform2xy12(gt_box)
 
-                iou = calc_iou([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
+                iou = calc_iou_xyxy([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
                 if iou > maxiou:
                     maxiou = iou
                     maxiou_id = j
@@ -156,7 +156,7 @@ def get_mean_iou(gt_list, pred_list, class_list, iou_threshold=0.5):
                     continue
                 gt_x1, gt_y1, gt_x2, gt_y2 = transform2xy12(gt_box)
 
-                iou = calc_iou([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
+                iou = calc_iou_xyxy([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
                 if iou > maxiou:
                     maxiou = iou
                     maxiou_id = j
@@ -223,7 +223,7 @@ def get_prec_rec_iou(gt_list, pred_list, class_list, iou_threshold=0.5):
                     continue
                 gt_x1, gt_y1, gt_x2, gt_y2 = transform2xy12(gt_box)
 
-                iou = calc_iou([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
+                iou = calc_iou_xyxy([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
                 if iou > maxiou:
                     maxiou = iou
                     maxiou_id = j

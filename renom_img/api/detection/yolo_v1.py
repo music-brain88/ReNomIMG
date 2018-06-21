@@ -52,7 +52,7 @@ class Yolov1(rm.Model):
         load_weight_path (str): Weight data will be downloaded.
     """
 
-    WEIGHT_URL = "Yolov1.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
     def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None):
         assert load_weight_path is None or isinstance(load_weight_path, str)
@@ -66,7 +66,7 @@ class Yolov1(rm.Model):
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
-        model = Darknet(self._last_dense_size, load_weight_path)
+        model = Darknet(self._last_dense_size)
 
         self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:-7])
@@ -76,7 +76,8 @@ class Yolov1(rm.Model):
 
         if load_weight_path is not None:
             self.load(load_weight_path)
-            self.network.params = {}
+            for layer in self._network.iter_models():
+                layer.params = {}
 
     @property
     def freezed_network(self):
