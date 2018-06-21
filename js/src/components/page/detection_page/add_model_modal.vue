@@ -10,6 +10,22 @@
       <div class="modal-param-area">
         <div class="sub-param-area">
           <div class="sub-param-title">
+            Dataset
+          </div>
+
+          <div class="param-item">
+            <div class="label">Dataset Name</div>
+            <div class="item">
+              <select v-model="dataset_def_id">
+                <option v-for="d in dataset_defs" v-bind:value="d.id">
+                  {{ d.name }}
+                </option>
+              </select>
+            </div>
+            <div class="input-alert" v-if="dataset_defs.length === 0">At least one dataset is needed</div>
+          </div>
+          <hr>
+          <div class="sub-param-title">
             Algorithm Setting
           </div>
 
@@ -111,6 +127,7 @@ export default {
   name: 'AddModelModal',
   data: function () {
     return {
+      dataset_def_id: 1,
       algorithm: 0,
       total_epoch: 100,
       seed: 0,
@@ -127,6 +144,9 @@ export default {
   computed: {
     status: function () {
       return this.$store.getters.getModelsFromState(1).length < 2 ? 'Run' : 'Reserve'
+    },
+    dataset_defs: function () {
+      return this.$store.state.dataset_defs
     },
     isRunnable: function () {
       if (this.cells < 3 || this.cells > 20 ||
@@ -160,8 +180,8 @@ export default {
           'bounding_box': parseInt(this.bounding_box)
         }
       }
-
       this.$store.dispatch('runModel', {
+        dataset_def_id: parseInt(this.dataset_def_id),
         'hyper_parameters': hyper_parameters,
         'algorithm': this.algorithm,
         'algorithm_params': algorithm_params
@@ -272,8 +292,10 @@ export default {
             font-size: 12px;
             color: #ff0000;
           }
-
         }
+      }
+      hr {
+        margin-top: 30px;
       }
     }
 

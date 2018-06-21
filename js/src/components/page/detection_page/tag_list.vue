@@ -5,7 +5,7 @@
     </div>
 
     <div class="content">
-      <div class='tag-item' v-for="(name, id) in $store.state.class_names">
+      <div class='tag-item' v-for="(name, id) in selectedModelTags">
         <span> {{ name }} </span>
         <div class='box' v-bind:style="{backgroundColor: color_list[id%4]}"><span>{{id}}</span></div>
       </div>
@@ -14,6 +14,8 @@
 </template>
 
 <script>
+
+import { mapState } from 'vuex'
 export default {
   name: 'TagList',
   data: function () {
@@ -21,8 +23,26 @@ export default {
       color_list: ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
     }
   },
-  created: function () {
-    this.$store.dispatch('loadDatasetInfov0')
+  computed: {
+    ...mapState([
+      'dataset_defs',
+      'selected_model_id'
+    ]),
+    selectedModelTags () {
+      if (this.selected_model_id === undefined) {
+        return
+      }
+      let model = this.$store.getters.getSelectedModel
+      let dataset_def_id = model.dataset_def_id
+      let selected_dataset_index = 0
+      for (let index in this.dataset_defs) {
+        if (this.dataset_defs[index].id === dataset_def_id) {
+          selected_dataset_index = index
+          break
+        }
+      }
+      return this.dataset_defs[selected_dataset_index].class_map
+    }
   }
 }
 </script>

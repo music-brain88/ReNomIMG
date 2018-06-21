@@ -31,9 +31,11 @@ class ProcessBase(object):
             return self._transform_segmentation(x, y)
 
     def _transform_classification(self, x, y):
+        """Format must be 1d array or list of integer."""
         raise NotImplemented
 
     def _transform_detection(self, x, y):
+        """Format must be list of dictionary"""
         raise NotImplemented
 
     def _transform_segmentation(self, x, y):
@@ -61,32 +63,47 @@ class Flip(ProcessBase):
 
     def _transform_detection(self, x, y):
         assert len(x.shape) == 4
-        assert len(y.shape) == 2
         n = x.shape[0]
         new_x = np.empty_like(x)
-        new_y = np.empty_like(y)
+        new_y = []
         flip_flag = np.random.randint(3, size=(n, ))
+
         for i, f in enumerate(flip_flag):
             if f == 0:
                 new_x[i, :, :, :] = x[i, :, :, :]
-                new_y[i, :] = y[i, :]
+                new_y.append(y[i])
             elif f == 1:
                 # Horizontal flip.
                 c_x = x.shape[3] // 2
                 new_x[i, :, :, :] = x[i, :, :, ::-1]
-                new_y[i, 0::5] = (2 * c_x - y[i, 0::5]) * (y[i, 2::5] != 0)  # X
-                new_y[i, 1::5] = y[i, 1::5]  # Y
-                new_y[i, 2::5] = y[i, 2::5]  # W
-                new_y[i, 3::5] = y[i, 3::5]  # H
-                new_y[i, 4::5] = y[i, 4::5]  # C
+                new_y.append([
+                    {
+                        "box": [
+                            (2 * c_x - obj["box"][0]),
+                            obj["box"][1],
+                            obj["box"][2],
+                            obj["box"][3],
+                        ],
+                        "name":obj["name"],
+                        "class":obj["class"],
+                    }
+                    for j, obj in enumerate(y[i])])
+
             elif f == 2:
                 c_y = x.shape[2] // 2
                 new_x[i, :, :, :] = x[i, :, ::-1, :]
-                new_y[i, 0::5] = y[i, 0::5]  # X
-                new_y[i, 1::5] = (2 * c_y - y[i, 1::5]) * (y[i, 3::5] != 0)  # Y
-                new_y[i, 2::5] = y[i, 2::5]  # W
-                new_y[i, 3::5] = y[i, 3::5]  # H
-                new_y[i, 4::5] = y[i, 4::5]  # C
+                new_y.append([
+                    {
+                        "box": [
+                            obj["box"][0],
+                            (2 * c_y - obj["box"][1]),
+                            obj["box"][2],
+                            obj["box"][3],
+                        ],
+                        "name":obj["name"],
+                        "class":obj["class"],
+                    }
+                    for j, obj in enumerate(y[i])])
         return new_x, new_y
 
     def _transform_segmentation(self, x, y):
@@ -143,10 +160,9 @@ class Shift(ProcessBase):
 
     def _transform_detection(self, x, y):
         assert len(x.shape) == 4
-        assert len(y.shape) == 2
         n, c, h, w = x.shape
         new_x = np.zeros_like(x)
-        new_y = np.zeros_like(y)
+        new_y = []
         rand_h = ((np.random.rand(n) * 2 - 1) * self._h).astype(np.int)
         rand_v = ((np.random.rand(n) * 2 - 1) * self._v).astype(np.int)
 
@@ -163,12 +179,18 @@ class Shift(ProcessBase):
         for i in range(n):
             new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
                 x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-        flag = y[:, 2::5] != 0
-        new_y[:, 0::5] = np.clip(y[:, 0::5] + rand_h[:, None], 0, w) * flag
-        new_y[:, 1::5] = np.clip(y[:, 1::5] + rand_v[:, None], 0, h) * flag
-        new_y[:, 2::5] = y[:, 2::5]
-        new_y[:, 3::5] = y[:, 3::5]
-        new_y[:, 4::5] = y[:, 4::5]
+            new_y.append([
+                {
+                    "box": [
+                        np.clip(obj["box"][0] + rand_h[i], 0, w),
+                        np.clip(obj["box"][1] + rand_v[i], 0, h),
+                        obj["box"][2],
+                        obj["box"][3],
+                    ],
+                    "name":obj["name"],
+                    "class":obj["class"],
+                }
+                for j, obj in enumerate(y[i])])
         return new_x, new_y
 
 
@@ -203,7 +225,7 @@ class Rotate(ProcessBase):
         c_w = w // 2
         c_h = h // 2
         new_x = np.empty_like(x)
-        new_y = np.empty_like(y)
+        new_y = []
 
         if w == h:
             rotate_frag = np.random.randint(4, size=(n, ))
@@ -212,28 +234,47 @@ class Rotate(ProcessBase):
 
         for i, r in enumerate(rotate_frag):
             new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))
-            flag = y[i, 2::5] != 0
             if r == 0:
-                new_y[i, 0::5] = y[i, 0::5]
-                new_y[i, 1::5] = y[i, 1::5]
-                new_y[i, 2::5] = y[i, 2::5]
-                new_y[i, 3::5] = y[i, 3::5]
+                new_y.append(y[i])
             elif r == 1:
-                new_y[i, 0::5] = y[i, 1::5]
-                new_y[i, 1::5] = (2 * c_h - y[i, 0::5]) * flag
-                new_y[i, 2::5] = y[i, 3::5]
-                new_y[i, 3::5] = y[i, 2::5]
+                new_y.append([
+                    {
+                        "box": [
+                            obj["box"][1],
+                            (2 * c_h - obj["box"][0]),
+                            obj["box"][3],
+                            obj["box"][2],
+                        ],
+                        "name":obj["name"],
+                        "class":obj["class"],
+                    }
+                    for j, obj in enumerate(y[i])])
             elif r == 2:
-                new_y[i, 0::5] = (2 * c_w - y[i, 0::5]) * flag
-                new_y[i, 1::5] = (2 * c_h - y[i, 1::5]) * flag
-                new_y[i, 2::5] = y[i, 2::5]
-                new_y[i, 3::5] = y[i, 3::5]
+                new_y.append([
+                    {
+                        "box": [
+                            (2 * c_w - obj["box"][0]),
+                            (2 * c_h - obj["box"][1]),
+                            obj["box"][2],
+                            obj["box"][3],
+                        ],
+                        "name":obj["name"],
+                        "class":obj["class"],
+                    }
+                    for j, obj in enumerate(y[i])])
             elif r == 3:
-                new_y[i, 0::5] = (2 * c_w - y[i, 1::5]) * flag
-                new_y[i, 1::5] = y[i, 0::5]
-                new_y[i, 2::5] = y[i, 3::5]
-                new_y[i, 3::5] = y[i, 2::5]
-            new_y[i, 4::5] = y[i, 4::5]
+                new_y.append([
+                    {
+                        "box": [
+                            (2 * c_w - obj["box"][1]),
+                            obj["box"][0],
+                            obj["box"][3],
+                            obj["box"][2],
+                        ],
+                        "name":obj["name"],
+                        "class":obj["class"],
+                    }
+                    for j, obj in enumerate(y[i])])
         return new_x, new_y
 
 

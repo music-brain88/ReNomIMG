@@ -1,5 +1,6 @@
 <template>
-  <div id="model-progress" v-bind:class='{emphasizeItem: model.model_id==$store.state.selected_model_id}'>
+  <div id="model-progress"
+      v-bind:class='{emphasizeItem: model.model_id==$store.state.selected_model_id}'>
     <div class="value-item">
       <div class="label">
         Model ID
@@ -15,7 +16,7 @@
       </div>
       <div class="value"
         v-if="model.running_state!==running_state['starting']">
-        {{model.validation_loss_list.length}}/{{model.hyper_parameters['total_epoch']}}
+        {{model.last_epoch}}/{{model.hyper_parameters['total_epoch']}}
       </div>
       <div class="value"
         v-if="model.running_state===running_state['starting']">
@@ -130,12 +131,20 @@ export default {
     }
   },
   created: function () {
-    this.$store.dispatch('updateProgress', {'model_id': this.model.model_id})
+    if (!this.model.has_executed_progress_api) {
+      this.$store.dispatch('updateProgress', {'model_id': this.model.model_id})
+      this.model.has_executed_progress_api = true
+    }
   },
   mounted: function () {
     this.updateProgressBar()
   },
   updated: function () {
+    // This is for reserved model progress.
+    if (!this.model.has_executed_progress_api) {
+      this.$store.dispatch('updateProgress', {'model_id': this.model.model_id})
+      this.model.has_executed_progress_api = true
+    }
     this.updateProgressBar()
   },
   methods: {
