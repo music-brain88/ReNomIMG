@@ -30,7 +30,7 @@ WEIGHT_DOWNLOADING = 2
 
 # Directories
 BASE_DIR = os.path.abspath(os.getcwd())
-DATASRC_DIR = os.path.join(BASE_DIR, "datasrc")
+DATASRC_DIR = os.path.join(BASE_DIR, "datasrc/prediction_set")
 DATASRC_IMG = os.path.join(DATASRC_DIR, "img")
 DATASRC_LABEL = os.path.join(DATASRC_DIR, "label")
 

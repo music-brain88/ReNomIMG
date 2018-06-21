@@ -8,6 +8,7 @@ from renom.cuda import set_cuda_active, release_mem_pool
 
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.utility.load import parse_xml_detection
+from renom_img.api.utility.target import DataBuilderYolov1
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift
 from renom_img.api.utility.augmentation.augmentation import Augmentation
@@ -25,7 +26,7 @@ from renom_img.server.utility.storage import storage
 class PredictionThread(object):
 
     def __init__(self, thread_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params, class_num):
+                 algorithm, algorithm_params, weight_name, class_num):
 
         self.model_id = model_id
 
@@ -43,13 +44,18 @@ class PredictionThread(object):
         self.batch_size = int(hyper_parameters["batch_size"])
         self.imsize = (int(hyper_parameters["image_width"]),
                        int(hyper_parameters["image_height"]))
+        self.cell_size = int(algorithm_params['cells'])
         self.stop_event = Event()
 
         # Prepare dataset
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        IMG_DIR = os.path.join(BASE_DIR, "datasrc/prediction_set/img")
-        train_files = os.listdir(IMG_DIR)
-        self.prediction_dist = self.create_dist(train_files)
+        IMG_DIR = "datasrc/prediction_set/img"
+        self.base_dir = BASE_DIR
+        self.predict_files = os.listdir(IMG_DIR)
+        self.img_dir = IMG_DIR
+
+        # File name of trainded model's weight
+        self.weight_name = weight_name
 
         # Algorithm
         # Pretrained weights are must be prepared.
@@ -57,12 +63,18 @@ class PredictionThread(object):
         if algorithm == ALG_YOLOV1:
             cell_size = int(algorithm_params["cells"])
             num_bbox = int(algorithm_params["bounding_box"])
-            self.model = Yolov1(class_num, cell_size, num_bbox, load_weight=True)
+            path = os.path.join(DB_DIR_TRAINED_WEIGHT,  self.weight_name)
+            self.model = Yolov1(class_num, cell_size, num_bbox, imsize=self.imsize, load_weight_path=None)
+            self.model.load(path)
         else:
             self.error_msg = "{} is not supported algorithm id.".format(algorithm)
 
+        # Result set of prediction
         self.predict_results = {}
+
+        # File name of prediction result
         self.csv_filename = ''
+
 
     @property
     def running_state(self):
@@ -93,15 +105,29 @@ class PredictionThread(object):
             if self.is_stopped():
                 return
             display_loss = 0
-            batch_gen = self.prediction_dist.batch(batch_size, self.model.build_data)
-            for i, pred_x in enumerate(batch_gen):
-                if self.is_stopped():
-                    return
-                print(pred_x[0].shape)
-                result.extend(self.model.predict(pred_x[0]))
-            # Set result.
-            self.predict_results = result
+            img_path_list = []
+            for path in sorted(self.predict_files):
+                name = os.path.splitext(path)[0]
+                img_path = os.path.join(self.img_dir, path)
+                if os.path.exists(img_path):
+                    img_path_list.append(img_path)
+                else:
+                    print("{} not found.".format(name))
+            self.total_batch = np.ceil(len(img_path_list) / float(self.batch_size))
+            for i in range(0, len(img_path_list) // self.batch_size):
+                self.nth_batch = i
+                batch = img_path_list[i*self.batch_size:(i+1)*batch_size]
+                batch = [os.path.join(self.base_dir, b) for b in batch]
+                batch_result = self.model.predict(batch)
+                result.extend(batch_result)
 
+            # Set result.
+            self.predict_results = {
+              "bbox_path_list": img_path_list,
+              "bbox_list": result
+            }
+
+            self.save_predict_result_to_csv()
         # Store epoch data tp DB.
 
         except Exception as e:
@@ -128,57 +154,9 @@ class PredictionThread(object):
     def is_stopped(self):
         return self.stop_event.is_set()
 
-    def create_dist(self, filename_list, train=True):
-        """
-        This function creates img path list and annotation list from
-        filename list.
-
-        Image file name and label file must be same.
-        Because of that, data_list is a list of file names.
-
-        Data formats are bellow.  
-
-        image path list: [path_to_img1, path_to_img2, ...]
-        annotation list: [
-                            [ # Annotations of each image.
-                                {"box":[x, y, w, h], "name":"dog", "class":1},
-                                {"box":[x, y, w, h], "name":"cat", "class":0},
-                            ],
-                            [
-                                {"box":[x, y, w, h], "name":"cat", "class":0},
-                            ],
-                            ...
-                          ]
-
-        Args:
-            filename_list(list): [filename1, filename2, ...]
-            train(bool): If it's ture, augmentation will be added to distributor.
-
-        Returns:
-            (ImageDistributor): ImageDistributor object with augmentation.
-        """
-        img_path_list = []
-        label_path_list = []
-        for path in sorted(filename_list):
-            name = os.path.splitext(path)[0]
-            img_path = os.path.join(DATASRC_IMG, path)
-            label_path = os.path.join(DATASRC_LABEL, name + ".xml")
-
-            if os.path.exists(img_path) and os.path.exists(label_path):
-                img_path_list.append(img_path)
-                label_path_list.append(label_path)
-            else:
-                print("{} not found.".format(name))
-        annotation_list, _ = parse_xml_detection(label_path_list)
-        augmentation = Augmentation([
-            Shift(40, 40)
-        ])
-        return ImageDistributor(img_path_list, annotation_list,
-                                augmentation=augmentation)
-
     def save_predict_result_to_csv(self):
         try:
-            CSV_DIR = '.'
+            CSV_DIR = './storage/csv'
             # modelのcsvを保存する
             if not os.path.isdir(CSV_DIR):
                 os.makedirs(CSV_DIR)
@@ -188,14 +166,17 @@ class PredictionThread(object):
 
             with open(filepath, 'w') as f:
                 writer = csv.writer(f, lineterminator="\n")
-
                 for i in range(len(self.predict_results["bbox_path_list"])):
                     row = []
                     row.append(self.predict_results["bbox_path_list"][i])
-                    for j in range(len(self.predict_results["bbox_list"][i])):
-                        b = self.predict_results["bbox_list"][i][j]
-                        row.append(b["class"])
-                        row.append(b["box"])
+                    if isinstance(self.predict_results, list) and len(self.predict_results["bbox_list"]) != 0:
+                        for j in range(len(self.predict_results["bbox_list"][i])):
+                            b = self.predict_results["bbox_list"][i][j]
+                            row.append(b["class"])
+                            row.append(b["box"])
+                    else:
+                        row.append(None)
+                        row.append(None)
 
                     writer.writerow(row)
         except Exception as e:

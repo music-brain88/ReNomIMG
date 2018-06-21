@@ -114,7 +114,7 @@ class TrainThread(object):
                 self.model = Yolov1(len(self.class_map), cell_size, num_bbox,
                                     imsize=self.imsize, load_weight_path=path)
             else:
-                self.error_msg = "{} is not supported algorithm id.".format(algorithm)
+                self.error_msg = "{} is not supported algorithm id.".format(self.algorithm)
 
             i = 0
             set_cuda_active(True)
@@ -169,7 +169,7 @@ class TrainThread(object):
                     valid_z = self.model(valid_x)
                     valid_predict_box.extend(self.model.get_bbox(valid_z))
                     loss = self.model.loss(valid_z, valid_y)
-                    display_loss += float(loss.as_ndarray()[0])
+                    display_loss += float(loss.as_ndarray())
 
                 if self.is_stopped():
                     return

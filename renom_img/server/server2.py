@@ -51,12 +51,6 @@ def create_response(body):
     return r
 
 
-def find_thread(thread_id):
-    for th in threading.enumerate():
-        if "thread_id" in dir(th) and thread_id == th.thread_id:
-            return th
-
-
 def strip_path(filename):
     if os.path.isabs(filename):
         raise ValueError('Invalid path')
@@ -257,7 +251,7 @@ def progress_model(project_id, model_id):
             if th is not None:
                 th = th[1]
                 # If thread status updated, return response.
-                if th.nth_epoch != req_last_epoch and th.valid_loss_list:
+                if isinstance(th, TrainThread) and th.nth_epoch != req_last_epoch and th.valid_loss_list:
                     best_epoch = int(np.argmin(th.valid_loss_list))
                     body = json.dumps({
                         "total_batch": th.total_batch,
@@ -276,9 +270,9 @@ def progress_model(project_id, model_id):
                     ret = create_response(body)
                     return ret
 
-                elif th.nth_batch != req_last_batch or \
+                elif isinstance(th, TrainThread) and (th.nth_batch != req_last_batch or \
                         th.running_state != req_running_state or \
-                        th.weight_existance == WEIGHT_DOWNLOADING:
+                        th.weight_existance == WEIGHT_DOWNLOADING):
                     body = json.dumps({
                         "total_batch": th.total_batch,
                         "last_batch": th.nth_batch,
@@ -395,7 +389,7 @@ def weight_download_progress(progress_num):
     try:
         for i in range(60):
             for th in thread_pool.values():
-                if th[1].weight_existance == WEIGHT_CHECKING:
+                if isinstance(th, TrainThread) and th[1].weight_existance == WEIGHT_CHECKING:
                     pass
                 elif th[1].weight_existance == WEIGHT_EXISTS:
                     body = json.dumps({"progress": 100})
@@ -474,10 +468,11 @@ def run_prediction(project_id, model_id):
         data = storage.fetch_model(project_id, model_id, fields=fields)
         (id, name, ratio, train_imgs, valid_imgs, class_map, created, updated) = storage.fetch_dataset_def(data['dataset_def_id'])
         # weightのh5ファイルのパスを取得して予測する
-        th = PredictionThread(thread_id, model_id, data["hyper_parameters"], data["algorithm"],
-                              data["algorithm_params"], len(class_map))
-        ft = executor.submit(th)
-        thread_pool[thread_id] = [ft, th]
+        with Executor(max_workers=MAX_THREAD_NUM) as prediction_executor:
+            th = PredictionThread(thread_id, model_id, data["hyper_parameters"], data["algorithm"],
+                                  data["algorithm_params"], data["best_epoch_weight"], 2) # len(class_map)
+            ft = prediction_executor.submit(th)
+            thread_pool[thread_id] = [ft, th]
 
         if th.error_msg is not None:
             body = json.dumps({"error_msg": th.error_msg})
@@ -487,36 +482,53 @@ def run_prediction(project_id, model_id):
                 "csv": th.csv_filename,
             }
             body = json.dumps(data)
+            print(body)
     except Exception as e:
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
 
-    print(body)
     ret = create_response(body)
     return ret
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/prediction_info", method="GET")
 def prediction_info(project_id, model_id):
-    # 学習データ読み込み
-    time.sleep(1)
-    thread_id = "{}_{}".format(project_id, model_id)
-    th = find_thread(thread_id)
-    if th is not None:
+    try:
+        # 学習データ読み込み
+        thread_id = "{}_{}".format(project_id, model_id)
+        while True:
+            if thread_id in thread_pool:
+                _, th = thread_pool[thread_id]
+                break
+            else:
+                time.sleep(1)
+        time.sleep(1)
         data = {
             "predict_total_batch": th.total_batch,
-            "predict_last_batch": th.last_batch,
+            "predict_last_batch": th.nth_batch,
         }
         body = json.dumps(data)
         ret = create_response(body)
         return ret
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+
+    ret = create_response(body)
+    return ret
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<file_name:path>", method="GET")
-def export_csv(project_id, model_id, file_name):
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    csv_dir = os.path.join(BASE_DIR, "../../.storage/csv")
-    return static_file(file_name, root=csv_dir, download=True)
+@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<filename>", method="GET")
+def export_csv(project_id, model_id, filename):
+    try:
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        csv_dir = os.path.join(BASE_DIR, "./storage/csv")
+        return static_file(filename, root=csv_dir, download=True)
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/deploy", method="GET")
@@ -533,6 +545,7 @@ def deploy_model(project_id, model_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/undeploy", method="GET")
 def undeploy_model(project_id, model_id):
     try:
+        print('undeploy')
         storage.update_project_deploy(project_id, None)
     except Exception as e:
         traceback.print_exc()
