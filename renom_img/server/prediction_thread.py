@@ -3,6 +3,8 @@ import time
 import numpy as np
 import traceback
 import csv
+import xml.etree.ElementTree as et
+from PIL import Image
 from threading import Event
 from renom.cuda import set_cuda_active, release_mem_pool
 
@@ -50,7 +52,6 @@ class PredictionThread(object):
         # Prepare dataset
         self.predict_files = [os.path.join(DATASRC_PREDICTION_IMG, path) \
             for path in sorted(os.listdir(DATASRC_PREDICTION_IMG))]
-        print(self.predict_files)
 
         # File name of trainded model's weight
         self.weight_name = weight_name
@@ -117,6 +118,7 @@ class PredictionThread(object):
             }
 
             self.save_predict_result_to_csv()
+            self.save_predict_result_to_xml()
         # Store epoch data tp DB.
 
         except Exception as e:
@@ -145,14 +147,14 @@ class PredictionThread(object):
 
     def save_predict_result_to_csv(self):
         try:
-            CSV_DIR = './storage/csv'
             # modelのcsvを保存する
+            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            CSV_DIR = os.path.join(BASE_DIR, DATASRC_PREDICTION_OUT, 'csv')
             if not os.path.isdir(CSV_DIR):
                 os.makedirs(CSV_DIR)
 
             self.csv_filename = '{}.csv'.format(int(time.time()))
             filepath = os.path.join(CSV_DIR, self.csv_filename)
-
             with open(filepath, 'w') as f:
                 writer = csv.writer(f, lineterminator="\n")
                 for i in range(len(self.predict_results["bbox_path_list"])):
@@ -174,6 +176,11 @@ class PredictionThread(object):
 
     def save_predict_result_to_xml(self):
         try:
+            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            XML_DIR = os.path.join(BASE_DIR, DATASRC_PREDICTION_OUT, 'xml')
+            IMG_DIR = os.path.join(BASE_DIR, DATASRC_PREDICTION_IMG)
+            if not os.path.isdir(XML_DIR):
+                os.makedirs(XML_DIR)
             for i in range(len(self.predict_results["bbox_path_list"])):
                 img_path = self.predict_results["bbox_path_list"][i]
                 filename = img_path.split("/")[-1]

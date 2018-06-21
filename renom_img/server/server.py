@@ -30,7 +30,7 @@ from renom_img.server.utility.storage import storage
 
 # Constants
 from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT
-from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR
+from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR, DATASRC_PREDICTION_OUT
 from renom_img.server import STATE_FINISHED, STATE_RUNNING, STATE_DELETED, STATE_RESERVED
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 
@@ -482,7 +482,6 @@ def run_prediction(project_id, model_id):
                 "csv": th.csv_filename,
             }
             body = json.dumps(data)
-            print(body)
     except Exception as e:
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
@@ -522,7 +521,7 @@ def prediction_info(project_id, model_id):
 def export_csv(project_id, model_id, filename):
     try:
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        csv_dir = os.path.join(BASE_DIR, "./storage/csv")
+        csv_dir = os.path.join(BASE_DIR, DATASRC_PREDICTION_OUT, 'csv')
         return static_file(filename, root=csv_dir, download=True)
     except Exception as e:
         traceback.print_exc()
