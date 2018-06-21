@@ -13,13 +13,13 @@ class EvaluatorBase(object):
     def report(self, class_names, headers, rows, last_line_heading, last_row=None, digits=3):
         last_line_heading = 'mAP / mean IoU'
         name_width = max(len(cn) for cn in class_names)
-        width = max(name_width, len(last_line_heading), digits)
+        width = max(name_width, len(last_line_heading), digits*2)
 
-        head_fmt = '{:>{width}s} ' + ' {:>9}' * len(headers)
+        head_fmt = '{:>{width}s} ' + ' {:>13}' * len(headers)
         report = head_fmt.format('', *headers, width=width)
         report += ' \n\n'
 
-        row_fmt = '{:>{width}s} ' + ' {:>9.{digits}f}' * len(headers) + ' \n'
+        row_fmt = '{:>{width}s} ' + ' {:>9.{digits}f} ({:>4.1f}/100)' * len(headers) + ' \n'
         for row in rows:
             report += row_fmt.format(*row, width=width, digits=digits)
         report += '\n'
@@ -119,9 +119,9 @@ class EvaluatorDetection(EvaluatorBase):
         mean_iou = self.mean_iou()
 
         headers = ["AP", "IoU"]
-        rows = zip(class_names, AP, iou)
+        rows = zip(class_names, AP, map(lambda x: x * 100, AP), iou, map(lambda x: x * 100, iou))
         last_line_heading = 'mAP / mean IoU'
-        last_row = (mAP, mean_iou)
+        last_row = (mAP, mAP*100, mean_iou, mean_iou*100)
 
         return self.report(class_names, headers, rows, last_line_heading, last_row, digits)
 
