@@ -5,8 +5,7 @@ from PIL import Image
 
 from renom_img.api.model.darknet import Darknet19Base, DarknetConv2dBN
 from renom_img.api.utility.load import prepare_detection_data, load_img
-from renom_img.api.utility.nms import transform2xy12, nms
-from renom_img.api.utility.box import calc_iou_xywh
+from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 
 
 def make_box(box):
@@ -101,7 +100,7 @@ class Yolov2(rm.Model):
             # self._conv1[0].params = {}
             # self._conv1[1].params = {}
             # self._conv2.params = {}
-            # self._last.params = {}
+            self._last.params = {}
 
     @property
     def freezed_network(self):
@@ -126,8 +125,8 @@ class Yolov2(rm.Model):
         return x / 255. * 2 - 1
 
     def forward(self, x):
-        self.freezed_network.set_auto_update(False)
-        self.freezed_network.set_models(inference=True)
+        # self.freezed_network.set_auto_update(False)
+        # self.freezed_network.set_models(inference=True)
         h, f = self.freezed_network(x)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,

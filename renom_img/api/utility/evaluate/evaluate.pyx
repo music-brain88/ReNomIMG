@@ -1,5 +1,5 @@
 import numpy as np
-from nms import *
+from ..box import *
 
 def get_prec_and_rec(gt_list, pred_list, n_class=None, iou_threshold=0.5):
     """
