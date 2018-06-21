@@ -36,13 +36,13 @@ from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 
 executor = Executor(max_workers=MAX_THREAD_NUM)
 
-
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
-thread_pool = {}
+train_thread_pool = {}
+prediction_thread_pool = {}
 
 
 def get_train_thread_count():
-    return len([th for th in thread_pool.values() if th[0].running()])
+    return len([th for th in train_thread_pool.values() if th[0].running()])
 
 
 def create_response(body):
@@ -157,7 +157,6 @@ def get_models(project_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/model/create", method="POST")
 def create_model(project_id):
-    print("CALL create_model")
     try:
         model_id = storage.register_model(
             project_id=project_id,
@@ -184,7 +183,7 @@ def create_model(project_id):
 def run_model(project_id, model_id):
     """
     Create thread(Future object) and submit it to executor.
-    The thread is stored to thread_pool as a pair of thread_id and thread.
+    The thread is stored to train_thread_pool as a pair of thread_id and thread.
     """
     try:
         fields = 'hyper_parameters,algorithm,algorithm_params,dataset_def_id'
@@ -195,7 +194,7 @@ def run_model(project_id, model_id):
                          data["hyper_parameters"],
                          data['algorithm'], data['algorithm_params'])
         ft = executor.submit(th)
-        thread_pool[thread_id] = [ft, th]
+        train_thread_pool[thread_id] = [ft, th]
 
         try:
             # This will wait for end of thread.
@@ -206,11 +205,10 @@ def run_model(project_id, model_id):
             # program reaches here.
             pass
         error_msg = th.error_msg
-        del thread_pool[thread_id]
+        del train_thread_pool[thread_id]
         ft = None
         th = None
 
-        print("Num thread ", get_train_thread_count())
         model = storage.fetch_model(project_id, model_id, fields='state')
         if model['state'] != STATE_DELETED:
             storage.update_model_state(model_id, STATE_FINISHED)
@@ -246,7 +244,7 @@ def progress_model(project_id, model_id):
         thread_id = "{}_{}".format(project_id, model_id)
         for j in range(60):
             time.sleep(0.75)
-            th = thread_pool.get(thread_id, None)
+            th = train_thread_pool.get(thread_id, None)
             model_state = storage.fetch_model(project_id, model_id, fields="state")["state"]
             if th is not None:
                 th = th[1]
@@ -302,7 +300,7 @@ def stop_model(project_id, model_id):
     try:
         thread_id = "{}_{}".format(project_id, model_id)
 
-        th = thread_pool.get(thread_id, None)
+        th = train_thread_pool.get(thread_id, None)
         if th is not None:
             if not th[0].cancel():
                 th[1].stop()
@@ -321,7 +319,7 @@ def delete_model(project_id, model_id):
     try:
         thread_id = "{}_{}".format(project_id, model_id)
         storage.update_model_state(model_id, STATE_DELETED)
-        th = thread_pool.get(thread_id, None)
+        th = train_thread_pool.get(thread_id, None)
         if th is not None:
             if not th[0].cancel():
                 th[1].stop()
@@ -388,7 +386,7 @@ def get_datasets():
 def weight_download_progress(progress_num):
     try:
         for i in range(60):
-            for th in thread_pool.values():
+            for th in train_thread_pool.values():
                 if isinstance(th, TrainThread) and th[1].weight_existance == WEIGHT_CHECKING:
                     pass
                 elif th[1].weight_existance == WEIGHT_EXISTS:
@@ -473,7 +471,8 @@ def run_prediction(project_id, model_id):
             th = PredictionThread(thread_id, model_id, data["hyper_parameters"], data["algorithm"],
                                   data["algorithm_params"], data["best_epoch_weight"], 2)  # len(class_map)
             ft = prediction_executor.submit(th)
-            thread_pool[thread_id] = [ft, th]
+            prediction_thread_pool[thread_id] = [ft, th]
+        ft.result()
 
         if th.error_msg is not None:
             body = json.dumps({"error_msg": th.error_msg})
@@ -497,8 +496,8 @@ def prediction_info(project_id, model_id):
         # 学習データ読み込み
         thread_id = "{}_{}".format(project_id, model_id)
         while True:
-            if thread_id in thread_pool:
-                _, th = thread_pool[thread_id]
+            if thread_id in prediction_thread_pool:
+                _, th = prediction_thread_pool[thread_id]
                 break
             else:
                 time.sleep(1)
@@ -545,7 +544,6 @@ def deploy_model(project_id, model_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/undeploy", method="GET")
 def undeploy_model(project_id, model_id):
     try:
-        print('undeploy')
         storage.update_project_deploy(project_id, None)
     except Exception as e:
         traceback.print_exc()

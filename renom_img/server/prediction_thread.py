@@ -89,7 +89,6 @@ class PredictionThread(object):
             self._running_state = state
 
     def __call__(self):
-        storage.update_model_state(self.model_id, STATE_RUNNING)
         # This func works as thread.
         batch_size = self.batch_size
 
@@ -100,7 +99,7 @@ class PredictionThread(object):
             self.model.set_models(inference=True)
             result = []
             # Prediction
-            self.running_state = RUN_STATE_VALIDATING
+            self.running_state = RUN_STATE_PREDICTING
             if self.is_stopped():
                 return
             display_loss = 0
