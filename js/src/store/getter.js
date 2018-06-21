@@ -111,23 +111,25 @@ export default {
 
     const i_start = state.predict_page * state.predict_page_image_count
     let i_end = i_start + state.predict_page_image_count
-    if (i_end > image_path.length) {
+    if (Array.isArray(image_path) && i_end > image_path.length) {
       i_end = image_path.length
     }
 
     for (let i = i_start; i < i_end; i++) {
       let bboxes = []
-      if (label_list && label_list.length > 0) {
-        for (let j = 0; j < label_list[i].length; j++) {
-          let class_label = label_list[i][j].class
-          let box = label_list[i][j].box
-          bboxes.push(getters.getBBoxCoordinate(class_label, box))
+      if (label_list && Array.isArray(label_list) && Array.isArray(label_list[0]) && label_list.length > 0) {
+        if (Array.isArray(label_list[i])) {
+          for (let j = 0; j < label_list[i].length; j++) {
+            let class_label = label_list[i][j].class
+            let box = label_list[i][j].box
+            bboxes.push(getters.getBBoxCoordinate(class_label, box))
+          }
         }
+        ret.push({
+          'path': image_path[i],
+          'predicted_bboxes': bboxes
+        })
       }
-      ret.push({
-        'path': image_path[i],
-        'predicted_bboxes': bboxes
-      })
     }
     return ret
   },

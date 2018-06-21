@@ -3,7 +3,7 @@ import renom as rm
 from PIL import Image
 from renom_img.api.model.darknet import Darknet
 from renom_img.api.utility.load import prepare_detection_data, load_img
-from renom_img.api.utility.nms import transform2xy12, nms
+from renom_img.api.utility.box import transform2xy12
 
 
 def make_box(box):
@@ -38,20 +38,35 @@ def calc_iou(box1, box2):
 
 
 class Yolov1(rm.Model):
+    """ Yolo object detection algorithm.
 
-    WEIGHT_URL = Darknet.WEIGHT_URL
+    Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
+    You Only Look Once: Unified, Real-Time Object Detection  
+    https://arxiv.org/abs/1506.02640  
+
+    Args:
+        num_class (int): Number of class. 
+        cells (int or tuple): Cell size. 
+        boxes (int): Number of boxes.
+        imsize (int, tuple): Image size.
+        load_weight_path (str): Weight data will be downloaded.
+    """
+
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
     def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None):
         assert load_weight_path is None or isinstance(load_weight_path, str)
 
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
 
         self._num_class = num_class
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
-        model = Darknet(self._last_dense_size, load_weight_path=load_weight_path)
+        model = Darknet(self._last_dense_size)
 
         self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:-7])
@@ -59,28 +74,28 @@ class Yolov1(rm.Model):
 
         self._opt = rm.Sgd(0.01, 0.9)
 
-        for layer in self._network.iter_models():
-            layer.params = {}
+        if load_weight_path is not None:
+            self.load(load_weight_path)
+            for layer in self._network.iter_models():
+                layer.params = {}
 
     @property
     def freezed_network(self):
         return self._freezed_network
 
-    @freezed_network.setter
-    def freezed_network(self, new_network):
-        assert isinstance(new_network, rm.Model)
-        self._freezed_network = new_network
-
     @property
     def network(self):
         return self._network
 
-    @network.setter
-    def network(self, new_network):
-        assert isinstance(new_network, rm.Model)
-        self._network = new_network
-
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+        """Returns an instance of Optimiser for training Yolov1 algorithm.
+
+        Args:
+            current_epoch:
+            total_epoch:
+            current_batch:
+            total_epoch:
+        """
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
@@ -96,6 +111,16 @@ class Yolov1(rm.Model):
             return self._opt
 
     def preprocess(self, x):
+        """Image preprocess for Yolov1.
+
+        :math:`new_x = x*2/255. - 1`
+
+        Args:
+            x (ndarray):
+
+        Returns:
+            (ndarray): Preprocessed data.
+        """
         return x / 255. * 2 - 1
 
     def forward(self, x):
@@ -103,6 +128,11 @@ class Yolov1(rm.Model):
         return self.network(self.freezed_network(x).as_ndarray())
 
     def regularize(self):
+        """Regularize model.
+
+        Example:
+            >>> 
+        """
         reg = 0
         for layer in self.network.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
@@ -163,6 +193,38 @@ class Yolov1(rm.Model):
         return result
 
     def predict(self, img_list):
+        """
+
+        This method accepts either ndarray and list of image path.
+
+        Example:
+            >>> 
+            >>> model.predict(['img01.jpg', [img02.jpg]])
+            [[{'box': [10.4, 20.3, 5.1, 10.0], 'score':0.823, 'class':1}],
+             [{'box': [23.4, 12.3, 3.2, 13.1], 'score':0.423, 'class':0}]]
+
+        Args:
+            img_list (string, list, ndarray):
+
+        Return:
+            (list): List of predicted bbox, score and class of each image.
+                The format of return value is bellow.
+
+            [
+                [ # Prediction of first image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    ...
+                ],
+                [ # Prediction of second image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    ...
+                ],
+                ...
+            ]
+
+        """
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
@@ -234,5 +296,5 @@ class Yolov1(rm.Model):
             mask[fn, fy, fx, iou_ind[fn, fy, fx] * 5] = 1
             mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 5
 
-        diff = x - y
-        return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
+        diff = (x - y)*mask.reshape(N, -1)
+        return rm.sum(diff * diff) / N / 2.

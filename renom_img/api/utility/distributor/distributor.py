@@ -58,7 +58,7 @@ class ImageDistributorBase(object):
         if builder is None:
             builder = self._builder
         if builder is None:
-            def builder(x, y, aug): return aug(np.vstack([load_img(path) for path in x]), y)
+            builder = lambda x, y: self._augmentation(np.vstack([load_img(path) for path in x]), y)
 
         if shuffle:
             if N < 100000:
@@ -70,19 +70,23 @@ class ImageDistributorBase(object):
 
         def build(args):
             img_path_list, annotation_list = args
-            # Otherwise, callback owns what transformation will be performed.
             return builder(img_path_list, annotation_list, self._augmentation)
 
         with Executor(max_workers=self._num_worker) as exector:
             batch_perm = [perm[nth * batch_size:(nth + 1) * batch_size]
                           for nth in range(batch_loop)]
-            arg = [
-                ([self._img_path_list[p] for p in bp], [self._label_list[p] for p in bp])
-                for bp in batch_perm
-            ]
-            # for result in exector.map(build, arg):
-            #     yield result
-            yield from exector.map(build, arg)
+            if self._label_list is None:
+                arg = [([self._img_path_list[p] for p in bp], None) for bp in batch_perm]
+            else:
+                arg = [
+                    ([self._img_path_list[p] for p in bp],
+                      [self._label_list[p] for p in bp])
+                      for bp in batch_perm
+                    ]
+
+            generator = exector.map(build, arg)
+            for gen in generator:
+                yield gen
 
 
 class ImageDistributor(ImageDistributorBase):

@@ -113,7 +113,7 @@ class ResNet32(ResNet):
     5 sets of a layer block in each block
     '''
 
-    def __init__(self, nb_classes, load_weigh=False):
+    def __init__(self, nb_classes, load_weight=False):
         num_layers = 5
         CHANNELS = [16, 32, 64]
         super(ResNet32, self).__init__(nb_classes, CHANNELS, num_layers)
