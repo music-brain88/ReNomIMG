@@ -4,7 +4,7 @@ import re
 import shutil
 import pathlib
 import numpy
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 import distutils.command.build
 from Cython.Build import cythonize
 
@@ -51,6 +51,10 @@ class BuildNPM(distutils.command.build.build):
 
         super().run()
 
+extensions = [
+        Extension("*", ['renom_img/api/utility/*.pyx']),
+        Extension("*", ['renom_img/api/utility/evaluate/*.pyx'])
+        ]
 
 setup(
     name="renom_img",
@@ -63,6 +67,5 @@ setup(
     cmdclass={
         'build': BuildNPM,
     },
-    ext_modules=cythonize("renom_img/api/utility/*.pyx",
-                          include_path=[numpy.get_include()])
+    ext_modules=cythonize(extensions)
 )
