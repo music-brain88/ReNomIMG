@@ -58,7 +58,8 @@ class ImageDistributorBase(object):
         if builder is None:
             builder = self._builder
         if builder is None:
-            builder = lambda x, y: self._augmentation(np.vstack([load_img(path) for path in x]), y)
+            def builder(x, y): return self._augmentation(
+                np.vstack([load_img(path) for path in x]), y)
 
         if shuffle:
             if N < 100000:
@@ -80,9 +81,9 @@ class ImageDistributorBase(object):
             else:
                 arg = [
                     ([self._img_path_list[p] for p in bp],
-                      [self._label_list[p] for p in bp])
-                      for bp in batch_perm
-                    ]
+                     [self._label_list[p] for p in bp])
+                    for bp in batch_perm
+                ]
 
             generator = exector.map(build, arg)
             for gen in generator:

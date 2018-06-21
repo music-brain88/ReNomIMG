@@ -86,7 +86,6 @@ class InceptionV1(rm.Model):
         return out1, out2, out3
 
 
-
 class Stem(rm.Model):
     def __init__(self):
         self.conv1 = rm.Conv2d(32, filter=3, padding=0, stride=2)
@@ -128,7 +127,6 @@ class Stem(rm.Model):
 
         t = rm.concat([t1, t2])
 
-
         t1 = rm.relu(self.batch_norm5_1_1(self.conv5_1_1(t)))
         t1 = rm.relu(self.batch_norm5_1_2(self.conv5_1_2(t1)))
 
@@ -141,6 +139,7 @@ class Stem(rm.Model):
         t1 = rm.relu(self.batch_norm6(self.conv6(t)))
         t2 = rm.max_pool2d(t, filter=3, stride=2)
         return rm.concat([t1, t2])
+
 
 class InceptionV4BlockA(rm.Model):
     def __init__(self, channels=[64, 48, 64, 64, 96, 32]):
@@ -161,6 +160,7 @@ class InceptionV4BlockA(rm.Model):
 
         self.conv4 = rm.Conv2d(96, filter=1)
         self.batch_norm4 = rm.BatchNormalize(mode='feature')
+
     def forward(self, x):
         t1 = rm.relu(self.batch_norm1(self.conv1(x)))
 
@@ -202,11 +202,9 @@ class InceptionV4ReductionA(rm.Model):
         t3 = rm.relu(self.batch_norm2_1(self.conv2_1(t3)))
         t3 = rm.relu(self.batch_norm2_2(self.conv2_2(t3)))
 
-
         return rm.concat([
             t1, t2, t3
         ])
-
 
 
 class InceptionV4BlockB(rm.Model):
@@ -240,7 +238,6 @@ class InceptionV4BlockB(rm.Model):
         t1 = rm.relu(self.batch_norm1(self.conv1(t1)))
 
         t2 = rm.relu(self.batch_norm2(self.conv2(x)))
-
 
         t3 = rm.relu(self.batch_norm3_1(self.conv3_1(x)))
         t3 = rm.relu(self.batch_norm3_2(self.conv3_2(t3)))
@@ -286,7 +283,6 @@ class InceptionV4ReductionB(rm.Model):
         return rm.concat([
             t1, t2, t3
         ])
-
 
 
 class InceptionV4BlockC(rm.Model):
@@ -398,6 +394,3 @@ class InceptionV4(rm.Model):
 
         t = self.fc(t)
         return t
-
-
-

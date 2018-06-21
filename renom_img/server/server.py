@@ -270,9 +270,9 @@ def progress_model(project_id, model_id):
                     ret = create_response(body)
                     return ret
 
-                elif isinstance(th, TrainThread) and (th.nth_batch != req_last_batch or \
-                        th.running_state != req_running_state or \
-                        th.weight_existance == WEIGHT_DOWNLOADING):
+                elif isinstance(th, TrainThread) and (th.nth_batch != req_last_batch or
+                                                      th.running_state != req_running_state or
+                                                      th.weight_existance == WEIGHT_DOWNLOADING):
                     body = json.dumps({
                         "total_batch": th.total_batch,
                         "last_batch": th.nth_batch,
@@ -466,11 +466,12 @@ def run_prediction(project_id, model_id):
         thread_id = "{}_{}".format(project_id, model_id)
         fields = 'hyper_parameters,algorithm,algorithm_params,best_epoch_weight,dataset_def_id'
         data = storage.fetch_model(project_id, model_id, fields=fields)
-        (id, name, ratio, train_imgs, valid_imgs, class_map, created, updated) = storage.fetch_dataset_def(data['dataset_def_id'])
+        (id, name, ratio, train_imgs, valid_imgs, class_map, created,
+         updated) = storage.fetch_dataset_def(data['dataset_def_id'])
         # weightのh5ファイルのパスを取得して予測する
         with Executor(max_workers=MAX_THREAD_NUM) as prediction_executor:
             th = PredictionThread(thread_id, model_id, data["hyper_parameters"], data["algorithm"],
-                                  data["algorithm_params"], data["best_epoch_weight"], 2) # len(class_map)
+                                  data["algorithm_params"], data["best_epoch_weight"], 2)  # len(class_map)
             ft = prediction_executor.submit(th)
             thread_pool[thread_id] = [ft, th]
 

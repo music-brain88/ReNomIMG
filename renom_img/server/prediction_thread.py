@@ -50,8 +50,8 @@ class PredictionThread(object):
         self.stop_event = Event()
 
         # Prepare dataset
-        self.predict_files = [os.path.join(DATASRC_PREDICTION_IMG, path) \
-            for path in sorted(os.listdir(DATASRC_PREDICTION_IMG))]
+        self.predict_files = [os.path.join(DATASRC_PREDICTION_IMG, path)
+                              for path in sorted(os.listdir(DATASRC_PREDICTION_IMG))]
 
         # File name of trainded model's weight
         self.weight_name = weight_name
@@ -63,7 +63,8 @@ class PredictionThread(object):
             cell_size = int(algorithm_params["cells"])
             num_bbox = int(algorithm_params["bounding_box"])
             path = os.path.join(DB_DIR_TRAINED_WEIGHT,  self.weight_name)
-            self.model = Yolov1(class_num, cell_size, num_bbox, imsize=self.imsize, load_weight_path=None)
+            self.model = Yolov1(class_num, cell_size, num_bbox,
+                                imsize=self.imsize, load_weight_path=None)
             self.model.load(path)
         else:
             self.error_msg = "{} is not supported algorithm id.".format(algorithm)
@@ -73,7 +74,6 @@ class PredictionThread(object):
 
         # File name of prediction result
         self.csv_filename = ''
-
 
     @property
     def running_state(self):
@@ -107,14 +107,14 @@ class PredictionThread(object):
             self.total_batch = int(np.ceil(len(self.predict_files) / float(self.batch_size)))
             for i in range(0, self.total_batch):
                 self.nth_batch = i
-                batch = self.predict_files[i*self.batch_size:(i+1)*batch_size]
+                batch = self.predict_files[i * self.batch_size:(i + 1) * batch_size]
                 batch_result = self.model.predict(batch)
                 result.extend(batch_result)
 
             # Set result.
             self.predict_results = {
-              "bbox_path_list": self.predict_files,
-              "bbox_list": result
+                "bbox_path_list": self.predict_files,
+                "bbox_list": result
             }
 
             self.save_predict_result_to_csv()

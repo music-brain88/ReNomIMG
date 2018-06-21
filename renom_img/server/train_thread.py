@@ -280,6 +280,6 @@ class TrainThread(object):
                 WhiteNoise()
             ])
             return ImageDistributor(img_path_list, annotation_list,
-                                augmentation=augmentation)
+                                    augmentation=augmentation)
         else:
             return ImageDistributor(img_path_list, annotation_list)

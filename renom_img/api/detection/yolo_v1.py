@@ -296,5 +296,5 @@ class Yolov1(rm.Model):
             mask[fn, fy, fx, iou_ind[fn, fy, fx] * 5] = 1
             mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 5
 
-        diff = (x - y)*mask.reshape(N, -1)
+        diff = (x - y) * mask.reshape(N, -1)
         return rm.sum(diff * diff) / N / 2.
