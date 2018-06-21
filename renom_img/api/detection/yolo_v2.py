@@ -76,9 +76,10 @@ class Yolov2(rm.Model):
 
     WEIGHT_URL = "Yolov2.h5"
 
-    def __init__(self, num_class, anchor=None, imsize=(224, 224), load_weight_path=None):
+    def __init__(self, num_class, anchor, anchor_size, imsize=(224, 224), load_weight_path=None):
         assert (imsize[0]/32.)%1 == 0 and (imsize[1]/32.)%1 == 0
         self.imsize = imsize
+        self.anchor_size = anchor_size
         self._freezed_network = Darknet19Base()
         self.anchor = anchor
         self.num_anchor = 0 if anchor is None else len(anchor)
@@ -97,7 +98,10 @@ class Yolov2(rm.Model):
         # self.load()
         if load_weight_path is not None:
             self.load(load_weight_path)
-            self._last.params = {}
+            # self._conv1[0].params = {}
+            # self._conv1[1].params = {}
+            # self._conv2.params = {}
+            # self._last.params = {}
 
     @property
     def freezed_network(self):
@@ -118,14 +122,12 @@ class Yolov2(rm.Model):
             self._opt._lr = lr
             return self._opt
 
-
     def preprocess(self, x):
         return x / 255. * 2 - 1
 
-
     def forward(self, x):
-        # self.freezed_network.set_auto_update()
-
+        self.freezed_network.set_auto_update(False)
+        self.freezed_network.set_models(inference=True)
         h, f = self.freezed_network(x)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,
@@ -157,7 +159,10 @@ class Yolov2(rm.Model):
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
 
-        anchor = self.anchor
+        asw = self.imsize[0]/self.anchor_size[0]
+        ash = self.imsize[1]/self.anchor_size[1]
+        anchor = [[an[0]*asw, an[1]*ash] for an in self.anchor]
+
         num_anchor = len(anchor)
         N, C, H, W = z.shape
         offset = self.cn + 5
@@ -180,8 +185,8 @@ class Yolov2(rm.Model):
             a_box[:, 1] *= 32
             a_box[:, 2] *= anc[0] 
             a_box[:, 3] *= anc[1]
-            a_box[:, 0::2] = np.clip(a_box[:, 0::2], 0, self.imsize[0])
-            a_box[:, 1::2] = np.clip(a_box[:, 1::2], 0, self.imsize[1])
+            a_box[:, 0::2] = np.clip(a_box[:, 0::2], 0, self.imsize[0])/self.imsize[0]
+            a_box[:, 1::2] = np.clip(a_box[:, 1::2], 0, self.imsize[1])/self.imsize[1]
             keep = np.where(max_conf > 0)
             for i, (b, s, c) in enumerate(zip(a_box[keep[0], :, keep[1], keep[2]], 
                                 max_conf[keep[0], keep[1], keep[2]],
@@ -276,7 +281,10 @@ class Yolov2(rm.Model):
         """
         N, C, H, W = x.shape
         nd_x = x.as_ndarray()
-        anchor = self.anchor
+        asw = self.imsize[0]/self.anchor_size[0]
+        ash = self.imsize[1]/self.anchor_size[1]
+        anchor = [[an[0]*asw, an[1]*ash] for an in self.anchor]
+
         num_anchor = self.num_anchor
         mask = np.zeros((N, C, H, W), dtype=np.float32)
         mask = mask.reshape(N, num_anchor, 5+self.cn, H, W)
@@ -318,7 +326,9 @@ class Yolov2(rm.Model):
 
                 # scale of noobject iou
                 if max_iou <= low_thresh:
-                    mask[n, ind[0]*offset, ind[1], ind[2]] = 1
+                    mask[n, ind[0]*offset, ind[1], ind[2]] = \
+                            (0 - x[n, ind[0]*offset, ind[1], ind[2]])*1
+                #     mask[n, ind[0]*offset, ind[1], ind[2]] = 1
 
             # Create target and mask for cell that contains obj.
             for h, w in zip(*gt_index):
@@ -355,7 +365,9 @@ class Yolov2(rm.Model):
                         best_ious[n, best_anc_ind, h, w]
 
                 # scale of obj iou
-                mask[n, 0+best_anc_ind*offset, h, w] = 5.
+                mask[n, 0+best_anc_ind*offset, h, w] = \
+                        (1 - best_ious[n, best_anc_ind, h, w])*5.
+                # mask[n, 0+best_anc_ind*offset, h, w] = 5.
 
                 # scale of coordinate
                 mask[n, 1+best_anc_ind*offset, h, w] = 1

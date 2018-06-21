@@ -38,6 +38,19 @@ def calc_iou(box1, box2):
 
 
 class Yolov1(rm.Model):
+    """ Yolo object detection algorithm.
+
+    Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
+    You Only Look Once: Unified, Real-Time Object Detection  
+    https://arxiv.org/abs/1506.02640  
+
+    Args:
+        num_class (int): Number of class. 
+        cells (int or tuple): Cell size. 
+        boxes (int): Number of boxes.
+        imsize (int, tuple): Image size.
+        load_weight_path (str): Weight data will be downloaded.
+    """
 
     WEIGHT_URL = "Yolov1.h5"
 
@@ -46,6 +59,8 @@ class Yolov1(rm.Model):
 
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
 
         self._num_class = num_class
         self._cells = cells
@@ -72,6 +87,14 @@ class Yolov1(rm.Model):
         return self._network
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+        """Returns an instance of Optimiser for training Yolov1 algorithm.
+
+        Args:
+            current_epoch:
+            total_epoch:
+            current_batch:
+            total_epoch:
+        """
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
@@ -87,6 +110,16 @@ class Yolov1(rm.Model):
             return self._opt
 
     def preprocess(self, x):
+        """Image preprocess for Yolov1.
+
+        :math:`new_x = x*2/255. - 1`
+
+        Args:
+            x (ndarray):
+
+        Returns:
+            (ndarray): Preprocessed data.
+        """
         return x / 255. * 2 - 1
 
     def forward(self, x):
@@ -94,6 +127,11 @@ class Yolov1(rm.Model):
         return self.network(self.freezed_network(x).as_ndarray())
 
     def regularize(self):
+        """Regularize model.
+
+        Example:
+            >>> 
+        """
         reg = 0
         for layer in self.network.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
@@ -155,6 +193,38 @@ class Yolov1(rm.Model):
 
 
     def predict(self, img_list):
+        """
+
+        This method accepts either ndarray and list of image path.
+
+        Example:
+            >>> 
+            >>> model.predict(['img01.jpg', [img02.jpg]])
+            [[{'box': [10.4, 20.3, 5.1, 10.0], 'score':0.823, 'class':1}],
+             [{'box': [23.4, 12.3, 3.2, 13.1], 'score':0.423, 'class':0}]]
+
+        Args:
+            img_list (string, list, ndarray):
+
+        Return:
+            (list): List of predicted bbox, score and class of each image.
+                The format of return value is bellow.
+
+            [
+                [ # Prediction of first image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    ...
+                ],
+                [ # Prediction of second image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    ...
+                ],
+                ...
+            ]
+
+        """
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
