@@ -1,7 +1,7 @@
 <template>
   <div id="predict-model-selection">
     <div class="button-area">
-      <button class="set-predict-model" v-if="!isPredict" :disabled="model.train_loss_list.length == 0" @click="setPredictModel">
+      <button class="set-predict-model" v-if="!isPredict" :disabled="model.state !== 2" @click="setPredictModel">
         Deploy Model
       </button>
 

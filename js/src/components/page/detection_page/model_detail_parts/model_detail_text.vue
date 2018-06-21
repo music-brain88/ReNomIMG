@@ -6,6 +6,7 @@
 
     <div class="model-content">
       <div class="model-values">
+        <value-item :label="'Dataset'" :val="getDatasetName(model.dataset_def_id)"></value-item>
         <value-item :label="'Algorithm'" :val="getAlgorithmName(model.algorithm)"></value-item>
         <value-item :label="'Total Epoch'" :val="model.hyper_parameters['total_epoch']"></value-item>
         <value-item :label="'Batch Size'" :val="model.hyper_parameters['batch_size']"></value-item>
@@ -51,6 +52,11 @@ export default {
     'model': {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    getDatasetName (dataset_def_id) {
+      return this.$store.getters.getDatasetName
     }
   },
   methods: {

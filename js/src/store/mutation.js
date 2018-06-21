@@ -2,12 +2,29 @@ import Project from './classes/project'
 import Model from './classes/model'
 
 export default {
-  // set header page name
+  /**
+   * Set header page name
+   *
+   * @param {String} payload.page_name : String which is put on header.
+   *
+   */
   setPageName (state, payload) {
     state.page_name = payload.page_name
   },
 
-  // set project data
+  /**
+   * Set project data
+   * This function is always called when app stars.
+   * This creates new project if there is no project.
+   *
+   * This function used for changing deploying model.
+   *
+   * @param {Integer} payload.project_id : Id of project.
+   * @param {String} payload.project_name : Name of project.
+   * @param {String} payload.project_comment : Comment of project.
+   * @param {Integer} payload.deploy_model_id : Deployed model id.
+   *
+   */
   setProject (state, payload) {
     if (!state.project || state.project.project_id !== payload.project_id) {
       const project = new Project(payload.project_id, payload.project_name, payload.project_comment)
@@ -16,98 +33,102 @@ export default {
     state.project.deploy_model_id = payload.deploy_model_id
   },
 
-  // set model data
+  /**
+   * Set model data.
+   * This resets the variable 'state.models'. It will cause screen update.
+   *
+   * @param {Array} payload.models : Array of model.
+   *
+   */
   setModels (state, payload) {
     state.models = []
     for (let index in payload.models) {
-      let d = payload.models[index]
-      let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, d.state, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
-      if (d.best_epoch !== undefined) {
-        m.best_epoch = d.best_epoch
-        m.train_loss_list = d.train_loss_list
-        m.validation_loss_list = d.validation_loss_list
-        m.best_epoch_iou = d.best_epoch_iou
-        m.best_epoch_map = d.best_epoch_map
-      }
-
-      if (state.selected_model_id === undefined && parseInt(index) === 0) {
-        state.selected_model_id = m.model_id
-      }
-      state.models.push(m)
-    }
-  },
-
-  updateModels (state, payload) {
-    for (let index in payload.models) {
-      let d = payload.models[parseInt(index)]
-      if (state.models.length !== 0) {
-        for (let m in state.models) {
-          if (d.model_id === m.model_id) {
-            m.hyper_parameters = d.hyper_parameters
-            m.algorithm = d.algorithm
-            m.algorithm_params = d.algorithm_params
-            m.state = d.state
-            m.best_epoch_validation_result = d.best_epoch_validation_result
-            m.last_epoch = d.last_epoch
-            m.last_batch = d.last_batch
-            m.total_batch = d.total_batch
-            m.last_train_loss = d.last_train_loss
-            m.running_state = d.running_state
-            if (d.best_epoch !== undefined) {
-              m.best_epoch = d.best_epoch
-              m.train_loss_list = d.train_loss_list
-              m.best_epoch_map = d.best_epoch_map
-            }
-          }
-        }
-      }
-      if (state.models.length === 0 || !(state.models.map(mo => mo.model_id).indexOf(parseInt(d.model_id)) >= 0)) {
-        let s = state.models.filter(mo => mo.state === 1).length < 2 ? 1 : 4
-        let model = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, s, d.best_epoch_validation_result, d.last_epoch, d.last_batch, d.total_batch, d.last_train_loss, d.running_state)
-        state.models.unshift(model)
-      }
-      if (payload.update_type < 2) {
-        if (state.selected_model_id === undefined && parseInt(index) === 0) {
-          state.selected_model_id = d.model_id
-        }
+      // 'Deleted model'(=3) is removed.
+      if (payload.models[index].state !== 3) {
+        state.models.push(payload.models[index])
       }
     }
   },
-  // update model state
+
+  /**
+   * Add newly created model to state.models. The model's state should be 'Created'.
+   * Newly created model will be registered in server side during this method is running.
+   *
+   * This function will recreate 'state.models'. It will cause screen update.
+   *
+   * @param {Integer} payload.project_id
+   * @param {Integer} payload.model_id
+   * @param {Integer} payload.dataset_def_id
+   * @param {Object} payload.hyper_parameters
+   * @param {Integer} payload.algorithm
+   * @param {Object} payload.algorithm_params
+   * @param {Integer} payload.state
+   * @param {Integer} payload.total_batch
+   * @param {Integer} payload.last_train_loss
+   * @param {Integer} payload.last_epoch
+   * @param {Integer} payload.last_batch
+   * @param {Integer} payload.running_state
+   * @param {Array} payload.best_epoch_validation_result
+   */
+  addModelTemporarily (state, payload) {
+    let d = payload
+    let m = new Model(d.model_id, d.project_id, d.dataset_def_id,
+      d.hyper_parameters, d.algorithm, d.algorithm_params, d.state,
+      d.best_epoch_validation_result, d.last_epoch, d.last_batch,
+      d.total_batch, d.last_train_loss, d.running_state)
+    state.models = [m, ...state.models]
+  },
+
+  /**
+   * Changes model' state.
+   *
+   * @param {Object} payload : Array of Object.
+   *  The object has attributes {'model_id': {'running_state':(Int), 'state':(Int)}}
+   *
+   */
   updateModelsState (state, payload) {
     for (let index in state['models']) {
-      let d = state['models'][index]
-      let p = payload[parseInt(d.model_id)]
-      if (p !== undefined) {
-        if ('running_state' in p && d.running_state && d.running_state !== p['running_state']) {
-          d.running_state = p['running_state']
+      let model = state['models'][index]
+      let new_state = payload[parseInt(model.model_id)]
+      if (new_state !== undefined) {
+        if ('running_state' in new_state && model.running_state && model.running_state !== new_state['running_state']) {
+          model.running_state = new_state['running_state']
         }
-        if ('state' in p && d.state && d.state !== p['state']) {
-          d.state = p['state']
+        if ('state' in new_state && model.state !== new_state['state']) {
+          model.state = new_state['state']
         }
       } else {
-        d.state = 3
+        model.state = 3
       }
     }
   },
+
   // update progress
   updateProgress (state, payload) {
-    let p = payload.model
+    let model_id = payload.model_id
+    let current_model
     for (let index in state.models) {
-      let d = state.models[index]
-      if (p.model_id === d.model_id) {
-        let m = new Model(d.model_id, d.project_id, d.hyper_parameters, d.algorithm, d.algorithm_params, p.state, d.best_epoch_validation_result, p.last_epoch, p.last_batch, p.total_batch, p.last_train_loss, p.running_state)
-        if (d.best_epoch !== undefined) {
-          m.best_epoch = d.best_epoch
-          m.train_loss_list = d.train_loss_list
-          m.validation_loss_list = d.validation_loss_list
-          m.best_epoch_iou = d.best_epoch_iou
-          m.best_epoch_map = d.best_epoch_map
-        }
-        // update array
-        state.models.splice(index, 1, m)
+      if (state.models[index].model_id === model_id) {
+        current_model = state.models[index]
         break
       }
+    }
+    if (!current_model) return
+
+    current_model.total_batch = payload.total_batch
+    current_model.last_epoch = payload.last_epoch
+    current_model.last_batch = payload.last_batch
+    current_model.running_state = payload.running_state
+    current_model.last_train_loss = payload.batch_loss
+
+    if (payload.train_loss_list.length > 0 &&
+        payload.validation_loss_list.length > 0) {
+      current_model.train_loss_list = payload.train_loss_list
+      current_model.validation_loss_list = payload.validation_loss_list
+      current_model.best_epoch = payload.best_epoch
+      current_model.best_epoch_iou = payload.best_epoch_iou
+      current_model.best_epoch_map = payload.best_epoch_map
+      current_model.best_epoch_validation_result = payload.best_epoch_validation_result
     }
   },
 
@@ -251,5 +272,8 @@ export default {
   },
   setWeightDownloadProgress (state, payload) {
     state.weight_downloading_progress = Math.round(payload.progress * 10) / 10
+  },
+  setDatasetDefs (state, payload) {
+    state.dataset_defs = payload.dataset_defs
   }
 }
