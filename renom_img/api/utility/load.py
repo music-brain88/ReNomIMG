@@ -49,7 +49,7 @@ def parse_xml_detection(xml_path_list):
             bounding_box = [x, y, w, h]
             class_name = object_tree.find('name').text.strip()
             class_map[class_name] = 1
-            image_data.append({'box': bounding_box, 'name': class_name})
+            image_data.append({'box': bounding_box, 'name': class_name, 'size': (width, height)})
         annotation_list.append(image_data)
     class_map = {k: i for i, k in enumerate(sorted(class_map.keys()))}
     for annotation in annotation_list:
