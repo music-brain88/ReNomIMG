@@ -21,6 +21,8 @@ class InceptionV1Block(rm.Model):
 
 class InceptionV1(rm.Model):
     def __init__(self, n_class, load_weight=False):
+        assert n_class == 1000 and load_weight, 'The number of classes must be 1000 if pre-trained weight is used'
+
         self.conv1 = rm.Conv2d(64, filter=7, padding=3, stride=2)
         self.batch_norm1 = rm.BatchNormalize(mode='feature')
         self.conv2 = rm.Conv2d(64, filter=1, stride=1)
@@ -335,7 +337,9 @@ class InceptionV4BlockC(rm.Model):
 
 
 class InceptionV4(rm.Model):
-    def __init__(self, n_classes):
+    def __init__(self, n_class, load_weight=False):
+        assert n_class == 1000 and load_weight, 'The number of classes must be 1000 if pre-trained weight is used'
+
         self.stem = Stem()
 
         self.a1 = InceptionV4BlockA()
@@ -360,8 +364,11 @@ class InceptionV4(rm.Model):
         self.c3 = InceptionV4BlockC()
 
         self.dropout = rm.Dropout(0.2)
-        self.fc1 = rm.Dense(1000)
-        self.fc2 = rm.Dense(n_classes)
+        self.fc = rm.Dense(n_class)
+
+        if load_weight:
+            self.load('inception_v4.h5')
+
     def forward(self, x):
         t = self.stem(x)
         t = self.a1(t)
@@ -389,8 +396,7 @@ class InceptionV4(rm.Model):
         t = rm.flatten(t)
         t = self.dropout(t)
 
-        t = self.fc1(t)
-        t = self.fc2(t)
+        t = self.fc(t)
         return t
 
 
