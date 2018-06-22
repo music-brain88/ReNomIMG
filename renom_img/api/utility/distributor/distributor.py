@@ -12,12 +12,15 @@ class ImageDistributorBase(object):
 
     def __init__(self, img_path_list, label_list=None,
                  target_builder=None,
-                 augmentation=None, num_worker=4):
+                 augmentation=None,
+                 imsize=None,
+                 num_worker=4):
         self._img_path_list = img_path_list
         self._label_list = label_list
         self._num_worker = num_worker
         self._augmentation = augmentation
         self._builder = target_builder
+        self._imsize = imsize
 
     def __len__(self):
         return len(self._img_path_list)
@@ -58,8 +61,7 @@ class ImageDistributorBase(object):
         if builder is None:
             builder = self._builder
         if builder is None:
-            def builder(x, y): return self._augmentation(
-                np.vstack([load_img(path) for path in x]), y)
+            builder = lambda x, y, aug=None: (x, y)
 
         if shuffle:
             if N < 100000:
@@ -86,17 +88,18 @@ class ImageDistributorBase(object):
                 ]
 
             generator = exector.map(build, arg)
-            for gen in generator:
-                yield gen
+            yield from generator
 
 
 class ImageDistributor(ImageDistributorBase):
 
     def __init__(self, img_path_list, label_list=None,
                  target_builder=None,
-                 augmentation=None, num_worker=4):
+                 augmentation=None,
+                 imsize=None,
+                 num_worker=4):
         super(ImageDistributor, self).__init__(img_path_list,
-                                               label_list, target_builder, augmentation, num_worker)
+                                               label_list, target_builder, augmentation, imsize, num_worker)
 
     def batch(self, batch_size, target_builder=None, shuffle=True):
         return super(ImageDistributor, self).batch(batch_size, target_builder, shuffle)

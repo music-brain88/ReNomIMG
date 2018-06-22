@@ -199,18 +199,24 @@ class Shift(ProcessBase):
         for i in range(n):
             new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
                 x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-            new_y.append([
-                {
-                    "box": [
-                        np.clip(obj["box"][0] + rand_h[i], 0, w),
-                        np.clip(obj["box"][1] + rand_v[i], 0, h),
-                        obj["box"][2],
-                        obj["box"][3],
-                    ],
-                    "name":obj["name"],
-                    "class":obj["class"],
-                }
-                for j, obj in enumerate(y[i])])
+            ny = []
+            for j, obj in enumerate(y[i]):
+                pw = obj["box"][2]
+                ph = obj["box"][3]
+                px1 = np.clip(obj["box"][0] - pw/2. + rand_h[i], 0, w-1)
+                py1 = np.clip(obj["box"][1] - ph/2. + rand_v[i], 0, h-1)
+                px2 = np.clip(obj["box"][0] + pw/2. + rand_h[i], 0, w-1)
+                py2 = np.clip(obj["box"][1] + ph/2. + rand_v[i], 0, h-1)
+                pw = px2 - px1
+                ph = py2 - py1
+                px = px1 + pw/2.
+                py = py1 + ph/2.
+                ny.append({
+                    "box": [px, py, pw, ph],
+                    "class": obj["class"],
+                    "name": obj["name"]
+                })
+            new_y.append(ny)
         return new_x, new_y
 
 
