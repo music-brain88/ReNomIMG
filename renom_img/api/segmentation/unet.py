@@ -5,11 +5,9 @@ import renom as rm
 
 class UNet(rm.Model):
     """ U-Net: Convolutional Networks for Biomedical Image Segmentation
-    Reference: https://arxiv.org/pdf/1505.04597.pdf
 
     Args:
         n_class (int): The number of classes
-        load_weight (Bool): If True, the pre-trained weight of ImageNet is loaded.
 
     Example:
         >>> import renom as rm
@@ -21,8 +19,13 @@ class UNet(rm.Model):
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)
+
+    Note:
+        Olaf Ronneberger, Philipp Fischer, Thomas Brox
+        U-Net: Convolutional Networks for Biomedical Image Segmentation
+        https://arxiv.org/pdf/1505.04597.pdf
     """
-    def __init__(self, n_class, load_weight=False):
+    def __init__(self, n_class):
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
         self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
         self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
@@ -45,9 +48,6 @@ class UNet(rm.Model):
         self.conv8_2 = rm.Conv2d(64, padding=1)
         self.deconv4 = rm.Deconv2d(64, stride=2)
         self.conv9 = rm.Conv2d(n_class, filter=1)
-
-        if load_weight:
-            self.load('weight-unet.hdf5')
 
     def forward(self, x):
         t = rm.relu(self.conv1_1(x))
