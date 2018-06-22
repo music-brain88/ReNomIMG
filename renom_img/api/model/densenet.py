@@ -89,6 +89,10 @@ class DenseNet121(DenseNet):
     Densely Connected Convolutional Network
     https://arxiv.org/pdf/1608.06993.pdf
     """
+
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_PATH = os.path.join(DIR, 'densenet121.h5')
+
     def __init__(self, n_class, growth_rate=32, load_weight=False):
         layer_per_block = [6, 12, 24, 16]
         super(DenseNet121, self).__init__(n_class, layer_per_block, growth_rate=32)
@@ -155,6 +159,10 @@ class DenseNet201(DenseNet):
     Densely Connected Convolutional Network
     https://arxiv.org/pdf/1608.06993.pdf
     """
+
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_PATH = os.path.join(DIR, 'densenet201.h5')
+
     def __init__(self, n_class, growth_rate=32, load_weight=False):
         layer_per_block = [6, 12, 48, 32]
         super(DenseNet121, self).__init__(n_class, layer_per_block, growth_rate=32)
