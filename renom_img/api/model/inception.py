@@ -1,3 +1,8 @@
+import os
+import sys
+import renom as rm
+import numpy as np
+
 class InceptionV1Block(rm.Model):
     def __init__(self, channels=[64, 96, 128, 16, 32]):
         self.conv1 = rm.Conv2d(channels[0], filter=1)
