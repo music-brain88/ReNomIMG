@@ -8,11 +8,14 @@ DIR = os.path.split(os.path.abspath(__file__))[0]
 
 
 def layer_block(channel, filter):
-    return [
-        rm.Conv2d(filter=filter, channel=channel, padding=1),
-        rm.BatchNormalize(epsilon=0.001, mode='feature'),
-        rm.Relu()
-    ]
+    layers = []
+    if filter != (1, 1):
+        layers.append(rm.Conv2d(filter=filter, channel=channel, padding=1))
+    else:
+        layers.append(rm.Conv2d(filter=filter, channel=channel))
+    layers.append(rm.BatchNormalize(epsilon=0.001, mode='feature'))
+    layers.append(rm.Relu())
+    return layers
 
 
 def downsample_block(channel, filter):
@@ -54,7 +57,7 @@ def build_downsample_block(channels):
 
 
 class ResNet(rm.Sequential):
-    def __init__(self, nb_classes, channels, num_layers):
+    def __init__(self, n_class, channels, num_layers):
         if type(num_layers) == int:
             num_layers = [num_layers] * len(channels)
         self.num_layers = num_layers
@@ -76,7 +79,7 @@ class ResNet(rm.Sequential):
                     layers.append(build_block(channels[i + 1]))
 
         # Add the last dense layer
-        layers.append(rm.Dense(nb_classes))
+        layers.append(rm.Dense(n_class))
         super(ResNet, self).__init__(layers)
 
     def forward(self, x):
@@ -116,7 +119,7 @@ class ResNet32(ResNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        num_class(int):
+        n_class(int):
         load_weight(bool):
 
     Note:
@@ -124,7 +127,7 @@ class ResNet32(ResNet):
         → n = 5
         5 sets of a layer block in each block
 
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
@@ -135,17 +138,17 @@ class ResNet32(ResNet):
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet32.h5')
 
-    def __init__(self, nb_classes, load_weight=False):
+    def __init__(self, n_class, load_weight=False):
         num_layers = 5
         CHANNELS = [16, 32, 64]
-        super(ResNet32, self).__init__(nb_classes, CHANNELS, num_layers)
+        super(ResNet32, self).__init__(n_class, CHANNELS, num_layers)
         if load_weight:
             try:
                 self.load(self.WEIGHT_PATH)
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
 
 
@@ -156,11 +159,11 @@ class ResNet44(ResNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        num_class(int):
+        n_class(int):
         load_weight(bool):
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
@@ -171,10 +174,10 @@ class ResNet44(ResNet):
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet44.h5')
 
-    def __init__(self, nb_classes, load_weight=False):
+    def __init__(self, n_class, load_weight=False):
         num_layers = 7
         CHANNELS = [16, 32, 64]
-        super(ResNet44, self).__init__(nb_classes, CHANNELS, num_layers)
+        super(ResNet44, self).__init__(n_class, CHANNELS, num_layers)
 
         if load_weight:
             try:
@@ -182,7 +185,7 @@ class ResNet44(ResNet):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
 
 class ResNet56(ResNet):
@@ -192,11 +195,11 @@ class ResNet56(ResNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        num_class(int):
+        n_class(int):
         load_weight(bool):
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
@@ -206,10 +209,10 @@ class ResNet56(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet56.h5')
-    def __init__(self, nb_classes, load_weight=False):
+    def __init__(self, n_class, load_weight=False):
         num_layers = 9
         CHANNELS = [16, 32, 64]
-        super(ResNet56, self).__init__(nb_classes, CHANNELS, num_layers)
+        super(ResNet56, self).__init__(n_class, CHANNELS, num_layers)
 
         if load_weight:
             try:
@@ -217,7 +220,7 @@ class ResNet56(ResNet):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
 
 
@@ -228,11 +231,11 @@ class ResNet110(ResNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        num_class(int):
+        n_class(int):
         load_weight(bool):
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
@@ -242,10 +245,10 @@ class ResNet110(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet110.h5')
-    def __init__(self, nb_classes, load_weight=False):
+    def __init__(self, n_class, load_weight=False):
         num_layers = 18
         CHANNELS = [16, 32, 64]
-        super(ResNet110, self).__init__(nb_classes, CHANNELS, num_layers)
+        super(ResNet110, self).__init__(n_class, CHANNELS, num_layers)
 
         if load_weight:
             try:
@@ -253,7 +256,7 @@ class ResNet110(ResNet):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
 
 
@@ -264,11 +267,11 @@ class ResNet34(ResNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        num_class(int):
+        n_class(int):
         load_weight(bool):
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
@@ -278,10 +281,10 @@ class ResNet34(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet34.h5')
-    def __init__(self, nb_classes, load_weight=False):
+    def __init__(self, n_class, load_weight=False):
         num_layers = [3, 4, 6, 3]
         CHANNELS = [64, 128, 256, 512]
-        super(ResNet34, self).__init__(nb_classes, CHANNELS, num_layers)
+        super(ResNet34, self).__init__(n_class, CHANNELS, num_layers)
 
         if load_weight:
             try:
@@ -289,7 +292,7 @@ class ResNet34(ResNet):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
 
 
@@ -300,11 +303,11 @@ class ResNet50(ResNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        num_class(int):
+        n_class(int):
         load_weight(bool):
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
@@ -314,10 +317,10 @@ class ResNet50(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet50.h5')
-    def __init__(self, nb_classes, load_weight=False):
+    def __init__(self, n_class, load_weight=False):
         num_layers = [3, 4, 6, 3]
         CHANNELS = [64, 128, 256, 512]
-        super(ResNet50, self).__init__(nb_classes, CHANNELS, num_layers)
+        super(ResNet50, self).__init__(n_class, CHANNELS, num_layers)
 
         if load_weight:
             try:
@@ -325,7 +328,7 @@ class ResNet50(ResNet):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
 
 class ResNet101(ResNet):
@@ -335,11 +338,11 @@ class ResNet101(ResNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        num_class(int):
+        n_class(int):
         load_weight(bool):
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
@@ -349,10 +352,10 @@ class ResNet101(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet101.h5')
-    def __init__(self, nb_classes, load_weight=False):
+    def __init__(self, n_class, load_weight=False):
         num_layers = [3, 4, 23, 3]
         CHANNELS = [[64, 64, 256], [128, 128, 512], [256, 256, 1024], [512, 512, 2048]]
-        super(ResNet101, self).__init__(nb_classes, CHANNELS, num_layers)
+        super(ResNet101, self).__init__(n_class, CHANNELS, num_layers)
 
         if load_weight:
             try:
@@ -360,5 +363,5 @@ class ResNet101(ResNet):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
