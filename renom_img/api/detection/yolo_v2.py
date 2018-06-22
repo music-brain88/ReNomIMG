@@ -372,5 +372,5 @@ class Yolov2(rm.Model):
 
                 # scale of class
                 mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
-        diff = (x - target) * mask
-        return rm.sum(diff * diff) / np.sum(y[:, 0] > 0) / 2.
+        diff = (x - target)
+        return rm.sum(diff * diff * mask) / np.sum(y[:, 0] > 0) / 2.
