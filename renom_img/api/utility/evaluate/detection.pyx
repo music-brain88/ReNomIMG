@@ -89,12 +89,17 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
 
     precisions = {}
     recalls = {}
+    n_pred = {}
     for l in class_map:
         sorted_indices = np.argsort(scores[l])[::-1]
         match_per_cls = np.array(match[l])
         match_per_cls = match_per_cls[sorted_indices]
         tp = np.cumsum(match_per_cls == 1)
         fp = np.cumsum(match_per_cls == 0)
+        if len(tp) > 0:
+            n_pred[l] = tp[-1]
+        else:
+            n_pred[l] = 0
         precision = tp.astype(float) / (tp+fp).astype(float)
         precisions[l] = precision
         if n_pos_list[l] > 0:
@@ -102,7 +107,7 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
         else:
             recall = None
         recalls[l] = recall
-    return precisions, recalls
+    return precisions, recalls, n_pred, n_pos_list
 
 
 cpdef get_ap_and_map(prec, rec, n_class=None, n_round_off=3):

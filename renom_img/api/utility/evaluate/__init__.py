@@ -10,16 +10,15 @@ class EvaluatorBase(object):
         self.prediction = prediction
         self.target = target
 
-    def report(self, class_names, headers, rows, last_line_heading, last_row=None, digits=3):
+    def report(self, class_names, headers, rows, last_line_heading, row_fmt, last_row=None, digits=3):
         last_line_heading = 'mAP / mean IoU'
         name_width = max(len(cn) for cn in class_names)
         width = max(name_width, len(last_line_heading), digits*2)
 
-        head_fmt = '{:>{width}s} ' + ' {:>13}' * len(headers)
+        head_fmt = '{:>{width}s} ' + ' {:>12}' * len(headers)
         report = head_fmt.format('', *headers, width=width)
         report += ' \n\n'
 
-        row_fmt = '{:>{width}s} ' + ' {:>9.{digits}f} ({:>4.1f}/100)' * len(headers) + ' \n'
         for row in rows:
             report += row_fmt.format(*row, width=width, digits=digits)
         report += '\n'
@@ -68,12 +67,12 @@ class EvaluatorDetection(EvaluatorBase):
         super(EvaluatorDetection, self).__init__(prediction, target)
 
     def mAP(self, n_class=None, iou_thresh=0.5, n_round_off=3):
-        prec, rec = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
         _, mAP = get_ap_and_map(prec, rec, n_round_off)
         return mAP
 
     def AP(self, n_class=None, iou_thresh=0.5, n_round_off=3):
-        prec, rec = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
         AP, _ = get_ap_and_map(prec, rec, n_round_off)
         return AP
 
@@ -91,7 +90,7 @@ class EvaluatorDetection(EvaluatorBase):
             class_names: key in a precision(recall) list
                 Plotting precision-recall curve of specified class name
         """
-        prec, rec = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
         if not isinstance(class_names, list) and class_names is not None:
             class_names = [class_names]
 
@@ -110,20 +109,22 @@ class EvaluatorDetection(EvaluatorBase):
                     continue
                 self.plot_graph(r, p, c, 'Recall', 'Precision')
 
-    def detection_report(self, digits=3):
-        AP = self.AP()
+    def detection_report(self, n_class=None, iou_thresh=0.5, digits=3):
+        prec, rec, n_pred, n_pos_list = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
+        AP, mAP = get_ap_and_map(prec, rec, digits)
+        iou = self.iou()
         class_names = list(AP.keys())
-        AP = list(AP.values())
-        mAP = self.mAP()
-        iou = list(self.iou().values())
         mean_iou = self.mean_iou()
 
-        headers = ["AP", "IoU"]
-        rows = zip(class_names, AP, map(lambda x: x * 100, AP), iou, map(lambda x: x * 100, iou))
+        headers = ["AP", "IoU", "  #pred/#target"]
+        rows = []
+        for c in class_names:
+            rows.append((c, AP[c], iou[c], n_pred[c], n_pos_list[c]))
         last_line_heading = 'mAP / mean IoU'
-        last_row = (mAP, mAP*100, mean_iou, mean_iou*100)
+        last_row = (mAP, mean_iou, np.sum(list(n_pred.values())), np.sum(list(n_pos_list.values())))
+        row_fmt = '{:>{width}s} ' + ' {:>12.{digits}f}' * (len(headers)-1) + ' {:>12d}/{:d}' + ' \n'
 
-        return self.report(class_names, headers, rows, last_line_heading, last_row, digits)
+        return self.report(class_names, headers, rows, last_line_heading, row_fmt, last_row, digits)
 
 class EvaluatorClassification(EvaluatorBase):
 
