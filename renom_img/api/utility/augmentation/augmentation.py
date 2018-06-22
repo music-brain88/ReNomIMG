@@ -31,6 +31,7 @@ class Augmentation(object):
         ... )
 
     """
+
     def __init__(self, process_list):
         self._process_list = process_list
 

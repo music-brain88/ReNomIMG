@@ -203,14 +203,14 @@ class Shift(ProcessBase):
             for j, obj in enumerate(y[i]):
                 pw = obj["box"][2]
                 ph = obj["box"][3]
-                px1 = np.clip(obj["box"][0] - pw/2. + rand_h[i], 0, w-1)
-                py1 = np.clip(obj["box"][1] - ph/2. + rand_v[i], 0, h-1)
-                px2 = np.clip(obj["box"][0] + pw/2. + rand_h[i], 0, w-1)
-                py2 = np.clip(obj["box"][1] + ph/2. + rand_v[i], 0, h-1)
+                px1 = np.clip(obj["box"][0] - pw / 2. + rand_h[i], 0, w - 1)
+                py1 = np.clip(obj["box"][1] - ph / 2. + rand_v[i], 0, h - 1)
+                px2 = np.clip(obj["box"][0] + pw / 2. + rand_h[i], 0, w - 1)
+                py2 = np.clip(obj["box"][1] + ph / 2. + rand_v[i], 0, h - 1)
                 pw = px2 - px1
                 ph = py2 - py1
-                px = px1 + pw/2.
-                py = py1 + ph/2.
+                px = px1 + pw / 2.
+                py = py1 + ph / 2.
                 ny.append({
                     "box": [px, py, pw, ph],
                     "class": obj["class"],

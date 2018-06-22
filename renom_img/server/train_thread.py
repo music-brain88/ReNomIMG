@@ -73,7 +73,7 @@ class TrainThread(object):
         self.valid_dist = self.create_dist(valid_files, False)
 
     def download_weight(self, url, filename):
-        
+
         pretrained_weight_path = os.path.join(DB_DIR_PRETRAINED_WEIGHT, filename)
         if os.path.exists(pretrained_weight_path):
             self.weight_existance = WEIGHT_EXISTS
