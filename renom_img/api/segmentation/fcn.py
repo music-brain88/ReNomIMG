@@ -35,7 +35,6 @@ class FCN_Base(rm.Model):
 
 class FCN32s(FCN_Base):
     """ Fully convolutional network (21s) for semantic segmentation
-    Reference: https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 
     Args:
         n_class (int): The number of classes
@@ -51,6 +50,11 @@ class FCN32s(FCN_Base):
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)
+
+    Note:
+        Jonathan Long, Evan Shelhamer, Trevor Darrell
+        Fully Convolutional Networks for Semantic Segmentation
+        https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
     """
 
     def __init__(self, n_class, load_weight=False):
@@ -114,6 +118,11 @@ class FCN16s(FCN_Base):
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)
+
+    Note:
+        Jonathan Long, Evan Shelhamer, Trevor Darrell
+        Fully Convolutional Networks for Semantic Segmentation
+        https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
     """
 
     def __init__(self, n_class, load_weight=False):
@@ -187,6 +196,11 @@ class FCN8s(FCN_Base):
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)
+
+    Note:
+        Jonathan Long, Evan Shelhamer, Trevor Darrell
+        Fully Convolutional Networks for Semantic Segmentation
+        https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
     """
 
     def __init__(self, n_class, load_weight=False):
