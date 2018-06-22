@@ -3,16 +3,26 @@ import sys
 import numpy as np
 import renom as rm
 
-
 class UNet(rm.Model):
-    def __init__(self, num_classes, load_weight=False):
-        """
-        U-Net: Convolutional Networks for Biomedical Image Segmentation
-        https://arxiv.org/pdf/1505.04597.pdf
-        Arguments:
-            num_classes: The number of classes
-            load_weight: Loading the pretrained weight
-        """
+    """ U-Net: Convolutional Networks for Biomedical Image Segmentation
+    Reference: https://arxiv.org/pdf/1505.04597.pdf
+
+    Args:
+        n_class (int): The number of classes
+        load_weight (Bool): If True, the pre-trained weight of ImageNet is loaded.
+
+    Example:
+        >>> import renom as rm
+        >>> import numpy as np
+        >>> from renom_img.api.segmentation.unet import UNet
+        >>> n, c, h, w = (2, 12, 64, 64)
+        >>> x = rm.Variable(np.random.rand(n, c, h, w))
+        >>> model = UNet(12)
+        >>> t = model(x)
+        >>> t.shape
+        (2, 12, 64, 64)
+    """
+    def __init__(self, n_class, load_weight=False):
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
         self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
         self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
@@ -34,7 +44,7 @@ class UNet(rm.Model):
         self.conv8_1 = rm.Conv2d(64, padding=1)
         self.conv8_2 = rm.Conv2d(64, padding=1)
         self.deconv4 = rm.Deconv2d(64, stride=2)
-        self.conv9 = rm.Conv2d(num_classes, filter=1)
+        self.conv9 = rm.Conv2d(n_class, filter=1)
 
         if load_weight:
             self.load('weight-unet.hdf5')
