@@ -1,5 +1,7 @@
+import os
+import sys
 import renom as rm
-
+import numpy as np
 
 class InceptionV1Block(rm.Model):
     def __init__(self, channels=[64, 96, 128, 16, 32]):
@@ -24,26 +26,25 @@ class InceptionV1Block(rm.Model):
 
 class InceptionV1(rm.Model):
     def __init__(self, n_class, load_weight=False):
-        assert n_class == 1000 and load_weight, 'The number of classes must be 1000 if pre-trained weight is used'
 
         self.conv1 = rm.Conv2d(64, filter=7, padding=3, stride=2)
         self.batch_norm1 = rm.BatchNormalize(mode='feature')
         self.conv2 = rm.Conv2d(64, filter=1, stride=1)
         self.conv3 = rm.Conv2d(192, filter=3, padding=1, stride=1)
         self.batch_norm2 = rm.BatchNormalize(mode='feature')
-        self.a3 = InceptionBlock()
-        self.b3 = InceptionBlock([128, 128, 192, 32, 96, 64])
-        self.a4 = InceptionBlock([192, 96, 208, 16, 48, 64])
+        self.a3 = InceptionV1Block()
+        self.b3 = InceptionV1Block([128, 128, 192, 32, 96, 64])
+        self.a4 = InceptionV1Block([192, 96, 208, 16, 48, 64])
         self.fc1_1 = rm.Dense(1024)
         self.fc1_2 = rm.Dense(n_class)
-        self.b4 = InceptionBlock([160, 112, 224, 24, 64, 64])
-        self.c4 = InceptionBlock([128, 128, 256, 24, 64, 64])
-        self.d4 = InceptionBlock([112, 144, 288, 32, 64, 64])
+        self.b4 = InceptionV1Block([160, 112, 224, 24, 64, 64])
+        self.c4 = InceptionV1Block([128, 128, 256, 24, 64, 64])
+        self.d4 = InceptionV1Block([112, 144, 288, 32, 64, 64])
         self.fc2_1 = rm.Dense(1024)
         self.fc2_2 = rm.Dense(n_class)
-        self.e4 = InceptionBlock([256, 160, 320, 32, 128, 128])
-        self.a5 = InceptionBlock([256, 160, 320, 32, 128, 128])
-        self.b5 = InceptionBlock([192, 384, 320, 48, 128, 128])
+        self.e4 = InceptionV1Block([256, 160, 320, 32, 128, 128])
+        self.a5 = InceptionV1Block([256, 160, 320, 32, 128, 128])
+        self.b5 = InceptionV1Block([192, 384, 320, 48, 128, 128])
         self.fc3 = rm.Dense(n_class)
 
         if load_weight:
@@ -683,7 +684,6 @@ class InceptionV4BlockC(rm.Model):
 
 class InceptionV4(rm.Model):
     def __init__(self, n_class, load_weight=False):
-        assert n_class == 1000 and load_weight, 'The number of classes must be 1000 if pre-trained weight is used'
 
         self.stem = Stem()
 
