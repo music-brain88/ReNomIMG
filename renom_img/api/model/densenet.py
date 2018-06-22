@@ -52,17 +52,17 @@ class DenseNet(rm.Sequential):
         t = self._layers[i](x)
         i += 1
         t = rm.relu(self._layers[i](t))
-        t = rm.max_pool2d(t, filter=3, stride=2, padding=1)
         i += 1
-        for i in self.layer_per_block[:-1]:
-            for j in range(i):
+        t = rm.max_pool2d(t, filter=3, stride=2, padding=1)
+        for j in self.layer_per_block[:-1]:
+            for k in range(j):
                 tmp = t
                 t = self._layers[i](t)
                 i += 1
                 t = rm.concat(tmp, t)
             t = self._layers[i](t)
             i += 1
-        for i in range(self.layer_per_block[-1]):
+        for j in range(self.layer_per_block[-1]):
             tmp = t
             t = self._layers[i](t)
             i += 1
@@ -85,7 +85,7 @@ class DenseNet121(DenseNet):
         load_weight(bool): 
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
@@ -106,7 +106,7 @@ class DenseNet121(DenseNet):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
 
 
@@ -122,7 +122,7 @@ class DenseNet169(DenseNet):
         load_weight(bool): 
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
@@ -131,7 +131,7 @@ class DenseNet169(DenseNet):
     """
     def __init__(self, n_class, growth_rate=32, load_weight=False):
         layer_per_block = [6, 12, 32, 32]
-        super(DenseNet121, self).__init__(n_class, layer_per_block, growth_rate=32)
+        super(DenseNet169, self).__init__(n_class, layer_per_block, growth_rate=32)
 
         if load_weight:
             try:
@@ -139,7 +139,7 @@ class DenseNet169(DenseNet):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
 
 
@@ -155,7 +155,7 @@ class DenseNet201(DenseNet):
         load_weight(bool): 
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
@@ -168,7 +168,7 @@ class DenseNet201(DenseNet):
 
     def __init__(self, n_class, growth_rate=32, load_weight=False):
         layer_per_block = [6, 12, 48, 32]
-        super(DenseNet121, self).__init__(n_class, layer_per_block, growth_rate=32)
+        super(DenseNet201, self).__init__(n_class, layer_per_block, growth_rate=32)
 
         if load_weight:
             try:
@@ -176,5 +176,5 @@ class DenseNet201(DenseNet):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
+        if n_class != 1000:
             self._layers[-1].params = {}
