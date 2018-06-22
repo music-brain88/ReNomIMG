@@ -2,6 +2,9 @@ import os
 import sys
 import numpy as np
 import renom as rm
+from renom_img.api.utility.misc.download import download
+
+DIR = os.path.split(os.path.abspath(__file__))[0]
 
 
 def conv_block(growth_rate):

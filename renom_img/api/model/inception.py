@@ -2,6 +2,9 @@ import os
 import sys
 import renom as rm
 import numpy as np
+from renom_img.api.utility.misc.download import download
+
+DIR = os.path.split(os.path.abspath(__file__))[0]
 
 
 class InceptionV1Block(rm.Model):
