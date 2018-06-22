@@ -16,13 +16,13 @@ def parse_xml_detection(xml_path_list):
             The structure is bellow.
         [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'name': class_name(string)},
-                {'box': [x(float), y, w, h], 'name': class_name(string)},
+                {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},
+                {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'name': class_name(string)},
-                {'box': [x(float), y, w, h], 'name': class_name(string)},
+                {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},
+                {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},
                 ...
             ]
         ]
