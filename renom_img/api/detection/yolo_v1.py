@@ -91,6 +91,11 @@ class Yolov1(rm.Model):
     def network(self):
         return self._network
 
+    def save(self, path):
+        """
+        """
+        super(Yolov1, self).save(path)
+
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimiser for training Yolov1 algorithm.
 
@@ -307,7 +312,6 @@ class Yolov1(rm.Model):
         diff = (x - y)
         return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
 
-
     def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
             valid_img_path_list=None, valid_annotation_list=None, valid_image_distributor=None,
             epoch=136, batch_size=64, callback_end_epoch=None):
@@ -324,7 +328,7 @@ class Yolov1(rm.Model):
         else:
             valid_dist = valid_image_distributor
 
-        batch_loop = int(np.ceil(len(train_dist)/batch_size))
+        batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
         avg_valid_loss_list = []
         for e in range(epoch):
@@ -343,7 +347,7 @@ class Yolov1(rm.Model):
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
-            avg_train_loss = display_loss/(i+1)
+            avg_train_loss = display_loss / (i + 1)
             avg_train_loss_list.append(avg_train_loss)
 
             if valid_dist is not None:
@@ -358,9 +362,10 @@ class Yolov1(rm.Model):
                     display_loss += loss
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
-                avg_valid_loss = display_loss/(i+1)
+                avg_valid_loss = display_loss / (i + 1)
                 avg_valid_loss_list.append(avg_train_loss)
-                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(e, avg_train_loss, avg_valid_loss))
+                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
+                    e, avg_train_loss, avg_valid_loss))
             else:
                 bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f}".format(e, avg_train_loss))
             bar.close()
