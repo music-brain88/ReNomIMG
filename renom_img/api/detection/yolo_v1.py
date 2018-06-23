@@ -1,12 +1,14 @@
+import os
 import numpy as np
 import renom as rm
 from tqdm import tqdm
 from PIL import Image
 
 from renom_img.api.model.darknet import Darknet
-from renom_img.api.utility.load import prepare_detection_data, load_img
-from renom_img.api.utility.box import transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.misc.download import download
+from renom_img.api.utility.box import transform2xy12
+from renom_img.api.utility.load import prepare_detection_data, load_img
 
 
 def make_box(box):
@@ -57,8 +59,9 @@ class Yolov1(rm.Model):
 
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None, train_whole_network=False):
+    def __init__(self, class_map, cells, bbox, imsize=(224, 224), load_weight_path=None, train_whole_network=False):
         assert load_weight_path is None or isinstance(load_weight_path, str)
+        num_class = len(class_map)
 
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
@@ -66,6 +69,7 @@ class Yolov1(rm.Model):
             imsize = (imsize, imsize)
 
         self._num_class = num_class
+        self._class_map = class_map
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
@@ -79,6 +83,8 @@ class Yolov1(rm.Model):
         self._opt = rm.Sgd(0.01, 0.9)
 
         if load_weight_path is not None:
+            if not os.path.exists(load_weight_path):
+                download(self.WEIGHT_URL, load_weight_path)
             self.load(load_weight_path)
             for layer in self._network.iter_models():
                 layer.params = {}
@@ -174,6 +180,19 @@ class Yolov1(rm.Model):
             boxes[:, :, :, b, 2] = boxes[:, :, :, b, 2]**2
             boxes[:, :, :, b, 3] = boxes[:, :, :, b, 3]**2
         boxes[:, :, :, :, 0:2] /= float(cell)
+
+        # Clip bounding box.
+        w = boxes[:, :, :, :, 2] / 2.
+        h = boxes[:, :, :, :, 3] / 2.
+        x1 = np.clip(boxes[:, :, :, :, 0] - w, 0, 1)
+        y1 = np.clip(boxes[:, :, :, :, 1] - h, 0, 1)
+        x2 = np.clip(boxes[:, :, :, :, 0] + w, 0, 1)
+        y2 = np.clip(boxes[:, :, :, :, 1] + h, 0, 1)
+        boxes[:, :, :, :, 2] = x2 - x1
+        boxes[:, :, :, :, 3] = y2 - y1
+        boxes[:, :, :, :, 0] = x1 + boxes[:, :, :, :, 2] / 2.
+        boxes[:, :, :, :, 1] = y1 + boxes[:, :, :, :, 3] / 2.
+
         probs = probs.reshape(N, -1, self._num_class)
         boxes = boxes.reshape(N, -1, 4)
 
@@ -200,6 +219,7 @@ class Yolov1(rm.Model):
             # Note: Take care types.
             result[indexes[0][i]].append({
                 "class": int(max_class[indexes[0][i], indexes[1][i]]),
+                "name": [k for k, v in self._class_map.items() if v == int(max_class[indexes[0][i], indexes[1][i]])][0],
                 "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
@@ -242,13 +262,14 @@ class Yolov1(rm.Model):
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+                img_array = self.preprocess(img_array)
             else:
                 img_array = load_img(img_list, self.imsize)[None]
-            img_array = self.preprocess(img_array)
+                img_array = self.preprocess(img_array)
+                return self.get_bbox(self(img_array).as_ndarray())[0]
         else:
             img_array = img_list
-        pred = self(img_array).as_ndarray()
-        return self.get_bbox(pred)
+        return self.get_bbox(self(img_array).as_ndarray())
 
     def build_data(self, img_path_list, annotation_list, augmentation=None):
         """
@@ -334,7 +355,7 @@ class Yolov1(rm.Model):
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
             display_loss = 0
-            for i, (train_x, train_y) in train_dist.batch(batch_size, target_builder=self.build_data):
+            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data)):
                 self.set_models(inference=False)
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
@@ -352,7 +373,7 @@ class Yolov1(rm.Model):
 
             if valid_dist is not None:
                 display_loss = 0
-                for i, (valid_x, valid_y) in valid_dist.batch(batch_size, target_builder=self.build_data):
+                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data)):
                     self.set_models(inference=True)
                     loss = self.loss(self(train_x), train_y)
                     try:
@@ -369,5 +390,6 @@ class Yolov1(rm.Model):
             else:
                 bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f}".format(e, avg_train_loss))
             bar.close()
-            callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
+            if callback_end_epoch is not None:
+                callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
         return avg_train_loss_list, avg_valid_loss_list

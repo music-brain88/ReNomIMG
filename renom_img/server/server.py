@@ -469,7 +469,7 @@ def run_prediction(project_id, model_id):
         # weightのh5ファイルのパスを取得して予測する
         with Executor(max_workers=MAX_THREAD_NUM) as prediction_executor:
             th = PredictionThread(thread_id, model_id, data["hyper_parameters"], data["algorithm"],
-                                  data["algorithm_params"], data["best_epoch_weight"], 2)  # len(class_map)
+                                  data["algorithm_params"], data["best_epoch_weight"], class_map)
             ft = prediction_executor.submit(th)
             prediction_thread_pool[thread_id] = [ft, th]
         ft.result()

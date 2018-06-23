@@ -6,6 +6,8 @@ from PIL import Image
 from renom_img.api.model.darknet import Darknet19Base, DarknetConv2dBN
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
+from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.misc.download import download
 
 
 def make_box(box):
@@ -84,11 +86,14 @@ class Yolov2(rm.Model):
 
     WEIGHT_URL = "Yolov2.h5"
 
-    def __init__(self, num_class, anchor, anchor_size,
+    def __init__(self, class_map, anchor, anchor_size,
                  imsize=(224, 224), load_weight_path=None, train_whole_network=False):
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
             exp),imsize=(320, 320)."
+
+        num_class = len(class_map)
+        self._class_map = class_map
         self.imsize = imsize
         self.anchor_size = anchor_size
         self._freezed_network = Darknet19Base()
@@ -107,12 +112,13 @@ class Yolov2(rm.Model):
         self._train_whole_network = train_whole_network
 
         # Load weight here.
-        # self.load()
         if load_weight_path is not None:
+            if not os.path.exists(load_weight_path):
+                download(self.WEIGHT_URL, load_weight_path)
             self.load(load_weight_path)
             # self._conv1[0].params = {}
             # self._conv1[1].params = {}
-            # self._conv2.params = {}
+            self._conv2.params = {}
             self._last.params = {}
 
     @property
@@ -195,8 +201,22 @@ class Yolov2(rm.Model):
             a_box[:, 1] *= 32
             a_box[:, 2] *= anc[0]
             a_box[:, 3] *= anc[1]
-            a_box[:, 0::2] = np.clip(a_box[:, 0::2], 0, self.imsize[0]) / self.imsize[0]
-            a_box[:, 1::2] = np.clip(a_box[:, 1::2], 0, self.imsize[1]) / self.imsize[1]
+            a_box[:, 0::2] = a_box[:, 0::2] / self.imsize[0]
+            a_box[:, 1::2] = a_box[:, 1::2] / self.imsize[1]
+
+            # Clip bounding box
+            w = a_box[:, 2] / 2.
+            h = a_box[:, 3] / 2.
+            x1 = np.clip(a_box[:, 0] - w, 0, 1)
+            y1 = np.clip(a_box[:, 1] - h, 0, 1)
+            x2 = np.clip(a_box[:, 0] + w, 0, 1)
+            y2 = np.clip(a_box[:, 1] + h, 0, 1)
+
+            a_box[:, 2] = x2 - x1
+            a_box[:, 3] = y2 - y1
+            a_box[:, 0] = x1 + a_box[:, 2] / 2.
+            a_box[:, 1] = y1 + a_box[:, 3] / 2.
+
             keep = np.where(max_conf > 0)
             for i, (b, s, c) in enumerate(zip(a_box[keep[0], :, keep[1], keep[2]],
                                               max_conf[keep[0], keep[1], keep[2]],
@@ -219,6 +239,7 @@ class Yolov2(rm.Model):
 
             box_list[n] = [{
                 "box": box_list[n][i],
+                "name": [k for k, v in self._class_map.items() if v == int(max_class[indexes[0][i], indexes[1][i]])][0],
                 "score": score_list[n][i][0],
                 "class": score_list[n][i][1],
             } for i, k in enumerate(keep) if k]
@@ -230,13 +251,14 @@ class Yolov2(rm.Model):
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+                img_array = self.preprocess(img_array)
             else:
                 img_array = load_img(img_list, self.imsize)[None]
-            img_array = self.preprocess(img_array)
+                img_array = self.preprocess(img_array)
+                return self.get_bbox(self(img_array).as_ndarray())
         else:
             img_array = img_list
-        pred = self(img_array).as_ndarray()
-        return self.get_bbox(pred)
+        return self.get_bbox(self(img_array).as_ndarray())
 
     def build_data(self, img_path_list, annotation_list, augmentation=None):
         """
@@ -388,3 +410,79 @@ class Yolov2(rm.Model):
                 mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
         diff = (x - target)
         return rm.sum(diff * diff * mask) / np.sum(y[:, 0] > 0) / 2.
+
+    def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
+            valid_img_path_list=None, valid_annotation_list=None, valid_image_distributor=None,
+            epoch=136, batch_size=64, callback_end_epoch=None):
+
+        if train_img_path_list is not None and train_annotation_list is not None:
+            train_dist = ImageDistributor(train_img_path_list, train_annotation_list)
+        else:
+            train_dist = train_image_distributor
+
+        assert train_dist is not None
+
+        if valid_img_path_list is not None and valid_annotation_list is not None:
+            valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
+        else:
+            valid_dist = valid_image_distributor
+
+        batch_loop = int(np.ceil(len(train_dist) / batch_size))
+        avg_train_loss_list = []
+        avg_valid_loss_list = []
+        for e in range(epoch):
+            bar = tqdm(range(batch_loop))
+            display_loss = 0
+            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data)):
+                self.set_models(inference=False)
+                with self.train():
+                    loss = self.loss(self(train_x), train_y)
+                    reg_loss = loss + self.regularize()
+                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop))
+                try:
+                    loss = loss.as_ndarray()[0]
+                except:
+                    loss = loss.as_ndarray()
+                display_loss += loss
+                bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
+                bar.update(1)
+            avg_train_loss = display_loss / (i + 1)
+            avg_train_loss_list.append(avg_train_loss)
+
+            if valid_dist is not None:
+                display_loss = 0
+                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data)):
+                    self.set_models(inference=True)
+                    loss = self.loss(self(train_x), train_y)
+                    try:
+                        loss = loss.as_ndarray()[0]
+                    except:
+                        loss = loss.as_ndarray()
+                    display_loss += loss
+                    bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
+                    bar.update(1)
+            avg_train_loss = display_loss / (i + 1)
+            avg_train_loss_list.append(avg_train_loss)
+
+            if valid_dist is not None:
+                display_loss = 0
+                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data)):
+                    self.set_models(inference=True)
+                    loss = self.loss(self(train_x), train_y)
+                    try:
+                        loss = loss.as_ndarray()[0]
+                    except:
+                        loss = loss.as_ndarray()
+                    display_loss += loss
+                    bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
+                    bar.update(1)
+                avg_valid_loss = display_loss / (i + 1)
+                avg_valid_loss_list.append(avg_train_loss)
+                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
+                    e, avg_train_loss, avg_valid_loss))
+            else:
+                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f}".format(e, avg_train_loss))
+            bar.close()
+            if callback_end_epoch is not None:
+                callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
+        return avg_train_loss_list, avg_valid_loss_list

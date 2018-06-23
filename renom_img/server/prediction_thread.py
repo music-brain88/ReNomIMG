@@ -28,7 +28,7 @@ from renom_img.server.utility.storage import storage
 class PredictionThread(object):
 
     def __init__(self, thread_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params, weight_name, class_num):
+                 algorithm, algorithm_params, weight_name, class_map):
 
         self.model_id = model_id
 
@@ -63,7 +63,7 @@ class PredictionThread(object):
             cell_size = int(algorithm_params["cells"])
             num_bbox = int(algorithm_params["bounding_box"])
             path = os.path.join(DB_DIR_TRAINED_WEIGHT,  self.weight_name)
-            self.model = Yolov1(class_num, cell_size, num_bbox,
+            self.model = Yolov1(class_map, cell_size, num_bbox,
                                 imsize=self.imsize, load_weight_path=None)
             self.model.load(path)
         else:

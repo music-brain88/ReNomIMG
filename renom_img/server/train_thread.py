@@ -111,7 +111,7 @@ class TrainThread(object):
                 cell_size = int(self.algorithm_params["cells"])
                 num_bbox = int(self.algorithm_params["bounding_box"])
                 path = self.download_weight(Yolov1.WEIGHT_URL, Yolov1.__name__ + '.h5')
-                self.model = Yolov1(len(self.class_map), cell_size, num_bbox,
+                self.model = Yolov1(self.class_map, cell_size, num_bbox,
                                     imsize=self.imsize, load_weight_path=path)
             else:
                 self.error_msg = "{} is not supported algorithm id.".format(self.algorithm)
