@@ -8,8 +8,10 @@ MODE = [
 
 
 class ProcessBase(object):
-    """
-    X and Y must be resized as specified img size.
+    """Base class for applying augmentation to images.
+
+    Note:
+        X and Y must be resized as specified img size.
     """
 
     def __init__(self):
@@ -126,6 +128,24 @@ class Flip(ProcessBase):
 
 
 def flip(x, y=None, mode="classification"):
+    """Flip image randomly.
+    Args:
+        x(list of numpy.array): List of images.
+        y(list of dict): List of annotation results.
+        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+
+    Returns:
+        (list of numpy.array): List of flipped images.
+        (list of dict): List of annotation results.
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import Flip
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> flipped_img = flip(img_list)
+    """
     return Flip()(x, y, mode)
 
 
@@ -179,22 +199,47 @@ class Shift(ProcessBase):
         for i in range(n):
             new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
                 x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-            new_y.append([
-                {
-                    "box": [
-                        np.clip(obj["box"][0] + rand_h[i], 0, w),
-                        np.clip(obj["box"][1] + rand_v[i], 0, h),
-                        obj["box"][2],
-                        obj["box"][3],
-                    ],
-                    "name":obj["name"],
-                    "class":obj["class"],
-                }
-                for j, obj in enumerate(y[i])])
+            ny = []
+            for j, obj in enumerate(y[i]):
+                pw = obj["box"][2]
+                ph = obj["box"][3]
+                px1 = np.clip(obj["box"][0] - pw / 2. + rand_h[i], 0, w - 1)
+                py1 = np.clip(obj["box"][1] - ph / 2. + rand_v[i], 0, h - 1)
+                px2 = np.clip(obj["box"][0] + pw / 2. + rand_h[i], 0, w - 1)
+                py2 = np.clip(obj["box"][1] + ph / 2. + rand_v[i], 0, h - 1)
+                pw = px2 - px1
+                ph = py2 - py1
+                px = px1 + pw / 2.
+                py = py1 + ph / 2.
+                ny.append({
+                    "box": [px, py, pw, ph],
+                    "class": obj["class"],
+                    "name": obj["name"]
+                })
+            new_y.append(ny)
         return new_x, new_y
 
 
 def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
+    """Shift images randomly according to given parameter.
+    Args:
+        x(list of numpy.array): List of images.
+        y(list of dict): List of annotation results.
+        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+
+    Returns:
+        (list of numpy.array): List of shifted images.
+        (list of dict): List of annotation results.
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import shift
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> shifted_img = shift(img_list)
+    """
     return Shift(horizontal, vertivcal)(x)
 
 
@@ -279,6 +324,26 @@ class Rotate(ProcessBase):
 
 
 def rotate(x, y=None, mode="classification"):
+    """Rotate images randomly from 0, 90, 180, 270 degree.
+
+    Args:
+        x(list of numpy.array): List of images.
+        y(list of dict): List of annotation results.
+        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+
+    Returns:
+        (list of numpy.array): List of rotated images.
+        (list of dict): List of annotation results.
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import rotate
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> rotated_img = flip(img_list)
+    """
     return Rotate()(x, y, mode)
 
 
@@ -298,6 +363,26 @@ class WhiteNoise(ProcessBase):
 
 
 def white_noise(x, y=None, std=0.01, mode="classification"):
+    """Add white noise to images.
+
+    Args:
+        x(list of numpy.array): List of images.
+        y(list of dict): List of annotation results.
+        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+
+    Returns:
+        (list of numpy.array): List of images added white noise.
+        (list of dict): List of annotation results.
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import white_noise
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> noise_img = white_noise(img_list)
+    """
     return WhiteNoise(std)(x, y, mode)
 
 

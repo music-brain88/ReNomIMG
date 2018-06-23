@@ -4,7 +4,7 @@ import re
 import shutil
 import pathlib
 import numpy
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 import distutils.command.build
 from Cython.Build import cythonize
 from distutils.extension import Extension

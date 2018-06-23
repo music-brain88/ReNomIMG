@@ -1,7 +1,7 @@
 import numpy as np
 from collections import defaultdict
 
-def precision_score(y_pred, y_true):
+cpdef precision_score(y_pred, y_true):
     """
     Precision score for classification
 
@@ -12,7 +12,7 @@ def precision_score(y_pred, y_true):
     p, _ = precision_recall_score(y_pred, y_true)
     return p
 
-def recall_score(y_pred, y_true):
+cpdef recall_score(y_pred, y_true):
     """
     Recall score for classification
 
@@ -23,7 +23,7 @@ def recall_score(y_pred, y_true):
     _, r = precision_recall_score(y_pred, y_true)
     return r
 
-def precision_recall_score(y_pred, y_true):
+cpdef precision_recall_score(y_pred, y_true):
     """
     Recall score for classification
 
@@ -55,4 +55,8 @@ def precision_recall_score(y_pred, y_true):
             recall[c] = None
 
     return precision, recall
+
+cpdef accuracy_score(y_pred, y_true):
+    accuracy = np.sum(y_pred==y_true)
+    return accuracy
 

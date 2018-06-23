@@ -1,9 +1,12 @@
 import numpy as np
 import renom as rm
+from tqdm import tqdm
 from PIL import Image
+
 from renom_img.api.model.darknet import Darknet
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.box import transform2xy12
+from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 
 def make_box(box):
@@ -54,7 +57,7 @@ class Yolov1(rm.Model):
 
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None):
+    def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None, train_whole_network=False):
         assert load_weight_path is None or isinstance(load_weight_path, str)
 
         if not hasattr(cells, "__getitem__"):
@@ -67,6 +70,7 @@ class Yolov1(rm.Model):
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
         model = Darknet(self._last_dense_size)
+        self._train_whole_network = train_whole_network
 
         self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:-7])
@@ -86,6 +90,11 @@ class Yolov1(rm.Model):
     @property
     def network(self):
         return self._network
+
+    def save(self, path):
+        """
+        """
+        super(Yolov1, self).save(path)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimiser for training Yolov1 algorithm.
@@ -124,8 +133,8 @@ class Yolov1(rm.Model):
         return x / 255. * 2 - 1
 
     def forward(self, x):
-        self.freezed_network.set_auto_update(False)
-        return self.network(self.freezed_network(x).as_ndarray())
+        self.freezed_network.set_auto_update(self._train_whole_network)
+        return self.network(self.freezed_network(x))
 
     def regularize(self):
         """Regularize model.
@@ -140,6 +149,10 @@ class Yolov1(rm.Model):
         return 0.0005 * reg
 
     def get_bbox(self, z):
+        """
+        Returns:
+            (list): List of predicted bounding box, class label id and its score.
+        """
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
 
@@ -296,5 +309,65 @@ class Yolov1(rm.Model):
             mask[fn, fy, fx, iou_ind[fn, fy, fx] * 5] = 1
             mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 5
 
-        diff = (x - y) * mask.reshape(N, -1)
-        return rm.sum(diff * diff) / N / 2.
+        diff = (x - y)
+        return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
+
+    def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
+            valid_img_path_list=None, valid_annotation_list=None, valid_image_distributor=None,
+            epoch=136, batch_size=64, callback_end_epoch=None):
+
+        if train_img_path_list is not None and train_annotation_list is not None:
+            train_dist = ImageDistributor(train_img_path_list, train_annotation_list)
+        else:
+            train_dist = train_image_distributor
+
+        assert train_dist is not None
+
+        if valid_img_path_list is not None and valid_annotation_list is not None:
+            valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
+        else:
+            valid_dist = valid_image_distributor
+
+        batch_loop = int(np.ceil(len(train_dist) / batch_size))
+        avg_train_loss_list = []
+        avg_valid_loss_list = []
+        for e in range(epoch):
+            bar = tqdm(range(batch_loop))
+            display_loss = 0
+            for i, (train_x, train_y) in train_dist.batch(batch_size, target_builder=self.build_data):
+                self.set_models(inference=False)
+                with self.train():
+                    loss = self.loss(self(train_x), train_y)
+                    reg_loss = loss + self.regularize()
+                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop))
+                try:
+                    loss = loss.as_ndarray()[0]
+                except:
+                    loss = loss.as_ndarray()
+                display_loss += loss
+                bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
+                bar.update(1)
+            avg_train_loss = display_loss / (i + 1)
+            avg_train_loss_list.append(avg_train_loss)
+
+            if valid_dist is not None:
+                display_loss = 0
+                for i, (valid_x, valid_y) in valid_dist.batch(batch_size, target_builder=self.build_data):
+                    self.set_models(inference=True)
+                    loss = self.loss(self(train_x), train_y)
+                    try:
+                        loss = loss.as_ndarray()[0]
+                    except:
+                        loss = loss.as_ndarray()
+                    display_loss += loss
+                    bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
+                    bar.update(1)
+                avg_valid_loss = display_loss / (i + 1)
+                avg_valid_loss_list.append(avg_train_loss)
+                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
+                    e, avg_train_loss, avg_valid_loss))
+            else:
+                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f}".format(e, avg_train_loss))
+            bar.close()
+            callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
+        return avg_train_loss_list, avg_valid_loss_list

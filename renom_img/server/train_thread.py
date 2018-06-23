@@ -13,7 +13,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 
-from renom_img.api.utility.evaluate import get_ap_and_map, get_prec_rec_iou
+from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
 
 from renom_img.server import ALG_YOLOV1
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
@@ -33,7 +33,6 @@ class TrainThread(object):
 
         # Model will be created in __call__ function.
         self.model = None
-
         self.model_id = model_id
 
         # For weight download
@@ -74,6 +73,7 @@ class TrainThread(object):
         self.valid_dist = self.create_dist(valid_files, False)
 
     def download_weight(self, url, filename):
+
         pretrained_weight_path = os.path.join(DB_DIR_PRETRAINED_WEIGHT, filename)
         if os.path.exists(pretrained_weight_path):
             self.weight_existance = WEIGHT_EXISTS
@@ -173,8 +173,11 @@ class TrainThread(object):
 
                 if self.is_stopped():
                     return
-                prec, recl, _, iou = get_prec_rec_iou(valid_annotation_list, valid_predict_box)
+                prec, recl, _, iou = get_prec_rec_iou(valid_predict_box, valid_annotation_list)
                 _, mAP = get_ap_and_map(prec, recl)
+
+                mAP = 0 if np.isnan(mAP) else mAP
+                iou = 0 if np.isnan(iou) else iou
 
                 if self.is_stopped():
                     return
