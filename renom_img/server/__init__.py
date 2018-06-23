@@ -29,13 +29,14 @@ WEIGHT_CHECKING = 1
 WEIGHT_DOWNLOADING = 2
 
 # Directories
-BASE_DIR = os.path.abspath(os.getcwd())
-DATASRC_DIR = os.path.join(BASE_DIR, "datasrc")
+DATASRC_DIR = "datasrc"
 DATASRC_IMG = os.path.join(DATASRC_DIR, "img")
 DATASRC_LABEL = os.path.join(DATASRC_DIR, "label")
+DATASRC_PREDICTION_IMG = os.path.join(DATASRC_DIR, "prediction_set", "img")
+DATASRC_PREDICTION_OUT = os.path.join(DATASRC_DIR, "prediction_set", "output")
 
 # DB directories
-DB_DIR = os.path.join(BASE_DIR, "storage")
+DB_DIR = "storage"
 DB_DIR_TRAINED_WEIGHT = os.path.join(DB_DIR, "trained_weight")
 DB_DIR_PRETRAINED_WEIGHT = os.path.join(DB_DIR, "pretrained_weight")
 

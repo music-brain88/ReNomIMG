@@ -96,7 +96,9 @@ class Darknet(rm.Sequential):
             else:
                 self.load(path + '.h5')
 
-## Darknet19
+# Darknet19
+
+
 class DarknetConv2dBN(rm.Model):
 
     def __init__(self, channel, filter=3):
@@ -106,6 +108,7 @@ class DarknetConv2dBN(rm.Model):
 
     def forward(self, x):
         return rm.leaky_relu(self._bn(self._conv(x)), 0.1)
+
 
 class Darknet19Base(rm.Model):
 
@@ -155,6 +158,7 @@ class Darknet19Base(rm.Model):
         f = self.block5(h)
         h = self.block6(f)
         return h, f
+
 
 class Darknet19(rm.Model):
 

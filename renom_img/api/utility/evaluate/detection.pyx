@@ -16,13 +16,13 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
     predict_list:
     [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'clas': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
                 ...
             ]
         ]
@@ -51,7 +51,7 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
 
         pred_labels = [obj['class'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
-        pred_confs = [float(obj['confidence']) for obj in pred_list_per_img]
+        pred_confs = [float(obj['score']) for obj in pred_list_per_img]
 
         for l in gt_labels:
             n_pos_list[l] += 1
@@ -67,7 +67,7 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
                     continue
                 gt_x1, gt_y1, gt_x2, gt_y2 = transform2xy12(gt_box)
 
-                iou = calc_iou([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
+                iou = calc_iou_xyxy([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
                 if iou > maxiou:
                     maxiou = iou
                     maxiou_id = j
@@ -138,13 +138,13 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
     predict_list:
     [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ]
         ]
@@ -182,7 +182,7 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
                     continue
                 gt_x1, gt_y1, gt_x2, gt_y2 = transform2xy12(gt_box)
 
-                iou = calc_iou([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
+                iou = calc_iou_xyxy([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
                 if iou > maxiou:
                     maxiou = iou
                     maxiou_id = j
@@ -204,13 +204,13 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
     predict_list:
     [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                 ...
             ]
         ]
@@ -241,7 +241,7 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
 
         pred_labels = [obj['class'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
-        pred_confs = [obj['confidence'] for obj in pred_list_per_img]
+        pred_confs = [obj['score'] for obj in pred_list_per_img]
 
         for l in gt_labels:
             n_pos_list[l] += 1
@@ -259,7 +259,7 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
                     continue
                 gt_x1, gt_y1, gt_x2, gt_y2 = transform2xy12(gt_box)
 
-                iou = calc_iou([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
+                iou = calc_iou_xyxy([x1, y1, x2, y2], [gt_x1, gt_y1, gt_x2, gt_y2])
                 if iou > maxiou:
                     maxiou = iou
                     maxiou_id = j

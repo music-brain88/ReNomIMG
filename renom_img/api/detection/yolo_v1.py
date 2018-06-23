@@ -3,7 +3,7 @@ import renom as rm
 from PIL import Image
 from renom_img.api.model.darknet import Darknet
 from renom_img.api.utility.load import prepare_detection_data, load_img
-from renom_img.api.utility.nms import transform2xy12, nms
+from renom_img.api.utility.box import transform2xy12
 
 
 def make_box(box):
@@ -52,7 +52,7 @@ class Yolov1(rm.Model):
         load_weight_path (str): Weight data will be downloaded.
     """
 
-    WEIGHT_URL = "Yolov1.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
     def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None):
         assert load_weight_path is None or isinstance(load_weight_path, str)
@@ -66,7 +66,7 @@ class Yolov1(rm.Model):
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
-        model = Darknet(self._last_dense_size, load_weight_path)
+        model = Darknet(self._last_dense_size)
 
         self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:-7])
@@ -76,7 +76,8 @@ class Yolov1(rm.Model):
 
         if load_weight_path is not None:
             self.load(load_weight_path)
-            self.network.params = {}
+            for layer in self._network.iter_models():
+                layer.params = {}
 
     @property
     def freezed_network(self):
@@ -139,6 +140,10 @@ class Yolov1(rm.Model):
         return 0.0005 * reg
 
     def get_bbox(self, z):
+        """
+        Returns:
+            (list): List of predicted bounding box, class label id and its score.
+        """
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
 
@@ -191,7 +196,6 @@ class Yolov1(rm.Model):
             })
         return result
 
-
     def predict(self, img_list):
         """
 
@@ -236,7 +240,6 @@ class Yolov1(rm.Model):
             img_array = img_list
         pred = self(img_array).as_ndarray()
         return self.get_bbox(pred)
-
 
     def build_data(self, img_path_list, annotation_list, augmentation=None):
         """
@@ -297,5 +300,5 @@ class Yolov1(rm.Model):
             mask[fn, fy, fx, iou_ind[fn, fy, fx] * 5] = 1
             mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 5
 
-        diff = (x - y)*mask.reshape(N, -1)
-        return rm.sum(diff * diff) / N / 2.
+        diff = (x - y)
+        return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.

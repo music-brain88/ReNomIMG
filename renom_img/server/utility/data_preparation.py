@@ -50,9 +50,11 @@ def create_train_valid_dists(img_size, train_imgs, valid_imgs):
 
 
 def create_pred_dist(img_size):
+    print('create_pred_dist')
     pred_img_path = 'dataset/prediction_set/img'
     pred_img_path_list = sorted(os.listdir(pred_img_path))
     pred_img_path_list = [os.path.join(pred_img_path, x)
                           for x in pred_img_path_list]
+    print(pred_img_path_list)
     pred_dist = ImageDetectionDistributor(pred_img_path_list, None, img_size)
     return pred_dist

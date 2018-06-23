@@ -1,18 +1,23 @@
 import os
+import time
 import numpy as np
 import traceback
+import csv
+import xml.etree.ElementTree as et
+from PIL import Image
 from threading import Event
 from renom.cuda import set_cuda_active, release_mem_pool
 
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.utility.load import parse_xml_detection
+from renom_img.api.utility.target import DataBuilderYolov1
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 
 from renom_img.server import ALG_YOLOV1
 from renom_img.server import DB_DIR_TRAINED_WEIGHT
-from renom_img.server import DATASRC_IMG, DATASRC_LABEL
+from renom_img.server import DATASRC_PREDICTION_IMG, DATASRC_PREDICTION_OUT
 from renom_img.server import STATE_RUNNING
 from renom_img.server import RUN_STATE_TRAINING, RUN_STATE_VALIDATING, \
     RUN_STATE_PREDICTING, RUN_STATE_STARTING, RUN_STATE_STOPPING
@@ -22,8 +27,8 @@ from renom_img.server.utility.storage import storage
 
 class PredictionThread(object):
 
-    def __init__(self, thread_id, project_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params):
+    def __init__(self, thread_id, model_id, hyper_parameters,
+                 algorithm, algorithm_params, weight_name, class_num):
 
         self.model_id = model_id
 
@@ -41,10 +46,15 @@ class PredictionThread(object):
         self.batch_size = int(hyper_parameters["batch_size"])
         self.imsize = (int(hyper_parameters["image_width"]),
                        int(hyper_parameters["image_height"]))
+        self.cell_size = int(algorithm_params['cells'])
         self.stop_event = Event()
 
         # Prepare dataset
-        self.prediction_dist = self.create_dist(train_files)
+        self.predict_files = [os.path.join(DATASRC_PREDICTION_IMG, path)
+                              for path in sorted(os.listdir(DATASRC_PREDICTION_IMG))]
+
+        # File name of trainded model's weight
+        self.weight_name = weight_name
 
         # Algorithm
         # Pretrained weights are must be prepared.
@@ -52,11 +62,18 @@ class PredictionThread(object):
         if algorithm == ALG_YOLOV1:
             cell_size = int(algorithm_params["cells"])
             num_bbox = int(algorithm_params["bounding_box"])
-            self.model = Yolov1(len(class_map), cell_size, num_bbox, load_weight=True)
+            path = os.path.join(DB_DIR_TRAINED_WEIGHT,  self.weight_name)
+            self.model = Yolov1(class_num, cell_size, num_bbox,
+                                imsize=self.imsize, load_weight_path=None)
+            self.model.load(path)
         else:
             self.error_msg = "{} is not supported algorithm id.".format(algorithm)
 
+        # Result set of prediction
         self.predict_results = {}
+
+        # File name of prediction result
+        self.csv_filename = ''
 
     @property
     def running_state(self):
@@ -72,7 +89,6 @@ class PredictionThread(object):
             self._running_state = state
 
     def __call__(self):
-        storage.update_model_state(self.model_id, STATE_RUNNING)
         # This func works as thread.
         batch_size = self.batch_size
 
@@ -83,25 +99,34 @@ class PredictionThread(object):
             self.model.set_models(inference=True)
             result = []
             # Prediction
-            self.running_state = RUN_STATE_VALIDATING
+            self.running_state = RUN_STATE_PREDICTING
             if self.is_stopped():
                 return
             display_loss = 0
-            batch_gen = self.prediction_dist.batch(batch_size, self.model.build_data)
-            for i, pred_x in enumerate(batch_gen):
-                if self.is_stopped():
-                    return
-                result.extend(self.model.predict(pred_x))
-            # Set result.
+            self.total_batch = int(np.ceil(len(self.predict_files) / float(self.batch_size)))
+            for i in range(0, self.total_batch):
+                self.nth_batch = i
+                batch = self.predict_files[i * self.batch_size:(i + 1) * batch_size]
+                batch_result = self.model.predict(batch)
+                result.extend(batch_result)
 
+            # Set result.
+            self.predict_results = {
+                "bbox_path_list": self.predict_files,
+                "bbox_list": result
+            }
+
+            self.save_predict_result_to_csv()
+            self.save_predict_result_to_xml()
         # Store epoch data tp DB.
+
         except Exception as e:
             traceback.print_exc()
             self.error_msg = str(e)
             self.model = None
             release_mem_pool()
 
-    def get_running_info():
+    def get_running_info(self):
         return {
             "model_id": self.model_id,
             "total_batch": self.total_batch,
@@ -119,73 +144,29 @@ class PredictionThread(object):
     def is_stopped(self):
         return self.stop_event.is_set()
 
-    def create_dist(self, filename_list, train=True):
-        """
-        This function creates img path list and annotation list from
-        filename list.
-
-        Image file name and label file must be same.
-        Because of that, data_list is a list of file names.
-
-        Data formats are bellow.  
-
-        image path list: [path_to_img1, path_to_img2, ...]
-        annotation list: [
-                            [ # Annotations of each image.
-                                {"box":[x, y, w, h], "name":"dog", "class":1},
-                                {"box":[x, y, w, h], "name":"cat", "class":0},
-                            ],
-                            [
-                                {"box":[x, y, w, h], "name":"cat", "class":0},
-                            ],
-                            ...
-                          ]
-
-        Args:
-            filename_list(list): [filename1, filename2, ...]
-            train(bool): If it's ture, augmentation will be added to distributor.
-
-        Returns:
-            (ImageDistributor): ImageDistributor object with augmentation.
-        """
-        img_path_list = []
-        label_path_list = []
-        for path in sorted(filename_list):
-            name = os.path.splitext(path)[0]
-            img_path = os.path.join(DATASRC_IMG, path)
-            label_path = os.path.join(DATASRC_LABEL, name + ".xml")
-
-            if os.path.exists(img_path) and os.path.exists(label_path):
-                img_path_list.append(img_path)
-                label_path_list.append(label_path)
-            else:
-                print("{} not found.".format(name))
-        annotation_list, _ = parse_xml_detection(label_path_list)
-        augmentation = Augmentation([
-            Shift(40, 40)
-        ])
-        return ImageDistributor(img_path_list, annotation_list,
-                                augmentation=augmentation)
-
     def save_predict_result_to_csv(self):
         try:
             # modelのcsvを保存する
+            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            CSV_DIR = os.path.join(BASE_DIR, DATASRC_PREDICTION_OUT, 'csv')
             if not os.path.isdir(CSV_DIR):
                 os.makedirs(CSV_DIR)
 
             self.csv_filename = '{}.csv'.format(int(time.time()))
             filepath = os.path.join(CSV_DIR, self.csv_filename)
-
             with open(filepath, 'w') as f:
                 writer = csv.writer(f, lineterminator="\n")
-
                 for i in range(len(self.predict_results["bbox_path_list"])):
                     row = []
                     row.append(self.predict_results["bbox_path_list"][i])
-                    for j in range(len(self.predict_results["bbox_list"][i])):
-                        b = self.predict_results["bbox_list"][i][j]
-                        row.append(b["class"])
-                        row.append(b["box"])
+                    if isinstance(self.predict_results, list) and len(self.predict_results["bbox_list"]) != 0:
+                        for j in range(len(self.predict_results["bbox_list"][i])):
+                            b = self.predict_results["bbox_list"][i][j]
+                            row.append(b["class"])
+                            row.append(b["box"])
+                    else:
+                        row.append(None)
+                        row.append(None)
 
                     writer.writerow(row)
         except Exception as e:
@@ -194,6 +175,11 @@ class PredictionThread(object):
 
     def save_predict_result_to_xml(self):
         try:
+            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            XML_DIR = os.path.join(BASE_DIR, DATASRC_PREDICTION_OUT, 'xml')
+            IMG_DIR = os.path.join(BASE_DIR, DATASRC_PREDICTION_IMG)
+            if not os.path.isdir(XML_DIR):
+                os.makedirs(XML_DIR)
             for i in range(len(self.predict_results["bbox_path_list"])):
                 img_path = self.predict_results["bbox_path_list"][i]
                 filename = img_path.split("/")[-1]
@@ -217,3 +203,31 @@ class PredictionThread(object):
                     bbox_xmax = et.SubElement(bbox_position, "xmax")
                     xmax = width * b["box"][0] + (width * b["box"][2] / 2.)
                     bbox_xmax.text = str(xmax)
+
+                    bbox_xmin = et.SubElement(bbox_position, "xmin")
+                    xmin = width * b["box"][0] - (width * b["box"][2] / 2.)
+                    bbox_xmin.text = str(xmin)
+
+                    bbox_ymax = et.SubElement(bbox_position, "ymax")
+                    ymax = height * b["box"][1] + height * b["box"][3] / 2.
+                    bbox_ymax.text = str(ymax)
+
+                    bbox_ymin = et.SubElement(bbox_position, "ymin")
+                    ymin = height * b["box"][1] - height * b["box"][3] / 2.
+                    bbox_ymin.text = str(ymin)
+
+                    bbox_score = et.SubElement(obj, "score")
+                    bbox_score.text = str(b["score"])
+
+                size = et.SubElement(annotation, "size")
+                size_h = et.SubElement(size, "height")
+                size_h.text = str(height)
+                size_w = et.SubElement(size, "width")
+                size_w.text = str(width)
+
+                tree = et.ElementTree(annotation)
+
+                tree.write(filepath)
+        except Exception as e:
+            traceback.print_exc()
+            self.error_msg = e.args[0]

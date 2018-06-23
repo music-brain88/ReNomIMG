@@ -16,13 +16,13 @@ def parse_xml_detection(xml_path_list):
             The structure is bellow.
         [
             [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'name': class_name(string)},
-                {'box': [x(float), y, w, h], 'name': class_name(string)},
+                {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},
+                {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},
                 ...
             ],
             [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'name': class_name(string)},
-                {'box': [x(float), y, w, h], 'name': class_name(string)},
+                {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},
+                {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},
                 ...
             ]
         ]
@@ -67,7 +67,7 @@ def prepare_detection_data(img_path_list, annotation_list, imsize):
         img = Image.open(path)
         w, h = img.size
         sw, sh = imsize[0] / float(w), imsize[1] / float(h)
-        img = img.resize(imsize).convert('RGB')
+        img = img.resize(imsize, Image.BILINEAR).convert('RGB')
         new_obj_list = [{
             "box": [obj["box"][0] * sw, obj["box"][1] * sh, obj["box"][2] * sw, obj["box"][3] * sh],
             "name": obj["name"],
@@ -80,6 +80,7 @@ def prepare_detection_data(img_path_list, annotation_list, imsize):
 
 def load_img(img_path, imsize=None):
     img = Image.open(img_path)
+    img = img.convert('RGB')
     if imsize is not None:
         img = img.resize(imsize, Image.BILINEAR)
     return np.asarray(img).transpose(2, 0, 1).astype(np.float32)

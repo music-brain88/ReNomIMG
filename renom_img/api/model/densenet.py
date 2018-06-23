@@ -4,6 +4,26 @@ import numpy as np
 import renom as rm
 
 
+def conv_block(growth_rate):
+    return rm.Sequential([
+        rm.BatchNormalize(epsilon=0.001, mode='feature'),
+        rm.Relu(),
+        rm.Conv2d(growth_rate * 4, 1, padding=0),
+        rm.BatchNormalize(epsilon=0.001, mode='feature'),
+        rm.Relu(),
+        rm.Conv2d(growth_rate, 3, padding=1),
+    ])
+
+
+def transition_layer(growth_rate):
+    return rm.Sequential([
+        rm.BatchNormalize(epsilon=0.001, mode='feature'),
+        rm.Relu(),
+        rm.Conv2d(growth_rate, filter=1, padding=0, stride=1),
+        rm.AveragePool2d(filter=2, stride=2)
+    ])
+
+
 class DenseNet(rm.Sequential):
     def __init__(self, num_classes, layer_per_block=[6, 12, 24, 16], growth_rate=32):
         """

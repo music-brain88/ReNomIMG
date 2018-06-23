@@ -1,6 +1,6 @@
 import numpy as np
-from renom_img.api.utility.evaluate.detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
-from renom_img.api.utility.evaluate.classification import precision_score, recall_score, accuracy_score
+from .detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
+from .classification import precision_score, recall_score, accuracy_score
 import matplotlib.pyplot as plt
 
 

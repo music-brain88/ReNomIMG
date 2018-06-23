@@ -286,6 +286,10 @@ export default {
           if (context.state.predict_running_flag) {
             context.dispatch('updatePredictionInfo')
           }
+        }).catch(function (error) {
+          if (context.state.predict_running_flag) {
+            context.dispatch('upadtePredictionInfo')
+          }
         })
     }
   },

@@ -13,7 +13,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 
-from renom_img.api.utility.evaluate import get_ap_and_map, get_prec_rec_iou
+from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
 
 from renom_img.server import ALG_YOLOV1
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
@@ -33,7 +33,6 @@ class TrainThread(object):
 
         # Model will be created in __call__ function.
         self.model = None
-
         self.model_id = model_id
 
         # For weight download
@@ -74,6 +73,7 @@ class TrainThread(object):
         self.valid_dist = self.create_dist(valid_files, False)
 
     def download_weight(self, url, filename):
+
         pretrained_weight_path = os.path.join(DB_DIR_PRETRAINED_WEIGHT, filename)
         if os.path.exists(pretrained_weight_path):
             self.weight_existance = WEIGHT_EXISTS
@@ -114,7 +114,7 @@ class TrainThread(object):
                 self.model = Yolov1(len(self.class_map), cell_size, num_bbox,
                                     imsize=self.imsize, load_weight_path=path)
             else:
-                self.error_msg = "{} is not supported algorithm id.".format(algorithm)
+                self.error_msg = "{} is not supported algorithm id.".format(self.algorithm)
 
             i = 0
             set_cuda_active(True)
@@ -151,8 +151,8 @@ class TrainThread(object):
                         reg_loss = loss + self.model.regularize()
                     reg_loss.grad().update(self.model.get_optimizer(e, epoch,
                                                                     i, self.total_batch))
-                    display_loss += float(loss.as_ndarray()[0])
-                    self.last_batch_loss = float(loss.as_ndarray()[0])
+                    display_loss += float(loss.as_ndarray())
+                    self.last_batch_loss = float(loss.as_ndarray())
                 avg_train_loss = display_loss / (i + 1)
 
                 # Validation
@@ -169,7 +169,7 @@ class TrainThread(object):
                     valid_z = self.model(valid_x)
                     valid_predict_box.extend(self.model.get_bbox(valid_z))
                     loss = self.model.loss(valid_z, valid_y)
-                    display_loss += float(loss.as_ndarray()[0])
+                    display_loss += float(loss.as_ndarray())
 
                 if self.is_stopped():
                     return
@@ -280,6 +280,6 @@ class TrainThread(object):
                 WhiteNoise()
             ])
             return ImageDistributor(img_path_list, annotation_list,
-                                augmentation=augmentation)
+                                    augmentation=augmentation)
         else:
             return ImageDistributor(img_path_list, annotation_list)
