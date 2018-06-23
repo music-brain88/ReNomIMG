@@ -72,11 +72,23 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
 
 
 class Yolov2(rm.Model):
+    """
+    Args:
+        num_class(int):
+        anchor(list):
+        anchor_size(list):
+        imsize(lit):
+        load_weight_path(string):
+        train_whole_network(bool):
+    """
 
     WEIGHT_URL = "Yolov2.h5"
 
-    def __init__(self, num_class, anchor, anchor_size, imsize=(224, 224), load_weight_path=None):
-        assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0
+    def __init__(self, num_class, anchor, anchor_size,
+            imsize=(224, 224), load_weight_path=None, train_whole_network=False):
+        assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
+            "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
+            exp),imsize=(320, 320)."
         self.imsize = imsize
         self.anchor_size = anchor_size
         self._freezed_network = Darknet19Base()
@@ -92,6 +104,7 @@ class Yolov2(rm.Model):
         self._conv2 = DarknetConv2dBN(channel=1024)
         self._last = rm.Conv2d(channel=last_channel, filter=1)
         self._opt = rm.Sgd(0.01, 0.9)
+        self._train_whole_network = train_whole_network
 
         # Load weight here.
         # self.load()
@@ -124,12 +137,13 @@ class Yolov2(rm.Model):
         return x / 255. * 2 - 1
 
     def forward(self, x):
-        # self.freezed_network.set_auto_update(False)
-        # self.freezed_network.set_models(inference=True)
+        self.freezed_network.set_auto_update(self._train_whole_network)
+        self.freezed_network.set_models(inference= \
+            (not self._train_whole_network or getattr(self, 'inference', False)))
         h, f = self.freezed_network(x)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,
-                                  rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
+            rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
         out = self._last(h)
 
         # Create yolo format.

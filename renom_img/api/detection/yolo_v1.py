@@ -54,7 +54,7 @@ class Yolov1(rm.Model):
 
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None):
+    def __init__(self, num_class, cells, bbox, imsize=(224, 224), load_weight_path=None, train_whole_network=False):
         assert load_weight_path is None or isinstance(load_weight_path, str)
 
         if not hasattr(cells, "__getitem__"):
@@ -67,6 +67,7 @@ class Yolov1(rm.Model):
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
         model = Darknet(self._last_dense_size)
+        self._train_whole_network = train_whole_network
 
         self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:-7])
@@ -124,8 +125,8 @@ class Yolov1(rm.Model):
         return x / 255. * 2 - 1
 
     def forward(self, x):
-        self.freezed_network.set_auto_update(False)
-        return self.network(self.freezed_network(x).as_ndarray())
+        self.freezed_network.set_auto_update(self._train_whole_network)
+        return self.network(self.freezed_network(x))
 
     def regularize(self):
         """Regularize model.
