@@ -416,26 +416,35 @@ class Jitter(ProcessBase):
         return x, y
 
 class ContrastNorm(ProcessBase):
-    def __init__(self, alpha=0.5):
+    def __init__(self, alpha=0.5, per_channel=False):
         super(ContrastNorm, self).__init__()
         if isinstance(alpha, list):
-            assert alpha == 2, "Expected list with 2 entries, got {} entries".format(len(alpha))
-
-        self._alpha = alpha
-
-    def draw_sample(size=1):
-        if isinstance(alpha, list):
-            return np.random.uniform(alpha[0], alpha[1], size)
+            assert alpha != 2, "Expected list with 2 entries, got {} entries".format(len(alpha))
         else:
-            return self.alpha
+            assert alpha >= 0.0, "Expected alpha to be larger or equal to 0.0, got {}".format(alpha)
+        self._alpha = alpha
+        self._per_channel = per_channel
+
+    def draw_sample(self, size=1):
+        if isinstance(self._alpha, list):
+            return np.random.uniform(self._alpha[0], self._alpha[1], size)
+        else:
+            return self._alpha
 
     def _transform_classification(self, x, y):
         assert len(x.shape) == 4
         n = x.shape[0]
         new_x = np.empty_like(x)
         for i in range(n):
-            alpha = draw_sample()
-            new_x[i] = alpha*(x[i] - 128) + 128
+            if self._per_channel and isinstance(self._alpha, list):
+                channel = x.shape[1]
+                alpha = self.draw_sample(size=channel)
+                for c in range(channel):
+                    new_x[i, c, :, :] = np.clip(alpha[c] * (x[i, c, :, :] - 128) + 128, 0, 255)
+            else:
+                alpha = self.draw_sample()
+                new_x[i] = np.clip(alpha*(x[i] - 128) + 128, 0, 255)
+
         return new_x, y
 
     def _transform_detection(self, x, y):
@@ -443,7 +452,56 @@ class ContrastNorm(ProcessBase):
         n = x.shape[0]
         new_x = np.empty_like(x)
         for i in range(n):
-            alpha = draw_sample()
-            new_x[i] = alpha*(x[i] - 128) + 128
+            if self._per_channel and isinstance(self._alpha, list):
+                channel = x.shape[1]
+                alpha = self.draw_sample(size=channel)
+                for c in range(channel):
+                    new_x[i, c, :, :] = np.clip(alpha[c] * (x[i, c, :, :] - 128) + 128, 0, 255)
+            else:
+                alpha = self.draw_sample()
+                new_x[i] = np.clip(alpha*(x[i] - 128) + 128, 0, 255)
+
         return new_x, y
+
+
+def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'):
+    """ Contrast Normalization
+    Args:
+        alpha(float or list of two floats): Higher value increases contrast, and lower value decreases contrast.
+                                            if a list [a, b], alpha value is sampled from uniform distribution ranging from [a, b).
+                                            if a float, constant value of alpha is used.
+        per_channel(Bool): Whether to apply contrast normalization for each channel. 
+                           If alpha is given a list, then different values for each channel are used.
+
+    Returns:
+        (list of numpy.array): List of images normalized by contrast
+        (list of dict): List of annotation results.
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import white_noise
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> noise_img = white_noise(img_list)
+    """
+    return WhiteNoise(std)(x, y, mode)
+
+
+class Jitter(ProcessBase):
+
+    def __init__(self):
+        pass
+
+    def _transform_classification(self, x, y):
+        """
+    Example:
+        >>> img = Image.open(img_path)
+        >>> img.convert('RGB')
+        >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
+        >>> x = np.array([img])
+        >>> new_x, new_y = contrast_norm(x, alpha=0.4)
+    """
+    return ContrastNorm(alpha, per_channel)(x, y, mode)
 
