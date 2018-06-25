@@ -1,5 +1,5 @@
 
-# ReNomIMG 0.6beta
+# ReNomIMG 0.8beta
 
 ReNom IMG is model developing tool for object detection.
 
@@ -40,9 +40,13 @@ Then install all required packages.
 
 `pip install -r requirements.txt`
 
-At last, install renomimg module using following command.
+And install renom module using following command.
 
 `pip install -e .`
+
+At last, build extension modules.
+
+`python setup.py build`
 
 
 ## How to start
@@ -55,7 +59,7 @@ Or, following command is available from 0.7beta.
 
 `renom_img`
 
-Second command can be called in any folder and creates `dataset` folder in current directory.
+Second command can be called in any folder and creates `datasrc` folder in current directory.
 Please set your dataset to the created directory.
 
 
@@ -63,8 +67,8 @@ If the server starts, you will see a message like below.
 
 <img src='./js/static/img/server_run.png' width='60%'/>
 
-Then 'dataset' folder will be created in your current directory.  
-Please set images and labels according `2.Create dataset directory` description.
+Then 'datasrc' folder will be created in your current directory.
+Please set images and labels according to `2.Create dataset directory` description.
 
 
 ## How to use
@@ -81,64 +85,56 @@ IEEE Conference on Computer Vision and Pattern Recognition, 2012
 Bibtex
 http://www.robots.ox.ac.uk/~vgg/data/pets/
 
-#### 1.Download weight file of YOLO.
-At first, you must install weight file of yolo from url.
 
-You can get the file with the following command.
+#### 1.Create dataset directory
+To create dataset directory, please start ReNomIMG server according to 'How to start'.
 
-```
-cd ReNomIMG
+If dataset directory is created in current directory, following video showing.
 
-curl -O http://docs.renom.jp/downloads/weights/yolo.h5
-```
+The dataset directory is automatically created when you first start up server.
 
-#### 2.Create dataset directory
-As following video showing, please create the dataset directory in the `ReNomIMG`.
-
-When you finish, you can show following folder structure.
+The following is an example in case that you start up server directly under the ReNomIMG directory.
 
 ```
 ReNomIMG
- │
- └ dataset
-     │
-     ├ train_set // training dataset
-     │      │
-     │      ├ img // training images
-     │      └ label // training annotation xml files
-     │
-     ├ valid_set // validation dataset
-     │      │
-     │      ├ img // validation images
-     │      └ label // validation annotation xml files
-     │
-     └ prediction_set // prediction dataset
-            │
-            ├ img // prediction images
-            └ out // prediction result xml files
+    └── datasrc
+        ├── img            // image for training and validation
+        ├── label          // lable for training and validation
+        └── prediction_set // dataset for prediction
+            ├── img        // image for prediction
+            └── output     // results of prediction
+                ├── csv    // annotation of prediction in csv formats
+                └── xml    // annotation of prediction in xml formats
+
 ```
 
-[![Not supported browser](http://img.youtube.com/vi/vKEtrMD0UII/0.jpg)](http://www.youtube.com/watch?v=vKEtrMD0UII)
+[![Not supported browser](http://img.youtube.com/vi/vKEtrMD0UII/0.jpg)](https://youtu.be/foiigJfYLwI)
 
-#### 3.Set image data to ReNomIMG
-As following video showing, please put the image you want to use in the `ReNomIMG/dataset` folder.
+#### 2.Set image data to ReNomIMG
+As following video showing, please put the image and label you want to use in the `datasrc/img` and `datasrc/label` folder.
 
-[![Not supported browser](http://img.youtube.com/vi/BfFY2cg1jjw/0.jpg)](http://www.youtube.com/watch?v=BfFY2cg1jjw)
+Also, please put the img you want to predict in the `datasrc/prediction_set/img` folder.
 
-#### 4.Run ReNomIMG
+[![Not supported browser](http://img.youtube.com/vi/BfFY2cg1jjw/0.jpg)](https://youtu.be/955Fiuz-JSs)
+#### 3.Run ReNomIMG
 Same as before mentioned in 'How to start', following video describes how to start ReNomIMG.
 
-[![Not supported browser](http://img.youtube.com/vi/zASwzmWLV9U/0.jpg)](http://www.youtube.com/watch?v=zASwzmWLV9U)
+[![Not supported browser](http://img.youtube.com/vi/zASwzmWLV9U/0.jpg)](https://youtu.be/2GwP7jPMPwY)
+
+#### 4.How to crate datasets
+Following video describes how to datasets.
+
+[![Not supported browser](http://img.youtube.com/vi/BzNTtdrMtIo/0.jpg)](https://youtu.be/O69Rf7VZWjM)
 
 #### 5.How to start training in ReNomIMG
 Following video describes how to start model training in ReNomIMG.
 
-[![Not supported browser](http://img.youtube.com/vi/BzNTtdrMtIo/0.jpg)](http://www.youtube.com/watch?v=BzNTtdrMtIo)
+[![Not supported browser](http://img.youtube.com/vi/BzNTtdrMtIo/0.jpg)](https://youtu.be/oFX90idVjnM)
 
 #### 6.How to use model for prediction.
 Following video describes how to use model for prediction in ReNomIMG.
 
-[![Not supported browser](http://img.youtube.com/vi/RRW8ODUmUfE/0.jpg)](http://www.youtube.com/watch?v=RRW8ODUmUfE)
+[![Not supported browser](http://img.youtube.com/vi/RRW8ODUmUfE/0.jpg)](https://youtu.be/uG3TI5pVSTM)
 
 
 ## Format of xml file.
