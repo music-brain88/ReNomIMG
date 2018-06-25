@@ -17,7 +17,8 @@ from renom_img.api.utility.augmentation.augmentation import Augmentation
 
 from renom_img.server import ALG_YOLOV1
 from renom_img.server import DB_DIR_TRAINED_WEIGHT
-from renom_img.server import DATASRC_PREDICTION_IMG, DATASRC_PREDICTION_OUT
+from renom_img.server import DATASRC_PREDICTION_IMG, DATASRC_PREDICTION_OUT, \
+    DATASRC_PREDICTION_OUT_CSV, DATASRC_PREDICTION_OUT_XML
 from renom_img.server import STATE_RUNNING
 from renom_img.server import RUN_STATE_TRAINING, RUN_STATE_VALIDATING, \
     RUN_STATE_PREDICTING, RUN_STATE_STARTING, RUN_STATE_STOPPING
@@ -175,17 +176,12 @@ class PredictionThread(object):
 
     def save_predict_result_to_xml(self):
         try:
-            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-            XML_DIR = os.path.join(BASE_DIR, DATASRC_PREDICTION_OUT, 'xml')
-            IMG_DIR = os.path.join(BASE_DIR, DATASRC_PREDICTION_IMG)
-            if not os.path.isdir(XML_DIR):
-                os.makedirs(XML_DIR)
             for i in range(len(self.predict_results["bbox_path_list"])):
                 img_path = self.predict_results["bbox_path_list"][i]
                 filename = img_path.split("/")[-1]
                 xml_filename = '{}.xml'.format(filename.split(".")[0])
-                filepath = os.path.join(XML_DIR, xml_filename)
-                img_path = os.path.join(IMG_DIR, filename)
+                filepath = os.path.join(DATASRC_PREDICTION_OUT_XML, xml_filename)
+                img_path = os.path.join(DATASRC_PREDICTION_IMG, filename)
                 im = Image.open(img_path)
                 width, height = im.size
 
