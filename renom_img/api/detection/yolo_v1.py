@@ -57,7 +57,7 @@ class Yolov1(rm.Model):
         load_weight_path (str): Weight data will be downloaded.
     """
 
-    SERIALIZED = ("_cells", "_bbox", "_class_map", "_num_class", "_last_dense_size")
+    # SERIALIZED = ("_cells", "_bbox", "_class_map", "_num_class", "_last_dense_size")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
     def __init__(self, class_map, cells, bbox, imsize=(224, 224), load_weight_path=None, train_whole_network=False):
@@ -70,7 +70,7 @@ class Yolov1(rm.Model):
             imsize = (imsize, imsize)
 
         self._num_class = num_class
-        self._class_map = [k for k, v in sorted(
+        self._class_map = [str(k) for k, v in sorted(
             class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
         self._cells = cells
         self._bbox = bbox
@@ -98,11 +98,6 @@ class Yolov1(rm.Model):
     @property
     def network(self):
         return self._network
-
-    def save(self, path):
-        """
-        """
-        super(Yolov1, self).save(path)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimiser for training Yolov1 algorithm.

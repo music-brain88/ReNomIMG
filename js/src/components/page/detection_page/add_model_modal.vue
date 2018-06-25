@@ -182,7 +182,7 @@ export default {
         'seed': parseInt(this.seed),
         'image_width': parseInt(this.image_width),
         'image_height': parseInt(this.image_height),
-        'train_whole_network': parseInt(this.train_whole_network)
+        'train_whole_network': parseInt(this.train_whole_flag)
       }
 
       let algorithm_params = {}

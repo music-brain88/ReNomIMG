@@ -69,8 +69,6 @@ class TrainThread(object):
         # Prepare dataset
         rec = storage.fetch_dataset_def(dataset_id)
         (_, name, ratio, train_files, valid_files, class_map, _, _) = rec
-        print(class_map)
-        print(type(class_map))
         self.class_map = class_map
         self.train_dist = self.create_dist(train_files)
         self.valid_dist = self.create_dist(valid_files, False)

@@ -8,6 +8,7 @@
       <div class="model-values">
         <value-item :label="'Dataset'" :val="getDatasetName(model.dataset_def_id)"></value-item>
         <value-item :label="'Algorithm'" :val="getAlgorithmName(model.algorithm)"></value-item>
+        <value-item :label="'Train Whole'" :val="Boolean(model.hyper_parameters['train_whole_network'])"></value-item>
         <value-item :label="'Total Epoch'" :val="model.hyper_parameters['total_epoch']"></value-item>
         <value-item :label="'Batch Size'" :val="model.hyper_parameters['batch_size']"></value-item>
         <value-item :label="'Image Width'" :val="model.hyper_parameters['image_width']"></value-item>
