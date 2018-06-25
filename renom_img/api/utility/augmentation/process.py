@@ -409,17 +409,18 @@ class Jitter(ProcessBase):
         v = np.clip(v * scale_v, 0, 255)
         return x, y
 
+
 class ContrastNorm(ProcessBase):
     def __init__(self, alpha=0.5, per_channel=False):
         super(ContrastNorm, self).__init__()
         if isinstance(alpha, list):
-            assert alpha != 2, "Expected list with 2 entries, got {} entries".format(len(alpha))
+            assert len(alpha) == 2, "Expected list with 2 entries, got {} entries".format(len(alpha))
         else:
             assert alpha >= 0.0, "Expected alpha to be larger or equal to 0.0, got {}".format(alpha)
         self._alpha = alpha
         self._per_channel = per_channel
 
-    def draw_sample(self, size=1):
+    def _draw_sample(self, size=1):
         if isinstance(self._alpha, list):
             return np.random.uniform(self._alpha[0], self._alpha[1], size)
         else:
@@ -432,12 +433,12 @@ class ContrastNorm(ProcessBase):
         for i in range(n):
             if self._per_channel and isinstance(self._alpha, list):
                 channel = x.shape[1]
-                alpha = self.draw_sample(size=channel)
+                alpha = self._draw_sample(size=channel)
                 for c in range(channel):
                     new_x[i, c, :, :] = np.clip(alpha[c] * (x[i, c, :, :] - 128) + 128, 0, 255)
             else:
-                alpha = self.draw_sample()
-                new_x[i] = np.clip(alpha*(x[i] - 128) + 128, 0, 255)
+                alpha = self._draw_sample()
+                new_x[i] = np.clip(alpha * (x[i] - 128) + 128, 0, 255)
 
         return new_x, y
 
@@ -448,12 +449,12 @@ class ContrastNorm(ProcessBase):
         for i in range(n):
             if self._per_channel and isinstance(self._alpha, list):
                 channel = x.shape[1]
-                alpha = self.draw_sample(size=channel)
+                alpha = self._draw_sample(size=channel)
                 for c in range(channel):
                     new_x[i, c, :, :] = np.clip(alpha[c] * (x[i, c, :, :] - 128) + 128, 0, 255)
             else:
-                alpha = self.draw_sample()
-                new_x[i] = np.clip(alpha*(x[i] - 128) + 128, 0, 255)
+                alpha = self._draw_sample()
+                new_x[i] = np.clip(alpha * (x[i] - 128) + 128, 0, 255)
 
         return new_x, y
 
@@ -479,4 +480,3 @@ def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'
         >>> new_x, new_y = contrast_norm(x, alpha=0.4)
     """
     return ContrastNorm(alpha, per_channel)(x, y, mode)
-
