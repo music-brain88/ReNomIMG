@@ -140,13 +140,23 @@ class Yolov1(rm.Model):
         return self.network(self.freezed_network(x))
 
     def regularize(self):
-        """Regularize model.
+        """Regularize term. You can use this function to add regularize term to 
+        loss function.
+
+        In Yolo v1, weight decay of 0.0005 will be added.
 
         Example:
-            >>> 
+            >>> import numpy as np
+            >>> from renom_img.api.detection.yolo_v1 import Yolov1
+            >>> x = np.random.rand(1, 3, 224, 224)
+            >>> y = np.random.rand(1, (5*2+20)*7*7)
+            >>> model = Yolov1()
+            >>> loss = model.loss(x, y)
+            >>> reg_loss = loss + model.regularize() # Add weight decay term.
+
         """
         reg = 0
-        for layer in self.network.iter_models():
+        for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
