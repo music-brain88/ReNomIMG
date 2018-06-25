@@ -57,6 +57,7 @@ class Yolov1(rm.Model):
         load_weight_path (str): Weight data will be downloaded.
     """
 
+    SERIALIZED = ("_cells", "_bbox", "_class_map", "_num_class", "_last_dense_size")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
     def __init__(self, class_map, cells, bbox, imsize=(224, 224), load_weight_path=None, train_whole_network=False):

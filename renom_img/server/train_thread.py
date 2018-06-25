@@ -56,6 +56,7 @@ class TrainThread(object):
         self.error_msg = None
 
         # Train hyperparameters
+        self.train_whole_network = int(hyper_parameters["train_whole_network"])
         self.total_epoch = int(hyper_parameters["total_epoch"])
         self.batch_size = int(hyper_parameters["batch_size"])
         self.imsize = (int(hyper_parameters["image_width"]),
@@ -114,7 +115,7 @@ class TrainThread(object):
                 num_bbox = int(self.algorithm_params["bounding_box"])
                 path = self.download_weight(Yolov1.WEIGHT_URL, Yolov1.__name__ + '.h5')
                 self.model = Yolov1(self.class_map, cell_size, num_bbox,
-                                    imsize=self.imsize, load_weight_path=path)
+                                    imsize=self.imsize, load_weight_path=path, train_whole_network=self.train_whole_network)
             else:
                 self.error_msg = "{} is not supported algorithm id.".format(self.algorithm)
 

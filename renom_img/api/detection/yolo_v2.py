@@ -86,10 +86,10 @@ class Yolov2(rm.Model):
     """
 
     # Anchor information will be serialized by 'save' method.
-    SERIALIZED = ("anchor", "num_anchor", "anchor_size")
+    SERIALIZED = ("anchor", "num_anchor", "anchor_size", "_class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov2.h5"
 
-    def __init__(self, class_map, anchor=None, anchor_size=None,
+    def __init__(self, class_map=None, anchor=None, anchor_size=None,
                  imsize=(224, 224), load_weight_path=None, train_whole_network=False):
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \

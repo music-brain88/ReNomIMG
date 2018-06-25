@@ -3,15 +3,12 @@ import sys
 import numpy as np
 import renom as rm
 
-"""
-U-Net: Convolutional Networks for Biomedical Image Segmentation
-https://arxiv.org/pdf/1505.04597.pdf
-"""
-
 
 class UNet(rm.Model):
     def __init__(self, num_classes, load_weight=False):
         """
+        U-Net: Convolutional Networks for Biomedical Image Segmentation
+        https://arxiv.org/pdf/1505.04597.pdf
         Arguments:
             num_classes: The number of classes
             load_weight: Loading the pretrained weight

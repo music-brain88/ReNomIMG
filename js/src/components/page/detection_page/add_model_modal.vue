@@ -38,6 +38,16 @@
             </div>
           </div>
 
+          <div class="param-item">
+            <div class="label">Train Whole Network</div>
+            <div class="item">
+              <select class="algorithm-select-box" v-model="train_whole_flag">
+                <option value="0">False</option>
+                <option value="1">True</option>
+              </select>
+            </div>
+          </div>
+
           <div v-if="algorithm == 0" class="param-item">
             <div class="label">Cells</div>
             <div class="item">
@@ -129,6 +139,7 @@ export default {
     return {
       dataset_def_id: 1,
       algorithm: 0,
+      train_whole_flag: 0,
       total_epoch: 100,
       seed: 0,
 
@@ -170,7 +181,8 @@ export default {
         'batch_size': parseInt(this.batch_size),
         'seed': parseInt(this.seed),
         'image_width': parseInt(this.image_width),
-        'image_height': parseInt(this.image_height)
+        'image_height': parseInt(this.image_height),
+        'train_whole_network': parseInt(this.train_whole_network)
       }
 
       let algorithm_params = {}
