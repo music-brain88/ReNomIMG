@@ -477,25 +477,6 @@ def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'
         (list of numpy.array): List of images normalized by contrast
         (list of dict): List of annotation results.
 
-    Examples:
-        >>> from renom_img.api.utility.augmentation.process import white_noise
-        >>> from PIL import Image
-        >>>
-        >>> img1 = Image.open(img_path1)
-        >>> img2 = Image.open(img_path2)
-        >>> img_list = np.array([img1, img2])
-        >>> noise_img = white_noise(img_list)
-    """
-    return WhiteNoise(std)(x, y, mode)
-
-
-class Jitter(ProcessBase):
-
-    def __init__(self):
-        pass
-
-    def _transform_classification(self, x, y):
-        """
     Example:
         >>> img = Image.open(img_path)
         >>> img.convert('RGB')
