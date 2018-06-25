@@ -69,7 +69,8 @@ class Yolov1(rm.Model):
             imsize = (imsize, imsize)
 
         self._num_class = num_class
-        self._class_map = class_map
+        self._class_map = [class_map for k in sorted(
+            class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
@@ -219,7 +220,7 @@ class Yolov1(rm.Model):
             # Note: Take care types.
             result[indexes[0][i]].append({
                 "class": int(max_class[indexes[0][i], indexes[1][i]]),
-                "name": [k for k, v in self._class_map.items() if v == int(max_class[indexes[0][i], indexes[1][i]])][0],
+                "name": self._class_map[int(max_class[indexes[0][i], indexes[1][i]])],
                 "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })

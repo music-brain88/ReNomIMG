@@ -437,7 +437,7 @@ def create_dataset_def():
         valid_imgs = [str(img) for img in valids]
 
         _, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
-        class_map = [k for k, v in sorted(class_map.items(), key=lambda x:x[0])]
+        class_map = [k for k, v in sorted(class_map.items(), key=lambda x:x[1])]
 
         # register dataset
         id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)

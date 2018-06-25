@@ -570,7 +570,7 @@ class Storage:
 
         train_imgs = json.dumps(train_imgs)
         valid_imgs = json.dumps(valid_imgs)
-        class_map = pickle_dump(class_map)
+        class_map = json.dumps(class_map)
 
         now = datetime.datetime.now()
         with self.db:
@@ -591,7 +591,7 @@ class Storage:
                 ret.append([
                     rec[0], rec[1], rec[2],
                     json.loads(rec[3]),
-                    pickle_load(rec[4]),
+                    json.loads(rec[4]),
                     rec[5].isoformat(), rec[6].isoformat()
                 ])
             return ret
@@ -606,7 +606,7 @@ class Storage:
                 id, name, ratio, train_imgs, valid_imgs, class_map, created, updated = rec
                 train_imgs = json.loads(train_imgs)
                 valid_imgs = json.loads(valid_imgs)
-                class_map = pickle_load(class_map)
+                class_map = json.loads(class_map)
                 return (id, name, ratio, train_imgs, valid_imgs, class_map, created, updated)
             return None
 

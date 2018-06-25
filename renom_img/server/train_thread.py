@@ -68,6 +68,8 @@ class TrainThread(object):
         # Prepare dataset
         rec = storage.fetch_dataset_def(dataset_id)
         (_, name, ratio, train_files, valid_files, class_map, _, _) = rec
+        print(class_map)
+        print(type(class_map))
         self.class_map = class_map
         self.train_dist = self.create_dist(train_files)
         self.valid_dist = self.create_dist(valid_files, False)
@@ -200,7 +202,7 @@ class TrainThread(object):
                     # modelのweightを保存する
                     self.model.save(os.path.join(DB_DIR_TRAINED_WEIGHT, filename))
                     storage.update_model_best_epoch(self.model_id, e, iou,
-                                                    mAP, filename, self.valid_predict_box)
+                                                    mAP, filename, valid_predict_box)
 
                 storage.update_epoch(
                     epoch_id=epoch_id,

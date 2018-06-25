@@ -46,13 +46,13 @@ class EvaluatorDetection(EvaluatorBase):
         predict_list:
             [
                 [ # Objects of 1st image.
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
                     ...
                 ],
                 [ # Objects of 2nd image.
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'confidence': score},
-                    {'box': [x(float), y, w, h], 'clas': class_id(int), 'confidence': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
                     ...
                 ]
             ]
