@@ -14,7 +14,7 @@ class ImageDistributorBase(object):
                  target_builder=None,
                  augmentation=None,
                  imsize=None,
-                 num_worker=4):
+                 num_worker=3):
         self._img_path_list = img_path_list
         self._label_list = label_list
         self._num_worker = num_worker
@@ -97,9 +97,27 @@ class ImageDistributor(ImageDistributorBase):
                  target_builder=None,
                  augmentation=None,
                  imsize=None,
-                 num_worker=4):
+                 num_worker=3):
         super(ImageDistributor, self).__init__(img_path_list,
                                                label_list, target_builder, augmentation, imsize, num_worker)
 
     def batch(self, batch_size, target_builder=None, shuffle=True):
         return super(ImageDistributor, self).batch(batch_size, target_builder, shuffle)
+
+    def split(self, ratio, shuffle=True):
+        assert ratio < 1.0 and ratio > 0.0
+        data1_N = int(ratio * len(self))
+        if shuffle:
+            perm = np.random.permutation(len(self))
+            perm1 = perm[:data1_N]
+            perm2 = perm[data1_N:]
+            return ImageDistributor([self.img_path_list[p] for p in perm1], [self.annotation[p] for p in perm1], self._builder, self._augmentation, self._imsize, self._num_worker), \
+                ImageDistributor([self.img_path_list[p] for p in perm2], [self.annotation[p]
+                                                                          for p in perm2], self._builder, self._augmentation, self._imsize, self._num_worker)
+        else:
+            perm = np.arange(len(self))
+            perm1 = perm[:data1_N]
+            perm2 = perm[data1_N:]
+            return ImageDistributor([self.img_path_list[p] for p in perm1], [self.annotation[p] for p in perm1], self._builder, self._augmentation, self._imsize, self._num_worker), \
+                ImageDistributor([self.img_path_list[p] for p in perm2], [self.annotation[p]
+                                                                          for p in perm2], self._builder, self._augmentation, self._imsize, self._num_worker)
