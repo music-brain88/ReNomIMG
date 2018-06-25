@@ -69,7 +69,7 @@ class Yolov1(rm.Model):
             imsize = (imsize, imsize)
 
         self._num_class = num_class
-        self._class_map = [class_map for k in sorted(
+        self._class_map = [k for k, v in sorted(
             class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
         self._cells = cells
         self._bbox = bbox

@@ -85,7 +85,7 @@ class Yolov2(rm.Model):
             exp),imsize=(320, 320)."
 
         num_class = len(class_map)
-        self._class_map = [class_map for k in sorted(
+        self._class_map = [k for k, v in sorted(
             class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
         self.imsize = imsize
         self.anchor_size = anchor_size
@@ -96,11 +96,16 @@ class Yolov2(rm.Model):
         last_channel = (num_class + 5) * self.num_anchor
         self._base = Darknet19Base()
         self._conv1 = rm.Sequential([
-            DarknetConv2dBN(channel=1024),
-            DarknetConv2dBN(channel=1024),
+            DarknetConv2dBN(channel=1024, prev_ch=1024),
+            DarknetConv2dBN(channel=1024, prev_ch=1024),
         ])
-        self._conv2 = DarknetConv2dBN(channel=1024)
+        self._conv2 = DarknetConv2dBN(channel=1024, prev_ch=1024)
         self._last = rm.Conv2d(channel=last_channel, filter=1)
+        self._last.params = {
+            "w": rm.Variable(self._last._initializer((last_channel, 1024, 1, 1)), auto_update=True),
+            "b": rm.Variable(np.zeros((1, last_channel, 1, 1), dtype=np.float32), auto_update=False),
+        }
+
         self._opt = rm.Sgd(0.001, 0.9)
         self._train_whole_network = train_whole_network
 
@@ -109,10 +114,20 @@ class Yolov2(rm.Model):
             if not os.path.exists(load_weight_path):
                 download(self.WEIGHT_URL, load_weight_path)
             self.load(load_weight_path)
-            # self._conv1[0].params = {}
-            # self._conv1[1].params = {}
-            self._conv2.params = {}
-            self._last.params = {}
+            for model in [self._conv1, self._conv2, self._last]:
+                for layer in model.iter_models():
+                    if not layer.params:
+                        continue
+                    if isinstance(layer, rm.Conv2d):
+                        layer.params = {
+                            "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
+                            "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=False),
+                        }
+                    elif isinstance(layer, rm.BatchNormalize):
+                        layer.params = {
+                            "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
+                            "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=True),
+                        }
 
     @property
     def freezed_network(self):
@@ -125,9 +140,9 @@ class Yolov2(rm.Model):
             ind1 = int(total_epoch * 6 / 16.)
             ind2 = int(total_epoch * 3 / 16.)
             ind3 = total_epoch - ind1 - ind2
-            lr_list = [0] + [0.0001] * ind1 + [0.00001] * ind2 + [0.00001] * ind3
+            lr_list = [0] + [0.001] * ind1 + [0.0001] * ind2 + [0.00001] * ind3
             if current_epoch == 0:
-                lr = 0.0001 + (0.0001 - 0.0001) / float(total_batch) * current_batch
+                lr = 0.0001 + (0.001 - 0.0001) / float(total_batch) * current_batch
             else:
                 lr = lr_list[current_epoch]
             self._opt._lr = lr
@@ -155,8 +170,7 @@ class Yolov2(rm.Model):
         pw = rm.exp(reshaped[:, :, 3:4]).transpose(0, 2, 1, 3)
         ph = rm.exp(reshaped[:, :, 4:5]).transpose(0, 2, 1, 3)
         cl = rm.softmax(reshaped[:, :, 5:].transpose(0, 2, 1, 3))
-        out = rm.concat(conf, px, py, pw, ph, cl).transpose(0, 2, 1, 3).reshape(N, -1, H, W)
-        return out
+        return rm.concat(conf, px, py, pw, ph, cl).transpose(0, 2, 1, 3).reshape(N, -1, H, W)
 
     def regularize(self):
         reg = 0
@@ -301,6 +315,7 @@ class Yolov2(rm.Model):
         """
         Returns mask.
         Args: 
+
             x: Yolo output. (N, C(anc*(5+class)), H, W)
             y: (N, C(5+class), H(feature), W(feature))
         """
@@ -352,7 +367,6 @@ class Yolov2(rm.Model):
                 # scale of noobject iou
                 if max_iou <= low_thresh:
                     mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
-                    #     x[n, ind[0] * offset, ind[1], ind[2]] * 1
 
             # Create target and mask for cell that contains obj.
             for h, w in zip(*gt_index):
@@ -389,13 +403,12 @@ class Yolov2(rm.Model):
                 py = (nd_x[n, 2 + best_anc_ind * offset, h, w] + h) * 32
                 pw = nd_x[n, 3 + best_anc_ind * offset, h, w] * anchor[best_anc_ind][0]
                 ph = nd_x[n, 4 + best_anc_ind * offset, h, w] * anchor[best_anc_ind][1]
+
                 target[n, 0 + best_anc_ind * offset, h, w] = \
                     calc_iou_xywh([px, py, pw, ph], [tx, ty, tw, th])
                 #    best_ious[n, best_anc_ind, h, w]
 
                 # scale of obj iou
-                # mask[n, 0 + best_anc_ind * offset, h, w] = \
-                #   np.clip(1 - best_ious[n, best_anc_ind, h, w], 0, 1) * 5.
                 mask[n, 0 + best_anc_ind * offset, h, w] = 5.
 
                 # scale of coordinate
@@ -407,6 +420,7 @@ class Yolov2(rm.Model):
                 # scale of class
                 mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
         diff = (x - target)
+        N = np.sum(y[:, 0] > 0)
         return rm.sum(diff * diff * mask) / N / 2.
 
     def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
@@ -431,7 +445,7 @@ class Yolov2(rm.Model):
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
             display_loss = 0
-            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data)):
+            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, shuffle=True, target_builder=self.build_data)):
                 self.set_models(inference=False)
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
@@ -449,9 +463,9 @@ class Yolov2(rm.Model):
 
             if valid_dist is not None:
                 display_loss = 0
-                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data)):
+                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data)):
                     self.set_models(inference=True)
-                    loss = self.loss(self(train_x), train_y)
+                    loss = self.loss(self(valid_x), valid_y)
                     try:
                         loss = loss.as_ndarray()[0]
                     except:
@@ -460,7 +474,7 @@ class Yolov2(rm.Model):
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
                 avg_valid_loss = display_loss / (i + 1)
-                avg_valid_loss_list.append(avg_train_loss)
+                avg_valid_loss_list.append(avg_valid_loss)
                 bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
                     e, avg_train_loss, avg_valid_loss))
             else:
