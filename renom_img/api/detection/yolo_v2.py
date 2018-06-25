@@ -76,7 +76,7 @@ class Yolov2(rm.Model):
         train_whole_network(bool):
     """
 
-    WEIGHT_URL = "Yolov2.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov2.h5"
 
     def __init__(self, class_map, anchor, anchor_size,
                  imsize=(224, 224), load_weight_path=None, train_whole_network=False):
