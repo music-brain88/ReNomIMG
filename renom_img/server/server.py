@@ -213,6 +213,7 @@ def run_model(project_id, model_id):
         if model['state'] != STATE_DELETED:
             storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
+
         if error_msg is not None:
             body = json.dumps({"error_msg": error_msg})
             ret = create_response(body)
