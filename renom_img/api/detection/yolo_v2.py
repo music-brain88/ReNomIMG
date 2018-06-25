@@ -1,6 +1,8 @@
+import os
 from itertools import chain
 import numpy as np
 import renom as rm
+from tqdm import tqdm
 from PIL import Image
 
 from renom_img.api.model.darknet import Darknet19Base, DarknetConv2dBN
@@ -10,19 +12,9 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 
 
-def make_box(box):
-    x1 = box[:, :, :, 0] - box[:, :, :, 2] / 2.
-    y1 = box[:, :, :, 1] - box[:, :, :, 3] / 2.
-    x2 = box[:, :, :, 0] + box[:, :, :, 2] / 2.
-    y2 = box[:, :, :, 1] + box[:, :, :, 3] / 2.
-    return [x1, y1, x2, y2]
-
-
 def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
     """
     Requires following annotation list.
-
-
 
     Perform k-means clustering using custom metric.
     We want to get only anchor's size so we don't have to consider coordinates.
@@ -30,7 +22,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
     Args:
         box_list: 
     """
-    convergence = 0.01
+    convergence = 0.005
     box_list = [(0, 0, an['box'][2] * base_size[0] / an['size'][0],
                  an['box'][3] * base_size[1] / an['size'][1])
                 for an in chain.from_iterable(annotation_list)]
@@ -61,7 +53,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
             new_centroid[n][3] /= len(group[n])
         return new_centroid, loss
 
-    # Perform s-means.
+    # Perform k-means.
     new_centroids, old_loss = update(centroid, box_list)
     while True:
         new_centroids, loss = update(new_centroids, box_list)
@@ -108,7 +100,7 @@ class Yolov2(rm.Model):
         ])
         self._conv2 = DarknetConv2dBN(channel=1024)
         self._last = rm.Conv2d(channel=last_channel, filter=1)
-        self._opt = rm.Sgd(0.01, 0.9)
+        self._opt = rm.Sgd(0.001, 0.9)
         self._train_whole_network = train_whole_network
 
         # Load weight here.
@@ -129,11 +121,12 @@ class Yolov2(rm.Model):
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            ind1 = int(total_epoch * 0.5)
-            ind2 = total_epoch - ind1
-            lr_list = [0] + [0.001] * ind1 + [0.001] * ind2
+            ind1 = int(total_epoch * 6 / 16.)
+            ind2 = int(total_epoch * 3 / 16.)
+            ind3 = total_epoch - ind1 - ind2
+            lr_list = [0] + [0.0001] * ind1 + [0.00001] * ind2 + [0.00001] * ind3
             if current_epoch == 0:
-                lr = 0.00001 + (0.001 - 0.00001) / float(total_batch) * current_batch
+                lr = 0.0001 + (0.0001 - 0.0001) / float(total_batch) * current_batch
             else:
                 lr = lr_list[current_epoch]
             self._opt._lr = lr
@@ -167,7 +160,7 @@ class Yolov2(rm.Model):
     def regularize(self):
         reg = 0
         for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
+            if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 
@@ -239,7 +232,7 @@ class Yolov2(rm.Model):
 
             box_list[n] = [{
                 "box": box_list[n][i],
-                "name": [k for k, v in self._class_map.items() if v == int(max_class[indexes[0][i], indexes[1][i]])][0],
+                "name": [k for k, v in self._class_map.items() if v == score_list[n][i][1]][0],
                 "score": score_list[n][i][0],
                 "class": score_list[n][i][1],
             } for i, k in enumerate(keep) if k]
@@ -255,7 +248,7 @@ class Yolov2(rm.Model):
             else:
                 img_array = load_img(img_list, self.imsize)[None]
                 img_array = self.preprocess(img_array)
-                return self.get_bbox(self(img_array).as_ndarray())
+                return self.get_bbox(self(img_array).as_ndarray())[0]
         else:
             img_array = img_list
         return self.get_bbox(self(img_array).as_ndarray())
@@ -319,7 +312,7 @@ class Yolov2(rm.Model):
         num_anchor = self.num_anchor
         mask = np.zeros((N, C, H, W), dtype=np.float32)
         mask = mask.reshape(N, num_anchor, 5 + self.cn, H, W)
-        mask[:, :, 1:5, ...] += 0.1
+        mask[:, :, 1:5, ...] = 0.1
         mask = mask.reshape(N, C, H, W)
 
         target = np.zeros((N, C, H, W), dtype=np.float32)
@@ -357,9 +350,8 @@ class Yolov2(rm.Model):
 
                 # scale of noobject iou
                 if max_iou <= low_thresh:
-                    mask[n, ind[0] * offset, ind[1], ind[2]] = \
-                        (0 - x[n, ind[0] * offset, ind[1], ind[2]]) * 1
-                #     mask[n, ind[0]*offset, ind[1], ind[2]] = 1
+                    mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
+                    #     x[n, ind[0] * offset, ind[1], ind[2]] * 1
 
             # Create target and mask for cell that contains obj.
             for h, w in zip(*gt_index):
@@ -392,13 +384,18 @@ class Yolov2(rm.Model):
                     y[n, 5:offset, h, w]
 
                 # target of iou.
+                px = (nd_x[n, 1 + best_anc_ind * offset, h, w] + w) * 32
+                py = (nd_x[n, 2 + best_anc_ind * offset, h, w] + h) * 32
+                pw = nd_x[n, 3 + best_anc_ind * offset, h, w] * anchor[best_anc_ind][0]
+                ph = nd_x[n, 4 + best_anc_ind * offset, h, w] * anchor[best_anc_ind][1]
                 target[n, 0 + best_anc_ind * offset, h, w] = \
-                    best_ious[n, best_anc_ind, h, w]
+                    calc_iou_xywh([px, py, pw, ph], [tx, ty, tw, th])
+                #    best_ious[n, best_anc_ind, h, w]
 
                 # scale of obj iou
-                mask[n, 0 + best_anc_ind * offset, h, w] = \
-                    (1 - best_ious[n, best_anc_ind, h, w]) * 5.
-                # mask[n, 0+best_anc_ind*offset, h, w] = 5.
+                # mask[n, 0 + best_anc_ind * offset, h, w] = \
+                #   np.clip(1 - best_ious[n, best_anc_ind, h, w], 0, 1) * 5.
+                mask[n, 0 + best_anc_ind * offset, h, w] = 5.
 
                 # scale of coordinate
                 mask[n, 1 + best_anc_ind * offset, h, w] = 1
@@ -409,11 +406,11 @@ class Yolov2(rm.Model):
                 # scale of class
                 mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
         diff = (x - target)
-        return rm.sum(diff * diff * mask) / np.sum(y[:, 0] > 0) / 2.
+        return rm.sum(diff * diff * mask) / N / 2.
 
     def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
             valid_img_path_list=None, valid_annotation_list=None, valid_image_distributor=None,
-            epoch=136, batch_size=64, callback_end_epoch=None):
+            epoch=160, batch_size=16, callback_end_epoch=None):
 
         if train_img_path_list is not None and train_annotation_list is not None:
             train_dist = ImageDistributor(train_img_path_list, train_annotation_list)
@@ -446,21 +443,6 @@ class Yolov2(rm.Model):
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
-            avg_train_loss = display_loss / (i + 1)
-            avg_train_loss_list.append(avg_train_loss)
-
-            if valid_dist is not None:
-                display_loss = 0
-                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data)):
-                    self.set_models(inference=True)
-                    loss = self.loss(self(train_x), train_y)
-                    try:
-                        loss = loss.as_ndarray()[0]
-                    except:
-                        loss = loss.as_ndarray()
-                    display_loss += loss
-                    bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
-                    bar.update(1)
             avg_train_loss = display_loss / (i + 1)
             avg_train_loss_list.append(avg_train_loss)
 
