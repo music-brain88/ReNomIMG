@@ -414,3 +414,36 @@ class Jitter(ProcessBase):
         s = np.clip(s * scale_s, 0, 1)
         v = np.clip(v * scale_v, 0, 255)
         return x, y
+
+class ContrastNorm(ProcessBase):
+    def __init__(self, alpha=0.5):
+        super(ContrastNorm, self).__init__()
+        if isinstance(alpha, list):
+            assert alpha == 2, "Expected list with 2 entries, got {} entries".format(len(alpha))
+
+        self._alpha = alpha
+
+    def draw_sample(size=1):
+        if isinstance(alpha, list):
+            return np.random.uniform(alpha[0], alpha[1], size)
+        else:
+            return self.alpha
+
+    def _transform_classification(self, x, y):
+        assert len(x.shape) == 4
+        n = x.shape[0]
+        new_x = np.empty_like(x)
+        for i in range(n):
+            alpha = draw_sample()
+            new_x[i] = alpha*(x[i] - 128) + 128
+        return new_x, y
+
+    def _transform_detection(self, x, y):
+        assert len(x.shape) == 4
+        n = x.shape[0]
+        new_x = np.empty_like(x)
+        for i in range(n):
+            alpha = draw_sample()
+            new_x[i] = alpha*(x[i] - 128) + 128
+        return new_x, y
+
