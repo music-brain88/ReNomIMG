@@ -279,7 +279,7 @@ class TrainThread(object):
         annotation_list, _ = parse_xml_detection(label_path_list)
         if train:
             augmentation = Augmentation([
-                Shift(20, 20),
+                Shift(self.imsize[0] // 10, self.imsize[1] // 10),
                 Flip(),
                 Rotate(),
                 WhiteNoise()

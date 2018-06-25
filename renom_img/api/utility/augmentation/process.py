@@ -86,8 +86,7 @@ class Flip(ProcessBase):
                             obj["box"][2],
                             obj["box"][3],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
 
@@ -102,8 +101,7 @@ class Flip(ProcessBase):
                             obj["box"][2],
                             obj["box"][3],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
         return new_x, new_y
@@ -213,8 +211,7 @@ class Shift(ProcessBase):
                 py = py1 + ph / 2.
                 ny.append({
                     "box": [px, py, pw, ph],
-                    "class": obj["class"],
-                    "name": obj["name"]
+                    **{k: v for k, v in obj.items() if k != 'box'}
                 })
             new_y.append(ny)
         return new_x, new_y
@@ -290,8 +287,7 @@ class Rotate(ProcessBase):
                             obj["box"][3],
                             obj["box"][2],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
             elif r == 2:
@@ -303,8 +299,7 @@ class Rotate(ProcessBase):
                             obj["box"][2],
                             obj["box"][3],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
             elif r == 3:
@@ -316,8 +311,7 @@ class Rotate(ProcessBase):
                             obj["box"][3],
                             obj["box"][2],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
         return new_x, new_y

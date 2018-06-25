@@ -14,13 +14,17 @@ from renom_img.api.utility.misc.download import download
 
 def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
     """
+    This function creates 'anchors' for yolo v2 algorithm using k-means clustering.
+
     Requires following annotation list.
 
     Perform k-means clustering using custom metric.
     We want to get only anchor's size so we don't have to consider coordinates.
 
     Args:
-        box_list: 
+        annotation_list(list):
+        n_anchor(int):
+        base_size(int, list):
     """
     convergence = 0.005
     box_list = [(0, 0, an['box'][2] * base_size[0] / an['size'][0],
@@ -67,6 +71,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
 
 class Yolov2(rm.Model):
     """
+
     Args:
         num_class(int):
         anchor(list):
@@ -74,11 +79,17 @@ class Yolov2(rm.Model):
         imsize(lit):
         load_weight_path(string):
         train_whole_network(bool):
+
+    Note:
+        If you save this model using 'save' method, anchor information(anchor list and base size of them) will be
+        saved. So when you load your own saved model, you don't have to give the arguments 'anchor' and 'anchor_size'.
     """
 
+    # Anchor information will be serialized by 'save' method.
+    SERIALIZED = ("anchor", "num_anchor", "anchor_size")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov2.h5"
 
-    def __init__(self, class_map, anchor, anchor_size,
+    def __init__(self, class_map, anchor=None, anchor_size=None,
                  imsize=(224, 224), load_weight_path=None, train_whole_network=False):
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
@@ -99,7 +110,7 @@ class Yolov2(rm.Model):
             DarknetConv2dBN(channel=1024, prev_ch=1024),
             DarknetConv2dBN(channel=1024, prev_ch=1024),
         ])
-        self._conv2 = DarknetConv2dBN(channel=1024, prev_ch=1024)
+        self._conv2 = DarknetConv2dBN(channel=1024, prev_ch=1024 * 3)
         self._last = rm.Conv2d(channel=last_channel, filter=1)
         self._last.params = {
             "w": rm.Variable(self._last._initializer((last_channel, 1024, 1, 1)), auto_update=True),
@@ -110,10 +121,17 @@ class Yolov2(rm.Model):
         self._train_whole_network = train_whole_network
 
         # Load weight here.
-        if load_weight_path is not None:
+        if load_weight_path:
             if not os.path.exists(load_weight_path):
                 download(self.WEIGHT_URL, load_weight_path)
             self.load(load_weight_path)
+
+            if anchor is not None:
+                # Anchor will be overridden if the argument anchor is not None.
+                self.anchor = anchor
+                self.num_anchor = len(anchor)
+                self.anchor_size = anchor_size
+
             for model in [self._conv1, self._conv2, self._last]:
                 for layer in model.iter_models():
                     if not layer.params:
@@ -134,6 +152,18 @@ class Yolov2(rm.Model):
         return self._freezed_network
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+        """
+        This returns optimizer whose learning rate is modified according to epoch.
+
+        Args:
+            current_batch:
+            total_epoch:
+            current_batch:
+            total_batch:
+
+        Returns:
+            (Optimizer): 
+        """
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
@@ -149,12 +179,21 @@ class Yolov2(rm.Model):
             return self._opt
 
     def preprocess(self, x):
+        """
+        This performs preprocess for given image.
+
+        Args:
+            x(ndarray):
+
+        Returns:
+            (ndarray): Preprocessed array.
+        """
         return x / 255. * 2 - 1
 
     def forward(self, x):
         self.freezed_network.set_auto_update(self._train_whole_network)
-        self.freezed_network.set_models(inference=(
-            not self._train_whole_network or getattr(self, 'inference', False)))
+        # self.freezed_network.set_models(inference=(
+        #     not self._train_whole_network or getattr(self, 'inference', False)))
         h, f = self.freezed_network(x)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,
@@ -173,6 +212,9 @@ class Yolov2(rm.Model):
         return rm.concat(conf, px, py, pw, ph, cl).transpose(0, 2, 1, 3).reshape(N, -1, H, W)
 
     def regularize(self):
+        """
+        Regularize term of 
+        """
         reg = 0
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
@@ -180,6 +222,15 @@ class Yolov2(rm.Model):
         return 0.0005 * reg
 
     def get_bbox(self, z):
+        """
+        This method reforms network output to list of bounding box.
+
+        Args:
+            z(Variable, ndarray):
+
+        Returns:
+            (list):
+        """
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
 
@@ -255,6 +306,15 @@ class Yolov2(rm.Model):
         return box_list
 
     def predict(self, img_list):
+        """
+        This method performs prediction.
+
+        Args:
+            img_list(list, ndarray, string):
+
+        Returns:
+            (list):
+        """
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
@@ -426,6 +486,23 @@ class Yolov2(rm.Model):
     def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
             valid_img_path_list=None, valid_annotation_list=None, valid_image_distributor=None,
             epoch=160, batch_size=16, callback_end_epoch=None):
+        """
+        This function performs training with given data and hyper parameters.
+
+        Args:
+            train_img_path_list:
+            train_annotation_list:
+            train_image_distributor:
+            valid_img_path_list:
+            valid_annotation_list:
+            valid_image_distributor:
+            epoch:
+            batch_size:
+            callback_end_epoch:
+
+        Returns:
+            (tuple): Training loss list and validation loss list.
+        """
 
         if train_img_path_list is not None and train_annotation_list is not None:
             train_dist = ImageDistributor(train_img_path_list, train_annotation_list)
