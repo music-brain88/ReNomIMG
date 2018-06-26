@@ -345,21 +345,13 @@ class Yolov1(rm.Model):
         diff = (x - y)
         return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
 
-    def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
-            valid_img_path_list=None, valid_annotation_list=None, valid_image_distributor=None,
-            epoch=136, batch_size=64, callback_end_epoch=None):
+    def fit(self, train_img_path_list=None, train_annotation_list=None,
+            valid_img_path_list=None, valid_annotation_list=None,
+            epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None):
 
-        if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_list)
-        else:
-            train_dist = train_image_distributor
-
-        assert train_dist is not None
-
-        if valid_img_path_list is not None and valid_annotation_list is not None:
-            valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
-        else:
-            valid_dist = valid_image_distributor
+        train_dist = ImageDistributor(
+            train_img_path_list, train_annotation_list, augmentation=augmentation)
+        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []

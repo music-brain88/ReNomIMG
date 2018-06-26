@@ -34,19 +34,21 @@
 import * as utils from '@/utils'
 import * as constant from '@/constant'
 import ValueItem from './value_item.vue'
-import YoloParams from './yolo_params.vue'
+import Yolov1Params from './yolov1_params.vue'
+import Yolov2Params from './yolov2_params.vue'
 import PredictModelSelection from './predict_model_selection.vue'
 
 export default {
   name: 'ModelDetailText',
   components: {
     'value-item': ValueItem,
-    'yolo-params': YoloParams,
+    'yolov1-params': Yolov1Params,
+    'yolov2-params': Yolov2Params,
     'predict-model-selection': PredictModelSelection
   },
   data: function () {
     return {
-      additional_param_components: ['yolo-params']
+      additional_param_components: ['yolov1-params', 'yolov2_params']
     }
   },
   props: {

@@ -9,13 +9,14 @@ from threading import Event
 from renom.cuda import set_cuda_active, release_mem_pool
 
 from renom_img.api.detection.yolo_v1 import Yolov1
+from renom_img.api.detection.yolo_v2 import Yolov2
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.target import DataBuilderYolov1
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 
-from renom_img.server import ALG_YOLOV1
+from renom_img.server import ALG_YOLOV1, ALG_YOLOV2
 from renom_img.server import DB_DIR_TRAINED_WEIGHT
 from renom_img.server import DATASRC_PREDICTION_IMG, DATASRC_PREDICTION_OUT, \
     DATASRC_PREDICTION_OUT_CSV, DATASRC_PREDICTION_OUT_XML
@@ -47,7 +48,6 @@ class PredictionThread(object):
         self.batch_size = int(hyper_parameters["batch_size"])
         self.imsize = (int(hyper_parameters["image_width"]),
                        int(hyper_parameters["image_height"]))
-        self.cell_size = int(algorithm_params['cells'])
         self.stop_event = Event()
 
         # Prepare dataset
@@ -60,12 +60,15 @@ class PredictionThread(object):
         # Algorithm
         # Pretrained weights are must be prepared.
         self.algorithm = algorithm
+        path = os.path.join(DB_DIR_TRAINED_WEIGHT,  self.weight_name)
         if algorithm == ALG_YOLOV1:
+            # Algorithm params are saved to h5.
             cell_size = int(algorithm_params["cells"])
             num_bbox = int(algorithm_params["bounding_box"])
-            path = os.path.join(DB_DIR_TRAINED_WEIGHT,  self.weight_name)
-            self.model = Yolov1(class_map, cell_size, num_bbox,
-                                imsize=self.imsize)
+            self.model = Yolov1(class_map, cell_size, num_bbox, imsize=self.imsize)
+            self.model.load(path)
+        if algorithm == ALG_YOLOV2:
+            self.model = Yolov2(class_map, [], imsize=self.imsize)
             self.model.load(path)
         else:
             self.error_msg = "{} is not supported algorithm id.".format(algorithm)

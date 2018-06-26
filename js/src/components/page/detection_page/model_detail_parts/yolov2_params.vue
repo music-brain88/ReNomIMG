@@ -1,7 +1,6 @@
 <template>
-  <div class="yolo-params">
-    <value-item :label="'Vertical Cell'" :val="params['cells']"></value-item>
-    <value-item :label="'Bounding Box'" :val="params['bounding_box']"></value-item>
+  <div class="yolov2-params">
+    <value-item :label="'Anchors'" :val="params['anchor']"></value-item>
   </div>
 </template>
 
@@ -9,7 +8,7 @@
 import ValueItem from './value_item.vue'
 
 export default {
-  name: 'YoloParams',
+  name: 'Yolov2Params',
   components: {
     'value-item': ValueItem
   },

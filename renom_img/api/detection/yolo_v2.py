@@ -98,7 +98,7 @@ class Yolov2(rm.Model):
     SERIALIZED = ("anchor", "num_anchor", "anchor_size", "_class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov2.h5"
 
-    def __init__(self, class_map=None, anchor=None,
+    def __init__(self, class_map, anchor,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
@@ -109,11 +109,11 @@ class Yolov2(rm.Model):
             class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
         self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
         self.imsize = imsize
-        self.anchor_size = anchor.imsize
         self._freezed_network = Darknet19Base()
-        self.anchor = anchor.anchor
+        self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
+        self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
-        self.cn = num_class
+        self.num_class = num_class
         last_channel = (num_class + 5) * self.num_anchor
         self._base = Darknet19Base()
         self._conv1 = rm.Sequential([
@@ -247,10 +247,11 @@ class Yolov2(rm.Model):
 
         num_anchor = len(anchor)
         N, C, H, W = z.shape
-        offset = self.cn + 5
+        offset = self.num_class + 5
         FW, FH = self.imsize[0] // 32, self.imsize[1] // 32
         box_list = [[] for n in range(N)]
         score_list = [[] for n in range(N)]
+        print(offset)
 
         for ind_a, anc in enumerate(anchor):
             a_pred = z[:, ind_a * offset:(ind_a + 1) * offset]
@@ -346,7 +347,7 @@ class Yolov2(rm.Model):
         ratio_w = 32.
         ratio_h = 32.
         img_list = []
-        num_class = self.cn
+        num_class = self.num_class
         channel = num_class + 5
         offset = channel
 
@@ -394,19 +395,19 @@ class Yolov2(rm.Model):
 
         num_anchor = self.num_anchor
         mask = np.zeros((N, C, H, W), dtype=np.float32)
-        mask = mask.reshape(N, num_anchor, 5 + self.cn, H, W)
+        mask = mask.reshape(N, num_anchor, 5 + self.num_class, H, W)
         mask[:, :, 1:5, ...] = 0.1
         mask = mask.reshape(N, C, H, W)
 
         target = np.zeros((N, C, H, W), dtype=np.float32)
-        target = target.reshape(N, num_anchor, 5 + self.cn, H, W)
+        target = target.reshape(N, num_anchor, 5 + self.num_class, H, W)
         target[:, :, 1:3, ...] = 0.5
         target[:, :, 3:5, ...] = 1.0
         target = target.reshape(N, C, H, W)
 
         low_thresh = 0.6
         im_w, im_h = self.imsize
-        offset = 5 + self.cn
+        offset = 5 + self.num_class
 
         # Calc iou and get best matched prediction.
         best_ious = np.zeros((N, num_anchor, H, W), dtype=np.float32)
