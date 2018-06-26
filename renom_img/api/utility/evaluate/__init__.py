@@ -97,6 +97,8 @@ class EvaluatorDetection(EvaluatorBase):
         """
 
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
+        print(prec)
+        print(rec)
         AP, _ = get_ap_and_map(prec, rec, digits)
         return AP
 
