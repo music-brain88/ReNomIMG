@@ -77,7 +77,7 @@ class Yolov2(rm.Model):
         anchor(list):
         anchor_size(list):
         imsize(lit):
-        load_weight_path(string):
+        load_pretrained_weight(bool, string):
         train_whole_network(bool):
 
     Note:
@@ -90,7 +90,7 @@ class Yolov2(rm.Model):
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov2.h5"
 
     def __init__(self, class_map=None, anchor=None, anchor_size=None,
-                 imsize=(224, 224), load_weight_path=None, train_whole_network=False):
+                 imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
             exp),imsize=(320, 320)."
@@ -122,10 +122,13 @@ class Yolov2(rm.Model):
         self._train_whole_network = train_whole_network
 
         # Load weight here.
-        if load_weight_path:
-            if not os.path.exists(load_weight_path):
-                download(self.WEIGHT_URL, load_weight_path)
-            self.load(load_weight_path)
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+            self.load(load_pretrained_weight)
 
             if anchor is not None:
                 # Anchor will be overridden if the argument anchor is not None.

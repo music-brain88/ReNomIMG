@@ -65,7 +65,7 @@ class PredictionThread(object):
             num_bbox = int(algorithm_params["bounding_box"])
             path = os.path.join(DB_DIR_TRAINED_WEIGHT,  self.weight_name)
             self.model = Yolov1(class_map, cell_size, num_bbox,
-                                imsize=self.imsize, load_weight_path=None)
+                                imsize=self.imsize)
             self.model.load(path)
         else:
             self.error_msg = "{} is not supported algorithm id.".format(algorithm)

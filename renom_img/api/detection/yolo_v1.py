@@ -54,14 +54,14 @@ class Yolov1(rm.Model):
         cells (int or tuple): Cell size. 
         boxes (int): Number of boxes.
         imsize (int, tuple): Image size.
-        load_weight_path (str): Weight data will be downloaded.
+        load_pretrained_weight (bool, str): If true, pretrained weight will be downloaded to current directory.
+            If string is given, pretrained weight will be saved as given name.
     """
 
     SERIALIZED = ("_cells", "_bbox", "_class_map", "_num_class", "_last_dense_size")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map, cells, bbox, imsize=(224, 224), load_weight_path=None, train_whole_network=False):
-        assert load_weight_path is None or isinstance(load_weight_path, str)
+    def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         num_class = len(class_map)
 
         if not hasattr(cells, "__getitem__"):
@@ -85,10 +85,14 @@ class Yolov1(rm.Model):
 
         self._opt = rm.Sgd(0.01, 0.9)
 
-        if load_weight_path is not None:
-            if not os.path.exists(load_weight_path):
-                download(self.WEIGHT_URL, load_weight_path)
-            self.load(load_weight_path)
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self.load(load_pretrained_weight)
             for layer in self._network.iter_models():
                 layer.params = {}
 
