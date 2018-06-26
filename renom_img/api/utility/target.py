@@ -62,24 +62,27 @@ class DataBuilderClassification(DataBuilderBase):
     def create_class_mapping(self, annotation_list):
         pass
 
-    def __init__(self, imsize):
+    def __init__(self, imsize, class_mapping):
         super(DataBuilderClassification, self).__init__(imsize)
+        self.class_mapping = class_mapping
 
-    def build(self, img_path_list, annotation_list, augmentation):
+    def __call__(self, img_path_list, annotation_list, augmentation):
         # Check the class mapping.
-        if self.class_mapping is None:
-            class_dict = {}
-            for annotation in annotation_list:
-                class_dict[annotation] = 1
-            self.class_mapping = {k: i for i, k in enumerate(sorted(class_dict.keys()))}
+        n_class = len(self.class_mapping)
 
         img_list = []
         label_list = []
         for img_path, an_data in zip(img_path_list, annotation_list):
+            one_hot = np.zeros(n_class)
             img, sw, sh = self.load_img(img_path)
             img_list.append(img)
-            label_list.append(self.class_mapping[an_data])
-        return augmentation(np.array(img_list), label_list, mode="classification")
+            one_hot[an_data] = 1.
+            label_list.append(one_hot)
+        if augmentation is not None:
+            return augmentation(np.array(img_list), np.array(label_list), mode="classification")
+        else:
+            return np.array(img_list), np.array(label_list)
+
 
 
 class DataBuilderDetection(DataBuilderBase):
