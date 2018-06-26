@@ -21,6 +21,7 @@ class AnchorYolov2(object):
     def __len__(self):
         return len(self.anchor)
 
+
 def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
     """
     This function creates 'anchors' for yolo v2 algorithm using k-means clustering.
@@ -489,9 +490,9 @@ class Yolov2(rm.Model):
         N = np.sum(y[:, 0] > 0)
         return rm.sum(diff * diff * mask) / N / 2.
 
-    def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
-            valid_img_path_list=None, valid_annotation_list=None, valid_image_distributor=None,
-            epoch=160, batch_size=16, callback_end_epoch=None):
+    def fit(self, train_img_path_list=None, train_annotation_list=None,
+            valid_img_path_list=None, valid_annotation_list=None,
+            epoch=160, batch_size=16, augmentation=None, callback_end_epoch=None):
         """
         This function performs training with given data and hyper parameters.
 
@@ -510,17 +511,9 @@ class Yolov2(rm.Model):
             (tuple): Training loss list and validation loss list.
         """
 
-        if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_list)
-        else:
-            train_dist = train_image_distributor
-
-        assert train_dist is not None
-
-        if valid_img_path_list is not None and valid_annotation_list is not None:
-            valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
-        else:
-            valid_dist = valid_image_distributor
+        train_dist = ImageDistributor(
+            train_img_path_list, train_annotation_list, augmentation=augmentation)
+        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
@@ -535,9 +528,9 @@ class Yolov2(rm.Model):
                     reg_loss = loss + self.regularize()
                 reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop))
                 try:
-                    loss = loss.as_ndarray()[0]
+                    loss = float(loss.as_ndarray()[0])
                 except:
-                    loss = loss.as_ndarray()
+                    loss = float(loss.as_ndarray())
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
@@ -550,9 +543,9 @@ class Yolov2(rm.Model):
                     self.set_models(inference=True)
                     loss = self.loss(self(valid_x), valid_y)
                     try:
-                        loss = loss.as_ndarray()[0]
+                        loss = float(loss.as_ndarray()[0])
                     except:
-                        loss = loss.as_ndarray()
+                        loss = float(loss.as_ndarray())
                     display_loss += loss
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
