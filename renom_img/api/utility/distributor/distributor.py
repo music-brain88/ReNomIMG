@@ -43,8 +43,8 @@ class ImageDistributorBase(object):
             sh = 1. / ims[1]
             resized_annotation_list.append([{
                 'box': [obj['box'][0] * sw, obj['box'][1] * sh, obj['box'][2] * sw, obj['box'][3] * sh],
-                'class': obj['class'],
-                'name': obj['name']}
+                **{k:v for k, v in obj.items() if k!='box'}
+                }
                 for obj in annotation])
         return resized_annotation_list
 

@@ -33,7 +33,8 @@
             <div class="label">CNN Architecture</div>
             <div class="item">
               <select class="algorithm-select-box" v-model="algorithm">
-                <option value="0">YOLO</option>
+                <option value="0">YOLOv1</option>
+                <option value="1">YOLOv2</option>
               </select>
             </div>
           </div>
@@ -65,7 +66,20 @@
             <div class="input-alert" v-if="bounding_box < 1">Bounding Box must greater than 1</div>
             <div class="input-alert" v-if="bounding_box > 10">Bounding Box must lower than 10</div>
           </div>
+
+          <div v-if="algorithm == 1" class="param-item">
+            <div class="label">Anchors</div>
+            <div class="item">
+              <input type="text" v-model="anchor" maxlength="2">
+            </div>
+            <div class="input-alert" v-if="anchor < 1">Anchors must greater than 1</div>
+            <div class="input-alert" v-if="anchor > 10">Anchors must lower than 10</div>
+          </div>
+
         </div>
+
+
+
 
         <div class="sub-param-area">
           <div class="sub-param-title">
@@ -149,7 +163,10 @@ export default {
 
       // YOLO params
       cells: 7,
-      bounding_box: 2
+      bounding_box: 2,
+
+      // YOLO2 params
+      anchor: 5
     }
   },
   computed: {
@@ -190,6 +207,10 @@ export default {
         algorithm_params = {
           'cells': parseInt(this.cells),
           'bounding_box': parseInt(this.bounding_box)
+        }
+      } if (parseInt(this.algorithm) === 1) {
+        algorithm_params = {
+          'anchor': parseInt(this.anchor)
         }
       }
       this.$store.dispatch('runModel', {

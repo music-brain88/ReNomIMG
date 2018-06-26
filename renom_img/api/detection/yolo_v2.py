@@ -12,6 +12,15 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 
 
+class AnchorYolov2(object):
+
+    def __init__(self, anchor, imsize):
+        self.anchor = anchor
+        self.imsize = imsize
+
+    def __len__(self):
+        return len(self.anchor)
+
 def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
     """
     This function creates 'anchors' for yolo v2 algorithm using k-means clustering.
@@ -66,7 +75,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
         old_loss = loss
 
     # This depends on input image size.
-    return [[cnt[2], cnt[3]] for cnt in new_centroids]
+    return AnchorYolov2([[cnt[2], cnt[3]] for cnt in new_centroids], base_size)
 
 
 class Yolov2(rm.Model):
@@ -75,7 +84,6 @@ class Yolov2(rm.Model):
     Args:
         num_class(int):
         anchor(list):
-        anchor_size(list):
         imsize(lit):
         load_pretrained_weight(bool, string):
         train_whole_network(bool):
@@ -89,8 +97,8 @@ class Yolov2(rm.Model):
     SERIALIZED = ("anchor", "num_anchor", "anchor_size", "_class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov2.h5"
 
-    def __init__(self, class_map=None, anchor=None, anchor_size=None,
-                 imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, anchor=None,
+                 imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
             exp),imsize=(320, 320)."
@@ -100,9 +108,9 @@ class Yolov2(rm.Model):
             class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
         self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
         self.imsize = imsize
-        self.anchor_size = anchor_size
+        self.anchor_size = anchor.imsize
         self._freezed_network = Darknet19Base()
-        self.anchor = anchor
+        self.anchor = anchor.anchor
         self.num_anchor = 0 if anchor is None else len(anchor)
         self.cn = num_class
         last_channel = (num_class + 5) * self.num_anchor
@@ -129,12 +137,6 @@ class Yolov2(rm.Model):
             if not os.path.exists(load_pretrained_weight):
                 download(self.WEIGHT_URL, load_pretrained_weight)
             self.load(load_pretrained_weight)
-
-            if anchor is not None:
-                # Anchor will be overridden if the argument anchor is not None.
-                self.anchor = anchor
-                self.num_anchor = len(anchor)
-                self.anchor_size = anchor_size
 
             for model in [self._conv1, self._conv2, self._last]:
                 for layer in model.iter_models():
@@ -280,7 +282,7 @@ class Yolov2(rm.Model):
             a_box[:, 0] = x1 + a_box[:, 2] / 2.
             a_box[:, 1] = y1 + a_box[:, 3] / 2.
 
-            keep = np.where(max_conf > 0)
+            keep = np.where(max_conf > 0.3)
             for i, (b, s, c) in enumerate(zip(a_box[keep[0], :, keep[1], keep[2]],
                                               max_conf[keep[0], keep[1], keep[2]],
                                               score[keep[0], :, keep[1], keep[2]])):
