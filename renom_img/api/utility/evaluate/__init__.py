@@ -63,13 +63,13 @@ class EvaluatorDetection(EvaluatorBase):
             >>> evaluator.mean_iou()
     """
 
-    def __init__(self, prediction, target):
+    def __init__(self, prediction, target, n_class=None):
         super(EvaluatorDetection, self).__init__(prediction, target)
+        self.n_class = n_class
 
-    def mAP(self, n_class=None, iou_thresh=0.5, digits=3):
+    def mAP(self, iou_thresh=0.5, digits=3):
         """ mAP (mean Average Precision)
         Args:
-            n_class: number of classes
             iou_thresh: IoU threshold. The default value is 0.5.
             digits: The number of decimal.
 
@@ -77,14 +77,13 @@ class EvaluatorDetection(EvaluatorBase):
             mAP (float)
         """
 
-        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
         _, mAP = get_ap_and_map(prec, rec, digits)
         return mAP
 
-    def AP(self, n_class=None, iou_thresh=0.5, digits=3):
+    def AP(self, iou_thresh=0.5, digits=3):
         """ AP (Average Precision for each class)
         Args:
-            n_class: number of classes
             iou_thresh: IoU threshold. The default value is 0.5.
             digits: The number of decimal.
 
@@ -96,29 +95,25 @@ class EvaluatorDetection(EvaluatorBase):
             }
         """
 
-        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
-        print(prec)
-        print(rec)
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
         AP, _ = get_ap_and_map(prec, rec, digits)
         return AP
 
-    def mean_iou(self, n_class=None, iou_thresh=0.5, digits=3):
+    def mean_iou(self, iou_thresh=0.5, digits=3):
         """ mean IoU for all classes
         Args:
-            n_class: number of classes
             iou_thresh: IoU threshold. The default value is 0.5.
             digits: The number of decimal.
 
         returns:
             mean_iou (float)
         """
-        _, mean_iou = get_mean_iou(self.prediction, self.target, n_class, iou_thresh, digits)
+        _, mean_iou = get_mean_iou(self.prediction, self.target, self.n_class, iou_thresh, digits)
         return mean_iou
 
-    def iou(self, n_class=None, iou_thresh=0.5, digits=3):
+    def iou(self, iou_thresh=0.5, digits=3):
         """ IoU for each class
         Args:
-            n_class: number of classes
             iou_thresh: IoU threshold. The default value is 0.5.
             digits: The number of decimal.
 
@@ -130,18 +125,17 @@ class EvaluatorDetection(EvaluatorBase):
             }
         """
 
-        iou, _ = get_mean_iou(self.prediction, self.target, n_class, iou_thresh, digits)
+        iou, _ = get_mean_iou(self.prediction, self.target, self.n_class, iou_thresh, digits)
         return iou
 
-    def plot_pr_curve(self, n_class=None, iou_thresh=0.5, class_names=None):
+    def plot_pr_curve(self, iou_thresh=0.5, class_names=None):
         """ Plot a precision-recall curve.
         Args:
-            n_class: number of classes
             iou_thresh: IoU threshold. The default value is 0.5.
             class_names: List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
         """
 
-        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, n_class, iou_thresh)
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
         if not isinstance(class_names, list) and class_names is not None:
             class_names = [class_names]
 
@@ -160,10 +154,24 @@ class EvaluatorDetection(EvaluatorBase):
                     continue
                 self.plot_graph(r, p, c, 'Recall', 'Precision')
 
-    def detection_report(self, n_class=None, iou_thresh=0.5, digits=3):
+    def prec_rec(self, iou_thresh=0.5):
+        """ Return precision and recall for each class
+        Args:
+            iou_thresh: IoU threshold. The default value is 0.5.
+            digits: The number of decimal of output values
+
+        Returns:
+            precision(dictionary): {class_id1(int): [0.5, 0.3,....], class_id2(int): [0.9....]}
+            recall(dictionary): {class_id1(int): [0.5, 0.3,....], class_id2(int): [0.9....]}
+        """
+
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
+        return prec. rec
+
+
+    def detection_report(self, iou_thresh=0.5, digits=3):
         """ Output a table whcih shows AP, IoU, the number of predicted instances for each class, and the number of ground truth instances for each class.
         Args:
-            n_class: number of classes
             iou_thresh: IoU threshold. The default value is 0.5.
             class_names: List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
 
@@ -174,8 +182,9 @@ class EvaluatorDetection(EvaluatorBase):
                 ....
             mAP / mean IoU    0.317      0.698          266/686
         """
+
         prec, rec, n_pred, n_pos_list = get_prec_and_rec(
-            self.prediction, self.target, n_class, iou_thresh)
+            self.prediction, self.target, self.n_class, iou_thresh)
         AP, mAP = get_ap_and_map(prec, rec, digits)
         iou = self.iou()
         class_names = list(AP.keys())
