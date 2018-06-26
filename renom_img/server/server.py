@@ -218,6 +218,9 @@ def run_model(project_id, model_id):
             body = json.dumps({"error_msg": error_msg})
             ret = create_response(body)
             return ret
+        body = json.dumps({"dummy": ""})
+        ret = create_response(body)
+        return ret
 
     except Exception as e:
         release_mem_pool()

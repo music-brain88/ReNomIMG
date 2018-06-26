@@ -98,6 +98,7 @@ class Yolov2(rm.Model):
         num_class = len(class_map)
         self._class_map = [k for k, v in sorted(
             class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
+        self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
         self.imsize = imsize
         self.anchor_size = anchor_size
         self._freezed_network = Darknet19Base()
@@ -298,7 +299,7 @@ class Yolov2(rm.Model):
 
             box_list[n] = [{
                 "box": box_list[n][i],
-                "name": self._class_map[score_list[n][i][1]],
+                "name": self._class_map[score_list[n][i][1]].decode('utf-8'),
                 "score": score_list[n][i][0],
                 "class": score_list[n][i][1],
             } for i, k in enumerate(keep) if k]
