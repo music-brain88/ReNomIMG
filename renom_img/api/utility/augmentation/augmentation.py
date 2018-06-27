@@ -4,18 +4,19 @@ from renom_img.api.utility.augmentation.process import MODE
 
 
 class Augmentation(object):
-    """
-    This class is for applying augmentation to images.
-    Augmentation is called only when training process.
-    You could choose transform function from Process module.
+    """This class is for applying augmentation to images.
+    Instance of augmentation is passed to ImageDistributor module,
+    and is called only when training process is runnning.
+    You could choose augmentation methods from Process module.
 
     Attributes:
-        process_list (list): list of augmentation methods.
+        process_list (list of Process modules): list of Process modules.
+        You could choose from Flip, Shift, Rotate and WhiteNoise
 
     Example:
-        >>> from renom_img.api.utility.precess import Flip, Shift, Rotate, WhiteNoise
-        >>> from renom_img.api.utility.augmentation import Augmentation
-        >>> from renom_img.api.utility.distributor import ImageDistributor
+        >>> from renom_img.api.utility.augmentation.process import Flip, Shift, Rotate, WhiteNoise
+        >>> from renom_img.api.utility.augmentation.augmentation import Augmentation
+        >>> from renom_img.api.utility.distributor.distributor import ImageDistributor
         >>> aug = Augmentation([
         ...     Shift(40, 40),
         ...     Rotate(),
@@ -36,6 +37,17 @@ class Augmentation(object):
         self._process_list = process_list
 
     def __call__(self, x, y=None, mode="classification"):
+        """This function is for applying augmentation to images.
+
+        Args:
+            x (list of numpy.ndarray): List of images.
+            y (list of dict): List of annotation results.
+
+        Returns:
+            x (list of numpy.ndarray): List of transformed images.
+            y (list of dict): List of annotation results.
+
+        """
         return self.transform(x, y, mode)
 
     def transform(self, x, y=None, mode="classification"):
