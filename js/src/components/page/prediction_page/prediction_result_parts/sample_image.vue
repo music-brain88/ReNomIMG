@@ -46,7 +46,7 @@
         let dataset_def_id = this.$store.getters.getSelectedModel.dataset_def_id
         let dataset_def = this.$store.state.dataset_defs
         let label_dict
-        for (let i in Object.keys(this.$store.state.dataset_defs).length) {
+        for (let i = 0; i in Object.keys(this.$store.state.dataset_defs).length; i++) {
           if (dataset_def[i].id === dataset_def_id) {
             label_dict = this.$store.state.dataset_defs[i].class_map
             break

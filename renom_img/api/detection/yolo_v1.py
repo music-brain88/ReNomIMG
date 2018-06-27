@@ -54,13 +54,14 @@ class Yolov1(rm.Model):
         cells (int or tuple): Cell size. 
         boxes (int): Number of boxes.
         imsize (int, tuple): Image size.
-        load_weight_path (str): Weight data will be downloaded.
+        load_pretrained_weight (bool, str): If true, pretrained weight will be downloaded to current directory.
+            If string is given, pretrained weight will be saved as given name.
     """
 
+    SERIALIZED = ("_cells", "_bbox", "_class_map", "_num_class", "_last_dense_size")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map, cells, bbox, imsize=(224, 224), load_weight_path=None, train_whole_network=False):
-        assert load_weight_path is None or isinstance(load_weight_path, str)
+    def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         num_class = len(class_map)
 
         if not hasattr(cells, "__getitem__"):
@@ -71,6 +72,7 @@ class Yolov1(rm.Model):
         self._num_class = num_class
         self._class_map = [k for k, v in sorted(
             class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
+        self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
@@ -83,10 +85,14 @@ class Yolov1(rm.Model):
 
         self._opt = rm.Sgd(0.01, 0.9)
 
-        if load_weight_path is not None:
-            if not os.path.exists(load_weight_path):
-                download(self.WEIGHT_URL, load_weight_path)
-            self.load(load_weight_path)
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self.load(load_pretrained_weight)
             for layer in self._network.iter_models():
                 layer.params = {}
 
@@ -97,11 +103,6 @@ class Yolov1(rm.Model):
     @property
     def network(self):
         return self._network
-
-    def save(self, path):
-        """
-        """
-        super(Yolov1, self).save(path)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimiser for training Yolov1 algorithm.
@@ -144,13 +145,23 @@ class Yolov1(rm.Model):
         return self.network(self.freezed_network(x))
 
     def regularize(self):
-        """Regularize model.
+        """Regularize term. You can use this function to add regularize term to 
+        loss function.
+
+        In Yolo v1, weight decay of 0.0005 will be added.
 
         Example:
-            >>> 
+            >>> import numpy as np
+            >>> from renom_img.api.detection.yolo_v1 import Yolov1
+            >>> x = np.random.rand(1, 3, 224, 224)
+            >>> y = np.random.rand(1, (5*2+20)*7*7)
+            >>> model = Yolov1()
+            >>> loss = model.loss(x, y)
+            >>> reg_loss = loss + model.regularize() # Add weight decay term.
+
         """
         reg = 0
-        for layer in self.network.iter_models():
+        for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
@@ -220,7 +231,7 @@ class Yolov1(rm.Model):
             # Note: Take care types.
             result[indexes[0][i]].append({
                 "class": int(max_class[indexes[0][i], indexes[1][i]]),
-                "name": self._class_map[int(max_class[indexes[0][i], indexes[1][i]])],
+                "name": self._class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode("utf-8"),
                 "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
@@ -334,21 +345,13 @@ class Yolov1(rm.Model):
         diff = (x - y)
         return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
 
-    def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
-            valid_img_path_list=None, valid_annotation_list=None, valid_image_distributor=None,
-            epoch=136, batch_size=64, callback_end_epoch=None):
+    def fit(self, train_img_path_list=None, train_annotation_list=None,
+            valid_img_path_list=None, valid_annotation_list=None,
+            epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None):
 
-        if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_list)
-        else:
-            train_dist = train_image_distributor
-
-        assert train_dist is not None
-
-        if valid_img_path_list is not None and valid_annotation_list is not None:
-            valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
-        else:
-            valid_dist = valid_image_distributor
+        train_dist = ImageDistributor(
+            train_img_path_list, train_annotation_list, augmentation=augmentation)
+        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []

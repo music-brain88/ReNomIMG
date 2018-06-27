@@ -2,6 +2,9 @@ import os
 import sys
 import renom as rm
 import numpy as np
+from renom_img.api.utility.misc.download import download
+
+DIR = os.path.split(os.path.abspath(__file__))[0]
 
 
 class InceptionV1Block(rm.Model):
@@ -26,6 +29,27 @@ class InceptionV1Block(rm.Model):
 
 
 class InceptionV1(rm.Model):
+    """ Inception V1 model
+    If the argument load_weight is True, pretrained weight will be downloaded.
+    The pretrained weight is trained using ILSVRC2012.
+
+    Args:
+        n_class(int): The number of classes.
+        load_weight(bool):
+
+    Note:
+        if the argument num_class is not 1000, last dense layer will be reset because
+        the pretrained weight is trained on 1000 classification dataset.
+
+    Christian Szegedy, Wei Liu, Yangqing Jia , Pierre Sermanet, Scott Reed ,Dragomir Anguelov,
+    Dumitru Erhan, Vincent Vanhoucke, Andrew Rabinovich
+    Going Deeper with Convolutions
+    https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf
+    """
+
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_PATH = os.path.join(DIR, 'inceptionv4.h5')
+
     def __init__(self, n_class, load_weight=False):
 
         self.conv1 = rm.Conv2d(64, filter=7, padding=3, stride=2)
@@ -49,7 +73,13 @@ class InceptionV1(rm.Model):
         self.fc3 = rm.Dense(n_class)
 
         if load_weight:
-            self.load('inceptionv1.h5')
+            try:
+                self.load(self.WEIGHT_PATH)
+            except:
+                download(self.WEIGHT_URL, self.WEIGHT_PATH)
+            self.load(self.WEIGHT_PATH)
+        if num_class != 1000:
+            self._layers[-1].params = {}
 
     def forward(self, x):
         t = rm.relu(self.conv1(x))
@@ -276,7 +306,10 @@ class InceptionV3(rm.Model):
     Reference: https://arxiv.org/abs/1512.00567 -- Rethinking the Inception Architecture for Computer Vision
     """
 
-    def __init__(self, n_classes=1000, load_weight=False):
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_PATH = os.path.join(DIR, 'inceptionv3.h5')
+
+    def __init__(self, n_class=1000, load_weight=False):
         self.conv1 = rm.Conv2d(32, filter=3, padding=0, stride=2)
         self.batch_norm1 = rm.BatchNormalize(mode='feature')
 
@@ -307,16 +340,22 @@ class InceptionV3(rm.Model):
         self.batch_norm7 = rm.BatchNormalize(mode='feature')
         self.conv8 = rm.Conv2d(768, filter=5)
         self.batch_norm8 = rm.BatchNormalize(mode='feature')
-        self.aux_fc = rm.Dense(n_classes)
+        self.aux_fc = rm.Dense(n_class)
 
         self.d1 = InceptionV2BlockD()
 
         self.e1 = InceptionV2BlockE()
         self.e2 = InceptionV2BlockE()
-        self.fc = rm.Dense(n_classes)
+        self.fc = rm.Dense(n_class)
 
         if load_weight:
-            self.load('inceptionv3.h5')
+            try:
+                self.load(self.WEIGHT_PATH)
+            except:
+                download(self.WEIGHT_URL, self.WEIGHT_PATH)
+            self.load(self.WEIGHT_PATH)
+        if num_class != 1000:
+            self._layers[-1].params = {}
 
     def forward(self, x):
         t = rm.relu(self.batch_norm1(self.conv1(x)))
@@ -356,11 +395,27 @@ class InceptionV3(rm.Model):
 
 
 class InceptionV2(rm.Model):
-    """
-    Reference: https://arxiv.org/abs/1512.00567 -- Rethinking the Inception Architecture for Computer Vision
+    """ Inception V2 model
+    If the argument load_weight is True, pretrained weight will be downloaded.
+    The pretrained weight is trained using ILSVRC2012.
+
+    Args:
+        n_class(int): The number of classes.
+        load_weight(bool):
+
+    Note:
+        if the argument num_class is not 1000, last dense layer will be reset because
+        the pretrained weight is trained on 1000 classification dataset.
+
+    Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
+    Rethinking the Inception Architecture for Computer Vision
+    https://arxiv.org/abs/1512.00567
     """
 
-    def __init__(self, n_classes=1000, load_weight=False):
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_PATH = os.path.join(DIR, 'inceptionv2.h5')
+
+    def __init__(self, n_class=1000, load_weight=False):
         self.conv1 = rm.Conv2d(32, filter=3, padding=0, stride=2)
         self.batch_norm1 = rm.BatchNormalize(mode='feature')
 
@@ -389,16 +444,22 @@ class InceptionV2(rm.Model):
 
         self.conv7 = rm.Conv2d(128, filter=1)
         self.conv8 = rm.Conv2d(768, filter=5)
-        self.aux_fc = rm.Dense(n_classes)
+        self.aux_fc = rm.Dense(n_class)
 
         self.d1 = InceptionV2BlockD()
 
         self.e1 = InceptionV2BlockE()
         self.e2 = InceptionV2BlockE()
-        self.fc = rm.Dense(n_classes)
+        self.fc = rm.Dense(n_class)
 
         if load_weight:
-            self.load('inceptionv2.h5')
+            try:
+                self.load(self.WEIGHT_PATH)
+            except:
+                download(self.WEIGHT_URL, self.WEIGHT_PATH)
+            self.load(self.WEIGHT_PATH)
+        if num_class != 1000:
+            self._layers[-1].params = {}
 
     def forward(self, x):
         t = rm.relu(self.batch_norm1(self.conv1(x)))
@@ -684,6 +745,26 @@ class InceptionV4BlockC(rm.Model):
 
 
 class InceptionV4(rm.Model):
+    """ Inception V4 model
+    If the argument load_weight is True, pretrained weight will be downloaded.
+    The pretrained weight is trained using ILSVRC2012.
+
+    Args:
+        n_class(int): The number of classes.
+        load_weight(bool): 
+
+    Note:
+        if the argument num_class is not 1000, last dense layer will be reset because
+        the pretrained weight is trained on 1000 classification dataset.
+
+    Christian Szegedy, Sergey Ioffe, Vincent Vanhoucke, Alex Alemi
+    Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning
+    https://arxiv.org/abs/1602.07261
+    """
+
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_PATH = os.path.join(DIR, 'inceptionv4.h5')
+
     def __init__(self, n_class, load_weight=False):
 
         self.stem = Stem()
@@ -713,7 +794,13 @@ class InceptionV4(rm.Model):
         self.fc = rm.Dense(n_class)
 
         if load_weight:
-            self.load('inception_v4.h5')
+            try:
+                self.load(self.WEIGHT_PATH)
+            except:
+                download(self.WEIGHT_URL, self.WEIGHT_PATH)
+            self.load(self.WEIGHT_PATH)
+        if num_class != 1000:
+            self._layers[-1].params = {}
 
     def forward(self, x):
         t = self.stem(x)

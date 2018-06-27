@@ -8,14 +8,15 @@ import urllib.request
 from renom.cuda import set_cuda_active, release_mem_pool
 
 from renom_img.api.detection.yolo_v1 import Yolov1
+from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.distributor.distributor import ImageDistributor
-from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise
+from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise, ContrastNorm
 from renom_img.api.utility.augmentation.augmentation import Augmentation
 
 from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
 
-from renom_img.server import ALG_YOLOV1
+from renom_img.server import ALG_YOLOV1, ALG_YOLOV2
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 from renom_img.server import DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL
@@ -56,6 +57,7 @@ class TrainThread(object):
         self.error_msg = None
 
         # Train hyperparameters
+        self.train_whole_network = bool(hyper_parameters["train_whole_network"])
         self.total_epoch = int(hyper_parameters["total_epoch"])
         self.batch_size = int(hyper_parameters["batch_size"])
         self.imsize = (int(hyper_parameters["image_width"]),
@@ -68,8 +70,6 @@ class TrainThread(object):
         # Prepare dataset
         rec = storage.fetch_dataset_def(dataset_id)
         (_, name, ratio, train_files, valid_files, class_map, _, _) = rec
-        print(class_map)
-        print(type(class_map))
         self.class_map = class_map
         self.train_dist = self.create_dist(train_files)
         self.valid_dist = self.create_dist(valid_files, False)
@@ -114,7 +114,13 @@ class TrainThread(object):
                 num_bbox = int(self.algorithm_params["bounding_box"])
                 path = self.download_weight(Yolov1.WEIGHT_URL, Yolov1.__name__ + '.h5')
                 self.model = Yolov1(self.class_map, cell_size, num_bbox,
-                                    imsize=self.imsize, load_weight_path=path)
+                                    imsize=self.imsize, load_pretrained_weight=path, train_whole_network=self.train_whole_network)
+            elif self.algorithm == ALG_YOLOV2:
+                anchor = int(self.algorithm_params["anchor"])
+                path = self.download_weight(Yolov2.WEIGHT_URL, Yolov2.__name__ + '.h5')
+                annotations = self.train_dist.annotation_list
+                self.model = Yolov2(self.class_map, create_anchor(annotations, anchor, base_size=self.imsize),
+                                    imsize=self.imsize, load_pretrained_weight=path, train_whole_network=self.train_whole_network)
             else:
                 self.error_msg = "{} is not supported algorithm id.".format(self.algorithm)
 
@@ -153,8 +159,13 @@ class TrainThread(object):
                         reg_loss = loss + self.model.regularize()
                     reg_loss.grad().update(self.model.get_optimizer(e, epoch,
                                                                     i, self.total_batch))
-                    display_loss += float(loss.as_ndarray())
-                    self.last_batch_loss = float(loss.as_ndarray())
+                    try:
+                        loss = loss.as_ndarray()[0]
+                    except:
+                        loss = loss.as_ndarray()
+
+                    display_loss += float(loss)
+                    self.last_batch_loss = float(loss)
                 avg_train_loss = display_loss / (i + 1)
 
                 # Validation
@@ -171,7 +182,12 @@ class TrainThread(object):
                     valid_z = self.model(valid_x)
                     valid_predict_box.extend(self.model.get_bbox(valid_z))
                     loss = self.model.loss(valid_z, valid_y)
-                    display_loss += float(loss.as_ndarray())
+
+                    try:
+                        loss = loss.as_ndarray()[0]
+                    except:
+                        loss = loss.as_ndarray()
+                    display_loss += float(loss)
 
                 if self.is_stopped():
                     return
@@ -279,10 +295,11 @@ class TrainThread(object):
         annotation_list, _ = parse_xml_detection(label_path_list)
         if train:
             augmentation = Augmentation([
-                Shift(self.imsize[0] // 10, self.imsize[1] // 10),
+                Shift(min(self.imsize[0] // 10, 20), min(self.imsize[1] // 10, 20)),
                 Flip(),
                 Rotate(),
-                WhiteNoise()
+                WhiteNoise(),
+                ContrastNorm([0.5, 1.0])
             ])
             return ImageDistributor(img_path_list, annotation_list,
                                     augmentation=augmentation)
