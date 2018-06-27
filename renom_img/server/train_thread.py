@@ -12,7 +12,7 @@ from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise, ContrastNorm
-from renom_img.api.utility.augmentation.augmentation import Augmentation
+from renom_img.api.utility.augmentation import Augmentation
 
 from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
 
