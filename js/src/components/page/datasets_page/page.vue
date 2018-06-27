@@ -43,13 +43,11 @@ export default {
     register: function () {
       const name = this.name.trim()
       if (!name) {
-        console.log('invalid name')
         return
       }
 
       const ratio = parseFloat(this.ratio) / 100
       if ((ratio <= 0) || (ratio > 100)) {
-        console.log('invalid ratio')
         return
       }
 

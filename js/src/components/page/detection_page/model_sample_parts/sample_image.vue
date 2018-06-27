@@ -1,6 +1,6 @@
 <template>
   <div id='sample-image' @click.stop.prevent='onClick'>
-    <img id='image' :src='image_path'></img>
+    <img id='image' :src='image_path'/>
     <div id='box'
       v-for="(item, index) in bboxes" :key="index" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'2px solid '+getColor(item[0])}">
       <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
@@ -70,7 +70,7 @@
     #box {
       position: absolute;
       box-sizing:border-box;
-      x-index: 10;
+      z-index: 0;
       opacity: 0.9;
       #tag-name {
         color: white;

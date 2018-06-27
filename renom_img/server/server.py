@@ -14,6 +14,8 @@ import traceback
 import pathlib
 import random
 import xmltodict
+
+import PIL
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor as Executor
 from concurrent.futures import CancelledError
@@ -370,7 +372,18 @@ def get_datasets():
         ret = []
         for rec in recs:
             id, name, ratio, valid_imgs, class_map, created, updated = rec
-            valid_imgs = [os.path.join("datasrc/img/", path) for path in valid_imgs]
+            valid_img_names = [os.path.join("datasrc/img/", path) for path in valid_imgs]
+            valid_imgs = []
+            for name in valid_img_names:
+                try:
+                    im = PIL.Image.open(name)
+                    width, height = im.size
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                    width = height = 50
+                valid_imgs.append(dict(filename=name, width=width, height=height))
+
             ret.append(dict(id=id, name=name, ratio=ratio,
                             valid_imgs=valid_imgs, class_map=class_map, created=created, updated=updated))
         return create_response(json.dumps({'dataset_defs': ret}))
