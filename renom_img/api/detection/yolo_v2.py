@@ -251,7 +251,6 @@ class Yolov2(rm.Model):
         FW, FH = self.imsize[0] // 32, self.imsize[1] // 32
         box_list = [[] for n in range(N)]
         score_list = [[] for n in range(N)]
-        print(offset)
 
         for ind_a, anc in enumerate(anchor):
             a_pred = z[:, ind_a * offset:(ind_a + 1) * offset]
@@ -288,6 +287,7 @@ class Yolov2(rm.Model):
             for i, (b, s, c) in enumerate(zip(a_box[keep[0], :, keep[1], keep[2]],
                                               max_conf[keep[0], keep[1], keep[2]],
                                               score[keep[0], :, keep[1], keep[2]])):
+                b = b if isinstance(b, list) else b.tolist()
                 box_list[keep[0][i]].append(b)
                 score_list[keep[0][i]].append((s, np.argmax(c)))
 

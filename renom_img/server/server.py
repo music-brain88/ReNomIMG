@@ -255,22 +255,26 @@ def progress_model(project_id, model_id):
                 # If thread status updated, return response.
                 if isinstance(th, TrainThread) and th.nth_epoch != req_last_epoch and th.valid_loss_list:
                     best_epoch = int(np.argmin(th.valid_loss_list))
-                    body = json.dumps({
-                        "total_batch": th.total_batch,
-                        "last_batch": th.nth_batch,
-                        "last_epoch": th.nth_epoch,
-                        "batch_loss": th.last_batch_loss,
-                        "running_state": th.running_state,
-                        "state": model_state,
-                        "validation_loss_list": th.valid_loss_list,
-                        "train_loss_list": th.train_loss_list,
-                        "best_epoch": best_epoch,
-                        "best_epoch_iou": th.valid_iou_list[best_epoch],
-                        "best_epoch_map": th.valid_map_list[best_epoch],
-                        "best_epoch_validation_result": th.valid_predict_box[best_epoch]
-                    })
-                    ret = create_response(body)
-                    return ret
+                    try:
+                        body = json.dumps({
+                            "total_batch": th.total_batch,
+                            "last_batch": th.nth_batch,
+                            "last_epoch": th.nth_epoch,
+                            "batch_loss": th.last_batch_loss,
+                            "running_state": th.running_state,
+                            "state": model_state,
+                            "validation_loss_list": th.valid_loss_list,
+                            "train_loss_list": th.train_loss_list,
+                            "best_epoch": best_epoch,
+                            "best_epoch_iou": th.valid_iou_list[best_epoch],
+                            "best_epoch_map": th.valid_map_list[best_epoch],
+                            "best_epoch_validation_result": th.valid_predict_box[best_epoch]
+                        })
+                        ret = create_response(body)
+                        return ret
+                    except:
+                        import pdb
+                        pdb.set_trace()
 
                 elif isinstance(th, TrainThread) and (th.nth_batch != req_last_batch or
                                                       th.running_state != req_running_state or
