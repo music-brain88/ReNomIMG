@@ -168,7 +168,6 @@ class EvaluatorDetection(EvaluatorBase):
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
         return prec. rec
 
-
     def detection_report(self, iou_thresh=0.5, digits=3):
         """ Output a table whcih shows AP, IoU, the number of predicted instances for each class, and the number of ground truth instances for each class.
         Args:
