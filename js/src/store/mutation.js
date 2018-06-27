@@ -129,6 +129,7 @@ export default {
       current_model.best_epoch_iou = payload.best_epoch_iou
       current_model.best_epoch_map = payload.best_epoch_map
       current_model.best_epoch_validation_result = payload.best_epoch_validation_result
+      state.models = [...state.models] // Update display.
     }
   },
 
@@ -275,6 +276,5 @@ export default {
   },
   setDatasetDefs (state, payload) {
     state.dataset_defs = payload.dataset_defs
-    console.log(payload.dataset_defs)
   }
 }

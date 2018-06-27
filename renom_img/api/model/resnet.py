@@ -188,6 +188,7 @@ class ResNet44(ResNet):
         if n_class != 1000:
             self._layers[-1].params = {}
 
+
 class ResNet56(ResNet):
     """ResNet56 model.
 
@@ -209,6 +210,7 @@ class ResNet56(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet56.h5')
+
     def __init__(self, n_class, load_weight=False):
         num_layers = 9
         CHANNELS = [16, 32, 64]
@@ -245,6 +247,7 @@ class ResNet110(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet110.h5')
+
     def __init__(self, n_class, load_weight=False):
         num_layers = 18
         CHANNELS = [16, 32, 64]
@@ -281,6 +284,7 @@ class ResNet34(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet34.h5')
+
     def __init__(self, n_class, load_weight=False):
         num_layers = [3, 4, 6, 3]
         CHANNELS = [64, 128, 256, 512]
@@ -317,6 +321,7 @@ class ResNet50(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet50.h5')
+
     def __init__(self, n_class, load_weight=False):
         num_layers = [3, 4, 6, 3]
         CHANNELS = [64, 128, 256, 512]
@@ -330,6 +335,7 @@ class ResNet50(ResNet):
             self.load(self.WEIGHT_PATH)
         if n_class != 1000:
             self._layers[-1].params = {}
+
 
 class ResNet101(ResNet):
     """ResNet101 model.
@@ -352,6 +358,7 @@ class ResNet101(ResNet):
 
     WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
     WEIGHT_PATH = os.path.join(DIR, 'resnet101.h5')
+
     def __init__(self, n_class, load_weight=False):
         num_layers = [3, 4, 23, 3]
         CHANNELS = [[64, 64, 256], [128, 128, 512], [256, 256, 1024], [512, 512, 2048]]

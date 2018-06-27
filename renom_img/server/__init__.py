@@ -34,6 +34,8 @@ DATASRC_IMG = os.path.join(DATASRC_DIR, "img")
 DATASRC_LABEL = os.path.join(DATASRC_DIR, "label")
 DATASRC_PREDICTION_IMG = os.path.join(DATASRC_DIR, "prediction_set", "img")
 DATASRC_PREDICTION_OUT = os.path.join(DATASRC_DIR, "prediction_set", "output")
+DATASRC_PREDICTION_OUT_CSV = os.path.join(DATASRC_DIR, "prediction_set", "output", "csv")
+DATASRC_PREDICTION_OUT_XML = os.path.join(DATASRC_DIR, "prediction_set", "output", "xml")
 
 # DB directories
 DB_DIR = "storage"
@@ -42,6 +44,7 @@ DB_DIR_PRETRAINED_WEIGHT = os.path.join(DB_DIR, "pretrained_weight")
 
 # Create directories
 for path in [DATASRC_IMG, DATASRC_LABEL,
-             DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT]:
+             DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT, DATASRC_PREDICTION_IMG,
+             DATASRC_PREDICTION_OUT_CSV, DATASRC_PREDICTION_OUT_XML]:
     if not os.path.exists(path):
         os.makedirs(path)

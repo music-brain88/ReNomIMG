@@ -37,7 +37,7 @@ class VGG16(rm.Sequential):
     https://arxiv.org/abs/1409.1556
     """
 
-    WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
     WEIGHT_PATH = os.path.join(DIR, 'vgg16.h5')
 
     def __init__(self, num_class=1000, load_weight=False):
@@ -74,10 +74,12 @@ class VGG19(rm.Sequential):
     https://arxiv.org/abs/1409.1556
     """
 
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
-    WEIGHT_PATH = os.path.join(DIR, 'vgg19.h5')
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg19.h5"
 
-    def __init__(self, num_class=1000, load_weight=False):
+    def __init__(self, class_map=None, load_weight_path=None):
+
+        self._num_class = len(class_map)
+        self._class_map = class_map
         super(VGG19, self).__init__([
             layer_factory(channel=64, conv_layer_num=2),
             layer_factory(channel=128, conv_layer_num=2),
@@ -94,10 +96,9 @@ class VGG19(rm.Sequential):
             rm.Dense(num_class)
         ])
         if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
+            if not os.path.exists(load_weight_path):
+                download(self.WEIGHT_URL, load_weight_path)
             self.load(self.WEIGHT_PATH)
+
         if num_class != 1000:
             self._layers[-1].params = {}

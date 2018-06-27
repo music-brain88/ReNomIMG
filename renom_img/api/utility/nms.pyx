@@ -1,5 +1,5 @@
 import numpy as np
-from renom_img.api.utility.box import calc_iou
+from renom_img.api.utility.box import calc_iou_xyxy
 
 
 def nms(preds, threshold, return_type='box'):
@@ -33,7 +33,7 @@ def nms(preds, threshold, return_type='box'):
 
             for j in index:
                 box2 = boxes[j]
-                iou = calc_iou(box1, box2)
+                iou = calc_iou_xyxy(box1, box2)
                 if iou > threshold:
                     index.remove(j)
         result.append(tmp)
@@ -72,7 +72,7 @@ def soft_nms(preds, threshold, return_type='box'):
             scores.pop(i)
 
             for j, box2 in enumerate(boxes):
-                iou = calc_iou(box1, box2)
+                iou = calc_iou_xyxy(box1, box2)
                 if iou > threshold:
                     scores[j] *= (1-iou)
             index = np.argsort(scores).tolist()

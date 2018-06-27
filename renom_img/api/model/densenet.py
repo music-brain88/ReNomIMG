@@ -129,6 +129,7 @@ class DenseNet169(DenseNet):
     Densely Connected Convolutional Network
     https://arxiv.org/pdf/1608.06993.pdf
     """
+
     def __init__(self, n_class, growth_rate=32, load_weight=False):
         layer_per_block = [6, 12, 32, 32]
         super(DenseNet169, self).__init__(n_class, layer_per_block, growth_rate=32)

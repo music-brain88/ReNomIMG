@@ -8,8 +8,10 @@ MODE = [
 
 
 class ProcessBase(object):
-    """
-    X and Y must be resized as specified img size.
+    """Base class for applying augmentation to images.
+
+    Note:
+        X and Y must be resized as specified img size.
     """
 
     def __init__(self):
@@ -84,8 +86,7 @@ class Flip(ProcessBase):
                             obj["box"][2],
                             obj["box"][3],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
 
@@ -100,8 +101,7 @@ class Flip(ProcessBase):
                             obj["box"][2],
                             obj["box"][3],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
         return new_x, new_y
@@ -126,6 +126,24 @@ class Flip(ProcessBase):
 
 
 def flip(x, y=None, mode="classification"):
+    """Flip image randomly.
+    Args:
+        x(list of numpy.array): List of images.
+        y(list of dict): List of annotation results.
+        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+
+    Returns:
+        (list of numpy.array): List of flipped images.
+        (list of dict): List of annotation results.
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import Flip
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> flipped_img = flip(img_list)
+    """
     return Flip()(x, y, mode)
 
 
@@ -179,22 +197,46 @@ class Shift(ProcessBase):
         for i in range(n):
             new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
                 x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-            new_y.append([
-                {
-                    "box": [
-                        np.clip(obj["box"][0] + rand_h[i], 0, w),
-                        np.clip(obj["box"][1] + rand_v[i], 0, h),
-                        obj["box"][2],
-                        obj["box"][3],
-                    ],
-                    "name":obj["name"],
-                    "class":obj["class"],
-                }
-                for j, obj in enumerate(y[i])])
+            ny = []
+            for j, obj in enumerate(y[i]):
+                pw = obj["box"][2]
+                ph = obj["box"][3]
+                px1 = np.clip(obj["box"][0] - pw / 2. + rand_h[i], 0, w - 1)
+                py1 = np.clip(obj["box"][1] - ph / 2. + rand_v[i], 0, h - 1)
+                px2 = np.clip(obj["box"][0] + pw / 2. + rand_h[i], 0, w - 1)
+                py2 = np.clip(obj["box"][1] + ph / 2. + rand_v[i], 0, h - 1)
+                pw = px2 - px1
+                ph = py2 - py1
+                px = px1 + pw / 2.
+                py = py1 + ph / 2.
+                ny.append({
+                    "box": [px, py, pw, ph],
+                    **{k: v for k, v in obj.items() if k != 'box'}
+                })
+            new_y.append(ny)
         return new_x, new_y
 
 
 def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
+    """Shift images randomly according to given parameter.
+    Args:
+        x(list of numpy.array): List of images.
+        y(list of dict): List of annotation results.
+        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+
+    Returns:
+        (list of numpy.array): List of shifted images.
+        (list of dict): List of annotation results.
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import shift
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> shifted_img = shift(img_list)
+    """
     return Shift(horizontal, vertivcal)(x)
 
 
@@ -245,8 +287,7 @@ class Rotate(ProcessBase):
                             obj["box"][3],
                             obj["box"][2],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
             elif r == 2:
@@ -258,8 +299,7 @@ class Rotate(ProcessBase):
                             obj["box"][2],
                             obj["box"][3],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
             elif r == 3:
@@ -271,14 +311,33 @@ class Rotate(ProcessBase):
                             obj["box"][3],
                             obj["box"][2],
                         ],
-                        "name":obj["name"],
-                        "class":obj["class"],
+                        **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
         return new_x, new_y
 
 
 def rotate(x, y=None, mode="classification"):
+    """Rotate images randomly from 0, 90, 180, 270 degree.
+
+    Args:
+        x(list of numpy.array): List of images.
+        y(list of dict): List of annotation results.
+        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+
+    Returns:
+        (list of numpy.array): List of rotated images.
+        (list of dict): List of annotation results.
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import rotate
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> rotated_img = flip(img_list)
+    """
     return Rotate()(x, y, mode)
 
 
@@ -298,6 +357,26 @@ class WhiteNoise(ProcessBase):
 
 
 def white_noise(x, y=None, std=0.01, mode="classification"):
+    """Add white noise to images.
+
+    Args:
+        x(list of numpy.array): List of images.
+        y(list of dict): List of annotation results.
+        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+
+    Returns:
+        (list of numpy.array): List of images added white noise.
+        (list of dict): List of annotation results.
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import white_noise
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> noise_img = white_noise(img_list)
+    """
     return WhiteNoise(std)(x, y, mode)
 
 
@@ -329,3 +408,75 @@ class Jitter(ProcessBase):
         s = np.clip(s * scale_s, 0, 1)
         v = np.clip(v * scale_v, 0, 255)
         return x, y
+
+
+class ContrastNorm(ProcessBase):
+    def __init__(self, alpha=0.5, per_channel=False):
+        super(ContrastNorm, self).__init__()
+        if isinstance(alpha, list):
+            assert len(alpha) == 2, "Expected list with 2 entries, got {} entries".format(len(alpha))
+        else:
+            assert alpha >= 0.0, "Expected alpha to be larger or equal to 0.0, got {}".format(alpha)
+        self._alpha = alpha
+        self._per_channel = per_channel
+
+    def _draw_sample(self, size=1):
+        if isinstance(self._alpha, list):
+            return np.random.uniform(self._alpha[0], self._alpha[1], size)
+        else:
+            return self._alpha
+
+    def _transform_classification(self, x, y):
+        assert len(x.shape) == 4
+        n = x.shape[0]
+        new_x = np.empty_like(x)
+        for i in range(n):
+            if self._per_channel and isinstance(self._alpha, list):
+                channel = x.shape[1]
+                alpha = self._draw_sample(size=channel)
+                for c in range(channel):
+                    new_x[i, c, :, :] = np.clip(alpha[c] * (x[i, c, :, :] - 128) + 128, 0, 255)
+            else:
+                alpha = self._draw_sample()
+                new_x[i] = np.clip(alpha * (x[i] - 128) + 128, 0, 255)
+
+        return new_x, y
+
+    def _transform_detection(self, x, y):
+        assert len(x.shape) == 4
+        n = x.shape[0]
+        new_x = np.empty_like(x)
+        for i in range(n):
+            if self._per_channel and isinstance(self._alpha, list):
+                channel = x.shape[1]
+                alpha = self._draw_sample(size=channel)
+                for c in range(channel):
+                    new_x[i, c, :, :] = np.clip(alpha[c] * (x[i, c, :, :] - 128) + 128, 0, 255)
+            else:
+                alpha = self._draw_sample()
+                new_x[i] = np.clip(alpha * (x[i] - 128) + 128, 0, 255)
+
+        return new_x, y
+
+
+def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'):
+    """ Contrast Normalization
+    Args:
+        alpha(float or list of two floats): Higher value increases contrast, and lower value decreases contrast.
+                                            if a list [a, b], alpha value is sampled from uniform distribution ranging from [a, b).
+                                            if a float, constant value of alpha is used.
+        per_channel(Bool): Whether to apply contrast normalization for each channel. 
+                           If alpha is given a list, then different values for each channel are used.
+
+    Returns:
+        (list of numpy.array): List of images normalized by contrast
+        (list of dict): List of annotation results.
+
+    Example:
+        >>> img = Image.open(img_path)
+        >>> img.convert('RGB')
+        >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
+        >>> x = np.array([img])
+        >>> new_x, new_y = contrast_norm(x, alpha=0.4)
+    """
+    return ContrastNorm(alpha, per_channel)(x, y, mode)
