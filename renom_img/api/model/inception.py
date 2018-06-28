@@ -152,7 +152,7 @@ class InceptionV1(InceptionBase):
     WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
     WEIGHT_PATH = os.path.join(DIR, 'inceptionv4.h5')
 
-    def __init__(self, class_map, load_weight=False, imsize=(224, 224), opt=rm.Sgd(0.045, 0.9),train_whole_network=False):
+    def __init__(self, class_map, load_weight=False, imsize=(224, 224), opt=rm.Sgd(0.045, 0.9), train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         n_class = len(class_map)
