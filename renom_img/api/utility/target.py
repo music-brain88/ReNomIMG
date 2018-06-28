@@ -230,3 +230,36 @@ class DataBuilderYolov1(DataBuilderBase):
 
     def reverce_label(self, label_list):
         pass
+
+
+class DataBuilderSegmentation(DataBuilderBase):
+    """
+    Annotation_list must be list of class name.
+    """
+
+    def create_class_mapping(self, annotation_path_list):
+        pass
+
+    def __init__(self, imsize, class_mapping):
+        super(DataBuilderSegmentation, self).__init__(imsize)
+        self.class_mapping = class_mapping
+
+    def __call__(self, img_path_list, annotation_path_list, augmentation):
+        # Check the class mapping.
+        n_class = len(self.class_mapping)
+
+        img_list = []
+        label_list = []
+        for img_path, an_path in zip(img_path_list, annotation_path_list):
+            annot = np.zeros((n_class, self.imsize[0], self.imsize[1]))
+            img, sw, sh = self.load_img(img_path)
+            label, sw, sh = self.load_img(an_path)[0]
+            img_list.append(img)
+            for i in range(len(self.class_mapping)):
+                annot[i, label==i] = 1.
+            label_list.append(annot)
+        if augmentation is not None:
+            return augmentation(np.array(img_list), np.array(label_list), mode="segmentation")
+        else:
+            return np.array(img_list), np.array(label_list)
+

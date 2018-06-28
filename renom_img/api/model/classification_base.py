@@ -17,6 +17,7 @@ class ClassificationBase(rm.Model):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"): reg += rm.sum(layer.params.w * layer.params.w)
         return decay_rate * reg
+
     def predict(self, img_list):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
