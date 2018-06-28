@@ -33,6 +33,7 @@ def calc_iou(box1, box2):
     if intersect.shape == ():
         if (xB < xA) or (yB < yA):
             return 0
+    # case we are given an array of boxes:
     else:
         intersect[xB < xA] = 0.0
         intersect[yB < yA] = 0.0
