@@ -196,7 +196,7 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
             else:
                 continue
     mean_iou_per_cls = {k: round(np.mean(v), n_round_off) if v is not np.nan else np.nan for k, v in ious.items()}
-    mean_iou = np.nanmean(list(mean_iou_per_cls.values()))
+    mean_iou = round(np.nanmean(list(mean_iou_per_cls.values())), n_round_off)
     return mean_iou_per_cls, mean_iou
 
 cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_off=3):

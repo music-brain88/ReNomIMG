@@ -215,10 +215,14 @@ def run_model(project_id, model_id):
         if model['state'] != STATE_DELETED:
             storage.update_model_state(model_id, STATE_FINISHED)
         release_mem_pool()
+
         if error_msg is not None:
             body = json.dumps({"error_msg": error_msg})
             ret = create_response(body)
             return ret
+        body = json.dumps({"dummy": ""})
+        ret = create_response(body)
+        return ret
 
     except Exception as e:
         release_mem_pool()
@@ -253,22 +257,26 @@ def progress_model(project_id, model_id):
                 # If thread status updated, return response.
                 if isinstance(th, TrainThread) and th.nth_epoch != req_last_epoch and th.valid_loss_list:
                     best_epoch = int(np.argmin(th.valid_loss_list))
-                    body = json.dumps({
-                        "total_batch": th.total_batch,
-                        "last_batch": th.nth_batch,
-                        "last_epoch": th.nth_epoch,
-                        "batch_loss": th.last_batch_loss,
-                        "running_state": th.running_state,
-                        "state": model_state,
-                        "validation_loss_list": th.valid_loss_list,
-                        "train_loss_list": th.train_loss_list,
-                        "best_epoch": best_epoch,
-                        "best_epoch_iou": th.valid_iou_list[best_epoch],
-                        "best_epoch_map": th.valid_map_list[best_epoch],
-                        "best_epoch_validation_result": th.valid_predict_box[best_epoch]
-                    })
-                    ret = create_response(body)
-                    return ret
+                    try:
+                        body = json.dumps({
+                            "total_batch": th.total_batch,
+                            "last_batch": th.nth_batch,
+                            "last_epoch": th.nth_epoch,
+                            "batch_loss": th.last_batch_loss,
+                            "running_state": th.running_state,
+                            "state": model_state,
+                            "validation_loss_list": th.valid_loss_list,
+                            "train_loss_list": th.train_loss_list,
+                            "best_epoch": best_epoch,
+                            "best_epoch_iou": th.valid_iou_list[best_epoch],
+                            "best_epoch_map": th.valid_map_list[best_epoch],
+                            "best_epoch_validation_result": th.valid_predict_box[best_epoch]
+                        })
+                        ret = create_response(body)
+                        return ret
+                    except:
+                        import pdb
+                        pdb.set_trace()
 
                 elif isinstance(th, TrainThread) and (th.nth_batch != req_last_batch or
                                                       th.running_state != req_running_state or
@@ -560,6 +568,41 @@ def undeploy_model(project_id, model_id):
         storage.update_project_deploy(project_id, None)
     except Exception as e:
         traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/deployed_model", method="GET")
+def pull_deployed_model(project_id):
+    # This method will be called from python script.
+    try:
+        deployed_id = storage.fetch_deployed_model_id(project_id)[0]['deploy_model_id']
+        ret = storage.fetch_model(project_id, deployed_id, "best_epoch_weight")
+        file_name = ret['best_epoch_weight']
+        path = DB_DIR_TRAINED_WEIGHT
+        return static_file(file_name, root=path, download='deployed_model.h5')
+    except Exception as e:
+        print(e)
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v1/projects/<project_id:int>/deployed_model_info", method="GET")
+def get_deployed_model_info(project_id):
+    # This method will be called from python script.
+    try:
+        deployed_id = storage.fetch_deployed_model_id(project_id)[0]['deploy_model_id']
+        ret = storage.fetch_model(project_id, deployed_id, "best_epoch_weight")
+        file_name = ret['best_epoch_weight']
+        ret = storage.fetch_model(project_id, deployed_id,
+                                  "algorithm,algorithm_params,hyper_parameters")
+        ret["filename"] = filename
+        body = json.dumps(ret)
+        ret = create_response(body)
+        return ret
+    except Exception as e:
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret

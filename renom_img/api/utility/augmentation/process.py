@@ -127,6 +127,7 @@ class Flip(ProcessBase):
 
 def flip(x, y=None, mode="classification"):
     """Flip image randomly.
+
     Args:
         x(list of numpy.array): List of images.
         y(list of dict): List of annotation results.
@@ -219,6 +220,7 @@ class Shift(ProcessBase):
 
 def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
     """Shift images randomly according to given parameter.
+
     Args:
         x(list of numpy.array): List of images.
         y(list of dict): List of annotation results.
@@ -323,7 +325,7 @@ def rotate(x, y=None, mode="classification"):
     Args:
         x(list of numpy.array): List of images.
         y(list of dict): List of annotation results.
-        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+        mode(str): Type of task. You could choose from Classification, Detection and Segmentation.
 
     Returns:
         (list of numpy.array): List of rotated images.
@@ -336,7 +338,7 @@ def rotate(x, y=None, mode="classification"):
         >>> img1 = Image.open(img_path1)
         >>> img2 = Image.open(img_path2)
         >>> img_list = np.array([img1, img2])
-        >>> rotated_img = flip(img_list)
+        >>> rotated_img = rotate(img_list)
     """
     return Rotate()(x, y, mode)
 

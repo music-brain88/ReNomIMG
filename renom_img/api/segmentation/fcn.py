@@ -5,7 +5,7 @@ import renom as rm
 
 
 class FCN_Base(rm.Model):
-    def __init__(self, nb_class, load_weight=False):
+    def __init__(self, n_class, load_weight=False):
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
         self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
         self.max_pool1 = rm.MaxPool2d(filter=2, stride=2)
@@ -33,12 +33,35 @@ class FCN_Base(rm.Model):
         self.fc7 = rm.Conv2d(4096, filter=1)
 
 
-class FCN_32s(FCN_Base):
-    def __init__(self, nb_class, load_weight=False):
-        super(FCN_32s, super).__init__(nb_class, load_weight)
+class FCN32s(FCN_Base):
+    """ Fully convolutional network (21s) for semantic segmentation
 
-        self.score_fr = rm.Conv2d(nb_class, filter=1)  # nb_classes
-        self.upscore = rm.Deconv2d(nb_class, stride=32, padding=0, filter=32)  # nb_classes
+    Args:
+        n_class (int): The number of classes
+        load_weight (Bool): If True, the pre-trained weight of ImageNet is loaded.
+
+    Example:
+        >>> import renom as rm
+        >>> import numpy as np
+        >>> from renom_img.api.segmentation.fcn import FCN32s
+        >>> n, c, h, w = (2, 12, 64, 64)
+        >>> x = rm.Variable(np.random.rand(n, c, h, w))
+        >>> model = FCN32s(12)
+        >>> t = model(x)
+        >>> t.shape
+        (2, 12, 64, 64)
+
+    Note:
+        Jonathan Long, Evan Shelhamer, Trevor Darrell
+        Fully Convolutional Networks for Semantic Segmentation
+        https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+    """
+
+    def __init__(self, n_class, load_weight=False):
+        super(FCN32s, super).__init__(n_class, load_weight)
+
+        self.score_fr = rm.Conv2d(n_class, filter=1)  # n_classes
+        self.upscore = rm.Deconv2d(n_class, stride=32, padding=0, filter=32)  # n_classes
 
     def forward(self, x):
         t = x
@@ -77,14 +100,38 @@ class FCN_32s(FCN_Base):
         return t
 
 
-class FCN_16s(FCN_Base):
-    def __init__(self, nb_class, load_weight=False):
-        super(FCN_16s, self).__init__(nb_class, load_weight)
-        self.score_fr = rm.Conv2d(nb_class, filter=1)
-        self.score_pool4 = rm.Conv2d(nb_class, filter=1)
+class FCN16s(FCN_Base):
+    """ Fully convolutional network (16s) for semantic segmentation
+    Reference: https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 
-        self.upscore2 = rm.Deconv2d(nb_class, filter=2, stride=2, padding=0)
-        self.upscore16 = rm.Deconv2d(nb_class, filter=16, stride=16, padding=0)
+    Args:
+        n_class (int): The number of classes
+        load_weight (Bool): If True, the pre-trained weight of ImageNet is loaded.
+
+    Example:
+        >>> import renom as rm
+        >>> import numpy as np
+        >>> from renom_img.api.segmentation.fcn import FCN16s
+        >>> n, c, h, w = (2, 12, 64, 64)
+        >>> x = rm.Variable(np.random.rand(n, c, h, w))
+        >>> model = FCN16s(12)
+        >>> t = model(x)
+        >>> t.shape
+        (2, 12, 64, 64)
+
+    Note:
+        Jonathan Long, Evan Shelhamer, Trevor Darrell
+        Fully Convolutional Networks for Semantic Segmentation
+        https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+    """
+
+    def __init__(self, n_class, load_weight=False):
+        super(FCN16s, self).__init__(n_class, load_weight)
+        self.score_fr = rm.Conv2d(n_class, filter=1)
+        self.score_pool4 = rm.Conv2d(n_class, filter=1)
+
+        self.upscore2 = rm.Deconv2d(n_class, filter=2, stride=2, padding=0)
+        self.upscore16 = rm.Deconv2d(n_class, filter=16, stride=16, padding=0)
 
     def forward(self, x):
         t = x
@@ -131,19 +178,43 @@ class FCN_16s(FCN_Base):
         return t
 
 
-class FCN_8s(FCN_Base):
-    def __init__(self, nb_class, load_weight=False):
-        super(FCN_8s, self).__init__(nb_class, load_weight)
+class FCN8s(FCN_Base):
+    """ Fully convolutional network (8s) for semantic segmentation
+    Reference: https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+
+    Args:
+        n_class (int): The number of classes
+        load_weight (Bool): If True, the pre-trained weight of ImageNet is loaded.
+
+    Example:
+        >>> import renom as rm
+        >>> import numpy as np
+        >>> from renom_img.api.segmentation.fcn import FCN8s
+        >>> n, c, h, w = (2, 12, 64, 64)
+        >>> x = rm.Variable(np.random.rand(n, c, h, w))
+        >>> model = FCN8s(12)
+        >>> t = model(x)
+        >>> t.shape
+        (2, 12, 64, 64)
+
+    Note:
+        Jonathan Long, Evan Shelhamer, Trevor Darrell
+        Fully Convolutional Networks for Semantic Segmentation
+        https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+    """
+
+    def __init__(self, n_class, load_weight=False):
+        super(FCN8s, self).__init__(n_class, load_weight)
         self.drop_out = rm.Dropout(0.5)
 
-        self.score_fr = rm.Conv2d(nb_class, filter=1)
-        self.upscore2 = rm.Deconv2d(nb_class, filter=2, stride=2, padding=0)
-        self.upscore8 = rm.Deconv2d(nb_class, filter=8, stride=8, padding=0)
+        self.score_fr = rm.Conv2d(n_class, filter=1)
+        self.upscore2 = rm.Deconv2d(n_class, filter=2, stride=2, padding=0)
+        self.upscore8 = rm.Deconv2d(n_class, filter=8, stride=8, padding=0)
 
-        self.score_pool3 = rm.Conv2d(nb_class, filter=1)
-        self.score_pool4 = rm.Conv2d(nb_class, filter=1)
+        self.score_pool3 = rm.Conv2d(n_class, filter=1)
+        self.score_pool4 = rm.Conv2d(n_class, filter=1)
 
-        self.upscore_pool4 = rm.Deconv2d(nb_class, filter=2, stride=2, padding=0)
+        self.upscore_pool4 = rm.Deconv2d(n_class, filter=2, stride=2, padding=0)
 
     def forward(self, x):
         t = x

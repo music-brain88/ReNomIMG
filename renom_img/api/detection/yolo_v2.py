@@ -12,6 +12,16 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 
 
+class AnchorYolov2(object):
+
+    def __init__(self, anchor, imsize):
+        self.anchor = anchor
+        self.imsize = imsize
+
+    def __len__(self):
+        return len(self.anchor)
+
+
 def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
     """
     This function creates 'anchors' for yolo v2 algorithm using k-means clustering.
@@ -66,7 +76,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
         old_loss = loss
 
     # This depends on input image size.
-    return [[cnt[2], cnt[3]] for cnt in new_centroids]
+    return AnchorYolov2([[cnt[2], cnt[3]] for cnt in new_centroids], base_size)
 
 
 class Yolov2(rm.Model):
@@ -75,9 +85,8 @@ class Yolov2(rm.Model):
     Args:
         num_class(int):
         anchor(list):
-        anchor_size(list):
         imsize(lit):
-        load_weight_path(string):
+        load_pretrained_weight(bool, string):
         train_whole_network(bool):
 
     Note:
@@ -86,11 +95,11 @@ class Yolov2(rm.Model):
     """
 
     # Anchor information will be serialized by 'save' method.
-    SERIALIZED = ("anchor", "num_anchor", "anchor_size")
+    SERIALIZED = ("anchor", "num_anchor", "anchor_size", "_class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov2.h5"
 
-    def __init__(self, class_map, anchor=None, anchor_size=None,
-                 imsize=(224, 224), load_weight_path=None, train_whole_network=False):
+    def __init__(self, class_map, anchor,
+                 imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
             exp),imsize=(320, 320)."
@@ -98,12 +107,13 @@ class Yolov2(rm.Model):
         num_class = len(class_map)
         self._class_map = [k for k, v in sorted(
             class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
+        self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
         self.imsize = imsize
-        self.anchor_size = anchor_size
         self._freezed_network = Darknet19Base()
-        self.anchor = anchor
+        self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
+        self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
-        self.cn = num_class
+        self.num_class = num_class
         last_channel = (num_class + 5) * self.num_anchor
         self._base = Darknet19Base()
         self._conv1 = rm.Sequential([
@@ -121,16 +131,13 @@ class Yolov2(rm.Model):
         self._train_whole_network = train_whole_network
 
         # Load weight here.
-        if load_weight_path:
-            if not os.path.exists(load_weight_path):
-                download(self.WEIGHT_URL, load_weight_path)
-            self.load(load_weight_path)
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
 
-            if anchor is not None:
-                # Anchor will be overridden if the argument anchor is not None.
-                self.anchor = anchor
-                self.num_anchor = len(anchor)
-                self.anchor_size = anchor_size
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+            self.load(load_pretrained_weight)
 
             for model in [self._conv1, self._conv2, self._last]:
                 for layer in model.iter_models():
@@ -240,7 +247,7 @@ class Yolov2(rm.Model):
 
         num_anchor = len(anchor)
         N, C, H, W = z.shape
-        offset = self.cn + 5
+        offset = self.num_class + 5
         FW, FH = self.imsize[0] // 32, self.imsize[1] // 32
         box_list = [[] for n in range(N)]
         score_list = [[] for n in range(N)]
@@ -276,10 +283,11 @@ class Yolov2(rm.Model):
             a_box[:, 0] = x1 + a_box[:, 2] / 2.
             a_box[:, 1] = y1 + a_box[:, 3] / 2.
 
-            keep = np.where(max_conf > 0)
+            keep = np.where(max_conf > 0.3)
             for i, (b, s, c) in enumerate(zip(a_box[keep[0], :, keep[1], keep[2]],
                                               max_conf[keep[0], keep[1], keep[2]],
                                               score[keep[0], :, keep[1], keep[2]])):
+                b = b if isinstance(b, list) else b.tolist()
                 box_list[keep[0][i]].append(b)
                 score_list[keep[0][i]].append((s, np.argmax(c)))
 
@@ -298,7 +306,7 @@ class Yolov2(rm.Model):
 
             box_list[n] = [{
                 "box": box_list[n][i],
-                "name": self._class_map[score_list[n][i][1]],
+                "name": self._class_map[score_list[n][i][1]].decode('utf-8'),
                 "score": score_list[n][i][0],
                 "class": score_list[n][i][1],
             } for i, k in enumerate(keep) if k]
@@ -339,7 +347,7 @@ class Yolov2(rm.Model):
         ratio_w = 32.
         ratio_h = 32.
         img_list = []
-        num_class = self.cn
+        num_class = self.num_class
         channel = num_class + 5
         offset = channel
 
@@ -387,19 +395,19 @@ class Yolov2(rm.Model):
 
         num_anchor = self.num_anchor
         mask = np.zeros((N, C, H, W), dtype=np.float32)
-        mask = mask.reshape(N, num_anchor, 5 + self.cn, H, W)
+        mask = mask.reshape(N, num_anchor, 5 + self.num_class, H, W)
         mask[:, :, 1:5, ...] = 0.1
         mask = mask.reshape(N, C, H, W)
 
         target = np.zeros((N, C, H, W), dtype=np.float32)
-        target = target.reshape(N, num_anchor, 5 + self.cn, H, W)
+        target = target.reshape(N, num_anchor, 5 + self.num_class, H, W)
         target[:, :, 1:3, ...] = 0.5
         target[:, :, 3:5, ...] = 1.0
         target = target.reshape(N, C, H, W)
 
         low_thresh = 0.6
         im_w, im_h = self.imsize
-        offset = 5 + self.cn
+        offset = 5 + self.num_class
 
         # Calc iou and get best matched prediction.
         best_ious = np.zeros((N, num_anchor, H, W), dtype=np.float32)
@@ -483,9 +491,9 @@ class Yolov2(rm.Model):
         N = np.sum(y[:, 0] > 0)
         return rm.sum(diff * diff * mask) / N / 2.
 
-    def fit(self, train_img_path_list=None, train_annotation_list=None, train_image_distributor=None,
-            valid_img_path_list=None, valid_annotation_list=None, valid_image_distributor=None,
-            epoch=160, batch_size=16, callback_end_epoch=None):
+    def fit(self, train_img_path_list=None, train_annotation_list=None,
+            valid_img_path_list=None, valid_annotation_list=None,
+            epoch=160, batch_size=16, augmentation=None, callback_end_epoch=None):
         """
         This function performs training with given data and hyper parameters.
 
@@ -504,17 +512,9 @@ class Yolov2(rm.Model):
             (tuple): Training loss list and validation loss list.
         """
 
-        if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_list)
-        else:
-            train_dist = train_image_distributor
-
-        assert train_dist is not None
-
-        if valid_img_path_list is not None and valid_annotation_list is not None:
-            valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
-        else:
-            valid_dist = valid_image_distributor
+        train_dist = ImageDistributor(
+            train_img_path_list, train_annotation_list, augmentation=augmentation)
+        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
@@ -529,9 +529,9 @@ class Yolov2(rm.Model):
                     reg_loss = loss + self.regularize()
                 reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop))
                 try:
-                    loss = loss.as_ndarray()[0]
+                    loss = float(loss.as_ndarray()[0])
                 except:
-                    loss = loss.as_ndarray()
+                    loss = float(loss.as_ndarray())
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
@@ -544,9 +544,9 @@ class Yolov2(rm.Model):
                     self.set_models(inference=True)
                     loss = self.loss(self(valid_x), valid_y)
                     try:
-                        loss = loss.as_ndarray()[0]
+                        loss = float(loss.as_ndarray()[0])
                     except:
-                        loss = loss.as_ndarray()
+                        loss = float(loss.as_ndarray())
                     display_loss += loss
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
