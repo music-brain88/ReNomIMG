@@ -13,6 +13,8 @@
         :key="index"
         :image_idx="index + topImageIndex"
         :image_path="item.path"
+        :image_width="item.width"
+        :image_height="item.height"
         :bboxes="item.predicted_bboxes">
       </sample-image>
     </div>
