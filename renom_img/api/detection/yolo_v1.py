@@ -28,8 +28,11 @@ def calc_iou(box1, box2):
     yA = np.fmax(b1_y1, b2_y1)
     xB = np.fmin(b1_x2, b2_x2)
     yB = np.fmin(b1_y2, b2_y2)
-    intersect = (xB - xA) * (yB - yA) case we are given two scalar boxes: if intersect.shape == (): if (xB < xA) or (yB < yA): return 0
-    # case we are given an array of boxes:
+    intersect = (xB - xA) * (yB - yA)
+    # case we are given two scalar boxes:
+    if intersect.shape == ():
+        if (xB < xA) or (yB < yA):
+            return 0
     else:
         intersect[xB < xA] = 0.0
         intersect[yB < yA] = 0.0
