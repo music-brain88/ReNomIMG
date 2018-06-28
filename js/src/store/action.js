@@ -299,6 +299,7 @@ export default {
     let fd = new FormData()
     fd.append('ratio', payload.ratio)
     fd.append('name', payload.name)
+    console.log(payload.name)
 
     let url = '/api/renom_img/v1/dataset_defs/'
     await axios.post(url, fd)

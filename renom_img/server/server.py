@@ -382,15 +382,15 @@ def get_datasets():
             id, name, ratio, valid_imgs, class_map, created, updated = rec
             valid_img_names = [os.path.join("datasrc/img/", path) for path in valid_imgs]
             valid_imgs = []
-            for name in valid_img_names:
+            for img_name in valid_img_names:
                 try:
-                    im = PIL.Image.open(name)
+                    im = PIL.Image.open(img_name)
                     width, height = im.size
                 except Exception:
                     import traceback
                     traceback.print_exc()
                     width = height = 50
-                valid_imgs.append(dict(filename=name, width=width, height=height))
+                valid_imgs.append(dict(filename=img_name, width=width, height=height))
 
             ret.append(dict(id=id, name=name, ratio=ratio,
                             valid_imgs=valid_imgs, class_map=class_map, created=created, updated=updated))
