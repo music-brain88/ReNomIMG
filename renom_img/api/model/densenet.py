@@ -94,9 +94,11 @@ class DenseNet(DenseNetBase):
     DenseNet (Densely Connected Convolutional Network) https://arxiv.org/pdf/1608.06993.pdf
 
     Input
-        class_map: Number of classes
-        layer_per_block: array specifing number of layers in a block
-        growth_rate: int1
+        class_map: Array of class names
+        layer_per_block: array specifing number of layers in a block.
+        growth_rate(int): Growth rate of the number of filters.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
     """
     def __init__(self, class_map, layer_per_block=[6, 12, 24, 16], growth_rate=32, imsize=(224, 224), train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
@@ -115,7 +117,7 @@ class DenseNet(DenseNetBase):
         for i in range(layer_per_block[-1]):
             layers.append(conv_block(growth_rate))
 
-        self._freezed_network = rm.Sequential(layers)
+        self.freezed_network = rm.Sequential(layers)
         self._network = rm.Dense(self.n_class)
         self._train_whole_network = train_whole_network
         self.imsize = imsize
@@ -124,7 +126,7 @@ class DenseNet(DenseNetBase):
 
     @property
     def freezed_network(self):
-        return self._freezed_network
+        return self.freezed_network
 
     @property
     def network(self):
@@ -135,7 +137,7 @@ class DenseNet(DenseNetBase):
         i = 0
         t = self.freezed_network[i](x)
         i += 1
-        t = rm.relu(self._layers[i](t))
+        t = rm.relu(self.freezed_network[i](t))
         i += 1
         t = rm.max_pool2d(t, filter=3, stride=2, padding=1)
         for j in self.layer_per_block[:-1]:
@@ -164,9 +166,10 @@ class DenseNet121(DenseNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        n_class(int): The number of class
-        layer_per_block: The number of layers in each block
-        load_weight(bool): 
+        class_map: Array of class names
+        growth_rate(int): Growth rate of the number of filters.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
 
     Note:
         if the argument n_class is not 1000, last dense layer will be reset because
@@ -180,9 +183,12 @@ class DenseNet121(DenseNet):
     WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
     WEIGHT_PATH = os.path.join(DIR, 'densenet121.h5')
 
-    def __init__(self, class_map, growth_rate=32, load_weight=False):
+    def __init__(self, class_map, growth_rate=32, load_weight=False, imsize=(224, 224), train_whole_network=False):
         layer_per_block = [6, 12, 24, 16]
-        super(DenseNet121, self).__init__(class_map, layer_per_block, growth_rate=32, imsize=(224, 224), train_whole_network=False)
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+        super(DenseNet121, self).__init__(class_map, layer_per_block, growth_rate=growth_rate, imsize=imsize, train_whole_network=train_whole_network)
+        n_class = len(class_map)
         if load_weight:
             try:
                 self.load(self.WEIGHT_PATH)
@@ -190,7 +196,7 @@ class DenseNet121(DenseNet):
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
         if n_class != 1000:
-            self._layers[-1].params = {}
+            self.freezed_network.params = {}
 
 
 class DenseNet169(DenseNet):
@@ -200,9 +206,10 @@ class DenseNet169(DenseNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        n_class(int): The number of class
-        layer_per_block: The number of layers in each block
-        load_weight(bool): 
+        class_map: Array of class names
+        growth_rate(int): Growth rate of the number of filters.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
 
     Note:
         if the argument n_class is not 1000, last dense layer will be reset because
@@ -213,9 +220,12 @@ class DenseNet169(DenseNet):
     https://arxiv.org/pdf/1608.06993.pdf
     """
 
-    def __init__(self, class_map, growth_rate=32, load_weight=False):
+    def __init__(self, class_map, growth_rate=32, load_weight=False, imsize=(224, 224), train_whole_network=False):
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
         layer_per_block = [6, 12, 32, 32]
-        super(DenseNet121, self).__init__(class_map, layer_per_block, growth_rate=32, imsize=(224, 224), train_whole_network=False)
+        super(DenseNet169, self).__init__(class_map, layer_per_block, growth_rate=growth_rate, imsize=imsize,  train_whole_network=train_whole_network)
+        n_class = len(class_map)
         if load_weight:
             try:
                 self.load(self.WEIGHT_PATH)
@@ -223,7 +233,7 @@ class DenseNet169(DenseNet):
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
         if n_class != 1000:
-            self._layers[-1].params = {}
+            self.network.params = {}
 
 
 class DenseNet201(DenseNet):
@@ -233,9 +243,11 @@ class DenseNet201(DenseNet):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        n_class(int): The number of class
-        layer_per_block: The number of layers in each block
-        load_weight(bool): 
+        class_map: Array of class names
+        growth_rate(int): Growth rate of the number of filters.
+        load_weight(bool): True if the pre-trained weight is loaded.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
 
     Note:
         if the argument n_class is not 1000, last dense layer will be reset because
@@ -249,9 +261,13 @@ class DenseNet201(DenseNet):
     WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
     WEIGHT_PATH = os.path.join(DIR, 'densenet201.h5')
 
-    def __init__(self, class_map, growth_rate=32, load_weight=False):
+    def __init__(self, class_map, growth_rate=32, load_weight=False, imsize=(224, 224), train_whole_network=False):
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
         layer_per_block = [6, 12, 48, 32]
-        super(DenseNet121, self).__init__(class_map, layer_per_block, growth_rate=32, imsize=(224, 224), train_whole_network=False)
+
+        super(DenseNet201, self).__init__(class_map, layer_per_block, growth_rate=growth_rate, imsize=imsize, train_whole_network=train_whole_network)
+        n_class = len(class_map)
         if load_weight:
             try:
                 self.load(self.WEIGHT_PATH)
@@ -259,4 +275,4 @@ class DenseNet201(DenseNet):
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
         if n_class != 1000:
-            self._layers[-1].params = {}
+            self.network.params = {}

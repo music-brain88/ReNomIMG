@@ -86,8 +86,11 @@ class VGG16(VGGBase):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        n_class(int):
+        class_map(array): Array of class names
         load_weight(bool):
+        imsize(int or tuple): Input image size
+        train_whole_network(bool): True if the overall model is trained, otherwise False
+
 
     Note:
         if the argument n_class is not 1000, last dense layer will be reset because
@@ -101,7 +104,7 @@ class VGG16(VGGBase):
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
     WEIGHT_PATH = os.path.join(DIR, 'vgg16.h5')
 
-    def __init__(self, class_map, imsize=(224, 224), load_weight=False, train_whole_network=False):
+    def __init__(self, class_map, load_weight=False, imsize=(224, 224), train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
@@ -135,8 +138,7 @@ class VGG16(VGGBase):
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
         if self.n_class != 1000:
-            self._freezed_network[-1].params = {}
-            self._network[-1].params = {}
+            self._network.params = {}
 
         super(VGG16, self).__init__(class_map)
 
@@ -162,8 +164,11 @@ class VGG19(VGGBase):
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        n_class(int):
+        class_map(array): Array of class names
         load_weight(bool):
+        imsize(int or tuple): Input image size
+        train_whole_network(bool): True if the overall model is trained, otherwise False
+
 
     Note:
         if the argument n_class is not 1000, last dense layer will be reset because
@@ -211,8 +216,7 @@ class VGG19(VGGBase):
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
         if self.n_class != 1000:
-            self._freezed_network[-1].params = {}
-            self._network[-1].params = {}
+            self._network.params = {}
 
         super(VGG16, self).__init__(class_map)
 

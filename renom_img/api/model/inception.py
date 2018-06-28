@@ -3,9 +3,66 @@ import sys
 import renom as rm
 import numpy as np
 from renom_img.api.utility.misc.download import download
+from renom_img.api.model.classification_base import ClassificationBase
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
+class InceptionBase(ClassificationBase):
+    def __init__(self, class_map):
+        super(InceptionBase, self).__init__(class_map)
+        self._opt = rm.Sgd(0.1, 0.9)
+
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+        """Returns an instance of Optimiser for training Yolov1 algorithm.
+
+        Args:
+            current_epoch:
+            total_epoch:
+            current_batch:
+            total_epoch:
+        """
+        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+            return self._opt
+        else:
+            ind1 = int(total_epoch * 0.5)
+            ind2 = int(total_epoch * 0.3)
+            ind3 = total_epoch - (ind1 + ind2 + 1)
+            lr_list = [0] + [0.01] * ind1 + [0.001] * ind2 + [0.0001] * ind3
+            if current_epoch == 0:
+                lr = 0.0001 + (0.01 - 0.0001) / float(total_batch) * current_batch
+            else:
+                lr = lr_list[current_epoch]
+            self._opt._lr = lr
+            return self._opt
+
+
+    def preprocess(self, x):
+        """Image preprocess for VGG.
+
+        Args:
+            x (ndarray):
+
+        Returns:
+            (ndarray): Preprocessed data.
+        """
+        return x / 255.
+
+    def regularize(self, decay_rate=0.0005):
+        """L2 Regularization term. You can use this function to add L2 regularization term to a loss function.
+
+        In VGG16, weight decay of 0.0005 is used.
+
+        Example:
+            >>> import numpy as np
+            >>> from renom_img.api.model.vgg import VGG16
+            >>> x = np.random.rand(1, 3, 224, 224)
+            >>> y = np.random.rand(1, (5*2+20)*7*7)
+            >>> model = VGG16()
+            >>> loss = model.loss(x, y)
+            >>> reg_loss = loss + model.regularize() # Add weight decay term.
+
+        """
+        return super().regularize(decay_rate)
 
 class InceptionV1Block(rm.Model):
     def __init__(self, channels=[64, 96, 128, 16, 32]):
@@ -28,17 +85,19 @@ class InceptionV1Block(rm.Model):
         return rm.concat([t1, t2, t3, t4])
 
 
-class InceptionV1(rm.Model):
+class InceptionV1(InceptionBase):
     """ Inception V1 model
     If the argument load_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        n_class(int): The number of classes.
-        load_weight(bool):
+        class_map: Array of class names
+        load_weight(bool): True if the pre-trained weight is loaded.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Christian Szegedy, Wei Liu, Yangqing Jia , Pierre Sermanet, Scott Reed ,Dragomir Anguelov,
@@ -50,27 +109,49 @@ class InceptionV1(rm.Model):
     WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
     WEIGHT_PATH = os.path.join(DIR, 'inceptionv4.h5')
 
-    def __init__(self, n_class, load_weight=False):
+    def __init__(self, class_map, load_weight=False, imsize=(224, 224), train_whole_network=False):
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+        n_class = len(class_map)
+        self.imsize = imsize
+        self._train_whole_network = train_whole_network
+        self.base1 = rm.Sequential([rm.Conv2d(64, filter=7, padding=3, stride=2),
+                              rm.Relu(),
+                              rm.MaxPool2d(filter=3, stride=2, padding=1),
+                              rm.BatchNormalize(mode='feature'),
+                              rm.Conv2d(64, filter=1, stride=1),
+                              rm.Relu(),
+                              rm.Conv2d(192, filter=3, padding=1, stride=1),
+                              rm.Relu(),
+                              rm.BatchNormalize(mode='feature'),
+                              rm.MaxPool2d(filter=3, stride=2, padding=1),
+                              InceptionV1Block(),
+                              InceptionV1Block([128, 128, 192, 32, 96, 64]),
+                              rm.MaxPool2d(filter=3, stride=2),
+                              InceptionV1Block([192, 96, 208, 16, 48, 64]),
+                              ])
 
-        self.conv1 = rm.Conv2d(64, filter=7, padding=3, stride=2)
-        self.batch_norm1 = rm.BatchNormalize(mode='feature')
-        self.conv2 = rm.Conv2d(64, filter=1, stride=1)
-        self.conv3 = rm.Conv2d(192, filter=3, padding=1, stride=1)
-        self.batch_norm2 = rm.BatchNormalize(mode='feature')
-        self.a3 = InceptionV1Block()
-        self.b3 = InceptionV1Block([128, 128, 192, 32, 96, 64])
-        self.a4 = InceptionV1Block([192, 96, 208, 16, 48, 64])
-        self.fc1_1 = rm.Dense(1024)
-        self.fc1_2 = rm.Dense(n_class)
-        self.b4 = InceptionV1Block([160, 112, 224, 24, 64, 64])
-        self.c4 = InceptionV1Block([128, 128, 256, 24, 64, 64])
-        self.d4 = InceptionV1Block([112, 144, 288, 32, 64, 64])
-        self.fc2_1 = rm.Dense(1024)
-        self.fc2_2 = rm.Dense(n_class)
-        self.e4 = InceptionV1Block([256, 160, 320, 32, 128, 128])
-        self.a5 = InceptionV1Block([256, 160, 320, 32, 128, 128])
-        self.b5 = InceptionV1Block([192, 384, 320, 48, 128, 128])
-        self.fc3 = rm.Dense(n_class)
+        self.aux1 = rm.Sequential([rm.AveragePool2d(filter=5, stride=3),
+                              rm.Flatten(),
+                              rm.Dense(1024),
+                              rm.Dense(n_class)])
+
+        self.base2 = rm.Sequential([InceptionV1Block([160, 112, 224, 24, 64, 64]),
+                                    InceptionV1Block([128, 128, 256, 24, 64, 64]),
+                                    InceptionV1Block([112, 144, 288, 32, 64, 64])])
+
+        self.aux2 = rm.Sequential([rm.AveragePool2d(filter=5, stride=3),
+                                rm.Flatten(),
+                                rm.Dense(1024),
+                                rm.Dense(n_class)])
+
+        self.base3 = rm.Sequential([InceptionV1Block([256, 160, 320, 32, 128, 128]),
+                        InceptionV1Block([256, 160, 320, 32, 128, 128]),
+                        InceptionV1Block([192, 384, 320, 48, 128, 128]),
+                        rm.AveragePool2d(filter=7, stride=1),
+                        rm.Flatten()])
+        self.aux3 = rm.Dense(n_class)
+        super(InceptionV1, self).__init__(class_map)
 
         if load_weight:
             try:
@@ -78,48 +159,40 @@ class InceptionV1(rm.Model):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
-            self._layers[-1].params = {}
+        if n_class != 1000:
+            self.aux1.params = {}
+            self.aux2.params = {}
+            self.aux3.params = {}
 
     def forward(self, x):
-        t = rm.relu(self.conv1(x))
-        t = rm.max_pool2d(t, filter=3, stride=2, padding=1)
-        t = self.batch_norm1(t)
-        t = rm.relu(self.conv3(rm.relu(self.conv2(t))))
-        t = self.batch_norm2(t)
-        t = rm.max_pool2d(t, filter=3, stride=2, padding=1)
-        t = self.a3(t)
-        t = self.b3(t)
-        t = rm.max_pool2d(t, filter=3, stride=2)
-        t = self.a4(t)
+        self.base1.set_auto_update(self._train_whole_network)
+        self.base2.set_auto_update(self._train_whole_network)
+        self.base3.set_auto_update(self._train_whole_network)
 
-        # 1st output -----------------
-        out1 = rm.average_pool2d(t, filter=5, stride=3)
-        out1 = rm.flatten(out1)
-        out1 = self.fc1_1(out1)
-        out1 = self.fc1_2(out1)
-        # ----------------------------
-
-        t = self.b4(t)
-        t = self.c4(t)
-        t = self.d4(t)
-
-        # 2nd output ------------------
-        out2 = rm.average_pool2d(t, filter=5, stride=3)
-        out2 = rm.flatten(out2)
-        out2 = self.fc2_1(out2)
-        out2 = self.fc2_2(out2)
-        # ----------------------------
-
-        t = self.e4(t)
-        t = self.a5(t)
-        t = self.b5(t)
-        t = rm.average_pool2d(t, filter=7, stride=1)
-        t = rm.flatten(t)
-        out3 = self.fc3(t)
-
+        t = self.base1(x)
+        out1 = self.aux1(t)
+        t = self.base2(t)
+        out2 = self.aux2(t)
+        t = self.base3(t)
+        out3 = self.aux3(t)
         return out1, out2, out3
 
+    def loss(self, x, y):
+        return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3*rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
+
+    def predict(self, img_list):
+        self.set_models(inference=True)
+        if isinstance(img_list, (list, str)):
+            if isinstance(img_list, (tuple, list)):
+                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+                img_array = self.preprocess(img_array)
+            else:
+                img_array = load_img(img_list, self.imsize)[None]
+                img_array = self.preprocess(img_array)
+                return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)[0]
+        else:
+            img_array = img_list
+        return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)
 
 class InceptionV2BlockA(rm.Model):
     def __init__(self, channels=[64, 48, 64, 64, 96, 64]):
@@ -300,16 +373,8 @@ class InceptionV2BlockE(rm.Model):
             t1, t2, t3, t4
         ])
 
-
-class InceptionV3(rm.Model):
-    """
-    Reference: https://arxiv.org/abs/1512.00567 -- Rethinking the Inception Architecture for Computer Vision
-    """
-
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
-    WEIGHT_PATH = os.path.join(DIR, 'inceptionv3.h5')
-
-    def __init__(self, n_class=1000, load_weight=False):
+class InceptionV2Stem(rm.Model):
+    def __init__(self):
         self.conv1 = rm.Conv2d(32, filter=3, padding=0, stride=2)
         self.batch_norm1 = rm.BatchNormalize(mode='feature')
 
@@ -326,37 +391,6 @@ class InceptionV3(rm.Model):
         self.conv6 = rm.Conv2d(192, filter=3, stride=1, padding=1)
         self.batch_norm6 = rm.BatchNormalize(mode='feature')
 
-        self.a1 = InceptionV2BlockA([64, 48, 64, 64, 96, 32])
-        self.a2 = InceptionV2BlockA()
-        self.a3 = InceptionV2BlockA()
-        self.b1 = InceptionV2BlockB()
-
-        self.c1 = InceptionV2BlockC([192, 128, 192, 128, 192, 192])
-        self.c2 = InceptionV2BlockC()
-        self.c3 = InceptionV2BlockC()
-        self.c4 = InceptionV2BlockC()
-
-        self.conv7 = rm.Conv2d(128, filter=1)
-        self.batch_norm7 = rm.BatchNormalize(mode='feature')
-        self.conv8 = rm.Conv2d(768, filter=5)
-        self.batch_norm8 = rm.BatchNormalize(mode='feature')
-        self.aux_fc = rm.Dense(n_class)
-
-        self.d1 = InceptionV2BlockD()
-
-        self.e1 = InceptionV2BlockE()
-        self.e2 = InceptionV2BlockE()
-        self.fc = rm.Dense(n_class)
-
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
-            self._layers[-1].params = {}
-
     def forward(self, x):
         t = rm.relu(self.batch_norm1(self.conv1(x)))
         t = rm.relu(self.batch_norm2(self.conv2(t)))
@@ -366,45 +400,118 @@ class InceptionV3(rm.Model):
         t = rm.relu(self.batch_norm4(self.conv4(t)))
         t = rm.relu(self.batch_norm5(self.conv5(t)))
         t = rm.relu(self.batch_norm6(self.conv6(t)))
+        return t
 
-        t = self.a1(t)
-        t = self.a2(t)
-        t = self.a3(t)
+class InceptionV3(InceptionBase):
+    """ Inception V3 model
+    If the argument load_weight is True, pretrained weight will be downloaded.
+    The pretrained weight is trained using ILSVRC2012.
 
-        t = self.b1(t)
+    Args:
+        class_map: Array of class names
+        load_weight(bool): True if the pre-trained weight is loaded.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
 
-        t = self.c1(t)
-        t = self.c2(t)
-        t = self.c3(t)
-        t = self.c4(t)
+    Note:
+        if the argument n_class is not 1000, last dense layer will be reset because
+        the pretrained weight is trained on 1000 classification dataset.
 
-        aux = rm.average_pool2d(t, filter=5, stride=3)
-        aux = rm.relu(self.batch_norm7(self.conv7(aux)))
-        aux = rm.relu(self.batch_norm8(self.conv8(aux)))
-        aux = rm.flatten(aux)
-        aux = self.aux_fc(aux)
+    Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
+    Rethinking the Inception Architecture for Computer Vision
+    https://arxiv.org/abs/1512.00567
+    """
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_PATH = os.path.join(DIR, 'inceptionv3.h5')
 
-        t = self.d1(t)
-        t = self.e1(t)
-        t = self.e2(t)
-        t = rm.average_pool2d(t, filter=8)
-        t = rm.flatten(t)
-        t = self.fc(t)
+    def __init__(self, class_map, load_weight=False, imsize=(299, 299), train_whole_network=True):
+        n_class = len(class_map)
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+        self.imsize = imsize
+        self._train_whole_network = train_whole_network
+        self.base1 = rm.Sequential([
+                InceptionV2Stem(),
+                InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
+                InceptionV2BlockA(),
+                InceptionV2BlockA(),
+                InceptionV2BlockB(),
+                InceptionV2BlockC([192, 128, 192, 128, 192, 192]),
+                InceptionV2BlockC(),
+                InceptionV2BlockC(),
+                InceptionV2BlockC()])
+        self.aux1 = rm.Sequential([
+                rm.AveragePool2d(filter=5, stride=3),
+                rm.Conv2d(128, filter=1),
+                rm.BatchNormalize(mode='feature'),
+                rm.Relu(),
+                rm.Conv2d(768, filter=1),
+                rm.BatchNormalize(mode='feature'),
+                rm.Relu(),
+                rm.Flatten(),
+                rm.Dense(n_class)])
 
-        return t, aux
+        self.base2 = rm.Sequential([
+                InceptionV2BlockD(),
+                InceptionV2BlockE(),
+                InceptionV2BlockE(),
+                rm.AveragePool2d(filter=8),
+                rm.Flatten()])
+
+        self.aux2 = rm.Dense(n_class)
+
+        super(InceptionV3, self).__init__(class_map)
+        if load_weight:
+            try:
+                self.load(self.WEIGHT_PATH)
+            except:
+                download(self.WEIGHT_URL, self.WEIGHT_PATH)
+            self.load(self.WEIGHT_PATH)
+        if n_class != 1000:
+            self.aux1.params = {}
+            self.aux2.params = {}
+
+    def forward(self, x):
+        self.base1.set_auto_update(self._train_whole_network)
+        self.base2.set_auto_update(self._train_whole_network)
+        t = self.base1(x)
+        out1 = self.aux1(t)
+        t = self.base2(t)
+        out2 = self.aux2(t)
+
+        return out1, out2
+
+    def loss(self, x, y):
+        return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
+
+    def predict(self, img_list):
+        self.set_models(inference=True)
+        if isinstance(img_list, (list, str)):
+            if isinstance(img_list, (tuple, list)):
+                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+                img_array = self.preprocess(img_array)
+            else:
+                img_array = load_img(img_list, self.imsize)[None]
+                img_array = self.preprocess(img_array)
+                return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)[0]
+        else:
+            img_array = img_list
+        return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
 
 
-class InceptionV2(rm.Model):
+class InceptionV2(InceptionBase):
     """ Inception V2 model
     If the argument load_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        n_class(int): The number of classes.
-        load_weight(bool):
+        class_map: Array of class names
+        load_weight(bool): True if the pre-trained weight is loaded.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
@@ -415,90 +522,79 @@ class InceptionV2(rm.Model):
     WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
     WEIGHT_PATH = os.path.join(DIR, 'inceptionv2.h5')
 
-    def __init__(self, n_class=1000, load_weight=False):
-        self.conv1 = rm.Conv2d(32, filter=3, padding=0, stride=2)
-        self.batch_norm1 = rm.BatchNormalize(mode='feature')
+    def __init__(self, class_map, load_weight=False, imsize=(299, 299), train_whole_network=True):
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+        n_class = len(class_map)
+        self.imsize = imsize
+        self._train_whole_network = train_whole_network
+        self.base1 = rm.Sequential([
+                InceptionV2Stem(),
+                InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
+                InceptionV2BlockA(),
+                InceptionV2BlockA(),
+                InceptionV2BlockB(),
+                InceptionV2BlockC([192, 128, 192, 128, 192, 192]),
+                InceptionV2BlockC(),
+                InceptionV2BlockC(),
+                InceptionV2BlockC()])
+        self.aux1 = rm.Sequential([
+                rm.AveragePool2d(filter=5, stride=3),
+                rm.Conv2d(128, filter=1),
+                rm.Relu(),
+                rm.Conv2d(768, filter=1),
+                rm.Relu(),
+                rm.Flatten(),
+                rm.Dense(n_class)])
 
-        self.conv2 = rm.Conv2d(32, filter=3, padding=0, stride=1)
-        self.batch_norm2 = rm.BatchNormalize(mode='feature')
+        self.base2 = rm.Sequential([
+                InceptionV2BlockD(),
+                InceptionV2BlockE(),
+                InceptionV2BlockE(),
+                rm.AveragePool2d(filter=8),
+                rm.Flatten()])
 
-        self.conv3 = rm.Conv2d(64, filter=3, padding=1, stride=1)
-        self.batch_norm3 = rm.BatchNormalize(mode='feature')
+        self.aux2 = rm.Dense(n_class)
 
-        self.conv4 = rm.Conv2d(80, filter=3, stride=1)
-        self.batch_norm4 = rm.BatchNormalize(mode='feature')
-        self.conv5 = rm.Conv2d(192, filter=3, stride=2)
-        self.batch_norm5 = rm.BatchNormalize(mode='feature')
-        self.conv6 = rm.Conv2d(192, filter=3, stride=1, padding=1)
-        self.batch_norm6 = rm.BatchNormalize(mode='feature')
-
-        self.a1 = InceptionV2BlockA([64, 48, 64, 64, 96, 32])
-        self.a2 = InceptionV2BlockA()
-        self.a3 = InceptionV2BlockA()
-        self.b1 = InceptionV2BlockB()
-
-        self.c1 = InceptionV2BlockC([192, 128, 192, 128, 192, 192])
-        self.c2 = InceptionV2BlockC()
-        self.c3 = InceptionV2BlockC()
-        self.c4 = InceptionV2BlockC()
-
-        self.conv7 = rm.Conv2d(128, filter=1)
-        self.conv8 = rm.Conv2d(768, filter=5)
-        self.aux_fc = rm.Dense(n_class)
-
-        self.d1 = InceptionV2BlockD()
-
-        self.e1 = InceptionV2BlockE()
-        self.e2 = InceptionV2BlockE()
-        self.fc = rm.Dense(n_class)
-
+        super(InceptionV2, self).__init__(class_map)
         if load_weight:
             try:
                 self.load(self.WEIGHT_PATH)
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
-            self._layers[-1].params = {}
+        if n_class != 1000:
+            self.aux1.params = {}
+            self.aux2.params = {}
 
     def forward(self, x):
-        t = rm.relu(self.batch_norm1(self.conv1(x)))
-        t = rm.relu(self.batch_norm2(self.conv2(t)))
-        t = rm.relu(self.batch_norm3(self.conv3(t)))
+        self.base1.set_auto_update(self._train_whole_network)
+        self.base2.set_auto_update(self._train_whole_network)
+        t = self.base1(x)
+        out1 = self.aux1(t)
+        t = self.base2(t)
+        out2 = self.aux2(t)
 
-        t = rm.max_pool2d(t, filter=3, stride=2)
-        t = rm.relu(self.batch_norm4(self.conv4(t)))
-        t = rm.relu(self.batch_norm5(self.conv5(t)))
-        t = rm.relu(self.batch_norm6(self.conv6(t)))
+        return out1, out2
 
-        t = self.a1(t)
-        t = self.a2(t)
-        t = self.a3(t)
+    def loss(self, x, y):
+        return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
 
-        t = self.b1(t)
+    def predict(self, img_list):
+        self.set_models(inference=True)
+        if isinstance(img_list, (list, str)):
+            if isinstance(img_list, (tuple, list)):
+                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+                img_array = self.preprocess(img_array)
+            else:
+                img_array = load_img(img_list, self.imsize)[None]
+                img_array = self.preprocess(img_array)
+                return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)[0]
+        else:
+            img_array = img_list
+        return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
 
-        t = self.c1(t)
-        t = self.c2(t)
-        t = self.c3(t)
-        t = self.c4(t)
-
-        aux = rm.average_pool2d(t, filter=5, stride=3)
-        aux = rm.relu(self.conv7(aux))
-        aux = rm.relu(self.conv8(aux))
-        aux = rm.flatten(aux)
-        aux = self.aux_fc1(aux)
-
-        t = self.d1(t)
-        t = self.e1(t)
-        t = self.e2(t)
-        t = rm.average_pool2d(t, filter=8)
-        t = rm.flatten(t)
-        t = self.fc(t)
-
-        return t, aux
-
-
-class Stem(rm.Model):
+class InceptionV4Stem(rm.Model):
     def __init__(self):
         self.conv1 = rm.Conv2d(32, filter=3, padding=0, stride=2)
         self.batch_norm1 = rm.BatchNormalize(mode='feature')
@@ -744,17 +840,19 @@ class InceptionV4BlockC(rm.Model):
         ])
 
 
-class InceptionV4(rm.Model):
+class InceptionV4(InceptionBase):
     """ Inception V4 model
     If the argument load_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
-        n_class(int): The number of classes.
-        load_weight(bool): 
+        class_map: Array of class names
+        load_weight(bool): True if the pre-trained weight is loaded.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
+        if the argument n_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Christian Szegedy, Sergey Ioffe, Vincent Vanhoucke, Alex Alemi
@@ -765,33 +863,39 @@ class InceptionV4(rm.Model):
     WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
     WEIGHT_PATH = os.path.join(DIR, 'inceptionv4.h5')
 
-    def __init__(self, n_class, load_weight=False):
+    def __init__(self, class_map, load_weight=False, imsize=(299, 299), train_whole_network=False):
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+        self.imsize = imsize
+        n_class = len(class_map)
 
-        self.stem = Stem()
+        layers = [InceptionV4Stem(),
+                  InceptionV4BlockA(),
+                  InceptionV4BlockA(),
+                  InceptionV4BlockA(),
+                  InceptionV4BlockA(),
+                  InceptionV4ReductionA(),
+                  InceptionV4BlockB(),
+                  InceptionV4BlockB(),
+                  InceptionV4BlockB(),
+                  InceptionV4BlockB(),
+                  InceptionV4BlockB(),
+                  InceptionV4BlockB(),
+                  InceptionV4BlockB(),
+                  InceptionV4ReductionB(),
+                  InceptionV4BlockC(),
+                  InceptionV4BlockC(),
+                  InceptionV4BlockC(),
+                  rm.AveragePool2d(filter=8),
+                  rm.Flatten()
+                  ]
 
-        self.a1 = InceptionV4BlockA()
-        self.a2 = InceptionV4BlockA()
-        self.a3 = InceptionV4BlockA()
-        self.a4 = InceptionV4BlockA()
+        self._freezed_network = rm.Sequential(layers)
+        self._network = rm.Dense(n_class)
+        self._train_whole_network = train_whole_network
+        self.imsize = imsize
 
-        self.a_red = InceptionV4ReductionA()
-
-        self.b1 = InceptionV4BlockB()
-        self.b2 = InceptionV4BlockB()
-        self.b3 = InceptionV4BlockB()
-        self.b4 = InceptionV4BlockB()
-        self.b5 = InceptionV4BlockB()
-        self.b6 = InceptionV4BlockB()
-        self.b7 = InceptionV4BlockB()
-
-        self.b_red = InceptionV4ReductionB()
-
-        self.c1 = InceptionV4BlockC()
-        self.c2 = InceptionV4BlockC()
-        self.c3 = InceptionV4BlockC()
-
-        self.dropout = rm.Dropout(0.2)
-        self.fc = rm.Dense(n_class)
+        super(InceptionV4, self).__init__(class_map)
 
         if load_weight:
             try:
@@ -799,35 +903,21 @@ class InceptionV4(rm.Model):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
             self.load(self.WEIGHT_PATH)
-        if num_class != 1000:
-            self._layers[-1].params = {}
+        if n_class != 1000:
+            self.network.params = {}
+
+    @property
+    def freezed_network(self):
+        return self._freezed_network
+
+    @property
+    def network(self):
+        return self._network
 
     def forward(self, x):
-        t = self.stem(x)
-        t = self.a1(t)
-        t = self.a2(t)
-        t = self.a3(t)
-        t = self.a4(t)
+        self.freezed_network.set_auto_update(self._train_whole_network)
+        t = self.freezed_network(x)
+        t = rm.dropout(t, 0.2)
 
-        t = self.a_red(t)
-
-        t = self.b1(t)
-        t = self.b2(t)
-        t = self.b3(t)
-        t = self.b4(t)
-        t = self.b5(t)
-        t = self.b6(t)
-        t = self.b7(t)
-
-        t = self.b_red(t)
-
-        t = self.c1(t)
-        t = self.c2(t)
-        t = self.c3(t)
-
-        t = rm.average_pool2d(t, filter=8)
-        t = rm.flatten(t)
-        t = self.dropout(t)
-
-        t = self.fc(t)
+        t = self.network(t)
         return t
