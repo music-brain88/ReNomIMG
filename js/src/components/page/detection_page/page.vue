@@ -70,7 +70,7 @@ export default {
   $page-margin-top: 22px;
   $page-margin-horizontal: 72px;
 
-  $side-bar-width: 240px;
+  $side-bar-width: 216px;
   $side-bar-margin: 24px;
 
   display: flex;
@@ -103,7 +103,7 @@ export default {
     margin-bottom: 44px;
 
     .model-sample {
-      width: calc(100% - #{$side-bar-width});
+      width: calc(100% - #{$side-bar-margin} - #{$side-bar-width});
     }
 
     .tag-list {

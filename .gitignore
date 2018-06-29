@@ -4,6 +4,7 @@ node_modules/
 storage
 build/
 .build/
+_build/
 dataset
 datasrc
 *.h5

@@ -14,6 +14,8 @@ import traceback
 import pathlib
 import random
 import xmltodict
+
+import PIL
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor as Executor
 from concurrent.futures import CancelledError
@@ -29,11 +31,13 @@ from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.utility.storage import storage
 
 # Constants
+from renom_img.server import create_dirs
 from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR, DATASRC_PREDICTION_OUT
 from renom_img.server import STATE_FINISHED, STATE_RUNNING, STATE_DELETED, STATE_RESERVED
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 
+create_dirs()
 executor = Executor(max_workers=MAX_THREAD_NUM)
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
@@ -379,7 +383,18 @@ def get_datasets():
         ret = []
         for rec in recs:
             id, name, ratio, valid_imgs, class_map, created, updated = rec
-            valid_imgs = [os.path.join("datasrc/img/", path) for path in valid_imgs]
+            valid_img_names = [os.path.join("datasrc/img/", path) for path in valid_imgs]
+            valid_imgs = []
+            for img_name in valid_img_names:
+                try:
+                    im = PIL.Image.open(img_name)
+                    width, height = im.size
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                    width = height = 50
+                valid_imgs.append(dict(filename=img_name, width=width, height=height))
+
             ret.append(dict(id=id, name=name, ratio=ratio,
                             valid_imgs=valid_imgs, class_map=class_map, created=created, updated=updated))
         return create_response(json.dumps({'dataset_defs': ret}))

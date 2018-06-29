@@ -3,7 +3,7 @@
     <form>
       <div>Name: <input v-model='name' type='text' placeholder='Dataset name' /> </div>
       <div>Ratio of training data: <input v-model='ratio'  type='number' placeholder='80.0' style='width:100px' /> % </div>
-      <button @click="register">作成</button>
+      <button @click="register">Create</button>
     </form>
 
     <table>
@@ -43,13 +43,11 @@ export default {
     register: function () {
       const name = this.name.trim()
       if (!name) {
-        console.log('invalid name')
         return
       }
 
       const ratio = parseFloat(this.ratio) / 100
       if ((ratio <= 0) || (ratio > 100)) {
-        console.log('invalid ratio')
         return
       }
 

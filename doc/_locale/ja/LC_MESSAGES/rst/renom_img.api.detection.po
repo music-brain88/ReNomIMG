@@ -1,0 +1,259 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/renom_img.api.detection.rst:2
+msgid "renom\\_img.api.detection"
+msgstr ""
+
+#: ../../rst/renom_img.api.detection.rst:5
+msgid "renom\\_img.api.detection.yolo\\_v1"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1:1
+msgid "Yolo object detection algorithm."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1:3
+msgid ""
+"Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi You Only Look "
+"Once: Unified, Real-Time Object Detection "
+"https://arxiv.org/abs/1506.02640"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1
+#: renom_img.api.detection.yolo_v1.Yolov1.build_data
+#: renom_img.api.detection.yolo_v1.Yolov1.get_optimizer
+#: renom_img.api.detection.yolo_v1.Yolov1.predict
+#: renom_img.api.detection.yolo_v1.Yolov1.preprocess
+#: renom_img.api.detection.yolo_v2.Yolov2
+#: renom_img.api.detection.yolo_v2.Yolov2.build_data
+#: renom_img.api.detection.yolo_v2.Yolov2.fit
+#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox
+#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer
+#: renom_img.api.detection.yolo_v2.Yolov2.predict
+#: renom_img.api.detection.yolo_v2.Yolov2.preprocess
+#: renom_img.api.detection.yolo_v2.create_anchor
+msgid "Parameters"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1:7
+msgid "Number of class."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1:9
+msgid "Cell size."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1:11
+msgid "Number of boxes."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1:13
+msgid "Image size."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1:15
+msgid ""
+"If true, pretrained weight will be downloaded to current directory. If "
+"string is given, pretrained weight will be saved as given name."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.build_data:1
+#: renom_img.api.detection.yolo_v2.Yolov2.build_data:1
+msgid "Image path list."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.build_data:2
+#: renom_img.api.detection.yolo_v2.Yolov2.build_data:2
+msgid "Detection formatted label."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox
+#: renom_img.api.detection.yolo_v1.Yolov1.predict
+#: renom_img.api.detection.yolo_v1.Yolov1.preprocess
+#: renom_img.api.detection.yolo_v2.Yolov2.fit
+#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox
+#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer
+#: renom_img.api.detection.yolo_v2.Yolov2.predict
+#: renom_img.api.detection.yolo_v2.Yolov2.preprocess
+msgid "Returns"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:1
+msgid "List of predicted bounding box, class label id and its score."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox
+#: renom_img.api.detection.yolo_v1.Yolov1.predict
+#: renom_img.api.detection.yolo_v1.Yolov1.preprocess
+#: renom_img.api.detection.yolo_v2.Yolov2.fit
+#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox
+#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer
+#: renom_img.api.detection.yolo_v2.Yolov2.predict
+#: renom_img.api.detection.yolo_v2.Yolov2.preprocess
+msgid "Return type"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:1
+msgid "Returns an instance of Optimiser for training Yolov1 algorithm."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:1
+msgid "This method accepts either ndarray and list of image path."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:4
+#: renom_img.api.detection.yolo_v1.Yolov1.regularize:7
+msgid "Example"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:13
+msgid ""
+"List of predicted bbox, score and class of each image.     The format of "
+"return value is bellow.  [     [ # Prediction of first image.         "
+"{'box': [x, y, w, h], 'score':(float), 'class':(int)},         {'box': "
+"[x, y, w, h], 'score':(float), 'class':(int)},         ...     ],     [ #"
+" Prediction of second image.         {'box': [x, y, w, h], "
+"'score':(float), 'class':(int)},         {'box': [x, y, w, h], "
+"'score':(float), 'class':(int)},         ...     ],     ... ]"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:16
+msgid "List of predicted bbox, score and class of each image."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:16
+msgid "The format of return value is bellow."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:28
+msgid "["
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:21
+msgid "[ # Prediction of first image."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:20
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:25
+msgid ""
+"{'box': [x, y, w, h], 'score':(float), 'class':(int)}, {'box': [x, y, w, "
+"h], 'score':(float), 'class':(int)}, ..."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:23
+msgid "], [ # Prediction of second image."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:30
+msgid "]"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:1
+msgid "Image preprocess for Yolov1."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:3
+msgid ":math:`new_x = x*2/255. - 1`"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:8
+msgid "Preprocessed data."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.regularize:1
+msgid ""
+"Regularize term. You can use this function to add regularize term to loss"
+" function."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.regularize:4
+msgid "In Yolo v1, weight decay of 0.0005 will be added."
+msgstr ""
+
+#: ../../rst/renom_img.api.detection.rst:11
+msgid "renom\\_img.api.detection.yolo\\_v2"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2:1
+msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2:14
+msgid ""
+"If you save this model using 'save' method, anchor information(anchor "
+"list and base size of them) will be saved. So when you load your own "
+"saved model, you don't have to give the arguments 'anchor' and "
+"'anchor_size'."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.fit:1
+msgid "This function performs training with given data and hyper parameters."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.fit:13
+msgid "Training loss list and validation loss list."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.get_bbox:1
+msgid "This method reforms network output to list of bounding box."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:1
+msgid "This returns optimizer whose learning rate is modified according to epoch."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.loss:1
+msgid ""
+"Returns mask. :param x: Yolo output. (N, C(anc*(5+class)), H, W) :param "
+"y: (N, C(5+class), H(feature), W(feature))"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.predict:1
+msgid "This method performs prediction."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
+msgid "This performs preprocess for given image."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.preprocess:6
+msgid "Preprocessed array."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.regularize:1
+msgid "Regularize term of"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.create_anchor:1
+msgid ""
+"This function creates 'anchors' for yolo v2 algorithm using k-means "
+"clustering."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.create_anchor:3
+msgid "Requires following annotation list."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.create_anchor:5
+msgid ""
+"Perform k-means clustering using custom metric. We want to get only "
+"anchor's size so we don't have to consider coordinates."
+msgstr ""
+

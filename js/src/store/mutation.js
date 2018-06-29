@@ -226,8 +226,18 @@ export default {
   setShowModalImageSample (state, payload) {
     state.show_modal_image_sample = payload.modal
     state.idx_active_image_sample = payload.img_idx
+
     if (state.show_modal_image_sample) {
-      state.validation_page = Math.floor(payload.img_idx / state.validation_num_img_per_page)
+      const model = state.models.find((m) => (m.model_id === state.selected_model_id))
+      const dataset_def_id = model.dataset_def_id
+      const dataset = state.dataset_defs.find((d) => (d.id === dataset_def_id))
+
+      const page = dataset.pages.findIndex((r) => payload.img_idx < r[1])
+      if (page === -1) {
+        state.validation_page = 0
+      } else {
+        state.validation_page = page
+      }
     }
   },
 
@@ -276,5 +286,42 @@ export default {
   },
   setDatasetDefs (state, payload) {
     state.dataset_defs = payload.dataset_defs
+
+    const IMG_ROW_HEIGHT = 160
+    const IMG_ROW_WIDTH = (1280 - // width
+                           12 * 2 - // padding of container
+                           72 * 2 - // margin of detection-page
+                           216 - // width of tag-list
+                           24 - // margin of tag-list
+                           4 - // margin
+                           4 // image imargin
+
+    )
+    const IMG_MARGIN = 4
+    for (const dataset of state.dataset_defs) {
+      dataset.pages = []
+
+      let nrow = 1
+      let curwidth = 0
+      let pagefrom = 0
+      let rowto = 0
+
+      for (const img of dataset.valid_imgs) {
+        const imgwidth = (IMG_ROW_HEIGHT / img.height) * img.width
+        if ((curwidth + imgwidth + IMG_MARGIN * 2) >= IMG_ROW_WIDTH) {
+          if ((nrow % 3) === 0) {
+            dataset.pages.push([pagefrom, rowto])
+            pagefrom = rowto
+          }
+          curwidth = 0
+          nrow += 1
+        }
+        rowto += 1
+        curwidth += imgwidth + IMG_MARGIN * 2
+      }
+      if (pagefrom !== (dataset.valid_imgs.length)) {
+        dataset.pages.push([pagefrom, rowto])
+      }
+    }
   }
 }

@@ -42,9 +42,11 @@ DB_DIR = "storage"
 DB_DIR_TRAINED_WEIGHT = os.path.join(DB_DIR, "trained_weight")
 DB_DIR_PRETRAINED_WEIGHT = os.path.join(DB_DIR, "pretrained_weight")
 
-# Create directories
-for path in [DATASRC_IMG, DATASRC_LABEL,
-             DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT, DATASRC_PREDICTION_IMG,
-             DATASRC_PREDICTION_OUT_CSV, DATASRC_PREDICTION_OUT_XML]:
-    if not os.path.exists(path):
-        os.makedirs(path)
+
+def create_dirs():
+    # Create directories
+    for path in [DATASRC_IMG, DATASRC_LABEL,
+                 DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT, DATASRC_PREDICTION_IMG,
+                 DATASRC_PREDICTION_OUT_CSV, DATASRC_PREDICTION_OUT_XML]:
+        if not os.path.exists(path):
+            os.makedirs(path)

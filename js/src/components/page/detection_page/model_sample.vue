@@ -11,8 +11,10 @@
       <sample-image
         v-for="(item, index) in getValidationResult"
         :key="index"
-        :image_idx="index + (currentPage * validation_num_img_per_page)"
+        :image_idx="index + topImageIndex"
         :image_path="item.path"
+        :image_width="item.width"
+        :image_height="item.height"
         :bboxes="item.predicted_bboxes">
       </sample-image>
     </div>
@@ -21,7 +23,7 @@
 
 <script>
 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import SampleImage from './model_sample_parts/sample_image.vue'
 
 export default {
@@ -31,27 +33,38 @@ export default {
   },
   data: function () {
     return {
-      maxPageLength: 0
     }
   },
   computed: {
-    ...mapState(['validation_num_img_per_page']),
+    ...mapState(['datasets']),
+    ...mapGetters(['currentDataset']),
+
+    topImageIndex: function () {
+      const dataset = this.currentDataset
+      if (!dataset) {
+        return []
+      }
+      const r = dataset.pages[this.currentPage]
+      return r[0]
+    },
 
     getValidationResult: function () {
+      const dataset = this.currentDataset
+      if (!dataset) {
+        return []
+      }
+      const [pagefrom, pageto] = dataset.pages[this.currentPage]
       let result = this.$store.getters.getLastValidationResults
       if (result) {
-        let current = this.currentPage * this.validation_num_img_per_page
-        let last = Math.min((this.currentPage + 1) * this.validation_num_img_per_page, result.length)
-
-        this.maxPageLength = Math.floor(result.length / this.validation_num_img_per_page)
-        if (this.maxPageLength <= this.currentPage) {
+        if (dataset.pages.length <= this.currentPage) {
           this.$store.commit('setValidationPage', {
             'page': 0
           })
         }
-        return result.slice(current, last)
+        return result.slice(pagefrom, pageto)
       }
     },
+
     currentPage: function () {
       return this.$store.state.validation_page
     },
@@ -59,7 +72,11 @@ export default {
       if (this.currentPage > 0) { return true } else { return false }
     },
     hasNextPage: function () {
-      if (this.maxPageLength - 1 > this.currentPage) { return true } else { return false }
+      const dataset = this.currentDataset
+      if (!dataset) {
+        return false
+      }
+      if (dataset.pages.length - 1 > this.currentPage) { return true } else { return false }
     }
   },
   methods: {

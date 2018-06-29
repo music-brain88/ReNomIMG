@@ -128,8 +128,6 @@ export default {
         div.style.left = bbox[1] + '%'
         div.style.width = bbox[3] + '%'
         div.style.height = bbox[4] + '%'
-        console.log(div.parentNode)
-        console.log(bbox)
       }
     }
   }
