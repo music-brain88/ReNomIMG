@@ -1,0 +1,61 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/renom_img.api.utility.distributor.rst:2
+msgid "renom\\_img.api.utility.distributor package"
+msgstr ""
+
+#: ../../rst/renom_img.api.utility.distributor.rst:5
+msgid "renom\\_img.api.utility.distributor.distributor module"
+msgstr ""
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor:1
+msgid ""
+"Bases: "
+":class:`renom_img.api.utility.distributor.distributor.ImageDistributorBase`"
+msgstr ""
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.batch:2
+#: renom_img.api.utility.distributor.distributor.ImageDistributorBase.batch:2
+msgid "Default: Classification"
+msgstr ""
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.batch:2
+#: renom_img.api.utility.distributor.distributor.ImageDistributorBase.batch:2
+msgid "Detection Segmentation"
+msgstr ""
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.batch:4
+#: renom_img.api.utility.distributor.distributor.ImageDistributorBase.batch:4
+msgid "Input data format is specified with task."
+msgstr ""
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributorBase:1
+msgid "Bases: :class:`object`"
+msgstr ""
+
+#: of
+#: renom_img.api.utility.distributor.distributor.ImageDistributorBase.get_resized_annotation_list:1
+msgid "This function only for object detection."
+msgstr ""
+
+#: ../../rst/renom_img.api.utility.distributor.rst:14
+msgid "Module contents"
+msgstr ""
+

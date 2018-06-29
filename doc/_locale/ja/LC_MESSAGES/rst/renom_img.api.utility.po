@@ -1,0 +1,180 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/renom_img.api.utility.rst:2
+msgid "renom\\_img.api.utility"
+msgstr ""
+
+#: ../../rst/renom_img.api.utility.rst:5
+msgid "renom\\_img.api.utility.box"
+msgstr ""
+
+#: ../../rst/renom_img.api.utility.rst:12
+msgid "renom\\_img.api.utility.load"
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:1
+msgid "XML format must be Pascal VOC format."
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection
+#: renom_img.api.utility.nms.nms
+msgid "Parameters"
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:3
+msgid "List of xml-file's path."
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection
+#: renom_img.api.utility.target.DataBuilderYolov1.build
+msgid "Returns"
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:6
+msgid ""
+"This returns list of annotations.     Each annotation has a list of "
+"dictionary which includes keys 'box' and 'name'.     The structure is "
+"bellow. [     [ # Objects of 1st image.         {'box': [x(float), y, w, "
+"h], 'name': class_name(string), 'class': id(int)},         {'box': "
+"[x(float), y, w, h], 'name': class_name(string), 'class': id(int)},"
+"         ...     ],     [ # Objects of 2nd image.         {'box': "
+"[x(float), y, w, h], 'name': class_name(string), 'class': id(int)},"
+"         {'box': [x(float), y, w, h], 'name': class_name(string), "
+"'class': id(int)},         ...     ] ]"
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:9
+msgid "This returns list of annotations."
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:9
+msgid ""
+"Each annotation has a list of dictionary which includes keys 'box' and "
+"'name'. The structure is bellow."
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:20
+#: renom_img.api.utility.target.DataBuilderYolov1.build:14
+msgid "["
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:14
+msgid "[ # Objects of 1st image."
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:13
+#: renom_img.api.utility.load.parse_xml_detection:18
+msgid ""
+"{'box': [x(float), y, w, h], 'name': class_name(string), 'class': "
+"id(int)}, {'box': [x(float), y, w, h], 'name': class_name(string), "
+"'class': id(int)}, ..."
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:16
+msgid "], [ # Objects of 2nd image."
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:21
+#: renom_img.api.utility.load.parse_xml_detection:22
+#: renom_img.api.utility.target.DataBuilderYolov1.build:16
+msgid "]"
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection
+#: renom_img.api.utility.target.DataBuilderYolov1.build
+msgid "Return type"
+msgstr ""
+
+#: ../../rst/renom_img.api.utility.rst:19
+msgid "renom\\_img.api.utility.nms"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.nms:1
+msgid "NMS(Non maximum suppression)"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:1
+msgid "Soft-NMS."
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:5
+msgid "Reference:"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:4
+msgid ""
+"Navaneeth Bodla, Bharat Singh, Rama Chellappa, Larry S. Davis, Soft-NMS "
+"-- Improving Object Detection With One Line of Code "
+"https://arxiv.org/abs/1704.04503"
+msgstr ""
+
+#: ../../rst/renom_img.api.utility.rst:27
+msgid "renom\\_img.api.utility.target"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderBase:1
+msgid "Bases: :class:`object`"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification:1
+#: renom_img.api.utility.target.DataBuilderDefault:1
+#: renom_img.api.utility.target.DataBuilderDetection:1
+#: renom_img.api.utility.target.DataBuilderYolov1:1
+msgid "Bases: :class:`renom_img.api.utility.target.DataBuilderBase`"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification:1
+msgid "Annotation_list must be list of class name."
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderYolov1.build:1
+msgid ""
+"Use to transform a list of objects per image into a "
+"image*cells*cells*(5+classes) matrix."
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderYolov1.build:3
+msgid "Yolo formatted target array."
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderYolov1.build:6
+msgid ""
+"This method returns yolo formatted target array which shape is (N, "
+"cell*cell*(5 + 1). N is batch size. The array consists of following data."
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderYolov1.build:9
+msgid "existence flag: A flag which indicates if an object exists in the cell."
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderYolov1.build:10
+msgid "Coordinates and size(x, y, w, h): Coordinate and size of each objects."
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderYolov1.build:11
+msgid "Class id: The object's class number."
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderYolov1.build:14
+msgid ""
+"[existence x y w h 2 existence x y w h 2 ... ], [existence x y w h 3 "
+"existence x y w h 1 ... ],"
+msgstr ""
+

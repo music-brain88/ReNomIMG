@@ -23,6 +23,14 @@ For initial extraction, use ```-F``` option for full reconstructing docments.
 ### Translation files.
 For creating translation template files, use following command.
 
+This command extracts docstrings that can be translated and generates pot files.
+
+```make gettext```
+
+Then following command creates po files.
+
+```sphinx-intl update -p _build/gettext -l ja```
+
 ### Build document on current branch
 
 ### Build document multiple branch with sphinx-versioning
