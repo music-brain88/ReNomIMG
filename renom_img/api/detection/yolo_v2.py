@@ -538,7 +538,7 @@ class Yolov2(rm.Model):
 
             if valid_dist is not None:
                 bar.n = 0
-                bar.total = int(np.ceil(len(train_dist) / batch_size))
+                bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data)):
                     self.set_models(inference=True)
