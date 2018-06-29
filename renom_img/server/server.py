@@ -14,6 +14,8 @@ import traceback
 import pathlib
 import random
 import xmltodict
+
+import PIL
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor as Executor
 from concurrent.futures import CancelledError
@@ -29,11 +31,13 @@ from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.utility.storage import storage
 
 # Constants
+from renom_img.server import create_dirs
 from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR, DATASRC_PREDICTION_OUT
 from renom_img.server import STATE_FINISHED, STATE_RUNNING, STATE_DELETED, STATE_RESERVED
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 
+create_dirs()
 executor = Executor(max_workers=MAX_THREAD_NUM)
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
@@ -255,22 +259,26 @@ def progress_model(project_id, model_id):
                 # If thread status updated, return response.
                 if isinstance(th, TrainThread) and th.nth_epoch != req_last_epoch and th.valid_loss_list:
                     best_epoch = int(np.argmin(th.valid_loss_list))
-                    body = json.dumps({
-                        "total_batch": th.total_batch,
-                        "last_batch": th.nth_batch,
-                        "last_epoch": th.nth_epoch,
-                        "batch_loss": th.last_batch_loss,
-                        "running_state": th.running_state,
-                        "state": model_state,
-                        "validation_loss_list": th.valid_loss_list,
-                        "train_loss_list": th.train_loss_list,
-                        "best_epoch": best_epoch,
-                        "best_epoch_iou": th.valid_iou_list[best_epoch],
-                        "best_epoch_map": th.valid_map_list[best_epoch],
-                        "best_epoch_validation_result": th.valid_predict_box[best_epoch]
-                    })
-                    ret = create_response(body)
-                    return ret
+                    try:
+                        body = json.dumps({
+                            "total_batch": th.total_batch,
+                            "last_batch": th.nth_batch,
+                            "last_epoch": th.nth_epoch,
+                            "batch_loss": th.last_batch_loss,
+                            "running_state": th.running_state,
+                            "state": model_state,
+                            "validation_loss_list": th.valid_loss_list,
+                            "train_loss_list": th.train_loss_list,
+                            "best_epoch": best_epoch,
+                            "best_epoch_iou": th.valid_iou_list[best_epoch],
+                            "best_epoch_map": th.valid_map_list[best_epoch],
+                            "best_epoch_validation_result": th.valid_predict_box[best_epoch]
+                        })
+                        ret = create_response(body)
+                        return ret
+                    except:
+                        import pdb
+                        pdb.set_trace()
 
                 elif isinstance(th, TrainThread) and (th.nth_batch != req_last_batch or
                                                       th.running_state != req_running_state or
@@ -374,7 +382,18 @@ def get_datasets():
         ret = []
         for rec in recs:
             id, name, ratio, valid_imgs, class_map, created, updated = rec
-            valid_imgs = [os.path.join("datasrc/img/", path) for path in valid_imgs]
+            valid_img_names = [os.path.join("datasrc/img/", path) for path in valid_imgs]
+            valid_imgs = []
+            for img_name in valid_img_names:
+                try:
+                    im = PIL.Image.open(img_name)
+                    width, height = im.size
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                    width = height = 50
+                valid_imgs.append(dict(filename=img_name, width=width, height=height))
+
             ret.append(dict(id=id, name=name, ratio=ratio,
                             valid_imgs=valid_imgs, class_map=class_map, created=created, updated=updated))
         return create_response(json.dumps({'dataset_defs': ret}))

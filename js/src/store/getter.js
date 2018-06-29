@@ -65,6 +65,21 @@ export default {
       return [class_label, x, y, w, h]
     }
   },
+
+  currentModel (state) {
+    return state.models.find((m) => (m.model_id === state.selected_model_id))
+  },
+
+  currentDataset (state, getters) {
+    const model = getters.currentModel
+    if (!model) {
+      return
+    }
+
+    const dataset_def_id = model.dataset_def_id
+    return state.dataset_defs.find((d) => (d.id === dataset_def_id))
+  },
+
   getLastValidationResults (state, getters) {
     let model
     for (let m of state.models) {
@@ -75,7 +90,7 @@ export default {
     if (!model) return
     const result = model.best_epoch_validation_result
     const dataset_def_id = model.dataset_def_id
-    let dataset
+    let dataset = null
 
     for (let index in state.dataset_defs) {
       if (state.dataset_defs[index].id === dataset_def_id) {
@@ -97,7 +112,9 @@ export default {
         }
       }
       ret.push({
-        'path': path[i],
+        'path': path[i].filename,
+        'width': path[i].width,
+        'height': path[i].height,
         'predicted_bboxes': bboxes
       })
     }

@@ -1,0 +1,111 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/renom_img.api.utility.misc.rst:2
+msgid "renom\\_img.api.utility.misc package"
+msgstr ""
+
+#: ../../rst/renom_img.api.utility.misc.rst:5
+msgid "renom\\_img.api.utility.misc.display module"
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box:1
+msgid ""
+"Function for describing bounding box, class name and socre for an input "
+"image."
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box:4
+#: renom_img.api.utility.misc.display.pil2array:4
+msgid "Example"
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box
+#: renom_img.api.utility.misc.display.pil2array
+#: renom_img.api.utility.misc.download.download
+msgid "Parameters"
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box:13
+msgid ""
+"List of annotations. Each annotation has a list of dictionary which "
+"includes keys 'box', 'name' and 'score'. The format is below."
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box:17
+msgid ""
+"{'box': [x(float), y, w, h], 'name': class name(string), 'score': "
+"score(float)}, {'box': [x(float), y, w, h], 'name': class name(string), "
+"'score': score(float)}, ..."
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box
+#: renom_img.api.utility.misc.display.pil2array
+msgid "Returns"
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box:24
+msgid "This returns image described prediction result."
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box
+#: renom_img.api.utility.misc.display.pil2array
+msgid "Return type"
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box:27
+msgid ""
+"The values of `box` is a relational coordinate so their values are in "
+"[0.0 ~ 1.0]."
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.pil2array:1
+msgid "Function for convert PIL image to numpy array."
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.pil2array:10
+msgid "PIL Image"
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.pil2array:13
+msgid "This returns numpy array object."
+msgstr ""
+
+#: ../../rst/renom_img.api.utility.misc.rst:13
+msgid "renom\\_img.api.utility.misc.download module"
+msgstr ""
+
+#: of renom_img.api.utility.misc.download.download:1
+msgid "Download method with progress bar."
+msgstr ""
+
+#: of renom_img.api.utility.misc.download.download:3
+msgid "Download url."
+msgstr ""
+
+#: of renom_img.api.utility.misc.download.download:5
+msgid ""
+"If not passed, the url's base name will be used and it'll be saved to "
+"current directory."
+msgstr ""
+
+#: ../../rst/renom_img.api.utility.misc.rst:22
+msgid "Module contents"
+msgstr ""
+

@@ -14,7 +14,6 @@ from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.target import DataBuilderYolov1
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift
-from renom_img.api.utility.augmentation.augmentation import Augmentation
 
 from renom_img.server import ALG_YOLOV1, ALG_YOLOV2
 from renom_img.server import DB_DIR_TRAINED_WEIGHT
