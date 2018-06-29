@@ -194,8 +194,8 @@ class TrainThread(object):
                 prec, recl, _, iou = get_prec_rec_iou(valid_predict_box, valid_annotation_list)
                 _, mAP = get_ap_and_map(prec, recl)
 
-                mAP = 0 if np.isnan(mAP) else mAP
-                iou = 0 if np.isnan(iou) else iou
+                mAP = float(0 if np.isnan(mAP) else mAP)
+                iou = float(0 if np.isnan(iou) else iou)
 
                 if self.is_stopped():
                     return

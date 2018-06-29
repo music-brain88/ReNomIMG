@@ -157,9 +157,9 @@ class Yolov1(rm.Model):
             >>> y = np.random.rand(1, (5*2+20)*7*7)
             >>> model = Yolov1()
             >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # Add weight decay term.
-
+            >>> reg_loss = loss + model.regularize() # Adding weight decay term.
         """
+
         reg = 0
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
@@ -168,8 +168,39 @@ class Yolov1(rm.Model):
 
     def get_bbox(self, z):
         """
-        Returns:
-            (list): List of predicted bounding box, class label id and its score.
+        Example:
+            >>> z = model(x)
+            >>> model.get_bbox(z)
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0}]]
+
+        Args:
+            z (ndarray): Output array of neural network. The shape of array 
+
+        Return:
+            (list): List of predicted bbox, score and class of each image.
+                The format of return value is bellow. Box coordinates and size will be returned as
+                ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+
+            [
+                [ # Prediction of first image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    ...
+                ],
+                [ # Prediction of second image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    ...
+                ],
+                ...
+            ]
+
+        Note:
+            Box coordinate and size will be returned as ratio to the original image size.
+            Therefore the range of 'box' is [0 ~ 1].
+
+
         """
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
@@ -239,21 +270,21 @@ class Yolov1(rm.Model):
 
     def predict(self, img_list):
         """
-
         This method accepts either ndarray and list of image path.
 
         Example:
             >>> 
-            >>> model.predict(['img01.jpg', [img02.jpg]])
-            [[{'box': [10.4, 20.3, 5.1, 10.0], 'score':0.823, 'class':1}],
-             [{'box': [23.4, 12.3, 3.2, 13.1], 'score':0.423, 'class':0}]]
+            >>> model.predict(['img01.jpg'], [img02.jpg]])
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0}]]
 
         Args:
             img_list (string, list, ndarray):
 
         Return:
             (list): List of predicted bbox, score and class of each image.
-                The format of return value is bellow.
+                The format of return value is bellow. Box coordinates and size will be returned as
+                ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
 
             [
                 [ # Prediction of first image.
@@ -268,6 +299,10 @@ class Yolov1(rm.Model):
                 ],
                 ...
             ]
+
+        Note:
+            Box coordinate and size will be returned as ratio to the original image size.
+            Therefore the range of 'box' is [0 ~ 1].
 
         """
         self.set_models(inference=True)
@@ -376,6 +411,8 @@ class Yolov1(rm.Model):
             avg_train_loss_list.append(avg_train_loss)
 
             if valid_dist is not None:
+                bar.n = 0
+                bar.total = int(np.ceil(len(train_dist) / batch_size))
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data)):
                     self.set_models(inference=True)

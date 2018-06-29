@@ -199,8 +199,6 @@ class Yolov2(rm.Model):
 
     def forward(self, x):
         self.freezed_network.set_auto_update(self._train_whole_network)
-        # self.freezed_network.set_models(inference=(
-        #     not self._train_whole_network or getattr(self, 'inference', False)))
         h, f = self.freezed_network(x)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,
@@ -224,7 +222,7 @@ class Yolov2(rm.Model):
         """
         reg = 0
         for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
+            if hasattr(layer, "params") and hasattr(layer.params, "w"):# and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 
@@ -289,7 +287,7 @@ class Yolov2(rm.Model):
                                               score[keep[0], :, keep[1], keep[2]])):
                 b = b if isinstance(b, list) else b.tolist()
                 box_list[keep[0][i]].append(b)
-                score_list[keep[0][i]].append((s, np.argmax(c)))
+                score_list[keep[0][i]].append((float(s), int(np.argmax(c))))
 
         # NMS
         for n in range(N):
@@ -488,7 +486,7 @@ class Yolov2(rm.Model):
                 # scale of class
                 mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
         diff = (x - target)
-        N = np.sum(y[:, 0] > 0)
+        # N = np.sum(y[:, 0] > 0)
         return rm.sum(diff * diff * mask) / N / 2.
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
@@ -539,6 +537,8 @@ class Yolov2(rm.Model):
             avg_train_loss_list.append(avg_train_loss)
 
             if valid_dist is not None:
+                bar.n = 0
+                bar.total = int(np.ceil(len(train_dist) / batch_size))
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data)):
                     self.set_models(inference=True)

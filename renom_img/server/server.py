@@ -272,7 +272,8 @@ def progress_model(project_id, model_id):
                         })
                         ret = create_response(body)
                         return ret
-                    except:
+                    except Exception as e:
+                        traceback.print_exc()
                         import pdb
                         pdb.set_trace()
 
