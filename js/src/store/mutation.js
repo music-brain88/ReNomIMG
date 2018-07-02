@@ -115,15 +115,15 @@ export default {
    * @param {Integer} payload.running_state : Running state.
    *   This represents training, validating, stopping or starting.
    * @param {Float} payload.batch_loss : Loss that calculated with last batch.
-   * 
-   * Following params are sometimes given as empty. 
-   * 
+   *
+   * Following params are sometimes given as empty.
+   *
    * @param {Array} payload.train_loss_list : Average train loss of each epoch.
    * @param {Array} payload.validation_loss_list : Average valid loss of each epoch.
    * @param {Integer} payload.best_epoch : Index of epoch which has minimum valid loss.
    * @param {Float} payload.best_epoch_iou : Iou of valid data at best epoch.
    * @param {Float} payload.best_epoch_map : MAP of valid data at best epoch.
-   * @param {Float} payload.best_epoch_validation_result : 
+   * @param {Float} payload.best_epoch_validation_result :
    *
    */
   updateProgress (state, payload) {
@@ -199,7 +199,7 @@ export default {
   /**
    *  Sort model list. The order of 'state.models' effects the order of displayed model list.
    *
-   * @param {Integer} payload.sort_by : Integer value which represents order keys. 
+   * @param {Integer} payload.sort_by : Integer value which represents order keys.
    *
    *    Model ID: 0
    *    IOU: 1
@@ -244,7 +244,7 @@ export default {
   },
 
   /**
-   * Change deployed model id.  
+   * Change deployed model id.
    *
    * @param {Integer} payload.model_id : Id of selecting model.
    *
@@ -296,7 +296,7 @@ export default {
     state.validation_page = payload.page
   },
 
-   /**
+  /**
    * This set page number. The number will be calculated by image index.
    * If the modal is shown and image index changes, the page number will
    * change according new image index.
@@ -305,7 +305,7 @@ export default {
    * @param {Integer} payload.img_idx : Index of image.
    *
    */
- setShowModalImageSample (state, payload) {
+  setShowModalImageSample (state, payload) {
     state.show_modal_image_sample = payload.modal
     state.idx_active_image_sample = payload.img_idx
 
@@ -324,10 +324,10 @@ export default {
   },
 
   /**
-   * Set result of prediction. 
+   * Set result of prediction.
    *
-   * @param {Object} payload.predict_results : 
-   * @param {Object} payload.csv :  
+   * @param {Object} payload.predict_results :
+   * @param {Object} payload.csv :
    *
    */
   setPredictResult (state, payload) {
@@ -335,10 +335,24 @@ export default {
     state.predict_results = payload.predict_results
     state.csv = payload.csv
   },
+
+  /**
+   * Set the predict page
+   *
+   * @param {Object} payload.flag :
+   *
+   */
   setPredictInfo (state, payload) {
     state.predict_total_batch = payload.predict_total_batch
     state.predict_last_batch = payload.predict_last_batch
   },
+
+  /**
+   * Set the prediction progress to the state.
+   *
+   * @param {Object} payload.predict_page_image_count :
+   *
+   */
   setPredictPage (state, payload) {
     const max_chunk = Math.floor(state.predict_results.bbox_path_list.length / state.predict_page_image_count)
     if (payload.page > max_chunk) {
@@ -350,26 +364,60 @@ export default {
     }
   },
 
+  /**
+   * Set the flag which represents if the prediction progress modal is shown.
+   *
+   * @param {Object} payload.flag :
+   *
+   */
   setPredictRunningFlag (state, payload) {
     state.predict_running_flag = payload.flag
   },
 
+  /**
+   * This flushes result of prediction page.
+   *
+   */
   resetPredictResult (state, payload) {
     state.predict_results = {'bbox_list': [], 'bbox_path_list': []}
   },
 
-  /*
-  weight
-  */
+  /**
+   * Set the flag that represents weight existence.
+   *
+   * @param {Object} payload.weight_exists :
+   *
+   */
   setWeightExists (state, payload) {
     state.weight_exists = payload.weight_exists
   },
+
+  /**
+   * Set flag that represents show the modal.
+   *
+   * @param {Object} payload.weight_downloading_modal :
+   *
+   */
   setWeightDownloadModal (state, payload) {
     state.weight_downloading_modal = payload.weight_downloading_modal
   },
+
+  /**
+   * Set progress of weight download state.
+   *
+   * @param {Object} payload.progress:
+   *
+   */
   setWeightDownloadProgress (state, payload) {
     state.weight_downloading_progress = Math.round(payload.progress * 10) / 10
   },
+
+  /**
+   * Set dataset to state.
+   *
+   * @param {Object} payload.dataset_defs:
+   *
+   */
   setDatasetDefs (state, payload) {
     state.dataset_defs = payload.dataset_defs
 
