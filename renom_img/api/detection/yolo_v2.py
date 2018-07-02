@@ -222,7 +222,8 @@ class Yolov2(rm.Model):
         """
         reg = 0
         for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):# and isinstance(layer, rm.Conv2d):
+            # and isinstance(layer, rm.Conv2d):
+            if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 

@@ -25,7 +25,6 @@ from bottle import HTTPResponse, default_app, route, static_file, request, error
 from renom.cuda import release_mem_pool
 
 from renom_img.server import create_dirs
-create_dirs()
 
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.server import wsgi_server
@@ -613,6 +612,8 @@ def get_deployed_model_info(project_id):
 
 
 def main():
+    # Creates directory only if server starts.
+    create_dirs()
     # Parser settings.
     parser = argparse.ArgumentParser(description='ReNomIMG')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
