@@ -24,6 +24,8 @@ from bottle import HTTPResponse, default_app, route, static_file, request, error
 
 from renom.cuda import release_mem_pool
 
+from renom_img.server import create_dirs
+
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread
@@ -31,13 +33,11 @@ from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.utility.storage import storage
 
 # Constants
-from renom_img.server import create_dirs
 from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR, DATASRC_PREDICTION_OUT
 from renom_img.server import STATE_FINISHED, STATE_RUNNING, STATE_DELETED, STATE_RESERVED
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 
-create_dirs()
 executor = Executor(max_workers=MAX_THREAD_NUM)
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
@@ -276,7 +276,8 @@ def progress_model(project_id, model_id):
                         })
                         ret = create_response(body)
                         return ret
-                    except:
+                    except Exception as e:
+                        traceback.print_exc()
                         import pdb
                         pdb.set_trace()
 
@@ -611,6 +612,8 @@ def get_deployed_model_info(project_id):
 
 
 def main():
+    # Creates directory only if server starts.
+    create_dirs()
     # Parser settings.
     parser = argparse.ArgumentParser(description='ReNomIMG')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
