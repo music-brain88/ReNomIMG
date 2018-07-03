@@ -88,20 +88,34 @@
 
           <div class="param-item">
             <div class="label">Image Width</div>
-            <div class="item">
-              <input type="text" v-model="image_width" maxlength="4">
+            <div v-if="algorithm == 0" class="param-item">
+              <div class="item">
+                <input type="text" v-model="image_width" maxlength="4">
+              </div>
+              <div class="input-alert" v-if="image_width < 32">Image Width must greater than 32</div>
+              <div class="input-alert" v-if="image_width > 1024">Image Width must lower than 1024</div>
             </div>
-            <div class="input-alert" v-if="image_width < 32">Image Width must greater than 32</div>
-            <div class="input-alert" v-if="image_width > 1024">Image Width must lower than 1024</div>
+            <div v-if="algorithm == 1" class="param-item">
+              <div class="item">
+                <input type="text" v-model="image_height" maxlength="4" readonly="readonly">
+              </div>
+            </div>
           </div>
 
           <div class="param-item">
             <div class="label">Image Height</div>
-            <div class="item">
-              <input type="text" v-model="image_height" maxlength="4">
+              <div v-if="algorithm == 0" class="param-item">
+                <div class="item">
+                  <input type="text" v-model="image_height" maxlength="4">
+                </div>
+              <div class="input-alert" v-if="image_height < 32">Image Height must greater than 32</div>
+              <div class="input-alert" v-if="image_height > 1024">Image Height must lower than 1024</div>
             </div>
-            <div class="input-alert" v-if="image_height < 32">Image Height must greater than 32</div>
-            <div class="input-alert" v-if="image_height > 1024">Image Height must lower than 1024</div>
+            <div v-if="algorithm == 1" class="param-item">
+              <div class="item">
+                <input type="text" v-model="image_height" maxlength="4" readonly="readonly">
+              </div>
+            </div>
           </div>
         </div>
 
@@ -159,6 +173,8 @@ export default {
 
       image_width: 448,
       image_height: 448,
+      previous_image_width: 448,
+      previous_image_height: 448,
       batch_size: 64,
 
       // YOLO params
@@ -186,6 +202,19 @@ export default {
         return false
       }
       return true
+    }
+  },
+  watch: {
+    algorithm (value) {
+      if (parseInt(value) === 1) {
+        this.previous_image_height = this.image_height
+        this.previous_image_width = this.image_width
+        this.image_height = 320
+        this.image_width = 320
+      } else {
+        this.image_height = this.previous_image_height
+        this.image_width = this.previous_image_width
+      }
     }
   },
   methods: {
