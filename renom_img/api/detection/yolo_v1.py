@@ -318,36 +318,38 @@ class Yolov1(rm.Model):
             img_array = img_list
         return self.get_bbox(self(img_array).as_ndarray())
 
-    def build_data(self, img_path_list, annotation_list, augmentation=None):
-        """
-        Args:
-            x: Image path list.
-            y: Detection formatted label.
-        """
-        N = len(img_path_list)
-        num_bbox = self._bbox
-        cell_w, cell_h = self._cells
-        target = np.zeros((N, self._cells[0], self._cells[1], 5 * num_bbox + self._num_class))
-
-        img_data, label_data = prepare_detection_data(img_path_list,
-                                                      annotation_list, self.imsize)
-
-        if augmentation is not None:
-            img_data, label_data = augmentation(img_data, label_data, mode="detection")
-
-        # Create target.
-        cell_w, cell_h = self._cells
-        img_w, img_h = self.imsize
-        for n in range(N):
-            for obj in label_data[n]:
-                tx = np.clip(obj["box"][0], 0, img_w) * .99 * cell_w / img_w
-                ty = np.clip(obj["box"][1], 0, img_h) * .99 * cell_h / img_h
-                tw = np.sqrt(np.clip(obj["box"][2], 0, img_w) / img_w)
-                th = np.sqrt(np.clip(obj["box"][3], 0, img_h) / img_h)
-                one_hot = [0] * obj["class"] + [1] + [0] * (self._num_class - obj["class"] - 1)
-                target[n, int(ty), int(tx)] = \
-                    np.concatenate(([1, tx % 1, ty % 1, tw, th] * num_bbox, one_hot))
-        return self.preprocess(img_data), target.reshape(N, -1)
+    def build_data(self):
+        def builder(img_path_list, annotation_list, augmentation=None, **kwargs):
+            """
+            Args:
+                x: Image path list.
+                y: Detection formatted label.
+            """
+            N = len(img_path_list)
+            num_bbox = self._bbox
+            cell_w, cell_h = self._cells
+            target = np.zeros((N, self._cells[0], self._cells[1], 5 * num_bbox + self._num_class))
+    
+            img_data, label_data = prepare_detection_data(img_path_list,
+                                                          annotation_list, self.imsize)
+    
+            if augmentation is not None:
+                img_data, label_data = augmentation(img_data, label_data, mode="detection")
+    
+            # Create target.
+            cell_w, cell_h = self._cells
+            img_w, img_h = self.imsize
+            for n in range(N):
+                for obj in label_data[n]:
+                    tx = np.clip(obj["box"][0], 0, img_w) * .99 * cell_w / img_w
+                    ty = np.clip(obj["box"][1], 0, img_h) * .99 * cell_h / img_h
+                    tw = np.sqrt(np.clip(obj["box"][2], 0, img_w) / img_w)
+                    th = np.sqrt(np.clip(obj["box"][3], 0, img_h) / img_h)
+                    one_hot = [0] * obj["class"] + [1] + [0] * (self._num_class - obj["class"] - 1)
+                    target[n, int(ty), int(tx)] = \
+                        np.concatenate(([1, tx % 1, ty % 1, tw, th] * num_bbox, one_hot))
+            return self.preprocess(img_data), target.reshape(N, -1)
+        return builder
 
     def loss(self, x, y):
         N = len(x)
@@ -394,7 +396,7 @@ class Yolov1(rm.Model):
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
             display_loss = 0
-            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data)):
+            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
@@ -414,7 +416,7 @@ class Yolov1(rm.Model):
                 bar.n = 0
                 bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
-                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data)):
+                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)
                     loss = self.loss(self(train_x), train_y)
                     try:

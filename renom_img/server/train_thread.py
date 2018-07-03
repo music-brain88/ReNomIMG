@@ -147,7 +147,7 @@ class TrainThread(object):
                 if self.is_stopped():
                     return
                 display_loss = 0
-                batch_gen = self.train_dist.batch(batch_size, self.model.build_data)
+                batch_gen = self.train_dist.batch(batch_size, self.model.build_data())
                 self.total_batch = int(np.ceil(len(self.train_dist) // batch_size))
                 for i, (train_x, train_y) in enumerate(batch_gen):
                     self.nth_batch = i
@@ -174,7 +174,7 @@ class TrainThread(object):
                     return
                 valid_predict_box = []
                 display_loss = 0
-                batch_gen = self.valid_dist.batch(batch_size, self.model.build_data, shuffle=False)
+                batch_gen = self.valid_dist.batch(batch_size, self.model.build_data(), shuffle=False)
                 self.model.set_models(inference=True)
                 for i, (valid_x, valid_y) in enumerate(batch_gen):
                     if self.is_stopped():

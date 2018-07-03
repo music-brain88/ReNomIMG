@@ -613,6 +613,8 @@ def get_deployed_model_info(project_id):
 
 
 def main():
+    # Creates directory only if server starts.
+    create_dirs()
     # Parser settings.
     parser = argparse.ArgumentParser(description='ReNomIMG')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
