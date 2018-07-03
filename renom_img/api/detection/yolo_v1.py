@@ -319,7 +319,7 @@ class Yolov1(rm.Model):
         return self.get_bbox(self(img_array).as_ndarray())
 
     def build_data(self):
-        def builder(img_path_list, annotation_list, augmentation=None):
+        def builder(img_path_list, annotation_list, augmentation=None, **kwargs):
             """
             Args:
                 x: Image path list.
