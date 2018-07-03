@@ -22,6 +22,7 @@ def layer_factory(channel=32, conv_layer_num=2):
     layers.append(rm.MaxPool2d(filter=2, stride=2))
     return rm.Sequential(layers)
 
+
 class VGGBase(ClassificationBase):
     def __init__(self, class_map):
         super(VGGBase, self).__init__(class_map)
@@ -42,7 +43,6 @@ class VGGBase(ClassificationBase):
             self._opt._lr = lr / 10.
             return self._opt
 
-
     def preprocess(self, x):
         """Image preprocess for VGG.
 
@@ -53,8 +53,8 @@ class VGGBase(ClassificationBase):
             (ndarray): Preprocessed data.
         """
         x[:, 0, :, :] -= 123.68  # R
-        x[:, 1, :, :] -= 116.779 # G
-        x[:, 2, :, :] -= 103.939 # B
+        x[:, 1, :, :] -= 116.779  # G
+        x[:, 2, :, :] -= 103.939  # B
         return x
 
     def regularize(self, decay_rate=0.0005):
@@ -76,7 +76,8 @@ class VGGBase(ClassificationBase):
 
     def fit(self, train_img_path_list=None, train_annotation_list=None, augmentation=None, valid_img_path_list=None, valid_annotation_list=None,  epoch=200, batch_size=16, callback_end_epoch=None):
         if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_list, augmentation=augmentation)
+            train_dist = ImageDistributor(
+                train_img_path_list, train_annotation_list, augmentation=augmentation)
         else:
             train_dist = train_image_distributor
 
@@ -130,7 +131,7 @@ class VGGBase(ClassificationBase):
                 avg_valid_loss = display_loss / (i + 1)
                 avg_valid_loss_list.append(avg_valid_loss)
                 if avg_valid_loss[-1] > avg_valid_loss[-2]:
-                    opt_flag=True
+                    opt_flag = True
                 bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
                     e, avg_train_loss, avg_valid_loss))
             else:
@@ -215,8 +216,6 @@ class VGG16(VGGBase):
     def forward(self, x):
         self.freezed_network.set_auto_update(self._train_whole_network)
         return self.network(self.freezed_network(x))
-
-
 
 
 class VGG19(VGGBase):

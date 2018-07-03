@@ -60,6 +60,7 @@ def build_downsample_block(channels):
         layers.extend(layer_block(channels[2], (1, 1)))
     return rm.Sequential(layers)
 
+
 class ResNetBase(ClassificationBase):
     def __init__(self, class_map):
         super(ResNetBase, self).__init__(class_map)
@@ -79,7 +80,6 @@ class ResNetBase(ClassificationBase):
         else:
             self._opt._lr = lr / 10.
             return self._opt
-
 
     def preprocess(self, x):
         """Image preprocess for VGG.
@@ -111,7 +111,8 @@ class ResNetBase(ClassificationBase):
 
     def fit(self, train_img_path_list=None, train_annotation_list=None, augmentation=None, valid_img_path_list=None, valid_annotation_list=None,  epoch=200, batch_size=16, callback_end_epoch=None):
         if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_list, augmentation=augmentation)
+            train_dist = ImageDistributor(
+                train_img_path_list, train_annotation_list, augmentation=augmentation)
         else:
             train_dist = train_image_distributor
 
@@ -150,7 +151,7 @@ class ResNetBase(ClassificationBase):
             avg_train_loss = display_loss / (i + 1)
             avg_train_loss_list.append(avg_train_loss)
             if avg_train_loss[-1] > avg_train_loss[-2]:
-                opt_flag=True
+                opt_flag = True
 
             if valid_dist is not None:
                 display_loss = 0
@@ -282,7 +283,8 @@ class ResNet32(ResNet):
         CHANNELS = [16, 32, 64]
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        super(ResNet32, self).__init__(class_map, CHANNELS, num_layers, imsize=imsize, train_whole_network=train_whole_network)
+        super(ResNet32, self).__init__(class_map, CHANNELS, num_layers,
+                                       imsize=imsize, train_whole_network=train_whole_network)
         n_class = len(class_map)
         if load_weight:
             try:
@@ -323,7 +325,8 @@ class ResNet44(ResNet):
         CHANNELS = [16, 32, 64]
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        super(ResNet44, self).__init__(class_map, CHANNELS, num_layers, imsize=imsize, train_whole_network=train_whole_network)
+        super(ResNet44, self).__init__(class_map, CHANNELS, num_layers,
+                                       imsize=imsize, train_whole_network=train_whole_network)
         n_class = len(class_map)
 
         if load_weight:
@@ -365,7 +368,8 @@ class ResNet56(ResNet):
         CHANNELS = [16, 32, 64]
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        super(ResNet56, self).__init__(class_map, CHANNELS, num_layers, imsize=imsize, train_whole_network=train_whole_network)
+        super(ResNet56, self).__init__(class_map, CHANNELS, num_layers,
+                                       imsize=imsize, train_whole_network=train_whole_network)
         n_class = len(class_map)
 
         if load_weight:
@@ -407,7 +411,8 @@ class ResNet110(ResNet):
         CHANNELS = [16, 32, 64]
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        super(ResNet110, self).__init__(class_map, CHANNELS, num_layers, imsize=imsize, train_whole_network=train_whole_network)
+        super(ResNet110, self).__init__(class_map, CHANNELS, num_layers,
+                                        imsize=imsize, train_whole_network=train_whole_network)
         n_class = len(class_map)
 
         if load_weight:
@@ -449,7 +454,8 @@ class ResNet34(ResNet):
         CHANNELS = [64, 128, 256, 512]
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        super(ResNet34, self).__init__(class_map, CHANNELS, num_layers, imsize=imsize, train_whole_network=train_whole_network)
+        super(ResNet34, self).__init__(class_map, CHANNELS, num_layers,
+                                       imsize=imsize, train_whole_network=train_whole_network)
         n_class = len(class_map)
         if load_weight:
             try:
@@ -491,7 +497,8 @@ class ResNet50(ResNet):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
-        super(ResNet50, self).__init__(class_map, CHANNELS, num_layers, imsize=imsize, train_whole_network=train_whole_network)
+        super(ResNet50, self).__init__(class_map, CHANNELS, num_layers,
+                                       imsize=imsize, train_whole_network=train_whole_network)
         n_class = len(class_map)
         if load_weight:
             try:
@@ -532,7 +539,8 @@ class ResNet101(ResNet):
         CHANNELS = [[64, 64, 256], [128, 128, 512], [256, 256, 1024], [512, 512, 2048]]
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        super(ResNet101, self).__init__(class_map, CHANNELS, num_layers, imsize=imsize, train_whole_network=train_whole_network)
+        super(ResNet101, self).__init__(class_map, CHANNELS, num_layers,
+                                        imsize=imsize, train_whole_network=train_whole_network)
         n_class = len(class_map)
         if load_weight:
             try:

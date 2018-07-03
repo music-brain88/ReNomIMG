@@ -174,7 +174,8 @@ class TrainThread(object):
                     return
                 valid_predict_box = []
                 display_loss = 0
-                batch_gen = self.valid_dist.batch(batch_size, self.model.build_data(), shuffle=False)
+                batch_gen = self.valid_dist.batch(
+                    batch_size, self.model.build_data(), shuffle=False)
                 self.model.set_models(inference=True)
                 for i, (valid_x, valid_y) in enumerate(batch_gen):
                     if self.is_stopped():

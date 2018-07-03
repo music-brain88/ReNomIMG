@@ -11,13 +11,13 @@ from renom_img.api.utility.target import DataBuilderClassification
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
+
 class InceptionBase(ClassificationBase):
     def __init__(self, class_map):
         super(InceptionBase, self).__init__(class_map)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         pass
-
 
     def preprocess(self, x):
         """Image preprocess for VGG.
@@ -49,7 +49,8 @@ class InceptionBase(ClassificationBase):
 
     def fit(self, train_img_path_list=None, train_annotation_list=None, augmentation=None, valid_img_path_list=None, valid_annotation_list=None,  epoch=90, batch_size=16, callback_end_epoch=None):
         if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_list, augmentation=augmentation)
+            train_dist = ImageDistributor(
+                train_img_path_list, train_annotation_list, augmentation=augmentation)
         else:
             train_dist = train_image_distributor
 
@@ -107,6 +108,7 @@ class InceptionBase(ClassificationBase):
                 callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
         return avg_train_loss_list, avg_valid_loss_list
 
+
 class InceptionV1Block(rm.Model):
     def __init__(self, channels=[64, 96, 128, 16, 32]):
         self.conv1 = rm.Conv2d(channels[0], filter=1)
@@ -160,40 +162,40 @@ class InceptionV1(InceptionBase):
         self._opt = opt
         self._train_whole_network = train_whole_network
         self.base1 = rm.Sequential([rm.Conv2d(64, filter=7, padding=3, stride=2),
-                              rm.Relu(),
-                              rm.MaxPool2d(filter=3, stride=2, padding=1),
-                              rm.BatchNormalize(mode='feature'),
-                              rm.Conv2d(64, filter=1, stride=1),
-                              rm.Relu(),
-                              rm.Conv2d(192, filter=3, padding=1, stride=1),
-                              rm.Relu(),
-                              rm.BatchNormalize(mode='feature'),
-                              rm.MaxPool2d(filter=3, stride=2, padding=1),
-                              InceptionV1Block(),
-                              InceptionV1Block([128, 128, 192, 32, 96, 64]),
-                              rm.MaxPool2d(filter=3, stride=2),
-                              InceptionV1Block([192, 96, 208, 16, 48, 64]),
-                              ])
+                                    rm.Relu(),
+                                    rm.MaxPool2d(filter=3, stride=2, padding=1),
+                                    rm.BatchNormalize(mode='feature'),
+                                    rm.Conv2d(64, filter=1, stride=1),
+                                    rm.Relu(),
+                                    rm.Conv2d(192, filter=3, padding=1, stride=1),
+                                    rm.Relu(),
+                                    rm.BatchNormalize(mode='feature'),
+                                    rm.MaxPool2d(filter=3, stride=2, padding=1),
+                                    InceptionV1Block(),
+                                    InceptionV1Block([128, 128, 192, 32, 96, 64]),
+                                    rm.MaxPool2d(filter=3, stride=2),
+                                    InceptionV1Block([192, 96, 208, 16, 48, 64]),
+                                    ])
 
         self.aux1 = rm.Sequential([rm.AveragePool2d(filter=5, stride=3),
-                              rm.Flatten(),
-                              rm.Dense(1024),
-                              rm.Dense(n_class)])
+                                   rm.Flatten(),
+                                   rm.Dense(1024),
+                                   rm.Dense(n_class)])
 
         self.base2 = rm.Sequential([InceptionV1Block([160, 112, 224, 24, 64, 64]),
                                     InceptionV1Block([128, 128, 256, 24, 64, 64]),
                                     InceptionV1Block([112, 144, 288, 32, 64, 64])])
 
         self.aux2 = rm.Sequential([rm.AveragePool2d(filter=5, stride=3),
-                                rm.Flatten(),
-                                rm.Dense(1024),
-                                rm.Dense(n_class)])
+                                   rm.Flatten(),
+                                   rm.Dense(1024),
+                                   rm.Dense(n_class)])
 
         self.base3 = rm.Sequential([InceptionV1Block([256, 160, 320, 32, 128, 128]),
-                        InceptionV1Block([256, 160, 320, 32, 128, 128]),
-                        InceptionV1Block([192, 384, 320, 48, 128, 128]),
-                        rm.AveragePool2d(filter=7, stride=1),
-                        rm.Flatten()])
+                                    InceptionV1Block([256, 160, 320, 32, 128, 128]),
+                                    InceptionV1Block([192, 384, 320, 48, 128, 128]),
+                                    rm.AveragePool2d(filter=7, stride=1),
+                                    rm.Flatten()])
         self.aux3 = rm.Dense(n_class)
         super(InceptionV1, self).__init__(class_map)
 
@@ -222,7 +224,7 @@ class InceptionV1(InceptionBase):
         return out1, out2, out3
 
     def loss(self, x, y):
-        return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3*rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
+        return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3 * rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
 
     def predict(self, img_list):
         self.set_models(inference=True)
@@ -237,6 +239,7 @@ class InceptionV1(InceptionBase):
         else:
             img_array = img_list
         return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)
+
 
 class InceptionV2BlockA(rm.Model):
     def __init__(self, channels=[64, 48, 64, 64, 96, 64]):
@@ -417,6 +420,7 @@ class InceptionV2BlockE(rm.Model):
             t1, t2, t3, t4
         ])
 
+
 class InceptionV2Stem(rm.Model):
     def __init__(self):
         self.conv1 = rm.Conv2d(32, filter=3, padding=0, stride=2)
@@ -445,6 +449,7 @@ class InceptionV2Stem(rm.Model):
         t = rm.relu(self.batch_norm5(self.conv5(t)))
         t = rm.relu(self.batch_norm6(self.conv6(t)))
         return t
+
 
 class InceptionV3(InceptionBase):
     """ Inception V3 model
@@ -476,32 +481,32 @@ class InceptionV3(InceptionBase):
         self._opt = opt
         self._train_whole_network = train_whole_network
         self.base1 = rm.Sequential([
-                InceptionV2Stem(),
-                InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
-                InceptionV2BlockA(),
-                InceptionV2BlockA(),
-                InceptionV2BlockB(),
-                InceptionV2BlockC([192, 128, 192, 128, 192, 192]),
-                InceptionV2BlockC(),
-                InceptionV2BlockC(),
-                InceptionV2BlockC()])
+            InceptionV2Stem(),
+            InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
+            InceptionV2BlockA(),
+            InceptionV2BlockA(),
+            InceptionV2BlockB(),
+            InceptionV2BlockC([192, 128, 192, 128, 192, 192]),
+            InceptionV2BlockC(),
+            InceptionV2BlockC(),
+            InceptionV2BlockC()])
         self.aux1 = rm.Sequential([
-                rm.AveragePool2d(filter=5, stride=3),
-                rm.Conv2d(128, filter=1),
-                rm.BatchNormalize(mode='feature'),
-                rm.Relu(),
-                rm.Conv2d(768, filter=1),
-                rm.BatchNormalize(mode='feature'),
-                rm.Relu(),
-                rm.Flatten(),
-                rm.Dense(n_class)])
+            rm.AveragePool2d(filter=5, stride=3),
+            rm.Conv2d(128, filter=1),
+            rm.BatchNormalize(mode='feature'),
+            rm.Relu(),
+            rm.Conv2d(768, filter=1),
+            rm.BatchNormalize(mode='feature'),
+            rm.Relu(),
+            rm.Flatten(),
+            rm.Dense(n_class)])
 
         self.base2 = rm.Sequential([
-                InceptionV2BlockD(),
-                InceptionV2BlockE(),
-                InceptionV2BlockE(),
-                rm.AveragePool2d(filter=8),
-                rm.Flatten()])
+            InceptionV2BlockD(),
+            InceptionV2BlockE(),
+            InceptionV2BlockE(),
+            rm.AveragePool2d(filter=8),
+            rm.Flatten()])
 
         self.aux2 = rm.Dense(n_class)
 
@@ -575,30 +580,30 @@ class InceptionV2(InceptionBase):
         self._opt = opt
         self._train_whole_network = train_whole_network
         self.base1 = rm.Sequential([
-                InceptionV2Stem(),
-                InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
-                InceptionV2BlockA(),
-                InceptionV2BlockA(),
-                InceptionV2BlockB(),
-                InceptionV2BlockC([192, 128, 192, 128, 192, 192]),
-                InceptionV2BlockC(),
-                InceptionV2BlockC(),
-                InceptionV2BlockC()])
+            InceptionV2Stem(),
+            InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
+            InceptionV2BlockA(),
+            InceptionV2BlockA(),
+            InceptionV2BlockB(),
+            InceptionV2BlockC([192, 128, 192, 128, 192, 192]),
+            InceptionV2BlockC(),
+            InceptionV2BlockC(),
+            InceptionV2BlockC()])
         self.aux1 = rm.Sequential([
-                rm.AveragePool2d(filter=5, stride=3),
-                rm.Conv2d(128, filter=1),
-                rm.Relu(),
-                rm.Conv2d(768, filter=1),
-                rm.Relu(),
-                rm.Flatten(),
-                rm.Dense(n_class)])
+            rm.AveragePool2d(filter=5, stride=3),
+            rm.Conv2d(128, filter=1),
+            rm.Relu(),
+            rm.Conv2d(768, filter=1),
+            rm.Relu(),
+            rm.Flatten(),
+            rm.Dense(n_class)])
 
         self.base2 = rm.Sequential([
-                InceptionV2BlockD(),
-                InceptionV2BlockE(),
-                InceptionV2BlockE(),
-                rm.AveragePool2d(filter=8),
-                rm.Flatten()])
+            InceptionV2BlockD(),
+            InceptionV2BlockE(),
+            InceptionV2BlockE(),
+            rm.AveragePool2d(filter=8),
+            rm.Flatten()])
 
         self.aux2 = rm.Dense(n_class)
 
@@ -656,6 +661,7 @@ class InceptionV2(InceptionBase):
         else:
             img_array = img_list
         return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
+
 
 class InceptionV4Stem(rm.Model):
     def __init__(self):
