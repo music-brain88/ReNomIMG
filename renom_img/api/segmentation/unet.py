@@ -10,6 +10,7 @@ from renom_img.api.utility.target import DataBuilderSegmentation
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
+
 class UNet(rm.Model):
     """ U-Net: Convolutional Networks for Biomedical Image Segmentation
 
@@ -111,7 +112,6 @@ class UNet(rm.Model):
             self._opt._lr = lr
             return self._opt
 
-
     def predict(self, img_list):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
@@ -198,7 +198,8 @@ class UNet(rm.Model):
 
     def fit(self, train_img_path_list=None, train_annotation_path_list=None, augmentation=None, valid_img_path_list=None, valid_annotation_path_list=None,  epoch=200, batch_size=16, callback_end_epoch=None):
         if train_img_path_list is not None and train_annotation_path_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_path_list, augmentation=augmentation)
+            train_dist = ImageDistributor(
+                train_img_path_list, train_annotation_path_list, augmentation=augmentation)
         else:
             train_dist = train_image_distributor
 
@@ -253,5 +254,3 @@ class UNet(rm.Model):
             if callback_end_epoch is not None:
                 callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
         return avg_train_loss_list, avg_valid_loss_list
-
-

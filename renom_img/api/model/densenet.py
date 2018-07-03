@@ -14,6 +14,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.target import DataBuilderClassification
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
+
 def conv_block(growth_rate):
     return rm.Sequential([
         rm.BatchNormalize(epsilon=0.001, mode='feature'),
@@ -32,6 +33,7 @@ def transition_layer(growth_rate):
         rm.Conv2d(growth_rate, filter=1, padding=0, stride=1),
         rm.AveragePool2d(filter=2, stride=2)
     ])
+
 
 class DenseNetBase(ClassificationBase):
     def __init__(self, class_map):
@@ -56,7 +58,6 @@ class DenseNetBase(ClassificationBase):
                 lr = self._opt._lr / 10
             self._opt._lr = lr
             return self._opt
-
 
     def preprocess(self, x):
         """Image preprocess for VGG.
@@ -88,7 +89,8 @@ class DenseNetBase(ClassificationBase):
 
     def fit(self, train_img_path_list=None, train_annotation_list=None, augmentation=None, valid_img_path_list=None, valid_annotation_list=None,  epoch=90, batch_size=16, callback_end_epoch=None):
         if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_list, augmentation=augmentation)
+            train_dist = ImageDistributor(
+                train_img_path_list, train_annotation_list, augmentation=augmentation)
         else:
             train_dist = train_image_distributor
 
@@ -146,6 +148,7 @@ class DenseNetBase(ClassificationBase):
                 callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
         return avg_train_loss_list, avg_valid_loss_list
 
+
 class DenseNet(DenseNetBase):
     """
     DenseNet (Densely Connected Convolutional Network) https://arxiv.org/pdf/1608.06993.pdf
@@ -157,6 +160,7 @@ class DenseNet(DenseNetBase):
         imsize(int or tuple): Input image size.
         train_whole_network(bool): True if the overal model is trained.
     """
+
     def __init__(self, class_map, layer_per_block=[6, 12, 24, 16], growth_rate=32, imsize=(224, 224), train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -244,7 +248,8 @@ class DenseNet121(DenseNet):
         layer_per_block = [6, 12, 24, 16]
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        super(DenseNet121, self).__init__(class_map, layer_per_block, growth_rate=growth_rate, imsize=imsize, train_whole_network=train_whole_network)
+        super(DenseNet121, self).__init__(class_map, layer_per_block,
+                                          growth_rate=growth_rate, imsize=imsize, train_whole_network=train_whole_network)
         n_class = len(class_map)
         if load_weight:
             try:
@@ -281,7 +286,8 @@ class DenseNet169(DenseNet):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         layer_per_block = [6, 12, 32, 32]
-        super(DenseNet169, self).__init__(class_map, layer_per_block, growth_rate=growth_rate, imsize=imsize,  train_whole_network=train_whole_network)
+        super(DenseNet169, self).__init__(class_map, layer_per_block, growth_rate=growth_rate,
+                                          imsize=imsize,  train_whole_network=train_whole_network)
         n_class = len(class_map)
         if load_weight:
             try:
@@ -323,7 +329,8 @@ class DenseNet201(DenseNet):
             imsize = (imsize, imsize)
         layer_per_block = [6, 12, 48, 32]
 
-        super(DenseNet201, self).__init__(class_map, layer_per_block, growth_rate=growth_rate, imsize=imsize, train_whole_network=train_whole_network)
+        super(DenseNet201, self).__init__(class_map, layer_per_block,
+                                          growth_rate=growth_rate, imsize=imsize, train_whole_network=train_whole_network)
         n_class = len(class_map)
         if load_weight:
             try:

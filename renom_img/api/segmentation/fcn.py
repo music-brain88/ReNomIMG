@@ -19,6 +19,7 @@ def layer_factory(channel=32, conv_layer_num=2):
     layers.append(rm.MaxPool2d(filter=2, stride=2))
     return rm.Sequential(layers)
 
+
 class FCN_Base(rm.Model):
     def __init__(self, class_map, load_weight=False, imsize=(224, 224), train_whole_network=False):
         n_class = len(class_map)
@@ -43,7 +44,7 @@ class FCN_Base(rm.Model):
         self.conv_block5.set_auto_update(self._train_whole_network)
 
     def loss(self, x, y):
-        return rm.softmax_cross_entropy(x, y) / (self.imsize[0]*self.imsize[1])
+        return rm.softmax_cross_entropy(x, y) / (self.imsize[0] * self.imsize[1])
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimiser for training Yolov1 algorithm.
@@ -57,7 +58,6 @@ class FCN_Base(rm.Model):
         Note: In FCN, the learning rate is fixed.
         """
         return self._opt
-
 
     def regularize(self, decay_rate=2e-4):
         """Regularize term. You can use this function to add regularize term to loss function.
@@ -77,7 +77,8 @@ class FCN_Base(rm.Model):
 
         reg = 0
         for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"): reg += rm.sum(layer.params.w * layer.params.w)
+            if hasattr(layer, "params") and hasattr(layer.params, "w"):
+                reg += rm.sum(layer.params.w * layer.params.w)
         return decay_rate * reg
 
     def preprocess(self, x):
@@ -90,8 +91,8 @@ class FCN_Base(rm.Model):
             (ndarray): Preprocessed data.
         """
         x[:, 0, :, :] -= 123.68  # R
-        x[:, 1, :, :] -= 116.779 # G
-        x[:, 2, :, :] -= 103.939 # B
+        x[:, 1, :, :] -= 116.779  # G
+        x[:, 2, :, :] -= 103.939  # B
         return x
 
     def predict(self, img_list):
@@ -109,7 +110,8 @@ class FCN_Base(rm.Model):
 
     def fit(self, train_img_path_list=None, train_annotation_path_list=None, augmentation=None, valid_img_path_list=None, valid_annotation_path_list=None,  epoch=200, batch_size=16, callback_end_epoch=None):
         if train_img_path_list is not None and train_annotation_path_list is not None:
-            train_dist = ImageDistributor(train_img_path_list, train_annotation_path_list, augmentation=augmentation)
+            train_dist = ImageDistributor(
+                train_img_path_list, train_annotation_path_list, augmentation=augmentation)
         else:
             train_dist = train_image_distributor
 
@@ -192,7 +194,8 @@ class FCN32s(FCN_Base):
 
     def __init__(self, class_map, load_weight=False, imsize=(224, 224), train_whole_network=False):
         n_class = len(class_map)
-        super(FCN32s, self).__init__(class_map, load_weight, imsize=imsize, train_whole_network=train_whole_network)
+        super(FCN32s, self).__init__(class_map, load_weight,
+                                     imsize=imsize, train_whole_network=train_whole_network)
         self.score_fr = rm.Conv2d(n_class, filter=1)  # n_classes
         self.upscore = rm.Deconv2d(n_class, stride=32, padding=0, filter=32)  # n_classes
 
@@ -243,7 +246,8 @@ class FCN16s(FCN_Base):
 
     def __init__(self, class_map, load_weight=False, imsize=(224, 224), train_whole_network=False):
         n_class = len(class_map)
-        super(FCN16s, self).__init__(class_map, load_weight, imsize=imsize, train_whole_network=train_whole_network)
+        super(FCN16s, self).__init__(class_map, load_weight,
+                                     imsize=imsize, train_whole_network=train_whole_network)
         self.score_fr = rm.Conv2d(n_class, filter=1)
         self.score_pool4 = rm.Conv2d(n_class, filter=1)
 
@@ -303,9 +307,11 @@ class FCN8s(FCN_Base):
         Fully Convolutional Networks for Semantic Segmentation
         https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
     """
+
     def __init__(self, class_map, load_weight=False, imsize=(224, 224), train_whole_network=False):
         n_class = len(class_map)
-        super(FCN8s, self).__init__(class_map, load_weight, imsize=imsize, train_whole_network=train_whole_network)
+        super(FCN8s, self).__init__(class_map, load_weight,
+                                    imsize=imsize, train_whole_network=train_whole_network)
 
         self.drop_out = rm.Dropout(0.5)
 

@@ -7,6 +7,7 @@ from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.target import DataBuilderClassification
 
+
 class ClassificationBase(rm.Model):
     def __init__(self, class_map):
         self.class_map = class_map
@@ -17,7 +18,8 @@ class ClassificationBase(rm.Model):
     def regularize(self, decay_rate=0.0005):
         reg = 0
         for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"): reg += rm.sum(layer.params.w * layer.params.w)
+            if hasattr(layer, "params") and hasattr(layer.params, "w"):
+                reg += rm.sum(layer.params.w * layer.params.w)
         return decay_rate * reg
 
     def predict(self, img_list):

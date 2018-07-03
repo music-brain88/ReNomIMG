@@ -329,13 +329,13 @@ class Yolov1(rm.Model):
             num_bbox = self._bbox
             cell_w, cell_h = self._cells
             target = np.zeros((N, self._cells[0], self._cells[1], 5 * num_bbox + self._num_class))
-    
+
             img_data, label_data = prepare_detection_data(img_path_list,
                                                           annotation_list, self.imsize)
-    
+
             if augmentation is not None:
                 img_data, label_data = augmentation(img_data, label_data, mode="detection")
-    
+
             # Create target.
             cell_w, cell_h = self._cells
             img_w, img_h = self.imsize

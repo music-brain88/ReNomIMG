@@ -84,7 +84,6 @@ class DataBuilderClassification(DataBuilderBase):
             return np.array(img_list), np.array(label_list)
 
 
-
 class DataBuilderDetection(DataBuilderBase):
 
     def __init__(self, imsize):
@@ -256,10 +255,9 @@ class DataBuilderSegmentation(DataBuilderBase):
             label, sw, sh = self.load_img(an_path)[0]
             img_list.append(img)
             for i in range(len(self.class_mapping)):
-                annot[i, label==i] = 1.
+                annot[i, label == i] = 1.
             label_list.append(annot)
         if augmentation is not None:
             return augmentation(np.array(img_list), np.array(label_list), mode="segmentation")
         else:
             return np.array(img_list), np.array(label_list)
-

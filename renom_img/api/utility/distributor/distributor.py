@@ -79,7 +79,8 @@ class ImageDistributorBase(object):
             batch_perm = [perm[nth * batch_size:(nth + 1) * batch_size]
                           for nth in range(batch_loop)]
             if self._label_list is None:
-                arg = [([self._img_path_list[p] for p in bp], Nonei, ) for i, bp in enumerate(batch_perm)]
+                arg = [([self._img_path_list[p] for p in bp], Nonei, )
+                       for i, bp in enumerate(batch_perm)]
             else:
                 arg = [
                     ([self._img_path_list[p] for p in bp],
