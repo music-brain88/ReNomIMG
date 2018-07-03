@@ -2,6 +2,7 @@ import os
 from itertools import chain
 import numpy as np
 import renom as rm
+from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
 from PIL import Image
 
@@ -367,6 +368,7 @@ class Yolov2(rm.Model):
         if not hasattr(imsize[0], "__getitem__"):
             imsize = [imsize]
         size_N = len(imsize)
+        perm = np.random.permutation(size_N)
 
         def builder(img_path_list, annotation_list, augmentation=None, nth=0, **kwargs):
             """
@@ -386,13 +388,13 @@ class Yolov2(rm.Model):
             channel = num_class + 5
             offset = channel
 
-            size_index = int(int(nth/10)%size_N)
+            size_index = perm[int(int(nth/10)%size_N)]
+            
             label = np.zeros((N, channel, imsize[size_index][1] // 32, imsize[size_index][0] // 32))
             img_list, label_list = prepare_detection_data(img_path_list, annotation_list, imsize[size_index])
 
             for n, annotation in enumerate(label_list):
                 # This returns resized image.
-
                 # Target processing
                 boxces = np.array([a['box'] for a in annotation])
                 classes = np.array([[0] * a["class"] + [1] + [0] * (num_class - a["class"] - 1)
@@ -563,6 +565,8 @@ class Yolov2(rm.Model):
             bar = tqdm(range(batch_loop))
             display_loss = 0
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, shuffle=True, target_builder=self.build_data())):
+                # This is for avoiding memory over flow.
+                if is_cuda_active() and i%10 == 0: release_mem_pool()
                 self.set_models(inference=False)
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
@@ -579,6 +583,7 @@ class Yolov2(rm.Model):
             avg_train_loss_list.append(avg_train_loss)
 
             if valid_dist is not None:
+                if is_cuda_active(): release_mem_pool()
                 bar.n = 0
                 bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
