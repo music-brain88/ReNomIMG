@@ -10,6 +10,7 @@ export default {
 
   // project data
   project: undefined,
+  gpu_num: 1,
 
   // selected model id
   selected_model_id: undefined,

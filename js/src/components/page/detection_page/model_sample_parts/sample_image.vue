@@ -26,7 +26,6 @@
         return 160
       },
       resized_width: function () {
-        console.log(this.image_width, this.image_height, this.resized_height)
         return this.image_width * (this.resized_height / this.image_height)
       }
     },

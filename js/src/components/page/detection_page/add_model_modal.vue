@@ -147,6 +147,9 @@
 </template>
 
 <script>
+
+import { mapState } from 'vuex'
+
 export default {
   name: 'AddModelModal',
   data: function () {
@@ -170,8 +173,10 @@ export default {
     }
   },
   computed: {
+    ...mapState(['gpu_num']),
+
     status: function () {
-      return this.$store.getters.getModelsFromState(1).length < 2 ? 'Run' : 'Reserve'
+      return this.$store.getters.getModelsFromState(1).length < this.gpu_num ? 'Run' : 'Reserve'
     },
     dataset_defs: function () {
       return this.$store.state.dataset_defs

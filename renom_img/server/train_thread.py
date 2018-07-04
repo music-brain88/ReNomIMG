@@ -2,10 +2,10 @@ import os
 import time
 import numpy as np
 import traceback
-from threading import Event
+from threading import Event, Semaphore
 import urllib.request
 
-from renom.cuda import set_cuda_active, release_mem_pool
+from renom.cuda import set_cuda_active, release_mem_pool, use_device
 
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
@@ -23,11 +23,14 @@ from renom_img.server import DATASRC_IMG, DATASRC_LABEL
 from renom_img.server import STATE_RUNNING
 from renom_img.server import RUN_STATE_TRAINING, RUN_STATE_VALIDATING, \
     RUN_STATE_PREDICTING, RUN_STATE_STARTING, RUN_STATE_STOPPING
+from renom_img.server import GPU_NUM
 
 from renom_img.server.utility.storage import storage
 
 
 class TrainThread(object):
+    gpu_resource = Semaphore(GPU_NUM or 1)
+    gpus = set(range(GPU_NUM or 1))
 
     def __init__(self, thread_id, project_id, model_id, dataset_id, hyper_parameters,
                  algorithm, algorithm_params):
@@ -104,6 +107,16 @@ class TrainThread(object):
             self._running_state = state
 
     def __call__(self):
+        set_cuda_active(True)
+        with self.gpu_resource:
+            self._gpu = self.gpus.pop()
+            try:
+                with use_device(self._gpu):
+                    return self._exec()
+            finally:
+                self.gpus.add(self._gpu)
+
+    def _exec(self):
         # This func works as thread.
         try:
             # Algorithm and model preparation.
@@ -125,7 +138,8 @@ class TrainThread(object):
                 self.error_msg = "{} is not supported algorithm id.".format(self.algorithm)
 
             i = 0
-            set_cuda_active(True)
+            self.model.set_gpu(self._gpu)
+
             release_mem_pool()
             filename = '{}.h5'.format(int(time.time()))
 
@@ -135,7 +149,6 @@ class TrainThread(object):
             valid_annotation_list = self.valid_dist.get_resized_annotation_list(self.imsize)
             storage.update_model_state(self.model_id, STATE_RUNNING)
             for e in range(epoch):
-
                 epoch_id = storage.register_epoch(
                     model_id=self.model_id,
                     nth_epoch=e
