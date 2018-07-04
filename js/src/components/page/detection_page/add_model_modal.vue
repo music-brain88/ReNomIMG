@@ -88,10 +88,8 @@
 
           <div class="param-item">
             <div class="label">Image Width</div>
-            <div v-if="algorithm == 0" class="param-item">
-              <div class="item">
-                <input type="text" v-model="image_width" maxlength="4">
-              </div>
+            <div v-if="algorithm == 0" class="item">
+              <input type="text" v-model="image_width" maxlength="4">
               <div class="input-alert" v-if="image_width < 32">Image Width must greater than 32</div>
               <div class="input-alert" v-if="image_width > 1024">Image Width must lower than 1024</div>
             </div>
@@ -104,17 +102,13 @@
 
           <div class="param-item">
             <div class="label">Image Height</div>
-              <div v-if="algorithm == 0" class="param-item">
-                <div class="item">
-                  <input type="text" v-model="image_height" maxlength="4">
-                </div>
+            <div v-if="algorithm == 0" class="item">
+              <input type="text" v-model="image_height" maxlength="4">
               <div class="input-alert" v-if="image_height < 32">Image Height must greater than 32</div>
               <div class="input-alert" v-if="image_height > 1024">Image Height must lower than 1024</div>
             </div>
-            <div v-if="algorithm == 1" class="param-item">
-              <div class="item">
-                <input type="text" v-model="image_height" maxlength="4" readonly="readonly">
-              </div>
+            <div v-if="algorithm == 1" class="item">
+              <input type="text" v-model="image_height" maxlength="4" readonly="readonly">
             </div>
           </div>
         </div>
