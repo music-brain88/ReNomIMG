@@ -37,7 +37,7 @@ def draw_box(img_path, prediction_list, font_path=None, color=(0, 0, 255, 150)):
     w, h = img.size
     canvas = Image.new("RGBA", (w, h), "#00000000")
     draw = ImageDraw.Draw(canvas)
-    
+
     for params in prediction_list:
         box = params['box']
         name = params.get('name', None)

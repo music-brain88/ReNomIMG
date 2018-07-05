@@ -88,12 +88,12 @@ class ImageDistributorBase(object):
                      [self._label_list[p] for p in bp], i)
                     for i, bp in enumerate(batch_perm)]
 
-            # For avoiding memory over flow. 
+            # For avoiding memory over flow.
             # Don't submit all thread at once.
             iter_count = 0
             work_thread = []
             while (iter_count - len(work_thread)) < len(arg):
-                for i in range(min(self._num_worker*4-len(work_thread), len(arg)-iter_count)):
+                for i in range(min(self._num_worker * 4 - len(work_thread), len(arg) - iter_count)):
                     work_thread.append(exector.submit(build, arg[iter_count]))
                     iter_count += 1
                 yield work_thread.pop(0).result()
