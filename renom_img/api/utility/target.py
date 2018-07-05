@@ -20,9 +20,9 @@ RESIZE_METHOD = Image.BILINEAR
 
 class DataBuilderBase(object):
 
-    def __init__(self, imsize):
+    def __init__(self, imsize, class_mapping=None):
         self.imsize = imsize
-        self.class_mapping = None
+        self.class_mapping = class_mapping
 
     def __call__(self, img_path_list, annotation_list, augmentation):
         return self.build(img_path_list, annotation_list, augmentation)
@@ -55,17 +55,32 @@ class DataBuilderDefault(DataBuilderBase):
 
 
 class DataBuilderClassification(DataBuilderBase):
-    """
-    Annotation_list must be list of class name.
+    """ Data builder for classification task
+
+    Args:
+        imsize(int or tuple): Input image size
+        class_map(list): List of class id
     """
 
     def create_class_mapping(self, annotation_list):
         pass
 
-    def __init__(self, imsize):
-        super(DataBuilderClassification, self).__init__(imsize)
+    def __init__(self, imsize, class_mapping=None):
+        super(DataBuilderClassification, self).__init__(imsize, class_mapping)
 
     def build(self, img_path_list, annotation_list, augmentation):
+        """
+        Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): List of class id
+                                    [1, 4, 6 (int)]
+            augmentation(Augmentation): Instance of the augmentation class.
+
+        Returns:
+            x(list): Batch of images
+            y(list): One hot labels for each image in a batch
+        """
+
         # Check the class mapping.
         if self.class_mapping is None:
             class_dict = {}
@@ -83,11 +98,28 @@ class DataBuilderClassification(DataBuilderBase):
 
 
 class DataBuilderDetection(DataBuilderBase):
+    """ Data builder for detection task
 
-    def __init__(self, imsize):
-        super(DataBuilderDetection, self).__init__(imsize)
+    Args:
+        imsize(int or tuple): Input image size
+        class_map(list): List of class id
+    """
+
+    def __init__(self, imsize, class_mapping):
+        super(DataBuilderDetection, self).__init__(imsize, class_mapping)
 
     def build(self, img_path_list, annotation_list, augmentation):
+        """
+        Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): List of class id
+                                    [1, 4, 6 (int)]
+            augmentation(Augmentation): Instance of the augmentation class.
+
+        Returns:
+            x(list): Batch of images
+            y(ndarray): The size of ndarray is [# images, maximum number of objects in an image*(4(coordinates) + 1(confidence))]
+        """
         # Check the class mapping.
         if self.class_mapping is None:
             class_dict = {}
