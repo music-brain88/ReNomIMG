@@ -390,7 +390,14 @@ export default {
     fd.append('name', payload.name)
 
     let url = '/api/renom_img/v1/dataset_defs/'
-    await axios.post(url, fd)
+
+    context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
+
+    await axios.post(url, fd).then(function (response) {
+      context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
+    }).catch(function (error) {
+      context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
+    })
     context.dispatch('loadDatasetDef')
   },
 
@@ -398,7 +405,7 @@ export default {
    * This function loads all of datasets from database.
    *
    */
-  async loadDatasetDef (context) {
+  async loadDatasetDef (context, payload) {
     let url = '/api/renom_img/v1/dataset_defs'
     const response = await axios.get(url)
     if (response.data.error_msg) {
