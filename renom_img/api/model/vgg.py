@@ -24,6 +24,10 @@ def layer_factory(channel=32, conv_layer_num=2):
 
 
 class VGGBase(ClassificationBase):
+    """
+    Base
+    """
+
     def __init__(self, class_map):
         super(VGGBase, self).__init__(class_map)
         self._opt = rm.Sgd(0.01, 0.9)
@@ -74,19 +78,14 @@ class VGGBase(ClassificationBase):
         """
         return super().regularize(decay_rate)
 
-    def fit(self, train_img_path_list=None, train_annotation_list=None, augmentation=None, valid_img_path_list=None, valid_annotation_list=None,  epoch=200, batch_size=16, callback_end_epoch=None):
-        if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(
-                train_img_path_list, train_annotation_list, augmentation=augmentation)
-        else:
-            train_dist = train_image_distributor
-
-        assert train_dist is not None
+    def fit(self, train_img_path_list, train_annotation_list, valid_img_path_list=None, valid_annotation_list=None, augmentation=None, epoch=200, batch_size=16, callback_end_epoch=None):
+        train_dist = ImageDistributor(
+            train_img_path_list, train_annotation_list, augmentation=augmentation)
 
         if valid_img_path_list is not None and valid_annotation_list is not None:
             valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
         else:
-            valid_dist = valid_image_distributor
+            valid_dist = None
 
         opt_flag = False
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
@@ -105,7 +104,7 @@ class VGGBase(ClassificationBase):
                     reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop))
                     opt_flag = False
                 else:
-                    reg_loss.grad().update(self.opt)
+                    reg_loss.grad().update(self._opt)
                 try:
                     loss = loss.as_ndarray()[0]
                 except:
@@ -173,7 +172,7 @@ class VGG16(VGGBase):
 
         self.n_class = len(class_map)
 
-        model = [
+        model = rm.Sequential([
             layer_factory(channel=64, conv_layer_num=2),
             layer_factory(channel=128, conv_layer_num=2),
             layer_factory(channel=256, conv_layer_num=3),
@@ -187,21 +186,25 @@ class VGG16(VGGBase):
             rm.Relu(),
             rm.Dropout(0.5),
             rm.Dense(self.n_class)
-        ]
+        ])
+
+        if load_weight:
+            try:
+                model.load(self.WEIGHT_PATH)
+            except:
+                download(self.WEIGHT_URL, self.WEIGHT_PATH)
+                model.load(self.WEIGHT_PATH)
+
         self.class_map = class_map
         self._train_whole_network = train_whole_network
         self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:5])
         self._network = rm.Sequential(model[5:])
 
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
         if self.n_class != 1000:
-            self._network.params = {}
+            for layer in self._network.iter_models():
+                if hasattr(layer, "params"):
+                    layer.params = {}
 
         super(VGG16, self).__init__(class_map)
 
@@ -264,20 +267,25 @@ class VGG19(VGGBase):
             rm.Dropout(0.5),
             rm.Dense(self.n_class)
         ]
+
+        if load_weight:
+            try:
+                model.load(self.WEIGHT_PATH)
+            except:
+                download(self.WEIGHT_URL, self.WEIGHT_PATH)
+                model.load(self.WEIGHT_PATH)
+
+
         self.class_map = class_map
         self._train_whole_network = train_whole_network
         self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:5])
         self._network = rm.Sequential(model[5:])
 
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
         if self.n_class != 1000:
-            self._network.params = {}
+            for layer in self._network.iter_models():
+                if hasattr(layer, "params"):
+                    layer.params = {}
 
         super(VGG16, self).__init__(class_map)
 

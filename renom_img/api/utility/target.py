@@ -24,10 +24,10 @@ class DataBuilderBase(object):
         self.imsize = imsize
         self.class_mapping = class_mapping
 
-    def __call__(self, img_path_list, annotation_list, augmentation):
-        return self.build(img_path_list, annotation_list, augmentation)
+    def __call__(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        return self.build(img_path_list, annotation_list, augmentation, **kwargs)
 
-    def build(self, img_path_list, annotation_list, augmentation):
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
         pass
 
     def reverce_label(self, label_list):
@@ -68,7 +68,7 @@ class DataBuilderClassification(DataBuilderBase):
     def __init__(self, imsize, class_mapping=None):
         super(DataBuilderClassification, self).__init__(imsize, class_mapping)
 
-    def build(self, img_path_list, annotation_list, augmentation):
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
         """
         Args:
             img_path_list(list): List of input image paths.
