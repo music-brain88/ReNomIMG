@@ -42,6 +42,11 @@ export default {
   */
   // prediction sample of detection page
   validation_page: 0,
+  /*
+  Show sample images with modal window
+  */
+  show_modal_image_sample: false,
+  idx_active_image_sample: 0,
 
   /*
   prediction page
@@ -75,6 +80,11 @@ export default {
   weight_downloading_progress: 0,
 
   // show weight downloading modal
-  weight_downloading_modal: false
+  weight_downloading_modal: false,
 
+  // dataset defs
+  dataset_defs: [],
+
+  // show dataset creating modal
+  dataset_creating_modal: false
 }

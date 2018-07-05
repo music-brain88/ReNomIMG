@@ -10,6 +10,22 @@
       <div class="modal-param-area">
         <div class="sub-param-area">
           <div class="sub-param-title">
+            Dataset
+          </div>
+
+          <div class="param-item">
+            <div class="label">Dataset Name</div>
+            <div class="item">
+              <select v-model="dataset_def_id">
+                <option v-for="d in dataset_defs" v-bind:value="d.id">
+                  {{ d.name }}
+                </option>
+              </select>
+            </div>
+            <div class="input-alert" v-if="dataset_defs.length === 0">At least one dataset is needed</div>
+          </div>
+          <hr>
+          <div class="sub-param-title">
             Algorithm Setting
           </div>
 
@@ -17,7 +33,18 @@
             <div class="label">CNN Architecture</div>
             <div class="item">
               <select class="algorithm-select-box" v-model="algorithm">
-                <option value="0">YOLO</option>
+                <option value="0">YOLOv1</option>
+                <option value="1">YOLOv2</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="param-item">
+            <div class="label">Train Whole Network</div>
+            <div class="item">
+              <select class="algorithm-select-box" v-model="train_whole_flag">
+                <option value="0">False</option>
+                <option value="1">True</option>
               </select>
             </div>
           </div>
@@ -39,7 +66,20 @@
             <div class="input-alert" v-if="bounding_box < 1">Bounding Box must greater than 1</div>
             <div class="input-alert" v-if="bounding_box > 10">Bounding Box must lower than 10</div>
           </div>
+
+          <div v-if="algorithm == 1" class="param-item">
+            <div class="label">Anchors</div>
+            <div class="item">
+              <input type="text" v-model="anchor" maxlength="2">
+            </div>
+            <div class="input-alert" v-if="anchor < 1">Anchors must greater than 1</div>
+            <div class="input-alert" v-if="anchor > 10">Anchors must lower than 10</div>
+          </div>
+
         </div>
+
+
+
 
         <div class="sub-param-area">
           <div class="sub-param-title">
@@ -48,20 +88,28 @@
 
           <div class="param-item">
             <div class="label">Image Width</div>
-            <div class="item">
+            <div v-if="algorithm == 0" class="item">
               <input type="text" v-model="image_width" maxlength="4">
+              <div class="input-alert" v-if="image_width < 32">Image Width must greater than 32</div>
+              <div class="input-alert" v-if="image_width > 1024">Image Width must lower than 1024</div>
             </div>
-            <div class="input-alert" v-if="image_width < 32">Image Width must greater than 32</div>
-            <div class="input-alert" v-if="image_width > 1024">Image Width must lower than 1024</div>
+            <div v-if="algorithm == 1" class="param-item">
+              <div class="item">
+                <input type="text" v-model="image_height" maxlength="4" readonly="readonly">
+              </div>
+            </div>
           </div>
 
           <div class="param-item">
             <div class="label">Image Height</div>
-            <div class="item">
+            <div v-if="algorithm == 0" class="item">
               <input type="text" v-model="image_height" maxlength="4">
+              <div class="input-alert" v-if="image_height < 32">Image Height must greater than 32</div>
+              <div class="input-alert" v-if="image_height > 1024">Image Height must lower than 1024</div>
             </div>
-            <div class="input-alert" v-if="image_height < 32">Image Height must greater than 32</div>
-            <div class="input-alert" v-if="image_height > 1024">Image Height must lower than 1024</div>
+            <div v-if="algorithm == 1" class="item">
+              <input type="text" v-model="image_height" maxlength="4" readonly="readonly">
+            </div>
           </div>
         </div>
 
@@ -99,7 +147,7 @@
 
       <div class="modal-button-area">
         <button @click="hideAddModelModal">Cancel</button>
-        <button @click="runModel" :disabled="!isRunnable">Run</button>
+        <button @click="runModel" :disabled="!isRunnable">{{ status }}</button>
       </div>
 
     </div>
@@ -111,20 +159,33 @@ export default {
   name: 'AddModelModal',
   data: function () {
     return {
+      dataset_def_id: 1,
       algorithm: 0,
+      train_whole_flag: 0,
       total_epoch: 100,
       seed: 0,
 
       image_width: 448,
       image_height: 448,
+      previous_image_width: 448,
+      previous_image_height: 448,
       batch_size: 64,
 
       // YOLO params
       cells: 7,
-      bounding_box: 2
+      bounding_box: 2,
+
+      // YOLO2 params
+      anchor: 5
     }
   },
   computed: {
+    status: function () {
+      return this.$store.getters.getModelsFromState(1).length < 2 ? 'Run' : 'Reserve'
+    },
+    dataset_defs: function () {
+      return this.$store.state.dataset_defs
+    },
     isRunnable: function () {
       if (this.cells < 3 || this.cells > 20 ||
          this.bounding_box < 0 || this.bounding_box > 10 ||
@@ -137,6 +198,19 @@ export default {
       return true
     }
   },
+  watch: {
+    algorithm (value) {
+      if (parseInt(value) === 1) {
+        this.previous_image_height = this.image_height
+        this.previous_image_width = this.image_width
+        this.image_height = 320
+        this.image_width = 320
+      } else {
+        this.image_height = this.previous_image_height
+        this.image_width = this.previous_image_width
+      }
+    }
+  },
   methods: {
     hideAddModelModal: function () {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
@@ -147,7 +221,8 @@ export default {
         'batch_size': parseInt(this.batch_size),
         'seed': parseInt(this.seed),
         'image_width': parseInt(this.image_width),
-        'image_height': parseInt(this.image_height)
+        'image_height': parseInt(this.image_height),
+        'train_whole_network': parseInt(this.train_whole_flag)
       }
 
       let algorithm_params = {}
@@ -156,9 +231,13 @@ export default {
           'cells': parseInt(this.cells),
           'bounding_box': parseInt(this.bounding_box)
         }
+      } if (parseInt(this.algorithm) === 1) {
+        algorithm_params = {
+          'anchor': parseInt(this.anchor)
+        }
       }
-
       this.$store.dispatch('runModel', {
+        dataset_def_id: parseInt(this.dataset_def_id),
         'hyper_parameters': hyper_parameters,
         'algorithm': this.algorithm,
         'algorithm_params': algorithm_params
@@ -269,8 +348,10 @@ export default {
             font-size: 12px;
             color: #ff0000;
           }
-
         }
+      }
+      hr {
+        margin-top: 30px;
       }
     }
 

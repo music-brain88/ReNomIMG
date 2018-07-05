@@ -77,10 +77,10 @@ export default {
     .dashboard-model-summary {
       width: 50%;
       #model-ratio-bar {
-        height: 35%;
+        height: 40%;
       }
       #running-models {
-        height: 65%;
+        height: 60%;
       }
     }
 

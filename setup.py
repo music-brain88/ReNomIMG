@@ -4,9 +4,11 @@ import re
 import shutil
 import pathlib
 import numpy
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 import distutils.command.build
 from Cython.Build import cythonize
+from distutils.extension import Extension
+
 
 if sys.version_info < (3, 4):
     raise RuntimeError('renom_img requires Python3')
@@ -63,6 +65,9 @@ setup(
     cmdclass={
         'build': BuildNPM,
     },
-    ext_modules=cythonize("renom_img/api/utils/*.pyx",
+    ext_modules=cythonize([
+                          "renom_img/api/utility/*.pyx",
+                          "renom_img/api/utility/evaluate/*.pyx",
+                          ],
                           include_path=[numpy.get_include()])
 )

@@ -1,28 +1,60 @@
 <template>
-  <div id='sample-image'>
-    <img id='image' :src='image_path'></img>
+  <div id='sample-image' @click.stop.prevent='onClick'>
+    <img id='image' :src='image_path' :width='resized_width' :height='resized_height'/>
     <div id='box'
-      v-for="(item, index) in bboxes" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'2px solid '+getColor(item[0])}">
+      v-for="(item, index) in bboxes" :key="index" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'2px solid '+getColor(item[0])}">
       <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
     </div>
   </div>
 </template>
 
 <script>
+  import { mapMutations } from 'vuex'
+
   export default {
     name: 'SampleImage',
+
     props: {
       image_path: undefined,
-      bboxes: undefined
+      image_width: undefined,
+      image_height: undefined,
+      bboxes: undefined,
+      image_idx: undefined
+    },
+    computed: {
+      resized_height: function () {
+        return 160
+      },
+      resized_width: function () {
+        console.log(this.image_width, this.image_height, this.resized_height)
+        return this.image_width * (this.resized_height / this.image_height)
+      }
     },
     methods: {
+      ...mapMutations([
+        'setShowModalImageSample'
+      ]),
       getColor: function (index) {
         let color_list = ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
         return color_list[index % 4]
       },
       getTagName: function (index) {
-        let label_dict = this.$store.state.class_names
+        if (!this.$store.getters.getSelectedModel) {
+          return
+        }
+        let dataset_def_id = this.$store.getters.getSelectedModel.dataset_def_id
+        let dataset_def = this.$store.state.dataset_defs
+        let label_dict
+        for (let i = 0; i < Object.keys(this.$store.state.dataset_defs).length; i++) {
+          if (dataset_def[i].id === dataset_def_id) {
+            label_dict = this.$store.state.dataset_defs[i].class_map
+            break
+          }
+        }
         return label_dict[index]
+      },
+      onClick () {
+        this.setShowModalImageSample({modal: true, img_idx: this.image_idx})
       }
     }
   }
@@ -48,7 +80,7 @@
     #box {
       position: absolute;
       box-sizing:border-box;
-      x-index: 10;
+      z-index: 0;
       opacity: 0.9;
       #tag-name {
         color: white;

@@ -1,9 +1,12 @@
 node_modules/
 .DS_Store
 .storage
+storage
 build/
 .build/
+_build/
 dataset
+datasrc
 *.h5
 
 # Byte-compiled / optimized / DLL files
@@ -111,3 +114,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# test output
+test/python/outputs/
+
+# pytest cache
+.pytest_cache
