@@ -1,15 +1,24 @@
 import axios from 'axios'
 
 export default {
-  /*
-  initialize data
-  */
+  /**
+   * This is called when the browser refreshed. This loads model list and dataset according to given project id.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   *
+   */
   async initData (context, payload) {
     await context.dispatch('loadProject', {'project_id': payload.project_id})
     await context.dispatch('loadModels', {'project_id': payload.project_id})
     await context.dispatch('loadDatasetDef', {'project_id': payload.project_id})
   },
 
+  /**
+   * This loads project's name and comment.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   *
+   */
   async loadProject (context, payload) {
     const url = '/api/renom_img/v1/projects/' + payload.project_id
     return axios.get(url)
@@ -28,6 +37,12 @@ export default {
       })
   },
 
+  /**
+   * This will load model list according to project_id.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   *
+   */
   async loadModels (context, payload) {
     // This API calls "get_models"
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models'
@@ -41,10 +56,12 @@ export default {
     })
   },
 
-  /*
-  model list area
-  */
-  // check weight downloading process
+  /**
+   * This will check model's pretrained weight download progress.
+   *
+   * @param {Integer} payload.i : This is number of progress. If the downloading process done 15%, i should be 1.
+   *
+   */
   async checkWeightDownloadProgress (context, payload) {
     if (!context.state.weight_exists) {
       let url = '/api/renom_img/v1/weights/progress/' + payload.i
@@ -67,6 +84,16 @@ export default {
     }
   },
 
+  /**
+   * This will creates new model and registers it to database.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   * @param {Integer} payload.algorithm : Constant of algorithm given by user.
+   * @param {Integer} payload.algorithm_params : Algorithm specified parameters given by user.
+   * @param {Integer} payload.hyper_parameters : Training hyper parameters given by user.
+   * @param {Integer} payload.dataset_def_id : Dataset id given by user.
+   *
+   */
   // create model before run model
   async createModel (context, payload) {
     // add fd model data
@@ -78,7 +105,18 @@ export default {
     let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/model/create'
     return axios.post(url, fd)
   },
-  // run model
+
+  /**
+   * This will run specified model. This calls the function 'createModel'.
+   * And this runs weight existence check function.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   * @param {Integer} payload.algorithm : Constant number of algorithm given by user.
+   * @param {Integer} payload.algorithm_params : Algorithm specified parameters given by user.
+   * @param {Integer} payload.hyper_parameters : Training hyper parameters given by user.
+   * @param {Integer} payload.dataset_def_id : Dataset id given by user.
+   *
+   */
   async runModel (context, payload) {
     const dataset_def_id = JSON.stringify(payload.dataset_def_id)
     const hyper_parameters = JSON.stringify(payload.hyper_parameters)
@@ -126,7 +164,13 @@ export default {
     }
   },
 
-  // delete model
+  /**
+   * This will delete model. This will remove trained weight and all of its information from database.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   * @param {Integer} payload.model_id : Model id which will be deleted.
+   *
+   */
   deleteModel (context, payload) {
     let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id
     return axios.delete(url)
@@ -139,9 +183,13 @@ export default {
       })
   },
 
-  /*
-  model progress
-  */
+  /**
+   * This will stop model training progress. This will remove trained weight and all of its information from database.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   * @param {Integer} payload.model_id : Model id which will be stopped.
+   *
+   */
   stopModel (context, payload) {
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/stop'
     axios.get(url)
@@ -154,6 +202,12 @@ export default {
       })
   },
 
+  /**
+   * This function checks the model's state. This function will be called recursively.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   *
+   */
   updateModelsState (context, payload) {
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/update/state'
     return axios.get(url, {
@@ -163,7 +217,13 @@ export default {
     })
   },
 
-  // update model progress info
+  /**
+   * This function updates training model's progress bar state.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   * @param {Integer} payload.model_id : Model id whose progress will be checked.
+   *
+   */
   updateProgress (context, payload) {
     // // Called from model_progress.vue.
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/progress'
@@ -211,9 +271,13 @@ export default {
     })
   },
 
-  /*
-  model detail
-  */
+  /**
+   * This function sets the model be deployed.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   * @param {Integer} payload.model_id : Model id which will be deployed.
+   *
+   */
   deployModel (context, payload) {
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/deploy'
     axios.get(url)
@@ -229,6 +293,14 @@ export default {
         })
       })
   },
+
+  /**
+   * This function sets the model be undeployed.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   * @param {Integer} payload.model_id : Model id which will be undeployed.
+   *
+   */
   undeployModel (context, payload) {
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/undeploy'
     axios.get(url)
@@ -245,9 +317,13 @@ export default {
       })
   },
 
-  /*
-  prediction
-  */
+  /**
+   * This function runs prediction thread using deployed model.
+   *
+   * @param {Integer} payload.project_id : Current project id.
+   * @param {Integer} payload.deploy_model_id : Model id which will be used for prediction.
+   *
+   */
   runPrediction (context, payload) {
     if (context.state.project) {
       context.commit('setPredictRunningFlag', {'flag': true})
@@ -268,6 +344,12 @@ export default {
         })
     }
   },
+
+  /**
+   * This updates prediction progress.
+   * This function can be run without payload params.
+   *
+   */
   updatePredictionInfo (context, payload) {
     if (context.state.project) {
       const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + context.state.project.deploy_model_id + '/prediction_info'
@@ -294,6 +376,13 @@ export default {
     }
   },
 
+  /**
+   * This function registers dataset to database.
+   *
+   * @param {Integer} payload.ratio : Dataset will be divided by this ratio. Train:Valid = ratio:(1-ratio).
+   * @param {Integer} payload.name : Dataset name given by user.
+   *
+   */
   async registerDatasetDef (context, payload) {
     // add fd model data
     let fd = new FormData()
@@ -305,6 +394,10 @@ export default {
     context.dispatch('loadDatasetDef')
   },
 
+  /**
+   * This function loads all of datasets from database.
+   *
+   */
   async loadDatasetDef (context) {
     let url = '/api/renom_img/v1/dataset_defs'
     const response = await axios.get(url)

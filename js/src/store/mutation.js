@@ -80,10 +80,10 @@ export default {
   },
 
   /**
-   * Changes model' state.
+   * Changes model's state.
    *
-   * @param {Object} payload : Array of Object.
-   *  The object has attributes {'model_id': {'running_state':(Int), 'state':(Int)}}
+   * @param {Object} payload : Array of Model object.
+   *  The model object has attributes {'model_id': {'running_state':(Int), 'state':(Int)}}
    *
    */
   updateModelsState (state, payload) {
@@ -103,7 +103,29 @@ export default {
     }
   },
 
-  // update progress
+  /**
+   * Update model's training progress bar.
+   * If one epoch have finished, validation result will be given.
+   * Then the model list item will be updated.
+   *
+   * @param {Integer} payload.model_id : Id of model whose training state will be updated.
+   * @param {Integer} payload.total_batch : Loop size of one epoch.
+   * @param {Integer} payload.last_batch : Current batch index.
+   * @param {Integer} payload.last_epoch : Current epoch index.
+   * @param {Integer} payload.running_state : Running state.
+   *   This represents training, validating, stopping or starting.
+   * @param {Float} payload.batch_loss : Loss that calculated with last batch.
+   *
+   * Following params are sometimes given as empty.
+   *
+   * @param {Array} payload.train_loss_list : Average train loss of each epoch.
+   * @param {Array} payload.validation_loss_list : Average valid loss of each epoch.
+   * @param {Integer} payload.best_epoch : Index of epoch which has minimum valid loss.
+   * @param {Float} payload.best_epoch_iou : Iou of valid data at best epoch.
+   * @param {Float} payload.best_epoch_map : MAP of valid data at best epoch.
+   * @param {Float} payload.best_epoch_validation_result :
+   *
+   */
   updateProgress (state, payload) {
     let model_id = payload.model_id
     let current_model
@@ -133,52 +155,76 @@ export default {
     }
   },
 
-  /*
-  header
-  */
-  // show navigation bar
+  /**
+   * Set the navigation bar show flag.
+   *
+   * @param {Boolean} payload.flag : If this is true, navigation bar will be shown.
+   *
+   */
   setNavigationBarShowFlag (state, payload) {
     state.navigation_bar_shown_flag = payload.flag
   },
 
-  /*
-  alert modal
-  */
+  /**
+   *  Set the alert dialog show flag.
+   *
+   * @param {Boolean} payload.flag : If this is true, alert modal will be shown.
+   *
+   */
   setAlertModalFlag (state, payload) {
     state.alert_modal_flag = payload.flag
   },
 
+  /**
+   *  Set the error message which will be show as alert modal.
+   *
+   * @param {String} payload.error_msg : A message shown as alert modal.
+   *
+   */
   setErrorMsg (state, payload) {
     state.error_msg = payload.error_msg
   },
 
-  /*
-  model list area
-  */
-  // set add model modal
+  /**
+   *  Set the add model modal show flag.
+   *  'Add model modal' is the modal for setting training hyper parameters.
+   *
+   * @param {Boolean} payload.add_model_modal_show_flag : Flag.
+   *
+   */
   setAddModelModalShowFlag (state, payload) {
     state.add_model_modal_show_flag = payload.add_model_modal_show_flag
   },
 
-  // sort model array
+  /**
+   *  Sort model list. The order of 'state.models' effects the order of displayed model list.
+   *
+   * @param {Integer} payload.sort_by : Integer value which represents order keys.
+   *
+   *    Model ID: 0
+   *    IOU: 1
+   *    mAP: 2
+   *    Validation loss: 3
+   *
+   */
   sortModels (state, payload) {
     const sort_columns = ['model_id', 'best_epoch_iou', 'best_epoch_map', 'best_epoch_validation_loss']
     const sort_by = payload.sort_by
     const sort_column = sort_columns[sort_by]
     if (sort_by === 0) {
-      // Model IDでソート 大きい順
+      // Sort by model ID. This will sort it to descending order.
       state.models.sort(function (a, b) {
         return (a[sort_column] < b[sort_column]) ? 1 : -1
       })
     } else if (sort_by === 1 || sort_by === 2) {
-      // IoU, mAPでソート 大きい順
+      // Sort by map or iou. This will sort it to descending order.
       state.models.sort(function (a, b) {
         if (typeof (a.best_epoch) === 'undefined') return 1
         if (typeof (b.best_epoch) === 'undefined') return -1
         return (a[sort_column] < b[sort_column]) ? 1 : -1
       })
     } else if (sort_by === 3) {
-      // Validation Lossでソート 小さい順
+      // Sort by validation loss. This will sort it to ascending order.
       state.models.sort(function (a, b) {
         if (typeof (a.best_epoch) === 'undefined') return 1
         if (typeof (b.best_epoch) === 'undefined') return -1
@@ -187,62 +233,126 @@ export default {
     }
   },
 
-  // change selected model
+  /**
+   * Change selecting model.
+   *
+   * @param {Integer} payload.model_id : Id of selecting model.
+   *
+   */
   setSelectedModel (state, payload) {
     state.selected_model_id = payload.model_id
   },
 
-  /*
-  model detail
-  */
+  /**
+   * Change deployed model id.
+   *
+   * @param {Integer} payload.model_id : Id of selecting model.
+   *
+   */
   setDeployModelId (state, payload) {
     if (state.project) {
       state.project.deploy_model_id = payload.model_id
     }
   },
 
-  /*
-  tag list
-  */
+  /**
+   * Set class name list to state.
+   * **This function is no longer used from >= beta0.8.
+   *
+   * @param {Array} payload.class_names : Array of class name.
+   *
+   */
   setDatasetInfov0 (state, payload) {
     state.class_names = payload.class_names
   },
 
-  /*
-  model sample
-  */
+  /**
+   * Set image modal show flag.
+   *
+   * @param {Array} payload.flag : If this is true, modal will be shown.
+   *
+   */
   setImageModalShowFlag (state, payload) {
     state.image_modal_show_flag = payload.flag
   },
 
+  /**
+   * Set index of image for show image with modal.
+   *
+   * @param {Integer} payload.index : Index of image.
+   *
+   */
   setImageIndexOnModal (state, payload) {
     state.image_index_on_modal = payload.index
   },
 
+  /**
+   * Set current page number of prediction sample.
+   *
+   * @param {Integer} payload.page : The number of current page.
+   *
+   */
   setValidationPage (state, payload) {
     state.validation_page = payload.page
   },
 
+  /**
+   * This set page number. The number will be calculated by image index.
+   * If the modal is shown and image index changes, the page number will
+   * change according new image index.
+   *
+   * @param {Object} payload.modal : Current selected model.
+   * @param {Integer} payload.img_idx : Index of image.
+   *
+   */
   setShowModalImageSample (state, payload) {
     state.show_modal_image_sample = payload.modal
     state.idx_active_image_sample = payload.img_idx
+
     if (state.show_modal_image_sample) {
-      state.validation_page = Math.floor(payload.img_idx / state.validation_num_img_per_page)
+      const model = state.models.find((m) => (m.model_id === state.selected_model_id))
+      const dataset_def_id = model.dataset_def_id
+      const dataset = state.dataset_defs.find((d) => (d.id === dataset_def_id))
+
+      const page = dataset.pages.findIndex((r) => payload.img_idx < r[1])
+      if (page === -1) {
+        state.validation_page = 0
+      } else {
+        state.validation_page = page
+      }
     }
   },
 
-  /*
-  prediction page
-  */
+  /**
+   * Set result of prediction.
+   *
+   * @param {Object} payload.predict_results :
+   * @param {Object} payload.csv :
+   *
+   */
   setPredictResult (state, payload) {
     state.predict_running_flag = false
     state.predict_results = payload.predict_results
     state.csv = payload.csv
   },
+
+  /**
+   * Set the predict page
+   *
+   * @param {Object} payload.flag :
+   *
+   */
   setPredictInfo (state, payload) {
     state.predict_total_batch = payload.predict_total_batch
     state.predict_last_batch = payload.predict_last_batch
   },
+
+  /**
+   * Set the prediction progress to the state.
+   *
+   * @param {Object} payload.predict_page_image_count :
+   *
+   */
   setPredictPage (state, payload) {
     const max_chunk = Math.floor(state.predict_results.bbox_path_list.length / state.predict_page_image_count)
     if (payload.page > max_chunk) {
@@ -254,27 +364,98 @@ export default {
     }
   },
 
+  /**
+   * Set the flag which represents if the prediction progress modal is shown.
+   *
+   * @param {Object} payload.flag :
+   *
+   */
   setPredictRunningFlag (state, payload) {
     state.predict_running_flag = payload.flag
   },
 
+  /**
+   * This flushes result of prediction page.
+   *
+   */
   resetPredictResult (state, payload) {
     state.predict_results = {'bbox_list': [], 'bbox_path_list': []}
   },
 
-  /*
-  weight
-  */
+  /**
+   * Set the flag that represents weight existence.
+   *
+   * @param {Object} payload.weight_exists :
+   *
+   */
   setWeightExists (state, payload) {
     state.weight_exists = payload.weight_exists
   },
+
+  /**
+   * Set flag that represents show the modal.
+   *
+   * @param {Object} payload.weight_downloading_modal :
+   *
+   */
   setWeightDownloadModal (state, payload) {
     state.weight_downloading_modal = payload.weight_downloading_modal
   },
+
+  /**
+   * Set progress of weight download state.
+   *
+   * @param {Object} payload.progress:
+   *
+   */
   setWeightDownloadProgress (state, payload) {
     state.weight_downloading_progress = Math.round(payload.progress * 10) / 10
   },
+
+  /**
+   * Set dataset to state.
+   *
+   * @param {Object} payload.dataset_defs:
+   *
+   */
   setDatasetDefs (state, payload) {
     state.dataset_defs = payload.dataset_defs
+
+    const IMG_ROW_HEIGHT = 160
+    const IMG_ROW_WIDTH = (1280 - // width
+                           12 * 2 - // padding of container
+                           72 * 2 - // margin of detection-page
+                           216 - // width of tag-list
+                           24 - // margin of tag-list
+                           4 - // margin
+                           4 // image imargin
+
+    )
+    const IMG_MARGIN = 4
+    for (const dataset of state.dataset_defs) {
+      dataset.pages = []
+
+      let nrow = 1
+      let curwidth = 0
+      let pagefrom = 0
+      let rowto = 0
+
+      for (const img of dataset.valid_imgs) {
+        const imgwidth = (IMG_ROW_HEIGHT / img.height) * img.width
+        if ((curwidth + imgwidth + IMG_MARGIN * 2) >= IMG_ROW_WIDTH) {
+          if ((nrow % 3) === 0) {
+            dataset.pages.push([pagefrom, rowto])
+            pagefrom = rowto
+          }
+          curwidth = 0
+          nrow += 1
+        }
+        rowto += 1
+        curwidth += imgwidth + IMG_MARGIN * 2
+      }
+      if (pagefrom !== (dataset.valid_imgs.length)) {
+        dataset.pages.push([pagefrom, rowto])
+      }
+    }
   }
 }

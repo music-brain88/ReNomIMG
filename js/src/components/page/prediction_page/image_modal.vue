@@ -2,9 +2,9 @@
   <div id="image-modal">
     <div class="modal-background" @click="hideModal"></div>
     <div class="modal-content" @keyup.37="keyLeft" @keyup.39="keyRight">
-      <img id='image' :src="image"></img>
+      <img id='image' :src="image"/>
       <div id='box'
-        v-for="(item, index) in bboxes" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'4px solid '+getColor(item[0])}">
+        v-for="(item, index) in bboxes" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'4px solid '+getColor(item[0])}" :key={index}>
         <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
       </div>
     </div>

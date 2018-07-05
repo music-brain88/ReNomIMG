@@ -2,6 +2,7 @@ import os
 from itertools import chain
 import numpy as np
 import renom as rm
+from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
 from PIL import Image
 
@@ -85,7 +86,9 @@ class Yolov2(rm.Model):
     Args:
         num_class(int):
         anchor(list):
-        imsize(lit):
+        imsize(list): Image size.
+            This can be both image size ex):(320, 320) and list of image size ex):[(288, 288), (320, 320)].
+            If list of image size is given, the prediction method uses the last image size of the list for prediction.
         load_pretrained_weight(bool, string):
         train_whole_network(bool):
 
@@ -100,22 +103,22 @@ class Yolov2(rm.Model):
 
     def __init__(self, class_map, anchor,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
+
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
-            exp),imsize=(320, 320)."
+              exp),imsize=(320, 320)."
 
         num_class = len(class_map)
         self._class_map = [k for k, v in sorted(
             class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
         self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
         self.imsize = imsize
-        self._freezed_network = Darknet19Base()
+        self.freezed_network = Darknet19Base()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
         self.num_class = num_class
         last_channel = (num_class + 5) * self.num_anchor
-        self._base = Darknet19Base()
         self._conv1 = rm.Sequential([
             DarknetConv2dBN(channel=1024, prev_ch=1024),
             DarknetConv2dBN(channel=1024, prev_ch=1024),
@@ -137,7 +140,10 @@ class Yolov2(rm.Model):
 
             if not os.path.exists(load_pretrained_weight):
                 download(self.WEIGHT_URL, load_pretrained_weight)
-            self.load(load_pretrained_weight)
+            try:
+                self.load(load_pretrained_weight)
+            except:
+                pass
 
             for model in [self._conv1, self._conv2, self._last]:
                 for layer in model.iter_models():
@@ -153,10 +159,6 @@ class Yolov2(rm.Model):
                             "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
                             "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=True),
                         }
-
-    @property
-    def freezed_network(self):
-        return self._freezed_network
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """
@@ -199,8 +201,6 @@ class Yolov2(rm.Model):
 
     def forward(self, x):
         self.freezed_network.set_auto_update(self._train_whole_network)
-        # self.freezed_network.set_models(inference=(
-        #     not self._train_whole_network or getattr(self, 'inference', False)))
         h, f = self.freezed_network(x)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,
@@ -224,7 +224,8 @@ class Yolov2(rm.Model):
         """
         reg = 0
         for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
+            # and isinstance(layer, rm.Conv2d):
+            if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 
@@ -241,17 +242,17 @@ class Yolov2(rm.Model):
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
 
-        asw = self.imsize[0] / self.anchor_size[0]
-        ash = self.imsize[1] / self.anchor_size[1]
+        imsize = self.imsize
+        asw = imsize[0] / self.anchor_size[0]
+        ash = imsize[1] / self.anchor_size[1]
         anchor = [[an[0] * asw, an[1] * ash] for an in self.anchor]
 
         num_anchor = len(anchor)
         N, C, H, W = z.shape
         offset = self.num_class + 5
-        FW, FH = self.imsize[0] // 32, self.imsize[1] // 32
+        FW, FH = imsize[0] // 32, imsize[1] // 32
         box_list = [[] for n in range(N)]
         score_list = [[] for n in range(N)]
-        print(offset)
 
         for ind_a, anc in enumerate(anchor):
             a_pred = z[:, ind_a * offset:(ind_a + 1) * offset]
@@ -268,8 +269,8 @@ class Yolov2(rm.Model):
             a_box[:, 1] *= 32
             a_box[:, 2] *= anc[0]
             a_box[:, 3] *= anc[1]
-            a_box[:, 0::2] = a_box[:, 0::2] / self.imsize[0]
-            a_box[:, 1::2] = a_box[:, 1::2] / self.imsize[1]
+            a_box[:, 0::2] = a_box[:, 0::2] / imsize[0]
+            a_box[:, 1::2] = a_box[:, 1::2] / imsize[1]
 
             # Clip bounding box
             w = a_box[:, 2] / 2.
@@ -288,8 +289,9 @@ class Yolov2(rm.Model):
             for i, (b, s, c) in enumerate(zip(a_box[keep[0], :, keep[1], keep[2]],
                                               max_conf[keep[0], keep[1], keep[2]],
                                               score[keep[0], :, keep[1], keep[2]])):
+                b = b if isinstance(b, list) else b.tolist()
                 box_list[keep[0][i]].append(b)
-                score_list[keep[0][i]].append((s, np.argmax(c)))
+                score_list[keep[0][i]].append((float(s), int(np.argmax(c))))
 
         # NMS
         for n in range(N):
@@ -323,61 +325,89 @@ class Yolov2(rm.Model):
         Returns:
             (list):
         """
+        imsize = self.imsize
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+                img_array = np.vstack([load_img(path, imsize)[None] for path in img_list])
                 img_array = self.preprocess(img_array)
             else:
-                img_array = load_img(img_list, self.imsize)[None]
+                img_array = load_img(img_list, imsize)[None]
                 img_array = self.preprocess(img_array)
                 return self.get_bbox(self(img_array).as_ndarray())[0]
         else:
             img_array = img_list
         return self.get_bbox(self(img_array).as_ndarray())
 
-    def build_data(self, img_path_list, annotation_list, augmentation=None):
+    def build_data(self, imsize_list=None):
         """
+        This returns data building function that builds target data for yolo 2 training.
+        In training of yolov2, image size will be changed every 10 batches.
+        Therefore, users can give list of image size to this function.
+
         Args:
-            x: Image path list.
-            y: Detection formatted label.
+            imsize(list): List of image size.
         """
-        # This ratio is specific to Darknet19.
-        N = len(img_path_list)
-        ratio_w = 32.
-        ratio_h = 32.
-        img_list = []
-        num_class = self.num_class
-        channel = num_class + 5
-        offset = channel
+        if imsize_list is None:
+            imsize_list = [self.imsize]
+        else:
+            for ims in imsize_list:
+                assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
+                    "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
+                    exp),imsize=[(288, 288), (320, 320)]."
 
-        label = np.zeros((N, channel, self.imsize[1] // 32, self.imsize[0] // 32))
-        img_list, label_list = prepare_detection_data(img_path_list, annotation_list, self.imsize)
+        size_N = len(imsize_list)
+        perm = np.random.permutation(size_N)
 
-        for n, annotation in enumerate(label_list):
-            # This returns resized image.
+        def builder(img_path_list, annotation_list, augmentation=None, nth=0, **kwargs):
+            """
+            These parameters will be given by distributor.
+            Args:
+                img_path_list (list): List of input image.
+                annotation_list (list): List of detection annotation.
+                augmentation (Augmentation): Augmentation object.
+                nth (int): Current batch index.
+            """
+            N = len(img_path_list)
+            # This ratio is specific to Darknet19.
+            ratio_w = 32.
+            ratio_h = 32.
+            img_list = []
+            num_class = self.num_class
+            channel = num_class + 5
+            offset = channel
 
-            # Target processing
-            boxces = np.array([a['box'] for a in annotation])
-            classes = np.array([[0] * a["class"] + [1] + [0] * (num_class - a["class"] - 1)
-                                for a in annotation])
+            size_index = perm[int(int(nth / 10) % size_N)]
 
-            # x, y
-            cell_x = (boxces[:, 0] // ratio_w).astype(np.int)
-            cell_y = (boxces[:, 1] // ratio_h).astype(np.int)
-            for i, (cx, cy) in enumerate(zip(cell_x, cell_y)):
-                label[n, 1, cy, cx] = boxces[i, 0]
-                label[n, 2, cy, cx] = boxces[i, 1]
+            label = np.zeros(
+                (N, channel, imsize_list[size_index][1] // 32, imsize_list[size_index][0] // 32))
+            img_list, label_list = prepare_detection_data(
+                img_path_list, annotation_list, imsize_list[size_index])
 
-                # w, h
-                label[n, 3, cy, cx] = boxces[i, 2]
-                label[n, 4, cy, cx] = boxces[i, 3]
+            for n, annotation in enumerate(label_list):
+                # This returns resized image.
+                # Target processing
+                boxces = np.array([a['box'] for a in annotation])
+                classes = np.array([[0] * a["class"] + [1] + [0] * (num_class - a["class"] - 1)
+                                    for a in annotation])
 
-                # Conf
-                label[n, 0, cy, cx] = 1
-                label[n, 5:, cy, cx] = classes[i].reshape(-1, 1, num_class)
+                # x, y
+                cell_x = (boxces[:, 0] // ratio_w).astype(np.int)
+                cell_y = (boxces[:, 1] // ratio_h).astype(np.int)
+                for i, (cx, cy) in enumerate(zip(cell_x, cell_y)):
+                    label[n, 1, cy, cx] = boxces[i, 0]
+                    label[n, 2, cy, cx] = boxces[i, 1]
 
-        return self.preprocess(img_list), label
+                    # w, h
+                    label[n, 3, cy, cx] = boxces[i, 2]
+                    label[n, 4, cy, cx] = boxces[i, 3]
+
+                    # Conf
+                    label[n, 0, cy, cx] = 1
+                    label[n, 5:, cy, cx] = classes[i].reshape(-1, 1, num_class)
+            return self.preprocess(img_list), label
+
+        return builder
 
     def loss(self, x, y):
         """
@@ -389,8 +419,8 @@ class Yolov2(rm.Model):
         """
         N, C, H, W = x.shape
         nd_x = x.as_ndarray()
-        asw = self.imsize[0] / self.anchor_size[0]
-        ash = self.imsize[1] / self.anchor_size[1]
+        asw = W * 32 / self.anchor_size[0]
+        ash = H * 32 / self.anchor_size[1]
         anchor = [[an[0] * asw, an[1] * ash] for an in self.anchor]
 
         num_anchor = self.num_anchor
@@ -406,7 +436,7 @@ class Yolov2(rm.Model):
         target = target.reshape(N, C, H, W)
 
         low_thresh = 0.6
-        im_w, im_h = self.imsize
+        im_w, im_h = (W * 32, H * 32)
         offset = 5 + self.num_class
 
         # Calc iou and get best matched prediction.
@@ -474,7 +504,6 @@ class Yolov2(rm.Model):
 
                 target[n, 0 + best_anc_ind * offset, h, w] = \
                     calc_iou_xywh([px, py, pw, ph], [tx, ty, tw, th])
-                #    best_ious[n, best_anc_ind, h, w]
 
                 # scale of obj iou
                 mask[n, 0 + best_anc_ind * offset, h, w] = 5.
@@ -488,22 +517,20 @@ class Yolov2(rm.Model):
                 # scale of class
                 mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
         diff = (x - target)
-        N = np.sum(y[:, 0] > 0)
+        # N = np.sum(y[:, 0] > 0)
         return rm.sum(diff * diff * mask) / N / 2.
 
-    def fit(self, train_img_path_list=None, train_annotation_list=None,
+    def fit(self, train_img_path_list, train_annotation_list,
             valid_img_path_list=None, valid_annotation_list=None,
-            epoch=160, batch_size=16, augmentation=None, callback_end_epoch=None):
+            epoch=160, batch_size=16, imsize_list=None, augmentation=None, callback_end_epoch=None):
         """
         This function performs training with given data and hyper parameters.
 
         Args:
             train_img_path_list:
             train_annotation_list:
-            train_image_distributor:
             valid_img_path_list:
             valid_annotation_list:
-            valid_image_distributor:
             epoch:
             batch_size:
             callback_end_epoch:
@@ -512,17 +539,29 @@ class Yolov2(rm.Model):
             (tuple): Training loss list and validation loss list.
         """
 
+        if imsize_list is None:
+            imsize_list = [self.imsize]
+        else:
+            for ims in imsize_list:
+                assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
+                    "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
+                    exp),imsize=[(288, 288), (320, 320)]."
+
         train_dist = ImageDistributor(
-            train_img_path_list, train_annotation_list, augmentation=augmentation)
-        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
+            train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=4)
+        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list, num_worker=4)
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
         avg_valid_loss_list = []
+
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
             display_loss = 0
-            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, shuffle=True, target_builder=self.build_data)):
+            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, shuffle=True, target_builder=self.build_data(imsize_list))):
+                # This is for avoiding memory over flow.
+                if is_cuda_active() and i % 10 == 0:
+                    release_mem_pool()
                 self.set_models(inference=False)
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
@@ -539,14 +578,20 @@ class Yolov2(rm.Model):
             avg_train_loss_list.append(avg_train_loss)
 
             if valid_dist is not None:
+                if is_cuda_active():
+                    release_mem_pool()
+                bar.n = 0
+                bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
-                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data)):
+                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data())):
                     self.set_models(inference=True)
                     loss = self.loss(self(valid_x), valid_y)
+
                     try:
                         loss = float(loss.as_ndarray()[0])
                     except:
                         loss = float(loss.as_ndarray())
+
                     display_loss += loss
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)

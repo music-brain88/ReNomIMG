@@ -61,7 +61,7 @@ class ImageDistributorBase(object):
         if builder is None:
             builder = self._builder
         if builder is None:
-            builder = lambda x, y, aug=None: (x, y)
+            builder = lambda x, y, **kwargs: (x, y)
 
         if shuffle:
             if N < 100000:
@@ -72,19 +72,20 @@ class ImageDistributorBase(object):
             perm = np.arange(N)
 
         def build(args):
-            img_path_list, annotation_list = args
-            return builder(img_path_list, annotation_list, self._augmentation)
+            img_path_list, annotation_list, nth = args
+            return builder(img_path_list, annotation_list, augmentation=self._augmentation, nth=nth)
 
         with Executor(max_workers=self._num_worker) as exector:
             batch_perm = [perm[nth * batch_size:(nth + 1) * batch_size]
                           for nth in range(batch_loop)]
             if self._label_list is None:
-                arg = [([self._img_path_list[p] for p in bp], None) for bp in batch_perm]
+                arg = [([self._img_path_list[p] for p in bp], Nonei, )
+                       for i, bp in enumerate(batch_perm)]
             else:
                 arg = [
                     ([self._img_path_list[p] for p in bp],
-                     [self._label_list[p] for p in bp])
-                    for bp in batch_perm
+                     [self._label_list[p] for p in bp], i)
+                    for i, bp in enumerate(batch_perm)
                 ]
 
             generator = exector.map(build, arg)

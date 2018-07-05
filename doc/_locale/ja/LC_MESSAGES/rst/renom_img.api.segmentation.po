@@ -1,0 +1,108 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/renom_img.api.segmentation.rst:2
+msgid "renom\\_img.api.segmentation package"
+msgstr ""
+
+#: ../../rst/renom_img.api.segmentation.rst:6
+msgid "renom\\_img.api.segmentation.fcn module"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s:1
+#: renom_img.api.segmentation.fcn.FCN32s:1
+#: renom_img.api.segmentation.fcn.FCN8s:1
+msgid "Bases: :class:`renom_img.api.segmentation.fcn.FCN_Base`"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s:1
+msgid ""
+"Fully convolutional network (16s) for semantic segmentation Reference: "
+"https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s
+#: renom_img.api.segmentation.fcn.FCN32s renom_img.api.segmentation.fcn.FCN8s
+#: renom_img.api.segmentation.unet.UNet
+msgid "Parameters"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s:4
+#: renom_img.api.segmentation.fcn.FCN32s:3
+#: renom_img.api.segmentation.fcn.FCN8s:4
+#: renom_img.api.segmentation.unet.UNet:3
+msgid "The number of classes"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s:6
+#: renom_img.api.segmentation.fcn.FCN32s:5
+#: renom_img.api.segmentation.fcn.FCN8s:6
+msgid "If True, the pre-trained weight of ImageNet is loaded."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s:10
+#: renom_img.api.segmentation.fcn.FCN32s:9
+#: renom_img.api.segmentation.fcn.FCN8s:10
+#: renom_img.api.segmentation.unet.UNet:7
+msgid "Example"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s:23
+#: renom_img.api.segmentation.fcn.FCN32s:22
+#: renom_img.api.segmentation.fcn.FCN8s:23
+msgid ""
+"Jonathan Long, Evan Shelhamer, Trevor Darrell Fully Convolutional "
+"Networks for Semantic Segmentation "
+"https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN32s:1
+msgid "Fully convolutional network (21s) for semantic segmentation"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN8s:1
+msgid ""
+"Fully convolutional network (8s) for semantic segmentation Reference: "
+"https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN_Base:1
+#: renom_img.api.segmentation.unet.UNet:1
+msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
+msgstr ""
+
+#: ../../rst/renom_img.api.segmentation.rst:14
+msgid "renom\\_img.api.segmentation.unet module"
+msgstr ""
+
+#: of renom_img.api.segmentation.unet.UNet:1
+msgid "U-Net: Convolutional Networks for Biomedical Image Segmentation"
+msgstr ""
+
+#: of renom_img.api.segmentation.unet.UNet:20
+msgid ""
+"Olaf Ronneberger, Philipp Fischer, Thomas Brox U-Net: Convolutional "
+"Networks for Biomedical Image Segmentation "
+"https://arxiv.org/pdf/1505.04597.pdf"
+msgstr ""
+
+#: ../../rst/renom_img.api.segmentation.rst:23
+msgid "Module contents"
+msgstr ""
+

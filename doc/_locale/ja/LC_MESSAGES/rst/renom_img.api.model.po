@@ -1,0 +1,37 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/renom_img.api.model.rst:2
+msgid "renom\\_img.api.model"
+msgstr ""
+
+#: ../../rst/renom_img.api.model.rst:5
+msgid "renom\\_img.api.model.darknet"
+msgstr ""
+
+#: of renom_img.api.model.darknet.Darknet:1
+msgid "Bases: :class:`renom.layers.function.parameterized.Sequential`"
+msgstr ""
+
+#: of renom_img.api.model.darknet.Darknet19:1
+#: renom_img.api.model.darknet.Darknet19Base:1
+#: renom_img.api.model.darknet.DarknetConv2dBN:1
+msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
+msgstr ""
+

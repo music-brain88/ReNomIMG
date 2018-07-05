@@ -14,6 +14,8 @@ import traceback
 import pathlib
 import random
 import xmltodict
+
+import PIL
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor as Executor
 from concurrent.futures import CancelledError
@@ -21,6 +23,9 @@ from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
 from renom.cuda import release_mem_pool
+
+from renom_img.server import create_dirs
+create_dirs()
 
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.server import wsgi_server
@@ -255,22 +260,27 @@ def progress_model(project_id, model_id):
                 # If thread status updated, return response.
                 if isinstance(th, TrainThread) and th.nth_epoch != req_last_epoch and th.valid_loss_list:
                     best_epoch = int(np.argmin(th.valid_loss_list))
-                    body = json.dumps({
-                        "total_batch": th.total_batch,
-                        "last_batch": th.nth_batch,
-                        "last_epoch": th.nth_epoch,
-                        "batch_loss": th.last_batch_loss,
-                        "running_state": th.running_state,
-                        "state": model_state,
-                        "validation_loss_list": th.valid_loss_list,
-                        "train_loss_list": th.train_loss_list,
-                        "best_epoch": best_epoch,
-                        "best_epoch_iou": th.valid_iou_list[best_epoch],
-                        "best_epoch_map": th.valid_map_list[best_epoch],
-                        "best_epoch_validation_result": th.valid_predict_box[best_epoch]
-                    })
-                    ret = create_response(body)
-                    return ret
+                    try:
+                        body = json.dumps({
+                            "total_batch": th.total_batch,
+                            "last_batch": th.nth_batch,
+                            "last_epoch": th.nth_epoch,
+                            "batch_loss": th.last_batch_loss,
+                            "running_state": th.running_state,
+                            "state": model_state,
+                            "validation_loss_list": th.valid_loss_list,
+                            "train_loss_list": th.train_loss_list,
+                            "best_epoch": best_epoch,
+                            "best_epoch_iou": th.valid_iou_list[best_epoch],
+                            "best_epoch_map": th.valid_map_list[best_epoch],
+                            "best_epoch_validation_result": th.valid_predict_box[best_epoch]
+                        })
+                        ret = create_response(body)
+                        return ret
+                    except Exception as e:
+                        traceback.print_exc()
+                        import pdb
+                        pdb.set_trace()
 
                 elif isinstance(th, TrainThread) and (th.nth_batch != req_last_batch or
                                                       th.running_state != req_running_state or
@@ -374,7 +384,18 @@ def get_datasets():
         ret = []
         for rec in recs:
             id, name, ratio, valid_imgs, class_map, created, updated = rec
-            valid_imgs = [os.path.join("datasrc/img/", path) for path in valid_imgs]
+            valid_img_names = [os.path.join("datasrc/img/", path) for path in valid_imgs]
+            valid_imgs = []
+            for img_name in valid_img_names:
+                try:
+                    im = PIL.Image.open(img_name)
+                    width, height = im.size
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                    width = height = 50
+                valid_imgs.append(dict(filename=img_name, width=width, height=height))
+
             ret.append(dict(id=id, name=name, ratio=ratio,
                             valid_imgs=valid_imgs, class_map=class_map, created=created, updated=updated))
         return create_response(json.dumps({'dataset_defs': ret}))
@@ -441,7 +462,6 @@ def create_dataset_def():
         valid_imgs = [str(img) for img in valids]
 
         _, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
-        class_map = [k for k, v in sorted(class_map.items(), key=lambda x:x[1])]
 
         # register dataset
         id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)
@@ -592,6 +612,8 @@ def get_deployed_model_info(project_id):
 
 
 def main():
+    # Creates directory only if server starts.
+    create_dirs()
     # Parser settings.
     parser = argparse.ArgumentParser(description='ReNomIMG')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
