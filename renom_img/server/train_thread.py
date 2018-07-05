@@ -124,7 +124,7 @@ class TrainThread(object):
                 self.model = Yolov2(self.class_map, create_anchor(annotations, anchor, base_size=self.imsize),
                                     imsize=self.imsize, load_pretrained_weight=path, train_whole_network=self.train_whole_network)
                 train_target_builder = self.model.build_data(
-                    imsize_list=[(i * 32, i * 32) for i in range(9, 12)])
+                    imsize_list=[(i * 32, i * 32) for i in range(9, 20)])
                 valid_target_builder = self.model.build_data()
             else:
                 self.error_msg = "{} is not supported algorithm id.".format(self.algorithm)
