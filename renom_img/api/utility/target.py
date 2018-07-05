@@ -77,8 +77,8 @@ class DataBuilderClassification(DataBuilderBase):
             augmentation(Augmentation): Instance of the augmentation class.
 
         Returns:
-            x(list): Batch of images
-            y(list): One hot labels for each image in a batch
+            x(ndarray): Batch of images
+            y(ndarray): One hot labels for each image in a batch
         """
 
         # Check the class mapping.
@@ -117,8 +117,8 @@ class DataBuilderDetection(DataBuilderBase):
             augmentation(Augmentation): Instance of the augmentation class.
 
         Returns:
-            x(list): Batch of images
-            y(ndarray): The size of ndarray is [# images, maximum number of objects in an image*(4(coordinates) + 1(confidence))]
+            x(ndarray): Batch of images
+            y(ndarray): The shape of ndarray is [# images, maximum number of objects in an image * (4(coordinates) + 1(confidence))]
         """
         # Check the class mapping.
         if self.class_mapping is None:
