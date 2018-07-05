@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import sys
 
 
-def draw_box(img_path, prediction_list, font_path=None):
+def draw_box(img_path, prediction_list, font_path=None, color=(0, 0, 255, 150)):
     """Function for describing bounding box, class name and socre for an input image.
 
     Example:
@@ -33,9 +33,11 @@ def draw_box(img_path, prediction_list, font_path=None):
     Note:
         The values of `box` is a relational coordinate so their values are in [0.0 ~ 1.0].
     """
-    img = Image.open(img_path)
+    img = Image.open(img_path).convert("RGBA")
     w, h = img.size
-    draw = ImageDraw.Draw(img)
+    canvas = Image.new("RGBA", (w, h), "#00000000")
+    draw = ImageDraw.Draw(canvas)
+    
     for params in prediction_list:
         box = params['box']
         name = params.get('name', None)
@@ -47,7 +49,7 @@ def draw_box(img_path, prediction_list, font_path=None):
         y2 = (box[1] + box[3] / 2.) * h
         for i in range(-2, 3):
             for j in range(-2, 3):
-                draw.rectangle([x1 + i, y1 + j, x2 + i, y2 + j], outline=(255, 0, 0))
+                draw.rectangle([x1 + i, y1 + j, x2 + i, y2 + j], outline=color)
 
         text = None
         if name and score:
@@ -67,10 +69,9 @@ def draw_box(img_path, prediction_list, font_path=None):
         if text is not None:
             text_size = font.getsize(text)
             draw.rectangle(
-                (x1 - 2, y1, x1 + text_size[0] + 5 - 2, y1 + text_size[1]), fill=(255, 0, 0))
-            draw.text((x1 + 5 - 2, y1 - 1), text, (255, 255, 255), font=font)
-
-    return img
+                (x1 - 2, y1, x1 + text_size[0] + 5 - 2, y1 + text_size[1]), fill=color)
+            draw.text((x1 + 5 - 2, y1 - 1), text, (255, 255, 255, 250), font=font)
+    return Image.alpha_composite(img, canvas)
 
 
 def pil2array(img):
