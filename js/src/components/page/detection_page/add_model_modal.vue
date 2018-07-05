@@ -192,7 +192,8 @@ export default {
          this.image_width < 32 || this.image_width > 1024 ||
          this.image_height < 32 || this.image_height > 1024 ||
          this.total_epoch < 0 || this.total_epoch > 1000 ||
-         this.batch_size < 0 || this.batch_size > 512) {
+         this.batch_size < 0 || this.batch_size > 512 ||
+         this.$store.state.dataset_defs.length === 0) {
         return false
       }
       return true
