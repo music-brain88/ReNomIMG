@@ -15,6 +15,8 @@ export default {
   getPredictModel (state, getters) {
     if (state.project) {
       return getters.getModelFromId(state.project.deploy_model_id)
+    } else {
+      return undefined
     }
   },
   getSelectedModel (state, getters) {
@@ -34,7 +36,17 @@ export default {
       return ret
     }
   },
-
+  /*
+  Detail
+  */
+  getDatasetName (state) {
+    return function (dataset_def_id) {
+      if (state.dataset_defs.length !== 0) {
+        return state.dataset_defs.filter(d => d.id === dataset_def_id)[0].name
+      }
+      return ''
+    }
+  },
   /*
   model samples, prediction sample
   */
@@ -53,6 +65,21 @@ export default {
       return [class_label, x, y, w, h]
     }
   },
+
+  currentModel (state) {
+    return state.models.find((m) => (m.model_id === state.selected_model_id))
+  },
+
+  currentDataset (state, getters) {
+    const model = getters.currentModel
+    if (!model) {
+      return
+    }
+
+    const dataset_def_id = model.dataset_def_id
+    return state.dataset_defs.find((d) => (d.id === dataset_def_id))
+  },
+
   getLastValidationResults (state, getters) {
     let model
     for (let m of state.models) {
@@ -61,12 +88,19 @@ export default {
       }
     }
     if (!model) return
-
     const result = model.best_epoch_validation_result
-    if (!result.bbox_path_list) return
+    const dataset_def_id = model.dataset_def_id
+    let dataset = null
 
-    const path = result.bbox_path_list
-    const label_list = result.bbox_list
+    for (let index in state.dataset_defs) {
+      if (state.dataset_defs[index].id === dataset_def_id) {
+        dataset = state.dataset_defs[index]
+      }
+    }
+    if (!dataset) return
+
+    const path = dataset.valid_imgs
+    const label_list = result
     let ret = []
     for (let i = 0; i < path.length; i++) {
       let bboxes = []
@@ -78,7 +112,9 @@ export default {
         }
       }
       ret.push({
-        'path': path[i],
+        'path': path[i].filename,
+        'width': path[i].width,
+        'height': path[i].height,
         'predicted_bboxes': bboxes
       })
     }
@@ -92,23 +128,25 @@ export default {
 
     const i_start = state.predict_page * state.predict_page_image_count
     let i_end = i_start + state.predict_page_image_count
-    if (i_end > image_path.length) {
+    if (Array.isArray(image_path) && i_end > image_path.length) {
       i_end = image_path.length
     }
 
     for (let i = i_start; i < i_end; i++) {
       let bboxes = []
-      if (label_list && label_list.length > 0) {
-        for (let j = 0; j < label_list[i].length; j++) {
-          let class_label = label_list[i][j].class
-          let box = label_list[i][j].box
-          bboxes.push(getters.getBBoxCoordinate(class_label, box))
+      if (label_list && Array.isArray(label_list) && Array.isArray(label_list[0]) && label_list.length > 0) {
+        if (Array.isArray(label_list[i])) {
+          for (let j = 0; j < label_list[i].length; j++) {
+            let class_label = label_list[i][j].class
+            let box = label_list[i][j].box
+            bboxes.push(getters.getBBoxCoordinate(class_label, box))
+          }
         }
+        ret.push({
+          'path': image_path[i],
+          'predicted_bboxes': bboxes
+        })
       }
-      ret.push({
-        'path': image_path[i],
-        'predicted_bboxes': bboxes
-      })
     }
     return ret
   },

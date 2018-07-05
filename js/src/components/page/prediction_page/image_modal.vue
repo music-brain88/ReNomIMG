@@ -2,9 +2,9 @@
   <div id="image-modal">
     <div class="modal-background" @click="hideModal"></div>
     <div class="modal-content" @keyup.37="keyLeft" @keyup.39="keyRight">
-      <img id='image' :src="image"></img>
+      <img id='image' :src="image"/>
       <div id='box'
-        v-for="(item, index) in bboxes" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'2px solid '+getColor(item[0])}">
+        v-for="(item, index) in bboxes" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'4px solid '+getColor(item[0])}" :key={index}>
         <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
       </div>
     </div>
@@ -59,7 +59,18 @@ export default {
       return color_list[index % 4]
     },
     getTagName: function (index) {
-      let label_dict = this.$store.state.class_names
+      if (!this.$store.getters.getSelectedModel) {
+        return
+      }
+      let dataset_def_id = this.$store.getters.getSelectedModel.dataset_def_id
+      let dataset_def = this.$store.state.dataset_defs
+      let label_dict
+      for (let i in Object.keys(this.$store.state.dataset_defs).length) {
+        if (dataset_def[i].id === dataset_def_id) {
+          label_dict = this.$store.state.dataset_defs[i].class_map
+          break
+        }
+      }
       return label_dict[index]
     },
     hideModal: function () {
@@ -171,7 +182,7 @@ export default {
         padding-left: 4px;
         padding-right: 4px;
 
-        font-size: 0.8rem;
+        font-size: 1.4rem;
       }
     }
   }

@@ -4,9 +4,11 @@ import re
 import shutil
 import pathlib
 import numpy
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 import distutils.command.build
 from Cython.Build import cythonize
+from distutils.extension import Extension
+
 
 if sys.version_info < (3, 4):
     raise RuntimeError('renom_img requires Python3')
@@ -15,7 +17,7 @@ DIR = str(pathlib.Path(__file__).resolve().parent)
 
 requires = [
     "bs4", "bottle", "glob2", "lxml", "Pillow",
-    "PyYAML", "watchdog", "xmltodict"
+    "PyYAML", "watchdog", "xmltodict", "tqdm"
 ]
 
 
@@ -54,7 +56,7 @@ class BuildNPM(distutils.command.build.build):
 
 setup(
     name="renom_img",
-    version="0.7b",
+    version="0.8b",
     entry_points=entry_points,
     packages=['renom_img'],
     install_requires=requires,
@@ -63,6 +65,9 @@ setup(
     cmdclass={
         'build': BuildNPM,
     },
-    ext_modules=cythonize("renom_img/api/utils/*.pyx",
+    ext_modules=cythonize([
+                          "renom_img/api/utility/*.pyx",
+                          "renom_img/api/utility/evaluate/*.pyx",
+                          ],
                           include_path=[numpy.get_include()])
 )
