@@ -66,7 +66,7 @@ class PredictionThread(object):
             num_bbox = int(algorithm_params["bounding_box"])
             self.model = Yolov1(class_map, cell_size, num_bbox, imsize=self.imsize)
             self.model.load(path)
-        if algorithm == ALG_YOLOV2:
+        elif algorithm == ALG_YOLOV2:
             self.model = Yolov2(class_map, [], imsize=self.imsize)
             self.model.load(path)
         else:
