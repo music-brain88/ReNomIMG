@@ -274,7 +274,7 @@ class DataBuilderSegmentation(DataBuilderBase):
         super(DataBuilderSegmentation, self).__init__(imsize)
         self.class_mapping = class_mapping
 
-    def __call__(self, img_path_list, annotation_path_list, augmentation):
+    def __call__(self, img_path_list, annotation_path_list, augmentation=None, **kwargs):
         # Check the class mapping.
         n_class = len(self.class_mapping)
 

@@ -201,7 +201,8 @@ class Yolov2(rm.Model):
 
     def forward(self, x):
         self.freezed_network.set_auto_update(self._train_whole_network)
-        self.freezed_network.set_models(inference=(not self._train_whole_network or getattr(self, 'inference', False)))
+        self.freezed_network.set_models(inference=(
+            not self._train_whole_network or getattr(self, 'inference', False)))
 
         h, f = self.freezed_network(x)
         h = self._conv1(h)

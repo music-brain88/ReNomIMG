@@ -196,19 +196,15 @@ class UNet(rm.Model):
 
         return t
 
-    def fit(self, train_img_path_list=None, train_annotation_path_list=None, augmentation=None, valid_img_path_list=None, valid_annotation_path_list=None,  epoch=200, batch_size=16, callback_end_epoch=None):
-        if train_img_path_list is not None and train_annotation_path_list is not None:
-            train_dist = ImageDistributor(
-                train_img_path_list, train_annotation_path_list, augmentation=augmentation)
-        else:
-            train_dist = train_image_distributor
+    def fit(self, train_img_path_list, train_annotation_path_list, valid_img_path_list=None, valid_annotation_path_list=None,  augmentation=None, epoch=200, batch_size=16, callback_end_epoch=None):
 
-        assert train_dist is not None
+        train_dist = ImageDistributor(
+            train_img_path_list, train_annotation_path_list, augmentation=augmentation)
 
         if valid_img_path_list is not None and valid_annotation_path_list is not None:
             valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_path_list)
         else:
-            valid_dist = valid_image_distributor
+            valid_dist = None
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
@@ -253,4 +249,5 @@ class UNet(rm.Model):
             bar.close()
             if callback_end_epoch is not None:
                 callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
+
         return avg_train_loss_list, avg_valid_loss_list
