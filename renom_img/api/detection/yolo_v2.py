@@ -548,8 +548,8 @@ class Yolov2(rm.Model):
                     exp),imsize=[(288, 288), (320, 320)]."
 
         train_dist = ImageDistributor(
-            train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=4)
-        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list, num_worker=4)
+            train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=8)
+        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list, num_worker=8)
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []

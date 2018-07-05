@@ -296,7 +296,8 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
             recall = None
         recalls[l] = recall
 
-    mean_iou_per_cls = {k: round(np.mean(v), n_round_off) for k, v in ious.items()}
+    mean_iou_per_cls = {k: round(np.nanmean(v), n_round_off) for k, v in ious.items()}
     mean_iou = np.nanmean(list(mean_iou_per_cls.values()))
+    mean_iou = 0 if np.isnan(mean_iou) else mean_iou
     return precisions, recalls, mean_iou_per_cls, mean_iou
 
