@@ -121,7 +121,6 @@ def test_classification_model_implementation(algo):
                 ["augmentation", type(None)],
                 ["callback_end_epoch", type(None)]
                 ],
-        "get_bbox": ["z"],
         "predict": [
             "img_list"
         ],
