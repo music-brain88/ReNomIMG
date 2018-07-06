@@ -481,4 +481,4 @@ def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'
         >>> x = np.array([img])
         >>> new_x, new_y = contrast_norm(x, alpha=0.4)
     """
-    return ContrastNorm(alpha, per_channel)(x, y, mode)
+    return ContrastNorm(alpha, per_channel)(x, y, mode=mode)
