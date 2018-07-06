@@ -28,7 +28,7 @@ default_color_list = [
 ]
 
 
-def draw_box(img_path, prediction, font_path=None, color_list=None):
+def draw_box(img, prediction, font_path=None, color_list=None):
     """Function for describing bounding box, class name and socre for an input image.
 
     Example:
@@ -39,7 +39,7 @@ def draw_box(img_path, prediction, font_path=None, color_list=None):
         >>> bbox_image = draw_bbox(img_path, prediction)
 
     Args:
-        img_path(string):
+        img(string):
         prediction(list): List of annotations.
             Each annotation has a list of dictionary which includes keys 'box', 'name' and 'score'.
             The format is below.
@@ -60,7 +60,11 @@ def draw_box(img_path, prediction, font_path=None, color_list=None):
     if color_list is None:
         color_list = default_color_list
 
-    img = Image.open(img_path).convert("RGBA")
+    if isinstance(img, str):
+        img = Image.open(img).convert("RGBA")
+    elif isinstance(img, np.ndarray):
+        img = Image.fromarray(img.transpose(1, 2, 0).astype(np.uint8)).convert("RGBA")
+
     w, h = img.size
     canvas = Image.new("RGBA", (w, h), "#00000000")
     draw = ImageDraw.Draw(canvas)
@@ -102,11 +106,11 @@ def draw_box(img_path, prediction, font_path=None, color_list=None):
     return Image.alpha_composite(img, canvas)
 
 
-def draw_segment(img_path, prediction, font_path=None, color_list=None):
+def draw_segment(img, prediction, font_path=None, color_list=None):
     if color_list is None:
         color_list = default_color_list
 
-    img = Image.open(img_path).convert("RGBA")
+    img = Image.open(img).convert("RGBA")
     h, w = prediction.shape
     canvas = Image.new("RGBA", (w, h), "#00000000")
 

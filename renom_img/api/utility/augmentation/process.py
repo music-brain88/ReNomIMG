@@ -145,7 +145,7 @@ def flip(x, y=None, mode="classification"):
         >>> img_list = np.array([img1, img2])
         >>> flipped_img = flip(img_list)
     """
-    return Flip()(x, y, mode)
+    return Flip()(x, y, mode=mode)
 
 
 class Shift(ProcessBase):
@@ -239,7 +239,7 @@ def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
         >>> img_list = np.array([img1, img2])
         >>> shifted_img = shift(img_list)
     """
-    return Shift(horizontal, vertivcal)(x)
+    return Shift(horizontal, vertivcal)(x, y, mode=mode)
 
 
 class Rotate(ProcessBase):
@@ -340,7 +340,7 @@ def rotate(x, y=None, mode="classification"):
         >>> img_list = np.array([img1, img2])
         >>> rotated_img = rotate(img_list)
     """
-    return Rotate()(x, y, mode)
+    return Rotate()(x, y, mode=mode)
 
 
 class WhiteNoise(ProcessBase):
