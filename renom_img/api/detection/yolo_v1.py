@@ -58,10 +58,10 @@ class Yolov1(rm.Model):
             If string is given, pretrained weight will be saved as given name.
     """
 
-    SERIALIZED = ("_cells", "_bbox", "_class_map", "_num_class", "_last_dense_size")
+    SERIALIZED = ("_cells", "_bbox", "imsize", "class_map", "num_class", "_last_dense_size")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         num_class = len(class_map)
 
         if not hasattr(cells, "__getitem__"):
@@ -69,10 +69,9 @@ class Yolov1(rm.Model):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
-        self._num_class = num_class
-        self._class_map = [k for k, v in sorted(
-            class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
-        self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
+        self.num_class = num_class
+        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in self.class_map]
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
@@ -208,10 +207,10 @@ class Yolov1(rm.Model):
         N = len(z)
         cell = self._cells[0]
         bbox = self._bbox
-        probs = np.zeros((N, cell, cell, bbox, self._num_class))
+        probs = np.zeros((N, cell, cell, bbox, self.num_class))
         boxes = np.zeros((N, cell, cell, bbox, 4))
         yolo_format_out = z.reshape(
-            N, cell, cell, bbox * 5 + self._num_class)
+            N, cell, cell, bbox * 5 + self.num_class)
         offset = np.vstack([np.arange(cell) for c in range(cell)])
 
         for b in range(bbox):
@@ -236,7 +235,7 @@ class Yolov1(rm.Model):
         boxes[:, :, :, :, 0] = x1 + boxes[:, :, :, :, 2] / 2.
         boxes[:, :, :, :, 1] = y1 + boxes[:, :, :, :, 3] / 2.
 
-        probs = probs.reshape(N, -1, self._num_class)
+        probs = probs.reshape(N, -1, self.num_class)
         boxes = boxes.reshape(N, -1, 4)
 
         probs[probs < 0.3] = 0
@@ -244,7 +243,7 @@ class Yolov1(rm.Model):
 
         argsort = np.argsort(probs, axis=1)[:, ::-1]
         for n in range(N):
-            for cl in range(self._num_class):
+            for cl in range(self.num_class):
                 for b in range(len(boxes[n])):
                     if probs[n, argsort[n, b, cl], cl] == 0:
                         continue
@@ -262,7 +261,7 @@ class Yolov1(rm.Model):
             # Note: Take care types.
             result[indexes[0][i]].append({
                 "class": int(max_class[indexes[0][i], indexes[1][i]]),
-                "name": self._class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode("utf-8"),
+                "name": self.class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode("utf-8"),
                 "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
@@ -328,7 +327,7 @@ class Yolov1(rm.Model):
             N = len(img_path_list)
             num_bbox = self._bbox
             cell_w, cell_h = self._cells
-            target = np.zeros((N, self._cells[0], self._cells[1], 5 * num_bbox + self._num_class))
+            target = np.zeros((N, self._cells[0], self._cells[1], 5 * num_bbox + self.num_class))
 
             img_data, label_data = prepare_detection_data(img_path_list,
                                                           annotation_list, self.imsize)
@@ -345,7 +344,7 @@ class Yolov1(rm.Model):
                     ty = np.clip(obj["box"][1], 0, img_h) * .99 * cell_h / img_h
                     tw = np.sqrt(np.clip(obj["box"][2], 0, img_w) / img_w)
                     th = np.sqrt(np.clip(obj["box"][3], 0, img_h) / img_h)
-                    one_hot = [0] * obj["class"] + [1] + [0] * (self._num_class - obj["class"] - 1)
+                    one_hot = [0] * obj["class"] + [1] + [0] * (self.num_class - obj["class"] - 1)
                     target[n, int(ty), int(tx)] = \
                         np.concatenate(([1, tx % 1, ty % 1, tw, th] * num_bbox, one_hot))
             return self.preprocess(img_data), target.reshape(N, -1)
@@ -355,7 +354,7 @@ class Yolov1(rm.Model):
         N = len(x)
         nd_x = x.as_ndarray()
         num_bbox = self._bbox
-        target = y.reshape(N, self._cells[0], self._cells[1], 5 * num_bbox + self._num_class)
+        target = y.reshape(N, self._cells[0], self._cells[1], 5 * num_bbox + self.num_class)
         mask = np.ones_like(target)
         nd_x = nd_x.reshape(target.shape)
 
@@ -382,7 +381,7 @@ class Yolov1(rm.Model):
         diff = (x - y)
         return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
 
-    def fit(self, train_img_path_list=None, train_annotation_list=None,
+    def fit(self, train_img_path_list, train_annotation_list,
             valid_img_path_list=None, valid_annotation_list=None,
             epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None):
 

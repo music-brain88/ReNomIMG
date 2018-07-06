@@ -78,7 +78,9 @@ class VGGBase(ClassificationBase):
         """
         return super().regularize(decay_rate)
 
-    def fit(self, train_img_path_list, train_annotation_list, valid_img_path_list=None, valid_annotation_list=None, augmentation=None, epoch=200, batch_size=16, callback_end_epoch=None):
+    def fit(self, train_img_path_list, train_annotation_list, valid_img_path_list=None, valid_annotation_list=None,
+            augmentation=None, epoch=200, batch_size=16, callback_end_epoch=None):
+
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation)
 
@@ -166,7 +168,7 @@ class VGG16(VGGBase):
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
     WEIGHT_PATH = os.path.join(DIR, 'vgg16.h5')
 
-    def __init__(self, class_map, load_weight=False, imsize=(224, 224), train_whole_network=False):
+    def __init__(self, class_map=[], load_weight=False, imsize=(224, 224), train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
@@ -274,7 +276,6 @@ class VGG19(VGGBase):
             except:
                 download(self.WEIGHT_URL, self.WEIGHT_PATH)
                 model.load(self.WEIGHT_PATH)
-
 
         self.class_map = class_map
         self._train_whole_network = train_whole_network
