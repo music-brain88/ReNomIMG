@@ -4,9 +4,10 @@ import renom as rm
 from tqdm import tqdm
 
 from renom_img.api import Base
+from renom_img.api.utility.target import DataBuilderClassification
 
 class Classification(Base):
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         pass
 
     def preprocess(self, x):
@@ -28,3 +29,6 @@ class Classification(Base):
 
     def loss(self, x, y):
         return rm.softmax_cross_entropy(x, y)
+
+    def build_data(self):
+        return DataBuilderClassification(self.imsize, self.class_map)

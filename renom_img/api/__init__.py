@@ -1,8 +1,10 @@
 import os, sys
 import numpy as np
 import renom as rm
-
 from tqdm import tqdm
+
+from renom_img.api.utility.distributor.distributor import ImageDistributor
+
 
 class Base(rm.Model):
 
@@ -94,6 +96,10 @@ class Base(rm.Model):
     def loss(self, x, y):
         pass
 
+    def _freeze(self):
+        pass
+
     def forward(self, x):
+        self._freeze()
         return self._model(x)
 

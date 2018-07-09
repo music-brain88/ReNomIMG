@@ -6,7 +6,7 @@ from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
 from PIL import Image
 
-from renom_img.api.model.darknet import Darknet19Base, DarknetConv2dBN
+from renom_img.api.classification.darknet import Darknet19Base, DarknetConv2dBN
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor

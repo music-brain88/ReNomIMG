@@ -8,10 +8,9 @@ import numpy as np
 import renom as rm
 from tqdm import tqdm
 from renom_img.api.utility.misc.download import download
-from renom_img.api.model.classification_base import ClassificationBase
+from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
-from renom_img.api.utility.target import DataBuilderClassification
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
 
@@ -35,12 +34,12 @@ def transition_layer(growth_rate):
     ])
 
 
-class DenseNetBase(ClassificationBase):
+class DenseNetBase(Classification):
     def __init__(self, class_map):
         super(DenseNetBase, self).__init__(class_map)
         self._opt = rm.Sgd(0.1, 0.9)
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         """Returns an instance of Optimiser for training Yolov1 algorithm.
 
         Args:
@@ -53,24 +52,15 @@ class DenseNetBase(ClassificationBase):
             return self._opt
         else:
             if current_epoch == 30:
-                lr = self._opt._lr / 10
+                self._opt._lr = self._opt._lr / 10
             elif current_epoch == 60:
-                lr = self._opt._lr / 10
-            self._opt._lr = lr
+                self._opt._lr = self._opt._lr / 10
             return self._opt
 
-    def preprocess(self, x):
-        """Image preprocess for VGG.
+    def _freeze(self):
+        self._model.base.set_auto_update(self._train_whole_network)
 
-        Args:
-            x (ndarray):
-
-        Returns:
-            (ndarray): Preprocessed data.
-        """
-        return x / 255.
-
-class DenseNet(DenseNetBase):
+class CNN_DenseNet(rm.Model):
     """
     DenseNet (Densely Connected Convolutional Network) https://arxiv.org/pdf/1608.06993.pdf
 
@@ -82,12 +72,9 @@ class DenseNet(DenseNetBase):
         train_whole_network(bool): True if the overal model is trained.
     """
 
-    def __init__(self, class_map, layer_per_block=[6, 12, 24, 16], growth_rate=32, imsize=(224, 224), train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
+    def __init__(self, num_class, layer_per_block=[6, 12, 24, 16], growth_rate=32, train_whole_network=False):
         self.layer_per_block = layer_per_block
         self.growth_rate = growth_rate
-        self.n_class = len(class_map)
 
         layers = []
         layers.append(rm.Conv2d(64, 7, padding=3, stride=2))
@@ -99,49 +86,36 @@ class DenseNet(DenseNetBase):
         for i in range(layer_per_block[-1]):
             layers.append(conv_block(growth_rate))
 
-        self.freezed_network = rm.Sequential(layers)
-        self._network = rm.Dense(self.n_class)
-        self._train_whole_network = train_whole_network
-        self.imsize = imsize
-
-        super(DenseNet, self).__init__(class_map)
-
-    @property
-    def freezed_network(self):
-        return self.freezed_network
-
-    @property
-    def network(self):
-        return self._network
+        self.base = rm.Sequential(layers)
+        self.fc = rm.Dense(num_class)
 
     def forward(self, x):
-        self.freezed_network.set_auto_update(self._train_whole_network)
         i = 0
-        t = self.freezed_network[i](x)
+        t = self.base[i](x)
         i += 1
-        t = rm.relu(self.freezed_network[i](t))
+        t = rm.relu(self.base[i](t))
         i += 1
         t = rm.max_pool2d(t, filter=3, stride=2, padding=1)
         for j in self.layer_per_block[:-1]:
             for k in range(j):
                 tmp = t
-                t = self.freezed_network[i](t)
+                t = self.base[i](t)
                 i += 1
                 t = rm.concat(tmp, t)
-            t = self.freezed_network[i](t)
+            t = self.base[i](t)
             i += 1
         for j in range(self.layer_per_block[-1]):
             tmp = t
-            t = self.freezed_network[i](t)
+            t = self.base[i](t)
             i += 1
             t = rm.concat(tmp, t)
         t = rm.average_pool2d(t, filter=7, stride=1)
         t = rm.flatten(t)
-        t = self.network(t)
+        t = self.fc(t)
         return t
 
 
-class DenseNet121(DenseNet):
+class DenseNet121(DenseNetBase):
     """ DenseNet121 Model
 
     If the argument load_weight is True, pretrained weight will be downloaded.
@@ -154,7 +128,7 @@ class DenseNet121(DenseNet):
         train_whole_network(bool): True if the overal model is trained.
 
     Note:
-        if the argument n_class is not 1000, last dense layer will be reset because
+        if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
@@ -162,27 +136,37 @@ class DenseNet121(DenseNet):
     https://arxiv.org/pdf/1608.06993.pdf
     """
 
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
-    WEIGHT_PATH = os.path.join(DIR, 'densenet121.h5')
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
 
-    def __init__(self, class_map, growth_rate=32, load_weight=False, imsize=(224, 224), train_whole_network=False):
-        layer_per_block = [6, 12, 24, 16]
+    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        super(DenseNet121, self).__init__(class_map, layer_per_block,
-                                          growth_rate=growth_rate, imsize=imsize, train_whole_network=train_whole_network)
-        n_class = len(class_map)
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
-        if n_class != 1000:
-            self.freezed_network.params = {}
 
+        layer_per_block = [6, 12, 24, 16]
+        growth_rate = 32
+        self.imsize = imsize
+        self.num_class = len(class_map)
+        self.class_map = class_map
+        self._train_whole_network = train_whole_network
+        self._model = CNN_DenseNet(self.num_class, layer_per_block, growth_rate, train_whole_network)
+        self._opt = rm.Sgd(0.01, 0.9)
+        self.decay_rate = 0.0005
 
-class DenseNet169(DenseNet):
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.weight_url, load_pretrained_weight)
+
+            self._model.load(load_pretrained_weight)
+            for layer in self._model._network.iter_models():
+                layer.params = {}
+        if self.num_class != 1000:
+            self._model.params = {}
+
+class DenseNet169(DenseNetBase):
     """ DenseNet169 Model
 
     If the argument load_weight is True, pretrained weight will be downloaded.
@@ -195,7 +179,7 @@ class DenseNet169(DenseNet):
         train_whole_network(bool): True if the overal model is trained.
 
     Note:
-        if the argument n_class is not 1000, last dense layer will be reset because
+        if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
@@ -203,24 +187,39 @@ class DenseNet169(DenseNet):
     https://arxiv.org/pdf/1608.06993.pdf
     """
 
-    def __init__(self, class_map, growth_rate=32, load_weight=False, imsize=(224, 224), train_whole_network=False):
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
+
+    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
+
         layer_per_block = [6, 12, 32, 32]
-        super(DenseNet169, self).__init__(class_map, layer_per_block, growth_rate=growth_rate,
-                                          imsize=imsize,  train_whole_network=train_whole_network)
-        n_class = len(class_map)
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
-        if n_class != 1000:
-            self.network.params = {}
+        growth_rate = 32
+        self.imsize = imsize
+        self.num_class = len(class_map)
+        self.class_map = class_map
+        self._train_whole_network = train_whole_network
+        self._model = CNN_DenseNet(self.num_class, layer_per_block, growth_rate, train_whole_network)
+        self._opt = rm.Sgd(0.01, 0.9)
+        self.decay_rate = 0.0005
+
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.weight_url, load_pretrained_weight)
+
+            self._model.load(load_pretrained_weight)
+            for layer in self._model._network.iter_models():
+                layer.params = {}
+        if self.num_class != 1000:
+            self._model.params = {}
 
 
-class DenseNet201(DenseNet):
+
+class DenseNet201(DenseNetBase):
     """ DenseNet201 Model
 
     If the argument load_weight is True, pretrained weight will be downloaded.
@@ -234,7 +233,7 @@ class DenseNet201(DenseNet):
         train_whole_network(bool): True if the overal model is trained.
 
     Note:
-        if the argument n_class is not 1000, last dense layer will be reset because
+        if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
@@ -242,22 +241,33 @@ class DenseNet201(DenseNet):
     https://arxiv.org/pdf/1608.06993.pdf
     """
 
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
-    WEIGHT_PATH = os.path.join(DIR, 'densenet201.h5')
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
 
-    def __init__(self, class_map, growth_rate=32, load_weight=False, imsize=(224, 224), train_whole_network=False):
+    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        layer_per_block = [6, 12, 48, 32]
 
-        super(DenseNet201, self).__init__(class_map, layer_per_block,
-                                          growth_rate=growth_rate, imsize=imsize, train_whole_network=train_whole_network)
-        n_class = len(class_map)
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
-        if n_class != 1000:
-            self.network.params = {}
+        layer_per_block = [6, 12, 48, 32]
+        growth_rate = 32
+        self.imsize = imsize
+        self.num_class = len(class_map)
+        self.class_map = class_map
+        self._train_whole_network = train_whole_network
+        self._model = CNN_DenseNet(self.num_class, layer_per_block, growth_rate, train_whole_network)
+        self._opt = rm.Sgd(0.01, 0.9)
+        self.decay_rate = 0.0005
+
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self._model.load(load_pretrained_weight)
+            for layer in self._model._network.iter_models():
+                layer.params = {}
+        if self.num_class != 1000:
+            self._model.params = {}
+
