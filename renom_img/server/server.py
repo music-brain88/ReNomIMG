@@ -34,7 +34,7 @@ from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.utility.storage import storage
 
 # Constants
-from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT
+from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT, GPU_NUM
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR, DATASRC_PREDICTION_OUT
 from renom_img.server import STATE_FINISHED, STATE_RUNNING, STATE_DELETED, STATE_RESERVED
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
@@ -117,8 +117,8 @@ def get_project(project_id):
         kwargs["fields"] = "project_id,project_name,project_comment,deploy_model_id"
 
         data = storage.fetch_project(project_id, **kwargs)
+        data['gpu_num'] = GPU_NUM or 1
         body = json.dumps(data)
-
     except Exception as e:
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})

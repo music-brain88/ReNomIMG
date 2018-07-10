@@ -1,7 +1,6 @@
 import numpy as np
 from .detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
 from .classification import precision_score, recall_score, accuracy_score
-import matplotlib.pyplot as plt
 
 
 class EvaluatorBase(object):
@@ -28,6 +27,8 @@ class EvaluatorBase(object):
         return report
 
     def plot_graph(self, x, y, title=None, x_label=None, y_label=None):
+        import matplotlib.pyplot as plt
+
         plt.figure()
         plt.title(title)
         plt.xlabel(x_label)

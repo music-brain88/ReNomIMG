@@ -5,7 +5,10 @@ import types
 
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2
-from renom_img.api.model.vgg import VGG16
+from renom_img.api.classification.vgg import VGG16, VGG19
+from renom_img.api.classification.resnet import ResNet32, ResNet44, ResNet56, ResNet110, ResNet34, ResNet50, ResNet101
+from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
+from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
 from renom_img.api.utility.augmentation import Augmentation
 
 
@@ -91,7 +94,22 @@ def test_detection_model_implementation(algo):
 
 
 @pytest.mark.parametrize("algo", [
-    VGG16
+    VGG16,
+    VGG19,
+    ResNet32,
+    ResNet44,
+    ResNet56,
+    ResNet110,
+    ResNet34,
+    ResNet50,
+    ResNet101,
+    InceptionV1,
+    InceptionV2,
+    InceptionV3,
+    InceptionV4,
+    DenseNet121,
+    DenseNet169,
+    DenseNet201,
 ])
 def test_classification_model_implementation(algo):
     # 1. Check if the model can be instantiate only giving nothing.
@@ -133,7 +151,6 @@ def test_classification_model_implementation(algo):
         "preprocess": [
             "x"
         ],
-        "build_data": [],
         "regularize": [],
     }
 

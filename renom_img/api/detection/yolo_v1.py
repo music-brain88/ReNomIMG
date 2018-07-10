@@ -4,7 +4,7 @@ import renom as rm
 from tqdm import tqdm
 from PIL import Image
 
-from renom_img.api.model.darknet import Darknet
+from renom_img.api.classification.darknet import Darknet
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.box import transform2xy12

@@ -32,7 +32,8 @@ export default {
           'project_id': response.data.project_id,
           'project_name': response.data.project_name,
           'project_comment': response.data.project_comment,
-          'deploy_model_id': response.data.deploy_model_id
+          'deploy_model_id': response.data.deploy_model_id,
+          'gpu_num': response.data.gpu_num
         })
       })
   },
