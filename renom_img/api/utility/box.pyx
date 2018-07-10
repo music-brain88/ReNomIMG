@@ -1,4 +1,15 @@
 import numpy as np
+from itertools import chain
+
+cpdef rescale(box, before_size, after_size):
+    for d in chain.from_iterable(box):
+        d["box"] = [
+            d["box"][0]/before_size[0] * after_size[0],
+            d["box"][1]/before_size[1] * after_size[1],
+            d["box"][2]/before_size[0] * after_size[0],
+            d["box"][3]/before_size[1] * after_size[1],
+        ] 
+    
 
 cpdef transform2xywh(box):
     cdef float x1, y1, x2, y2;
