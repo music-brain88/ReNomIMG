@@ -55,11 +55,12 @@ class VGGBase(Classification):
         return x
 
     def _freeze(self):
-       self._model.block1.set_auto_update(self._train_whole_network)
-       self._model.block2.set_auto_update(self._train_whole_network)
-       self._model.block3.set_auto_update(self._train_whole_network)
-       self._model.block4.set_auto_update(self._train_whole_network)
-       self._model.block5.set_auto_update(self._train_whole_network)
+        self._model.block1.set_auto_update(self._train_whole_network)
+        self._model.block2.set_auto_update(self._train_whole_network)
+        self._model.block3.set_auto_update(self._train_whole_network)
+        self._model.block4.set_auto_update(self._train_whole_network)
+        self._model.block5.set_auto_update(self._train_whole_network)
+
 
 class VGG16(VGGBase):
     """VGG16 model.
@@ -160,7 +161,6 @@ class VGG19(VGGBase):
             self._model.fc3.params = {}
 
 
-
 class CNN_VGG16(rm.Model):
     def __init__(self, num_class):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
@@ -186,6 +186,7 @@ class CNN_VGG16(rm.Model):
         t = self.fc3(t)
 
         return t
+
 
 class CNN_VGG19(rm.Sequential):
     def __init__(self, num_class):

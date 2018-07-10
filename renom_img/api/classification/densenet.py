@@ -60,6 +60,7 @@ class DenseNetBase(Classification):
     def _freeze(self):
         self._model.base.set_auto_update(self._train_whole_network)
 
+
 class CNN_DenseNet(rm.Model):
     """
     DenseNet (Densely Connected Convolutional Network) https://arxiv.org/pdf/1608.06993.pdf
@@ -149,7 +150,8 @@ class DenseNet121(DenseNetBase):
         self.num_class = len(class_map)
         self.class_map = class_map
         self._train_whole_network = train_whole_network
-        self._model = CNN_DenseNet(self.num_class, layer_per_block, growth_rate, train_whole_network)
+        self._model = CNN_DenseNet(self.num_class, layer_per_block,
+                                   growth_rate, train_whole_network)
         self._opt = rm.Sgd(0.01, 0.9)
         self.decay_rate = 0.0005
 
@@ -165,6 +167,7 @@ class DenseNet121(DenseNetBase):
                 layer.params = {}
         if self.num_class != 1000:
             self._model.params = {}
+
 
 class DenseNet169(DenseNetBase):
     """ DenseNet169 Model
@@ -200,7 +203,8 @@ class DenseNet169(DenseNetBase):
         self.num_class = len(class_map)
         self.class_map = class_map
         self._train_whole_network = train_whole_network
-        self._model = CNN_DenseNet(self.num_class, layer_per_block, growth_rate, train_whole_network)
+        self._model = CNN_DenseNet(self.num_class, layer_per_block,
+                                   growth_rate, train_whole_network)
         self._opt = rm.Sgd(0.01, 0.9)
         self.decay_rate = 0.0005
 
@@ -216,7 +220,6 @@ class DenseNet169(DenseNetBase):
                 layer.params = {}
         if self.num_class != 1000:
             self._model.params = {}
-
 
 
 class DenseNet201(DenseNetBase):
@@ -254,7 +257,8 @@ class DenseNet201(DenseNetBase):
         self.num_class = len(class_map)
         self.class_map = class_map
         self._train_whole_network = train_whole_network
-        self._model = CNN_DenseNet(self.num_class, layer_per_block, growth_rate, train_whole_network)
+        self._model = CNN_DenseNet(self.num_class, layer_per_block,
+                                   growth_rate, train_whole_network)
         self._opt = rm.Sgd(0.01, 0.9)
         self.decay_rate = 0.0005
 
@@ -270,4 +274,3 @@ class DenseNet201(DenseNetBase):
                 layer.params = {}
         if self.num_class != 1000:
             self._model.params = {}
-

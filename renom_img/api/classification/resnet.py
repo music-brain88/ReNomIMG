@@ -12,6 +12,7 @@ from renom_img.api.utility.target import DataBuilderClassification
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
+
 def layer_block(channel, filter):
     layers = []
     if filter != (1, 1):
@@ -83,6 +84,7 @@ class ResNetBase(Classification):
     def _freeze(self):
         self._model.base.set_auto_update(self._train_whole_network)
 
+
 class CNN_ResNet(rm.Model):
     def __init__(self, num_class, channels, num_layers):
         if type(num_layers) == int:
@@ -108,7 +110,6 @@ class CNN_ResNet(rm.Model):
 
         self.base = rm.Sequential(layers)
         self.fc = rm.Dense(num_class)
-
 
     def forward(self, x):
         index = 0
@@ -138,6 +139,7 @@ class CNN_ResNet(rm.Model):
         t = rm.flatten(rm.average_pool2d(t))
         t = self.fc(t)
         return t
+
 
 class ResNet32(ResNetBase):
     """ResNet32 model.
@@ -191,6 +193,7 @@ class ResNet32(ResNetBase):
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
 
+
 class ResNet44(ResNetBase):
     """ResNet44 model.
 
@@ -238,6 +241,7 @@ class ResNet44(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+
 
 class ResNet56(ResNetBase):
     """ResNet56 model.
@@ -287,6 +291,7 @@ class ResNet56(ResNetBase):
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
 
+
 class ResNet110(ResNetBase):
     """ResNet110 model.
 
@@ -334,6 +339,7 @@ class ResNet110(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+
 
 class ResNet34(ResNetBase):
     """ResNet34 model.
@@ -383,6 +389,7 @@ class ResNet34(ResNetBase):
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
 
+
 class ResNet50(ResNetBase):
     """ResNet50 model.
 
@@ -431,6 +438,7 @@ class ResNet50(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+
 
 class ResNet101(ResNetBase):
     """ResNet101 model.

@@ -34,6 +34,7 @@ class InceptionV1Block(rm.Model):
 
         return rm.concat([t1, t2, t3, t4])
 
+
 class CNN_InceptionV1(rm.Model):
     def __init__(self, num_class):
         self.base1 = rm.Sequential([rm.Conv2d(64, filter=7, padding=3, stride=2),
@@ -81,6 +82,7 @@ class CNN_InceptionV1(rm.Model):
         t = self.base3(t)
         out3 = self.aux3(t)
         return out1, out2, out3
+
 
 class InceptionV1(Classification):
     """ Inception V1 model
@@ -167,6 +169,7 @@ class InceptionV1(Classification):
                 lr = self._opt._lr * 0.94
             self._opt._lr = lr
             return self._opt
+
 
 class InceptionV2BlockA(rm.Model):
     def __init__(self, channels=[64, 48, 64, 64, 96, 64]):
@@ -419,6 +422,7 @@ class CNN_InceptionV3(rm.Model):
 
         return out1, out2
 
+
 class InceptionV3(Classification):
     """ Inception V3 model
     If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
@@ -468,7 +472,6 @@ class InceptionV3(Classification):
     def _freeze(self):
         self._model.base1.set_auto_update(self._train_whole_network)
         self._model.base2.set_auto_update(self._train_whole_network)
-
 
     def loss(self, x, y):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
@@ -525,7 +528,6 @@ class CNN_InceptionV2(rm.Model):
         out2 = self.aux2(t)
 
         return out1, out2
-
 
 
 class InceptionV2(Classification):
@@ -862,28 +864,28 @@ class CNN_InceptionV4(rm.Model):
     def __init__(self, num_class):
 
         self.block1 = rm.Sequential([InceptionV4Stem(),
-                  InceptionV4BlockA(),
-                  InceptionV4BlockA(),
-                  InceptionV4BlockA(),
-                  InceptionV4BlockA(),
-                  InceptionV4ReductionA()])
+                                     InceptionV4BlockA(),
+                                     InceptionV4BlockA(),
+                                     InceptionV4BlockA(),
+                                     InceptionV4BlockA(),
+                                     InceptionV4ReductionA()])
         self.block2 = rm.Sequential([
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4ReductionB()])
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4ReductionB()])
         self.block3 = rm.Sequential([
-                  InceptionV4BlockC(),
-                  InceptionV4BlockC(),
-                  InceptionV4BlockC(),
-                  rm.AveragePool2d(filter=8),
-                  rm.Flatten(),
-                  rm.Dropout(0.2)
-                  ])
+            InceptionV4BlockC(),
+            InceptionV4BlockC(),
+            InceptionV4BlockC(),
+            rm.AveragePool2d(filter=8),
+            rm.Flatten(),
+            rm.Dropout(0.2)
+        ])
 
         self.fc = rm.Dense(num_class)
 
@@ -893,7 +895,6 @@ class CNN_InceptionV4(rm.Model):
         t = self.block3(t)
         t = self.fc(t)
         return t
-
 
 
 class InceptionV4(Classification):
@@ -915,7 +916,6 @@ class InceptionV4(Classification):
     Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning
     https://arxiv.org/abs/1602.07261
     """
-
 
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
@@ -963,4 +963,3 @@ class InceptionV4(Classification):
                 lr = self._opt._lr * 0.94
             self._opt._lr = lr
             return self._opt
-

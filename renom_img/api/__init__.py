@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import numpy as np
 import renom as rm
 from tqdm import tqdm
@@ -29,7 +30,6 @@ class Base(rm.Model):
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return self.decay_rate * reg
-
 
     def preprocess(self, x):
         pass
@@ -89,7 +89,6 @@ class Base(rm.Model):
                 callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
         return avg_train_loss_list, avg_valid_loss_list
 
-
     def predict(self, img_list):
         pass
 
@@ -102,4 +101,3 @@ class Base(rm.Model):
     def forward(self, x):
         self._freeze()
         return self._model(x)
-

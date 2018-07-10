@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import numpy as np
 import renom as rm
 from tqdm import tqdm
@@ -6,12 +7,13 @@ from tqdm import tqdm
 from renom_img.api import Base
 from renom_img.api.utility.target import DataBuilderClassification
 
+
 class Classification(Base):
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         pass
 
     def preprocess(self, x):
-        return x/255.
+        return x / 255.
 
     def predict(self, img_list):
         self.set_models(inference=True)
