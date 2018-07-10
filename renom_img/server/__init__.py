@@ -22,6 +22,15 @@ RUN_STATE_STOPPING = 4
 
 # Thread
 MAX_THREAD_NUM = 2
+GPU_NUM = 0
+
+try:
+    import renom.cuda
+    if renom.cuda.has_cuda():
+        MAX_THREAD_NUM = GPU_NUM = renom.cuda.cuGetDeviceCount()
+except Exception:
+    pass
+
 
 # Weight
 WEIGHT_EXISTS = 0

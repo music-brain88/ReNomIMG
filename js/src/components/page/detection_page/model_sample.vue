@@ -10,7 +10,7 @@
     <div class="content">
       <sample-image
         v-for="(item, index) in getValidationResult"
-        :key="index"
+        :key="item.path"
         :image_idx="index + topImageIndex"
         :image_path="item.path"
         :image_width="item.width"
