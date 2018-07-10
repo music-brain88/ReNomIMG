@@ -215,13 +215,9 @@ export default {
         this.previous_image_width = this.image_width
         this.image_height = 320
         this.image_width = 320
-        this.batch_size = this.yolo2_batch_size
-        this.train_whole_flag = this.yolo2_train_whole_flag
       } else {
         this.image_height = this.previous_image_height
         this.image_width = this.previous_image_width
-        this.batch_size = this.yolo1_batch_size
-        this.train_whole_flag = this.yolo1_train_whole_flag
       }
     }
   },
@@ -230,6 +226,14 @@ export default {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
     },
     runModel: function () {
+      if (this.algorithm === 0) {
+        this.batch_size = this.yolo1_batch_size
+        this.train_whole_flag = this.yolo1_train_whole_flag
+      } else {
+        this.batch_size = this.yolo1_batch_size
+        this.train_whole_flag = this.yolo1_train_whole_flag
+      }
+
       const hyper_parameters = {
         'total_epoch': parseInt(this.total_epoch),
         'batch_size': parseInt(this.batch_size),
