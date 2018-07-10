@@ -391,24 +391,37 @@ export default {
     fd.append('name', payload.name)
 
     let url = '/api/renom_img/v1/dataset_defs/'
-    await axios.post(url, fd)
-    context.dispatch('loadDatasetDef')
+
+    context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
+
+    await axios.post(url, fd).then(function (response) {
+      if (response.data.error_msg) {
+        context.commit('setAlertModalFlag', {'flag': true})
+        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
+        context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
+      } else {
+        context.dispatch('loadDatasetDef').then(() => {
+          context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
+        })
+      }
+    })
   },
 
   /**
    * This function loads all of datasets from database.
    *
    */
-  async loadDatasetDef (context) {
+  async loadDatasetDef (context, payload) {
     let url = '/api/renom_img/v1/dataset_defs'
-    const response = await axios.get(url)
-    if (response.data.error_msg) {
-      context.commit('setAlertModalFlag', {'flag': true})
-      context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-    } else {
-      context.commit('setDatasetDefs', {
-        'dataset_defs': response.data.dataset_defs
-      })
-    }
+    return axios.get(url).then(function (response) {
+      if (response.data.error_msg) {
+        context.commit('setAlertModalFlag', {'flag': true})
+        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
+      } else {
+        context.commit('setDatasetDefs', {
+          'dataset_defs': response.data.dataset_defs
+        })
+      }
+    })
   }
 }

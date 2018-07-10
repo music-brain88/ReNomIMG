@@ -449,7 +449,8 @@ def create_dataset_def():
         imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
 
         # remove images without label
-        imgs = {img for img in imgs if (xmldir / img).with_suffix('.xml').is_file()}
+        imgs = set([img for img in imgs if (xmldir / img).with_suffix('.xml').is_file()])
+        assert len(imgs) > 0, "Image not found in directory. Please set images to 'datasrc/img' directory and xml files to 'datasrc/label' directory."
 
         # split files into trains and validations
         n_imgs = len(imgs)
@@ -462,7 +463,6 @@ def create_dataset_def():
         valid_imgs = [str(img) for img in valids]
 
         _, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
-        class_map = [k for k, v in sorted(class_map.items(), key=lambda x:x[1])]
 
         # register dataset
         id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)

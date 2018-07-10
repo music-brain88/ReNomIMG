@@ -458,5 +458,15 @@ export default {
         dataset.pages.push([pagefrom, rowto])
       }
     }
+  },
+
+  /**
+   * Set flag of showing dataset creating modal state.
+   *
+   * @param {Object} payload.dataset_create_modal:
+   *
+   */
+  setDatasetCreateModal (state, payload) {
+    state.dataset_creating_modal = payload.dataset_creating_modal
   }
 }

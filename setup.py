@@ -17,7 +17,7 @@ DIR = str(pathlib.Path(__file__).resolve().parent)
 
 requires = [
     "bs4", "bottle", "glob2", "lxml", "Pillow",
-    "PyYAML", "watchdog", "xmltodict"
+    "PyYAML", "watchdog", "xmltodict", "tqdm"
 ]
 
 
@@ -56,7 +56,7 @@ class BuildNPM(distutils.command.build.build):
 
 setup(
     name="renom_img",
-    version="0.6b",
+    version="0.8b",
     entry_points=entry_points,
     packages=['renom_img'],
     install_requires=requires,

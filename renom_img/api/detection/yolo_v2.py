@@ -2,10 +2,11 @@ import os
 from itertools import chain
 import numpy as np
 import renom as rm
+from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
 from PIL import Image
 
-from renom_img.api.model.darknet import Darknet19Base, DarknetConv2dBN
+from renom_img.api.classification.darknet import Darknet19Base, DarknetConv2dBN
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor
@@ -97,27 +98,19 @@ class Yolov2(rm.Model):
     """
 
     # Anchor information will be serialized by 'save' method.
-    SERIALIZED = ("anchor", "num_anchor", "anchor_size", "_class_map", "num_class")
+    SERIALIZED = ("anchor", "num_anchor", "anchor_size", "class_map", "num_class", "imsize")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov2.h5"
 
-    def __init__(self, class_map, anchor,
+    def __init__(self, class_map=[], anchor=None,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
 
-        if hasattr(imsize[0], "__getitem__"):
-            for ims in imsize:
-                assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
-                    "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
-                    exp),imsize=[(288, 288), (320, 320)]."
-
-        else:
-            assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
-                "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
-                exp),imsize=(320, 320)."
+        assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
+            "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
+              exp),imsize=(320, 320)."
 
         num_class = len(class_map)
-        self._class_map = [k for k, v in sorted(
-            class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
-        self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
+        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in self.class_map]
         self.imsize = imsize
         self.freezed_network = Darknet19Base()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
@@ -207,6 +200,9 @@ class Yolov2(rm.Model):
 
     def forward(self, x):
         self.freezed_network.set_auto_update(self._train_whole_network)
+        self.freezed_network.set_models(inference=(
+            not self._train_whole_network or getattr(self, 'inference', False)))
+
         h, f = self.freezed_network(x)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,
@@ -248,11 +244,7 @@ class Yolov2(rm.Model):
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
 
-        if hasattr(self.imsize[0], "__getitem__"):
-            imsize = self.imsize[-1]
-        else:
-            imsize = self.imsize
-
+        imsize = self.imsize
         asw = imsize[0] / self.anchor_size[0]
         ash = imsize[1] / self.anchor_size[1]
         anchor = [[an[0] * asw, an[1] * ash] for an in self.anchor]
@@ -318,7 +310,7 @@ class Yolov2(rm.Model):
 
             box_list[n] = [{
                 "box": box_list[n][i],
-                "name": self._class_map[score_list[n][i][1]].decode('utf-8'),
+                "name": self.class_map[score_list[n][i][1]].decode('utf-8'),
                 "score": score_list[n][i][0],
                 "class": score_list[n][i][1],
             } for i, k in enumerate(keep) if k]
@@ -335,11 +327,7 @@ class Yolov2(rm.Model):
         Returns:
             (list):
         """
-        if hasattr(self.imsize[0], "__getitem__"):
-            imsize = self.imsize[-1]
-        else:
-            imsize = self.imsize
-
+        imsize = self.imsize
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
@@ -353,7 +341,7 @@ class Yolov2(rm.Model):
             img_array = img_list
         return self.get_bbox(self(img_array).as_ndarray())
 
-    def build_data(self, imsize=None):
+    def build_data(self, imsize_list=None):
         """
         This returns data building function that builds target data for yolo 2 training.
         In training of yolov2, image size will be changed every 10 batches.
@@ -362,11 +350,16 @@ class Yolov2(rm.Model):
         Args:
             imsize(list): List of image size.
         """
-        if imsize is None:
-            imsize = self.imsize
-        if not hasattr(imsize[0], "__getitem__"):
-            imsize = [imsize]
-        size_N = len(imsize)
+        if imsize_list is None:
+            imsize_list = [self.imsize]
+        else:
+            for ims in imsize_list:
+                assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
+                    "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
+                    exp),imsize=[(288, 288), (320, 320)]."
+
+        size_N = len(imsize_list)
+        perm = np.random.permutation(size_N)
 
         def builder(img_path_list, annotation_list, augmentation=None, nth=0, **kwargs):
             """
@@ -386,13 +379,15 @@ class Yolov2(rm.Model):
             channel = num_class + 5
             offset = channel
 
-            size_index = int(int(nth/10)%size_N)
-            label = np.zeros((N, channel, imsize[size_index][1] // 32, imsize[size_index][0] // 32))
-            img_list, label_list = prepare_detection_data(img_path_list, annotation_list, imsize[size_index])
+            size_index = perm[int(int(nth / 10) % size_N)]
+
+            label = np.zeros(
+                (N, channel, imsize_list[size_index][1] // 32, imsize_list[size_index][0] // 32))
+            img_list, label_list = prepare_detection_data(
+                img_path_list, annotation_list, imsize_list[size_index])
 
             for n, annotation in enumerate(label_list):
                 # This returns resized image.
-
                 # Target processing
                 boxces = np.array([a['box'] for a in annotation])
                 classes = np.array([[0] * a["class"] + [1] + [0] * (num_class - a["class"] - 1)
@@ -426,8 +421,8 @@ class Yolov2(rm.Model):
         """
         N, C, H, W = x.shape
         nd_x = x.as_ndarray()
-        asw = W*32 / self.anchor_size[0]
-        ash = H*32 / self.anchor_size[1]
+        asw = W * 32 / self.anchor_size[0]
+        ash = H * 32 / self.anchor_size[1]
         anchor = [[an[0] * asw, an[1] * ash] for an in self.anchor]
 
         num_anchor = self.num_anchor
@@ -443,7 +438,7 @@ class Yolov2(rm.Model):
         target = target.reshape(N, C, H, W)
 
         low_thresh = 0.6
-        im_w, im_h = (W*32, H*32)
+        im_w, im_h = (W * 32, H * 32)
         offset = 5 + self.num_class
 
         # Calc iou and get best matched prediction.
@@ -527,9 +522,9 @@ class Yolov2(rm.Model):
         # N = np.sum(y[:, 0] > 0)
         return rm.sum(diff * diff * mask) / N / 2.
 
-    def fit(self, train_img_path_list=None, train_annotation_list=None,
+    def fit(self, train_img_path_list, train_annotation_list,
             valid_img_path_list=None, valid_annotation_list=None,
-            epoch=160, batch_size=16, augmentation=None, callback_end_epoch=None):
+            epoch=160, batch_size=16, imsize_list=None, augmentation=None, callback_end_epoch=None):
         """
         This function performs training with given data and hyper parameters.
 
@@ -546,14 +541,17 @@ class Yolov2(rm.Model):
             (tuple): Training loss list and validation loss list.
         """
 
-        if hasattr(self.imsize[0], "__getitem__"):
-            imsize = self.imsize[-1]
+        if imsize_list is None:
+            imsize_list = [self.imsize]
         else:
-            imsize = self.imsize
+            for ims in imsize_list:
+                assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
+                    "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
+                    exp),imsize=[(288, 288), (320, 320)]."
 
         train_dist = ImageDistributor(
-            train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=4)
-        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list, num_worker=4)
+            train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=8)
+        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list, num_worker=8)
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
@@ -562,7 +560,10 @@ class Yolov2(rm.Model):
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
             display_loss = 0
-            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, shuffle=True, target_builder=self.build_data())):
+            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, shuffle=True, target_builder=self.build_data(imsize_list))):
+                # This is for avoiding memory over flow.
+                if is_cuda_active() and i % 10 == 0:
+                    release_mem_pool()
                 self.set_models(inference=False)
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
@@ -579,10 +580,12 @@ class Yolov2(rm.Model):
             avg_train_loss_list.append(avg_train_loss)
 
             if valid_dist is not None:
+                if is_cuda_active():
+                    release_mem_pool()
                 bar.n = 0
                 bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
-                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data(imsize))):
+                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data())):
                     self.set_models(inference=True)
                     loss = self.loss(self(valid_x), valid_y)
 

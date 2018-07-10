@@ -60,6 +60,7 @@ class ImageDistributorBase(object):
         builder = callback
         if builder is None:
             builder = self._builder
+
         if builder is None:
             builder = lambda x, y, **kwargs: (x, y)
 
@@ -79,16 +80,23 @@ class ImageDistributorBase(object):
             batch_perm = [perm[nth * batch_size:(nth + 1) * batch_size]
                           for nth in range(batch_loop)]
             if self._label_list is None:
-                arg = [([self._img_path_list[p] for p in bp], Nonei, ) for i, bp in enumerate(batch_perm)]
+                arg = [([self._img_path_list[p] for p in bp], None, i)
+                       for i, bp in enumerate(batch_perm)]
             else:
                 arg = [
                     ([self._img_path_list[p] for p in bp],
                      [self._label_list[p] for p in bp], i)
-                    for i, bp in enumerate(batch_perm)
-                ]
+                    for i, bp in enumerate(batch_perm)]
 
-            generator = exector.map(build, arg)
-            yield from generator
+            # For avoiding memory over flow.
+            # Don't submit all thread at once.
+            iter_count = 0
+            work_thread = []
+            while (iter_count - len(work_thread)) < len(arg):
+                for i in range(min(self._num_worker * 4 - len(work_thread), len(arg) - iter_count)):
+                    work_thread.append(exector.submit(build, arg[iter_count]))
+                    iter_count += 1
+                yield work_thread.pop(0).result()
 
 
 class ImageDistributor(ImageDistributorBase):

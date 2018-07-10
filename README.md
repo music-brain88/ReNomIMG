@@ -26,7 +26,7 @@ The Wheel package is provided at:
 
 You can install the wheel package with pip3 command::
 
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-0.6b0-cp35-cp35m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-0.8b0-cp35-cp35m-linux_x86_64.whl`
 
 ## Install from source
 For installing ReNomIMG, download the repository from following url.
@@ -97,14 +97,16 @@ The following is an example in case that you start up server directly under the 
 
 ```
 ReNomIMG
+    └── storage
+    |   └── test_database.db // Database(sqlite3).
     └── datasrc
-        ├── img            // image for training and validation
-        ├── label          // lable for training and validation
-        └── prediction_set // dataset for prediction
-            ├── img        // image for prediction
-            └── output     // results of prediction
-                ├── csv    // annotation of prediction in csv formats
-                └── xml    // annotation of prediction in xml formats
+        ├── img              // image for training and validation
+        ├── label            // lable for training and validation
+        └── prediction_set   // dataset for prediction
+            ├── img          // image for prediction
+            └── output       // results of prediction
+                ├── csv      // annotation of prediction in csv formats
+                └── xml      // annotation of prediction in xml formats
 
 ```
 

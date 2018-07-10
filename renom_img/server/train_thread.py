@@ -128,12 +128,17 @@ class TrainThread(object):
                 path = self.download_weight(Yolov1.WEIGHT_URL, Yolov1.__name__ + '.h5')
                 self.model = Yolov1(self.class_map, cell_size, num_bbox,
                                     imsize=self.imsize, load_pretrained_weight=path, train_whole_network=self.train_whole_network)
+                train_target_builder = self.model.build_data()
+                valid_target_builder = self.model.build_data()
             elif self.algorithm == ALG_YOLOV2:
                 anchor = int(self.algorithm_params["anchor"])
                 path = self.download_weight(Yolov2.WEIGHT_URL, Yolov2.__name__ + '.h5')
                 annotations = self.train_dist.annotation_list
                 self.model = Yolov2(self.class_map, create_anchor(annotations, anchor, base_size=self.imsize),
                                     imsize=self.imsize, load_pretrained_weight=path, train_whole_network=self.train_whole_network)
+                train_target_builder = self.model.build_data(
+                    imsize_list=[(i * 32, i * 32) for i in range(9, 20)])
+                valid_target_builder = self.model.build_data()
             else:
                 self.error_msg = "{} is not supported algorithm id.".format(self.algorithm)
 
@@ -160,7 +165,7 @@ class TrainThread(object):
                 if self.is_stopped():
                     return
                 display_loss = 0
-                batch_gen = self.train_dist.batch(batch_size, self.model.build_data())
+                batch_gen = self.train_dist.batch(batch_size, target_builder=train_target_builder)
                 self.total_batch = int(np.ceil(len(self.train_dist) // batch_size))
                 for i, (train_x, train_y) in enumerate(batch_gen):
                     self.nth_batch = i
@@ -187,7 +192,8 @@ class TrainThread(object):
                     return
                 valid_predict_box = []
                 display_loss = 0
-                batch_gen = self.valid_dist.batch(batch_size, self.model.build_data(), shuffle=False)
+                batch_gen = self.valid_dist.batch(
+                    batch_size, valid_target_builder, shuffle=False)
                 self.model.set_models(inference=True)
                 for i, (valid_x, valid_y) in enumerate(batch_gen):
                     if self.is_stopped():
