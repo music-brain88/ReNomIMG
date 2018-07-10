@@ -55,21 +55,22 @@ def fetch_dataset_pets(split_validation=True, test_size=0.2):
     image_path_list = os.listdir("pets/images")
     image_name_list = [os.path.splitext(name)[0] for name in image_path_list]
     name_list = list(set(image_name_list) & set(xml_name_list))
-    xml_list = [os.path.join("pets/annotations/xmls", name+".xml") for name in name_list]
+    xml_list = [os.path.join("pets/annotations/xmls", name + ".xml") for name in name_list]
     annotation_list, _ = parse_xml_detection(xml_list)
-    image_path_list = [os.path.join("pets/images", name+".jpg") for name in name_list]
+    image_path_list = [os.path.join("pets/images", name + ".jpg") for name in name_list]
 
     if split_validation == False:
         return annotation_list, image_path_list
 
     else:
         image_path_list, annotation_list = np.array(image_path_list), np.array(annotation_list)
-        indices = np.random.permutation(image_path_list.shape[0]-1)
+        indices = np.random.permutation(image_path_list.shape[0] - 1)
         threshold = int(np.round(test_size * image_path_list.shape[0]))
         train_index, test_index = indices[threshold:], indices[:threshold]
         train_annotation_list, valid_annotation_list = annotation_list[train_index], annotation_list[test_index]
         train_image_path_list, valid_image_path_list = image_path_list[train_index], image_path_list[test_index]
         return list(train_annotation_list), list(train_image_path_list), list(valid_annotation_list), list(valid_annotation_list)
+
 
 def detection_dataset_voc_2007(split_validation=True):
     """
@@ -101,15 +102,16 @@ def detection_dataset_voc_2007(split_validation=True):
     image_voc_2007 = "VOCdevkit/VOC2007/JPEGImages/"
     label_voc_2007 = "VOCdevkit/VOC2007/Annotations/"
 
-
     if not os.path.exists("VOCdevkit/VOC2007"):
         if not os.path.exists(voc_2007_tar):
             download(voc_2007_url)
         with tarfile.open(voc_2007_tar) as tar:
             tar.extractall()
 
-    train_voc_2007 = [line.strip() for line in open("VOCdevkit/VOC2007/ImageSets/Main/train.txt").readlines()]
-    valid_voc_2007 = [line.strip() for line in open("VOCdevkit/VOC2007/ImageSets/Main/val.txt").readlines()]
+    train_voc_2007 = [line.strip() for line in open(
+        "VOCdevkit/VOC2007/ImageSets/Main/train.txt").readlines()]
+    valid_voc_2007 = [line.strip() for line in open(
+        "VOCdevkit/VOC2007/ImageSets/Main/val.txt").readlines()]
 
     train_image_path_list = []
     train_label_path_list = []
@@ -141,6 +143,7 @@ def detection_dataset_voc_2007(split_validation=True):
 
         return annotation_list, image_path_list
 
+
 def detection_dataset_voc_2012(split_validation=True):
     """
 
@@ -171,15 +174,16 @@ def detection_dataset_voc_2012(split_validation=True):
     image_voc_2012 = "VOCdevkit/VOC2012/JPEGImages/"
     label_voc_2012 = "VOCdevkit/VOC2012/Annotations/"
 
-
     if not os.path.exists("VOCdevkit/VOC2012"):
         if not os.path.exists(voc_2012_tar):
             download(voc_2012_url)
         with tarfile.open(voc_2012_tar) as tar:
             tar.extractall()
 
-    train_voc_2012 = [line.strip() for line in open("VOCdevkit/VOC2012/ImageSets/Main/train.txt").readlines()]
-    valid_voc_2012 = [line.strip() for line in open("VOCdevkit/VOC2012/ImageSets/Main/val.txt").readlines()]
+    train_voc_2012 = [line.strip() for line in open(
+        "VOCdevkit/VOC2012/ImageSets/Main/train.txt").readlines()]
+    valid_voc_2012 = [line.strip() for line in open(
+        "VOCdevkit/VOC2012/ImageSets/Main/val.txt").readlines()]
 
     train_image_path_list = []
     train_label_path_list = []
@@ -213,7 +217,8 @@ def detection_dataset_voc_2012(split_validation=True):
 
 
 if __name__ == '__main__':
-    train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_dataset_pets(split_validation=True)
+    train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_dataset_pets(
+        split_validation=True)
     # annotation_list, image_path_list = fetch_dataset_pets(split_validation=False)
     # annotation_list, image_path_list = fetch_dataset_voc_2007(split_validation=False)
     # train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_dataset_voc_2007()
