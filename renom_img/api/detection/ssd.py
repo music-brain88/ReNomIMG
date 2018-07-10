@@ -334,7 +334,7 @@ class DetectorNetwork(rm.Model):
         self.pool5 = rm.MaxPool2d(filter=3, stride=1, padding=1)
         #=================================================
         # THOSE ARE USED AFTER OUTPUS ARE NORMALIZED
-        self.fc6 = rm.Conv2d(channel=1024, filter=3, padding=6, dilation_rate=6) #relu
+        self.fc6 = rm.Conv2d(channel=1024, filter=3, padding=6, dilation=6) #relu
         self.fc7 = rm.Conv2d(channel=1024, filter=1, padding=0)
 
 
@@ -345,7 +345,7 @@ class DetectorNetwork(rm.Model):
         self.conv9_2 = rm.Conv2d(channel=256, stride=2, filter=3, padding=1)
 
         self.conv10_1 = rm.Conv2d(channel=128, filter=1, padding=0)
-        self.norm = L2Norm(20)
+        self.norm = rm.L2Norm(20)
         self.conv10_2 = rm.Conv2d(channel=256, padding=1, stride=2, filter=3)
 
         num_priors = 3
@@ -526,7 +526,7 @@ class SSD(rm.Model):
         self.imsize = imsize
         self._freezed_network = VGG16(class_map).freezed_network[:2]
         self._network = DetectorNetwork(self.n_class)
-        self.box_util = BoxUtils(self.n_class, create_priors(), overlap_threshold, nms_threshold, top_K)
+        self.bbox_util = BoxUtils(self.n_class, create_priors(), overlap_threshold, nms_threshold, top_K)
 
         self._opt = rm.Sgd(0.01, 0.9)
 
@@ -774,13 +774,32 @@ class SSD(rm.Model):
 
             img_data, label_data = prepare_detection_data(img_path_list,
                                                           annotation_list, self.imsize)
-
             if augmentation is not None:
                 img_data, label_data = augmentation(img_data, label_data, mode="detection")
+            bounding_boxes = []
+            one_hot_classes = []
+            targets = []
+            for n in range(N):
+                for obj in label_data[n]:
+                    one_hot = np.zeros(len(self._class_map))
+                    xmin, ymin, xmax, ymax = transform2xy12(obj['box'])
+                    width = obj['box'][2]
+                    height = obj['box'][3]
+                    xmin /= width
+                    xmax /= width
+                    ymin /= height
+                    ymax /= height
+                    bounding_box = [xmin, ymin, xmax, ymax]
+                    bounding_boxes.append(bounding_box)
+                    one_hot[obj['class']] = 1
+                    one_hot_classes.append(one_hot)
+                bounding_boxes = np.asarray(bounding_boxes)
+                one_hot_classes = np.asarray(one_hot_classes)
+                boxes = np.hstack((bounding_boxes, one_hot_classes))
+                target = self.bbox_util.assign_boxes(boxes)
+                targets.append(target)
 
-            # Create target.
-            target = self.bbox_util.assign_boxes(label_data)
-            return self.preprocess(img_data), target.reshape(N, -1)
+            return self.preprocess(img_data), np.array(targets)
         return builder
 
     def loss(self, x, y, neg_pos_ratio=3.0, negatives_for_hard=100.0):
