@@ -5,7 +5,7 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.load import parse_xml_detection
 
 
-def fetch_dataset_pets(split_validation=True, test_size=0.2):
+def fetch_detection_dataset_pets(split_validation=True, test_size=0.2):
     """
 
     Args:
@@ -72,7 +72,7 @@ def fetch_dataset_pets(split_validation=True, test_size=0.2):
         return list(train_annotation_list), list(train_image_path_list), list(valid_annotation_list), list(valid_annotation_list)
 
 
-def detection_dataset_voc_2007(split_validation=True):
+def fetch_detection_dataset_voc_2007(split_validation=True):
     """
 
     Args:
@@ -144,7 +144,7 @@ def detection_dataset_voc_2007(split_validation=True):
         return annotation_list, image_path_list
 
 
-def detection_dataset_voc_2012(split_validation=True):
+def fetch_detection_dataset_voc_2012(split_validation=True):
     """
 
     Args:
@@ -217,10 +217,10 @@ def detection_dataset_voc_2012(split_validation=True):
 
 
 if __name__ == '__main__':
-    train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_dataset_pets(
+    train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_detection_dataset_pets(
         split_validation=True)
     # annotation_list, image_path_list = fetch_dataset_pets(split_validation=False)
     # annotation_list, image_path_list = fetch_dataset_voc_2007(split_validation=False)
-    # train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_dataset_voc_2007()
+    # train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_detection_dataset_voc_2007()
     # annotation_list, image_path_list = fetch_dataset_voc_2012(split_validation=False)
-    # train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_dataset_voc_2012()
+    # train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_detection_dataset_voc_2012()
