@@ -11,7 +11,6 @@ from renom.cuda import set_cuda_active, release_mem_pool
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2
 from renom_img.api.utility.load import parse_xml_detection
-from renom_img.api.utility.target import DataBuilderYolov1
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift
 
