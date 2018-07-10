@@ -64,12 +64,12 @@ class VGGBase(Classification):
 
 class VGG16(VGGBase):
     """VGG16 model.
-If the argument load_weight is True, pretrained weight will be downloaded.
+    If the argument load_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
         class_map(array): Array of class names
-        load_weight(bool):
+        load_pretrained_weight(bool, str):
         imsize(int or tuple): Input image size
         train_whole_network(bool): True if the overall model is trained, otherwise False
 
@@ -162,6 +162,7 @@ class VGG19(VGGBase):
 
 
 class CNN_VGG16(rm.Model):
+
     def __init__(self, num_class):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
@@ -184,11 +185,11 @@ class CNN_VGG16(rm.Model):
         t = rm.relu(self.fc2(t))
         t = rm.dropout(t, 0.5)
         t = self.fc3(t)
-
         return t
 
 
 class CNN_VGG19(rm.Sequential):
+
     def __init__(self, num_class):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
@@ -211,5 +212,4 @@ class CNN_VGG19(rm.Sequential):
         t = rm.relu(self.fc2(t))
         t = rm.dropout(t, 0.5)
         t = self.fc3(t)
-
         return t
