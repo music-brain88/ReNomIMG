@@ -287,7 +287,6 @@ export default {
   }
 }
 
-
 .emphasizeItem {
     animation: emphasize 0.4s;
     animation-iteration-count: 1;
