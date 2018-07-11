@@ -62,14 +62,14 @@ export default {
         pointRadius: 0.3,
         data: this.validationLoss
       }]
-      // let curve_area = document.getElementById('learning-curve')
+      let curve_area = document.getElementById('learning-curve')
 
       let margin = { 'top': 30, 'bottom': 60, 'right': 30, 'left': 60 }
 
-      // let width = curve_area.clientWidth
-      // let height = curve_area.clientHeight
-      let width = 401
-      let height = 272
+      let width = curve_area.clientWidth
+      let height = curve_area.clientHeight
+      // let width = 401
+      // let height = 272
 
       var svg = d3.select('#curve-canvas').append('svg').attr('width', width).attr('height', height)
 
@@ -110,14 +110,34 @@ export default {
         .text('Loss')
 
       // 5. ラインの表示
-      svg.append('path')
-        .datum(datasets[0].data)
-        .attr('fill', 'none')
-        .attr('stroke', 'steelblue')
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-          .x(function (d, index) { return xScale(d, index) })
-          .y(function (d) { return yScale(d) }))
+      // svg.append('path')
+      //   .datum(datasets[0].data)
+      //   .attr('fill', 'none')
+      //   .attr('storke', 'steelblue')
+      //   .attr('stroke-width', 1.5)
+      //   .attr('x', function (d, index) { return xScale(index) })
+      //   .attr('y', function (d) { return yScale(d) })
+      //   .curve(d3.curveBasis)
+
+      svg.append('g')
+        .selectAll('circle')
+        .data(datasets[0].data)
+        .enter()
+        .append('circle')
+        .attr('cx', function (d, index) { return xScale(index) })
+        .attr('cy', function (d) { return yScale(d) })
+        .attr('fill', colors[0])
+        .attr('r', 4)
+
+      svg.append('g')
+        .selectAll('circle')
+        .data(datasets[1].data)
+        .enter()
+        .append('circle')
+        .attr('cx', function (d, index) { return xScale(index) })
+        .attr('cy', function (d) { return yScale(d) })
+        .attr('fill', colors[1])
+        .attr('r', 4)
 
       console.log('width', width)
       console.log('height', height)
