@@ -64,7 +64,7 @@ export default {
       }]
       let curve_area = document.getElementById('learning-curve')
 
-      let margin = { 'top': 30, 'bottom': 60, 'right': 30, 'left': 60 }
+      let margin = { 'top': 20, 'bottom': 60, 'right': 30, 'left': 60 }
 
       let width = curve_area.clientWidth
       let height = curve_area.clientHeight
@@ -86,7 +86,7 @@ export default {
         .attr('transform', 'translate(' + 0 + ',' + (height - margin.bottom) + ')')
         .call(axisx)
         .append('text')
-        .attr('fill', 'black')
+        .attr('fill', 'rgba(0,0,0,0.1)')
         .attr('x', (width - margin.left - margin.right) / 2 + margin.left)
         .attr('y', 35)
         .attr('text-anchor', 'middle')
@@ -98,7 +98,7 @@ export default {
         .attr('transform', 'translate(' + margin.left + ',' + 0 + ')')
         .call(axisy)
         .append('text')
-        .attr('fill', 'black')
+        .attr('fill', 'rgba(0,0,0,0.1)')
         .attr('text-anchor', 'middle')
         .attr('x', -(height - margin.top - margin.bottom) / 2 - margin.top)
         .attr('y', -35)
@@ -321,30 +321,8 @@ export default {
       }
     }
   }
-  .axis text{
-    font: 10px sans-serif;
-  }
-  .axis path {
-  /*
-  fillとopacityで半透明な背景色。
-  */
-    fill: Aquamarine;
-    opacity: 0.1;
-    stroke: #000;
-    stroke-width: 1;
-    shape-rendering: crispEdges;
-  }
-
-  .axis line {
-    stroke: #000;
-    stroke-width: 1;
-    shape-rendering: crispEdges;
-  }
-
-  .line {
-    fill: none;
-    stroke: DarkGreen;
-    stroke-width: 1.5px;
+  .axisLineColor{
+    stroke:rgba(0,0,0,0.1);
   }
 }
 </style>
