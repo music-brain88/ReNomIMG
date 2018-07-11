@@ -68,8 +68,6 @@ export default {
 
       let width = curve_area.clientWidth
       let height = curve_area.clientHeight
-      // let width = 401
-      // let height = 272
 
       var svg = d3.select('#curve-canvas').append('svg').attr('width', width).attr('height', height)
 
@@ -80,8 +78,8 @@ export default {
       let yScale = d3.scaleLinear()
         .domain([0, d3.max(datasets[0].data, function (d) { return d })])
         .range([height - margin.bottom, margin.top])
-      // 4. 軸の表示
 
+      // 4. 軸の表示
       let axisx = d3.axisBottom(xScale).ticks(5)
       let axisy = d3.axisLeft(yScale).ticks(5)
       svg.append('g')
@@ -109,16 +107,7 @@ export default {
         .attr('font-size', '10pt')
         .text('Loss')
 
-      // 5. ラインの表示
-      // svg.append('path')
-      //   .datum(datasets[0].data)
-      //   .attr('fill', 'none')
-      //   .attr('storke', 'steelblue')
-      //   .attr('stroke-width', 1.5)
-      //   .attr('x', function (d, index) { return xScale(index) })
-      //   .attr('y', function (d) { return yScale(d) })
-      //   .curve(d3.curveBasis)
-
+      // draw Train data dot
       svg.append('g')
         .selectAll('circle')
         .data(datasets[0].data)
@@ -127,8 +116,9 @@ export default {
         .attr('cx', function (d, index) { return xScale(index) })
         .attr('cy', function (d) { return yScale(d) })
         .attr('fill', colors[0])
-        .attr('r', 4)
+        .attr('r', 3)
 
+      // draw Validation data dot
       svg.append('g')
         .selectAll('circle')
         .data(datasets[1].data)
@@ -137,7 +127,31 @@ export default {
         .attr('cx', function (d, index) { return xScale(index) })
         .attr('cy', function (d) { return yScale(d) })
         .attr('fill', colors[1])
-        .attr('r', 4)
+        .attr('r', 3)
+
+      // draw line chart
+      svg.append('path')
+        .datum(datasets[0].data)
+        .attr('fill', 'none')
+        .attr('stroke', colors[0])
+        .attr('stroke-width', 1.5)
+        .attr('d', d3.line()
+          .x(function (d, index) { return xScale(index) })
+          .y(function (d) { return yScale(d) })
+          .curve(d3.curveCardinal)
+        )
+
+      // draw line chart
+      svg.append('path')
+        .datum(datasets[1].data)
+        .attr('fill', 'none')
+        .attr('stroke', colors[1])
+        .attr('stroke-width', 1.5)
+        .attr('d', d3.line()
+          .x(function (d, index) { return xScale(index) })
+          .y(function (d) { return yScale(d) })
+          .curve(d3.curveCardinal)
+        )
 
       console.log('width', width)
       console.log('height', height)
