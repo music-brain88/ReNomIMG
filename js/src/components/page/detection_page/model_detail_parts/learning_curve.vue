@@ -18,7 +18,6 @@
 
 <script>
 import * as d3 from 'd3'
-// import Chart from 'chart.js'
 
 export default {
   name: 'LearningCurve',
@@ -79,33 +78,53 @@ export default {
         .domain([0, d3.max(datasets[0].data, function (d) { return d })])
         .range([height - margin.bottom, margin.top])
 
-      // 4. 軸の表示
-      let axisx = d3.axisBottom(xScale).ticks(5)
-      let axisy = d3.axisLeft(yScale).ticks(5)
+      // get axes
+      let axisx = d3.axisBottom(xScale)
+        .tickSizeInner(-height)
+        .tickSizeOuter(0)
+        .ticks(10)
+        .tickPadding(10)
+
+      let axisy = d3.axisLeft(yScale)
+        .ticks(10)
+        .tickSizeInner(-width)
+        .tickSizeOuter(0)
+        .ticks(10)
+        .tickPadding(10)
+
+      // draw x axis
       svg.append('g')
         .attr('transform', 'translate(' + 0 + ',' + (height - margin.bottom) + ')')
         .call(axisx)
         .append('text')
-        .attr('fill', 'rgba(0,0,0,0.1)')
+        .attr('fill', d3.rgb(0, 0, 0, 0.5))
         .attr('x', (width - margin.left - margin.right) / 2 + margin.left)
         .attr('y', 35)
         .attr('text-anchor', 'middle')
-        .attr('font-size', '10pt')
+        .attr('font-size', '5pt')
         .attr('font-weight', 'bold')
         .text('Epoch')
 
+      // draw y axis
       svg.append('g')
         .attr('transform', 'translate(' + margin.left + ',' + 0 + ')')
         .call(axisy)
+        .attr('class', 'axisRed')
         .append('text')
-        .attr('fill', 'rgba(0,0,0,0.1)')
+        .attr('fill', d3.rgb(0, 0, 0, 0.5))
         .attr('text-anchor', 'middle')
         .attr('x', -(height - margin.top - margin.bottom) / 2 - margin.top)
         .attr('y', -35)
         .attr('transform', 'rotate(-90)')
         .attr('font-weight', 'bold')
-        .attr('font-size', '10pt')
+        .attr('font-size', '5pt')
         .text('Loss')
+
+      // Difine tooltips
+      let tooltips = d3.select('body')
+        .append('div')
+        .attr('class', 'tooltip')
+        .style('display', 'none')
 
       // draw Train data dot
       svg.append('g')
@@ -116,7 +135,21 @@ export default {
         .attr('cx', function (d, index) { return xScale(index) })
         .attr('cy', function (d) { return yScale(d) })
         .attr('fill', colors[0])
-        .attr('r', 3)
+        .attr('r', 4)
+        .on('mouseover', function (d, index) {
+          tooltips.style('display', 'inline-block')
+          tooltips.html(index + '<br />' + d)
+            .style('left', (d3.event.x + 12) + 'px')
+            .style('top', (d3.event.y - height) + 'px')
+            .style('color', d3.rgb(255, 255, 255, 0.8))
+            .style('background', d3.rgb(0, 0, 0, 0.8))
+            .style('padding', 0.2 + '%')
+            .style('border-radius', 6 + 'px')
+        })
+        .on('mouseout', function (d) {
+          // tooltips.transition().duration(200)
+          tooltips.style('display', 'none')
+        })
 
       // draw Validation data dot
       svg.append('g')
@@ -127,7 +160,7 @@ export default {
         .attr('cx', function (d, index) { return xScale(index) })
         .attr('cy', function (d) { return yScale(d) })
         .attr('fill', colors[1])
-        .attr('r', 3)
+        .attr('r', 4)
 
       // draw line chart
       svg.append('path')
@@ -321,8 +354,17 @@ export default {
       }
     }
   }
-  .axisLineColor{
-    stroke:rgba(0,0,0,0.1);
-  }
+}
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 28px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
 }
 </style>
