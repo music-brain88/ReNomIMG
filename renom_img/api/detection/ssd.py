@@ -82,8 +82,8 @@ def create_priors():
     return np.concatenate(boxes_paras, axis=0)
 
 class BoxUtils(object):
-    def __init__(self, num_classes, prior=None, overlap_threshold=0.5, nms_thresh=0.45, top_K=400):
-        self.num_classes = num_classes
+    def __init__(self, num_class, prior=None, overlap_threshold=0.5, nms_thresh=0.45, top_K=400):
+        self.num_class = num_class
         self.prior = prior
         self.num_prior = 0 if prior is None else len(prior)
         self.overlap_threshold = overlap_threshold
@@ -127,7 +127,7 @@ class BoxUtils(object):
         return encoded_box.ravel()
 
     def assign_boxes(self, boxes):
-        assignment = np.zeros((self.num_prior, 4+self.num_classes+8))
+        assignment = np.zeros((self.num_prior, 4+self.num_class+8))
         assignment[:, 4] = 1.0 #background
         if len(boxes) == 0:
             return assignmentnt
@@ -211,7 +211,7 @@ class BoxUtils(object):
         for i in range(len(mbox_loc)):
             results.append([])
             decoded_bbox = self.decode_boxes(mbox_loc[i], mbox_priorbox[i], variances[i])
-            for c in range(self.num_classes):
+            for c in range(self.num_class):
                 if c == 0:
                     #background
                     continue
@@ -317,7 +317,8 @@ class PriorBox(object):
         return prior_boxes_tensor
 
 class DetectorNetwork(rm.Model):
-    def __init__(self, n_class):
+    def __init__(self, num_class):
+        self.num_class = num_class
         self.conv3_1 = rm.Conv2d(channel=256, padding=1, filter=3)
         self.conv3_2 = rm.Conv2d(channel=256, padding=1, filter=3)
         self.conv3_3 = rm.Conv2d(channel=256, padding=1, filter=3)
@@ -351,7 +352,7 @@ class DetectorNetwork(rm.Model):
         num_priors = 3
         self.conv4_3_mbox_loc = rm.Conv2d(num_priors * 4, padding=1, filter=3)
 
-        self.conv4_3_mbox_conf = rm.Conv2d(num_priors * n_class, padding=1, filter=3)
+        self.conv4_3_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
 #        define the PriorBox klass later
         self.conv4_3_priorbox = PriorBox((300, 300), 30.0, aspect_ratios=[2], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
@@ -361,33 +362,33 @@ class DetectorNetwork(rm.Model):
         #=================================================
         num_priors = 6
         self.fc7_mbox_loc = rm.Conv2d(num_priors*4, padding=1)
-        self.fc7_mbox_conf = rm.Conv2d(num_priors*n_class, padding=1, filter=3)
+        self.fc7_mbox_conf = rm.Conv2d(num_priors*num_class, padding=1, filter=3)
         self.fc7_priorbox = PriorBox((300, 300), 114.0, max_size=168.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
 
 
         #=================================================
         self.conv8_2_mbox_loc = rm.Conv2d(num_priors*4, padding=1, filter=3)
-        self.conv8_2_mbox_conf = rm.Conv2d(num_priors*n_class, padding=1, filter=3)
+        self.conv8_2_mbox_conf = rm.Conv2d(num_priors*num_class, padding=1, filter=3)
         self.conv8_2_priorbox = PriorBox((300, 300), 114.0, max_size=168.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
 
 
         #=================================================
         self.conv9_2_mbox_loc = rm.Conv2d(num_priors*4, padding=1)
-        self.conv9_2_mbox_conf = rm.Conv2d(num_priors*n_class, padding=1, filter=3)
+        self.conv9_2_mbox_conf = rm.Conv2d(num_priors*num_class, padding=1, filter=3)
         self.conv9_2_priorbox = PriorBox((300, 300), 168.0, max_size=222.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
 
 
         #=================================================
         self.conv10_2_mbox_loc = rm.Conv2d(num_priors*4, padding=1)
-        self.conv10_2_mbox_conf = rm.Conv2d(num_priors*n_class, padding=1, filter=3)
+        self.conv10_2_mbox_conf = rm.Conv2d(num_priors*num_class, padding=1, filter=3)
         self.conv10_2_priorbox = PriorBox((300, 300), 222.0, max_size=276.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
 
         self.pool11_mbox_loc = rm.Dense(num_priors*4)
-        self.pool11_mbox_conf = rm.Dense(num_priors*n_class)
+        self.pool11_mbox_conf = rm.Dense(num_priors*num_class)
 
         self.pool11_priorbox = PriorBox((300, 300), 276.0, max_size=330.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
 
@@ -395,8 +396,6 @@ class DetectorNetwork(rm.Model):
     def forward(self, x):
         n = x.shape[0]
         t = x
-        t = self.block1(t)
-        t = self.block2(t)
         t = self.pool3(rm.relu(self.conv3_3(rm.relu(self.conv3_2(rm.relu(self.conv3_1(t)))))))
         t = rm.relu(self.conv4_3(rm.relu(self.conv4_2(rm.relu(self.conv4_1(t))))))
 
@@ -485,7 +484,7 @@ class DetectorNetwork(rm.Model):
 
         num_boxes = mbox_loc.shape[-1]//4
         mbox_loc = mbox_loc.reshape((n, 4, num_boxes))
-        mbox_conf = mbox_conf.reshape((n, self.nb_classes, num_boxes))
+        mbox_conf = mbox_conf.reshape((n, self.num_class, num_boxes))
         mbox_conf = rm.softmax(mbox_conf)
 
         predictions = rm.concat([
@@ -503,30 +502,28 @@ class SSD(rm.Model):
 
     Args:
         num_class (int): Number of class.
-        cells (int or tuple): Cell size.
-        boxes (int): Number of boxes.
         imsize (int, tuple): Image size.
         load_pretrained_weight (bool, str): If true, pretrained weight will be downloaded to current directory.
             If string is given, pretrained weight will be saved as given name.
     """
 
-    SERIALIZED = ("_cells", "_bbox", "_class_map", "_num_class", "_last_dense_size")
+    SERIALIZED = ("class_map", "num_class", "imsize")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map=None, overlap_threshold=0.5, nms_threshold=0.45, top_K=400, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, overlap_threshold=0.5, nms_threshold=0.45, top_K=400, imsize=(300, 300), load_pretrained_weight=False, train_whole_network=False):
         num_class = len(class_map)
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
-        self.n_class = len(class_map)
-        self._class_map = class_map
+        self.num_class = len(class_map) + 1
+        self.class_map = class_map
         self._train_whole_network = train_whole_network
 
         self.imsize = imsize
-        self._freezed_network = VGG16(class_map).freezed_network[:2]
-        self._network = DetectorNetwork(self.n_class)
-        self.bbox_util = BoxUtils(self.n_class, create_priors(), overlap_threshold, nms_threshold, top_K)
+        self._freezed_network = rm.Sequential(VGG16(class_map).freezed_network[:2])
+        self._network = DetectorNetwork(self.num_class)
+        self.bbox_util = BoxUtils(self.num_class, create_priors(), overlap_threshold, nms_threshold, top_K)
 
         self._opt = rm.Sgd(0.01, 0.9)
 
@@ -583,7 +580,7 @@ class SSD(rm.Model):
         Returns:
             (ndarray): Preprocessed data.
         """
-        return x / 255. * 2 - 1
+        return x / 255
 
     def forward(self, x):
         self.freezed_network.set_auto_update(self._train_whole_network)
@@ -707,7 +704,7 @@ class SSD(rm.Model):
             # Note: Take care types.
             result[indexes[0][i]].append({
                 "class": int(max_class[indexes[0][i], indexes[1][i]]),
-                "name": self._class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode("utf-8"),
+                "name": self.class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode("utf-8"),
                 "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
@@ -776,12 +773,12 @@ class SSD(rm.Model):
                                                           annotation_list, self.imsize)
             if augmentation is not None:
                 img_data, label_data = augmentation(img_data, label_data, mode="detection")
-            bounding_boxes = []
-            one_hot_classes = []
             targets = []
             for n in range(N):
+                bounding_boxes = []
+                one_hot_classes = []
                 for obj in label_data[n]:
-                    one_hot = np.zeros(len(self._class_map))
+                    one_hot = np.zeros(len(self.class_map))
                     xmin, ymin, xmax, ymax = transform2xy12(obj['box'])
                     width = obj['box'][2]
                     height = obj['box'][3]
@@ -806,8 +803,8 @@ class SSD(rm.Model):
         batch_size = y.shape[0]
         num_boxes = y.shape[2]
         conf_loss = - rm.sum(y[:, 4:-8, :]*rm.log(x[:, 4:-8, :] + 1e-8), axis=1) / batch_size
-
-        loc_loss = rm.sum(smoothed_l1(x[:, :4, :], y[:, :4, :]), axis=1)
+        conf_loss = rm.sum(rm.softmax_cross_entropy(x[:, 4:-8, :], y[:, 4:-8, :], reduce_sum=False), axis=1)
+        loc_loss = rm.sum(rm.smoothed_l1(x[:, :4, :], y[:, :4, :], reduce_sum=False), axis=1)
 
         num_pos = np.sum(y[:, -8, :], axis=1)
         pos_loc_loss = rm.sum(loc_loss*(y[:, -8, :]), axis=1)
@@ -822,7 +819,7 @@ class SSD(rm.Model):
 
         num_neg_batch = int(num_neg_batch)
         confs_start = 5 # 4+0(background label) + 1
-        confs_end = confs_start + num_classes - 1
+        confs_end = confs_start + self.num_class - 1
 
         max_confs = np.max(x[:, confs_start:confs_end, :].as_ndarray(), axis=1)
         indices = (max_confs * (1-y[:, -8, :])).argsort()[:, ::-1][:, :num_neg_batch]
@@ -834,15 +831,14 @@ class SSD(rm.Model):
         neg_conf_loss = conf_loss.reshape(-1)[full_indices]
         neg_conf_loss = neg_conf_loss.reshape((batch_size, num_neg_batch))
         neg_conf_loss = rm.sum(neg_conf_loss, axis=1)
+
         total_loss = neg_conf_loss + pos_conf_loss
         total_loss /= (num_pos + float(num_neg_batch))
-        conf_loss = total_loss
 
         num_pos = np.where(np.not_equal(num_pos, 0), num_pos,np.ones_like(num_pos))
         total_loss = total_loss +  (pos_loc_loss/num_pos)
-        loc_loss = (pos_loc_loss/num_pos)
         loss = rm.sum(total_loss)
-        return loss, rm.sum(conf_loss), rm.sum(loc_loss)
+        return loss
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
