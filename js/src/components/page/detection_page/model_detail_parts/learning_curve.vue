@@ -61,14 +61,20 @@ export default {
         pointRadius: 0.3,
         data: this.validationLoss
       }]
+
+      // if (this.old_chart_data !== datasets) {
+      //   this.removeData(this.old_chart_data[0].data)
+      //   this.removeData(this.old_chart_data[1].data)
+      // }
+
       let curve_area = document.getElementById('learning-curve')
 
-      let margin = { 'top': 20, 'bottom': 60, 'right': 30, 'left': 60 }
+      const margin = { 'top': 20, 'bottom': 60, 'right': 30, 'left': 60 }
 
-      let width = curve_area.clientWidth
-      let height = curve_area.clientHeight
+      const width = curve_area.clientWidth
+      const height = curve_area.clientHeight
 
-      var svg = d3.select('#curve-canvas').append('svg').attr('width', width).attr('height', height)
+      let svg = d3.select('#curve-canvas').append('svg').attr('width', width).attr('height', height)
 
       let xScale = d3.scaleLinear()
         .domain([0, d3.max(datasets[0].data, function (d, index) { return index })])
@@ -101,8 +107,8 @@ export default {
         .attr('x', (width - margin.left - margin.right) / 2 + margin.left)
         .attr('y', 35)
         .attr('text-anchor', 'middle')
-        .attr('font-size', '5pt')
-        .attr('font-weight', 'bold')
+        .attr('font-size', '2pt')
+        .attr('font-family', 'Inter UI', 'sans-serif')
         .text('Epoch')
 
       // draw y axis
@@ -116,8 +122,8 @@ export default {
         .attr('x', -(height - margin.top - margin.bottom) / 2 - margin.top)
         .attr('y', -35)
         .attr('transform', 'rotate(-90)')
-        .attr('font-weight', 'bold')
-        .attr('font-size', '5pt')
+        .attr('font-size', '2pt')
+        .attr('font-family', 'Inter UI', 'sans-serif')
         .text('Loss')
 
       // Difine tooltips
@@ -135,21 +141,22 @@ export default {
         .attr('cx', function (d, index) { return xScale(index) })
         .attr('cy', function (d) { return yScale(d) })
         .attr('fill', colors[0])
-        .attr('r', 4)
+        .attr('r', 3)
         .on('mouseover', function (d, index) {
           tooltips.style('display', 'inline-block')
-          tooltips.html(index + '<br />' + d)
+          tooltips.html(index + '<br />' + 'Train:' + d)
             .style('left', (d3.select(this).attr('cx') - 30) + 'px')
             .style('top', (d3.select(this).attr('cy') - height) + 'px')
             .style('color', d3.rgb(255, 255, 255, 0.8))
             .style('background', d3.rgb(0, 0, 0, 0.8))
-            .style('padding', 0.2 + '%')
+            .style('padding', 2 + '%')
             .style('border-radius', 6 + 'px')
             .style('z-index', 10000)
+          d3.select(this).attr('r', 6)
         })
         .on('mouseout', function (d) {
-          // tooltips.transition().duration(200)
           tooltips.style('display', 'none')
+          d3.select(this).attr('r', 3)
         })
 
       // draw Validation data dot
@@ -161,7 +168,23 @@ export default {
         .attr('cx', function (d, index) { return xScale(index) })
         .attr('cy', function (d) { return yScale(d) })
         .attr('fill', colors[1])
-        .attr('r', 4)
+        .attr('r', 3)
+        .on('mouseover', function (d, index) {
+          tooltips.style('display', 'inline-block')
+          tooltips.html(index + '<br />' + 'Validation:' + d)
+            .style('left', (d3.select(this).attr('cx') - 30) + 'px')
+            .style('top', (d3.select(this).attr('cy') - height) + 'px')
+            .style('color', d3.rgb(255, 255, 255, 0.8))
+            .style('background', d3.rgb(0, 0, 0, 0.8))
+            .style('padding', 0.2 + '%')
+            .style('border-radius', 6 + 'px')
+            .style('z-index', 10000)
+          d3.select(this).attr('r', 6)
+        })
+        .on('mouseout', function (d) {
+          tooltips.style('display', 'none')
+          d3.select(this).attr('r', 3)
+        })
 
       // draw line chart
       svg.append('path')
@@ -190,113 +213,15 @@ export default {
       console.log('width', width)
       console.log('height', height)
       console.log('svg', svg)
-      // let curve_area = document.getElementById('learning-curve')
-      //
-      // let canvas = document.getElementById('curve-canvas')
-      // let ctx = canvas.getContext('2d')
-      // ctx.canvas.width = curve_area.clientWidth
-      // ctx.canvas.height = curve_area.clientHeight - 24 // minus title height
-      //
-      // const colors = ['#0762ad', '#ef8200']
-      //
-      // let datasets = [{
-      //   label: 'train',
-      //   fill: false,
-      //   lineTension: 0,
-      //   borderWidth: 3,
-      //   borderColor: colors[0],
-      //   backgroundColor: colors[0],
-      //   pointRadius: 0.3,
-      //   data: this.trainLoss
-      // }, {
-      //   label: 'validation',
-      //   fill: false,
-      //   lineTension: 0,
-      //   borderWidth: 3,
-      //   borderColor: colors[1],
-      //   backgroundColor: colors[1],
-      //   pointRadius: 0.3,
-      //   data: this.validationLoss
-      // }]
-      //
-      // // create x axis labels
-      // let labels = []
-      // let q = Math.ceil(this.trainLoss.length / 50)
-      // if (this.trainLoss.length < 10) {
-      //   labels = Array.from(new Array(10)).map((v, i) => i)
-      // } else {
-      //   labels = Array.from(new Array(q * 50)).map((v, i) => i)
-      // }
-      //
-      // let data = {
-      //   labels: labels,
-      //   datasets: datasets
-      // }
-      // let options = {
-      //   animation: {
-      //     duration: 0
-      //   },
-      //   hover: {
-      //     animationDuration: 0
-      //   },
-      //   layout: {
-      //     padding: {
-      //       top: 16,
-      //       bottom: 0,
-      //       left: 16,
-      //       right: 16
-      //     }
-      //   },
-      //   scales: {
-      //     xAxes: [{
-      //       ticks: {
-      //         padding: -4,
-      //         maxRotation: 0,
-      //         minRotation: 0,
-      //         autoSkip: true
-      //       },
-      //       gridLines: {
-      //         color: 'rgba(0,0,0,0.1)',
-      //         borderDash: [1, 1, 1]
-      //       },
-      //       scaleLabel: {
-      //         display: true,
-      //         labelString: 'Epoch',
-      //         padding: {
-      //           top: -4
-      //         }
-      //       }
-      //     }],
-      //     yAxes: [{
-      //       ticks: {
-      //         min: 0
-      //       },
-      //       gridLines: {
-      //         color: 'rgba(0,0,0,0.1)',
-      //         borderDash: [1, 1, 1]
-      //       },
-      //       scaleLabel: {
-      //         display: true,
-      //         labelString: 'Loss',
-      //         padding: {
-      //           bottom: 4
-      //         }
-      //       }
-      //     }]
-      //   },
-      //   legend: {
-      //     display: false
-      //   },
-      //   responsive: false,
-      //   maintainAspectRatio: false
-      // }
-      //
-      // if (this.learning_curve_chart) this.learning_curve_chart.destroy()
-      // this.learning_curve_chart = new Chart(ctx, {
-      //   type: 'line',
-      //   data: data,
-      //   options: options
-      // })
+
+      this.old_chart_data = datasets
+    },
+    removeData: function (dataset) {
+      console.log('remove:', 'remove!!!!!')
+      d3.select('#curve-canvas').selectAll('*')
+        .data(dataset)
+        .exit()
+        .remove()
     }
   }
 }
@@ -362,14 +287,4 @@ export default {
   width: 60px;
   height: 28px;
 }
-// .tooltip::before{
-//   position: absolute;
-//   content: '';
-//   border-top: 20px solid　#EFEFEF;
-//   border-right: 20px solid transparent;
-//   border-left: 20px solid transparent;
-//   top: 100%;/*下にフィット*/
-//   left: 50%;/*中央配置*/
-//   transform: translateX(-50%);
-// }
 </style>
