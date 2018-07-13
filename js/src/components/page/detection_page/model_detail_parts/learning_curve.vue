@@ -121,7 +121,7 @@ export default {
         .text('Loss')
 
       // Difine tooltips
-      let tooltips = d3.select('body')
+      let tooltips = d3.select('#learning-curve')
         .append('div')
         .attr('class', 'tooltip')
         .style('display', 'none')
@@ -139,12 +139,13 @@ export default {
         .on('mouseover', function (d, index) {
           tooltips.style('display', 'inline-block')
           tooltips.html(index + '<br />' + d)
-            .style('left', (d3.event.x + 12) + 'px')
-            .style('top', (d3.event.y - height) + 'px')
+            .style('left', (d3.select(this).attr('cx') - 30) + 'px')
+            .style('top', (d3.select(this).attr('cy') - height) + 'px')
             .style('color', d3.rgb(255, 255, 255, 0.8))
             .style('background', d3.rgb(0, 0, 0, 0.8))
             .style('padding', 0.2 + '%')
             .style('border-radius', 6 + 'px')
+            .style('z-index', 10000)
         })
         .on('mouseout', function (d) {
           // tooltips.transition().duration(200)
@@ -360,11 +361,15 @@ export default {
   text-align: center;
   width: 60px;
   height: 28px;
-  padding: 2px;
-  font: 12px sans-serif;
-  background: lightsteelblue;
-  border: 0px;
-  border-radius: 8px;
-  pointer-events: none;
 }
+// .tooltip::before{
+//   position: absolute;
+//   content: '';
+//   border-top: 20px solid　#EFEFEF;
+//   border-right: 20px solid transparent;
+//   border-left: 20px solid transparent;
+//   top: 100%;/*下にフィット*/
+//   left: 50%;/*中央配置*/
+//   transform: translateX(-50%);
+// }
 </style>
