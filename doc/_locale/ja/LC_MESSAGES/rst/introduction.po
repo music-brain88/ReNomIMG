@@ -17,17 +17,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: ../../rst/renom_img.api.model.rst:2
-msgid "renom\\_img.api.model"
+#: ../../rst/introduction.rst:2
+msgid "ReNomIMG"
 msgstr ""
 
-#: ../../rst/renom_img.api.model.rst:5
-msgid "renom\\_img.api.model.darknet"
+#: ../../rst/introduction.rst:4
+msgid "**ReNomIMG is a GUI tool for building object detection model.**"
 msgstr ""
 
-#~ msgid "Bases: :class:`renom.layers.function.parameterized.Sequential`"
-#~ msgstr ""
-
-#~ msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
-#~ msgstr ""
+#: ../../rst/introduction.rst:6
+msgid "IMG will be here."
+msgstr ""
 

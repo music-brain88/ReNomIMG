@@ -1,5 +1,10 @@
-renom\_img
-==========
+APIs
+====
+
+ReNomIMG also provides python APIs.
+
+These APIs allows you to build not only building object detection model
+but also classification model and object segmentation model.
 
 .. toctree::
 

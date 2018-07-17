@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"POT-Creation-Date: 2018-07-17 16:12+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,11 @@ msgid "XML format must be Pascal VOC format."
 msgstr ""
 
 #: ../../docstring of renom_img.api.utility.load.parse_xml_detection
-#: renom_img.api.utility.nms.nms
+#: renom_img.api.utility.nms.nms renom_img.api.utility.nms.soft_nms
+#: renom_img.api.utility.target.DataBuilderClassification
+#: renom_img.api.utility.target.DataBuilderClassification.build
+#: renom_img.api.utility.target.DataBuilderDetection
+#: renom_img.api.utility.target.DataBuilderDetection.build
 msgid "Parameters"
 msgstr ""
 
@@ -42,8 +46,10 @@ msgstr ""
 msgid "List of xml-file's path."
 msgstr ""
 
-#: of renom_img.api.utility.load.parse_xml_detection
-#: renom_img.api.utility.target.DataBuilderYolov1.build
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection
+#: renom_img.api.utility.nms.nms renom_img.api.utility.nms.soft_nms
+#: renom_img.api.utility.target.DataBuilderClassification.build
+#: renom_img.api.utility.target.DataBuilderDetection.build
 msgid "Returns"
 msgstr ""
 
@@ -70,12 +76,15 @@ msgid ""
 "'name'. The structure is bellow."
 msgstr ""
 
-#: of renom_img.api.utility.load.parse_xml_detection:20
-#: renom_img.api.utility.target.DataBuilderYolov1.build:14
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:20
+#: renom_img.api.utility.nms.nms:14 renom_img.api.utility.nms.nms:32
+#: renom_img.api.utility.nms.soft_nms:13 renom_img.api.utility.nms.soft_nms:31
 msgid "["
 msgstr ""
 
-#: of renom_img.api.utility.load.parse_xml_detection:14
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:14
+#: renom_img.api.utility.nms.nms:7 renom_img.api.utility.nms.nms:25
+#: renom_img.api.utility.nms.soft_nms:6 renom_img.api.utility.nms.soft_nms:24
 msgid "[ # Objects of 1st image."
 msgstr ""
 
@@ -87,18 +96,25 @@ msgid ""
 "'class': id(int)}, ..."
 msgstr ""
 
-#: of renom_img.api.utility.load.parse_xml_detection:16
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:16
+#: renom_img.api.utility.nms.nms:9 renom_img.api.utility.nms.nms:27
+#: renom_img.api.utility.nms.soft_nms:8 renom_img.api.utility.nms.soft_nms:26
 msgid "], [ # Objects of 2nd image."
 msgstr ""
 
-#: of renom_img.api.utility.load.parse_xml_detection:21
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:21
 #: renom_img.api.utility.load.parse_xml_detection:22
-#: renom_img.api.utility.target.DataBuilderYolov1.build:16
+#: renom_img.api.utility.nms.nms:14 renom_img.api.utility.nms.nms:15
+#: renom_img.api.utility.nms.nms:32 renom_img.api.utility.nms.nms:33
+#: renom_img.api.utility.nms.soft_nms:13 renom_img.api.utility.nms.soft_nms:14
+#: renom_img.api.utility.nms.soft_nms:31 renom_img.api.utility.nms.soft_nms:32
 msgid "]"
 msgstr ""
 
-#: of renom_img.api.utility.load.parse_xml_detection
-#: renom_img.api.utility.target.DataBuilderYolov1.build
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection
+#: renom_img.api.utility.nms.nms renom_img.api.utility.nms.soft_nms
+#: renom_img.api.utility.target.DataBuilderClassification.build
+#: renom_img.api.utility.target.DataBuilderDetection.build
 msgid "Return type"
 msgstr ""
 
@@ -110,15 +126,42 @@ msgstr ""
 msgid "NMS(Non maximum suppression)"
 msgstr ""
 
-#: ../../docstring of renom_img.api.utility.nms.soft_nms:1
-msgid "Soft-NMS."
+#: ../../docstring of renom_img.api.utility.nms.nms:3
+#: renom_img.api.utility.nms.nms:20 renom_img.api.utility.nms.soft_nms:19
+msgid ""
+"[         [ # Objects of 1st image.             {'box': [x(float), y, w, "
+"h], 'class': class_id(int), 'score': score},             {'box': "
+"[x(float), y, w, h], 'class': class_id(int), 'score': score},"
+"             ...         ],         [ # Objects of 2nd image."
+"             {'box': [x(float), y, w, h], 'class': class_id(int), "
+"'score': score},             {'box': [x(float), y, w, h], 'class': "
+"class_id(int), 'score': score},             ...         ]     ]"
 msgstr ""
 
-#: ../../docstring of renom_img.api.utility.nms.soft_nms:5
+#: ../../docstring of renom_img.api.utility.nms.nms:6
+#: renom_img.api.utility.nms.nms:11 renom_img.api.utility.nms.nms:24
+#: renom_img.api.utility.nms.nms:29 renom_img.api.utility.nms.soft_nms:5
+#: renom_img.api.utility.nms.soft_nms:10 renom_img.api.utility.nms.soft_nms:23
+#: renom_img.api.utility.nms.soft_nms:28
+msgid ""
+"{'box': [x(float), y, w, h], 'class': class_id(int), 'score': score}, "
+"{'box': [x(float), y, w, h], 'class': class_id(int), 'score': score}, ..."
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.nms:17
+#: renom_img.api.utility.nms.soft_nms:16
+msgid "Defaults to `0.5`. This represents the ratio of overlap between boxes."
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:1
+msgid "Soft-NMS. :param preds:"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:37
 msgid "Reference:"
 msgstr ""
 
-#: ../../docstring of renom_img.api.utility.nms.soft_nms:4
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:36
 msgid ""
 "Navaneeth Bodla, Bharat Singh, Rama Chellappa, Larry S. Davis, Soft-NMS "
 "-- Improving Object Detection With One Line of Code "
@@ -134,47 +177,91 @@ msgid "Bases: :class:`object`"
 msgstr ""
 
 #: of renom_img.api.utility.target.DataBuilderClassification:1
-#: renom_img.api.utility.target.DataBuilderDefault:1
 #: renom_img.api.utility.target.DataBuilderDetection:1
-#: renom_img.api.utility.target.DataBuilderYolov1:1
+#: renom_img.api.utility.target.DataBuilderSegmentation:1
 msgid "Bases: :class:`renom_img.api.utility.target.DataBuilderBase`"
 msgstr ""
 
 #: of renom_img.api.utility.target.DataBuilderClassification:1
+msgid "Data builder for classification task"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification:3
+#: renom_img.api.utility.target.DataBuilderDetection:3
+msgid "Input image size"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification:5
+#: renom_img.api.utility.target.DataBuilderDetection:5
+msgid "List of class id"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification.build:1
+#: renom_img.api.utility.target.DataBuilderDetection.build:1
+msgid "List of input image paths."
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification.build:3
+#: renom_img.api.utility.target.DataBuilderDetection.build:3
+msgid "List of class id [1, 4, 6 (int)]"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification.build:6
+#: renom_img.api.utility.target.DataBuilderDetection.build:6
+msgid "Instance of the augmentation class."
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification.build:9
+msgid "Batch of images y(ndarray): One hot labels for each image in a batch"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderDetection:1
+msgid "Data builder for detection task"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderDetection.build:9
+msgid ""
+"Batch of images y(ndarray): The shape of ndarray is [# images, maximum "
+"number of objects in an image * (4(coordinates) + 1(confidence))]"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation:1
 msgid "Annotation_list must be list of class name."
 msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderYolov1.build:1
-msgid ""
-"Use to transform a list of objects per image into a "
-"image*cells*cells*(5+classes) matrix."
-msgstr ""
+#~ msgid "Soft-NMS."
+#~ msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderYolov1.build:3
-msgid "Yolo formatted target array."
-msgstr ""
+#~ msgid ""
+#~ "Use to transform a list of objects"
+#~ " per image into a "
+#~ "image*cells*cells*(5+classes) matrix."
+#~ msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderYolov1.build:6
-msgid ""
-"This method returns yolo formatted target array which shape is (N, "
-"cell*cell*(5 + 1). N is batch size. The array consists of following data."
-msgstr ""
+#~ msgid "Yolo formatted target array."
+#~ msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderYolov1.build:9
-msgid "existence flag: A flag which indicates if an object exists in the cell."
-msgstr ""
+#~ msgid ""
+#~ "This method returns yolo formatted "
+#~ "target array which shape is (N, "
+#~ "cell*cell*(5 + 1). N is batch "
+#~ "size. The array consists of following"
+#~ " data."
+#~ msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderYolov1.build:10
-msgid "Coordinates and size(x, y, w, h): Coordinate and size of each objects."
-msgstr ""
+#~ msgid "existence flag: A flag which indicates if an object exists in the cell."
+#~ msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderYolov1.build:11
-msgid "Class id: The object's class number."
-msgstr ""
+#~ msgid "Coordinates and size(x, y, w, h): Coordinate and size of each objects."
+#~ msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderYolov1.build:14
-msgid ""
-"[existence x y w h 2 existence x y w h 2 ... ], [existence x y w h 3 "
-"existence x y w h 1 ... ],"
-msgstr ""
+#~ msgid "Class id: The object's class number."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "[existence x y w h 2 existence "
+#~ "x y w h 2 ... ], [existence"
+#~ " x y w h 3 existence x y"
+#~ " w h 1 ... ],"
+#~ msgstr ""
 

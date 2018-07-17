@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"POT-Creation-Date: 2018-07-17 16:12+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgid ""
 msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1
-#: renom_img.api.detection.yolo_v1.Yolov1.build_data
+#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
 #: renom_img.api.detection.yolo_v1.Yolov1.get_optimizer
 #: renom_img.api.detection.yolo_v1.Yolov1.predict
 #: renom_img.api.detection.yolo_v1.Yolov1.preprocess
@@ -74,14 +74,14 @@ msgid ""
 "string is given, pretrained weight will be saved as given name."
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.build_data:1
-#: renom_img.api.detection.yolo_v2.Yolov2.build_data:1
-msgid "Image path list."
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:2
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:4
+#: renom_img.api.detection.yolo_v1.Yolov1.regularize:7
+msgid "Example"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.build_data:2
-#: renom_img.api.detection.yolo_v2.Yolov2.build_data:2
-msgid "Detection formatted label."
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:8
+msgid "Output array of neural network. The shape of array"
 msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox
@@ -95,8 +95,60 @@ msgstr ""
 msgid "Returns"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:1
-msgid "List of predicted bounding box, class label id and its score."
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:11
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:13
+msgid ""
+"List of predicted bbox, score and class of each image.     The format of "
+"return value is bellow. Box coordinates and size will be returned as     "
+"ratio to the original image size. Therefore the range of 'box' is [0 ~ "
+"1].  [     [ # Prediction of first image.         {'box': [x, y, w, h], "
+"'score':(float), 'class':(int)},         {'box': [x, y, w, h], "
+"'score':(float), 'class':(int)},         ...     ],     [ # Prediction of"
+" second image.         {'box': [x, y, w, h], 'score':(float), "
+"'class':(int)},         {'box': [x, y, w, h], 'score':(float), "
+"'class':(int)},         ...     ],     ... ]"
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:15
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:17
+msgid "List of predicted bbox, score and class of each image."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:14
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:16
+msgid ""
+"The format of return value is bellow. Box coordinates and size will be "
+"returned as ratio to the original image size. Therefore the range of "
+"'box' is [0 ~ 1]."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:27
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:29
+msgid "["
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:20
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:22
+msgid "[ # Prediction of first image."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:19
+#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:24
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:21
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:26
+msgid ""
+"{'box': [x, y, w, h], 'score':(float), 'class':(int)}, {'box': [x, y, w, "
+"h], 'score':(float), 'class':(int)}, ..."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:22
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:24
+msgid "], [ # Prediction of second image."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:29
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:31
+msgid "]"
 msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox
@@ -110,59 +162,19 @@ msgstr ""
 msgid "Return type"
 msgstr ""
 
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:34
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:36
+msgid ""
+"Box coordinate and size will be returned as ratio to the original image "
+"size. Therefore the range of 'box' is [0 ~ 1]."
+msgstr ""
+
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:1
 msgid "Returns an instance of Optimiser for training Yolov1 algorithm."
 msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.predict:1
 msgid "This method accepts either ndarray and list of image path."
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:4
-#: renom_img.api.detection.yolo_v1.Yolov1.regularize:7
-msgid "Example"
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:13
-msgid ""
-"List of predicted bbox, score and class of each image.     The format of "
-"return value is bellow.  [     [ # Prediction of first image.         "
-"{'box': [x, y, w, h], 'score':(float), 'class':(int)},         {'box': "
-"[x, y, w, h], 'score':(float), 'class':(int)},         ...     ],     [ #"
-" Prediction of second image.         {'box': [x, y, w, h], "
-"'score':(float), 'class':(int)},         {'box': [x, y, w, h], "
-"'score':(float), 'class':(int)},         ...     ],     ... ]"
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:16
-msgid "List of predicted bbox, score and class of each image."
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:16
-msgid "The format of return value is bellow."
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:28
-msgid "["
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:21
-msgid "[ # Prediction of first image."
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:20
-#: renom_img.api.detection.yolo_v1.Yolov1.predict:25
-msgid ""
-"{'box': [x, y, w, h], 'score':(float), 'class':(int)}, {'box': [x, y, w, "
-"h], 'score':(float), 'class':(int)}, ..."
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:23
-msgid "], [ # Prediction of second image."
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:30
-msgid "]"
 msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:1
@@ -195,7 +207,14 @@ msgstr ""
 msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:14
+#: of renom_img.api.detection.yolo_v2.Yolov2:5
+msgid ""
+"Image size. This can be both image size ex):(320, 320) and list of image "
+"size ex):[(288, 288), (320, 320)]. If list of image size is given, the "
+"prediction method uses the last image size of the list for prediction."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2:16
 msgid ""
 "If you save this model using 'save' method, anchor information(anchor "
 "list and base size of them) will be saved. So when you load your own "
@@ -203,11 +222,22 @@ msgid ""
 "'anchor_size'."
 msgstr ""
 
+#: of renom_img.api.detection.yolo_v2.Yolov2.build_data:1
+msgid ""
+"This returns data building function that builds target data for yolo 2 "
+"training. In training of yolov2, image size will be changed every 10 "
+"batches. Therefore, users can give list of image size to this function."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.build_data:5
+msgid "List of image size."
+msgstr ""
+
 #: of renom_img.api.detection.yolo_v2.Yolov2.fit:1
 msgid "This function performs training with given data and hyper parameters."
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2.fit:13
+#: of renom_img.api.detection.yolo_v2.Yolov2.fit:11
 msgid "Training loss list and validation loss list."
 msgstr ""
 
@@ -256,4 +286,32 @@ msgid ""
 "Perform k-means clustering using custom metric. We want to get only "
 "anchor's size so we don't have to consider coordinates."
 msgstr ""
+
+#~ msgid "Image path list."
+#~ msgstr ""
+
+#~ msgid "Detection formatted label."
+#~ msgstr ""
+
+#~ msgid "List of predicted bounding box, class label id and its score."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "List of predicted bbox, score and "
+#~ "class of each image.     The format "
+#~ "of return value is bellow.  [     "
+#~ "[ # Prediction of first image."
+#~ "         {'box': [x, y, w, h], "
+#~ "'score':(float), 'class':(int)},         {'box': [x,"
+#~ " y, w, h], 'score':(float), 'class':(int)},"
+#~ "         ...     ],     [ # Prediction "
+#~ "of second image.         {'box': [x, y,"
+#~ " w, h], 'score':(float), 'class':(int)},"
+#~ "         {'box': [x, y, w, h], "
+#~ "'score':(float), 'class':(int)},         ...     ],"
+#~ "     ... ]"
+#~ msgstr ""
+
+#~ msgid "The format of return value is bellow."
+#~ msgstr ""
 
