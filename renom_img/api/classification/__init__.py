@@ -33,4 +33,5 @@ class Classification(Base):
         return rm.softmax_cross_entropy(x, y)
 
     def build_data(self):
-        return DataBuilderClassification(self.imsize, self.class_map)
+        return DataBuilderClassification(self.class_map, self.imsize)
+
