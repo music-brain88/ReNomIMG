@@ -42,6 +42,7 @@ export default {
   methods: {
     drawLearningCurve: function () {
       const colors = ['#0762ad', '#ef8200']
+
       let datasets = [{
         label: 'train',
         fill: false,
@@ -62,78 +63,108 @@ export default {
         data: this.validationLoss
       }]
 
-      // if (this.old_chart_data !== datasets) {
-      //   this.removeData(this.old_chart_data[0].data)
-      //   this.removeData(this.old_chart_data[1].data)
-      // }
+      this.removeData()
+
+      // let dataset = d3.nest().key(function (d) { return d.label }).entries(datasets)
+
+      // console.log('datasets', dataset)
 
       let curve_area = document.getElementById('learning-curve')
 
       const margin = { 'top': 20, 'bottom': 60, 'right': 30, 'left': 60 }
-
       const width = curve_area.clientWidth
       const height = curve_area.clientHeight
 
-      let svg = d3.select('#curve-canvas').append('svg').attr('width', width).attr('height', height)
+      const svg = d3.select('#curve-canvas').append('svg').attr('width', width).attr('height', height)
 
-      let xScale = d3.scaleLinear()
+      // resetZoom action
+      d3.select('#curve-canvas').on('contextmenu', resetZoom)
+
+      const xScale = d3.scaleLinear()
         .domain([0, d3.max(datasets[0].data, function (d, index) { return index })])
         .range([margin.left, width - margin.right])
 
-      let yScale = d3.scaleLinear()
+      // .range([margin.left, width - margin.right])
+
+      const yScale = d3.scaleLinear()
         .domain([0, d3.max(datasets[0].data, function (d) { return d })])
         .range([height - margin.bottom, margin.top])
+      // .range([height - margin.bottom, margin.top])
 
       // get axes
-      let axisx = d3.axisBottom(xScale)
-        .tickSizeInner(-height)
+      const axisx = d3.axisBottom(xScale)
+        .tickSizeInner(-(height - (margin.top + margin.bottom)))
         .tickSizeOuter(0)
         .ticks(10)
         .tickPadding(10)
 
-      let axisy = d3.axisLeft(yScale)
+      const axisy = d3.axisLeft(yScale)
         .ticks(10)
-        .tickSizeInner(-width)
+        .tickSizeInner(-(width - (margin.left + margin.right)))
         .tickSizeOuter(0)
         .ticks(10)
         .tickPadding(10)
 
       // draw x axis
-      svg.append('g')
+      let gX = svg.append('g')
         .attr('transform', 'translate(' + 0 + ',' + (height - margin.bottom) + ')')
         .call(axisx)
-        .append('text')
+
+      // draw y axis
+      let gY = svg.append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + 0 + ')')
+        .call(axisy)
+
+      stylingAxes()
+      gX.append('text')
         .attr('fill', d3.rgb(0, 0, 0, 0.5))
         .attr('x', (width - margin.left - margin.right) / 2 + margin.left)
         .attr('y', 35)
-        .attr('text-anchor', 'middle')
-        .attr('font-size', '2pt')
-        .attr('font-family', 'Inter UI', 'sans-serif')
+        .style('font-size', '0.85em')
         .text('Epoch')
 
-      // draw y axis
-      svg.append('g')
-        .attr('transform', 'translate(' + margin.left + ',' + 0 + ')')
-        .call(axisy)
-        .attr('class', 'axisRed')
-        .append('text')
+      gY.append('text')
         .attr('fill', d3.rgb(0, 0, 0, 0.5))
-        .attr('text-anchor', 'middle')
         .attr('x', -(height - margin.top - margin.bottom) / 2 - margin.top)
         .attr('y', -35)
         .attr('transform', 'rotate(-90)')
-        .attr('font-size', '2pt')
-        .attr('font-family', 'Inter UI', 'sans-serif')
+        .style('font-size', '0.85em')
         .text('Loss')
 
-      // Difine tooltips
+      // console.log(gY + gX)
+
+      // Define tooltips
       let tooltips = d3.select('#learning-curve')
         .append('div')
         .attr('class', 'tooltip')
         .style('display', 'none')
 
+      // draw line chart
+      let TrainLine = svg.append('path')
+        .datum(datasets[0].data)
+        .attr('fill', 'none')
+        .attr('stroke', colors[0])
+        .attr('stroke-width', 1.5)
+        .attr('d', d3.line()
+          .x(function (d, index) { return xScale(index) })
+          .y(function (d) { return yScale(d) })
+          .curve(d3.curveLinear)
+        )
+
+      // draw line chart
+      let ValidationLine = svg.append('path')
+        .datum(datasets[1].data)
+        .attr('fill', 'none')
+        .attr('stroke', colors[1])
+        .attr('stroke-width', 1.5)
+        .attr('d', d3.line()
+          .x(function (d, index) { return xScale(index) })
+          .y(function (d) { return yScale(d) })
+          .curve(d3.curveLinear)
+        )
+
       // draw Train data dot
-      svg.append('g')
+      let TrainDots = svg.append('g')
         .selectAll('circle')
         .data(datasets[0].data)
         .enter()
@@ -141,7 +172,7 @@ export default {
         .attr('cx', function (d, index) { return xScale(index) })
         .attr('cy', function (d) { return yScale(d) })
         .attr('fill', colors[0])
-        .attr('r', 3)
+        .attr('r', 2)
         .on('mouseover', function (d, index) {
           tooltips.style('display', 'inline-block')
           tooltips.html(index + '<br />' + 'Train:' + d)
@@ -152,15 +183,22 @@ export default {
             .style('padding', 2 + '%')
             .style('border-radius', 6 + 'px')
             .style('z-index', 10000)
-          d3.select(this).attr('r', 6)
+            .on('mouseover', function (d, index) {
+              tooltips.style('display', 'inline-block')
+            })
+            .on('mouseout', function (d) {
+              tooltips.style('display', 'none')
+              d3.select(this).attr('r', 2)
+            })
+          d3.select(this).attr('r', 3)
         })
         .on('mouseout', function (d) {
           tooltips.style('display', 'none')
-          d3.select(this).attr('r', 3)
+          d3.select(this).attr('r', 2)
         })
 
       // draw Validation data dot
-      svg.append('g')
+      let ValidationDots = svg.append('g')
         .selectAll('circle')
         .data(datasets[1].data)
         .enter()
@@ -168,7 +206,7 @@ export default {
         .attr('cx', function (d, index) { return xScale(index) })
         .attr('cy', function (d) { return yScale(d) })
         .attr('fill', colors[1])
-        .attr('r', 3)
+        .attr('r', 2)
         .on('mouseover', function (d, index) {
           tooltips.style('display', 'inline-block')
           tooltips.html(index + '<br />' + 'Validation:' + d)
@@ -176,51 +214,79 @@ export default {
             .style('top', (d3.select(this).attr('cy') - height) + 'px')
             .style('color', d3.rgb(255, 255, 255, 0.8))
             .style('background', d3.rgb(0, 0, 0, 0.8))
-            .style('padding', 0.2 + '%')
+            .style('padding', 2 + '%')
             .style('border-radius', 6 + 'px')
             .style('z-index', 10000)
-          d3.select(this).attr('r', 6)
+            .on('mouseover', function (d, index) {
+              tooltips.style('display', 'inline-block')
+            })
+            .on('mouseout', function (d) {
+              tooltips.style('display', 'none')
+              d3.select(this).attr('r', 2)
+            })
+          d3.select(this).attr('r', 3)
         })
         .on('mouseout', function (d) {
           tooltips.style('display', 'none')
-          d3.select(this).attr('r', 3)
+          d3.select(this).attr('r', 2)
         })
 
-      // draw line chart
-      svg.append('path')
-        .datum(datasets[0].data)
-        .attr('fill', 'none')
-        .attr('stroke', colors[0])
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-          .x(function (d, index) { return xScale(index) })
-          .y(function (d) { return yScale(d) })
-          .curve(d3.curveCardinal)
-        )
+      let zoom = d3.zoom()
+        .scaleExtent([0, 10])
+        .translateExtent([
+          [0, 0],
+          [width, height]
+        ])
+        .on('zoom', zoomed)
 
-      // draw line chart
-      svg.append('path')
-        .datum(datasets[1].data)
-        .attr('fill', 'none')
-        .attr('stroke', colors[1])
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-          .x(function (d, index) { return xScale(index) })
-          .y(function (d) { return yScale(d) })
-          .curve(d3.curveCardinal)
-        )
+      svg.call(zoom)
 
-      console.log('width', width)
-      console.log('height', height)
-      console.log('svg', svg)
+      function zoomed () {
+        gX.call(axisx.scale(d3.event.transform.rescaleX(xScale)))
+          .selectAll('.tick:not(:first-child) line')
+          .style('stroke', d3.rgb(0, 0, 0, 0.2))
+          .style('stroke-dasharray', '2,2')
 
-      this.old_chart_data = datasets
+        gY.call(axisy.scale(d3.event.transform.rescaleY(yScale)))
+          .selectAll('line')
+          .style('stroke', d3.rgb(0, 0, 0, 0.2))
+          .style('stroke-dasharray', '2,2')
+
+        TrainLine.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
+        ValidationLine.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
+        TrainDots.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
+        ValidationDots.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
+        stylingAxes()
+      }
+      function stylingAxes () {
+        gX.selectAll('path')
+          .style('stroke', d3.rgb(128, 128, 128, 0.5))
+        gX.selectAll('line')
+          .style('stroke', d3.rgb(0, 0, 0, 0.2))
+          .style('stroke-dasharray', '2,2')
+        gX.selectAll('text')
+          .style('fill', d3.rgb(0, 0, 0, 0.5))
+          .style('font-size', '0.85em')
+
+        gY.selectAll('path')
+          .style('stroke', d3.rgb(128, 128, 128, 0.5))
+        gY.selectAll('line')
+          .style('stroke', d3.rgb(0, 0, 0, 0.2))
+          .style('stroke-dasharray', '2,2')
+        gY.selectAll('text')
+          .style('fill', d3.rgb(0, 0, 0, 0.5))
+          .style('font-size', '0.85em')
+      }
+      function resetZoom () {
+        svg.transition()
+          .duration(1000)
+          .call(zoom.transform, d3.zoomIdentity)
+        d3.event.preventDefault()
+      }
     },
-    removeData: function (dataset) {
+    removeData: function () {
       console.log('remove:', 'remove!!!!!')
       d3.select('#curve-canvas').selectAll('*')
-        .data(dataset)
-        .exit()
         .remove()
     }
   }
@@ -241,6 +307,20 @@ export default {
 
   width: 100%;
   height: 100%;
+
+  svg {
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-top: 1rem;
+  }
+
+  .tooltip {
+    content: '';
+    position: absolute;
+    text-align: center;
+    width: 60px;
+    height: 28px;
+  }
 
   .title {
     line-height: $title-height;
@@ -280,11 +360,5 @@ export default {
       }
     }
   }
-}
-.tooltip {
-  position: absolute;
-  text-align: center;
-  width: 60px;
-  height: 28px;
 }
 </style>
