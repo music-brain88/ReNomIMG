@@ -36,7 +36,7 @@ class VGGBase(Classification):
             return self._opt
         else:
             avg_valid_loss_list = kwargs['avg_valid_loss_list']
-            if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2]:
+            if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2] and current_batch==0:
                 self._opt._lr = self._opt._lr / 10.
             return self._opt
 
