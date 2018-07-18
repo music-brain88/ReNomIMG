@@ -61,7 +61,6 @@ class VGGBase(Classification):
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
 
-
 class VGG16(VGGBase):
     """VGG16 model.
     If the argument load_weight is True, pretrained weight will be downloaded.

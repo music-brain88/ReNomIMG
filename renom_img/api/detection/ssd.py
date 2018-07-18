@@ -318,27 +318,29 @@ class PriorBox(object):
         return prior_boxes_tensor
 
 class DetectorNetwork(rm.Model):
-    def __init__(self, num_class):
+    def __init__(self, num_class, vgg):
         self.num_class = num_class
-        self.conv3_1 = rm.Conv2d(channel=256, padding=1, filter=3)
-        self.conv3_2 = rm.Conv2d(channel=256, padding=1, filter=3)
-        self.conv3_3 = rm.Conv2d(channel=256, padding=1, filter=3)
+        block3 = vgg._model.block3
+        self.conv3_1 = block3._layers[0]
+        self.conv3_2 = block3._layers[2]
+        self.conv3_3 = block3._layers[4]
         self.pool3 = rm.MaxPool2d(filter=2, stride=2, padding=1)
-        self.conv4_1 = rm.Conv2d(channel=512, padding=1, filter=3)
-        self.conv4_2 = rm.Conv2d(channel=512, padding=1, filter=3)
-        self.conv4_3 = rm.Conv2d(channel=512, padding=1, filter=3)
+
+        block4 = vgg._model.block4
+        self.conv4_1 = block4._layers[0]
+        self.conv4_2 = block4._layers[2]
+        self.conv4_3 = block4._layers[4]
         self.pool4 = rm.MaxPool2d(filter=2, stride=2)
 
-
-        self.conv5_1 = rm.Conv2d(channel=512, padding=1, filter=3)
-        self.conv5_2 = rm.Conv2d(channel=512, padding=1, filter=3)
-        self.conv5_3 = rm.Conv2d(channel=512, padding=1, filter=3)
+        block5 = vgg._model.block5
+        self.conv5_1 = block5._layers[0]
+        self.conv5_2 = block5._layers[2]
+        self.conv5_3 = block5._layers[4]
         self.pool5 = rm.MaxPool2d(filter=3, stride=1, padding=1)
         #=================================================
         # THOSE ARE USED AFTER OUTPUS ARE NORMALIZED
         self.fc6 = rm.Conv2d(channel=1024, filter=3, padding=6, dilation=6) #relu
         self.fc7 = rm.Conv2d(channel=1024, filter=1, padding=0)
-
 
         self.conv8_1 = rm.Conv2d(channel=256, filter=1)
         self.conv8_2 = rm.Conv2d(channel=512, stride=2, filter=3, padding=1)
@@ -523,12 +525,13 @@ class SSD(rm.Model):
 
         self.imsize = imsize
         vgg = VGG16(class_map)
+        vgg._model.load('VGG16-2.h5')
         self._freezed_network = rm.Sequential([vgg._model.block1,
                                                vgg._model.block2])
-        self._network = DetectorNetwork(self.num_class)
+        self._network = DetectorNetwork(self.num_class, vgg)
         self.bbox_util = BoxUtils(self.num_class, create_priors(), overlap_threshold, nms_threshold, top_K)
 
-        self._opt = rm.Adam(3e-4)
+        self._opt = rm.Adam(6e-4)
 
         if load_pretrained_weight:
             if isinstance(load_pretrained_weight, bool):
@@ -558,10 +561,7 @@ class SSD(rm.Model):
             current_batch:
             total_epoch:
         """
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
-            return self._opt
-        else:
-            return self._opt
+        return self._opt
 
     def preprocess(self, x):
         """Image preprocess for Yolov1.
@@ -880,6 +880,8 @@ class SSD(rm.Model):
                     display_loss += loss
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
+
+
                 avg_valid_loss = display_loss / (i + 1)
                 avg_valid_loss_list.append(avg_train_loss)
                 bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
