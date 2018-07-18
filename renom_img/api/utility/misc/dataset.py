@@ -9,7 +9,8 @@ def fetch_detection_dataset_pets(split_validation=True, test_size=0.2):
     """
 
     Args:
-
+        split_validation (boolean): Whether or not split validation data.
+        test_size(float): propotion of the test dataset in total datasets.
     Returns:
         (list): This ret1urns list of image path.
         (list): This returns list of annotations.
@@ -76,7 +77,7 @@ def fetch_detection_dataset_voc_2007(split_validation=True):
     """
 
     Args:
-        split_validation (boolean):
+        split_validation (boolean): Whether or not split validation data.
     Returns:
         (list): This ret1urns list of image path.
         (list): This returns list of annotations.
@@ -148,7 +149,7 @@ def fetch_detection_dataset_voc_2012(split_validation=True):
     """
 
     Args:
-        split_validation (boolean):
+        split_validation (boolean): Whether or not split validation data.
     Returns:
         (list): This ret1urns list of image path.
         (list): This returns list of annotations.
@@ -215,8 +216,16 @@ def fetch_detection_dataset_voc_2012(split_validation=True):
 
         return annotation_list, image_path_list
 
-def fetch_classification_dataset_caltech101(split_validation=True, train_size=0.8):
+def fetch_classification_dataset_caltech101(split_validation=True, test_size=0.2):
+    """
 
+    Args:
+        split_validation (boolean): Whether or not split validation data.
+        test_size(float): proportion of the test dataset in total datasets.
+    Returns:
+        (list): This returns list of image path.
+        (list): This returns list of label.
+    """
     caltech101_url = "http://www.vision.caltech.edu/Image_Datasets/Caltech101/101_ObjectCategories.tar.gz"
     image_caltech101 = "101_ObjectCategories"
     caltech_101_tar = "101_ObjectCategories.tar.gz"
@@ -240,13 +249,13 @@ def fetch_classification_dataset_caltech101(split_validation=True, train_size=0.
     if split_validation == True:
         N = len(image_path_list)
         perm = np.random.permutation(N)
-        train_N = int(N * train_size)
+        test_N = int(N * test_size)
 
-        train_image_path_list = [image_path_list[p] for p in perm[:train_N]]
-        train_label_list = [label_list[p] for p in perm[:train_N]]
+        train_image_path_list = [image_path_list[p] for p in perm[test_N:]]
+        train_label_list = [label_list[p] for p in perm[test_N:]]
 
-        valid_image_path_list = [image_path_list[p] for p in perm[train_N:]]
-        valid_label_list = [label_list[p] for p in perm[train_N:]]
+        valid_image_path_list = [image_path_list[p] for p in perm[:test_N]]
+        valid_label_list = [label_list[p] for p in perm[:test_N]]
 
         return train_image_path_list, train_label_list, valid_image_path_list, valid_label_list
     else:
