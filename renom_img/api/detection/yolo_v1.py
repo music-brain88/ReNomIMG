@@ -55,9 +55,10 @@ class Yolov1(rm.Model):
           will be saved as given name.
 
     References:
-        Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
-        You Only Look Once: Unified, Real-Time Object Detection  
-        https://arxiv.org/abs/1506.02640  
+        | Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
+        | You Only Look Once: Unified, Real-Time Object Detection  
+        | https://arxiv.org/abs/1506.02640  
+        | 
 
     """
 

@@ -1,3 +1,4 @@
 sphinx
 sphinx-intl
 sphinxcontrib-versioning
+sphinx_rtd_theme
