@@ -64,7 +64,7 @@ class Base(rm.Model):
             avg_train_loss = display_loss / (i + 1)
             avg_train_loss_list.append(avg_train_loss)
 
-            if valid_dist is not None:
+            if valid_img_path_list is not None:
                 bar.n = 0
                 bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
