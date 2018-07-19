@@ -14,6 +14,14 @@ from renom_img.api.utility.misc.download import download
 
 
 class AnchorYolov2(object):
+    """
+    This class contains anchors that will used by in Yolov2.
+
+    Args:
+      anchor(list): List of anchors.
+      imsize(tuple): Image size.
+
+    """
 
     def __init__(self, anchor, imsize):
         self.anchor = anchor
@@ -36,6 +44,9 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
         annotation_list(list):
         n_anchor(int):
         base_size(int, list):
+
+    Returns:
+        (AnchorYolov2): Anchor list. 
     """
     convergence = 0.005
     box_list = [(0, 0, an['box'][2] * base_size[0] / an['size'][0],
@@ -84,13 +95,20 @@ class Yolov2(rm.Model):
     """
 
     Args:
-        num_class(int):
-        anchor(list):
+        class_map(list): List of class name.
+        anchor(AnchorYolov2): Anchors. 
         imsize(list): Image size.
-            This can be both image size ex):(320, 320) and list of image size ex):[(288, 288), (320, 320)].
-            If list of image size is given, the prediction method uses the last image size of the list for prediction.
+            This can be both image size ex):(320, 320) and list of image size 
+            ex):[(288, 288), (320, 320)]. If list of image size is given, 
+            the prediction method uses the last image size of the list for prediction.
         load_pretrained_weight(bool, string):
         train_whole_network(bool):
+
+    References:
+        | Joseph Redmon, Ali Farhadi
+        | **YOLO9000: Better, Faster, Stronger**
+        | https://arxiv.org/abs/1612.08242
+        | 
 
     Note:
         If you save this model using 'save' method, anchor information(anchor list and base size of them) will be
@@ -160,18 +178,22 @@ class Yolov2(rm.Model):
                         }
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
-        """
-        This returns optimizer whose learning rate is modified according to epoch.
+        """Returns an instance of Optimizer for training Yolov2 algorithm.
+
+        If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
+        an optimizer object which whose learning rate is modified according to the 
+        number of training iteration. Otherwise, constant learning rate is set.
 
         Args:
-            current_batch:
-            total_epoch:
-            current_batch:
-            total_batch:
+            current_epoch (int): The number of current epoch.
+            total_epoch (int): The number of total epoch.
+            current_batch (int): The number of current batch.
+            total_epoch (int): The number of total batch.
 
         Returns:
-            (Optimizer): 
+            (Optimizer): Optimizer object.
         """
+
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
@@ -187,18 +209,47 @@ class Yolov2(rm.Model):
             return self._opt
 
     def preprocess(self, x):
-        """
-        This performs preprocess for given image.
+        """Image preprocess for Yolov1.
+
+        :math:`x_{new} = x*2/255 - 1`
 
         Args:
-            x(ndarray):
+            x (ndarray):
 
         Returns:
-            (ndarray): Preprocessed array.
+            (ndarray): Preprocessed data.
         """
         return x / 255. * 2 - 1
 
     def forward(self, x):
+        """Performs forward propagation.
+        This function can be called using ``__call__`` method.
+        See following example of method usage.
+
+        Args:
+            x (ndarray, Node): Input image as an tensor.
+
+        Returns:
+            (Node): Returns raw output of yolo v1.
+            You can reform it to bounding box form using the method ``get_bbox``.
+
+        Example:
+            >>> import numpy as np
+            >>> from renom_img.api.detection.yolo_v1 import Yolov1
+            >>>
+            >>> x = np.random.rand(1, 3, 224, 224)
+            >>> class_map = ["dog", "cat"]
+            >>> model = Yolov1(class_map)
+            >>> y = model.forward(x) # Forward propagation.
+            >>> y = model(x)  # Same as above result.
+            >>> 
+            >>> bbox = model.get_bbox(y) # The output can be reformed using get_bbox method.
+
+        """
+
+        assert len(self.class_map) > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
+            "Or, please load already trained model using the method 'load()'."
         self.freezed_network.set_auto_update(self._train_whole_network)
         self.freezed_network.set_models(inference=(
             not self._train_whole_network or getattr(self, 'inference', False)))
@@ -221,8 +272,19 @@ class Yolov2(rm.Model):
         return rm.concat(conf, px, py, pw, ph, cl).transpose(0, 2, 1, 3).reshape(N, -1, H, W)
 
     def regularize(self):
-        """
-        Regularize term of 
+        """Regularize term. You can use this function to add regularize term to 
+        loss function.
+
+        In Yolo v2, weight decay of 0.0005 will be added.
+
+        Example:
+            >>> import numpy as np
+            >>> from renom_img.api.detection.yolo_v2 import Yolov2
+            >>> x = np.random.rand(1, 3, 224, 224)
+            >>> y = np.random.rand(1, (5*2+20)*7*7)
+            >>> model = Yolov2()
+            >>> loss = model.loss(x, y)
+            >>> reg_loss = loss + model.regularize() # Adding weight decay term.
         """
         reg = 0
         for layer in self.iter_models():
@@ -233,14 +295,43 @@ class Yolov2(rm.Model):
 
     def get_bbox(self, z):
         """
-        This method reforms network output to list of bounding box.
+        Example:
+            >>> z = model(x)
+            >>> model.get_bbox(z)
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
-            z(Variable, ndarray):
+            z (ndarray): Output array of neural network. The shape of array 
 
-        Returns:
-            (list):
+        Return:
+            (list) : List of predicted bbox, score and class of each image.
+            The format of return value is bellow. Box coordinates and size will be returned as
+            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+
+        .. code-block :: python
+
+            # An example of return value.
+            [
+                [ # Prediction of first image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    ...
+                ],
+                [ # Prediction of second image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    ...
+                ],
+                ...
+            ]
+
+        Note:
+            Box coordinate and size will be returned as ratio to the original image size.
+            Therefore the range of 'box' is [0 ~ 1].
+
         """
+
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
 
@@ -319,13 +410,43 @@ class Yolov2(rm.Model):
 
     def predict(self, img_list):
         """
-        This method performs prediction.
+        This method accepts either ndarray and list of image path.
+
+        Example:
+            >>> 
+            >>> model.predict(['img01.jpg', 'img02.jpg']])
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
-            img_list(list, ndarray, string):
+            img_list (string, list, ndarray): Path to an image, list of path or ndarray.
 
-        Returns:
-            (list):
+        Return:
+            (list): List of predicted bbox, score and class of each image.
+            The format of return value is bellow. Box coordinates and size will be returned as
+            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+
+        .. code-block :: python
+
+            # An example of return value.
+            [
+                [ # Prediction of first image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    ...
+                ],
+                [ # Prediction of second image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    ...
+                ],
+                ...
+            ]
+
+        Note:
+            Box coordinate and size will be returned as ratio to the original image size.
+            Therefore the range of 'box' is [0 ~ 1].
+
         """
         imsize = self.imsize
         self.set_models(inference=True)
@@ -343,12 +464,17 @@ class Yolov2(rm.Model):
 
     def build_data(self, imsize_list=None):
         """
-        This returns data building function that builds target data for yolo 2 training.
-        In training of yolov2, image size will be changed every 10 batches.
-        Therefore, users can give list of image size to this function.
+        This function returns a function which creates input data and target data
+        specified for Yolov2.
 
-        Args:
-            imsize(list): List of image size.
+        Returns:
+            (function): Returns function which creates input data and target data.
+
+        Example:
+            >>> builder = model.build_data()  # This will return function.
+            >>> x, y = builder(image_path_list, annotation_list)
+            >>> z = model(x)
+            >>> loss = model.loss(z, y)
         """
         if imsize_list is None:
             imsize_list = [self.imsize]
@@ -412,12 +538,18 @@ class Yolov2(rm.Model):
         return builder
 
     def loss(self, x, y):
-        """
-        Returns mask.
-        Args: 
+        """Loss function specified for yolov2.
 
-            x: Yolo output. (N, C(anc*(5+class)), H, W)
-            y: (N, C(5+class), H(feature), W(feature))
+        Args:
+            x(Node, ndarray): Output data of neural network.
+            y(Node, ndarray): Target data.
+
+        Returns:
+            (Node): Loss between x and y.
+
+        Example:
+            >>> z = model(x)
+            >>> model.loss(z, y)
         """
         N, C, H, W = x.shape
         nd_x = x.as_ndarray()
@@ -527,18 +659,46 @@ class Yolov2(rm.Model):
             epoch=160, batch_size=16, imsize_list=None, augmentation=None, callback_end_epoch=None):
         """
         This function performs training with given data and hyper parameters.
+        Yolov2 is trained using multiple scale images. Therefore, this function
+        requires list of image size. If it is not given, the model will be trained 
+        using fixed image size.
+
+        Following arguments will be given to the function ``callback_end_epoch``.
+
+        - **epoch** (int) - Number of current epoch.
+        - **model** (Model) - Yolo2 object.
+        - **avg_train_loss_list** (list) - List of average train loss of each epoch.
+        - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
 
         Args:
-            train_img_path_list:
-            train_annotation_list:
-            valid_img_path_list:
-            valid_annotation_list:
-            epoch:
-            batch_size:
-            callback_end_epoch:
+            train_img_path_list(list): List of image path.
+            train_annotation_list(list): List of annotations.
+            valid_img_path_list(list): List of image path for validation.
+            valid_annotation_list(list): List of annotations for validation.
+            epoch(int): Number of training epoch.
+            batch_size(int): Number of batch size.
+            imsize_list(list): List of image size.
+            augmentation(Augmentation): Augmentation object.
+            callback_end_epoch(function): Given function will be called at the end of each epoch.
 
         Returns:
             (tuple): Training loss list and validation loss list.
+
+        Example:
+            >>> from renom_img.api.detection.yolo_v2 import Yolov1
+            >>> train_img_path_list, train_annot_list = ... # Define own data.
+            >>> valid_img_path_list, valid_annot_list = ...
+            >>> model = Yolov1()
+            >>> model.fit(
+            ...     # Feeds image and annotation data.
+            ...     train_img_path_list,
+            ...     train_annot_list,
+            ...     valid_img_path_list,
+            ...     valid_annot_list,
+            ...     epoch=8,
+            ...     batch_size=8)
+            >>> 
+
         """
 
         if imsize_list is None:

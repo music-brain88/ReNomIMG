@@ -56,7 +56,7 @@ class Yolov1(rm.Model):
 
     References:
         | Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
-        | You Only Look Once: Unified, Real-Time Object Detection  
+        | **You Only Look Once: Unified, Real-Time Object Detection**
         | https://arxiv.org/abs/1506.02640  
         | 
 
@@ -176,7 +176,7 @@ class Yolov1(rm.Model):
 
         """
         assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiate model class. "+\
+            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
             "Or, please load already trained model using the method 'load()'."
         self.freezed_network.set_auto_update(self._train_whole_network)
         return self.network(self.freezed_network(x))
@@ -362,6 +362,20 @@ class Yolov1(rm.Model):
         return self.get_bbox(self(img_array).as_ndarray())
 
     def build_data(self):
+        """
+        This function returns a function which creates input data and target data
+        specified for Yolov1.
+
+        Returns:
+            (function): Returns function which creates input data and target data.
+
+        Example:
+            >>> builder = model.build_data()  # This will return function.
+            >>> x, y = builder(image_path_list, annotation_list)
+            >>> z = model(x)
+            >>> loss = model.loss(z, y)
+        """
+
         def builder(img_path_list, annotation_list, augmentation=None, **kwargs):
             """
             Args:
@@ -395,6 +409,19 @@ class Yolov1(rm.Model):
         return builder
 
     def loss(self, x, y):
+        """Loss function specified for yolov1.
+
+        Args:
+            x(Node, ndarray): Output data of neural network.
+            y(Node, ndarray): Target data.
+
+        Returns:
+            (Node): Loss between x and y.
+
+        Example:
+            >>> z = model(x)
+            >>> model.loss(z, y)
+        """
         N = len(x)
         nd_x = x.as_ndarray()
         num_bbox = self._bbox
@@ -428,6 +455,45 @@ class Yolov1(rm.Model):
     def fit(self, train_img_path_list, train_annotation_list,
             valid_img_path_list=None, valid_annotation_list=None,
             epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None):
+        """
+        This function performs training with given data and hyper parameters.
+
+        Following arguments will be given to the function ``callback_end_epoch``.
+
+        - **epoch** (int) - Number of current epoch.
+        - **model** (Model) - Yolo1 object.
+        - **avg_train_loss_list** (list) - List of average train loss of each epoch.
+        - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
+
+        Args:
+            train_img_path_list(list): List of image path.
+            train_annotation_list(list): List of annotations.
+            valid_img_path_list(list): List of image path for validation.
+            valid_annotation_list(list): List of annotations for validation.
+            epoch(int): Number of training epoch.
+            batch_size(int): Number of batch size.
+            augmentation(Augmentation): Augmentation object.
+            callback_end_epoch(function): Given function will be called at the end of each epoch.
+
+        Returns:
+            (tuple): Training loss list and validation loss list.
+
+        Example:
+            >>> from renom_img.api.detection.yolo_v2 import Yolov1
+            >>> train_img_path_list, train_annot_list = ... # Define own data.
+            >>> valid_img_path_list, valid_annot_list = ...
+            >>> model = Yolov1()
+            >>> model.fit(
+            ...     # Feeds image and annotation data.
+            ...     train_img_path_list,
+            ...     train_annot_list,
+            ...     valid_img_path_list,
+            ...     valid_annot_list,
+            ...     epoch=8,
+            ...     batch_size=8)
+            >>> 
+
+        """
 
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation)
