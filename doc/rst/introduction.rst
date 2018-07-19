@@ -1,7 +1,9 @@
-ReNomIMG
-========
+Introduction
+============
 
-**ReNomIMG is a GUI tool for building object detection model.**
+**ReNomIMG is a GUI tool for building object detection models.**
 
-IMG will be here.
+.. image:: /_static/image/top.png
+
+
 
