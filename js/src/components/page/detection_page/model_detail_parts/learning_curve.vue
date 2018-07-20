@@ -171,8 +171,8 @@ export default {
 
       let scatterLayer = svg.append('g').attr('clip-path', 'url(#clip)')
 
-      // draw Train dot scatter
-      let TrainDots = scatterLayer.append('g')
+      // draw Train scatter
+      let TrainScatter = scatterLayer.append('g')
         .selectAll('circle')
         .data(datasets[0].data)
         .enter()
@@ -207,7 +207,7 @@ export default {
         })
 
       // draw Validation scatter data
-      let ValidationDots = scatterLayer.append('g')
+      let ValidationScatter = scatterLayer.append('g')
         .selectAll('circle')
         .data(datasets[1].data)
         .enter()
@@ -254,8 +254,8 @@ export default {
 
         TrainLine.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
         ValidationLine.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
-        TrainDots.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
-        ValidationDots.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
+        TrainScatter.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
+        ValidationScatter.attr('transform', 'translate(' + d3.event.transform.x + ',' + d3.event.transform.y + ') scale(' + d3.event.transform.k + ')')
         stylingAxes()
       }
       function stylingAxes () {
