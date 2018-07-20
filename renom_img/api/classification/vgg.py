@@ -38,6 +38,8 @@ class VGGBase(Classification):
             avg_valid_loss_list = kwargs['avg_valid_loss_list']
             if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2] and current_batch == 0:
                 self._opt._lr = self._opt._lr / 10.
+            elif current_epoch == 0:
+                self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch/total_batch
             return self._opt
 
     def preprocess(self, x):
@@ -95,7 +97,7 @@ class VGG16(VGGBase):
         self.class_map = class_map
         self._model = CNN_VGG16(self.num_class)
         self._train_whole_network = train_whole_network
-        self._opt = rm.Sgd(0.01, 0.9)
+        self._opt = rm.Sgd(0.001, 0.9)
         self.decay_rate = 0.0005
 
         if load_pretrained_weight:

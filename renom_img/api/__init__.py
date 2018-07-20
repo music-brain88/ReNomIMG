@@ -50,6 +50,7 @@ class Base(rm.Model):
             display_loss = 0
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
+                train_x = self.preprocess(train_x)
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
@@ -70,7 +71,8 @@ class Base(rm.Model):
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)
-                    loss = self.loss(self(train_x), train_y)
+                    valid_x = self.preprocess(valid_x)
+                    loss = self.loss(self(valid_x), valid_y)
                     try:
                         loss = loss.as_ndarray()[0]
                     except:
@@ -79,7 +81,7 @@ class Base(rm.Model):
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
                 avg_valid_loss = display_loss / (i + 1)
-                avg_valid_loss_list.append(avg_train_loss)
+                avg_valid_loss_list.append(avg_valid_loss)
                 bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
                     e, avg_train_loss, avg_valid_loss))
             else:
