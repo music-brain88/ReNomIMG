@@ -9,7 +9,8 @@ def fetch_detection_dataset_pets(split_validation=True, test_size=0.2):
     """
 
     Args:
-
+        split_validation (boolean): Whether or not split validation data.
+        test_size(float): propotion of the test dataset in total datasets.
     Returns:
         (list): This ret1urns list of image path.
         (list): This returns list of annotations.
@@ -76,7 +77,7 @@ def fetch_detection_dataset_voc_2007(split_validation=True):
     """
 
     Args:
-        split_validation (boolean):
+        split_validation (boolean): Whether or not split validation data.
     Returns:
         (list): This ret1urns list of image path.
         (list): This returns list of annotations.
@@ -148,7 +149,7 @@ def fetch_detection_dataset_voc_2012(split_validation=True):
     """
 
     Args:
-        split_validation (boolean):
+        split_validation (boolean): Whether or not split validation data.
     Returns:
         (list): This ret1urns list of image path.
         (list): This returns list of annotations.
@@ -215,12 +216,48 @@ def fetch_detection_dataset_voc_2012(split_validation=True):
 
         return annotation_list, image_path_list
 
+def fetch_classification_dataset_caltech101(split_validation=True, test_size=0.2):
+    """
 
-if __name__ == '__main__':
-    train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_detection_dataset_pets(
-        split_validation=True)
-    # annotation_list, image_path_list = fetch_dataset_pets(split_validation=False)
-    # annotation_list, image_path_list = fetch_dataset_voc_2007(split_validation=False)
-    # train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_detection_dataset_voc_2007()
-    # annotation_list, image_path_list = fetch_dataset_voc_2012(split_validation=False)
-    # train_annotation_list, train_image_path_list, valid_annotation_list, valid_image_path_list = fetch_detection_dataset_voc_2012()
+    Args:
+        split_validation (boolean): Whether or not split validation data.
+        test_size(float): proportion of the test dataset in total datasets.
+    Returns:
+        (list): This returns list of image path.
+        (list): This returns list of label.
+    """
+    caltech101_url = "http://www.vision.caltech.edu/Image_Datasets/Caltech101/101_ObjectCategories.tar.gz"
+    image_caltech101 = "101_ObjectCategories"
+    caltech_101_tar = "101_ObjectCategories.tar.gz"
+
+    if not os.path.exists(image_caltech101):
+        download(caltech101_url)
+        with tarfile.open(caltech_101_tar) as tar:
+            tar.extractall()
+
+    class_map = sorted(os.listdir(image_caltech101))
+
+    image_path_list = []
+    label_list = []
+
+    for i, c in enumerate(class_map):
+        root_path = os.path.join(image_caltech101, c)
+        img_files = os.listdir(root_path)
+        image_path_list.extend([os.path.join(root_path, path) for path in img_files])
+        label_list += [i]*len(img_files)
+
+    if split_validation == True:
+        N = len(image_path_list)
+        perm = np.random.permutation(N)
+        test_N = int(N * test_size)
+
+        train_image_path_list = [image_path_list[p] for p in perm[test_N:]]
+        train_label_list = [label_list[p] for p in perm[test_N:]]
+
+        valid_image_path_list = [image_path_list[p] for p in perm[:test_N]]
+        valid_label_list = [label_list[p] for p in perm[:test_N]]
+
+        return train_image_path_list, train_label_list, valid_image_path_list, valid_label_list
+    else:
+        return image_path_list, label_list
+

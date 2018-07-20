@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"POT-Creation-Date: 2018-07-17 16:12+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,6 +18,19 @@ msgstr ""
 "Generated-By: Babel 2.6.0\n"
 
 #: ../../rst/renom_img.rst:2
-msgid "renom\\_img"
+msgid "APIs"
 msgstr ""
+
+#: ../../rst/renom_img.rst:4
+msgid "ReNomIMG also provides python APIs."
+msgstr ""
+
+#: ../../rst/renom_img.rst:6
+msgid ""
+"These APIs allows you to build not only building object detection model "
+"but also classification model and object segmentation model."
+msgstr ""
+
+#~ msgid "renom\\_img"
+#~ msgstr ""
 

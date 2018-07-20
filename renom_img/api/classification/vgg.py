@@ -36,8 +36,8 @@ class VGGBase(Classification):
             return self._opt
         else:
             avg_valid_loss_list = kwargs['avg_valid_loss_list']
-            if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2]:
-                self._opt._lr = lr / 10.
+            if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2] and current_batch == 0:
+                self._opt._lr = self._opt._lr / 10.
             return self._opt
 
     def preprocess(self, x):
@@ -84,7 +84,7 @@ class VGG16(VGGBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
@@ -134,7 +134,7 @@ class VGG19(VGGBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):

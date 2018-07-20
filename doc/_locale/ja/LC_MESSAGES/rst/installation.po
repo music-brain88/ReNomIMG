@@ -17,17 +17,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: ../../rst/renom_img.api.model.rst:2
-msgid "renom\\_img.api.model"
+#: ../../rst/installation.rst:2
+msgid "Install ReNomIMG"
 msgstr ""
 
-#: ../../rst/renom_img.api.model.rst:5
-msgid "renom\\_img.api.model.darknet"
+#: ../../rst/installation.rst:4
+msgid "ReNomIMG requires following python modules."
 msgstr ""
 
-#~ msgid "Bases: :class:`renom.layers.function.parameterized.Sequential`"
-#~ msgstr ""
+#: ../../rst/installation.rst:8
+msgid "Install by pip."
+msgstr ""
 
-#~ msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
-#~ msgstr ""
+#: ../../rst/installation.rst:10
+msgid "Following code."
+msgstr ""
+
+#: ../../rst/installation.rst:14
+msgid "Install from binary."
+msgstr ""
+
+#: ../../rst/installation.rst:17
+msgid "Docker Image."
+msgstr ""
+
+#: ../../rst/installation.rst:19
+msgid "Docker image is available on Docker hub."
+msgstr ""
 

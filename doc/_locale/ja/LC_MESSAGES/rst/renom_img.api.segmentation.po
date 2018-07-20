@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"POT-Creation-Date: 2018-07-17 16:12+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,7 +39,11 @@ msgstr ""
 
 #: of renom_img.api.segmentation.fcn.FCN16s
 #: renom_img.api.segmentation.fcn.FCN32s renom_img.api.segmentation.fcn.FCN8s
+#: renom_img.api.segmentation.fcn.FCN_Base.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN_Base.preprocess
 #: renom_img.api.segmentation.unet.UNet
+#: renom_img.api.segmentation.unet.UNet.get_optimizer
+#: renom_img.api.segmentation.unet.UNet.preprocess
 msgid "Parameters"
 msgstr ""
 
@@ -59,7 +63,9 @@ msgstr ""
 #: of renom_img.api.segmentation.fcn.FCN16s:10
 #: renom_img.api.segmentation.fcn.FCN32s:9
 #: renom_img.api.segmentation.fcn.FCN8s:10
+#: renom_img.api.segmentation.fcn.FCN_Base.regularize:6
 #: renom_img.api.segmentation.unet.UNet:7
+#: renom_img.api.segmentation.unet.UNet.regularize:5
 msgid "Example"
 msgstr ""
 
@@ -87,6 +93,45 @@ msgstr ""
 msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
 msgstr ""
 
+#: of renom_img.api.segmentation.fcn.FCN_Base.get_optimizer:1
+#: renom_img.api.segmentation.unet.UNet.get_optimizer:1
+msgid "Returns an instance of Optimiser for training Yolov1 algorithm."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN_Base.get_optimizer:8
+msgid "Note: In FCN, the learning rate is fixed."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN_Base.preprocess:1
+msgid "Image preprocess for VGG."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN_Base.preprocess
+#: renom_img.api.segmentation.unet.UNet.preprocess
+msgid "Returns"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN_Base.preprocess:6
+#: renom_img.api.segmentation.unet.UNet.preprocess:8
+msgid "Preprocessed data."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN_Base.preprocess
+#: renom_img.api.segmentation.unet.UNet.preprocess
+msgid "Return type"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN_Base.regularize:1
+#: renom_img.api.segmentation.unet.UNet.regularize:1
+msgid ""
+"Regularize term. You can use this function to add regularize term to loss"
+" function."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN_Base.regularize:3
+msgid "In FCN, weight decay of 2e-4 is applied."
+msgstr ""
+
 #: ../../rst/renom_img.api.segmentation.rst:14
 msgid "renom\\_img.api.segmentation.unet module"
 msgstr ""
@@ -100,6 +145,14 @@ msgid ""
 "Olaf Ronneberger, Philipp Fischer, Thomas Brox U-Net: Convolutional "
 "Networks for Biomedical Image Segmentation "
 "https://arxiv.org/pdf/1505.04597.pdf"
+msgstr ""
+
+#: of renom_img.api.segmentation.unet.UNet.preprocess:1
+msgid "Image preprocess for Yolov1."
+msgstr ""
+
+#: of renom_img.api.segmentation.unet.UNet.preprocess:3
+msgid ":math:`new_x = x*2/255. - 1`"
 msgstr ""
 
 #: ../../rst/renom_img.api.segmentation.rst:23
