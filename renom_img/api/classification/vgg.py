@@ -161,7 +161,7 @@ class VGG19(VGGBase):
             self._model.fc3.params = {}
 
 
-class CNN_VGG16(rm.Model):
+class CNN_VGG19(rm.Model):
 
     def __init__(self, num_class):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
@@ -188,7 +188,7 @@ class CNN_VGG16(rm.Model):
         return t
 
 
-class CNN_VGG19(rm.Sequential):
+class CNN_VGG16(rm.Sequential):
 
     def __init__(self, num_class):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
