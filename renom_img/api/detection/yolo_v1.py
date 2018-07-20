@@ -175,7 +175,7 @@ class Yolov1(rm.Model):
 
         """
         assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiate model class. "+\
+            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
             "Or, please load already trained model using the method 'load()'."
         self.freezed_network.set_auto_update(self._train_whole_network)
         return self.network(self.freezed_network(x))

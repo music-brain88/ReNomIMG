@@ -134,7 +134,7 @@ class VGG19(VGGBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG19.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
@@ -143,7 +143,7 @@ class VGG19(VGGBase):
         self.imsize = imsize
         self.num_class = len(class_map)
         self.class_map = class_map
-        self._model = CNN_VGG16(self.num_class)
+        self._model = CNN_VGG19(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.01, 0.9)
         self.decay_rate = 0.0005

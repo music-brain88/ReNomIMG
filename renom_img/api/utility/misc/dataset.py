@@ -216,6 +216,7 @@ def fetch_detection_dataset_voc_2012(split_validation=True):
 
         return annotation_list, image_path_list
 
+
 def fetch_classification_dataset_caltech101(split_validation=True, test_size=0.2):
     """
 
@@ -244,7 +245,7 @@ def fetch_classification_dataset_caltech101(split_validation=True, test_size=0.2
         root_path = os.path.join(image_caltech101, c)
         img_files = os.listdir(root_path)
         image_path_list.extend([os.path.join(root_path, path) for path in img_files])
-        label_list += [i]*len(img_files)
+        label_list += [i] * len(img_files)
 
     if split_validation == True:
         N = len(image_path_list)
@@ -260,4 +261,3 @@ def fetch_classification_dataset_caltech101(split_validation=True, test_size=0.2
         return train_image_path_list, train_label_list, valid_image_path_list, valid_label_list
     else:
         return image_path_list, label_list
-
