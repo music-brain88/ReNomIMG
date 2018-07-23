@@ -675,7 +675,7 @@ class SSD(rm.Model):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                if len(img_list) >= 32:
+                if len(img_list) >= batch_size:
                     test_dist = ImageDistributor(img_list)
                     results = []
                     bar = tqdm()

@@ -7,6 +7,7 @@ from renom_img.api.utility.load import load_img
 
 from renom_img.api import Base
 from renom_img.api.utility.target import DataBuilderClassification
+from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 
 class Classification(Base):
@@ -17,9 +18,21 @@ class Classification(Base):
         return x / 255.
 
     def predict(self, img_list):
+        batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
+                if len(img_list) >= 32:
+                    test_dist = ImageDistributor(img_list)
+                    results = []
+                    bar = tqdm()
+                    bar.total = int(np.ceil(len(test_dist) / batch_size))
+                    for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
+                        img_array = np.vstack([load_img(path, self.imsize)[None] for path in x_img_list])
+                        img_array = self.preprocess(img_array)
+                        results.extend(np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1))
+                        bar.update(1)
+                    return results
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
                 img_array = self.preprocess(img_array)
             else:
