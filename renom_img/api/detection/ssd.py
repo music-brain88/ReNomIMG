@@ -634,7 +634,7 @@ class SSD(rm.Model):
                                                    np.where(overlap > nms_threshold)[0])))
         return np.array(selec).astype(np.int32)
 
-    def predict(self, img_list):
+    def predict(self, img_list, score_threshold=0.3, nms_threshold=0.4):
         """
         This method accepts either ndarray and list of image path.
 
@@ -683,7 +683,9 @@ class SSD(rm.Model):
                     for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
                         img_array = np.vstack([load_img(path, self.imsize)[None] for path in x_img_list])
                         img_array = self.preprocess(img_array)
-                        results.extend(self.get_bbox(self(img_array).as_ndarray()))
+                        results.extend(self.get_bbox(self(img_array).as_ndarray(),
+                                                     score_threshold,
+                                                     nms_threshold))
                         bar.update(1)
                     return results
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
@@ -691,10 +693,14 @@ class SSD(rm.Model):
             else:
                 img_array = load_img(img_list, self.imsize)[None]
                 img_array = self.preprocess(img_array)
-                return self.bbox_util.get_bbox(self(img_array).as_ndarray())[0]
+                return self.bbox_util.get_bbox(self(img_array).as_ndarray(),
+                                               score_threshold,
+                                               nms_threshold)[0]
         else:
             img_array = img_list
-        return self.get_bbox(self(img_array).as_ndarray())
+        return self.get_bbox(self(img_array).as_ndarray(),
+                             score_threshold,
+                             nms_threshold)
 
     def build_data(self):
         def builder(img_path_list, annotation_list, augmentation=None, **kwargs):

@@ -202,7 +202,7 @@ class Yolov1(rm.Model):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 
-    def get_bbox(self, z):
+    def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
         Example:
             >>> z = model(x)
@@ -278,7 +278,7 @@ class Yolov1(rm.Model):
         probs = probs.reshape(N, -1, self.num_class)
         boxes = boxes.reshape(N, -1, 4)
 
-        probs[probs < 0.3] = 0
+        probs[probs < score_threshold] = 0
         # Perform NMS
 
         argsort = np.argsort(probs, axis=1)[:, ::-1]
@@ -290,7 +290,7 @@ class Yolov1(rm.Model):
                     b1 = transform2xy12(boxes[n, argsort[n, b, cl], :])
                     for comp in range(b + 1, len(boxes[n])):
                         b2 = transform2xy12(boxes[n, argsort[n, comp, cl], :])
-                        if calc_iou(b1, b2) > 0.4:
+                        if calc_iou(b1, b2) > nms_threshold:
                             probs[n, argsort[n, comp, cl], cl] = 0
 
         result = [[] for _ in range(N)]
@@ -307,12 +307,12 @@ class Yolov1(rm.Model):
             })
         return result
 
-    def predict(self, img_list):
+    def predict(self, img_list, score_threshold=0.3, nms_threshold=0.4):
         """
         This method accepts either ndarray and list of image path.
 
         Example:
-            >>> 
+            >>>
             >>> model.predict(['img01.jpg', 'img02.jpg']])
             [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
              [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
@@ -347,18 +347,36 @@ class Yolov1(rm.Model):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
+        batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
+                if len(img_list) >= 32:
+                    test_dist = ImageDistributor(img_list)
+                    results = []
+                    bar = tqdm()
+                    bar.total = int(np.ceil(len(test_dist) / batch_size))
+                    for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
+                        img_array = np.vstack([load_img(path, self.imsize)[None] for path in x_img_list])
+                        img_array = self.preprocess(img_array)
+                        results.extend(self.get_bbox(self(img_array).as_ndarray(),
+                                                     score_threshold,
+                                                     nms_threshold))
+                        bar.update(1)
+                    return results
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
                 img_array = self.preprocess(img_array)
             else:
                 img_array = load_img(img_list, self.imsize)[None]
                 img_array = self.preprocess(img_array)
-                return self.get_bbox(self(img_array).as_ndarray())[0]
+                return self.bbox_util.get_bbox(self(img_array).as_ndarray(),
+                                               score_threshold,
+                                               nms_threshold)[0]
         else:
             img_array = img_list
-        return self.get_bbox(self(img_array).as_ndarray())
+        return self.get_bbox(self(img_array).as_ndarray(),
+                             score_threshold,
+                             nms_threshold)
 
     def build_data(self):
         def builder(img_path_list, annotation_list, augmentation=None, **kwargs):
