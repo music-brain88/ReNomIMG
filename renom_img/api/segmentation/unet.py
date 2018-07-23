@@ -47,7 +47,7 @@ class UNet(SemanticSegmentation):
         self._freeze()
 
     def preprocess(self, x):
-        """Image preprocess for Yolov1.
+        """Image preprocess for U-Net.
 
         :math:`new_x = x*2/255. - 1`
 
@@ -60,7 +60,7 @@ class UNet(SemanticSegmentation):
         return (x / 255.) * 2 - 1
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an instance of Optimiser for training U-Net algorithm.
 
         Args:
             current_epoch:
@@ -88,10 +88,10 @@ class UNet(SemanticSegmentation):
 
         Example:
             >>> import numpy as np
-            >>> from renom_img.api.detection.yolo_v1 import Yolov1
+            >>> from renom_img.api.segmentation import UNet
             >>> x = np.random.rand(1, 3, 224, 224)
             >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> model = Yolov1()
+            >>> model = UNet()
             >>> loss = model.loss(x, y)
             >>> reg_loss = loss + model.regularize() # Add weight decay term.
 

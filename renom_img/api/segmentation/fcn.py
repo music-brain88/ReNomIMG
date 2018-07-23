@@ -19,7 +19,7 @@ def layer_factory(channel=32, conv_layer_num=2):
 
 class FCN_Base(SemanticSegmentation):
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an instance of Optimiser for training FCN algorithm.
 
         Args:
             current_epoch:
