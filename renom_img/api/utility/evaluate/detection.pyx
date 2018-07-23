@@ -1,6 +1,7 @@
 import numpy as np
 from renom_img.api.utility.box import *
 from renom_img.api.utility.nms import *
+import warnings
 
 cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
     """
@@ -130,9 +131,11 @@ cpdef get_ap_and_map(prec, rec, n_class=None, n_round_off=3):
     """
     class_map = list(prec.keys())
     aps = {}
+    no_target_class = []
     for c in class_map:
         if prec[c] is None or rec[c] is None:
-            aps[c] = np.nan
+            aps[c] = 0.0
+            no_target_class.append(c)
             continue
         ap = 0
         for t in np.arange(0, 1.1, 0.1):
@@ -143,6 +146,7 @@ cpdef get_ap_and_map(prec, rec, n_class=None, n_round_off=3):
             ap += p / 11
         aps[c] = round(ap, n_round_off)
     mAP = round(np.nanmean(list(aps.values())), n_round_off)
+    warnings.warn('There is no {:s} class in the target data.'.format(map(str, no_target_class)))
     return aps, mAP
 
 
