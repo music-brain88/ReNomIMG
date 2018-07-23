@@ -168,6 +168,7 @@ class DenseNet121(DenseNetBase):
                 layer.params = {}
         if self.num_class != 1000:
             self._model.params = {}
+        self._freeze()
 
 
 class DenseNet169(DenseNetBase):
@@ -221,6 +222,7 @@ class DenseNet169(DenseNetBase):
                 layer.params = {}
         if self.num_class != 1000:
             self._model.params = {}
+        self._freeze()
 
 
 class DenseNet201(DenseNetBase):
@@ -275,3 +277,4 @@ class DenseNet201(DenseNetBase):
                 layer.params = {}
         if self.num_class != 1000:
             self._model.params = {}
+        self._freeze()

@@ -192,6 +192,7 @@ class ResNet32(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+        self._freeze()
 
 
 class ResNet44(ResNetBase):
@@ -241,6 +242,7 @@ class ResNet44(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+        self._freeze()
 
 
 class ResNet56(ResNetBase):
@@ -290,6 +292,7 @@ class ResNet56(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+        self._freeze()
 
 
 class ResNet110(ResNetBase):
@@ -339,6 +342,7 @@ class ResNet110(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+        self._freeze()
 
 
 class ResNet34(ResNetBase):
@@ -388,6 +392,7 @@ class ResNet34(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+        self._freeze()
 
 
 class ResNet50(ResNetBase):
@@ -438,6 +443,7 @@ class ResNet50(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+        self._freeze()
 
 
 class ResNet101(ResNetBase):
@@ -487,3 +493,4 @@ class ResNet101(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+        self._freeze()
