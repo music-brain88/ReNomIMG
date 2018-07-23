@@ -82,30 +82,18 @@ def create_priors():
 
     return np.concatenate(boxes_paras, axis=0)
 
-def calc_iou(self, box):
-    upleft = np.maximum(self.prior[:, :2], box[:2])
-    bottom_right = np.minimum(self.prior[:, 2:4], box[2:])
+def calc_iou(prior, box):
+    upleft = np.maximum(prior[:, :2], box[:2])
+    bottom_right = np.minimum(prior[:, 2:4], box[2:])
     wh = bottom_right - upleft
     wh = np.maximum(wh, 0)
     inter = wh[:, 0] * wh[:, 1]
     #xmin ymin xmax ymax
     area_pred = (box[2]- box[0]) * (box[3] - box[1])
-    area_gt = (self.prior[:, 2] - self.prior[:, 0]) * (self.prior[:, 3] - self.prior[:, 1])
+    area_gt = (prior[:, 2] - prior[:, 0]) * (prior[:, 3] - prior[:, 1])
     union = area_gt + area_pred - inter
     iou = inter / union
     return iou
-
-
-class BoxUtils(object):
-    def __init__(self, num_class, prior=None, overlap_threshold=0.5, nms_thresh=0.45, top_K=400):
-        self.num_class = num_class
-        self.prior = prior
-        self.num_prior = 0 if prior is None else len(prior)
-        self.overlap_threshold = overlap_threshold
-        self.nms_thresh = nms_thresh
-        self.top_K = top_K
-
-
 
 class PriorBox(object):
     def __init__(self, img_size, min_size, max_size=None, aspect_ratios=None,
@@ -385,7 +373,7 @@ class SSD(rm.Model):
     SERIALIZED = ("class_map", "num_class", "imsize")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map=None, imsize=(300, 300), overlap_threshold=0.5, nms_threshold=0.45, top_K=400, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(300, 300), overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
@@ -393,6 +381,8 @@ class SSD(rm.Model):
         self.class_map = class_map
         self._train_whole_network = train_whole_network
         self.prior = create_priors()
+        self.num_prior = len(self.prior)
+        self.overlap_threshold = overlap_threshold
 
         self.imsize = imsize
         vgg = VGG16(class_map)
@@ -400,7 +390,6 @@ class SSD(rm.Model):
         self._freezed_network = rm.Sequential([vgg._model.block1,
                                                vgg._model.block2])
         self._network = DetectorNetwork(self.num_class, vgg)
-        self.bbox_util = BoxUtils(self.num_class, create_priors(), overlap_threshold, nms_threshold, top_K)
 
         self._opt = rm.Sgd(1e-3, 0.9)
 
@@ -538,23 +527,23 @@ class SSD(rm.Model):
                 if len(c_confs[c_confs_m]) > 0:
                     boxes_to_process = decoded_bbox[c_confs_m]
                     confs_to_process = c_confs[c_confs_m]
-                    idx = self.nms(boxes_to_process, confs_to_process, self.nms_thresh)
+                    idx = self.nms(boxes_to_process, confs_to_process, nms_threshold)
                     good_boxes = boxes_to_process[idx]
                     confs = confs_to_process[idx][:, None]
 
-                    for j in len(confs):
+                    for j in range(len(confs)):
                         results[-1].append({"class": c-1, "score": confs[j],
                                             "box": good_boxes[j],
                                             'name': self.class_map[c-1]})
             if len(results[-1]) > 0:
                 scores = np.array([obj['score'] for obj in results[-1]])
                 argsort = np.argsort(scores)[::-1]
-                results[-1] = results[-1][argsort]
-                results[-1] = results[-1][:keep_top_k]
+                results[-1] = np.array(results[-1])[argsort]
+                results[-1] = results[-1][:keep_top_k].tolist()
         return results
 
     def encode_box(self, box, return_iou=True):
-        iou = calc_iou(box)
+        iou = calc_iou(self.prior, box)
         encoded_box = np.zeros((self.num_prior, 4 + return_iou))
         assign_mask = iou > self.overlap_threshold
         if not assign_mask.any():
@@ -690,21 +679,22 @@ class SSD(rm.Model):
                     test_dist = ImageDistributor(img_list)
                     results = []
                     bar = tqdm()
-                    #bar.total = int(np.ceil(len(valid_dist) / batch_size))
-                    for i, x_img_list in enumerate(test_dist.batch(batch_size, shuffle=False)):
+                    bar.total = int(np.ceil(len(test_dist) / batch_size))
+                    for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
                         img_array = np.vstack([load_img(path, self.imsize)[None] for path in x_img_list])
                         img_array = self.preprocess(img_array)
-                        results.append(self.detection_out(self(img_array).as_ndarray()))
+                        results.extend(self.get_bbox(self(img_array).as_ndarray()))
                         bar.update(1)
+                    return results
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
                 img_array = self.preprocess(img_array)
             else:
                 img_array = load_img(img_list, self.imsize)[None]
                 img_array = self.preprocess(img_array)
-                return self.bbox_util.detection_out(self(img_array).as_ndarray())[0]
+                return self.bbox_util.get_bbox(self(img_array).as_ndarray())[0]
         else:
             img_array = img_list
-        return self.detection_out(self(img_array).as_ndarray())
+        return self.get_bbox(self(img_array).as_ndarray())
 
     def build_data(self):
         def builder(img_path_list, annotation_list, augmentation=None, **kwargs):
@@ -808,7 +798,7 @@ class SSD(rm.Model):
                 except:
                     loss = loss.as_ndarray()
                 display_loss += loss
-                bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
+                bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, float(loss)))
                 bar.update(1)
             avg_train_loss = display_loss / (i + 1)
             avg_train_loss_list.append(avg_train_loss)
@@ -825,7 +815,7 @@ class SSD(rm.Model):
                     except:
                         loss = loss.as_ndarray()
                     display_loss += loss
-                    bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
+                    bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, float(loss)))
                     bar.update(1)
 
 
