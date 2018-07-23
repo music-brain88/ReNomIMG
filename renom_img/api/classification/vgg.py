@@ -100,7 +100,6 @@ class VGG16(VGGBase):
         if load_pretrained_weight:
             if isinstance(load_pretrained_weight, bool):
                 load_pretrained_weight = self.__class__.__name__ + '.h5'
-
             if not os.path.exists(load_pretrained_weight):
                 download(self.WEIGHT_URL, load_pretrained_weight)
 

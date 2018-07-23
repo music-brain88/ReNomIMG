@@ -385,7 +385,7 @@ class SSD(rm.Model):
         self.overlap_threshold = overlap_threshold
 
         self.imsize = imsize
-        vgg = VGG16(class_map, load_pretrained_weight)
+        vgg = VGG16(class_map, load_pretrained_weight=load_pretrained_weight)
         self._freezed_network = rm.Sequential([vgg._model.block1,
                                                vgg._model.block2])
         self._network = DetectorNetwork(self.num_class, vgg)
