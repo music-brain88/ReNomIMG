@@ -505,10 +505,7 @@ class SSD(rm.Model):
 
 
         """
-        if hasattr(z, 'as_ndarray'):
-            z = z.as_ndarray()
-
-        z[:, :, 4:-8] = rm.softmax(z[:, :, 4:-8]).as_ndarray()
+        z[:, 4:-8, :] = rm.softmax(z[:, 4:-8, :]).as_ndarray()
         z = z.transpose((0, 2, 1))
         mbox_loc = z[:, :, :4]
         variances = z[:, :, -4:]
@@ -532,7 +529,7 @@ class SSD(rm.Model):
                     confs = confs_to_process[idx][:, None]
 
                     for j in range(len(confs)):
-                        results[-1].append({"class": c-1, "score": confs[j],
+                        results[-1].append({"class": c-1, "score": float(confs[j]),
                                             "box": good_boxes[j],
                                             'name': self.class_map[c-1]})
             if len(results[-1]) > 0:
@@ -599,11 +596,21 @@ class SSD(rm.Model):
         decoded_bbox_height = np.exp(mbox_loc[:, 3] * variances[:, 3])
         decoded_bbox_height *= prior_height
 
+        decoded_bbox_xmin = np.minimum(np.maximum(decoded_bbox_center_x - 0.5 * decoded_bbox_width, 0.0), 1.0)
+        decoded_bbox_ymin = np.minimum(np.maximum(decoded_bbox_center_y - 0.5 * decoded_bbox_height, 0.0), 1.0)
+        decoded_bbox_xmax = np.minimum(np.maximum(decoded_bbox_center_x + 0.5 * decoded_bbox_width, 0.0), 1.0)
+        decoded_bbox_ymax = np.minimum(np.maximum(decoded_bbox_center_y + 0.5 * decoded_bbox_height, 0.0), 1.0)
+
+        clipped_bbox_center_x = 0.5 * (decoded_bbox_xmin + decoded_bbox_xmax)
+        clipped_bbox_center_y = 0.5 * (decoded_bbox_ymin + decoded_bbox_ymax)
+        clipped_bbox_width = decoded_bbox_xmax - decoded_bbox_xmin
+        clipped_bbox_height = decoded_bbox_ymax - decoded_bbox_ymin
+
         decoded_bbox = np.concatenate([
-            decoded_bbox_center_x[:, None],
-            decoded_bbox_center_y[:, None],
-            decoded_bbox_width[:, None],
-            decoded_bbox_height[:, None]
+            clipped_bbox_center_x[:, None],
+            clipped_bbox_center_y[:, None],
+            clipped_bbox_width[:, None],
+            clipped_bbox_height[:, None]
         ], axis=-1)
         return decoded_bbox
 
@@ -671,7 +678,7 @@ class SSD(rm.Model):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
-        batch_size = 32
+        batch_size = 8
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
