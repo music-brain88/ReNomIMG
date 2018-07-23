@@ -82,6 +82,20 @@ def create_priors():
 
     return np.concatenate(boxes_paras, axis=0)
 
+def calc_iou(self, box):
+    upleft = np.maximum(self.prior[:, :2], box[:2])
+    bottom_right = np.minimum(self.prior[:, 2:4], box[2:])
+    wh = bottom_right - upleft
+    wh = np.maximum(wh, 0)
+    inter = wh[:, 0] * wh[:, 1]
+    #xmin ymin xmax ymax
+    area_pred = (box[2]- box[0]) * (box[3] - box[1])
+    area_gt = (self.prior[:, 2] - self.prior[:, 0]) * (self.prior[:, 3] - self.prior[:, 1])
+    union = area_gt + area_pred - inter
+    iou = inter / union
+    return iou
+
+
 class BoxUtils(object):
     def __init__(self, num_class, prior=None, overlap_threshold=0.5, nms_thresh=0.45, top_K=400):
         self.num_class = num_class
@@ -91,148 +105,7 @@ class BoxUtils(object):
         self.nms_thresh = nms_thresh
         self.top_K = top_K
 
-    def iou(self, box):
-        upleft = np.maximum(self.prior[:, :2], box[:2])
-        bottom_right = np.minimum(self.prior[:, 2:4], box[2:])
-        wh = bottom_right - upleft
-        wh = np.maximum(wh, 0)
-        inter = wh[:, 0] * wh[:, 1]
-        #xmin ymin xmax ymax
-        area_pred = (box[2]- box[0]) * (box[3] - box[1])
-        area_gt = (self.prior[:, 2] - self.prior[:, 0]) * (self.prior[:, 3] - self.prior[:, 1])
-        union = area_gt + area_pred - inter
-        iou = inter / union
-        return iou
 
-
-    def encode_box(self, box, return_iou=True):
-        iou = self.iou(box)
-        encoded_box = np.zeros((self.num_prior, 4 + return_iou))
-        assign_mask = iou > self.overlap_threshold
-        if not assign_mask.any():
-            assign_mask[iou.argmax()] = True
-        if return_iou:
-            encoded_box[:, -1][assign_mask] = iou[assign_mask]
-        assigned_priors = self.prior[assign_mask]
-        box_center = 0.5 * (box[:2] + box[2:])
-        box_wh = box[2:] - box[:2]
-        assigned_priors_center = 0.5 * (assigned_priors[:, :2] + assigned_priors[:, 2:4])
-        assigned_priors_wh = assigned_priors[:, 2:4] - assigned_priors[:, :2]
-
-        encoded_box[:, :2][assign_mask] = box_center - assigned_priors_center
-        encoded_box[:, :2][assign_mask] /= assigned_priors_wh
-        encoded_box[:, :2][assign_mask] /= assigned_priors[:, -4:-2]
-        encoded_box[:, 2:4][assign_mask] = np.log(box_wh/assigned_priors_wh)
-        encoded_box[:, 2:4][assign_mask] /= assigned_priors[:, -2:]
-
-        return encoded_box.ravel()
-
-    def assign_boxes(self, boxes):
-        assignment = np.zeros((self.num_prior, 4+self.num_class+8))
-        assignment[:, 4] = 1.0 #background
-        if len(boxes) == 0:
-            return assignmentnt
-        encoded_boxes = np.apply_along_axis(self.encode_box, 1, boxes[:, :4])
-        encoded_boxes = encoded_boxes.reshape(-1, self.num_prior, 5) #xmin ymin xmax ymax iou
-        best_iou = encoded_boxes[:, :, -1].max(axis=0)
-        best_iou_idx = encoded_boxes[:, :, -1].argmax(axis=0)
-        best_iou_mask = best_iou > 0
-        best_iou_idx = best_iou_idx[best_iou_mask]
-        assign_num = len(best_iou_idx)
-        encoded_boxes = encoded_boxes[:, best_iou_mask, :]
-        assignment[:, :4][best_iou_mask] = encoded_boxes[best_iou_idx, np.arange(assign_num), :4]
-        assignment[:, 4][best_iou_mask] = 0
-        assignment[:, 5:-8][best_iou_mask] = boxes[best_iou_idx, 4:]
-        assignment[:, -8][best_iou_mask] = 1
-        return assignment.T
-
-    def decode_boxes(self, mbox_loc, mbox_priorbox, variances):
-        prior_width = mbox_priorbox[:, 2] - mbox_priorbox[:, 0]
-        prior_height = mbox_priorbox[:, 3] - mbox_priorbox[:, 1]
-        prior_center_x = 0.5 * (mbox_priorbox[:, 2] + mbox_priorbox[:, 0])
-        prior_center_y = 0.5 * (mbox_priorbox[:, 3] + mbox_priorbox[:, 1])
-
-
-        decoded_bbox_center_x = mbox_loc[:, 0] * prior_width * variances[:, 0]
-        decoded_bbox_center_x += prior_center_x
-        decoded_bbox_center_y = mbox_loc[:, 1] * prior_height * variances[:, 1]
-        decoded_bbox_center_y += prior_center_y
-        decoded_bbox_width = np.exp(mbox_loc[:, 2] * variances[:, 2])
-        decoded_bbox_width *= prior_width
-        decoded_bbox_height = np.exp(mbox_loc[:, 3] * variances[:, 3])
-        decoded_bbox_height *= prior_height
-
-        decoded_bbox_xmin = decoded_bbox_center_x - 0.5 * decoded_bbox_width
-        decoded_bbox_ymin = decoded_bbox_center_y - 0.5 * decoded_bbox_height
-        decoded_bbox_xmax = decoded_bbox_center_x + 0.5 * decoded_bbox_width
-        decoded_bbox_ymax = decoded_bbox_center_y + 0.5 * decoded_bbox_height
-        decoded_bbox = np.concatenate([
-            decoded_bbox_xmin[:, None],
-            decoded_bbox_ymin[:, None],
-            decoded_bbox_xmax[:, None],
-            decoded_bbox_ymax[:, None]
-        ], axis=-1)
-        decoded_bbox = np.minimum(np.maximum(decoded_bbox, 0.0), 1.0)
-        return decoded_bbox
-
-    def nms(self, boxes, score=None, nms_threshold=0.3, limit=None):
-        if len(boxes) == 0:
-            return []
-        selec = []
-        x1 = boxes[:,0]
-        y1 = boxes[:,1]
-        x2 = boxes[:,2]
-        y2 = boxes[:,3]
-
-        area = (x2-x1+1) * (y2-y1+1)
-        idxs = np.argsort(score)
-
-        while len(idxs) > 0:
-            last = len(idxs) - 1
-            i = idxs[last]
-            selec.append(i)
-            xx1 = np.maximum(x1[i], x1[idxs[:last]])
-            yy1 = np.maximum(y1[i], y1[idxs[:last]])
-            xx2 = np.minimum(x2[i], x2[idxs[:last]])
-            yy2 = np.minimum(y2[i], y2[idxs[:last]])
-            w = np.maximum(0, xx2 - xx1 + 1)
-            h = np.maximum(0, yy2 - yy1 + 1)
-            overlap = (w * h) / area[idxs[:last]]
-            idxs = np.delete(idxs, np.concatenate(([last],
-                                                   np.where(overlap > nms_threshold)[0])))
-        return np.array(selec).astype(np.int32)
-
-    def detection_out(self, predictions, keep_top_k=200, confidence_threshold=0.01):
-        predictions = predictions.transpose((0, 2, 1))
-        mbox_loc = predictions[:, :, :4]
-        variances = predictions[:, :, -4:]
-        mbox_priorbox = predictions[:, :, -8:-4]
-        mbox_conf = predictions[:, :, 4:-8]
-        results = []
-        for i in range(len(mbox_loc)):
-            results.append([])
-            decoded_bbox = self.decode_boxes(mbox_loc[i], mbox_priorbox[i], variances[i])
-            for c in range(self.num_class):
-                if c == 0:
-                    #background
-                    continue
-                c_confs = mbox_conf[i, :, c]
-                c_confs_m = c_confs > confidence_threshold
-                if len(c_confs[c_confs_m]) > 0:
-                    boxes_to_process = decoded_bbox[c_confs_m]
-                    confs_to_process = c_confs[c_confs_m]
-                    idx = self.nms(boxes_to_process, confs_to_process, self.nms_thresh)
-                    good_boxes = boxes_to_process[idx]
-                    confs = confs_to_process[idx][:, None]
-                    labels = c*np.ones((len(idx), 1))
-                    c_pred = {"class":c, "score":confs, "box":good_boxes}
-                    results[-1].extend(c_pred)
-            if len(results[-1])>0:
-                results[-1] = np.array(results[-1])
-                argsort = np.argsort(results[-1][:, 1])[::-1]
-                results[-1] = results[-1][argsort]
-                results[-1] = results[-1][:keep_top_k]
-        return results
 
 class PriorBox(object):
     def __init__(self, img_size, min_size, max_size=None, aspect_ratios=None,
@@ -488,7 +361,6 @@ class DetectorNetwork(rm.Model):
         num_boxes = mbox_loc.shape[-1]//4
         mbox_loc = mbox_loc.reshape((n, 4, num_boxes))
         mbox_conf = mbox_conf.reshape((n, self.num_class, num_boxes))
-        mbox_conf = rm.softmax(mbox_conf)
 
         predictions = rm.concat([
             mbox_loc, mbox_conf, np.broadcast_to(mbox_priorbox.transpose((0, 2, 1)), (mbox_conf.shape[0], mbox_priorbox.shape[2], mbox_priorbox.shape[1]))
@@ -513,15 +385,14 @@ class SSD(rm.Model):
     SERIALIZED = ("class_map", "num_class", "imsize")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map=None, overlap_threshold=0.5, nms_threshold=0.45, top_K=400, imsize=(300, 300), load_pretrained_weight=False, train_whole_network=False):
-        num_class = len(class_map)
-
+    def __init__(self, class_map=None, imsize=(300, 300), overlap_threshold=0.5, nms_threshold=0.45, top_K=400, load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
         self.num_class = len(class_map) + 1
         self.class_map = class_map
         self._train_whole_network = train_whole_network
+        self.prior = create_priors()
 
         self.imsize = imsize
         vgg = VGG16(class_map)
@@ -531,7 +402,7 @@ class SSD(rm.Model):
         self._network = DetectorNetwork(self.num_class, vgg)
         self.bbox_util = BoxUtils(self.num_class, create_priors(), overlap_threshold, nms_threshold, top_K)
 
-        self._opt = rm.Adam(6e-4)
+        self._opt = rm.Sgd(1e-3, 0.9)
 
         if load_pretrained_weight:
             if isinstance(load_pretrained_weight, bool):
@@ -561,6 +432,10 @@ class SSD(rm.Model):
             current_batch:
             total_epoch:
         """
+        if current_epoch == 60:
+            self._opt._lr = 1e-4
+        elif current_epoch == 100:
+            self._opt._lr = 1e-5
         return self._opt
 
     def preprocess(self, x):
@@ -605,7 +480,7 @@ class SSD(rm.Model):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 
-    def get_bbox(self, z):
+    def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4, keep_top_k=200):
         """
         Example:
             >>> z = model(x)
@@ -644,68 +519,131 @@ class SSD(rm.Model):
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
 
-        N = len(z)
-        cell = self._cells[0]
-        bbox = self._bbox
-        probs = np.zeros((N, cell, cell, bbox, self._num_class))
-        boxes = np.zeros((N, cell, cell, bbox, 4))
-        yolo_format_out = z.reshape(
-            N, cell, cell, bbox * 5 + self._num_class)
-        offset = np.vstack([np.arange(cell) for c in range(cell)])
+        z[:, :, 4:-8] = rm.softmax(z[:, :, 4:-8]).as_ndarray()
+        z = z.transpose((0, 2, 1))
+        mbox_loc = z[:, :, :4]
+        variances = z[:, :, -4:]
+        mbox_priorbox = z[:, :, -8:-4]
+        mbox_conf = z[:, :, 4:-8]
+        results = []
+        for i in range(len(mbox_loc)):
+            results.append([])
+            decoded_bbox = self.decode_boxes(mbox_loc[i], mbox_priorbox[i], variances[i])
+            for c in range(self.num_class):
+                if c == 0:
+                    #background
+                    continue
+                c_confs = mbox_conf[i, :, c]
+                c_confs_m = c_confs > score_threshold
+                if len(c_confs[c_confs_m]) > 0:
+                    boxes_to_process = decoded_bbox[c_confs_m]
+                    confs_to_process = c_confs[c_confs_m]
+                    idx = self.nms(boxes_to_process, confs_to_process, self.nms_thresh)
+                    good_boxes = boxes_to_process[idx]
+                    confs = confs_to_process[idx][:, None]
 
-        for b in range(bbox):
-            prob = yolo_format_out[:, :, :, b * 5][..., None] * yolo_format_out[:, :, :, bbox * 5:]
-            probs[:, :, :, b, :] = prob
-            boxes[:, :, :, b, :] = yolo_format_out[:, :, :, b * 5 + 1:b * 5 + 5]
-            boxes[:, :, :, b, 0] += offset
-            boxes[:, :, :, b, 1] += offset.T
-            boxes[:, :, :, b, 2] = boxes[:, :, :, b, 2]**2
-            boxes[:, :, :, b, 3] = boxes[:, :, :, b, 3]**2
-        boxes[:, :, :, :, 0:2] /= float(cell)
+                    for j in len(confs):
+                        results[-1].append({"class": c-1, "score": confs[j],
+                                            "box": good_boxes[j],
+                                            'name': self.class_map[c-1]})
+            if len(results[-1]) > 0:
+                scores = np.array([obj['score'] for obj in results[-1]])
+                argsort = np.argsort(scores)[::-1]
+                results[-1] = results[-1][argsort]
+                results[-1] = results[-1][:keep_top_k]
+        return results
 
-        # Clip bounding box.
-        w = boxes[:, :, :, :, 2] / 2.
-        h = boxes[:, :, :, :, 3] / 2.
-        x1 = np.clip(boxes[:, :, :, :, 0] - w, 0, 1)
-        y1 = np.clip(boxes[:, :, :, :, 1] - h, 0, 1)
-        x2 = np.clip(boxes[:, :, :, :, 0] + w, 0, 1)
-        y2 = np.clip(boxes[:, :, :, :, 1] + h, 0, 1)
-        boxes[:, :, :, :, 2] = x2 - x1
-        boxes[:, :, :, :, 3] = y2 - y1
-        boxes[:, :, :, :, 0] = x1 + boxes[:, :, :, :, 2] / 2.
-        boxes[:, :, :, :, 1] = y1 + boxes[:, :, :, :, 3] / 2.
+    def encode_box(self, box, return_iou=True):
+        iou = calc_iou(box)
+        encoded_box = np.zeros((self.num_prior, 4 + return_iou))
+        assign_mask = iou > self.overlap_threshold
+        if not assign_mask.any():
+            assign_mask[iou.argmax()] = True
+        if return_iou:
+            encoded_box[:, -1][assign_mask] = iou[assign_mask]
+        assigned_priors = self.prior[assign_mask]
+        box_center = 0.5 * (box[:2] + box[2:])
+        box_wh = box[2:] - box[:2]
+        assigned_priors_center = 0.5 * (assigned_priors[:, :2] + assigned_priors[:, 2:4])
+        assigned_priors_wh = assigned_priors[:, 2:4] - assigned_priors[:, :2]
 
-        probs = probs.reshape(N, -1, self._num_class)
-        boxes = boxes.reshape(N, -1, 4)
+        encoded_box[:, :2][assign_mask] = box_center - assigned_priors_center
+        encoded_box[:, :2][assign_mask] /= assigned_priors_wh
+        encoded_box[:, :2][assign_mask] /= assigned_priors[:, -4:-2]
+        encoded_box[:, 2:4][assign_mask] = np.log(box_wh/assigned_priors_wh)
+        encoded_box[:, 2:4][assign_mask] /= assigned_priors[:, -2:]
 
-        probs[probs < 0.3] = 0
-        # Perform NMS
+        return encoded_box.ravel()
 
-        argsort = np.argsort(probs, axis=1)[:, ::-1]
-        for n in range(N):
-            for cl in range(self._num_class):
-                for b in range(len(boxes[n])):
-                    if probs[n, argsort[n, b, cl], cl] == 0:
-                        continue
-                    b1 = transform2xy12(boxes[n, argsort[n, b, cl], :])
-                    for comp in range(b + 1, len(boxes[n])):
-                        b2 = transform2xy12(boxes[n, argsort[n, comp, cl], :])
-                        if calc_iou(b1, b2) > 0.4:
-                            probs[n, argsort[n, comp, cl], cl] = 0
+    def assign_boxes(self, boxes):
+        assignment = np.zeros((self.num_prior, 4+self.num_class+8))
+        assignment[:, 4] = 1.0 #background
+        if len(boxes) == 0:
+            return assignment
+        encoded_boxes = np.apply_along_axis(self.encode_box, 1, boxes[:, :4])
+        encoded_boxes = encoded_boxes.reshape(-1, self.num_prior, 5) #xmin ymin xmax ymax iou
+        best_iou = encoded_boxes[:, :, -1].max(axis=0)
+        best_iou_idx = encoded_boxes[:, :, -1].argmax(axis=0)
+        best_iou_mask = best_iou > 0
+        best_iou_idx = best_iou_idx[best_iou_mask]
+        assign_num = len(best_iou_idx)
+        encoded_boxes = encoded_boxes[:, best_iou_mask, :]
+        assignment[:, :4][best_iou_mask] = encoded_boxes[best_iou_idx, np.arange(assign_num), :4]
+        assignment[:, 4][best_iou_mask] = 0
+        assignment[:, 5:-8][best_iou_mask] = boxes[best_iou_idx, 4:]
+        assignment[:, -8][best_iou_mask] = 1
+        return assignment.T
 
-        result = [[] for _ in range(N)]
-        max_class = np.argmax(probs, axis=2)
-        max_probs = np.max(probs, axis=2)
-        indexes = np.nonzero(np.clip(max_probs, 0, 1))
-        for i in range(len(indexes[0])):
-            # Note: Take care types.
-            result[indexes[0][i]].append({
-                "class": int(max_class[indexes[0][i], indexes[1][i]]),
-                "name": self.class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode("utf-8"),
-                "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
-                "score": float(max_probs[indexes[0][i], indexes[1][i]])
-            })
-        return result
+    def decode_boxes(self, mbox_loc, mbox_priorbox, variances):
+        prior_width = mbox_priorbox[:, 2] - mbox_priorbox[:, 0]
+        prior_height = mbox_priorbox[:, 3] - mbox_priorbox[:, 1]
+        prior_center_x = 0.5 * (mbox_priorbox[:, 2] + mbox_priorbox[:, 0])
+        prior_center_y = 0.5 * (mbox_priorbox[:, 3] + mbox_priorbox[:, 1])
+
+
+        decoded_bbox_center_x = mbox_loc[:, 0] * prior_width * variances[:, 0]
+        decoded_bbox_center_x += prior_center_x
+        decoded_bbox_center_y = mbox_loc[:, 1] * prior_height * variances[:, 1]
+        decoded_bbox_center_y += prior_center_y
+        decoded_bbox_width = np.exp(mbox_loc[:, 2] * variances[:, 2])
+        decoded_bbox_width *= prior_width
+        decoded_bbox_height = np.exp(mbox_loc[:, 3] * variances[:, 3])
+        decoded_bbox_height *= prior_height
+
+        decoded_bbox = np.concatenate([
+            decoded_bbox_center_x[:, None],
+            decoded_bbox_center_y[:, None],
+            decoded_bbox_width[:, None],
+            decoded_bbox_height[:, None]
+        ], axis=-1)
+        return decoded_bbox
+
+    def nms(self, boxes, score=None, nms_threshold=0.3, limit=None):
+        if len(boxes) == 0:
+            return []
+        selec = []
+        x1 = boxes[:,0]
+        y1 = boxes[:,1]
+        x2 = boxes[:,2]
+        y2 = boxes[:,3]
+
+        area = (x2-x1+1) * (y2-y1+1)
+        idxs = np.argsort(score)
+
+        while len(idxs) > 0:
+            last = len(idxs) - 1
+            i = idxs[last]
+            selec.append(i)
+            xx1 = np.maximum(x1[i], x1[idxs[:last]])
+            yy1 = np.maximum(y1[i], y1[idxs[:last]])
+            xx2 = np.minimum(x2[i], x2[idxs[:last]])
+            yy2 = np.minimum(y2[i], y2[idxs[:last]])
+            w = np.maximum(0, xx2 - xx1 + 1)
+            h = np.maximum(0, yy2 - yy1 + 1)
+            overlap = (w * h) / area[idxs[:last]]
+            idxs = np.delete(idxs, np.concatenate(([last],
+                                                   np.where(overlap > nms_threshold)[0])))
+        return np.array(selec).astype(np.int32)
 
     def predict(self, img_list):
         """
@@ -744,9 +682,20 @@ class SSD(rm.Model):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
+        batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
+                if len(img_list) >= 32:
+                    test_dist = ImageDistributor(img_list)
+                    results = []
+                    bar = tqdm()
+                    #bar.total = int(np.ceil(len(valid_dist) / batch_size))
+                    for i, x_img_list in enumerate(test_dist.batch(batch_size, shuffle=False)):
+                        img_array = np.vstack([load_img(path, self.imsize)[None] for path in x_img_list])
+                        img_array = self.preprocess(img_array)
+                        results.append(self.detection_out(self(img_array).as_ndarray()))
+                        bar.update(1)
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
                 img_array = self.preprocess(img_array)
             else:
@@ -755,7 +704,7 @@ class SSD(rm.Model):
                 return self.bbox_util.detection_out(self(img_array).as_ndarray())[0]
         else:
             img_array = img_list
-        return self.bbox_util.detection_out(self(img_array).as_ndarray())
+        return self.detection_out(self(img_array).as_ndarray())
 
     def build_data(self):
         def builder(img_path_list, annotation_list, augmentation=None, **kwargs):
@@ -777,8 +726,6 @@ class SSD(rm.Model):
                 for obj in label_data[n]:
                     one_hot = np.zeros(len(self.class_map))
                     xmin, ymin, xmax, ymax = transform2xy12(obj['box'])
-                    width = obj['box'][2]
-                    height = obj['box'][3]
                     xmin /= self.imsize[0]
                     xmax /= self.imsize[0]
                     ymin /= self.imsize[1]
@@ -790,7 +737,7 @@ class SSD(rm.Model):
                 bounding_boxes = np.asarray(bounding_boxes)
                 one_hot_classes = np.asarray(one_hot_classes)
                 boxes = np.hstack((bounding_boxes, one_hot_classes))
-                target = self.bbox_util.assign_boxes(boxes)
+                target = self.assign_boxes(boxes)
                 targets.append(target)
 
             return self.preprocess(img_data), np.array(targets)
