@@ -385,24 +385,12 @@ class SSD(rm.Model):
         self.overlap_threshold = overlap_threshold
 
         self.imsize = imsize
-        vgg = VGG16(class_map)
-        vgg._model.load('VGG16-2.h5')
+        vgg = VGG16(class_map, load_pretrained_weight)
         self._freezed_network = rm.Sequential([vgg._model.block1,
                                                vgg._model.block2])
         self._network = DetectorNetwork(self.num_class, vgg)
 
         self._opt = rm.Sgd(1e-3, 0.9)
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self.load(load_pretrained_weight)
-            for layer in self._network.iter_models():
-                layer.params = {}
 
     @property
     def freezed_network(self):
