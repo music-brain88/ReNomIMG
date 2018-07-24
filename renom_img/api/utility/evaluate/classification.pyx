@@ -9,8 +9,8 @@ cpdef precision_score(y_pred, y_true):
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
     """
-    p, _ = precision_recall_score(y_pred, y_true)
-    return p
+    p, mean_p, _, _ = precision_recall_score(y_pred, y_true)
+    return p, mean_p
 
 cpdef recall_score(y_pred, y_true):
     """
@@ -20,8 +20,8 @@ cpdef recall_score(y_pred, y_true):
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
     """
-    _, r = precision_recall_score(y_pred, y_true)
-    return r
+    _, _, r, mean_r = precision_recall_score(y_pred, y_true)
+    return r, mean_r
 
 cpdef precision_recall_score(y_pred, y_true):
     """
@@ -53,8 +53,9 @@ cpdef precision_recall_score(y_pred, y_true):
             recall[c] = float(tp[c]) / true_sum[c]
         else:
             recall[c] = None
-
-    return precision, recall
+    mean_precision = np.sum(tp) / np.sum(pred_sum)
+    mean_recall = np.sum(tp) / np.sum(true_sum)
+    return precision, mean_precision, recall, mean_recall
 
 cpdef accuracy_score(y_pred, y_true):
     accuracy = np.sum(y_pred==y_true)

@@ -208,12 +208,12 @@ class EvaluatorClassification(EvaluatorBase):
         super(EvaluatorClassification, self).__init__(prediction, target)
 
     def precision(self):
-        precision = precision_score(self.prediction, self.target)
-        return precision
+        precision, mean_precision = precision_score(self.prediction, self.target)
+        return precision, mean_precision
 
     def recall(self):
-        recall = recall_score(self.prediction, self.target)
-        return recall
+        recall, mean_recall = recall_score(self.prediction, self.target)
+        return recall, mean_recall
 
     def accuracy(self):
         accuracy = accuracy_score(self.prediction, self.target)

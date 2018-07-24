@@ -39,7 +39,7 @@ class VGGBase(Classification):
             if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2] and current_batch == 0:
                 self._opt._lr = self._opt._lr / 10.
             elif current_epoch == 0:
-                self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch/total_batch
+                self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch / total_batch
             return self._opt
 
     def preprocess(self, x):
