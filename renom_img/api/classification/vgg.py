@@ -108,7 +108,6 @@ class VGG16(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
-        self._freeze()
 
 
 class VGG19(VGGBase):
@@ -159,7 +158,6 @@ class VGG19(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
-        self._freeze()
 
 
 class CNN_VGG19(rm.Model):

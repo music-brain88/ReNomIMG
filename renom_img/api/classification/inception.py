@@ -130,7 +130,6 @@ class InceptionV1(Classification):
             self._model.aux1.params = {}
             self._model.aux2.params = {}
             self._model.aux3.params = {}
-        self._freeze()
 
     def _freeze(self):
         self._model.base1.set_auto_update(self._train_whole_network)
@@ -469,7 +468,6 @@ class InceptionV3(Classification):
             self._model.load(load_pretrained_weight)
             layer._model.aux1.params = {}
             layer._model.aux2.params = {}
-        self._freeze()
 
     def _freeze(self):
         self._model.base1.set_auto_update(self._train_whole_network)
@@ -576,7 +574,6 @@ class InceptionV2(Classification):
             self._model.load(load_pretrained_weight)
             layer._model.aux1.params = {}
             layer._model.aux2.params = {}
-        self._freeze()
 
     def _freeze(self):
         self._model.base1.set_auto_update(self._train_whole_network)
@@ -944,7 +941,6 @@ class InceptionV4(Classification):
             self._model.load(load_pretrained_weight)
             for layer in self._model._network.iter_models():
                 layer.params = {}
-        self._freeze()
 
     def _freeze(self):
         self._model.block1.set_auto_update(self._train_whole_network)

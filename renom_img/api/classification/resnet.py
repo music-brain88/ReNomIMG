@@ -84,7 +84,6 @@ class ResNetBase(Classification):
     def _freeze(self):
         self._model.base.set_auto_update(self._train_whole_network)
 
-
 class CNN_ResNet(rm.Model):
     def __init__(self, num_class, channels, num_layers):
         if type(num_layers) == int:
@@ -112,6 +111,7 @@ class CNN_ResNet(rm.Model):
         self.fc = rm.Dense(num_class)
 
     def forward(self, x):
+
         index = 0
         t = self.base[index](x)
         index += 1
@@ -192,7 +192,6 @@ class ResNet32(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
-        self._freeze()
 
 
 class ResNet44(ResNetBase):
@@ -242,7 +241,6 @@ class ResNet44(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
-        self._freeze()
 
 
 class ResNet56(ResNetBase):
@@ -292,7 +290,6 @@ class ResNet56(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
-        self._freeze()
 
 
 class ResNet110(ResNetBase):
@@ -342,7 +339,6 @@ class ResNet110(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
-        self._freeze()
 
 
 class ResNet34(ResNetBase):
@@ -392,7 +388,6 @@ class ResNet34(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
-        self._freeze()
 
 
 class ResNet50(ResNetBase):
@@ -443,8 +438,6 @@ class ResNet50(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
-        self._freeze()
-
 
 class ResNet101(ResNetBase):
     """ResNet101 model.
@@ -493,4 +486,3 @@ class ResNet101(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
-        self._freeze()
