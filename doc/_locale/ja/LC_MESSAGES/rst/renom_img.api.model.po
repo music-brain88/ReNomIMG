@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"POT-Creation-Date: 2018-07-17 16:12+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,13 +25,9 @@ msgstr ""
 msgid "renom\\_img.api.model.darknet"
 msgstr ""
 
-#: of renom_img.api.model.darknet.Darknet:1
-msgid "Bases: :class:`renom.layers.function.parameterized.Sequential`"
-msgstr ""
+#~ msgid "Bases: :class:`renom.layers.function.parameterized.Sequential`"
+#~ msgstr ""
 
-#: of renom_img.api.model.darknet.Darknet19:1
-#: renom_img.api.model.darknet.Darknet19Base:1
-#: renom_img.api.model.darknet.DarknetConv2dBN:1
-msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
-msgstr ""
+#~ msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
+#~ msgstr ""
 

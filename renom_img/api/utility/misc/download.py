@@ -13,7 +13,7 @@ def download(url, save_path=None):
     """
 
     # TODO: Write error handling.
-    filename = os.path.basename(save_path)
+    filename = os.path.basename(url)
     if save_path is None:
         save_path = filename
     request = urllib.request.urlopen(url=url)

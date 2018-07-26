@@ -3,110 +3,15 @@ import sys
 import renom as rm
 import numpy as np
 from tqdm import tqdm
+
 from renom_img.api.utility.misc.download import download
-from renom_img.api.model.classification_base import ClassificationBase
+from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.target import DataBuilderClassification
+from renom_img.api.classification import Classification
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
-
-
-class InceptionBase(ClassificationBase):
-    def __init__(self, class_map):
-        super(InceptionBase, self).__init__(class_map)
-
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
-        pass
-
-    def preprocess(self, x):
-        """Image preprocess for VGG.
-
-        Args:
-            x (ndarray):
-
-        Returns:
-            (ndarray): Preprocessed data.
-        """
-        return x / 255.
-
-    def regularize(self, decay_rate=0.0005):
-        """L2 Regularization term. You can use this function to add L2 regularization term to a loss function.
-
-        In VGG16, weight decay of 0.0005 is used.
-
-        Example:
-            >>> import numpy as np
-            >>> from renom_img.api.model.vgg import VGG16
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> model = VGG16()
-            >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # Add weight decay term.
-
-        """
-        return super().regularize(decay_rate)
-
-    def fit(self, train_img_path_list=None, train_annotation_list=None, augmentation=None, valid_img_path_list=None, valid_annotation_list=None,  epoch=90, batch_size=16, callback_end_epoch=None):
-        if train_img_path_list is not None and train_annotation_list is not None:
-            train_dist = ImageDistributor(
-                train_img_path_list, train_annotation_list, augmentation=augmentation)
-        else:
-            train_dist = train_image_distributor
-
-        assert train_dist is not None
-
-        if valid_img_path_list is not None and valid_annotation_list is not None:
-            valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
-        else:
-            valid_dist = valid_image_distributor
-
-        opt_flag = False
-        batch_loop = int(np.ceil(len(train_dist) / batch_size))
-        avg_train_loss_list = []
-        avg_valid_loss_list = []
-        for e in range(epoch):
-            bar = tqdm(range(batch_loop))
-            display_loss = 0
-            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=DataBuilderClassification(self.imsize, self.class_map))):
-                self.set_models(inference=False)
-                with self.train():
-                    loss = self.loss(self(train_x), train_y)
-                    reg_loss = loss + self.regularize()
-
-                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop))
-                try:
-                    loss = loss.as_ndarray()[0]
-                except:
-                    loss = loss.as_ndarray()
-                display_loss += loss
-                bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
-                bar.update(1)
-            avg_train_loss = display_loss / (i + 1)
-            avg_train_loss_list.append(avg_train_loss)
-
-            if valid_dist is not None:
-                display_loss = 0
-                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=DataBuilderClassification(self.imsize, self.class_map))):
-                    self.set_models(inference=True)
-                    loss = self.loss(self(train_x), train_y)
-                    try:
-                        loss = loss.as_ndarray()[0]
-                    except:
-                        loss = loss.as_ndarray()
-                    display_loss += loss
-                    bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
-                    bar.update(1)
-                avg_valid_loss = display_loss / (i + 1)
-                avg_valid_loss_list.append(avg_train_loss)
-                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
-                    e, avg_train_loss, avg_valid_loss))
-            else:
-                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f}".format(e, avg_train_loss))
-            bar.close()
-            if callback_end_epoch is not None:
-                callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
-        return avg_train_loss_list, avg_valid_loss_list
 
 
 class InceptionV1Block(rm.Model):
@@ -130,37 +35,8 @@ class InceptionV1Block(rm.Model):
         return rm.concat([t1, t2, t3, t4])
 
 
-class InceptionV1(InceptionBase):
-    """ Inception V1 model
-    If the argument load_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
-
-    Args:
-        class_map: Array of class names
-        load_weight(bool): True if the pre-trained weight is loaded.
-        imsize(int or tuple): Input image size.
-        train_whole_network(bool): True if the overal model is trained.
-
-    Note:
-        if the argument n_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
-
-    Christian Szegedy, Wei Liu, Yangqing Jia , Pierre Sermanet, Scott Reed ,Dragomir Anguelov,
-    Dumitru Erhan, Vincent Vanhoucke, Andrew Rabinovich
-    Going Deeper with Convolutions
-    https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf
-    """
-
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
-    WEIGHT_PATH = os.path.join(DIR, 'inceptionv4.h5')
-
-    def __init__(self, class_map, load_weight=False, imsize=(224, 224), opt=rm.Sgd(0.045, 0.9), train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        n_class = len(class_map)
-        self.imsize = imsize
-        self._opt = opt
-        self._train_whole_network = train_whole_network
+class CNN_InceptionV1(rm.Model):
+    def __init__(self, num_class):
         self.base1 = rm.Sequential([rm.Conv2d(64, filter=7, padding=3, stride=2),
                                     rm.Relu(),
                                     rm.MaxPool2d(filter=3, stride=2, padding=1),
@@ -180,7 +56,7 @@ class InceptionV1(InceptionBase):
         self.aux1 = rm.Sequential([rm.AveragePool2d(filter=5, stride=3),
                                    rm.Flatten(),
                                    rm.Dense(1024),
-                                   rm.Dense(n_class)])
+                                   rm.Dense(num_class)])
 
         self.base2 = rm.Sequential([InceptionV1Block([160, 112, 224, 24, 64, 64]),
                                     InceptionV1Block([128, 128, 256, 24, 64, 64]),
@@ -189,32 +65,16 @@ class InceptionV1(InceptionBase):
         self.aux2 = rm.Sequential([rm.AveragePool2d(filter=5, stride=3),
                                    rm.Flatten(),
                                    rm.Dense(1024),
-                                   rm.Dense(n_class)])
+                                   rm.Dense(num_class)])
 
         self.base3 = rm.Sequential([InceptionV1Block([256, 160, 320, 32, 128, 128]),
                                     InceptionV1Block([256, 160, 320, 32, 128, 128]),
                                     InceptionV1Block([192, 384, 320, 48, 128, 128]),
                                     rm.AveragePool2d(filter=7, stride=1),
                                     rm.Flatten()])
-        self.aux3 = rm.Dense(n_class)
-        super(InceptionV1, self).__init__(class_map)
-
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
-        if n_class != 1000:
-            self.aux1.params = {}
-            self.aux2.params = {}
-            self.aux3.params = {}
+        self.aux3 = rm.Dense(num_class)
 
     def forward(self, x):
-        self.base1.set_auto_update(self._train_whole_network)
-        self.base2.set_auto_update(self._train_whole_network)
-        self.base3.set_auto_update(self._train_whole_network)
-
         t = self.base1(x)
         out1 = self.aux1(t)
         t = self.base2(t)
@@ -222,6 +82,60 @@ class InceptionV1(InceptionBase):
         t = self.base3(t)
         out3 = self.aux3(t)
         return out1, out2, out3
+
+
+class InceptionV1(Classification):
+    """ Inception V1 model
+    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
+    The pretrained weight is trained using ILSVRC2012.
+
+    Args:
+        class_map: Array of class names
+        load_pretrained_weight(bool): True if the pre-trained weight is loaded.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
+
+    Note:
+        if the argument num_class is not 1000, last dense layer will be reset because
+        the pretrained weight is trained on 1000 classification dataset.
+
+    Christian Szegedy, Wei Liu, Yangqing Jia , Pierre Sermanet, Scott Reed ,Dragomir Anguelov,
+    Dumitru Erhan, Vincent Vanhoucke, Andrew Rabinovich
+    Going Deeper with Convolutions
+    https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf
+    """
+
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+
+    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+        self.class_map = class_map
+        self.num_class = len(class_map)
+        self.imsize = imsize
+        self._train_whole_network = train_whole_network
+        self._opt = rm.Sgd(0.045, 0.9)
+        self.decay_rate = 0.0005
+        self._model = CNN_InceptionV1(self.num_class)
+
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self._model.load(load_pretrained_weight)
+            self._model.aux1.params = {}
+            self._model.aux2.params = {}
+            self._model.aux3.params = {}
+        self._freeze()
+
+    def _freeze(self):
+        self._model.base1.set_auto_update(self._train_whole_network)
+        self._model.base2.set_auto_update(self._train_whole_network)
+        self._model.base3.set_auto_update(self._train_whole_network)
 
     def loss(self, x, y):
         return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3 * rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
@@ -239,6 +153,23 @@ class InceptionV1(InceptionBase):
         else:
             img_array = img_list
         return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)
+
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
+        """Returns an instance of Optimiser for training Yolov1 algorithm.
+
+        Args:
+            current_epoch:
+            total_epoch:
+            current_batch:
+            total_epoch:
+        """
+        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+            return self._opt
+        else:
+            if current_epoch % 8 == 0:
+                lr = self._opt._lr * 0.94
+            self._opt._lr = lr
+            return self._opt
 
 
 class InceptionV2BlockA(rm.Model):
@@ -451,35 +382,8 @@ class InceptionV2Stem(rm.Model):
         return t
 
 
-class InceptionV3(InceptionBase):
-    """ Inception V3 model
-    If the argument load_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
-
-    Args:
-        class_map: Array of class names
-        load_weight(bool): True if the pre-trained weight is loaded.
-        imsize(int or tuple): Input image size.
-        train_whole_network(bool): True if the overal model is trained.
-
-    Note:
-        if the argument n_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
-
-    Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
-    Rethinking the Inception Architecture for Computer Vision
-    https://arxiv.org/abs/1512.00567
-    """
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
-    WEIGHT_PATH = os.path.join(DIR, 'inceptionv3.h5')
-
-    def __init__(self, class_map, load_weight=False, imsize=(299, 299), opt=rm.Sgd(0.045, 0.9), train_whole_network=True):
-        n_class = len(class_map)
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.imsize = imsize
-        self._opt = opt
-        self._train_whole_network = train_whole_network
+class CNN_InceptionV3(rm.Model):
+    def __init__(self, num_class):
         self.base1 = rm.Sequential([
             InceptionV2Stem(),
             InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
@@ -490,6 +394,7 @@ class InceptionV3(InceptionBase):
             InceptionV2BlockC(),
             InceptionV2BlockC(),
             InceptionV2BlockC()])
+
         self.aux1 = rm.Sequential([
             rm.AveragePool2d(filter=5, stride=3),
             rm.Conv2d(128, filter=1),
@@ -499,7 +404,7 @@ class InceptionV3(InceptionBase):
             rm.BatchNormalize(mode='feature'),
             rm.Relu(),
             rm.Flatten(),
-            rm.Dense(n_class)])
+            rm.Dense(num_class)])
 
         self.base2 = rm.Sequential([
             InceptionV2BlockD(),
@@ -508,28 +413,67 @@ class InceptionV3(InceptionBase):
             rm.AveragePool2d(filter=8),
             rm.Flatten()])
 
-        self.aux2 = rm.Dense(n_class)
-
-        super(InceptionV3, self).__init__(class_map)
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
-        if n_class != 1000:
-            self.aux1.params = {}
-            self.aux2.params = {}
+        self.aux2 = rm.Dense(num_class)
 
     def forward(self, x):
-        self.base1.set_auto_update(self._train_whole_network)
-        self.base2.set_auto_update(self._train_whole_network)
         t = self.base1(x)
         out1 = self.aux1(t)
         t = self.base2(t)
         out2 = self.aux2(t)
 
         return out1, out2
+
+
+class InceptionV3(Classification):
+    """ Inception V3 model
+    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
+    The pretrained weight is trained using ILSVRC2012.
+
+    Args:
+        class_map: Array of class names
+        load_pretrained_weight(bool): True if the pre-trained weight is loaded.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
+
+    Note:
+        if the argument num_class is not 1000, last dense layer will be reset because
+        the pretrained weight is trained on 1000 classification dataset.
+
+    Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
+    Rethinking the Inception Architecture for Computer Vision
+    https://arxiv.org/abs/1512.00567
+    """
+
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+
+    def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+        self.imsize = imsize
+        self.class_map = class_map
+        self.num_class = len(class_map)
+        self.class_map = class_map
+        self._train_whole_network = train_whole_network
+        self._model = CNN_InceptionV3(self.num_class)
+        self._opt = rm.Sgd(0.045, 0.9)
+        self.decay_rate = 0.0005
+
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self._model.load(load_pretrained_weight)
+            layer._model.aux1.params = {}
+            layer._model.aux2.params = {}
+        self._freeze()
+
+    def _freeze(self):
+        self._model.base1.set_auto_update(self._train_whole_network)
+        self._model.base2.set_auto_update(self._train_whole_network)
 
     def loss(self, x, y):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
@@ -549,36 +493,8 @@ class InceptionV3(InceptionBase):
         return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
 
 
-class InceptionV2(InceptionBase):
-    """ Inception V2 model
-    If the argument load_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
-
-    Args:
-        class_map: Array of class names
-        load_weight(bool): True if the pre-trained weight is loaded.
-        imsize(int or tuple): Input image size.
-        train_whole_network(bool): True if the overal model is trained.
-
-    Note:
-        if the argument n_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
-
-    Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
-    Rethinking the Inception Architecture for Computer Vision
-    https://arxiv.org/abs/1512.00567
-    """
-
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
-    WEIGHT_PATH = os.path.join(DIR, 'inceptionv2.h5')
-
-    def __init__(self, class_map, load_weight=False, imsize=(299, 299), opt=rm.Sgd(0.045, 0.9), train_whole_network=True):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        n_class = len(class_map)
-        self.imsize = imsize
-        self._opt = opt
-        self._train_whole_network = train_whole_network
+class CNN_InceptionV2(rm.Model):
+    def __init__(self, num_class):
         self.base1 = rm.Sequential([
             InceptionV2Stem(),
             InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
@@ -596,7 +512,7 @@ class InceptionV2(InceptionBase):
             rm.Conv2d(768, filter=1),
             rm.Relu(),
             rm.Flatten(),
-            rm.Dense(n_class)])
+            rm.Dense(num_class)])
 
         self.base2 = rm.Sequential([
             InceptionV2BlockD(),
@@ -605,22 +521,9 @@ class InceptionV2(InceptionBase):
             rm.AveragePool2d(filter=8),
             rm.Flatten()])
 
-        self.aux2 = rm.Dense(n_class)
-
-        super(InceptionV2, self).__init__(class_map)
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
-        if n_class != 1000:
-            self.aux1.params = {}
-            self.aux2.params = {}
+        self.aux2 = rm.Dense(num_class)
 
     def forward(self, x):
-        self.base1.set_auto_update(self._train_whole_network)
-        self.base2.set_auto_update(self._train_whole_network)
         t = self.base1(x)
         out1 = self.aux1(t)
         t = self.base2(t)
@@ -628,10 +531,61 @@ class InceptionV2(InceptionBase):
 
         return out1, out2
 
+
+class InceptionV2(Classification):
+    """ Inception V2 model
+    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
+    The pretrained weight is trained using ILSVRC2012.
+
+    Args:
+        class_map: Array of class names
+        load_pretrained_weight(bool): True if the pre-trained weight is loaded.
+        imsize(int or tuple): Input image size.
+        train_whole_network(bool): True if the overal model is trained.
+
+    Note:
+        if the argument num_class is not 1000, last dense layer will be reset because
+        the pretrained weight is trained on 1000 classification dataset.
+
+    Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
+    Rethinking the Inception Architecture for Computer Vision
+    https://arxiv.org/abs/1512.00567
+    """
+
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+
+    def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+        self.imsize = imsize
+        self.num_class = len(class_map)
+        self.class_map = class_map
+        self._train_whole_network = train_whole_network
+        self._model = CNN_InceptionV2(self.num_class)
+        self._opt = rm.Sgd(0.045, 0.9)
+        self.decay_rate = 0.0005
+
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self._model.load(load_pretrained_weight)
+            layer._model.aux1.params = {}
+            layer._model.aux2.params = {}
+        self._freeze()
+
+    def _freeze(self):
+        self._model.base1.set_auto_update(self._train_whole_network)
+        self._model.base2.set_auto_update(self._train_whole_network)
+
     def loss(self, x, y):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         """Returns an instance of Optimiser for training Yolov1 algorithm.
 
         Args:
@@ -909,19 +863,56 @@ class InceptionV4BlockC(rm.Model):
         ])
 
 
-class InceptionV4(InceptionBase):
+class CNN_InceptionV4(rm.Model):
+    def __init__(self, num_class):
+
+        self.block1 = rm.Sequential([InceptionV4Stem(),
+                                     InceptionV4BlockA(),
+                                     InceptionV4BlockA(),
+                                     InceptionV4BlockA(),
+                                     InceptionV4BlockA(),
+                                     InceptionV4ReductionA()])
+        self.block2 = rm.Sequential([
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4BlockB(),
+            InceptionV4ReductionB()])
+        self.block3 = rm.Sequential([
+            InceptionV4BlockC(),
+            InceptionV4BlockC(),
+            InceptionV4BlockC(),
+            rm.AveragePool2d(filter=8),
+            rm.Flatten(),
+            rm.Dropout(0.2)
+        ])
+
+        self.fc = rm.Dense(num_class)
+
+    def forward(self, x):
+        t = self.block1(x)
+        t = self.block2(t)
+        t = self.block3(t)
+        t = self.fc(t)
+        return t
+
+
+class InceptionV4(Classification):
     """ Inception V4 model
-    If the argument load_weight is True, pretrained weight will be downloaded.
+    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
 
     Args:
         class_map: Array of class names
-        load_weight(bool): True if the pre-trained weight is loaded.
+        load_pretrained_weight(bool): True if the pre-trained weight is loaded.
         imsize(int or tuple): Input image size.
         train_whole_network(bool): True if the overal model is trained.
 
     Note:
-        if the argument n_class is not 1000, last dense layer will be reset because
+        if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     Christian Szegedy, Sergey Ioffe, Vincent Vanhoucke, Alex Alemi
@@ -929,62 +920,38 @@ class InceptionV4(InceptionBase):
     https://arxiv.org/abs/1602.07261
     """
 
+    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
-    WEIGHT_PATH = os.path.join(DIR, 'inceptionv4.h5')
 
-    def __init__(self, class_map, load_weight=False, imsize=(299, 299), opt=rm.Sgd(0.045, 0.9), train_whole_network=False):
+    def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.imsize = imsize
-        n_class = len(class_map)
-        self._opt = opt
-
-        layers = [InceptionV4Stem(),
-                  InceptionV4BlockA(),
-                  InceptionV4BlockA(),
-                  InceptionV4BlockA(),
-                  InceptionV4BlockA(),
-                  InceptionV4ReductionA(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4BlockB(),
-                  InceptionV4ReductionB(),
-                  InceptionV4BlockC(),
-                  InceptionV4BlockC(),
-                  InceptionV4BlockC(),
-                  rm.AveragePool2d(filter=8),
-                  rm.Flatten()
-                  ]
-
-        self._freezed_network = rm.Sequential(layers)
-        self._network = rm.Dense(n_class)
+        self.num_class = len(class_map)
+        self.class_map = class_map
         self._train_whole_network = train_whole_network
-        self.imsize = imsize
+        self._model = CNN_InceptionV4(self.num_class)
+        self._opt = rm.Sgd(0.045, 0.9)
+        self.decay_rate = 0.0005
 
-        super(InceptionV4, self).__init__(class_map)
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
 
-        if load_weight:
-            try:
-                self.load(self.WEIGHT_PATH)
-            except:
-                download(self.WEIGHT_URL, self.WEIGHT_PATH)
-            self.load(self.WEIGHT_PATH)
-        if n_class != 1000:
-            self.network.params = {}
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
 
-    @property
-    def freezed_network(self):
-        return self._freezed_network
+            self._model.load(load_pretrained_weight)
+            for layer in self._model._network.iter_models():
+                layer.params = {}
+        self._freeze()
 
-    @property
-    def network(self):
-        return self._network
+    def _freeze(self):
+        self._model.block1.set_auto_update(self._train_whole_network)
+        self._model.block2.set_auto_update(self._train_whole_network)
+        self._model.block3.set_auto_update(self._train_whole_network)
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         """Returns an instance of Optimiser for training Yolov1 algorithm.
 
         Args:
@@ -1000,11 +967,3 @@ class InceptionV4(InceptionBase):
                 lr = self._opt._lr * 0.94
             self._opt._lr = lr
             return self._opt
-
-    def forward(self, x):
-        self.freezed_network.set_auto_update(self._train_whole_network)
-        t = self.freezed_network(x)
-        t = rm.dropout(t, 0.2)
-
-        t = self.network(t)
-        return t

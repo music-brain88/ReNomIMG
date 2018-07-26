@@ -10,6 +10,7 @@ export default {
 
   // project data
   project: undefined,
+  gpu_num: 1,
 
   // selected model id
   selected_model_id: undefined,
@@ -83,5 +84,8 @@ export default {
   weight_downloading_modal: false,
 
   // dataset defs
-  dataset_defs: []
+  dataset_defs: [],
+
+  // show dataset creating modal
+  dataset_creating_modal: false
 }

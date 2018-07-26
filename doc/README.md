@@ -4,6 +4,12 @@
 - sphinx
 - sphinxcontrib-versioning==2.2.1
 
+You can install them using following command.
+
+```
+pip install -r requirements.txt
+```
+
 ### Write document
 - Write documents of python module to the source.
 - Put Japanese translation \_locale/ja/.

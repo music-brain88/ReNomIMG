@@ -1,7 +1,6 @@
 import numpy as np
 from .detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
 from .classification import precision_score, recall_score, accuracy_score
-import matplotlib.pyplot as plt
 
 
 class EvaluatorBase(object):
@@ -28,6 +27,8 @@ class EvaluatorBase(object):
         return report
 
     def plot_graph(self, x, y, title=None, x_label=None, y_label=None):
+        import matplotlib.pyplot as plt
+
         plt.figure()
         plt.title(title)
         plt.xlabel(x_label)
@@ -207,12 +208,12 @@ class EvaluatorClassification(EvaluatorBase):
         super(EvaluatorClassification, self).__init__(prediction, target)
 
     def precision(self):
-        precision = precision_score(self.prediction, self.target)
-        return precision
+        precision, mean_precision = precision_score(self.prediction, self.target)
+        return precision, mean_precision
 
     def recall(self):
-        recall = recall_score(self.prediction, self.target)
-        return recall
+        recall, mean_recall = recall_score(self.prediction, self.target)
+        return recall, mean_recall
 
     def accuracy(self):
         accuracy = accuracy_score(self.prediction, self.target)

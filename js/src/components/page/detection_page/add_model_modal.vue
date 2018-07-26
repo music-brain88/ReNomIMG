@@ -42,7 +42,11 @@
           <div class="param-item">
             <div class="label">Train Whole Network</div>
             <div class="item">
-              <select class="algorithm-select-box" v-model="train_whole_flag">
+              <select class="algorithm-select-box" v-model="yolo1_train_whole_flag" v-if="algorithm == 0">
+                <option value="0">False</option>
+                <option value="1">True</option>
+              </select>
+              <select class="algorithm-select-box" v-model="yolo2_train_whole_flag" v-if="algorithm == 1">
                 <option value="0">False</option>
                 <option value="1">True</option>
               </select>
@@ -130,7 +134,8 @@
           <div class="param-item">
             <div class="label">Batch Size</div>
             <div class="item">
-              <input type="text" v-model="batch_size" maxlength="5">
+              <input type="text" v-model="yolo1_batch_size" maxlength="5" v-if="algorithm == 0">
+              <input type="text" v-model="yolo2_batch_size" maxlength="5" v-if="algorithm == 1">
             </div>
             <div class="input-alert" v-if="batch_size < 1">Batch Size must greater than 1</div>
             <div class="input-alert" v-if="batch_size > 512">Batch Size must lower than 512</div>
@@ -155,12 +160,17 @@
 </template>
 
 <script>
+
+import { mapState } from 'vuex'
+
 export default {
   name: 'AddModelModal',
   data: function () {
     return {
       dataset_def_id: 1,
       algorithm: 0,
+      yolo1_train_whole_flag: 0,
+      yolo2_train_whole_flag: 1,
       train_whole_flag: 0,
       total_epoch: 100,
       seed: 0,
@@ -169,6 +179,8 @@ export default {
       image_height: 448,
       previous_image_width: 448,
       previous_image_height: 448,
+      yolo1_batch_size: 64,
+      yolo2_batch_size: 16,
       batch_size: 64,
 
       // YOLO params
@@ -180,8 +192,10 @@ export default {
     }
   },
   computed: {
+    ...mapState(['gpu_num']),
+
     status: function () {
-      return this.$store.getters.getModelsFromState(1).length < 2 ? 'Run' : 'Reserve'
+      return this.$store.getters.getModelsFromState(1).length < this.gpu_num ? 'Run' : 'Reserve'
     },
     dataset_defs: function () {
       return this.$store.state.dataset_defs
@@ -192,7 +206,8 @@ export default {
          this.image_width < 32 || this.image_width > 1024 ||
          this.image_height < 32 || this.image_height > 1024 ||
          this.total_epoch < 0 || this.total_epoch > 1000 ||
-         this.batch_size < 0 || this.batch_size > 512) {
+         this.batch_size < 0 || this.batch_size > 512 ||
+         this.$store.state.dataset_defs.length === 0) {
         return false
       }
       return true
@@ -216,6 +231,14 @@ export default {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
     },
     runModel: function () {
+      if (this.algorithm === 0) {
+        this.batch_size = this.yolo1_batch_size
+        this.train_whole_flag = this.yolo1_train_whole_flag
+      } else {
+        this.batch_size = this.yolo1_batch_size
+        this.train_whole_flag = this.yolo1_train_whole_flag
+      }
+
       const hyper_parameters = {
         'total_epoch': parseInt(this.total_epoch),
         'batch_size': parseInt(this.batch_size),

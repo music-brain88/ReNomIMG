@@ -40,14 +40,13 @@
 
     <div class="progress-bar-area">
       <div class="progress-bar-back">
-        <div class="progress-bar">
-          <div class="progress-bar-animation"
-            v-bind:style="{backgroundColor: progress_bar_color}"
-            v-bind:class="{animated: model.running_state===running_state['training']}">
+        <div class="progress">
+          <div class="progress-bar progress-bar-striped" role="progressbar"
+            v-bind:style="{backgroundColor:progress_bar_color}"
+            v-bind:class="{'progress-bar-animated' : model.running_state===running_state['training']}">
           </div>
         </div>
       </div>
-      <div class="progress-bar-mask" v-if="model.running_state===running_state['training']"></div>
     </div>
 
     <div class="value-item">
@@ -71,7 +70,9 @@
           {{round(model.last_train_loss, 1000).toFixed(3)}}
         </span>
         <span v-if="model.running_state!==running_state['training']">
-          <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+          <div class="loader-wrapper">
+            <div class="loader"></div>
+          </div>
         </span>
       </div>
     </div>
@@ -174,6 +175,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/../node_modules/bootstrap/scss/bootstrap.scss';
 #model-progress {
   $content-margin: 8px;
 
@@ -237,44 +239,53 @@ export default {
     height: calc(#{$label-font-size} + #{$value-font-size});
     margin-right: $content-margin;
 
-    .progress-bar-back {
-      position: absolute;
-      bottom: 2px;
-      width: 100%;
-      height: $progress-bar-height;
-      background-color: $progress-bar-bg-color;
-      border-radius: 1px;
-      border-width: 1px;
-      border-color: #a5a5a5;
-      border-style: solid;
-    }
+      .progress{
+        margin-top: 15%;
+        margin-left: 10%;
+        height: 10px;
+        background-color: #21212157;
+      }
 
-    .progress-bar {
-      position: absolute;
-      height: 10px;
-      .progress-bar-animation {
+      .progress-bar .progress-bar-striped {
+        bottom: 2px;
+        width: 100%;
+        background-color: $progress-bar-bg-color;
         border-radius: 1px;
-        background-color: $progress-bar-color;
-        height: 100%;
+        border-width: 1px;
+        border-color: #a5a5a5;
+        border-style: solid;
       }
+
     }
 
-    .progress-bar-mask {
-      position: absolute;
-      bottom: 3px;
-      width: 100%;
-      height: calc(#{$progress-bar-height} - 2px);
-      background: linear-gradient(70deg, rgba(255, 255, 255, 0.0), 30%, rgba(200, 200, 200, 1), 50%, rgba(255, 255, 255, 0));
-      background-size: 50% 100%;
-      background-repeat: no-repeat;
-      animation: movegrad 2s infinite linear;
-      @keyframes movegrad {
-          0%{background-position: -100% 0;}
-          100%{background-position: 200% 0;}
-      }
+  .loader-wrapper{
+    content: "";
+    display: inline-block;
+  }
+
+  .loader {
+    border: 3px solid #953136; /* Light grey */
+    border-top: 3px solid #f3f3f3; /* Bar color */
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      -webkit-transform: rotate(0deg);
+      -ms-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      -ms-transform: rotate(360deg);
+      transform: rotate(360deg);
     }
   }
 }
+
 .emphasizeItem {
     animation: emphasize 0.4s;
     animation-iteration-count: 1;

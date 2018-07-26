@@ -6,6 +6,7 @@
       <button @click="register">Create</button>
     </form>
 
+    <dataset-creating-modal v-if="modal_show_flag"></dataset-creating-modal>
     <table>
       <tr v-for="def in dataset_defs" :key="def.id">
        <td> {{ def.id }} </td>
@@ -15,14 +16,19 @@
       </tr>
     </table>
   </div>
+
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import DatasetCreatingModal from './dataset_creating_modal.vue'
 
 const DEFAULT_RATIO = 80.0
 export default {
-  name: 'PredictionPage',
+  name: 'DatasetsPage',
+  components: {
+    'dataset-creating-modal': DatasetCreatingModal
+  },
   data: function () {
     return {
       ratio: DEFAULT_RATIO,
@@ -33,7 +39,10 @@ export default {
     this.$store.dispatch('loadDatasetDef')
   },
   computed: {
-    ...mapState(['dataset_defs'])
+    ...mapState(['dataset_defs']),
+    modal_show_flag: function () {
+      return this.$store.state.dataset_creating_modal
+    }
   },
   methods: {
     datestr: function (d) {
@@ -62,9 +71,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#prediction-page {
+#dataset-def-page {
   display: flex;
   display: -webkit-flex;
+  height: 784px;
   flex-direction: column;
   -webkit-flex-direction: column;
 

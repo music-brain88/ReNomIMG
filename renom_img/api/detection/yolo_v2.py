@@ -6,7 +6,7 @@ from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
 from PIL import Image
 
-from renom_img.api.model.darknet import Darknet19Base, DarknetConv2dBN
+from renom_img.api.classification.darknet import Darknet19Base, DarknetConv2dBN
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor
@@ -98,10 +98,10 @@ class Yolov2(rm.Model):
     """
 
     # Anchor information will be serialized by 'save' method.
-    SERIALIZED = ("anchor", "num_anchor", "anchor_size", "_class_map", "num_class")
+    SERIALIZED = ("anchor", "num_anchor", "anchor_size", "class_map", "num_class", "imsize")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov2.h5"
 
-    def __init__(self, class_map, anchor,
+    def __init__(self, class_map=[], anchor=None,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
 
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
@@ -109,9 +109,8 @@ class Yolov2(rm.Model):
               exp),imsize=(320, 320)."
 
         num_class = len(class_map)
-        self._class_map = [k for k, v in sorted(
-            class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
-        self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
+        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in self.class_map]
         self.imsize = imsize
         self.freezed_network = Darknet19Base()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
@@ -201,6 +200,9 @@ class Yolov2(rm.Model):
 
     def forward(self, x):
         self.freezed_network.set_auto_update(self._train_whole_network)
+        self.freezed_network.set_models(inference=(
+            not self._train_whole_network or getattr(self, 'inference', False)))
+
         h, f = self.freezed_network(x)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,
@@ -308,7 +310,7 @@ class Yolov2(rm.Model):
 
             box_list[n] = [{
                 "box": box_list[n][i],
-                "name": self._class_map[score_list[n][i][1]].decode('utf-8'),
+                "name": self.class_map[score_list[n][i][1]].decode('utf-8'),
                 "score": score_list[n][i][0],
                 "class": score_list[n][i][1],
             } for i, k in enumerate(keep) if k]
@@ -548,8 +550,8 @@ class Yolov2(rm.Model):
                     exp),imsize=[(288, 288), (320, 320)]."
 
         train_dist = ImageDistributor(
-            train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=4)
-        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list, num_worker=4)
+            train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=8)
+        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list, num_worker=8)
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []

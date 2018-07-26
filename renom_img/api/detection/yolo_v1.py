@@ -4,7 +4,7 @@ import renom as rm
 from tqdm import tqdm
 from PIL import Image
 
-from renom_img.api.model.darknet import Darknet
+from renom_img.api.classification.darknet import Darknet
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.box import transform2xy12
@@ -45,23 +45,26 @@ def calc_iou(box1, box2):
 class Yolov1(rm.Model):
     """ Yolo object detection algorithm.
 
-    Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
-    You Only Look Once: Unified, Real-Time Object Detection  
-    https://arxiv.org/abs/1506.02640  
-
     Args:
         num_class (int): Number of class. 
         cells (int or tuple): Cell size. 
         boxes (int): Number of boxes.
         imsize (int, tuple): Image size.
-        load_pretrained_weight (bool, str): If true, pretrained weight will be downloaded to current directory.
-            If string is given, pretrained weight will be saved as given name.
+        load_pretrained_weight (bool, str): If true, pretrained weight will be 
+          downloaded to current directory. If string is given, pretrained weight 
+          will be saved as given name.
+
+    References:
+        Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
+        You Only Look Once: Unified, Real-Time Object Detection  
+        https://arxiv.org/abs/1506.02640  
+
     """
 
-    SERIALIZED = ("_cells", "_bbox", "_class_map", "_num_class", "_last_dense_size")
+    SERIALIZED = ("_cells", "_bbox", "imsize", "class_map", "num_class", "_last_dense_size")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         num_class = len(class_map)
 
         if not hasattr(cells, "__getitem__"):
@@ -69,10 +72,9 @@ class Yolov1(rm.Model):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
-        self._num_class = num_class
-        self._class_map = [k for k, v in sorted(
-            class_map.items(), key=lambda x:x[1])] if isinstance(class_map, dict) else class_map
-        self._class_map = [c.encode("ascii", "ignore") for c in self._class_map]
+        self.num_class = num_class
+        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in self.class_map]
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
@@ -105,13 +107,20 @@ class Yolov1(rm.Model):
         return self._network
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an instance of Optimizer for training Yolov1 algorithm.
+
+        If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
+        an optimizer object which whose learning rate is modified according to the 
+        number of training iteration. Otherwise, constant learning rate is set.
 
         Args:
-            current_epoch:
-            total_epoch:
-            current_batch:
-            total_epoch:
+            current_epoch (int): The number of current epoch.
+            total_epoch (int): The number of total epoch.
+            current_batch (int): The number of current batch.
+            total_epoch (int): The number of total batch.
+
+        Returns:
+            (Optimizer): Optimizer object.
         """
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
@@ -130,7 +139,7 @@ class Yolov1(rm.Model):
     def preprocess(self, x):
         """Image preprocess for Yolov1.
 
-        :math:`new_x = x*2/255. - 1`
+        :math:`x_{new} = x*2/255 - 1`
 
         Args:
             x (ndarray):
@@ -141,6 +150,33 @@ class Yolov1(rm.Model):
         return x / 255. * 2 - 1
 
     def forward(self, x):
+        """Performs forward propagation.
+        This function can be called using ``__call__`` method.
+        See following example of method usage.
+
+        Args:
+            x (ndarray, Node): Input image as an tensor.
+
+        Returns:
+            (Node): Returns raw output of yolo v1.
+            You can reform it to bounding box form using the method ``get_bbox``.
+
+        Example:
+            >>> import numpy as np
+            >>> from renom_img.api.detection.yolo_v1 import Yolov1
+            >>>
+            >>> x = np.random.rand(1, 3, 224, 224)
+            >>> class_map = ["dog", "cat"]
+            >>> model = Yolov1(class_map)
+            >>> y = model.forward(x) # Forward propagation.
+            >>> y = model(x)  # Same as above result.
+            >>> 
+            >>> bbox = model.get_bbox(y) # The output can be reformed using get_bbox method.
+
+        """
+        assert len(self.class_map) > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
+            "Or, please load already trained model using the method 'load()'."
         self.freezed_network.set_auto_update(self._train_whole_network)
         return self.network(self.freezed_network(x))
 
@@ -171,26 +207,29 @@ class Yolov1(rm.Model):
         Example:
             >>> z = model(x)
             >>> model.get_bbox(z)
-            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1}],
-             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0}]]
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
             z (ndarray): Output array of neural network. The shape of array 
 
         Return:
-            (list): List of predicted bbox, score and class of each image.
-                The format of return value is bellow. Box coordinates and size will be returned as
-                ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+            (list) : List of predicted bbox, score and class of each image.
+            The format of return value is bellow. Box coordinates and size will be returned as
+            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
 
+        .. code-block :: python
+
+            # An example of return value.
             [
                 [ # Prediction of first image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 [ # Prediction of second image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 ...
@@ -208,10 +247,10 @@ class Yolov1(rm.Model):
         N = len(z)
         cell = self._cells[0]
         bbox = self._bbox
-        probs = np.zeros((N, cell, cell, bbox, self._num_class))
+        probs = np.zeros((N, cell, cell, bbox, self.num_class))
         boxes = np.zeros((N, cell, cell, bbox, 4))
         yolo_format_out = z.reshape(
-            N, cell, cell, bbox * 5 + self._num_class)
+            N, cell, cell, bbox * 5 + self.num_class)
         offset = np.vstack([np.arange(cell) for c in range(cell)])
 
         for b in range(bbox):
@@ -236,7 +275,7 @@ class Yolov1(rm.Model):
         boxes[:, :, :, :, 0] = x1 + boxes[:, :, :, :, 2] / 2.
         boxes[:, :, :, :, 1] = y1 + boxes[:, :, :, :, 3] / 2.
 
-        probs = probs.reshape(N, -1, self._num_class)
+        probs = probs.reshape(N, -1, self.num_class)
         boxes = boxes.reshape(N, -1, 4)
 
         probs[probs < 0.3] = 0
@@ -244,7 +283,7 @@ class Yolov1(rm.Model):
 
         argsort = np.argsort(probs, axis=1)[:, ::-1]
         for n in range(N):
-            for cl in range(self._num_class):
+            for cl in range(self.num_class):
                 for b in range(len(boxes[n])):
                     if probs[n, argsort[n, b, cl], cl] == 0:
                         continue
@@ -262,7 +301,7 @@ class Yolov1(rm.Model):
             # Note: Take care types.
             result[indexes[0][i]].append({
                 "class": int(max_class[indexes[0][i], indexes[1][i]]),
-                "name": self._class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode("utf-8"),
+                "name": self.class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode("utf-8"),
                 "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
@@ -274,27 +313,30 @@ class Yolov1(rm.Model):
 
         Example:
             >>> 
-            >>> model.predict(['img01.jpg'], [img02.jpg]])
-            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1}],
-             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0}]]
+            >>> model.predict(['img01.jpg', 'img02.jpg']])
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
-            img_list (string, list, ndarray):
+            img_list (string, list, ndarray): Path to an image, list of path or ndarray.
 
         Return:
             (list): List of predicted bbox, score and class of each image.
-                The format of return value is bellow. Box coordinates and size will be returned as
-                ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+            The format of return value is bellow. Box coordinates and size will be returned as
+            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
 
+        .. code-block :: python
+
+            # An example of return value.
             [
                 [ # Prediction of first image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 [ # Prediction of second image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 ...
@@ -328,7 +370,7 @@ class Yolov1(rm.Model):
             N = len(img_path_list)
             num_bbox = self._bbox
             cell_w, cell_h = self._cells
-            target = np.zeros((N, self._cells[0], self._cells[1], 5 * num_bbox + self._num_class))
+            target = np.zeros((N, self._cells[0], self._cells[1], 5 * num_bbox + self.num_class))
 
             img_data, label_data = prepare_detection_data(img_path_list,
                                                           annotation_list, self.imsize)
@@ -345,7 +387,7 @@ class Yolov1(rm.Model):
                     ty = np.clip(obj["box"][1], 0, img_h) * .99 * cell_h / img_h
                     tw = np.sqrt(np.clip(obj["box"][2], 0, img_w) / img_w)
                     th = np.sqrt(np.clip(obj["box"][3], 0, img_h) / img_h)
-                    one_hot = [0] * obj["class"] + [1] + [0] * (self._num_class - obj["class"] - 1)
+                    one_hot = [0] * obj["class"] + [1] + [0] * (self.num_class - obj["class"] - 1)
                     target[n, int(ty), int(tx)] = \
                         np.concatenate(([1, tx % 1, ty % 1, tw, th] * num_bbox, one_hot))
             return self.preprocess(img_data), target.reshape(N, -1)
@@ -355,7 +397,7 @@ class Yolov1(rm.Model):
         N = len(x)
         nd_x = x.as_ndarray()
         num_bbox = self._bbox
-        target = y.reshape(N, self._cells[0], self._cells[1], 5 * num_bbox + self._num_class)
+        target = y.reshape(N, self._cells[0], self._cells[1], 5 * num_bbox + self.num_class)
         mask = np.ones_like(target)
         nd_x = nd_x.reshape(target.shape)
 
@@ -382,7 +424,7 @@ class Yolov1(rm.Model):
         diff = (x - y)
         return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
 
-    def fit(self, train_img_path_list=None, train_annotation_list=None,
+    def fit(self, train_img_path_list, train_annotation_list,
             valid_img_path_list=None, valid_annotation_list=None,
             epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None):
 

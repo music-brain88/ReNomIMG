@@ -13,8 +13,11 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "bootstrap": "^4.1.1",
     "chart.js": "^2.7.2",
+    "jquery": "^3.3.1",
     "node-sass": "^4.9.0",
+    "popper.js": "^1.14.3",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },

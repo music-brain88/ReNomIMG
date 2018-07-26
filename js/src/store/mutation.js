@@ -29,6 +29,7 @@ export default {
     if (!state.project || state.project.project_id !== payload.project_id) {
       const project = new Project(payload.project_id, payload.project_name, payload.project_comment)
       state.project = project
+      state.gpu_num = payload.gpu_num
     }
     state.project.deploy_model_id = payload.deploy_model_id
   },
@@ -457,5 +458,15 @@ export default {
         dataset.pages.push([pagefrom, rowto])
       }
     }
+  },
+
+  /**
+   * Set flag of showing dataset creating modal state.
+   *
+   * @param {Object} payload.dataset_create_modal:
+   *
+   */
+  setDatasetCreateModal (state, payload) {
+    state.dataset_creating_modal = payload.dataset_creating_modal
   }
 }
