@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import print_function, division
 import os
 import numpy as np
@@ -39,7 +37,7 @@ class VGGBase(Classification):
             if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2] and current_batch == 0:
                 self._opt._lr = self._opt._lr / 10.
             elif current_epoch == 0:
-                self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch/total_batch
+                self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch / total_batch
             return self._opt
 
     def preprocess(self, x):
@@ -103,7 +101,6 @@ class VGG16(VGGBase):
         if load_pretrained_weight:
             if isinstance(load_pretrained_weight, bool):
                 load_pretrained_weight = self.__class__.__name__ + '.h5'
-
             if not os.path.exists(load_pretrained_weight):
                 download(self.WEIGHT_URL, load_pretrained_weight)
 
@@ -111,6 +108,7 @@ class VGG16(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
+        self._freeze()
 
 
 class VGG19(VGGBase):
@@ -161,6 +159,7 @@ class VGG19(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
+        self._freeze()
 
 
 class CNN_VGG19(rm.Model):
