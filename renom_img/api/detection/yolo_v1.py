@@ -46,18 +46,18 @@ class Yolov1(rm.Model):
     """ Yolo object detection algorithm.
 
     Args:
-        num_class (int): Number of class. 
-        cells (int or tuple): Cell size. 
+        num_class (int): Number of class.
+        cells (int or tuple): Cell size.
         boxes (int): Number of boxes.
         imsize (int, tuple): Image size.
-        load_pretrained_weight (bool, str): If true, pretrained weight will be 
-          downloaded to current directory. If string is given, pretrained weight 
+        load_pretrained_weight (bool, str): If true, pretrained weight will be
+          downloaded to current directory. If string is given, pretrained weight
           will be saved as given name.
 
     References:
-        Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
-        You Only Look Once: Unified, Real-Time Object Detection  
-        https://arxiv.org/abs/1506.02640  
+        Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi
+        You Only Look Once: Unified, Real-Time Object Detection
+        https://arxiv.org/abs/1506.02640
 
     """
 
@@ -110,7 +110,7 @@ class Yolov1(rm.Model):
         """Returns an instance of Optimizer for training Yolov1 algorithm.
 
         If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
-        an optimizer object which whose learning rate is modified according to the 
+        an optimizer object which whose learning rate is modified according to the
         number of training iteration. Otherwise, constant learning rate is set.
 
         Args:
@@ -170,7 +170,7 @@ class Yolov1(rm.Model):
             >>> model = Yolov1(class_map)
             >>> y = model.forward(x) # Forward propagation.
             >>> y = model(x)  # Same as above result.
-            >>> 
+            >>>
             >>> bbox = model.get_bbox(y) # The output can be reformed using get_bbox method.
 
         """
@@ -181,7 +181,7 @@ class Yolov1(rm.Model):
         return self.network(self.freezed_network(x))
 
     def regularize(self):
-        """Regularize term. You can use this function to add regularize term to 
+        """Regularize term. You can use this function to add regularize term to
         loss function.
 
         In Yolo v1, weight decay of 0.0005 will be added.
@@ -211,7 +211,11 @@ class Yolov1(rm.Model):
              [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
-            z (ndarray): Output array of neural network. The shape of array 
+            z (ndarray): Output array of neural network. The shape of array
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
 
         Return:
             (list) : List of predicted bbox, score and class of each image.
@@ -319,6 +323,10 @@ class Yolov1(rm.Model):
 
         Args:
             img_list (string, list, ndarray): Path to an image, list of path or ndarray.
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
 
         Return:
             (list): List of predicted bbox, score and class of each image.

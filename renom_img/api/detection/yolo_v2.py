@@ -237,6 +237,10 @@ class Yolov2(rm.Model):
 
         Args:
             z(Variable, ndarray):
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
 
         Returns:
             (list):
@@ -329,6 +333,10 @@ class Yolov2(rm.Model):
 
         Args:
             img_list (string, list, ndarray):
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
 
         Return:
             (list): List of predicted bbox, score and class of each image.

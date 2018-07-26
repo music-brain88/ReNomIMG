@@ -373,7 +373,7 @@ class SSD(rm.Model):
     """
 
     SERIALIZED = ("class_map", "num_class", "imsize")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/SSD.h5"
 
     def __init__(self, class_map=None, imsize=(300, 300), overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
@@ -403,7 +403,7 @@ class SSD(rm.Model):
         return self._network
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an instance of Optimiser for training SSD algorithm.
 
         Args:
             current_epoch:
@@ -418,9 +418,7 @@ class SSD(rm.Model):
         return self._opt
 
     def preprocess(self, x):
-        """Image preprocess for Yolov1.
-
-        :math:`new_x = x*2/255. - 1`
+        """Image preprocess for SSD.
 
         Args:
             x (ndarray):
@@ -441,15 +439,16 @@ class SSD(rm.Model):
         """Regularize term. You can use this function to add regularize term to
         loss function.
 
-        In Yolo v1, weight decay of 0.0005 will be added.
+        In SSD, weight decay of 0.0005 will be added.
 
         Example:
             >>> import numpy as np
-            >>> from renom_img.api.detection.yolo_v1 import Yolov1
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> model = Yolov1()
-            >>> loss = model.loss(x, y)
+            >>> from renom_img.api.detection.ssd import SSD
+            >>> x = np.random.rand(1, 3, 300, 300)
+            >>> y = np.random.rand(1, 22, 8732)
+            >>> model = SSD()
+            >>> t = model(x)
+            >>> loss = model.loss(t, y)
             >>> reg_loss = loss + model.regularize() # Adding weight decay term.
         """
 
@@ -469,6 +468,10 @@ class SSD(rm.Model):
 
         Args:
             z (ndarray): Output array of neural network. The shape of array
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
 
         Return:
             (list): List of predicted bbox, score and class of each image.
@@ -646,6 +649,10 @@ class SSD(rm.Model):
 
         Args:
             img_list (string, list, ndarray):
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
 
         Return:
             (list): List of predicted bbox, score and class of each image.
