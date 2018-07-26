@@ -84,6 +84,7 @@ class ResNetBase(Classification):
     def _freeze(self):
         self._model.base.set_auto_update(self._train_whole_network)
 
+
 class CNN_ResNet(rm.Model):
     def __init__(self, num_class, channels, num_layers):
         if type(num_layers) == int:
@@ -438,6 +439,7 @@ class ResNet50(ResNetBase):
 
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
+
 
 class ResNet101(ResNetBase):
     """ResNet101 model.
