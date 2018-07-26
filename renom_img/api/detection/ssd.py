@@ -222,7 +222,7 @@ class DetectorNetwork(rm.Model):
         self.conv4_3_mbox_loc = rm.Conv2d(num_priors * 4, padding=1, filter=3)
 
         self.conv4_3_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-#        define the PriorBox klass later
+        # define the PriorBox class later
         self.conv4_3_priorbox = PriorBox((300, 300), 30.0, aspect_ratios=[
                                          2], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
