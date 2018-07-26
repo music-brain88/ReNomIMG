@@ -357,7 +357,8 @@ class Yolov1(rm.Model):
                     bar = tqdm()
                     bar.total = int(np.ceil(len(test_dist) / batch_size))
                     for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
-                        img_array = np.vstack([load_img(path, self.imsize)[None] for path in x_img_list])
+                        img_array = np.vstack([load_img(path, self.imsize)[None]
+                                               for path in x_img_list])
                         img_array = self.preprocess(img_array)
                         results.extend(self.get_bbox(self(img_array).as_ndarray(),
                                                      score_threshold,

@@ -37,7 +37,7 @@ class VGGBase(Classification):
             if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2] and current_batch == 0:
                 self._opt._lr = self._opt._lr / 10.
             elif current_epoch == 0:
-                self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch/total_batch
+                self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch / total_batch
             return self._opt
 
     def preprocess(self, x):
@@ -60,6 +60,7 @@ class VGGBase(Classification):
         self._model.block3.set_auto_update(self._train_whole_network)
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
+
 
 class VGG16(VGGBase):
     """VGG16 model.
@@ -107,6 +108,7 @@ class VGG16(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
+        self._freeze()
 
 
 class VGG19(VGGBase):
@@ -157,6 +159,7 @@ class VGG19(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
+        self._freeze()
 
 
 class CNN_VGG19(rm.Model):

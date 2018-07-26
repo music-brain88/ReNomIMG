@@ -28,7 +28,8 @@ class Classification(Base):
                     bar = tqdm()
                     bar.total = int(np.ceil(len(test_dist) / batch_size))
                     for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
-                        img_array = np.vstack([load_img(path, self.imsize)[None] for path in x_img_list])
+                        img_array = np.vstack([load_img(path, self.imsize)[None]
+                                               for path in x_img_list])
                         img_array = self.preprocess(img_array)
                         results.extend(np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1))
                         bar.update(1)
