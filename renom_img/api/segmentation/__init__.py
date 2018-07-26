@@ -8,6 +8,7 @@ from renom_img.api.utility.load import load_img
 from renom_img.api import Base
 from renom_img.api.utility.target import DataBuilderSegmentation
 
+
 class SemanticSegmentation(Base):
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         pass
@@ -34,4 +35,3 @@ class SemanticSegmentation(Base):
 
     def build_data(self):
         return DataBuilderSegmentation(self.class_map, self.imsize)
-

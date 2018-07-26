@@ -67,6 +67,7 @@ class FCN_Base(SemanticSegmentation):
         x[:, 2, :, :] -= 103.939  # B
         return x
 
+
 class FCN32s(FCN_Base):
     """ Fully convolutional network (21s) for semantic segmentation
 
@@ -173,6 +174,7 @@ class FCN8s(FCN_Base):
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
 
+
 class CNN_FCN8s(rm.Model):
     def __init__(self, num_class):
 
@@ -235,6 +237,7 @@ class CNN_FCN8s(rm.Model):
         t = self.upscore8(t)
         return t
 
+
 class CNN_FCN16s(rm.Model):
     def __init__(self, num_class):
         self.conv_block1 = layer_factory(channel=64, conv_layer_num=2)
@@ -279,6 +282,7 @@ class CNN_FCN16s(rm.Model):
         upscore16 = t
 
         return t
+
 
 class CNN_FCN32s(rm.Model):
     def __init__(self, num_class):

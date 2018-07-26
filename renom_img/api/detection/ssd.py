@@ -13,19 +13,21 @@ from renom_img.api.model.vgg import VGG16
 img_width, img_height = 300, 300
 
 boxes_paras = []
+
+
 def create_priors():
     box_configs = [{'layer_width': 38, 'layer_height': 38, 'num_prior': 3, 'min_size':  30.0,
-         'max_size': None, 'aspect_ratios': [1.0, 2.0, 1/2.0]},
-        {'layer_width': 19, 'layer_height': 19, 'num_prior': 6, 'min_size':  60.0,
-         'max_size': 114.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1/2.0, 3.0, 1/3.0]},
-        {'layer_width': 10, 'layer_height': 10, 'num_prior': 6, 'min_size': 114.0,
-         'max_size': 168.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1/2.0, 3.0, 1/3.0]},
-        {'layer_width':  5, 'layer_height':  5, 'num_prior': 6, 'min_size': 168.0,
-         'max_size': 222.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1/2.0, 3.0, 1/3.0]},
-        {'layer_width':  3, 'layer_height':  3, 'num_prior': 6, 'min_size': 222.0,
-         'max_size': 276.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1/2.0, 3.0, 1/3.0]},
-        {'layer_width':  1, 'layer_height':  1, 'num_prior': 6, 'min_size': 276.0,
-         'max_size': 330.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1/2.0, 3.0, 1/3.0]}]
+                    'max_size': None, 'aspect_ratios': [1.0, 2.0, 1 / 2.0]},
+                   {'layer_width': 19, 'layer_height': 19, 'num_prior': 6, 'min_size':  60.0,
+                    'max_size': 114.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1 / 2.0, 3.0, 1 / 3.0]},
+                   {'layer_width': 10, 'layer_height': 10, 'num_prior': 6, 'min_size': 114.0,
+                    'max_size': 168.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1 / 2.0, 3.0, 1 / 3.0]},
+                   {'layer_width':  5, 'layer_height':  5, 'num_prior': 6, 'min_size': 168.0,
+                    'max_size': 222.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1 / 2.0, 3.0, 1 / 3.0]},
+                   {'layer_width':  3, 'layer_height':  3, 'num_prior': 6, 'min_size': 222.0,
+                    'max_size': 276.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1 / 2.0, 3.0, 1 / 3.0]},
+                   {'layer_width':  1, 'layer_height':  1, 'num_prior': 6, 'min_size': 276.0,
+                    'max_size': 330.0, 'aspect_ratios': [1.0, 1.0, 2.0, 1 / 2.0, 3.0, 1 / 3.0]}]
 
     variance = [0.1, 0.1, 0.2, 0.2]
     for config in box_configs:
@@ -42,9 +44,9 @@ def create_priors():
         linx = np.linspace(0.5 * step_x, img_width - 0.5 * step_x, layer_width)
         liny = np.linspace(0.5 * step_y, img_height - 0.5 * step_y, layer_height)
 
-        center_x, center_y = np.meshgrid(linx, liny) #38*38
-        center_x = center_x.reshape((-1, 1)) #1441
-        center_y = center_y.reshape((-1, 1)) #1441
+        center_x, center_y = np.meshgrid(linx, liny)  # 38*38
+        center_x = center_x.reshape((-1, 1))  # 1441
+        center_y = center_y.reshape((-1, 1))  # 1441
 
         prior_boxes = np.concatenate((center_x, center_y), axis=1)
         prior_boxes = np.tile(prior_boxes, (1, 2 * num_priors))
@@ -60,8 +62,8 @@ def create_priors():
                 box_widths.append(length)
                 box_heights.append(length)
             elif ar != 1.:
-                box_widths.append(min_size*np.sqrt(ar))
-                box_heights.append(min_size/np.sqrt(ar))
+                box_widths.append(min_size * np.sqrt(ar))
+                box_heights.append(min_size / np.sqrt(ar))
         box_widths = 0.5 * np.array(box_widths)
         box_heights = 0.5 * np.array(box_heights)
 
@@ -81,6 +83,7 @@ def create_priors():
 
     return np.concatenate(boxes_paras, axis=0)
 
+
 class BoxUtils(object):
     def __init__(self, num_class, prior=None, overlap_threshold=0.5, nms_thresh=0.45, top_K=400):
         self.num_class = num_class
@@ -96,13 +99,12 @@ class BoxUtils(object):
         wh = bottom_right - upleft
         wh = np.maximum(wh, 0)
         inter = wh[:, 0] * wh[:, 1]
-        #xmin ymin xmax ymax
-        area_pred = (box[2]- box[0]) * (box[3] - box[1])
+        # xmin ymin xmax ymax
+        area_pred = (box[2] - box[0]) * (box[3] - box[1])
         area_gt = (self.prior[:, 2] - self.prior[:, 0]) * (self.prior[:, 3] - self.prior[:, 1])
         union = area_gt + area_pred - inter
         iou = inter / union
         return iou
-
 
     def encode_box(self, box, return_iou=True):
         iou = self.iou(box)
@@ -121,18 +123,18 @@ class BoxUtils(object):
         encoded_box[:, :2][assign_mask] = box_center - assigned_priors_center
         encoded_box[:, :2][assign_mask] /= assigned_priors_wh
         encoded_box[:, :2][assign_mask] /= assigned_priors[:, -4:-2]
-        encoded_box[:, 2:4][assign_mask] = np.log(box_wh/assigned_priors_wh)
+        encoded_box[:, 2:4][assign_mask] = np.log(box_wh / assigned_priors_wh)
         encoded_box[:, 2:4][assign_mask] /= assigned_priors[:, -2:]
 
         return encoded_box.ravel()
 
     def assign_boxes(self, boxes):
-        assignment = np.zeros((self.num_prior, 4+self.num_class+8))
-        assignment[:, 4] = 1.0 #background
+        assignment = np.zeros((self.num_prior, 4 + self.num_class + 8))
+        assignment[:, 4] = 1.0  # background
         if len(boxes) == 0:
             return assignmentnt
         encoded_boxes = np.apply_along_axis(self.encode_box, 1, boxes[:, :4])
-        encoded_boxes = encoded_boxes.reshape(-1, self.num_prior, 5) #xmin ymin xmax ymax iou
+        encoded_boxes = encoded_boxes.reshape(-1, self.num_prior, 5)  # xmin ymin xmax ymax iou
         best_iou = encoded_boxes[:, :, -1].max(axis=0)
         best_iou_idx = encoded_boxes[:, :, -1].argmax(axis=0)
         best_iou_mask = best_iou > 0
@@ -150,7 +152,6 @@ class BoxUtils(object):
         prior_height = mbox_priorbox[:, 3] - mbox_priorbox[:, 1]
         prior_center_x = 0.5 * (mbox_priorbox[:, 2] + mbox_priorbox[:, 0])
         prior_center_y = 0.5 * (mbox_priorbox[:, 3] + mbox_priorbox[:, 1])
-
 
         decoded_bbox_center_x = mbox_loc[:, 0] * prior_width * variances[:, 0]
         decoded_bbox_center_x += prior_center_x
@@ -178,12 +179,12 @@ class BoxUtils(object):
         if len(boxes) == 0:
             return []
         selec = []
-        x1 = boxes[:,0]
-        y1 = boxes[:,1]
-        x2 = boxes[:,2]
-        y2 = boxes[:,3]
+        x1 = boxes[:, 0]
+        y1 = boxes[:, 1]
+        x2 = boxes[:, 2]
+        y2 = boxes[:, 3]
 
-        area = (x2-x1+1) * (y2-y1+1)
+        area = (x2 - x1 + 1) * (y2 - y1 + 1)
         idxs = np.argsort(score)
 
         while len(idxs) > 0:
@@ -213,7 +214,7 @@ class BoxUtils(object):
             decoded_bbox = self.decode_boxes(mbox_loc[i], mbox_priorbox[i], variances[i])
             for c in range(self.num_class):
                 if c == 0:
-                    #background
+                    # background
                     continue
                 c_confs = mbox_conf[i, :, c]
                 c_confs_m = c_confs > confidence_threshold
@@ -223,15 +224,16 @@ class BoxUtils(object):
                     idx = self.nms(boxes_to_process, confs_to_process, self.nms_thresh)
                     good_boxes = boxes_to_process[idx]
                     confs = confs_to_process[idx][:, None]
-                    labels = c*np.ones((len(idx), 1))
+                    labels = c * np.ones((len(idx), 1))
                     c_pred = np.concatenate((labels, confs, good_boxes), axis=1)
                     results[-1].extend(c_pred)
-            if len(results[-1])>0:
+            if len(results[-1]) > 0:
                 results[-1] = np.array(results[-1])
                 argsort = np.argsort(results[-1][:, 1])[::-1]
                 results[-1] = results[-1][argsort]
                 results[-1] = results[-1][:keep_top_k]
         return results
+
 
 class PriorBox(object):
     def __init__(self, img_size, min_size, max_size=None, aspect_ratios=None,
@@ -316,6 +318,7 @@ class PriorBox(object):
         prior_boxes_tensor = np.expand_dims(prior_boxes, 0)
         return prior_boxes_tensor
 
+
 class DetectorNetwork(rm.Model):
     def __init__(self, num_class):
         self.num_class = num_class
@@ -328,16 +331,14 @@ class DetectorNetwork(rm.Model):
         self.conv4_3 = rm.Conv2d(channel=512, padding=1, filter=3)
         self.pool4 = rm.MaxPool2d(filter=2, stride=2)
 
-
         self.conv5_1 = rm.Conv2d(channel=512, padding=1, filter=3)
         self.conv5_2 = rm.Conv2d(channel=512, padding=1, filter=3)
         self.conv5_3 = rm.Conv2d(channel=512, padding=1, filter=3)
         self.pool5 = rm.MaxPool2d(filter=3, stride=1, padding=1)
         #=================================================
         # THOSE ARE USED AFTER OUTPUS ARE NORMALIZED
-        self.fc6 = rm.Conv2d(channel=1024, filter=3, padding=6, dilation=6) #relu
+        self.fc6 = rm.Conv2d(channel=1024, filter=3, padding=6, dilation=6)  # relu
         self.fc7 = rm.Conv2d(channel=1024, filter=1, padding=0)
-
 
         self.conv8_1 = rm.Conv2d(channel=256, filter=1)
         self.conv8_2 = rm.Conv2d(channel=512, stride=2, filter=3, padding=1)
@@ -354,44 +355,44 @@ class DetectorNetwork(rm.Model):
 
         self.conv4_3_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
 #        define the PriorBox klass later
-        self.conv4_3_priorbox = PriorBox((300, 300), 30.0, aspect_ratios=[2], variances=[0.1, 0.1, 0.2, 0.2])
+        self.conv4_3_priorbox = PriorBox((300, 300), 30.0, aspect_ratios=[
+                                         2], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
-
-
 
         #=================================================
         num_priors = 6
-        self.fc7_mbox_loc = rm.Conv2d(num_priors*4, padding=1)
-        self.fc7_mbox_conf = rm.Conv2d(num_priors*num_class, padding=1, filter=3)
-        self.fc7_priorbox = PriorBox((300, 300), 114.0, max_size=168.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
+        self.fc7_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
+        self.fc7_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
+        self.fc7_priorbox = PriorBox((300, 300), 114.0, max_size=168.0, aspect_ratios=[
+                                     2, 3], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
 
-
         #=================================================
-        self.conv8_2_mbox_loc = rm.Conv2d(num_priors*4, padding=1, filter=3)
-        self.conv8_2_mbox_conf = rm.Conv2d(num_priors*num_class, padding=1, filter=3)
-        self.conv8_2_priorbox = PriorBox((300, 300), 114.0, max_size=168.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
-        #=================================================
-
-
-        #=================================================
-        self.conv9_2_mbox_loc = rm.Conv2d(num_priors*4, padding=1)
-        self.conv9_2_mbox_conf = rm.Conv2d(num_priors*num_class, padding=1, filter=3)
-        self.conv9_2_priorbox = PriorBox((300, 300), 168.0, max_size=222.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
+        self.conv8_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1, filter=3)
+        self.conv8_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
+        self.conv8_2_priorbox = PriorBox((300, 300), 114.0, max_size=168.0, aspect_ratios=[
+                                         2, 3], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
 
+        #=================================================
+        self.conv9_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
+        self.conv9_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
+        self.conv9_2_priorbox = PriorBox((300, 300), 168.0, max_size=222.0, aspect_ratios=[
+                                         2, 3], variances=[0.1, 0.1, 0.2, 0.2])
+        #=================================================
 
         #=================================================
-        self.conv10_2_mbox_loc = rm.Conv2d(num_priors*4, padding=1)
-        self.conv10_2_mbox_conf = rm.Conv2d(num_priors*num_class, padding=1, filter=3)
-        self.conv10_2_priorbox = PriorBox((300, 300), 222.0, max_size=276.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
+        self.conv10_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
+        self.conv10_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
+        self.conv10_2_priorbox = PriorBox((300, 300), 222.0, max_size=276.0, aspect_ratios=[
+                                          2, 3], variances=[0.1, 0.1, 0.2, 0.2])
         #=================================================
 
-        self.pool11_mbox_loc = rm.Dense(num_priors*4)
-        self.pool11_mbox_conf = rm.Dense(num_priors*num_class)
+        self.pool11_mbox_loc = rm.Dense(num_priors * 4)
+        self.pool11_mbox_conf = rm.Dense(num_priors * num_class)
 
-        self.pool11_priorbox = PriorBox((300, 300), 276.0, max_size=330.0, aspect_ratios=[2, 3], variances=[0.1, 0.1, 0.2, 0.2])
-
+        self.pool11_priorbox = PriorBox((300, 300), 276.0, max_size=330.0, aspect_ratios=[
+                                        2, 3], variances=[0.1, 0.1, 0.2, 0.2])
 
     def forward(self, x):
         n = x.shape[0]
@@ -454,7 +455,6 @@ class DetectorNetwork(rm.Model):
 
         pool11_mbox_loc_flat = self.pool11_mbox_loc(t)
 
-
         pool11_mbox_conf_flat = self.pool11_mbox_conf(t)
         pool11_reshaped = t.reshape((t.shape[0], 256, 1, 1))
         pool11_priorbox = self.pool11_priorbox(pool11_reshaped)
@@ -466,29 +466,27 @@ class DetectorNetwork(rm.Model):
                               conv10_mbox_loc_flat,
                               pool11_mbox_loc_flat])
         mbox_conf = rm.concat([conv4_norm_conf_flat,
-                              fc7_mbox_conf_flat,
-                              conv8_mbox_conf_flat,
-                              conv9_mbox_conf_flat,
-                              conv10_mbox_conf_flat,
-                              pool11_mbox_conf_flat])
+                               fc7_mbox_conf_flat,
+                               conv8_mbox_conf_flat,
+                               conv9_mbox_conf_flat,
+                               conv10_mbox_conf_flat,
+                               pool11_mbox_conf_flat])
 
         mbox_priorbox = np.concatenate([conv4_priorbox,
-                              fc7_priorbox,
-                              conv8_priorbox,
-                              conv9_priorbox,
-                              conv10_priorbox,
-                              pool11_priorbox], axis=1)
+                                        fc7_priorbox,
+                                        conv8_priorbox,
+                                        conv9_priorbox,
+                                        conv10_priorbox,
+                                        pool11_priorbox], axis=1)
 
-
-
-
-        num_boxes = mbox_loc.shape[-1]//4
+        num_boxes = mbox_loc.shape[-1] // 4
         mbox_loc = mbox_loc.reshape((n, 4, num_boxes))
         mbox_conf = mbox_conf.reshape((n, self.num_class, num_boxes))
         mbox_conf = rm.softmax(mbox_conf)
 
         predictions = rm.concat([
-            mbox_loc, mbox_conf, np.broadcast_to(mbox_priorbox.transpose((0, 2, 1)), (mbox_conf.shape[0], mbox_priorbox.shape[2], mbox_priorbox.shape[1]))
+            mbox_loc, mbox_conf, np.broadcast_to(mbox_priorbox.transpose(
+                (0, 2, 1)), (mbox_conf.shape[0], mbox_priorbox.shape[2], mbox_priorbox.shape[1]))
         ])
         return predictions
 
@@ -523,7 +521,8 @@ class SSD(rm.Model):
         self.imsize = imsize
         self._freezed_network = rm.Sequential(VGG16(class_map).freezed_network[:2])
         self._network = DetectorNetwork(self.num_class)
-        self.bbox_util = BoxUtils(self.num_class, create_priors(), overlap_threshold, nms_threshold, top_K)
+        self.bbox_util = BoxUtils(self.num_class, create_priors(),
+                                  overlap_threshold, nms_threshold, top_K)
 
         self._opt = rm.Sgd(0.01, 0.9)
 
@@ -802,31 +801,32 @@ class SSD(rm.Model):
     def loss(self, x, y, neg_pos_ratio=3.0, negatives_for_hard=100.0):
         batch_size = y.shape[0]
         num_boxes = y.shape[2]
-        conf_loss = - rm.sum(y[:, 4:-8, :]*rm.log(x[:, 4:-8, :] + 1e-8), axis=1) / batch_size
-        conf_loss = rm.sum(rm.softmax_cross_entropy(x[:, 4:-8, :], y[:, 4:-8, :], reduce_sum=False), axis=1)
+        conf_loss = - rm.sum(y[:, 4:-8, :] * rm.log(x[:, 4:-8, :] + 1e-8), axis=1) / batch_size
+        conf_loss = rm.sum(rm.softmax_cross_entropy(
+            x[:, 4:-8, :], y[:, 4:-8, :], reduce_sum=False), axis=1)
         loc_loss = rm.sum(rm.smoothed_l1(x[:, :4, :], y[:, :4, :], reduce_sum=False), axis=1)
 
         num_pos = np.sum(y[:, -8, :], axis=1)
-        pos_loc_loss = rm.sum(loc_loss*(y[:, -8, :]), axis=1)
+        pos_loc_loss = rm.sum(loc_loss * (y[:, -8, :]), axis=1)
         pos_conf_loss = rm.sum(conf_loss * y[:, -8, :], axis=1)
 
         num_neg = np.minimum(neg_pos_ratio * num_pos, num_boxes - num_pos)
         has_min = num_neg > 0
         has_min = np.any(has_min).astype('float')
 
-        num_neg = np.concatenate([num_neg, [(1-has_min)*negatives_for_hard]])
+        num_neg = np.concatenate([num_neg, [(1 - has_min) * negatives_for_hard]])
         num_neg_batch = np.min(num_neg[(num_neg > 0)])
 
         num_neg_batch = int(num_neg_batch)
-        confs_start = 5 # 4+0(background label) + 1
+        confs_start = 5  # 4+0(background label) + 1
         confs_end = confs_start + self.num_class - 1
 
         max_confs = np.max(x[:, confs_start:confs_end, :].as_ndarray(), axis=1)
-        indices = (max_confs * (1-y[:, -8, :])).argsort()[:, ::-1][:, :num_neg_batch]
+        indices = (max_confs * (1 - y[:, -8, :])).argsort()[:, ::-1][:, :num_neg_batch]
 
         batch_idx = np.expand_dims(range(0, batch_size), 1)
         batch_idx = np.tile(batch_idx, (1, num_neg_batch))
-        full_indices = (batch_idx.reshape(-1)*int(num_boxes) + indices.reshape(-1))
+        full_indices = (batch_idx.reshape(-1) * int(num_boxes) + indices.reshape(-1))
 
         neg_conf_loss = conf_loss.reshape(-1)[full_indices]
         neg_conf_loss = neg_conf_loss.reshape((batch_size, num_neg_batch))
@@ -835,8 +835,8 @@ class SSD(rm.Model):
         total_loss = neg_conf_loss + pos_conf_loss
         total_loss /= (num_pos + float(num_neg_batch))
 
-        num_pos = np.where(np.not_equal(num_pos, 0), num_pos,np.ones_like(num_pos))
-        total_loss = total_loss +  (pos_loc_loss/num_pos)
+        num_pos = np.where(np.not_equal(num_pos, 0), num_pos, np.ones_like(num_pos))
+        total_loss = total_loss + (pos_loc_loss / num_pos)
         loss = rm.sum(total_loss)
         return loss
 

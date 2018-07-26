@@ -114,6 +114,7 @@ class UNet(SemanticSegmentation):
         self._model.conv5_1.set_auto_update(self._train_whole_network)
         self._model.conv5_2.set_auto_update(self._train_whole_network)
 
+
 class CNN_UNet(rm.Model):
     def __init__(self, num_class):
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
