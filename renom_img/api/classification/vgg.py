@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import print_function, division
 import os
 import numpy as np
@@ -103,7 +101,6 @@ class VGG16(VGGBase):
         if load_pretrained_weight:
             if isinstance(load_pretrained_weight, bool):
                 load_pretrained_weight = self.__class__.__name__ + '.h5'
-
             if not os.path.exists(load_pretrained_weight):
                 download(self.WEIGHT_URL, load_pretrained_weight)
 
@@ -111,6 +108,7 @@ class VGG16(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
+        self._freeze()
 
 
 class VGG19(VGGBase):
@@ -161,6 +159,7 @@ class VGG19(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
+        self._freeze()
 
 
 class CNN_VGG19(rm.Model):

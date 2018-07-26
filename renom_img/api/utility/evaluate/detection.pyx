@@ -36,11 +36,7 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
 
     """
 
-    if not n_class:
-        class_map = np.unique(np.concatenate([[g['class'] for gt in gt_list for g in gt], [p['class'] for pre in pred_list for p in pre]]))
-        n_class = len(class_map)
-    else:
-        class_map = np.arange(n_class)
+    class_map = np.unique(np.concatenate([[g['name'] for gt in gt_list for g in gt], [p['name'] for pre in pred_list for p in pre]]))
 
     n_pos_list = dict()
     match = {}
@@ -56,16 +52,18 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
 
         gt_labels = [obj['class'] for obj in gt_list_per_img]
         gt_boxes = [obj['box'] for obj in gt_list_per_img]
+        gt_names = [obj['name'] for obj in gt_list_per_img]
 
         pred_labels = [obj['class'] for obj in pred_list_per_img]
+        pred_names = [obj['name'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
         pred_confs = [float(obj['score']) for obj in pred_list_per_img]
 
-        for l in gt_labels:
+        for l in gt_names:
             n_pos_list[l] += 1
 
         gt_seen = np.zeros(len(gt_boxes), dtype=bool)
-        for label, box, conf in zip(pred_labels, pred_boxes, pred_confs):
+        for label, name, box, conf in zip(pred_labels, pred_names, pred_boxes, pred_confs):
             x1, y1, x2, y2 = transform2xy12(box)
 
             maxiou = -1
@@ -81,19 +79,19 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
                     maxiou_id = j
 
             if maxiou < 0:
-                match[label].append(0)
-                scores[label].append(conf)
+                match[name].append(0)
+                scores[name].append(conf)
                 continue
 
             if maxiou >= iou_threshold:
                 if not gt_seen[maxiou_id]:
-                    match[label].append(1)
+                    match[name].append(1)
                     gt_seen[maxiou_id] = True
                 else:
-                    match[label].append(0)
+                    match[name].append(0)
             else:
-                match[label].append(0)
-            scores[label].append(conf)
+                match[name].append(0)
+            scores[name].append(conf)
 
     precisions = {}
     recalls = {}
@@ -172,11 +170,7 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
         mean_iou: Average mean IoU in all classes
     """
 
-    if not n_class:
-        class_map = np.unique(np.concatenate([[g['class'] for gt in gt_list for g in gt], [p['class'] for pre in pred_list for p in pre]]))
-        n_class = len(class_map)
-    else:
-        class_map = np.arange(n_class)
+    class_map = np.unique(np.concatenate([[g['name'] for gt in gt_list for g in gt], [p['name'] for pre in pred_list for p in pre]]))
 
     ious = {}
     for c in class_map:
@@ -188,9 +182,11 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
         pred_list_per_img = pred_list[i]
 
         gt_labels = [obj['class'] for obj in gt_list_per_img]
+        gt_names = [obj['name'] for obj in gt_list_per_img]
         gt_boxes = [obj['box'] for obj in gt_list_per_img]
 
         pred_labels = [obj['class'] for obj in pred_list_per_img]
+        pred_names = [obj['name'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
 
         gt_seen = np.zeros(len(gt_boxes), dtype=bool)
@@ -199,7 +195,7 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
 
             maxiou = -1
             maxiou_id = -1
-            for j, (gt_label, gt_box) in enumerate(zip(gt_labels, gt_boxes)):
+            for j, (gt_label, name, gt_box) in enumerate(zip(gt_labels, gt_names, gt_boxes)):
                 if gt_label != label:
                     continue
                 gt_x1, gt_y1, gt_x2, gt_y2 = transform2xy12(gt_box)
@@ -211,7 +207,7 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
 
             if maxiou >= iou_threshold:
                 if not gt_seen[maxiou_id]:
-                    ious[label].append(maxiou)
+                    ious[name].append(maxiou)
                     gt_seen[maxiou_id] = True
                 else:
                     continue
@@ -249,11 +245,7 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
         mean_iou: Average mean IoU in all classes
     """
 
-    if not n_class:
-        class_map = np.unique(np.concatenate([[g['class'] for gt in gt_list for g in gt], [p['class'] for pre in pred_list for p in pre]]))
-        n_class = len(class_map)
-    else:
-        class_map = np.arange(n_class)
+    class_map = np.unique(np.concatenate([[g['name'] for gt in gt_list for g in gt], [p['name'] for pre in pred_list for p in pre]]))
 
     n_pos_list = dict()
     match = {}
@@ -270,9 +262,11 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
         pred_list_per_img = pred_list[i]
 
         gt_labels = [obj['class'] for obj in gt_list_per_img]
+        gt_names = [obj['name'] for obj in gt_list_per_img]
         gt_boxes = [obj['box'] for obj in gt_list_per_img]
 
         pred_labels = [obj['class'] for obj in pred_list_per_img]
+        pred_names = [obj['name'] for obj in pred_list_per_img]
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
         pred_confs = [obj['score'] for obj in pred_list_per_img]
 
@@ -280,7 +274,7 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
             n_pos_list[l] += 1
 
         gt_seen = np.zeros(len(gt_boxes), dtype=bool)
-        for label, box, conf in zip(pred_labels, pred_boxes, pred_confs):
+        for label, name, box, conf in zip(pred_labels, pred_names, pred_boxes, pred_confs):
             x1, y1, x2, y2 = transform2xy12(box)
 
             iou_list = []
@@ -298,20 +292,20 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
                     maxiou_id = j
 
             if maxiou < 0:
-                match[label].append(0)
-                scores[label].append(conf)
+                match[name].append(0)
+                scores[name].append(conf)
                 continue
 
             if maxiou >= iou_threshold:
                 if not gt_seen[maxiou_id]:
-                    match[label].append(1)
-                    ious[label].append(maxiou)
+                    match[name].append(1)
+                    ious[name].append(maxiou)
                     gt_seen[maxiou_id] = True
                 else:
-                    match[label].append(0)
+                    match[name].append(0)
             else:
-                match[label].append(0)
-            scores[label].append(conf)
+                match[name].append(0)
+            scores[name].append(conf)
 
     precisions = {}
     recalls = {}

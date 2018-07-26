@@ -162,13 +162,14 @@ class DataBuilderSegmentation(DataBuilderBase):
 
         img_list = []
         label_list = []
-        for img_path, an_path in zip(img_path_list, annotation_path_list):
+        for img_path, an_path in zip(img_path_list, annotation_list):
             annot = np.zeros((n_class, self.imsize[0], self.imsize[1]))
             img, sw, sh = self.load_img(img_path)
-            label, sw, sh = self.load_img(an_path)[0]
+            labels, asw, ash = self.load_img(an_path)[0]
             img_list.append(img)
-            for i in range(len(self.class_map)):
-                annot[i, label == i] = 1.
+            for i in range(self.imsize[0]):
+                for j in range(self.imsize[1]):
+                    annot[int(labels[i][j]), i, j] = 1
             label_list.append(annot)
         if augmentation is not None:
             return augmentation(np.array(img_list), np.array(label_list), mode="segmentation")
