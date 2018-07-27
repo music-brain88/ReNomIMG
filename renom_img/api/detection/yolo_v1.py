@@ -45,17 +45,20 @@ def calc_iou(box1, box2):
 class Yolov1(rm.Model):
     """ Yolo object detection algorithm.
 
-    Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
-    You Only Look Once: Unified, Real-Time Object Detection  
-    https://arxiv.org/abs/1506.02640  
-
     Args:
-        num_class (int): Number of class. 
-        cells (int or tuple): Cell size. 
+        num_class (int): Number of class.
+        cells (int or tuple): Cell size.
         boxes (int): Number of boxes.
         imsize (int, tuple): Image size.
-        load_pretrained_weight (bool, str): If true, pretrained weight will be downloaded to current directory.
-            If string is given, pretrained weight will be saved as given name.
+        load_pretrained_weight (bool, str): If true, pretrained weight will be
+          downloaded to current directory. If string is given, pretrained weight
+          will be saved as given name.
+
+    References:
+        Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi
+        You Only Look Once: Unified, Real-Time Object Detection
+        https://arxiv.org/abs/1506.02640
+
     """
 
     SERIALIZED = ("_cells", "_bbox", "imsize", "class_map", "num_class", "_last_dense_size")
@@ -104,13 +107,20 @@ class Yolov1(rm.Model):
         return self._network
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an instance of Optimizer for training Yolov1 algorithm.
+
+        If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
+        an optimizer object which whose learning rate is modified according to the
+        number of training iteration. Otherwise, constant learning rate is set.
 
         Args:
-            current_epoch:
-            total_epoch:
-            current_batch:
-            total_epoch:
+            current_epoch (int): The number of current epoch.
+            total_epoch (int): The number of total epoch.
+            current_batch (int): The number of current batch.
+            total_epoch (int): The number of total batch.
+
+        Returns:
+            (Optimizer): Optimizer object.
         """
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
@@ -129,7 +139,7 @@ class Yolov1(rm.Model):
     def preprocess(self, x):
         """Image preprocess for Yolov1.
 
-        :math:`new_x = x*2/255. - 1`
+        :math:`x_{new} = x*2/255 - 1`
 
         Args:
             x (ndarray):
@@ -140,11 +150,38 @@ class Yolov1(rm.Model):
         return x / 255. * 2 - 1
 
     def forward(self, x):
+        """Performs forward propagation.
+        This function can be called using ``__call__`` method.
+        See following example of method usage.
+
+        Args:
+            x (ndarray, Node): Input image as an tensor.
+
+        Returns:
+            (Node): Returns raw output of yolo v1.
+            You can reform it to bounding box form using the method ``get_bbox``.
+
+        Example:
+            >>> import numpy as np
+            >>> from renom_img.api.detection.yolo_v1 import Yolov1
+            >>>
+            >>> x = np.random.rand(1, 3, 224, 224)
+            >>> class_map = ["dog", "cat"]
+            >>> model = Yolov1(class_map)
+            >>> y = model.forward(x) # Forward propagation.
+            >>> y = model(x)  # Same as above result.
+            >>>
+            >>> bbox = model.get_bbox(y) # The output can be reformed using get_bbox method.
+
+        """
+        assert len(self.class_map) > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
+            "Or, please load already trained model using the method 'load()'."
         self.freezed_network.set_auto_update(self._train_whole_network)
         return self.network(self.freezed_network(x))
 
     def regularize(self):
-        """Regularize term. You can use this function to add regularize term to 
+        """Regularize term. You can use this function to add regularize term to
         loss function.
 
         In Yolo v1, weight decay of 0.0005 will be added.
@@ -165,31 +202,38 @@ class Yolov1(rm.Model):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 
-    def get_bbox(self, z):
+    def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
         Example:
             >>> z = model(x)
             >>> model.get_bbox(z)
-            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1}],
-             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0}]]
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
-            z (ndarray): Output array of neural network. The shape of array 
+            z (ndarray): Output array of neural network. The shape of array
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
 
         Return:
-            (list): List of predicted bbox, score and class of each image.
-                The format of return value is bellow. Box coordinates and size will be returned as
-                ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+            (list) : List of predicted bbox, score and class of each image.
+            The format of return value is bellow. Box coordinates and size will be returned as
+            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
 
+        .. code-block :: python
+
+            # An example of return value.
             [
                 [ # Prediction of first image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 [ # Prediction of second image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 ...
@@ -238,7 +282,7 @@ class Yolov1(rm.Model):
         probs = probs.reshape(N, -1, self.num_class)
         boxes = boxes.reshape(N, -1, 4)
 
-        probs[probs < 0.3] = 0
+        probs[probs < score_threshold] = 0
         # Perform NMS
 
         argsort = np.argsort(probs, axis=1)[:, ::-1]
@@ -250,7 +294,7 @@ class Yolov1(rm.Model):
                     b1 = transform2xy12(boxes[n, argsort[n, b, cl], :])
                     for comp in range(b + 1, len(boxes[n])):
                         b2 = transform2xy12(boxes[n, argsort[n, comp, cl], :])
-                        if calc_iou(b1, b2) > 0.4:
+                        if calc_iou(b1, b2) > nms_threshold:
                             probs[n, argsort[n, comp, cl], cl] = 0
 
         result = [[] for _ in range(N)]
@@ -267,33 +311,40 @@ class Yolov1(rm.Model):
             })
         return result
 
-    def predict(self, img_list):
+    def predict(self, img_list, score_threshold=0.3, nms_threshold=0.4):
         """
         This method accepts either ndarray and list of image path.
 
         Example:
-            >>> 
-            >>> model.predict(['img01.jpg'], [img02.jpg]])
-            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1}],
-             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0}]]
+            >>>
+            >>> model.predict(['img01.jpg', 'img02.jpg']])
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
-            img_list (string, list, ndarray):
+            img_list (string, list, ndarray): Path to an image, list of path or ndarray.
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
 
         Return:
             (list): List of predicted bbox, score and class of each image.
-                The format of return value is bellow. Box coordinates and size will be returned as
-                ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+            The format of return value is bellow. Box coordinates and size will be returned as
+            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
 
+        .. code-block :: python
+
+            # An example of return value.
             [
                 [ # Prediction of first image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 [ # Prediction of second image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 ...
@@ -304,18 +355,37 @@ class Yolov1(rm.Model):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
+        batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
+                if len(img_list) >= 32:
+                    test_dist = ImageDistributor(img_list)
+                    results = []
+                    bar = tqdm()
+                    bar.total = int(np.ceil(len(test_dist) / batch_size))
+                    for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
+                        img_array = np.vstack([load_img(path, self.imsize)[None]
+                                               for path in x_img_list])
+                        img_array = self.preprocess(img_array)
+                        results.extend(self.get_bbox(self(img_array).as_ndarray(),
+                                                     score_threshold,
+                                                     nms_threshold))
+                        bar.update(1)
+                    return results
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
                 img_array = self.preprocess(img_array)
             else:
                 img_array = load_img(img_list, self.imsize)[None]
                 img_array = self.preprocess(img_array)
-                return self.get_bbox(self(img_array).as_ndarray())[0]
+                return self.bbox_util.get_bbox(self(img_array).as_ndarray(),
+                                               score_threshold,
+                                               nms_threshold)[0]
         else:
             img_array = img_list
-        return self.get_bbox(self(img_array).as_ndarray())
+        return self.get_bbox(self(img_array).as_ndarray(),
+                             score_threshold,
+                             nms_threshold)
 
     def build_data(self):
         def builder(img_path_list, annotation_list, augmentation=None, **kwargs):

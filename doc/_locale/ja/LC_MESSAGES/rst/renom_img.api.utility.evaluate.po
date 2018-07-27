@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"POT-Creation-Date: 2018-07-17 16:12+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,9 @@ msgstr ""
 #: renom_img.api.utility.evaluate.classification.precision_recall_score
 #: renom_img.api.utility.evaluate.classification.precision_score
 #: renom_img.api.utility.evaluate.classification.recall_score
+#: renom_img.api.utility.evaluate.detection.get_mean_iou
 #: renom_img.api.utility.evaluate.detection.get_prec_and_rec
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou
 msgid "Parameters"
 msgstr ""
 
@@ -62,51 +64,104 @@ msgstr ""
 
 #: ../../docstring of renom_img.api.utility.evaluate.detection.get_ap_and_map:1
 msgid ""
-"prec: List of precision for each class returned by get_prec_and_rec "
-"method rec: List of recall for each class returned by get_prec_and_rec "
-"method"
+"Computing Ap and mAP :param prec: Dictionary of precision for each class "
+"returned by get_prec_and_rec method :type prec: dict :param rec: "
+"Dictionary of recall for each class returned by get_prec_and_rec method "
+":type rec: dict"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.evaluate.EvaluatorDetection.AP
+#: renom_img.api.utility.evaluate.EvaluatorDetection.detection_report
+#: renom_img.api.utility.evaluate.EvaluatorDetection.iou
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mAP
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou
+#: renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec
+#: renom_img.api.utility.evaluate.detection.get_ap_and_map
+#: renom_img.api.utility.evaluate.detection.get_mean_iou
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou
+msgid "Returns"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.evaluate.detection.get_ap_and_map:7
+msgid "dictionary of AP for each class mAP(float): mean Average Precision"
+msgstr ""
+
+#: ../../docstring of
+#: renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec
+#: renom_img.api.utility.evaluate.detection.get_ap_and_map
+#: renom_img.api.utility.evaluate.detection.get_mean_iou
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou
+msgid "Return type"
 msgstr ""
 
 #: ../../docstring of renom_img.api.utility.evaluate.detection.get_mean_iou:1
-#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:11
-#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:1
-msgid "predict_list: ["
+msgid ""
+"Computing mean IoU :param gt_list: :type gt_list: list :param pred_list: "
+"A list of predicted bounding boxes."
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.evaluate.EvaluatorDetection:17
+#: renom_img.api.utility.evaluate.detection.get_mean_iou:15
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:19
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:14
+msgid "["
 msgstr ""
 
 #: ../../docstring of renom_img.api.utility.evaluate.EvaluatorDetection:11
-#: renom_img.api.utility.evaluate.detection.get_mean_iou:5
-#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:15
-#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:5
+#: renom_img.api.utility.evaluate.detection.get_mean_iou:9
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:13
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:8
 msgid "[ # Objects of 1st image."
 msgstr ""
 
 #: ../../docstring of renom_img.api.utility.evaluate.EvaluatorDetection:10
-#: renom_img.api.utility.evaluate.detection.get_mean_iou:4
-#: renom_img.api.utility.evaluate.detection.get_mean_iou:9
-#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:14
-#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:4
-#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:9
+#: renom_img.api.utility.evaluate.detection.get_mean_iou:8
+#: renom_img.api.utility.evaluate.detection.get_mean_iou:13
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:12
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:17
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:7
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:12
 msgid ""
 "{'box': [x(float), y, w, h], 'class': class_id(int), 'score': score}, "
 "{'box': [x(float), y, w, h], 'class': class_id(int), 'score': score}, ..."
 msgstr ""
 
 #: ../../docstring of renom_img.api.utility.evaluate.EvaluatorDetection:13
-#: renom_img.api.utility.evaluate.detection.get_mean_iou:7
-#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:17
-#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:7
+#: renom_img.api.utility.evaluate.detection.get_mean_iou:11
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:15
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:10
 msgid "], [ # Objects of 2nd image."
 msgstr ""
 
 #: ../../docstring of renom_img.api.utility.evaluate.EvaluatorDetection:18
 #: renom_img.api.utility.evaluate.EvaluatorDetection:19
-#: renom_img.api.utility.evaluate.detection.get_mean_iou:12
-#: renom_img.api.utility.evaluate.detection.get_mean_iou:13
-#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:22
-#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:23
-#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:12
-#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:13
+#: renom_img.api.utility.evaluate.detection.get_mean_iou:16
+#: renom_img.api.utility.evaluate.detection.get_mean_iou:17
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:20
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:21
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:15
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:16
 msgid "]"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.evaluate.detection.get_mean_iou:19
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:23
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:18
+msgid "The number of classes"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.evaluate.detection.get_mean_iou:21
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:25
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:20
+msgid ""
+"This represents the ratio of overlapped area between two boxes. Defaults "
+"to 0.5"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.evaluate.detection.get_mean_iou:24
+msgid "Mean IoU for each class mean_iou: Average mean IoU in all classes"
 msgstr ""
 
 #: ../../docstring of
@@ -123,14 +178,37 @@ msgstr ""
 
 #: ../../docstring of
 #: renom_img.api.utility.evaluate.detection.get_prec_and_rec:8
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:3
+msgid ""
+"A list of predicted bounding boxes.  [     [ # Objects of 1st image."
+"         {'box': [x(float), y, w, h], 'class': class_id(int), 'score': "
+"score},         {'box': [x(float), y, w, h], 'class': class_id(int), "
+"'score': score},         ...     ],     [ # Objects of 2nd image."
+"         {'box': [x(float), y, w, h], 'class': class_id(int), 'score': "
+"score},         {'box': [x(float), y, w, h], 'class': class_id(int), "
+"'score': score},         ...     ] ]"
+msgstr ""
+
+#: ../../docstring of
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:8
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:3
 msgid "A list of predicted bounding boxes."
 msgstr ""
 
-#: ../../docstring of renom_img.api.utility.evaluate.EvaluatorDetection:15
-#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:19
+#: ../../docstring of
+#: renom_img.api.utility.evaluate.detection.get_prec_and_rec:28
 msgid ""
-"{'box': [x(float), y, w, h], 'class': class_id(int), 'score': score}, "
-"{'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score}, ..."
+"Dictionary of precision for each class recalls(dict): Dictionary of "
+"recall for each class n_pred: The number of predicted objects for each "
+"class n_pos_list: The number of positive objects for each class"
+msgstr ""
+
+#: ../../docstring of
+#: renom_img.api.utility.evaluate.detection.get_prec_rec_iou:23
+msgid ""
+"Dictionary of precision for each class recalls(dict): Dictionary of "
+"recall for each class mean_iou_per_cls(dict): Mean IoU for each class "
+"mean_iou: Average mean IoU in all classes"
 msgstr ""
 
 #: ../../rst/renom_img.api.utility.evaluate.rst:22
@@ -169,8 +247,10 @@ msgid ""
 "'clas': class_id(int), 'score': score},         ...     ] ]"
 msgstr ""
 
-#: of renom_img.api.utility.evaluate.EvaluatorDetection:17
-msgid "["
+#: of renom_img.api.utility.evaluate.EvaluatorDetection:15
+msgid ""
+"{'box': [x(float), y, w, h], 'class': class_id(int), 'score': score}, "
+"{'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score}, ..."
 msgstr ""
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection:22
@@ -185,15 +265,6 @@ msgstr ""
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.AP:2
 #: renom_img.api.utility.evaluate.EvaluatorDetection.mAP:2
 msgid "The number of decimal."
-msgstr ""
-
-#: of renom_img.api.utility.evaluate.EvaluatorDetection.AP
-#: renom_img.api.utility.evaluate.EvaluatorDetection.detection_report
-#: renom_img.api.utility.evaluate.EvaluatorDetection.iou
-#: renom_img.api.utility.evaluate.EvaluatorDetection.mAP
-#: renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou
-#: renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec
-msgid "Returns"
 msgstr ""
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.AP:4
@@ -303,7 +374,13 @@ msgid ""
 "[0.9....]}"
 msgstr ""
 
-#: of renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec
-msgid "Return type"
-msgstr ""
+#~ msgid ""
+#~ "prec: List of precision for each "
+#~ "class returned by get_prec_and_rec method "
+#~ "rec: List of recall for each class"
+#~ " returned by get_prec_and_rec method"
+#~ msgstr ""
+
+#~ msgid "predict_list: ["
+#~ msgstr ""
 

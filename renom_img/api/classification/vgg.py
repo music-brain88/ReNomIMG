@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import print_function, division
 import os
 import numpy as np
@@ -36,8 +34,10 @@ class VGGBase(Classification):
             return self._opt
         else:
             avg_valid_loss_list = kwargs['avg_valid_loss_list']
-            if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2]:
-                self._opt._lr = lr / 10.
+            if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2] and current_batch == 0:
+                self._opt._lr = self._opt._lr / 10.
+            elif current_epoch == 0:
+                self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch / total_batch
             return self._opt
 
     def preprocess(self, x):
@@ -84,7 +84,7 @@ class VGG16(VGGBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
@@ -95,13 +95,12 @@ class VGG16(VGGBase):
         self.class_map = class_map
         self._model = CNN_VGG16(self.num_class)
         self._train_whole_network = train_whole_network
-        self._opt = rm.Sgd(0.01, 0.9)
+        self._opt = rm.Sgd(0.001, 0.9)
         self.decay_rate = 0.0005
 
         if load_pretrained_weight:
             if isinstance(load_pretrained_weight, bool):
                 load_pretrained_weight = self.__class__.__name__ + '.h5'
-
             if not os.path.exists(load_pretrained_weight):
                 download(self.WEIGHT_URL, load_pretrained_weight)
 
@@ -134,7 +133,7 @@ class VGG19(VGGBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Vgg16.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG19.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
@@ -143,7 +142,7 @@ class VGG19(VGGBase):
         self.imsize = imsize
         self.num_class = len(class_map)
         self.class_map = class_map
-        self._model = CNN_VGG16(self.num_class)
+        self._model = CNN_VGG19(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.01, 0.9)
         self.decay_rate = 0.0005
@@ -161,7 +160,7 @@ class VGG19(VGGBase):
             self._model.fc3.params = {}
 
 
-class CNN_VGG16(rm.Model):
+class CNN_VGG19(rm.Model):
 
     def __init__(self, num_class):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
@@ -188,7 +187,7 @@ class CNN_VGG16(rm.Model):
         return t
 
 
-class CNN_VGG19(rm.Sequential):
+class CNN_VGG16(rm.Model):
 
     def __init__(self, num_class):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)

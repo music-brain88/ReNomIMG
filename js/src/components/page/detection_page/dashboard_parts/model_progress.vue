@@ -44,7 +44,6 @@
           <div class="progress-bar progress-bar-striped" role="progressbar"
             v-bind:style="{backgroundColor:progress_bar_color}"
             v-bind:class="{'progress-bar-animated' : model.running_state===running_state['training']}">
-            {{round(model.last_batch/model.total_batch * 100,10)}}%
           </div>
         </div>
       </div>
