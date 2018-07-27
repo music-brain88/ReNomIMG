@@ -6,8 +6,8 @@
       <model-sample></model-sample>
       <tag-list></tag-list>
     </div>
-    <div class="col-md-1">
-      <div id="fixed">
+    <div id="fixed" class="col-md-1">
+      <div>
         <model-list></model-list>
       </div>
     </div>
@@ -100,6 +100,6 @@ export default {
 
 }
 #fixed{
-  position:fixed;
+  position:sticky;
 }
 </style>
