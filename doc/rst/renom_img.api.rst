@@ -1,8 +1,5 @@
-renom\_img.api package
+renom\_img.api
 ======================
-
-Subpackages
------------
 
 .. toctree::
 

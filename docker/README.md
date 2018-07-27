@@ -15,11 +15,6 @@ sh build.sh
 sh run.sh [-d path_to_data_src_dir -s path_to_storage_dir -p port]
 ```
 
-### Example:
-```shell
-sh run.sh [-d path_to_data_src_dir -s path_to_storage_dir -p port]
-```
-
 You can pass following arguments.
 - `-d` : Path to the data source directory. This directory contains image files and label files.
 - `-s` : Path to the data storage directory. Sqlite DB, trained weight and pretrained weight will be arranged into this directory.

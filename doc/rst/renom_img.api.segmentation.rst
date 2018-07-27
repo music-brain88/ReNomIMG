@@ -2,7 +2,7 @@ renom\_img.api.segmentation
 ============================
 
 
-renom\_img.api.segmentation.fcn module
+renom\_img.api.segmentation.fcn
 --------------------------------------
 
 .. automodule:: renom_img.api.segmentation.fcn
@@ -10,7 +10,7 @@ renom\_img.api.segmentation.fcn module
     :undoc-members:
     :show-inheritance:
 
-renom\_img.api.segmentation.unet module
+renom\_img.api.segmentation.unet
 ---------------------------------------
 
 .. automodule:: renom_img.api.segmentation.unet
