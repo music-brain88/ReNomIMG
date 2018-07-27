@@ -3,7 +3,7 @@
     <div class="modal-background" @click="hideModal">
       <div id="imagediv" ref="imagediv">
         <img id='image' :src="getImage(idx_active_image_sample).path" ref="image" @load='onResize'/>
-        <div class='bbox' 
+        <div class='bbox'
           v-for="(item, index) in getImage(idx_active_image_sample).predicted_bboxes" :key="index" ref='box' :style="{border:'5px solid '+getColor(item[0])}">
           <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
         </div>
@@ -136,12 +136,12 @@ export default {
 
 <style lang="scss" scoped>
 #image-modal {
-  $header-height: 35px;
-
-  $modal-color: rgba(0,0,0,0.7);
-
-  $modal-content-bg-color: #fefefe;
-  $image-border-width: 16px;
+  // $header-height: 35px;
+  //
+  // $modal-color: rgba(0,0,0,0.7);
+  //
+  // $modal-content-bg-color: #fefefe;
+  // $image-border-width: 16px;
 
   position: fixed;
   width: 100%;
@@ -184,4 +184,3 @@ export default {
   }
 }
 </style>
-

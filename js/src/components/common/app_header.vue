@@ -36,12 +36,12 @@ export default {
 
 <style lang="scss" scoped>
 header {
-  $header-height: 44px;
-  $header-color: #1e264b;
-  $font-size: 15pt;
-  $font-color: #ffffff;
-
-  $content-margin: 8px;
+  // $header-height: 44px;
+  // $header-color: #1e264b;
+  // $font-size: 15pt;
+  // $font-color: #ffffff;
+  //
+  // $content-margin: 8px;
 
   display: flex;
   position: fixed;

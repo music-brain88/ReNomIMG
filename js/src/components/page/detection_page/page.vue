@@ -1,26 +1,16 @@
 <template>
-  <div id="detection-page">
-    <div class="detection-content">
-      <div class="detection-dashboard-and-detail">
-        <dashboard></dashboard>
-        <model-detail></model-detail>
-      </div>
-
-      <div class="detection-page-sidebar">
+  <div class="row">
+    <div class="col-md-11">
+      <dashboard></dashboard>
+      <model-detail></model-detail>
+      <model-sample></model-sample>
+      <tag-list></tag-list>
+    </div>
+    <div class="col-md-1">
+      <div id="fixed">
         <model-list></model-list>
       </div>
     </div>
-
-    <div class="detection-sample-and-tags">
-      <div class="model-sample">
-        <model-sample></model-sample>
-      </div>
-
-      <div class="tag-list">
-        <tag-list></tag-list>
-      </div>
-    </div>
-
     <image-modal v-if='show_modal_image_sample'/>
 
     <add-model-modal v-if="$store.state.add_model_modal_show_flag"></add-model-modal>
@@ -87,7 +77,7 @@ export default {
     height: 784px;
 
     .detection-dashboard-and-detail {
-      width: calc(100% - #{$side-bar-width});
+      width: calc(1 - #{$side-bar-width});
       height: 100%;
     }
     .detection-page-sidebar {
@@ -106,11 +96,10 @@ export default {
       width: calc(100% - #{$side-bar-margin} - #{$side-bar-width});
     }
 
-    .tag-list {
-      width: $side-bar-width;
-      margin-left: $side-bar-margin;
-    }
   }
 
+}
+#fixed{
+  position:fixed;
 }
 </style>

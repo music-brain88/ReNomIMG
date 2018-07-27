@@ -12,7 +12,7 @@
             <slot name="footer">
               <slot name="okbutton">
                 <button class="modal-default-button" @click="hide">
-                  Ok
+                  OK
                 </button>
               </slot>
             </slot>

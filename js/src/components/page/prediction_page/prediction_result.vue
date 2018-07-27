@@ -58,17 +58,17 @@ export default {
 
 <style lang="scss" scoped>
 #prediction-result {
-  $component-margin-top: 32px;
-
-  $border-width: 2px;
-  $border-color: #006699;
-
-  $title-height: 44px;
-  $title-font-size: 15pt;
-  $font-weight-medium: 500;
-
-  $content-bg-color: #ffffff;
-  $content-border-color: #cccccc;
+  // $component-margin-top: 32px;
+  //
+  // $border-width: 2px;
+  // $border-color: #006699;
+  //
+  // $title-height: 44px;
+  // $title-font-size: 15pt;
+  // $font-weight-medium: 500;
+  //
+  // $content-bg-color: #ffffff;
+  // $content-border-color: #cccccc;
 
   width: 100%;
   margin: 0;
@@ -171,4 +171,3 @@ export default {
   opacity: 1;
 }
 </style>
-

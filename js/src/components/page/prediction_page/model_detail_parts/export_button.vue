@@ -30,8 +30,8 @@ export default {
 
 <style lang="scss" scoped>
 #export-button {
-  $button-height: 32px;
-  $button-border-color: #7F9DB5;
+  // $button-height: 32px;
+  // $button-border-color: #7F9DB5;
 
   position: absolute;
   bottom: 0;
@@ -53,4 +53,3 @@ export default {
   }
 }
 </style>
-

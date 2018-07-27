@@ -60,7 +60,7 @@ export default {
 
 <style lang="scss" scoped>
 #navigation {
-  $header-height: 44px;
+  // $header-height: 44px;
 
   position: fixed;
   z-index: 999;

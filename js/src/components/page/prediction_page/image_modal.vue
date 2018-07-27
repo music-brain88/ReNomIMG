@@ -119,24 +119,24 @@ export default {
 
 <style lang="scss" scoped>
 #image-modal {
-  $header-height: 35px;
-
-  $modal-color: #000000;
-  $modal-opacity: 0.7;
-
-  $modal-content-width: 50%;
-  $modal-content-height: 60%;
-  $modal-content-bg-color: #fefefe;
-  $modal-content-padding: 32px;
-
-  $modal-title-font-size: 32px;
-  $modal-sub-title-font-size: 24px;
-
-  $content-margin: 8px;
-  $content-label-width: 120px;
-  $content-font-size: 16px;
-
-  $image-border-width: 16px;
+  // $header-height: 35px;
+  //
+  // $modal-color: #000000;
+  // $modal-opacity: 0.7;
+  //
+  // $modal-content-width: 50%;
+  // $modal-content-height: 60%;
+  // $modal-content-bg-color: #fefefe;
+  // $modal-content-padding: 32px;
+  //
+  // $modal-title-font-size: 32px;
+  // $modal-sub-title-font-size: 24px;
+  //
+  // $content-margin: 8px;
+  // $content-label-width: 120px;
+  // $content-font-size: 16px;
+  //
+  // $image-border-width: 16px;
 
   position: fixed;
   width: 100%;
@@ -188,4 +188,3 @@ export default {
   }
 }
 </style>
-

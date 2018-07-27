@@ -87,11 +87,11 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail-text {
-  $title-height: 24px;
-  $title-font-size: 16px;
-  $font-weight-medium: 500;
-
-  $content-margin: 8px;
+  // $title-height: 24px;
+  // $title-font-size: 16px;
+  // $font-weight-medium: 500;
+  //
+  // $content-margin: 8px;
 
   width: calc(100% - 12px);
   height: 100%;
@@ -121,4 +121,3 @@ export default {
   }
 }
 </style>
-

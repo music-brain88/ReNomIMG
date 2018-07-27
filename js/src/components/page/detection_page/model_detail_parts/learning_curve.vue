@@ -295,15 +295,15 @@ export default {
 
 <style lang="scss" scoped>
 #learning-curve {
-  $title-height: 24px;
-  $title-font-size: 16px;
-  $font-weight-medium: 500;
-
-  $content-margin: 8px;
-
-  $legend-font-size: 10px;
-  $train-color: #0762ad;
-  $validation-color: #ef8200;
+  // $title-height: 24px;
+  // $title-font-size: 16px;
+  // $font-weight-medium: 500;
+  //
+  // $content-margin: 8px;
+  //
+  // $legend-font-size: 10px;
+  // $train-color: #0762ad;
+  // $validation-color: #ef8200;
 
   width: 100%;
   height: 100%;

@@ -38,19 +38,19 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail {
-  $component-margin-top: 32px;
-
-  $model-detail-height: 150px;
-
-  $border-width: 2px;
-  $border-color: #006699;
-
-  $title-height: 44px;
-  $title-font-size: 15pt;
-  $font-weight-medium: 500;
-
-  $content-bg-color: #ffffff;
-  $content-border-color: #cccccc;
+  // $component-margin-top: 32px;
+  //
+  // $model-detail-height: 150px;
+  //
+  // $border-width: 2px;
+  // $border-color: #006699;
+  //
+  // $title-height: 44px;
+  // $title-font-size: 15pt;
+  // $font-weight-medium: 500;
+  //
+  // $content-bg-color: #ffffff;
+  // $content-border-color: #cccccc;
 
   width: 100%;
   height: $model-detail-height;
@@ -87,4 +87,3 @@ export default {
   }
 }
 </style>
-

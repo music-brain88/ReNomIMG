@@ -51,12 +51,12 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail-text {
-  $content-padding-top: 8px;
-  $content-padding-bottom: 8px;
-  $content-padding-horizontal: 16px;
-
-  $content-bg-color: #ffffff;
-  $content-border-color: #cccccc;
+  // $content-padding-top: 8px;
+  // $content-padding-bottom: 8px;
+  // $content-padding-horizontal: 16px;
+  //
+  // $content-bg-color: #ffffff;
+  // $content-border-color: #cccccc;
 
   width: 100%;
   height: 100%;
@@ -76,4 +76,3 @@ export default {
   }
 }
 </style>
-

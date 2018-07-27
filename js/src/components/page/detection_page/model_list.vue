@@ -52,29 +52,29 @@ export default {
 
 <style lang="scss" scoped>
 #model-list {
-  $component-margin-top: 32px;
+  // $component-margin-top: 32px;
+  //
+  // $border-width: 2px;
+  // $border-color: #006699;
+  //
+  // $title-height: 44px;
+  // $title-font-size: 15pt;
+  // $font-weight-medium: 500;
+  //
+  // $content-padding: 24px;
+  //
+  // $content-bg-color: #ffffff;
+  // $content-border-color: #cccccc;
+  //
+  // $selectbox-height: 24px;
+  // $selectbox-margin-top: 12px;
+  // $selectbox-font-size: 12px;
+  //
+  // $add-panel-height: 86px;
+  // $add-panel-bg-color: #7F9DB5;
+  // $add-panel-bg-color-hover: #7590A5;
 
-  $border-width: 2px;
-  $border-color: #006699;
-
-  $title-height: 44px;
-  $title-font-size: 15pt;
-  $font-weight-medium: 500;
-
-  $content-padding: 24px;
-
-  $content-bg-color: #ffffff;
-  $content-border-color: #cccccc;
-
-  $selectbox-height: 24px;
-  $selectbox-margin-top: 12px;
-  $selectbox-font-size: 12px;
-
-  $add-panel-height: 86px;
-  $add-panel-bg-color: #7F9DB5;
-  $add-panel-bg-color-hover: #7590A5;
-
-  height: 100%;
+  height: 810px;
   margin: 0;
   margin-top: $component-margin-top;
   border-top: $border-width solid $border-color;
