@@ -3,12 +3,14 @@ FLG_A="FALSE"
 FLG_B="FALSE"
 FLG_C="FALSE"
 PORT=8080
+RUN_MODE="-d"
 
-while getopts ab:c: OPT
+while getopts id:s:p: OPT
 do
   case $OPT in
-    "v" ) FLG_A="TRUE" ; DATA_PATH="$OPTARG";;
-    "s" ) FLG_B="TRUE" ; STORAGE_PATH="$OPTARG" ;;
+    "i" ) RUN_MODE="-it";;
+    "d" ) FLG_A="TRUE" ; DATA_PATH=$(cd "$OPTARG" && pwd);;
+    "s" ) FLG_B="TRUE" ; STORAGE_PATH=$(cd "$OPTARG" && pwd);;
     "p" ) PORT="$OPTARG" ;;
   esac
 done
@@ -32,4 +34,4 @@ echo "PORT: " $PORT
 echo "DATA PATH: " $DATA_PATH
 echo "STORAGE PATH: " $STORAGE_PATH
 
-nvidia-docker run -d -p $PORT:8080 -v $DATA_PATH:/var/datasrc -v $STORAGE_PATH:/var/storage renom_img_docker
+nvidia-docker run $RUN_MODE -p $PORT:8080 -v $DATA_PATH:/var/datasrc -v $STORAGE_PATH:/var/storage renom_img_docker
