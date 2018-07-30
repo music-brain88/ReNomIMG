@@ -4,9 +4,7 @@
   <navigation-bar></navigation-bar>
   <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
 
-  <div class="container">
-    <router-view></router-view>
-  </div>
+  <router-view></router-view>
   <app-footer></app-footer>
 </div>
 </template>
@@ -46,19 +44,19 @@ export default {
   font-family: 'Inter UI', sans-serif;
 }
 
-#app {
-  // $max-width: 1280px;
-  // $header-height: 44px;
-
-  position: relative;
-  width: 100%;
-  height: calc(100% - #{$header-height});
-  margin: 0 auto;
-  padding: 0;
-  padding-top: $header-height;
-
-  .container {
-    max-width: $max-width;
-  }
-}
+// #app {
+//   // $max-width: 1280px;
+//   // $header-height: 44px;
+//
+//   position: relative;
+//   width: 100%;
+//   height: calc(100% - #{$header-height});
+//   margin: 0 auto;
+//   padding: 0;
+//   padding-top: $header-height;
+//
+//   .container {
+//     max-width: $max-width;
+//   }
+// }
 </style>

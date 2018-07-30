@@ -1,6 +1,6 @@
 <template>
   <div id="model-list">
-    <div class="title-selectbox">
+    <!-- <div class="title-selectbox">
       <div class="title">
         Model List
       </div>
@@ -12,7 +12,7 @@
         <option value="2">mAP</option>
         <option value="3">Validation Loss</option>
       </select>
-    </div>
+    </div> -->
 
     <div class="add-panel" @click="showAddModelModal">
       <i class="fa fa-plus" aria-hidden="true"></i> Add New Model

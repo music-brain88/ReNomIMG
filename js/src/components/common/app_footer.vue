@@ -17,7 +17,7 @@
       </div>
     </div>
   </div>
-  <div class="row wrap">
+  <div class="row">
     <div class="col-md-12 copyright align-middle">
       <div class="copyright-text">
         <small>&copy; 2018 GRID INC, ALL rights reserved.</small>
@@ -40,9 +40,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-footer{
-  background: $footer-color;
+footer {
+  display: block;
+  width: 100%;
   padding: 0;
+  margin:0;
+  background: $footer-color;
   .row {
     margin-left: 0px;
     margin-right: 0px;
@@ -54,6 +57,8 @@ footer{
   .copyright{
     background: $footer-copyright-color;
     .copyright-text{
+      margin-top: 3px;
+      margin-bottom: 3px;
       padding-left: 3%;
     }
   }

@@ -1,14 +1,16 @@
 <template>
-  <div class="row">
-    <div class="col-md-11">
-      <dashboard></dashboard>
-      <model-detail></model-detail>
-      <model-sample></model-sample>
-      <tag-list></tag-list>
-    </div>
-    <div id="fixed" class="col-md-1">
-      <div>
-        <model-list></model-list>
+  <div >
+    <div class="row">
+      <div class="col-md-11">
+        <dashboard></dashboard>
+        <model-detail></model-detail>
+        <model-sample></model-sample>
+        <tag-list></tag-list>
+      </div>
+      <div class="col-md-1">
+        <div id="fixed">
+          <model-list></model-list>
+        </div>
       </div>
     </div>
     <image-modal v-if='show_modal_image_sample'/>
@@ -100,6 +102,14 @@ export default {
 
 }
 #fixed{
-  position:sticky;
+  position:relative;
+}
+.row{
+  margin-left: 0px;
+  margin-right: 0px;
+}
+.page-wrapper{
+  width:100%;
+  box-sizing: border-box;
 }
 </style>

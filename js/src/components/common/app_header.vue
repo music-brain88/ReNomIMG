@@ -45,9 +45,7 @@ header {
 
   display: flex;
   position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 100vw;
+  width: 100%;
   height: $header-height;
 
   margin: 0;
