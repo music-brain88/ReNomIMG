@@ -1,20 +1,12 @@
 renom\_img.api.utility
 ======================
 
-.. toctree::
-    :maxdepth: 4
-    :caption: Contents
-
-    renom_img.api.utility.augmentation
-    renom_img.api.utility.distributor
-    renom_img.api.utility.evaluate
-    renom_img.api.utility.misc
-
 renom\_img.api.utility.box
 ---------------------------------
 
 .. automodule:: renom_img.api.utility.box
     :members:
+    :undoc-members:
     :show-inheritance:
 
 renom\_img.api.utility.load

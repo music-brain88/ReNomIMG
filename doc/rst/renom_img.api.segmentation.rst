@@ -1,5 +1,5 @@
-renom\_img.api.segmentation package
-===================================
+renom\_img.api.segmentation
+===========================
 
 .. automodule:: renom_img.api.segmentation.fcn
     :members: FCN32s, FCN16s, FCN8s

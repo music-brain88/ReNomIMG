@@ -2,6 +2,17 @@ import numpy as np
 from itertools import chain
 
 cpdef rescale(box, before_size, after_size):
+    """
+    rescale(box, before_size, after_size)
+
+    Rescale box coordinates and size to specific size.
+
+    Args:
+        box(List):
+        before_size:
+        after_size:
+
+    """
     for d in chain.from_iterable(box):
         d["box"] = [
             d["box"][0]/before_size[0] * after_size[0],
@@ -12,6 +23,31 @@ cpdef rescale(box, before_size, after_size):
     
 
 cpdef transform2xywh(box):
+    """
+    transform2xywh(box)
+
+    This function changes box's coordinate format from (x1, y1, x2, y2) to
+    (x, y, w, h).
+    
+    (``x1``, ``y1``) represents the coordinate of upper left corner.
+    (``x2``, ``y2``) represents the coordinate of lower right corner.
+
+    (``x``, ``y``) represents the center of bonding box.
+    (``w``, ``h``) represents the width and height of bonding box.
+
+    The format of argument box have to be following example.
+
+    .. code-block :: python
+
+        [x1(float), y1(float), x2(float), y2(float)]
+
+    Args:
+        box(list): This list has 4 variables that represent above coordinates.
+
+    Return:
+        (list): Returns reformatted bounding box.
+
+    """
     cdef float x1, y1, x2, y2;
     cdef float x, y, w, h;
     x1, y1, x2, y2 = box
