@@ -44,11 +44,13 @@ def draw_box(img, prediction, font_path=None, color_list=None):
             Each annotation has a list of dictionary which includes keys 'box', 'name' and 'score'.
             The format is below.
 
-        [
-            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-            ...
-        ]
+        .. code-block :: python
+            [
+                {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+                {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+                ...
+            ]
+
         font_path(string):
 
     Returns:
@@ -107,6 +109,34 @@ def draw_box(img, prediction, font_path=None, color_list=None):
 
 
 def draw_segment(img, prediction, font_path=None, color_list=None):
+    """
+
+    Example:
+        >>> from PIL import Image
+        >>> from renom_img.api.utility.load import *
+        >>> prediction = load(prediction_xml_path)
+        >>> image = Image.open(img_path)
+        >>> segment_image = draw_segment(img_path, prediction)
+
+    Args:
+        img(str): path for target image
+        prediction(list): List of annotations.
+            Each annotation has a list of dictionary which includes keys 'box', 'name' and 'score'.
+            The format is below.
+
+        .. code-block :: python
+
+            [
+                {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+                {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+                ...
+            ]
+
+        font_path: font path of chanracters on the image
+
+    Return:
+        (PIL.Image): This returns image described segment.
+    """
     if color_list is None:
         color_list = default_color_list
 

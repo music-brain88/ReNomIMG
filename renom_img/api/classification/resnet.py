@@ -157,13 +157,14 @@ class ResNet32(ResNetBase):
         6n + 2(The first conv and the last dense) = 32
         → n = 5
         5 sets of a layer block in each block
-)
+
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-    Deep Residual Learning for Image Recognition
-    https://arxiv.org/abs/1512.03385
+    References:
+        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        Deep Residual Learning for Image Recognition
+        https://arxiv.org/abs/1512.03385
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -210,9 +211,10 @@ class ResNet44(ResNetBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-    Deep Residual Learning for Image Recognition
-    https://arxiv.org/abs/1512.03385
+    References:
+        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        Deep Residual Learning for Image Recognition
+        https://arxiv.org/abs/1512.03385
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -259,9 +261,10 @@ class ResNet56(ResNetBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-    Deep Residual Learning for Image Recognition
-    https://arxiv.org/abs/1512.03385
+    References:
+        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        Deep Residual Learning for Image Recognition
+        https://arxiv.org/abs/1512.03385
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -308,9 +311,10 @@ class ResNet110(ResNetBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-    Deep Residual Learning for Image Recognition
-    https://arxiv.org/abs/1512.03385
+    References:
+        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        Deep Residual Learning for Image Recognition
+        https://arxiv.org/abs/1512.03385
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -357,9 +361,10 @@ class ResNet34(ResNetBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-    Deep Residual Learning for Image Recognition
-    https://arxiv.org/abs/1512.03385
+    References:
+        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        Deep Residual Learning for Image Recognition
+        https://arxiv.org/abs/1512.03385
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -406,9 +411,10 @@ class ResNet50(ResNetBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-    Deep Residual Learning for Image Recognition
-    https://arxiv.org/abs/1512.03385
+    References:
+        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        Deep Residual Learning for Image Recognition
+        https://arxiv.org/abs/1512.03385
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -456,9 +462,10 @@ class ResNet101(ResNetBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-    Deep Residual Learning for Image Recognition
-    https://arxiv.org/abs/1512.03385
+    References:
+        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        Deep Residual Learning for Image Recognition
+        https://arxiv.org/abs/1512.03385
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")

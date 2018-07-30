@@ -52,7 +52,7 @@ class DataBuilderClassification(DataBuilderBase):
     Args:
         imsize(int or tuple): Input image size
         class_map(list): List of class id
-    """
+   """
 
     def __init__(self, class_map, imsize):
         super(DataBuilderClassification, self).__init__(class_map, imsize)
@@ -68,7 +68,12 @@ class DataBuilderClassification(DataBuilderBase):
         Returns:
             x(ndarray): Batch of images
             y(ndarray): One hot labels for each image in a batch
-        """
+
+        Example:
+            >>> from renom_img.api.utility.target import DataBuilderClassification
+            >>> builder = DataBuilderClassification(class_map, imsize)
+            >>> x_train, y_train = builder.build(img_path_list, annotation_list)
+       """
 
         # Check the class mapping.
         n_class = len(self.class_map)
@@ -99,13 +104,18 @@ class DataBuilderDetection(DataBuilderBase):
         """
         Args:
             img_path_list(list): List of input image paths.
-            annotation_list(list): List of class id
-                                    [1, 4, 6 (int)]
+            annotation_list(list): List of annotations
             augmentation(Augmentation): Instance of the augmentation class.
 
         Returns:
-            x(ndarray): Batch of images
-            y(ndarray): The shape of ndarray is [# images, maximum number of objects in an image * (4(coordinates) + 1(confidence))]
+            (tuple):
+                * x(ndarray): Batch of images
+                * y(ndarray): The shape of ndarray is [# images, maximum number of objects in an image * (4(coordinates) + 1(confidence))]
+
+        Example:
+            >>> from renom_img.api.utility.target import DataBuilderDetection
+            >>> builder = DataBuilderDetection(class_map, imsize)
+            >>> x_train, y_train = builder.build(img_path_list, annotation_list)
         """
         # Check the class mapping.
         if self.class_map is None:
@@ -154,9 +164,26 @@ class DataBuilderDetection(DataBuilderBase):
 class DataBuilderSegmentation(DataBuilderBase):
     """
     Annotation_list must be list of class name.
+
     """
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_path_list, augmentation=None, **kwargs):
+        """
+         Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): List of annotation
+            augmentation(Augmentation): Instance of the augmentation class.
+
+        Returns:
+            (tuple):
+                * x(ndarray): Batch of images
+                * y(ndarray): The shape of ndarray is [# images, maximum number of objects in an image * (4(coordinates) + 1(confidence))]
+
+        Example:
+            >>> from renom_img.api.utility.target import DataBuilderSegmentation
+            >>> builder = DataBuilderSegmentation(class_map, imsize)
+            >>> x_train, y_train = builder.build(img_path_list, annotation_list)
+        """
         # Check the class mapping.
         n_class = len(self.class_map)
 

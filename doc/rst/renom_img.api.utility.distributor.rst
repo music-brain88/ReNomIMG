@@ -7,7 +7,7 @@ renom\_img.api.utility.distributor
     :show-inheritance:
 
 .. automodule:: renom_img.api.utility.distributor.distributor
-    :members:
+    :members: ImageDistributor
     :undoc-members:
     :show-inheritance:
 

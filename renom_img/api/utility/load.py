@@ -10,9 +10,9 @@ def parse_xml_detection(xml_path_list):
     Args: 
         xml_path_list (list): List of xml-file's path.
 
-    Returns
-
-        (list): This returns list of annotations.
+    Returns:
+        (list):
+            | This returns list of annotations.
             Each annotation has a list of dictionary which includes keys 'box' and 'name'.
             The structure is bellow.
 

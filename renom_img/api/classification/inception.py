@@ -86,6 +86,7 @@ class CNN_InceptionV1(rm.Model):
 
 class InceptionV1(Classification):
     """ Inception V1 model
+
     If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
 
@@ -99,10 +100,11 @@ class InceptionV1(Classification):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Christian Szegedy, Wei Liu, Yangqing Jia , Pierre Sermanet, Scott Reed ,Dragomir Anguelov,
-    Dumitru Erhan, Vincent Vanhoucke, Andrew Rabinovich
-    Going Deeper with Convolutions
-    https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf
+    References:
+        Christian Szegedy, Wei Liu, Yangqing Jia , Pierre Sermanet, Scott Reed ,Dragomir Anguelov,
+        Dumitru Erhan, Vincent Vanhoucke, Andrew Rabinovich
+        Going Deeper with Convolutions
+        https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -425,6 +427,7 @@ class CNN_InceptionV3(rm.Model):
 
 class InceptionV3(Classification):
     """ Inception V3 model
+
     If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
 
@@ -438,9 +441,10 @@ class InceptionV3(Classification):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
-    Rethinking the Inception Architecture for Computer Vision
-    https://arxiv.org/abs/1512.00567
+    References:
+        Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
+        Rethinking the Inception Architecture for Computer Vision
+        https://arxiv.org/abs/1512.00567
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -532,6 +536,7 @@ class CNN_InceptionV2(rm.Model):
 
 class InceptionV2(Classification):
     """ Inception V2 model
+
     If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
 
@@ -545,9 +550,10 @@ class InceptionV2(Classification):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
-    Rethinking the Inception Architecture for Computer Vision
-    https://arxiv.org/abs/1512.00567
+    References:
+        Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna
+        Rethinking the Inception Architecture for Computer Vision
+        https://arxiv.org/abs/1512.00567
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -899,6 +905,7 @@ class CNN_InceptionV4(rm.Model):
 
 class InceptionV4(Classification):
     """ Inception V4 model
+
     If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
 
@@ -912,9 +919,10 @@ class InceptionV4(Classification):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Christian Szegedy, Sergey Ioffe, Vincent Vanhoucke, Alex Alemi
-    Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning
-    https://arxiv.org/abs/1602.07261
+    References:
+        Christian Szegedy, Sergey Ioffe, Vincent Vanhoucke, Alex Alemi
+        Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning
+        https://arxiv.org/abs/1602.07261
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")

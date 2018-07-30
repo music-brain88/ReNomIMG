@@ -78,9 +78,10 @@ class VGG16(VGGBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Karen Simonyan, Andrew Zisserman
-    Very Deep Convolutional Networks for Large-Scale Image Recognition
-    https://arxiv.org/abs/1409.1556
+    References:
+        Karen Simonyan, Andrew Zisserman
+        Very Deep Convolutional Networks for Large-Scale Image Recognition
+        https://arxiv.org/abs/1409.1556
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -128,9 +129,10 @@ class VGG19(VGGBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Karen Simonyan, Andrew Zisserman
-    Very Deep Convolutional Networks for Large-Scale Image Recognition
-    https://arxiv.org/abs/1409.1556
+    References:
+        Karen Simonyan, Andrew Zisserman
+        Very Deep Convolutional Networks for Large-Scale Image Recognition
+        https://arxiv.org/abs/1409.1556
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")

@@ -1,40 +1,46 @@
 import numpy as np
 from renom_img.api.utility.box import calc_iou_xyxy
 
-
 def nms(preds, threshold=0.5):
-    """NMS(Non maximum suppression)
-
+    """
     Args:
-        preds(list):
-            [
-                    [ # Objects of 1st image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ],
-                    [ # Objects of 2nd image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ]
-                ]
+        preds(list): This list has 4 variable that reporesent above coordinates.
         threshold(float, optional): Defaults to `0.5`. This represents the ratio of overlap between boxes.
 
+    .. code-block :: python
+
+        [
+            [ # Objects of 1st image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                ...
+            ],
+            [ # Objects of 2nd image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                ...
+            ]
+        ]
+
+
     Returns:
-        result(list):
-            [
-                    [ # Objects of 1st image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ],
-                    [ # Objects of 2nd image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ]
-                ]
+        (list): Returns reformatted bounding box.
+
+    .. code-block :: python
+
+        [
+            [ # Objects of 1st image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                ...
+            ],
+            [ # Objects of 2nd image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                ...
+            ]
+        ]
+
     """
     cdef float iou;
     result = []
@@ -67,42 +73,50 @@ def nms(preds, threshold=0.5):
     return result
 
 def soft_nms(preds, threshold=0.5):
-    """Soft-NMS.
+    """
     Args:
-        preds(list):
-            [
-                    [ # Objects of 1st image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ],
-                    [ # Objects of 2nd image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ]
-                ]
+        preds(list): This list has 4 variable that reporesent above coordinates.
         threshold(float, optional): Defaults to `0.5`. This represents the ratio of overlap between boxes.
 
-    Returns:
-        result(list):
-            [
-                    [ # Objects of 1st image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ],
-                    [ # Objects of 2nd image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ]
-                ]
+    .. code-block :: python
 
-    Reference:
+        [
+            [ # Objects of 1st image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                ...
+            ],
+            [ # Objects of 2nd image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                ...
+            ]
+        ]
+
+
+    Returns:
+        (list): Returns reformatted bounding box.
+
+    .. code-block :: python
+
+        [
+            [ # Objects of 1st image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                ...
+            ],
+            [ # Objects of 2nd image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                ...
+            ]
+        ]
+
+    References:
         Navaneeth Bodla, Bharat Singh, Rama Chellappa, Larry S. Davis,
         Soft-NMS -- Improving Object Detection With One Line of Code
         https://arxiv.org/abs/1704.04503
+
     """
 
     cdef float iou;
