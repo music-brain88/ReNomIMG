@@ -1,8 +1,10 @@
-renom\_img.api.utility.distributor package
-==========================================
+renom\_img.api.utility.distributor
+==================================
 
-renom\_img.api.utility.distributor.distributor module
------------------------------------------------------
+.. automodule:: renom_img.api.utility.distributor
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 .. automodule:: renom_img.api.utility.distributor.distributor
     :members:
@@ -10,10 +12,3 @@ renom\_img.api.utility.distributor.distributor module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: renom_img.api.utility.distributor
-    :members:
-    :undoc-members:
-    :show-inheritance:

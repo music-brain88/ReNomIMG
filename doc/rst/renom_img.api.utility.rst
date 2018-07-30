@@ -32,3 +32,9 @@ renom\_img.api.utility.target
     :undoc-members:
     :show-inheritance:
 
+.. toctree::
+
+    renom_img.api.utility.misc
+    renom_img.api.utility.evaluate
+    renom_img.api.utility.augmentation.rst
+    renom_img.api.utility.distributor.rst
