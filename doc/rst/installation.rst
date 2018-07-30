@@ -1,11 +1,11 @@
 Install ReNomIMG
-================
+=================
 
 ReNomIMG requires following python modules.
 
 
 Install by pip.
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 You can install ReNomIMG by ``pip`` command. This is the simplest way for installation.
 
@@ -21,7 +21,7 @@ You can install ReNomIMG by ``pip`` command. This is the simplest way for instal
 
 
 Install from binary.
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
     If you install ReNomIMG from binay, Node.js is required.
 
