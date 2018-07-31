@@ -1,17 +1,31 @@
 <template>
   <div id="model-detail">
-    <div class="title">
-      Model Detail
-    </div>
-
-    <div class="content">
-      <div class="model-detail-text">
-        <model-detail-text v-if="model" :model="model"></model-detail-text>
+    <div class="row">
+      <div class="col-md-7 clear-padding">
+        <div class="title">
+          <div class="title-text">
+            Model Detail
+          </div>
+        </div>
+        <div class="content">
+          <div class="model-detail-text">
+            <model-detail-text v-if="model" :model="model"></model-detail-text>
+          </div>
+        </div>
       </div>
-      <div class="model-detail-learning-curve">
-        <learning-curve v-if='model'
-          :trainLoss="model.train_loss_list"
-          :validationLoss="model.validation_loss_list"></learning-curve>
+      <div class="col-md-5 clear-padding">
+        <div class="title">
+          <div class="title-text">
+            Learning Curve
+          </div>
+        </div>
+        <div class="content">
+          <div class="model-detail-learning-curve">
+            <learning-curve v-if='model'
+              :trainLoss="model.train_loss_list"
+              :validationLoss="model.validation_loss_list"></learning-curve>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -37,12 +51,7 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail {
-  $component-margin-top: 32px;
-
   $model-detail-height: 360px;
-
-  $border-width: 2px;
-  $border-color: #006699;
 
   $title-height: 44px;
   $title-font-size: 15pt;
@@ -52,18 +61,25 @@ export default {
   $content-padding-horizontal: 24px;
   $content-padding-bottom: 16px;
 
-  $content-bg-color: #ffffff;
-  $content-border-color: #cccccc;
-
   height: $model-detail-height;
   margin: 0;
   margin-top: $component-margin-top;
-  border-top: $border-width solid $border-color;
+  margin-left: $component-inner-horizontal-margin;
+
+  .clear-padding{
+    padding-right: 0;
+  }
 
   .title {
-    line-height: $title-height;
-    font-size: $title-font-size;
-    font-weight: $font-weight-medium;
+    height:$content-top-header-hight;
+    font-size: $content-top-header-font-size;
+    font-family: $content-top-header-font-family;
+    background:$header-color;
+    color:$font-color;
+    .title-text{
+      line-height: $content-top-header-hight;
+      margin-left: $content-top-heder-horizonral-margin;
+    }
   }
 
   .content {
@@ -75,15 +91,14 @@ export default {
 
     background-color: $content-bg-color;
     border: 1px solid $content-border-color;
-    border-radius: 4px;
 
     .model-detail-text {
-      width: 50%;
+      width: 100%;
       height: 100%;
     }
 
     .model-detail-learning-curve {
-      width: 50%;
+      width: 100%;
       height: 100%;
       margin-left: 24px;
     }

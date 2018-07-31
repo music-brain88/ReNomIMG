@@ -90,7 +90,7 @@ export default {
 
 
     .dashboard-model-summary {
-      width: 50%;
+      width: 100%;
       #model-ratio-bar {
         height: 40%;
       }
@@ -100,7 +100,7 @@ export default {
     }
 
     .dashboard-model-plot {
-      width: 50%;
+      width: 100%;
       height: 100%;
       margin-left: 24px;
     }
