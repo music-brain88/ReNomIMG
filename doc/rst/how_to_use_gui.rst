@@ -1,7 +1,6 @@
 How to Use ReNomIMG GUI tool
 ============================
 
-
 Start the Application
 ----------------------
 
@@ -70,33 +69,100 @@ Format of the data
 **Format of label files** : ReNomIMG only accepts ``xml`` formatted label files.
 The format of xml file is bellow.
 
+.. code-block :: shell
 
+    <annotation>
+    	<size>
+    		<width>374</width>
+    		<height>500</height>
+    		<depth>3</depth>
+    	</size>
+    	<object>
+    		<name>car</name>
+    		<bndbox>
+    			<xmin>2</xmin>
+    			<ymin>3</ymin>
+    			<xmax>374</xmax>
+    			<ymax>500</ymax>
+    		</bndbox>
+    	</object>
+    </annotation>
+
+ReNomIMG accepts PASCAL VOC formatted object detection data.
+
+| **The PASCAL Visual Object Classes**
+| http://host.robots.ox.ac.uk/pascal/VOC/
+| 
+| 
+
+   
 Create Detection Model
 ----------------------
 
-Hyper parameter setting
-~~~~~~~~~~~~~~~~~~~~~~~
+So far, the server and dataset are prepared. Let's build a object detection model.
+For building a model, you have to specify ``dataset`` and ``hyper parameters``.
 
 Create Dataset
 ~~~~~~~~~~~~~~
 
-Model Evaluation
-----------------
+For training a machine learning model, you have to prepare training dataset and validation dataset.
+Training dataset is used for training model, and validation dataset is used for
+evaluating a model in terms of how accurately predict data that have not used in training.
 
-Learning Curve
+In ReNomIMG, training dataset and validation dataset will be **randomly** sampled from the data
+that is in the ``datasrc`` directory.
+
+.. image:: /_static/image/how_to_use_gui_datasrc.png
+
+According to the above figure, you can create ``dataset`` from datasrc.
+Once a dataset is created its content will never be change.
+
+For creating a ``dataset``, please move to dataset page. Following figures
+guide you to the dataset page.
+
+.. image:: /_static/image/how_to_use_gui_dataset_create_button1.png
+
+Then following page will be appeared.
+
+.. image:: /_static/image/how_to_use_gui_dataset_create_button2.png
+
+As you can see, you can specify the ``dataset name`` and ``ratio of training data``.
+In the above figure, 2 dataset are already created and each has 80% of dataset for training and 
+20% for validation.
+
+Hyper parameter setting
+~~~~~~~~~~~~~~~~~~~~~~~
+
+So far you got all the materials, let's build a model and run training.
+For creating a model please push the button ``Add New Model``.
+
+.. image:: /_static/image/how_to_use_gui_dataset_create_button3.png
+
+Then you can see a hyper parameter setting modal like following figure.
+
+.. image:: /_static/image/how_to_use_gui_dataset_create_button4.png
+
+As you can see in above figure, you can specify following parameters.
+
+* **Dataset Name** ... Select the dataset for training.
+* **CNN architecture** ... Select the object detection algorithm.
+* **Train Whole network** ... If this is set to True, whole network weight will be trained.
+* **Image size** ... Image size for training.
+* **Training loop setting** ... Number of training and batch size.
+
+.. note::
+
+    Depending on your GPU device, larger image size or batch size causes memory overflow.
+
+Training Model
 ~~~~~~~~~~~~~~
 
-IOU & mAP
-~~~~~~~~~~
+Finishing hyper parameter settings, then **push run button to start training!**
 
-Use Trained Model
------------------
+If the training starts, model will be appeared in model list and progress bar will be shown.
 
-Deploying
-~~~~~~~~~
+.. image:: /_static/image/how_to_use_gui_dataset_create_button5.png
 
-Prediction
-~~~~~~~~~~
 
 Uninstall ReNomIMG
 ------------------
