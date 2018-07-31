@@ -1,7 +1,7 @@
 <template>
 <header>
   <div class="global-menu-button" @click="toggleMenu">
-    <i id="menu-toggle" class="fa fa-bars" aria-hidden="true"></i>
+    <i id="menu-toggle" class="fa fa-bars fa-lg" aria-hidden="true"></i>
   </div>
 
   <div id="soft-symbol">
@@ -36,18 +36,12 @@ export default {
 
 <style lang="scss" scoped>
 header {
-  // $header-height: 44px;
-  // $header-color: #1e264b;
-  // $font-size: 15pt;
-  // $font-color: #ffffff;
-  //
-  // $content-margin: 8px;
 
   display: flex;
   position: fixed;
+  top:0;
   width: 100%;
-  height: $header-height;
-
+  height: $application-header-hight;
   margin: 0;
   padding: 0;
 
@@ -55,8 +49,8 @@ header {
   z-index: 999;
 
   .global-menu-button {
-    margin-left: calc(#{$content-margin}*2);
-    line-height: $header-height;
+    margin-left: calc(#{$content-top-heder-horizonral-margin}*2);
+    line-height: $application-header-hight;
     vertical-align: middle;
 
     #menu-toggle:hover {
@@ -66,8 +60,8 @@ header {
 
   .help-menu-button {
     margin-left: auto;
-    margin-right: calc(#{$content-margin}*4);
-    line-height: $header-height;
+    margin-right: calc(#{$content-top-heder-horizonral-margin}*4);
+    line-height: $application-header-hight;
     vertical-align: middle;
   }
 
@@ -77,14 +71,20 @@ header {
     color: $font-color;
 
     .renom, .current-page {
-      line-height: $header-height;
-      font-size: $font-size;
+      line-height: $application-header-hight;
       vertical-align: middle;
     }
     .renom {
-      margin-left: $content-margin;
-      font-weight: bold;
+      margin-left: $content-top-heder-horizonral-margin;
+      font-family:$header-product-name-font-family;
+      font-size: $header-product-name-font-size;
     }
+
+    .current-page {
+      font-family:$header-title-font-family;
+      font-size: $header-title-font-size;
+    }
+
   }
 }
 </style>

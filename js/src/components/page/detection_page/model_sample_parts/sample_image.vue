@@ -62,9 +62,9 @@
 <style lang="scss" scoped>
 
   #sample-image {
-    // $image-height: 160px;
-    // $bg-color: #ffffff;
-    // $border-color: #cccccc;
+    $image-height: 160px;
+    $bg-color: #ffffff;
+    $border-color: #cccccc;
 
     position: relative;
     height: $image-height;

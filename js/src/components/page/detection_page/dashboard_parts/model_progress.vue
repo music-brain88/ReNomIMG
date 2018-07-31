@@ -177,19 +177,19 @@ export default {
 <style lang="scss" scoped>
 // @import '@/../node_modules/bootstrap/scss/bootstrap.scss';
 #model-progress {
-  // $content-margin: 8px;
-  //
-  // $label-color: #666666;
-  // $label-font-size: 12px;
-  // $value-font-size: 14px;
-  //
-  // $progress-bar-width: 24%;
-  // $progress-bar-height: 12px;
-  // $progress-bar-bg-color: #e8e8e8;
-  // $progress-bar-color: #000099;
-  //
-  // $stop-button-color: #999999;
-  // $stop-button-color-hover: #666666;
+  $content-margin: 8px;
+
+  $label-color: #666666;
+  $label-font-size: 12px;
+  $value-font-size: 14px;
+
+  $progress-bar-width: 24%;
+  $progress-bar-height: 12px;
+  $progress-bar-bg-color: #e8e8e8;
+  $progress-bar-color: #000099;
+
+  $stop-button-color: #999999;
+  $stop-button-color-hover: #666666;
 
   width: 100%;
   display: flex;

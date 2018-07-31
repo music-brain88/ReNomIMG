@@ -1,110 +1,56 @@
 
-// App vue
-$max-width: 1280px;
+$max-width:1280px;
+
 $header-height: 44px;
 
-// app_header.vue
+$header-color: #063662;
+$panel-bg-color:#006ea1;
+$panel-bg-color-hover:#0A7BB1;
+$panel-height: 40px;
 
-$header-color: #1e264b;
+
 $font-size: 15pt;
 $font-color: #ffffff;
 $content-margin: 32px;
 
+$content-header-color: #1e264b;
 $footer-color: #1e264b;
 $footer-copyright-color:#1d1547;
 
-// dataset_creating_modal.vue
-$modal-color: #000000;
-$modal-opacity: 0.7;
 
-$label-font-size: 12px;
-$value-font-size: 14px;
+// Application header
+$application-header-hight:50px;
 
-$progress-bar-width: 24%;
-$progress-bar-height: 12px;
-$progress-bar-bg-color: #e8e8e8;
-$progress-bar-color: #000099;
+$header-product-name-font-family: Open Sans Semibold;
+$header-product-name-font-size: 20pt;
 
-$stop-button-color: #999999;
-$stop-button-color-hover: #666666;
+// header title
+$header-title-font-family: Open Sans Regular;
+$header-title-font-size:20pt;
 
-$title-font-size: 15pt;
-$font-weight-medium: 500;
+//component style setteing
+$component-margin-top: 20px;
+$component-inner-horizontal-margin:15px;
 
-// learning-curve
-$legend-font-size: 10px;
-$train-color: #0762ad;
-$validation-color: #ef8200;
-
-// predict_model_selection
-$button-bg-color: #7F9DB5;
-$button-bg-color-hover: #7590A5;
-
-$balloon-top: 84px;
-$balloon-color: #000000;
-$balloon-border-width: 8px;
-
-// value_item
-$item-font-size: 12px;
-
-// model_list_item
-$item-margin-bottom: 8px;
-$state-width: 8px;
-$label-color: #999999;
-$label-color-hover: #666666;
-$label-size: 12px;
-
-// sample_image
-$image-height: 160px;
-$bg-color: #ffffff;
-$border-color: #cccccc;
-
-// add_model_modal
-$app-max-width: 1280px;
-
-$modal-content-width: 80%;
-$modal-content-height: 70%;
-$modal-content-bg-color: #fefefe;
-$modal-content-padding: 32px;
-
-$modal-title-font-size: 24px;
-$modal-sub-title-font-size: 16px;
-
-$content-label-width: 120px;
-$content-font-size: 16px;
-$component-margin-top: 32px;
-
-$dashboard-height: 360px;
-
-$border-width: 2px;
-
-$title-height: 44px;
-
-$content-padding-horizontal: 24px;
-$content-padding-bottom: 16px;
-
-$image-border-width: 16px;
-
-$model-detail-height: 360px;
-
-$content-padding: 24px;
-
-$selectbox-height: 24px;
-$selectbox-margin-top: 12px;
-$selectbox-font-size: 12px;
-
-$add-panel-height: 86px;
-$add-panel-bg-color: #7F9DB5;
-$add-panel-bg-color-hover: #7590A5;
-
-//export_buttom
-$button-height: 32px;
-$button-border-color: #7F9DB5;
-
-// model_detail_text
-$content-padding-top: 8px;
+// Content header
+$content-top-header-hight:40px;
+$content-top-header-width:600px;
+$content-top-heder-horizonral-margin:25px;
+$content-top-margin:10px;
+$content-top-header-font-family: Open Sans Regular;
+$content-top-header-font-size: 14pt;
 
 $content-bg-color: #ffffff;
 $content-border-color: #cccccc;
+$content-dashboard-height: 320px;
+$content-dashboard-width: 600px;
+$content-inner-header-font-family: Open Sans Regular;
+$content-inner-header-font-size: 13pt;
+$content-inner-horizontal-margin:35px;
+$content-inner-top-margin:30px;
 
-// run prediction_button
+$content-parts-margin:15px;
+
+// Figure
+$content-figure-font-famly: Open Sans light;
+$content-figure-font-size: 9pt;

@@ -274,23 +274,23 @@ export default {
 
 <style lang="scss" scoped>
 #add-model-modal {
-  // $app-max-width: 1280px;
-  // $header-height: 35px;
-  //
-  // $modal-color: #000000;
-  // $modal-opacity: 0.7;
-  //
-  // $modal-content-width: 80%;
-  // $modal-content-height: 70%;
-  // $modal-content-bg-color: #fefefe;
-  // $modal-content-padding: 32px;
-  //
-  // $modal-title-font-size: 24px;
-  // $modal-sub-title-font-size: 16px;
-  //
-  // $content-margin: 8px;
-  // $content-label-width: 120px;
-  // $content-font-size: 16px;
+  $app-max-width: 1280px;
+  $header-height: 35px;
+
+  $modal-color: #000000;
+  $modal-opacity: 0.7;
+
+  $modal-content-width: 80%;
+  $modal-content-height: 70%;
+  $modal-content-bg-color: #fefefe;
+  $modal-content-padding: 32px;
+
+  $modal-title-font-size: 24px;
+  $modal-sub-title-font-size: 16px;
+
+  $content-margin: 8px;
+  $content-label-width: 120px;
+  $content-font-size: 16px;
 
   position: fixed;
   left: 0;

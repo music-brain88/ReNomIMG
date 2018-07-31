@@ -136,12 +136,12 @@ export default {
 
 <style lang="scss" scoped>
 #image-modal {
-  // $header-height: 35px;
-  //
-  // $modal-color: rgba(0,0,0,0.7);
-  //
-  // $modal-content-bg-color: #fefefe;
-  // $image-border-width: 16px;
+  $header-height: 35px;
+
+  $modal-color: rgba(0,0,0,0.7);
+
+  $modal-content-bg-color: #fefefe;
+  $image-border-width: 16px;
 
   position: fixed;
   width: 100%;

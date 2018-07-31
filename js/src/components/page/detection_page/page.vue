@@ -1,16 +1,14 @@
 <template>
-  <div >
+  <div>
     <div class="row">
-      <div class="col-md-11">
+      <div class="col-md-10">
         <dashboard></dashboard>
         <model-detail></model-detail>
         <model-sample></model-sample>
         <tag-list></tag-list>
       </div>
-      <div class="col-md-1">
-        <div id="fixed">
-          <model-list></model-list>
-        </div>
+      <div class="col-md-2">
+        <model-list></model-list>
       </div>
     </div>
     <image-modal v-if='show_modal_image_sample'/>
@@ -57,59 +55,54 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#detection-page {
-  $header-height: 44px;
-  $page-margin-top: 22px;
-  $page-margin-horizontal: 72px;
+// #detection-page {
+//   $header-height: 44px;
+//   $page-margin-top: 22px;
+//   $page-margin-horizontal: 72px;
+//
+//   $side-bar-width: 216px;
+//   $side-bar-margin: 24px;
+//
+//   display: flex;
+//   display: -webkit-flex;
+//   flex-direction: column;
+//   -webkit-flex-direction: column;
+//
+//   width: calc(100% - #{$page-margin-horizontal}*2);
+//   margin: 0 $page-margin-horizontal;
+//
+//   .detection-content {
+//     display: flex;
+//     display: -webkit-flex;
+//     height: 784px;
+//
+//     .detection-dashboard-and-detail {
+//       width: calc(1 - #{$side-bar-width});
+//       height: 100%;
+//     }
+//     .detection-page-sidebar {
+//       width: $side-bar-width;
+//       height: 100%;
+//       margin-left: $side-bar-margin;
+//     }
+//   }
+//
+//   .detection-sample-and-tags {
+//     display: flex;
+//     display: -webkit-flex;
+//     margin-bottom: 44px;
+//
+//     .model-sample {
+//       width: calc(100% - #{$side-bar-margin} - #{$side-bar-width});
+//     }
+//
+//   }
+//
+// }
 
-  $side-bar-width: 216px;
-  $side-bar-margin: 24px;
-
-  display: flex;
-  display: -webkit-flex;
-  flex-direction: column;
-  -webkit-flex-direction: column;
-
-  width: calc(100% - #{$page-margin-horizontal}*2);
-  margin: 0 $page-margin-horizontal;
-
-  .detection-content {
-    display: flex;
-    display: -webkit-flex;
-    height: 784px;
-
-    .detection-dashboard-and-detail {
-      width: calc(1 - #{$side-bar-width});
-      height: 100%;
-    }
-    .detection-page-sidebar {
-      width: $side-bar-width;
-      height: 100%;
-      margin-left: $side-bar-margin;
-    }
-  }
-
-  .detection-sample-and-tags {
-    display: flex;
-    display: -webkit-flex;
-    margin-bottom: 44px;
-
-    .model-sample {
-      width: calc(100% - #{$side-bar-margin} - #{$side-bar-width});
-    }
-
-  }
-
-}
-#fixed{
-  position:relative;
-}
+// over write css setting
 .row{
   margin-left: 0px;
   margin-right: 0px;
-}
-.page-wrapper{
-  width:100%;
-  box-sizing: border-box;
 }
 </style>

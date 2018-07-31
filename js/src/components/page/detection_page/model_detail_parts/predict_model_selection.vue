@@ -88,13 +88,13 @@ export default {
 
 <style lang="scss" scoped>
 #predict-model-selection {
-  // $button-bg-color: #7F9DB5;
-  // $button-bg-color-hover: #7590A5;
-  //
-  // $balloon-top: 84px;
-  // $balloon-color: #000000;
-  // $balloon-border-width: 8px;
-  // $content-margin: 8px;
+  $button-bg-color: #7F9DB5;
+  $button-bg-color-hover: #7590A5;
+
+  $balloon-top: 84px;
+  $balloon-color: #000000;
+  $balloon-border-width: 8px;
+  $content-margin: 8px;
 
   .button-area {
     display: flex;

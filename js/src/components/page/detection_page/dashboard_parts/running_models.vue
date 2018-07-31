@@ -29,9 +29,9 @@ export default {
 
 <style lang="scss" scoped>
 #running-models {
-  // $title-height: 24px;
-  // $title-font-size: 16px;
-  // $font-weight-medium: 500;
+  $title-height: 24px;
+  $title-font-size: 16px;
+  $font-weight-medium: 500;
 
   width: 100%;
   height: 100%;

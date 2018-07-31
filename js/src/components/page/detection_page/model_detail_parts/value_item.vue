@@ -25,8 +25,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// $item-font-size: 12px;
-// $content-margin: 8px;
+$item-font-size: 12px;
+$content-margin: 8px;
 
 .value-item {
   display: flex;

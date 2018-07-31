@@ -37,23 +37,23 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail {
-  // $component-margin-top: 32px;
-  //
-  // $model-detail-height: 360px;
-  //
-  // $border-width: 2px;
-  // $border-color: #006699;
-  //
-  // $title-height: 44px;
-  // $title-font-size: 15pt;
-  // $font-weight-medium: 500;
-  //
-  // $content-padding-top: 24px;
-  // $content-padding-horizontal: 24px;
-  // $content-padding-bottom: 16px;
-  //
-  // $content-bg-color: #ffffff;
-  // $content-border-color: #cccccc;
+  $component-margin-top: 32px;
+
+  $model-detail-height: 360px;
+
+  $border-width: 2px;
+  $border-color: #006699;
+
+  $title-height: 44px;
+  $title-font-size: 15pt;
+  $font-weight-medium: 500;
+
+  $content-padding-top: 24px;
+  $content-padding-horizontal: 24px;
+  $content-padding-bottom: 16px;
+
+  $content-bg-color: #ffffff;
+  $content-border-color: #cccccc;
 
   height: $model-detail-height;
   margin: 0;

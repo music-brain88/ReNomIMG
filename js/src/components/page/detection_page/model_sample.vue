@@ -98,16 +98,16 @@ export default {
 
 <style lang="scss" scoped>
 #model-sample {
-  // $component-margin-top: 32px;
-  //
-  // $border-width: 2px;
-  // $border-color: #006699;
-  //
-  // $title-height: 44px;
-  // $title-font-size: 15pt;
-  // $font-weight-medium: 500;
-  //
-  // $content-border-color: #cccccc;
+  $component-margin-top: 32px;
+
+  $border-width: 2px;
+  $border-color: #006699;
+
+  $title-height: 44px;
+  $title-font-size: 15pt;
+  $font-weight-medium: 500;
+
+  $content-border-color: #cccccc;
 
   margin: 0;
   margin-top: $component-margin-top;

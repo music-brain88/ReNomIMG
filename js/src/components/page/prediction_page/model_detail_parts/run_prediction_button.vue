@@ -30,8 +30,8 @@ export default {
 
 <style lang="scss" scoped>
 #run-prediction-button {
-  // $button-height: 64px;
-  // $button-bg-color: #7F9DB5;
+  $button-height: 64px;
+  $button-bg-color: #7F9DB5;
 
   position: absolute;
   top: 0;

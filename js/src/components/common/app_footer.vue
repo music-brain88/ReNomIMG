@@ -13,6 +13,28 @@
         </div>
         <div class="col-md-9">
           <!--none -->
+          <div class="row">
+            <div class="col-md-5 offset-7 text-left">
+              <div class="test">
+                Setting of Dataset
+              </div>
+            </div>
+            <div class="col-md-5 offset-7 text-left">
+              <div class="test">
+                Setting of Model
+              </div>
+            </div>
+            <div class="col-md-5 offset-7 text-left">
+              <div class="test">
+                Prediction
+              </div>
+            </div>
+            <div class="col-md-5 offset-7 text-left">
+              <div class="test">
+                Dataset List
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -45,6 +67,7 @@ footer {
   width: 100%;
   padding: 0;
   margin:0;
+  margin-top: $component-margin-top;
   background: $footer-color;
   .row {
     margin-left: 0px;
@@ -56,6 +79,7 @@ footer {
   }
   .copyright{
     background: $footer-copyright-color;
+    margin-top: 5%;
     .copyright-text{
       margin-top: 3px;
       margin-bottom: 3px;
@@ -69,5 +93,9 @@ footer {
 .media-wrapper{
   margin-top: $content-margin;
 }
-
+.test{
+  margin-top: 5%;
+  font-family: $content-inner-header-font-family;
+  font-size: $content-inner-header-font-size;
+}
 </style>

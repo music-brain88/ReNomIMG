@@ -140,11 +140,11 @@ export default {
 
 <style lang="scss" scoped>
 #model-list-item {
-  // $item-margin-bottom: 8px;
-  // $state-width: 8px;
-  // $label-color: #999999;
-  // $label-color-hover: #666666;
-  // $label-size: 12px;
+  $item-margin-bottom: 8px;
+  $state-width: 8px;
+  $label-color: #999999;
+  $label-color-hover: #666666;
+  $label-size: 12px;
 
   display: flex;
   position: relative;
