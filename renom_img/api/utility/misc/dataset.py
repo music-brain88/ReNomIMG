@@ -236,7 +236,7 @@ def fetch_classification_dataset_caltech101(split_validation=True, test_size=0.2
         with tarfile.open(caltech_101_tar) as tar:
             tar.extractall()
 
-    class_map = sorted(os.listdir(image_caltech101))
+    class_map = sorted(os.listdir(image_caltech101))[1:]
 
     image_path_list = []
     label_list = []

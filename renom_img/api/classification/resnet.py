@@ -112,6 +112,7 @@ class CNN_ResNet(rm.Model):
         self.fc = rm.Dense(num_class)
 
     def forward(self, x):
+
         index = 0
         t = self.base[index](x)
         index += 1

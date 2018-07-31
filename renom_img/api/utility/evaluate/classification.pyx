@@ -14,8 +14,8 @@ cpdef precision_score(y_pred, y_true):
     Return:
         precision(float):
     """
-    p, _ = precision_recall_score(y_pred, y_true)
-    return p
+    p, mean_p, _, _ = precision_recall_score(y_pred, y_true)
+    return p, mean_p
 
 cpdef recall_score(y_pred, y_true):
     """
@@ -30,8 +30,8 @@ cpdef recall_score(y_pred, y_true):
     Return:
         recall(float):
     """
-    _, r = precision_recall_score(y_pred, y_true)
-    return r
+    _, _, r, mean_r = precision_recall_score(y_pred, y_true)
+    return r, mean_r
 
 cpdef precision_recall_score(y_pred, y_true):
     """
@@ -56,7 +56,7 @@ cpdef precision_recall_score(y_pred, y_true):
         if p == t:
             tp[p] += 1
 
-    class_ids = np.unique(np.concatenate([pred_sum.keys(), true_sum.keys()]))
+    class_ids = set(pred_sum.keys()) | set(true_sum.keys())
     precision = {}
     recall = {}
     for c in class_ids:
@@ -68,8 +68,9 @@ cpdef precision_recall_score(y_pred, y_true):
             recall[c] = float(tp[c]) / true_sum[c]
         else:
             recall[c] = None
-
-    return precision, recall
+    mean_precision = np.fromiter(tp.values(), dtype=float).sum() / np.fromiter(pred_sum.values(), dtype=float).sum()
+    mean_recall = np.fromiter(tp.values(), dtype=float).sum() / np.fromiter(true_sum.values(), dtype=float()).sum()
+    return precision, mean_precision, recall, mean_recall
 
 cpdef accuracy_score(y_pred, y_true):
     """
