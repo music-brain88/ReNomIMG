@@ -169,7 +169,7 @@ class DataBuilderSegmentation(DataBuilderBase):
 
     def build(self, img_path_list, annotation_path_list, augmentation=None, **kwargs):
         """
-         Args:
+        Args:
             img_path_list(list): List of input image paths.
             annotation_list(list): List of annotation
             augmentation(Augmentation): Instance of the augmentation class.

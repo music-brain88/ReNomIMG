@@ -3,33 +3,48 @@ from collections import defaultdict
 
 cpdef precision_score(y_pred, y_true):
     """
+    precision_score(y_pred, y_true)
+
     Precision score for classification
 
     Args:
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
+
+    Return:
+        precision(float):
     """
     p, _ = precision_recall_score(y_pred, y_true)
     return p
 
 cpdef recall_score(y_pred, y_true):
     """
+    recall_score(y_pred, y_true)
+
     Recall score for classification
 
     Args:
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
+
+    Return:
+        recall(float):
     """
     _, r = precision_recall_score(y_pred, y_true)
     return r
 
 cpdef precision_recall_score(y_pred, y_true):
     """
+    precision_recall_score(y_pred, y_true)
+
     Recall score for classification
 
     Args:
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
+
+    Return:
+        precision(float), recall(float)
     """
     tp = defaultdict(int)
     pred_sum = defaultdict(int)
@@ -57,6 +72,16 @@ cpdef precision_recall_score(y_pred, y_true):
     return precision, recall
 
 cpdef accuracy_score(y_pred, y_true):
+    """
+    accuracy_score(y_pred, y_true)
+
+    Args:
+        y_pred: [class_id(int), class_id(int), ...]
+        y_true: [class_id(int), class_id(int), ...]
+
+    Return:
+        accuracy(float):
+    """
     accuracy = np.sum(y_pred==y_true)
     return accuracy
 

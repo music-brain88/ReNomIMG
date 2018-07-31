@@ -213,24 +213,65 @@ class EvaluatorDetection(EvaluatorBase):
 
 
 class EvaluatorClassification(EvaluatorBase):
+    """ Evaluator for object classification tasks
+
+    Args:
+        gt_list (list): A list of ground truth.
+        classification_list (list): A list of classification. The format is as follows
+
+        predict_list:
+
+    .. code-block :: python
+
+        [
+            [ # Objects of 1st image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                ...
+            ],
+            [ # Objects of 2nd image.
+                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
+                ...
+            ]
+        ]
+
+    Example:
+            >>> evaluator = EvaluatorClassification(pred, gt)
+            >>> evaluator.precision()
+            >>> evaluator.recall()
+            >>> evaluator.accuracy()
+    """
 
     def __init__(self, prediction, target):
         super(EvaluatorClassification, self).__init__(prediction, target)
 
     def precision(self):
+        """
+        Returns:
+            precision(float)
+        """
         precision = precision_score(self.prediction, self.target)
         return precision
 
     def recall(self):
+        """
+        Returns:
+            recall(float)
+        """
         recall = recall_score(self.prediction, self.target)
         return recall
 
     def accuracy(self):
+        """
+        Returns:
+            accuracy(float)
+        """
         accuracy = accuracy_score(self.prediction, self.target)
         return accuracy
 
-    def confusion_matrix(self):
-        raise NotImplemented
+    # def confusion_matrix(self):
+    #     raise NotImplemented
 
 
 class EvaluatorSegmentation(EvaluatorBase):

@@ -2,8 +2,8 @@ renom\_img.api.utility.evaluate
 ===============================
 
 .. automodule:: renom_img.api.utility.evaluate
-    :members:
-    :undoc-members:
+    :members: EvaluatorClassification, EvaluatorDetection
+    :undoc-members: confusion_matrix
     :show-inheritance:
 
 .. automodule:: renom_img.api.utility.evaluate.classification

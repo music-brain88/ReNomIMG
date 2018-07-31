@@ -44,12 +44,13 @@ def draw_box(img, prediction, font_path=None, color_list=None):
             Each annotation has a list of dictionary which includes keys 'box', 'name' and 'score'.
             The format is below.
 
-        .. code-block :: python
-            [
-                {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-                {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-                ...
-            ]
+    .. code-block :: python
+
+        [
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            ...
+        ]
 
         font_path(string):
 
@@ -124,13 +125,13 @@ def draw_segment(img, prediction, font_path=None, color_list=None):
             Each annotation has a list of dictionary which includes keys 'box', 'name' and 'score'.
             The format is below.
 
-        .. code-block :: python
+    .. code-block :: python
 
-            [
-                {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-                {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-                ...
-            ]
+        [
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            ...
+        ]
 
         font_path: font path of chanracters on the image
 

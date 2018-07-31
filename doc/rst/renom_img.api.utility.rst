@@ -28,7 +28,7 @@ renom\_img.api.utility.target
 ------------------------------------
 
 .. automodule:: renom_img.api.utility.target
-    :members:
+    :members: DataBuilderClassification, DataBuilderDetection, DataBuilderSegmentation
     :undoc-members:
     :show-inheritance:
 
