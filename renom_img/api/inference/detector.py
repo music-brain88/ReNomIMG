@@ -25,6 +25,10 @@ class Detector(object):
         self._alg_name = None
         self._model_info = {}
 
+    def __call__(self, x):
+        assert self._model is not None, "Please pull trained weight first."
+        return self._model(x)
+
     def pull(self):
         """Pull trained weight from ReNomIMG server.
         Trained weight will be downloaded into current directory.
