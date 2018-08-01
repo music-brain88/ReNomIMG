@@ -1,6 +1,7 @@
 import numpy as np
 from .detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
-from .classification import precision_score, recall_score, accuracy_score
+from .classification import precision_score, recall_score, f1_score, accuracy_score
+from collections import defaultdict
 
 
 class EvaluatorBase(object):
@@ -9,12 +10,11 @@ class EvaluatorBase(object):
         self.prediction = prediction
         self.target = target
 
-    def report(self, class_names, headers, rows, last_line_heading, row_fmt, last_row=None, digits=3):
-        last_line_heading = 'mAP / mean IoU'
-        name_width = max(len(cn) for cn in class_names)
+    def build_report(self, class_names, headers, rows, last_line_heading, row_fmt, last_row=None, digits=3):
+        name_width = max(len(str(cn)) for cn in class_names)
         width = max(name_width, len(last_line_heading), digits * 2)
 
-        head_fmt = '{:>{width}s} ' + ' {:>12}' * len(headers)
+        head_fmt = '{:>{width}s} ' + ' {:>12}' * (len(headers) - 1) + '{:>16}'
         report = head_fmt.format('', *headers, width=width)
         report += ' \n\n'
 
@@ -172,7 +172,7 @@ class EvaluatorDetection(EvaluatorBase):
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
         return prec. rec
 
-    def detection_report(self, iou_thresh=0.5, digits=3):
+    def report(self, iou_thresh=0.5, digits=3):
         """ Output a table whcih shows AP, IoU, the number of predicted instances for each class, and the number of ground truth instances for each class.
         Args:
             iou_thresh: IoU threshold. The default value is 0.5.
@@ -203,13 +203,13 @@ class EvaluatorDetection(EvaluatorBase):
         headers = ["AP", "IoU", "  #pred/#target"]
         rows = []
         for c in class_names:
-            rows.append((c, AP[c], iou[c], n_pred[c], n_pos_list[c]))
+            rows.append((str(c), AP[c], iou[c], n_pred[c], n_pos_list[c]))
         last_line_heading = 'mAP / mean IoU'
         last_row = (mAP, mean_iou, np.sum(list(n_pred.values())), np.sum(list(n_pos_list.values())))
         row_fmt = '{:>{width}s} ' + ' {:>12.{digits}f}' * \
             (len(headers) - 1) + ' {:>12d}/{:d}' + ' \n'
 
-        return self.report(class_names, headers, rows, last_line_heading, row_fmt, last_row, digits)
+        return self.build_report(class_names, headers, rows, last_line_heading, row_fmt, last_row, digits)
 
 
 class EvaluatorClassification(EvaluatorBase):
@@ -251,16 +251,16 @@ class EvaluatorClassification(EvaluatorBase):
         Returns:
             precision(float)
         """
-        precision = precision_score(self.prediction, self.target)
-        return precision
+        precision, mean_precision = precision_score(self.prediction, self.target)
+        return precision, mean_precision
 
     def recall(self):
         """
         Returns:
             recall(float)
         """
-        recall = recall_score(self.prediction, self.target)
-        return recall
+        recall, mean_recall = recall_score(self.prediction, self.target)
+        return recall, mean_recall
 
     def accuracy(self):
         """
@@ -269,6 +269,45 @@ class EvaluatorClassification(EvaluatorBase):
         """
         accuracy = accuracy_score(self.prediction, self.target)
         return accuracy
+
+    def f1(self):
+        """
+        Returns:
+            f1_score(dict):
+            mean_f1_score(float):
+        """
+        f1, mean_f1 = f1_score(self.prediction, self.target)
+        return f1, mean_f1
+
+    def report(self, digits=3):
+        precision, mean_precision = self.precision()
+        recall, mean_recall = self.recall()
+        f1, mean_f1 = self.f1()
+        accuracy = self.accuracy()
+        class_names = list(precision.keys())
+
+        tp = defaultdict(int)
+        true_sum = defaultdict(int)
+
+        for p, t in zip(self.prediction, self.target):
+            true_sum[t] += 1
+            if p == t:
+                tp[p] += 1
+
+
+        headers = ["Precision", "Recall", "F1 score", "#pred/#target"]
+        rows = []
+        for c in class_names:
+            rows.append((str(c), precision[c], recall[c], f1[c], tp[c], true_sum[c]))
+        last_line_heading = 'Average'
+        last_row = (mean_precision, mean_recall, mean_f1, np.sum(list(tp.values())), np.sum(list(true_sum.values())))
+        row_fmt = '{:>{width}s} ' + ' {:>12.{digits}f}' * \
+            (len(headers) - 1) + ' {:>12d}/{:d}' + ' \n'
+
+        report = self.build_report(class_names, headers, rows, last_line_heading, row_fmt, last_row, digits)
+        report += '\n'
+        report += ('Accuracy' + ' {:>12.{digits}f}'.format(accuracy, digits=digits))
+        return report
 
     # def confusion_matrix(self):
     #     raise NotImplemented
