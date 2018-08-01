@@ -12,11 +12,12 @@ You can install ReNomIMG by ``pip`` command. This is the simplest way for instal
 
     .. code-block:: shell
 
-        pip install ~~
+        pip install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-0.9b0-cp35-cp35m-linux_x86_64.whl
+
 
     .. note::
 
-        This is linux OS only. If your OS is windows or MAC, please install ReNomIMG
+        This is ``linux OS`` only. If your OS is windows or MAC, please install ReNomIMG
         from binary code.
 
 
@@ -32,6 +33,9 @@ Install from binary.
         python setup.py build
         pip install -e .
 
+    .. note ::
+
+        This requires ``node.js``.
 
 Docker Image.
 ~~~~~~~~~~~~~~
@@ -78,3 +82,7 @@ An Example is bellow.
 
 If no arguments are passed, directories named ``datasrc`` and ``storage`` will be created in
 current directory, and the application uses ``8080`` port.
+
+.. note ::
+
+    This requires nvidia-docker.
