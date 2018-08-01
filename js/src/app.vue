@@ -36,7 +36,6 @@ export default {
 
 <style lang="scss">
 @import url('https://rsms.me/inter/inter-ui.css');
-@import '@/../node_modules/bootstrap/scss/bootstrap.scss';
 * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;

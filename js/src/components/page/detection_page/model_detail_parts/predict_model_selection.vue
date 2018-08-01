@@ -1,16 +1,12 @@
 <template>
   <div id="predict-model-selection">
     <div class="button-area">
-      <button class="set-predict-model" v-if="!isPredict" :disabled="model.state !== 2" @click="setPredictModel">
-        Deploy Model
-      </button>
+      <div class="set-predict-model" v-if="!isPredict" :disabled="model.state !== 2" @click="setPredictModel">
+        <i class="fa fa-angle-right icon-navgation"></i>Deploy Model<i aria-label="If you push this button,<br /> you can use current selected<br />model in prediction." @mouseenter="hoverDescription(true)" @mouseleave="hoverDescription(false)" class="fa fa-info button-description"></i>
+      </div>
 
-      <button class="set-predict-model" v-if="isPredict" @click="show_undeploy_dialog=true">
-        Undeploy
-      </button>
-
-      <div class="button-description" @mouseenter="hoverDescription(true)" @mouseleave="hoverDescription(false)">
-        <i class="fa fa-info-circle" aria-hidden="true"></i>
+      <div class="set-predict-model" v-if="isPredict" @click="show_undeploy_dialog=true">
+        <i class="fa fa-angle-right icon-navgation"></i>Undeploy
       </div>
 
       <div v-if="show_description">
@@ -21,12 +17,13 @@
         </div>
         <div class="triangle"></div>
       </div>
+
     </div>
 
     <modal-box v-if='show_undeploy_dialog'
       @ok='resetPredictModel'
       @cancel='show_undeploy_dialog=false'>
-      <div slot='contents'>
+      <div class="modal-contents" slot='contents'>
         Would you like to undeploy this model?"
       </div>
       <span slot="okbutton">
@@ -88,46 +85,58 @@ export default {
 
 <style lang="scss" scoped>
 #predict-model-selection {
-  $button-bg-color: #7F9DB5;
-  $button-bg-color-hover: #7590A5;
-
   $balloon-top: 84px;
   $balloon-color: #000000;
   $balloon-border-width: 8px;
-  $content-margin: 8px;
 
   .button-area {
-    display: flex;
-    position: relative;
+    margin-left:$content-parts-margin;
+    height: $content-top-header-hight;
   }
 
   .set-predict-model {
-    margin-right: $content-margin;
-    padding: 4px 16px;
-    background-color: $button-bg-color;
+    display: flex;
+    line-height: $content-top-header-hight;
     color: #ffffff;
     text-align: center;
-    border-radius: 4px;
     cursor: pointer;
   }
-  .set-predict-model:hover {
-    background-color: $button-bg-color-hover;
+
+  .icon-navgation{
+    margin-right: $content-parts-margin;
+    line-height: $content-top-header-hight;
+    // margin-top: calc(#{$content-top-header-hight}*0.25);
   }
 
   .button-description {
-    margin-right: $content-margin;
-    line-height: 32px;
+    margin-left: $content-parts-margin;
+    line-height: $content-top-header-hight;
+    border-color: $font-color;
+    // margin-top: calc(#{$content-top-header-hight}*0.25);
   }
 
   .balloon {
-    position: absolute;
+    position: relative;
     width: 240px;
-    top: -$balloon-top;
+    top: -$balloon-top*2;
     right: calc(-#{$balloon-border-width});
     padding: 4px;
     background-color: $balloon-color;
     color: #fff;
     border-radius: 4px;
+
+    &:after{
+      content: "";
+      position: relative;
+      right: 0;
+      bottom: -20px;
+      width: 0px;
+      height: 0px;
+      margin: auto;
+      border-style: solid;
+      border-color: $balloon-color transparent transparent transparent;
+      border-width: 20px 20px 0 20px;
+    }
   }
 
   .triangle {
@@ -137,6 +146,9 @@ export default {
     border-top: $balloon-border-width solid $balloon-color;
     border-left: $balloon-border-width solid transparent;
     border-right: $balloon-border-width solid transparent;
+  }
+  .modal-contents{
+    color:#000000;
   }
 }
 </style>

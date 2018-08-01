@@ -1,22 +1,28 @@
 <template>
   <div id="model-sample">
-    <div class="title">
-      Prediction Sample
-      <div>
-        <span @click='prevPage' v-bind:class='{inactive: !hasPrevPage}'><i class="fa fa-arrow-left" aria-hidden="true"></i></span>
-        <span @click='nextPage' v-bind:class='{inactive: !hasNextPage}'><i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+    <div class="row">
+      <div class="col-md-12 col-sm-12 clear-padding">
+        <div class="title">
+          <div class="title-text">
+            Prediction Sample
+          </div>
+          <div>
+            <span @click='prevPage' v-bind:class='{inactive: !hasPrevPage}'><i class="fa fa-arrow-left" aria-hidden="true"></i></span>
+            <span @click='nextPage' v-bind:class='{inactive: !hasNextPage}'><i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+          </div>
+        </div>
+        <div class="content">
+          <sample-image
+            v-for="(item, index) in getValidationResult"
+            :key="item.path"
+            :image_idx="index + topImageIndex"
+            :image_path="item.path"
+            :image_width="item.width"
+            :image_height="item.height"
+            :bboxes="item.predicted_bboxes">
+          </sample-image>
+        </div>
       </div>
-    </div>
-    <div class="content">
-      <sample-image
-        v-for="(item, index) in getValidationResult"
-        :key="item.path"
-        :image_idx="index + topImageIndex"
-        :image_path="item.path"
-        :image_width="item.width"
-        :image_height="item.height"
-        :bboxes="item.predicted_bboxes">
-      </sample-image>
     </div>
   </div>
 </template>
@@ -98,27 +104,25 @@ export default {
 
 <style lang="scss" scoped>
 #model-sample {
-  $component-margin-top: 32px;
-
-  $border-width: 2px;
-  $border-color: #006699;
-
-  $title-height: 44px;
-  $title-font-size: 15pt;
-  $font-weight-medium: 500;
-
-  $content-border-color: #cccccc;
 
   margin: 0;
   margin-top: $component-margin-top;
-  border-top: $border-width solid $border-color;
-
+  margin-left: $content-parts-margin;
+  .clear-padding{
+    padding-right: 0;
+  }
   .title {
     display: flex;
-    line-height: $title-height;
-    font-size: $title-font-size;
-    font-weight: $font-weight-medium;
+    height: $content-top-header-hight;
+    line-height: $content-top-header-hight;
+    font-family: $content-top-header-font-family;
+    font-size: $content-top-header-font-size;
     justify-content: space-between;
+    background-color: $header-color;
+    color:$font-color;
+    .title-text{
+      margin-left: $content-top-heder-horizonral-margin;
+    }
     div {
       align-self: center;
       padding-right: 10px;
@@ -139,7 +143,7 @@ export default {
     width: 100%;
     min-height: calc(170px * 3);
     border: 1px solid $content-border-color;
-    border-radius: 4px;
+
 
     display: flex;
     display: -webkit-flex;

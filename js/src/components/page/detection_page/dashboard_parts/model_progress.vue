@@ -175,7 +175,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// @import '@/../node_modules/bootstrap/scss/bootstrap.scss';
+@import '@/../node_modules/bootstrap/scss/bootstrap.scss';
 #model-progress {
   $content-margin: 8px;
 

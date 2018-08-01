@@ -1,10 +1,17 @@
 <template>
   <div id="model-detail">
     <div class="row">
-      <div class="col-md-7 clear-padding">
+      <div class="col-md-7 col-sm-12 clear-padding">
         <div class="title">
-          <div class="title-text">
-            Model Detail
+          <div class="row">
+            <div class="col-md-9 col-sm-12">
+              <div class="title-text">
+                Model Detail
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-12 panel">
+              <predict-model-selection v-if="model" :model="model"></predict-model-selection>
+            </div>
           </div>
         </div>
         <div class="content">
@@ -13,7 +20,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-5 clear-padding">
+      <div class="col-md-5 col-sm-12 clear-padding">
         <div class="title">
           <div class="title-text">
             Learning Curve
@@ -34,12 +41,14 @@
 <script>
 import ModelDetailText from './model_detail_parts/model_detail_text.vue'
 import LearningCurve from './model_detail_parts/learning_curve.vue'
+import PredictModelSelection from './model_detail_parts/predict_model_selection.vue'
 
 export default {
   name: 'ModelDetail',
   components: {
     'model-detail-text': ModelDetailText,
-    'learning-curve': LearningCurve
+    'learning-curve': LearningCurve,
+    'predict-model-selection': PredictModelSelection
   },
   computed: {
     model () {
@@ -80,12 +89,19 @@ export default {
       line-height: $content-top-header-hight;
       margin-left: $content-top-heder-horizonral-margin;
     }
+    .panel{
+      background-color: $panel-bg-color;
+      &:hover{
+        background-color: $panel-bg-color-hover;
+      }
+    }
   }
 
   .content {
     display: flex;
     display: -webkit-flex;
 
+    min-height:240px;
     height: calc(100% - #{$title-height});
     padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
 

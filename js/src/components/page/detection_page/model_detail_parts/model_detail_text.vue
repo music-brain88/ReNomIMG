@@ -22,9 +22,6 @@
         <value-item :label="'IoU'" :val="round_percent(model.best_epoch_iou) + '%'"></value-item>
         <value-item :label="'mAP'" :val="round_percent(model.best_epoch_map) + '%'"></value-item>
         <value-item :label="'Validation Loss'" :val="round(model.validation_loss_list[model.best_epoch], 1000)"></value-item>
-        <div class="predict-model-selection-area">
-          <predict-model-selection :model="model"></predict-model-selection>
-        </div>
       </div>
     </div>
   </div>
@@ -36,15 +33,13 @@ import * as constant from '@/constant'
 import ValueItem from './value_item.vue'
 import Yolov1Params from './yolov1_params.vue'
 import Yolov2Params from './yolov2_params.vue'
-import PredictModelSelection from './predict_model_selection.vue'
 
 export default {
   name: 'ModelDetailText',
   components: {
     'value-item': ValueItem,
     'yolov1-params': Yolov1Params,
-    'yolov2-params': Yolov2Params,
-    'predict-model-selection': PredictModelSelection
+    'yolov2-params': Yolov2Params
   },
   data: function () {
     return {
