@@ -31,9 +31,9 @@ class FCN_Base(SemanticSegmentation):
         Note: In FCN, the learning rate is fixed.
         """
         if current_epoch == 100:
-            self._opt._lr = 1e-3
-        elif current_epoch == 150:
             self._opt._lr = 1e-4
+        elif current_epoch == 150:
+            self._opt._lr = 1e-5
         return self._opt
 
     def regularize(self, decay_rate=2e-4):
@@ -106,7 +106,7 @@ class FCN32s(FCN_Base):
         self.class_map = class_map
         self._model = CNN_FCN32s(self.num_class)
         self._train_whole_network = train_whole_network
-        self._opt = rm.Adam(0.001, 0.9)
+        self._opt = rm.Sgd(0.001, 0.9)
 
         if load_pretrained_weight:
             vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight, train_whole_network=train_whole_network)
