@@ -68,8 +68,9 @@ cpdef precision_recall_score(y_pred, y_true):
             recall[c] = float(tp[c]) / true_sum[c]
         else:
             recall[c] = None
+    print('called')
     mean_precision = np.fromiter(tp.values(), dtype=float).sum() / np.fromiter(pred_sum.values(), dtype=float).sum()
-    mean_recall = np.fromiter(tp.values(), dtype=float).sum() / np.fromiter(true_sum.values(), dtype=float()).sum()
+    mean_recall = np.fromiter(tp.values(), dtype=float).sum() / np.fromiter(true_sum.values(), dtype=float).sum()
     return precision, mean_precision, recall, mean_recall
 
 cpdef accuracy_score(y_pred, y_true):
