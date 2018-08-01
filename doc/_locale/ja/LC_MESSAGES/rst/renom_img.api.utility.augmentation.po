@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"POT-Creation-Date: 2018-08-01 11:10+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,48 +18,37 @@ msgstr ""
 "Generated-By: Babel 2.6.0\n"
 
 #: ../../rst/renom_img.api.utility.augmentation.rst:2
-msgid "renom\\_img.api.utility.augmentation package"
+msgid "renom\\_img.api.utility.augmentation"
 msgstr ""
 
-#: ../../rst/renom_img.api.utility.augmentation.rst:5
-msgid "renom\\_img.api.utility.augmentation.process module"
-msgstr ""
-
-#: of renom_img.api.utility.augmentation.process.ContrastNorm:1
-#: renom_img.api.utility.augmentation.process.Flip:1
-#: renom_img.api.utility.augmentation.process.Jitter:1
-#: renom_img.api.utility.augmentation.process.Rotate:1
-#: renom_img.api.utility.augmentation.process.Shift:1
-#: renom_img.api.utility.augmentation.process.WhiteNoise:1
-msgid "Bases: :class:`renom_img.api.utility.augmentation.process.ProcessBase`"
-msgstr ""
-
-#: of renom_img.api.utility.augmentation.Augmentation:1
+#: ../../docstring of renom_img.api.utility.augmentation.Augmentation:1
 #: renom_img.api.utility.augmentation.process.ProcessBase:1
 msgid "Bases: :class:`object`"
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.ProcessBase:1
-msgid "Base class for applying augmentation to images."
-msgstr ""
-
-#: of renom_img.api.utility.augmentation.process.ProcessBase:3
-msgid "X and Y must be resized as specified img size."
-msgstr ""
-
-#: of renom_img.api.utility.augmentation.process.contrast_norm:1
+#: ../../docstring of renom_img.api.utility.augmentation.Augmentation:1
 msgid ""
-"Contrast Normalization :param alpha: Higher value increases contrast, and"
-" lower value decreases contrast."
+"This class is for applying augmentation to images. Instance of "
+"augmentation is passed to ImageDistributor module, and is called only "
+"when training process is runnning. You could choose augmentation methods "
+"from Process module."
+msgstr "このクラスは画像に前処理を適用させるためのものです。AugmentationクラスのインスタンスはImageDistributorモジュールに渡され、学習プロセスが実行された時のみに呼び出されます。前処理の方法はProcessモジュールから選択できます。"
+
+#: ../../docstring of renom_img.api.utility.augmentation.Augmentation:8
+msgid "*list of Process modules* -- list of Process modules."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.contrast_norm:3
-msgid ""
-"if a list [a, b], alpha value is sampled from uniform distribution "
-"ranging from [a, b). if a float, constant value of alpha is used."
+#: ../../docstring of renom_img.api.utility.augmentation.Augmentation:15
+#: renom_img.api.utility.augmentation.process.contrast_norm:15
+msgid "Example"
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.Augmentation.transform
+#: ../../docstring of
+#: renom_img.api.utility.augmentation.Augmentation.transform:1
+msgid "This function is for applying augmentation to ImageDistributor"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.augmentation.Augmentation.transform
 #: renom_img.api.utility.augmentation.process.contrast_norm
 #: renom_img.api.utility.augmentation.process.flip
 #: renom_img.api.utility.augmentation.process.rotate
@@ -68,13 +57,55 @@ msgstr ""
 msgid "Parameters"
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.contrast_norm:6
+#: ../../docstring of
+#: renom_img.api.utility.augmentation.Augmentation.transform:5
+msgid "list of label for x. It is only used when prediction."
+msgstr ""
+
+#: ../../docstring of
+#: renom_img.api.utility.augmentation.Augmentation.transform:8
+msgid "Returns:"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.augmentation.process.ContrastNorm:1
+#: renom_img.api.utility.augmentation.process.Flip:1
+#: renom_img.api.utility.augmentation.process.Jitter:1
+#: renom_img.api.utility.augmentation.process.Rotate:1
+#: renom_img.api.utility.augmentation.process.Shift:1
+#: renom_img.api.utility.augmentation.process.WhiteNoise:1
+msgid "Bases: :class:`renom_img.api.utility.augmentation.process.ProcessBase`"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.augmentation.process.ProcessBase:1
+msgid "Base class for applying augmentation to images."
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.augmentation.process.ProcessBase:3
+msgid "X and Y must be resized as specified img size."
+msgstr ""
+
+#: ../../docstring of
+#: renom_img.api.utility.augmentation.process.contrast_norm:1
+msgid ""
+"Contrast Normalization :param alpha: Higher value increases contrast, and"
+" lower value decreases contrast."
+msgstr "コントラスト正規化 :params alpha: 大きい値ではコントラストが増加し、低い値ではコントラストが減少します。"
+
+#: ../../docstring of
+#: renom_img.api.utility.augmentation.process.contrast_norm:3
+msgid ""
+"if a list [a, b], alpha value is sampled from uniform distribution "
+"ranging from [a, b). if a float, constant value of alpha is used."
+msgstr ""
+
+#: ../../docstring of
+#: renom_img.api.utility.augmentation.process.contrast_norm:6
 msgid ""
 "Whether to apply contrast normalization for each channel. If alpha is "
 "given a list, then different values for each channel are used."
-msgstr ""
+msgstr "各チャンネルにコントラスト正規化を適用するか。alphaにリストが与えられた場合、各チャネル毎に別々の値が利用されます。"
 
-#: of renom_img.api.utility.augmentation.process.contrast_norm
+#: ../../docstring of renom_img.api.utility.augmentation.process.contrast_norm
 #: renom_img.api.utility.augmentation.process.flip
 #: renom_img.api.utility.augmentation.process.rotate
 #: renom_img.api.utility.augmentation.process.shift
@@ -82,13 +113,14 @@ msgstr ""
 msgid "Returns"
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.contrast_norm:10
+#: ../../docstring of
+#: renom_img.api.utility.augmentation.process.contrast_norm:10
 msgid ""
 "List of images normalized by contrast (list of dict): List of annotation "
 "results."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.contrast_norm
+#: ../../docstring of renom_img.api.utility.augmentation.process.contrast_norm
 #: renom_img.api.utility.augmentation.process.flip
 #: renom_img.api.utility.augmentation.process.rotate
 #: renom_img.api.utility.augmentation.process.shift
@@ -96,103 +128,79 @@ msgstr ""
 msgid "Return type"
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.Augmentation:15
-#: renom_img.api.utility.augmentation.process.contrast_norm:15
-msgid "Example"
-msgstr ""
-
-#: of renom_img.api.utility.augmentation.process.flip:1
+#: ../../docstring of renom_img.api.utility.augmentation.process.flip:1
 msgid "Flip image randomly."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.flip:3
+#: ../../docstring of renom_img.api.utility.augmentation.process.flip:3
 #: renom_img.api.utility.augmentation.process.rotate:3
 #: renom_img.api.utility.augmentation.process.shift:3
 #: renom_img.api.utility.augmentation.process.white_noise:3
 msgid "List of images."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.flip:5
+#: ../../docstring of renom_img.api.utility.augmentation.process.flip:5
 #: renom_img.api.utility.augmentation.process.rotate:5
 #: renom_img.api.utility.augmentation.process.shift:5
 #: renom_img.api.utility.augmentation.process.white_noise:5
 msgid "List of annotation results."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.flip:7
+#: ../../docstring of renom_img.api.utility.augmentation.process.flip:7
 #: renom_img.api.utility.augmentation.process.shift:7
 #: renom_img.api.utility.augmentation.process.white_noise:7
 msgid "Type of task. You could chooose Classification, Detection or Segmentation."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.flip:10
+#: ../../docstring of renom_img.api.utility.augmentation.process.flip:10
 msgid "List of flipped images. (list of dict): List of annotation results."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.flip:15
+#: ../../docstring of renom_img.api.utility.augmentation.process.flip:15
 #: renom_img.api.utility.augmentation.process.rotate:15
 #: renom_img.api.utility.augmentation.process.shift:15
 #: renom_img.api.utility.augmentation.process.white_noise:15
 msgid "Examples"
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.rotate:1
+#: ../../docstring of renom_img.api.utility.augmentation.process.rotate:1
 msgid "Rotate images randomly from 0, 90, 180, 270 degree."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.rotate:7
+#: ../../docstring of renom_img.api.utility.augmentation.process.rotate:7
 msgid ""
 "Type of task. You could choose from Classification, Detection and "
 "Segmentation."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.rotate:10
+#: ../../docstring of renom_img.api.utility.augmentation.process.rotate:10
 msgid "List of rotated images. (list of dict): List of annotation results."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.shift:1
+#: ../../docstring of renom_img.api.utility.augmentation.process.shift:1
 msgid "Shift images randomly according to given parameter."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.shift:10
+#: ../../docstring of renom_img.api.utility.augmentation.process.shift:10
 msgid "List of shifted images. (list of dict): List of annotation results."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.white_noise:1
+#: ../../docstring of renom_img.api.utility.augmentation.process.white_noise:1
 msgid "Add white noise to images."
 msgstr ""
 
-#: of renom_img.api.utility.augmentation.process.white_noise:10
+#: ../../docstring of renom_img.api.utility.augmentation.process.white_noise:10
 msgid ""
 "List of images added white noise. (list of dict): List of annotation "
 "results."
 msgstr ""
 
-#: ../../rst/renom_img.api.utility.augmentation.rst:14
-msgid "Module contents"
-msgstr ""
+#~ msgid "renom\\_img.api.utility.augmentation package"
+#~ msgstr ""
 
-#: of renom_img.api.utility.augmentation.Augmentation:1
-msgid ""
-"This class is for applying augmentation to images. Instance of "
-"augmentation is passed to ImageDistributor module, and is called only "
-"when training process is runnning. You could choose augmentation methods "
-"from Process module."
-msgstr ""
+#~ msgid "renom\\_img.api.utility.augmentation.process module"
+#~ msgstr ""
 
-#: of renom_img.api.utility.augmentation.Augmentation:8
-msgid "*list of Process modules* -- list of Process modules."
-msgstr ""
-
-#: of renom_img.api.utility.augmentation.Augmentation.transform:1
-msgid "This function is for applying augmentation to ImageDistributor"
-msgstr ""
-
-#: of renom_img.api.utility.augmentation.Augmentation.transform:5
-msgid "list of label for x. It is only used when prediction."
-msgstr ""
-
-#: of renom_img.api.utility.augmentation.Augmentation.transform:8
-msgid "Returns:"
-msgstr ""
+#~ msgid "Module contents"
+#~ msgstr ""
 

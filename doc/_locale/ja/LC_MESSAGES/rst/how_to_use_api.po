@@ -17,10 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: ../../rst/renom_img.api.inference.rst:2
-msgid "renom\\_img.api.inference"
-msgstr ""
-
-#~ msgid "renom\\_img.api.inference.inference"
-#~ msgstr ""
+#: ../../rst/how_to_use_api.rst:2
+msgid "How to Use ReNomIMG API"
+msgstr "ReNomIMG APIの利用方法"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-17 16:12+0900\n"
+"POT-Creation-Date: 2018-08-01 11:10+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,209 +25,264 @@ msgstr ""
 msgid "renom\\_img.api.utility.box"
 msgstr ""
 
-#: ../../rst/renom_img.api.utility.rst:12
-msgid "renom\\_img.api.utility.load"
-msgstr ""
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:1
+#: renom_img.api.utility.box.calc_iou_xyxy:1
+msgid "This function calculates IOU in the coordinate format (x1, y1, x2, y2)."
+msgstr "この関数は座標のフォーマット(x1, y1, x2, y2)の下でIOUを計算します。"
 
-#: of renom_img.api.utility.load.parse_xml_detection:1
-msgid "XML format must be Pascal VOC format."
-msgstr ""
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:3
+#: renom_img.api.utility.box.calc_iou_xyxy:3
+#: renom_img.api.utility.box.transform2xy12:7
+#: renom_img.api.utility.box.transform2xywh:4
+msgid ""
+"(``x1``, ``y1``) represents the coordinate of upper left corner. (``x2``,"
+" ``y2``) represents the coordinate of lower right corner."
+msgstr "(x1, y1) は左上の角を表します。(x2, y2) は右下の角を表します。"
 
-#: ../../docstring of renom_img.api.utility.load.parse_xml_detection
-#: renom_img.api.utility.nms.nms renom_img.api.utility.nms.soft_nms
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:6
+#: renom_img.api.utility.box.calc_iou_xyxy:6
+#: renom_img.api.utility.box.transform2xy12:10
+#: renom_img.api.utility.box.transform2xywh:10
+msgid "The format of argument box have to be following example."
+msgstr "引数のボックスは以下の例のようなフォーマットでなければなりません。"
+
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh
+#: renom_img.api.utility.box.calc_iou_xyxy renom_img.api.utility.box.rescale
+#: renom_img.api.utility.box.transform2xy12
+#: renom_img.api.utility.box.transform2xywh
+#: renom_img.api.utility.load.parse_xml_detection renom_img.api.utility.nms.nms
+#: renom_img.api.utility.nms.soft_nms
 #: renom_img.api.utility.target.DataBuilderClassification
 #: renom_img.api.utility.target.DataBuilderClassification.build
 #: renom_img.api.utility.target.DataBuilderDetection
 #: renom_img.api.utility.target.DataBuilderDetection.build
+#: renom_img.api.utility.target.DataBuilderSegmentation.build
 msgid "Parameters"
-msgstr ""
+msgstr "パラメータ"
 
-#: of renom_img.api.utility.load.parse_xml_detection:3
-msgid "List of xml-file's path."
-msgstr ""
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:12
+#: renom_img.api.utility.box.calc_iou_xyxy:12
+msgid "List of boxes. Each box has 4 variables that represent above coordinates."
+msgstr "ボックスのリスト。各ボックスは上の座標で表現される４つの変数からなります。"
 
-#: ../../docstring of renom_img.api.utility.load.parse_xml_detection
-#: renom_img.api.utility.nms.nms renom_img.api.utility.nms.soft_nms
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh
+#: renom_img.api.utility.box.calc_iou_xyxy
+#: renom_img.api.utility.box.transform2xy12
+#: renom_img.api.utility.box.transform2xywh
+#: renom_img.api.utility.load.parse_xml_detection renom_img.api.utility.nms.nms
+#: renom_img.api.utility.nms.soft_nms
 #: renom_img.api.utility.target.DataBuilderClassification.build
 #: renom_img.api.utility.target.DataBuilderDetection.build
+#: renom_img.api.utility.target.DataBuilderSegmentation.build
 msgid "Returns"
 msgstr ""
 
-#: of renom_img.api.utility.load.parse_xml_detection:6
-msgid ""
-"This returns list of annotations.     Each annotation has a list of "
-"dictionary which includes keys 'box' and 'name'.     The structure is "
-"bellow. [     [ # Objects of 1st image.         {'box': [x(float), y, w, "
-"h], 'name': class_name(string), 'class': id(int)},         {'box': "
-"[x(float), y, w, h], 'name': class_name(string), 'class': id(int)},"
-"         ...     ],     [ # Objects of 2nd image.         {'box': "
-"[x(float), y, w, h], 'name': class_name(string), 'class': id(int)},"
-"         {'box': [x(float), y, w, h], 'name': class_name(string), "
-"'class': id(int)},         ...     ] ]"
-msgstr ""
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:15
+#: renom_img.api.utility.box.calc_iou_xyxy:15
+msgid "Returns value of IOU."
+msgstr "IOUの値を返却します。"
 
-#: of renom_img.api.utility.load.parse_xml_detection:9
-msgid "This returns list of annotations."
-msgstr ""
-
-#: of renom_img.api.utility.load.parse_xml_detection:9
-msgid ""
-"Each annotation has a list of dictionary which includes keys 'box' and "
-"'name'. The structure is bellow."
-msgstr ""
-
-#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:20
-#: renom_img.api.utility.nms.nms:14 renom_img.api.utility.nms.nms:32
-#: renom_img.api.utility.nms.soft_nms:13 renom_img.api.utility.nms.soft_nms:31
-msgid "["
-msgstr ""
-
-#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:14
-#: renom_img.api.utility.nms.nms:7 renom_img.api.utility.nms.nms:25
-#: renom_img.api.utility.nms.soft_nms:6 renom_img.api.utility.nms.soft_nms:24
-msgid "[ # Objects of 1st image."
-msgstr ""
-
-#: of renom_img.api.utility.load.parse_xml_detection:13
-#: renom_img.api.utility.load.parse_xml_detection:18
-msgid ""
-"{'box': [x(float), y, w, h], 'name': class_name(string), 'class': "
-"id(int)}, {'box': [x(float), y, w, h], 'name': class_name(string), "
-"'class': id(int)}, ..."
-msgstr ""
-
-#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:16
-#: renom_img.api.utility.nms.nms:9 renom_img.api.utility.nms.nms:27
-#: renom_img.api.utility.nms.soft_nms:8 renom_img.api.utility.nms.soft_nms:26
-msgid "], [ # Objects of 2nd image."
-msgstr ""
-
-#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:21
-#: renom_img.api.utility.load.parse_xml_detection:22
-#: renom_img.api.utility.nms.nms:14 renom_img.api.utility.nms.nms:15
-#: renom_img.api.utility.nms.nms:32 renom_img.api.utility.nms.nms:33
-#: renom_img.api.utility.nms.soft_nms:13 renom_img.api.utility.nms.soft_nms:14
-#: renom_img.api.utility.nms.soft_nms:31 renom_img.api.utility.nms.soft_nms:32
-msgid "]"
-msgstr ""
-
-#: ../../docstring of renom_img.api.utility.load.parse_xml_detection
-#: renom_img.api.utility.nms.nms renom_img.api.utility.nms.soft_nms
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh
+#: renom_img.api.utility.box.calc_iou_xyxy
+#: renom_img.api.utility.box.transform2xy12
+#: renom_img.api.utility.box.transform2xywh
+#: renom_img.api.utility.load.parse_xml_detection renom_img.api.utility.nms.nms
+#: renom_img.api.utility.nms.soft_nms
 #: renom_img.api.utility.target.DataBuilderClassification.build
 #: renom_img.api.utility.target.DataBuilderDetection.build
+#: renom_img.api.utility.target.DataBuilderSegmentation.build
 msgid "Return type"
 msgstr ""
 
-#: ../../rst/renom_img.api.utility.rst:19
+#: ../../docstring of renom_img.api.utility.box.rescale:1
+msgid "Rescale box coordinates and size to specific size."
+msgstr "ボックスが特定のサイズになるように座標とサイズを変換します。"
+
+#: ../../docstring of renom_img.api.utility.box.rescale:3
+#: renom_img.api.utility.box.transform2xy12:16
+#: renom_img.api.utility.box.transform2xywh:16
+msgid "This list has 4 variables that represent above coordinates."
+msgstr "このリストは上の座標で表現される4つの変数からなります。"
+
+#: ../../docstring of renom_img.api.utility.box.rescale:5
+#: renom_img.api.utility.box.rescale:7
+msgid "Size of the box before rescaling."
+msgstr "スケールを変換する前のボックスのサイズ"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xy12:1
+msgid ""
+"This function changes box's coordinate format from (x, y, w, h) to (x1, "
+"y1, x2, y2)."
+msgstr "この関数はボックスの座標のフォーマットを(x, y, w, h)から(x1, y1, x2, y2)に変換します。"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xy12:4
+msgid ""
+"(``x``, ``y``) represents the center of bonding box. (``w``, ``h``) "
+"represents the width and height of bonding box."
+msgstr "(x, y)はバウンディングボックスの中心を表します。 (w, h)はバウンディングボックスの幅と高さを表します。"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xy12:19
+#: renom_img.api.utility.box.transform2xywh:19 renom_img.api.utility.nms.nms:22
+#: renom_img.api.utility.nms.soft_nms:22
+msgid "Returns reformatted bounding box."
+msgstr "フォームが変更されたバウンディングボックスを返却します。"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xywh:1
+msgid ""
+"This function changes box's coordinate format from (x1, y1, x2, y2) to "
+"(x, y, w, h)."
+msgstr "この関数はボックスの座標のフォーマットを(x1, y1, x2, y2)から(x, y, w, h)に変換します。"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xywh:7
+msgid ""
+"(``x``, ``y``) represents the center of bounding box. (``w``, ``h``) "
+"represents the width and height of bonding box."
+msgstr "(x, y)はバウンディングボックスの中心を表します。 (w, h)はバウンディングボックスの幅と高さを表します。"
+
+#: ../../rst/renom_img.api.utility.rst:13
+msgid "renom\\_img.api.utility.load"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:1
+msgid "XML format must be Pascal VOC format."
+msgstr "XMLのフォーマットはPascal VOCフォーマットである必要があります。"
+
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:3
+msgid "List of xml-file's path."
+msgstr "xmlファイルのパスのリスト"
+
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:6
+msgid ""
+"| This returns list of annotations. Each annotation has a list of "
+"dictionary which includes keys 'box' and 'name'. The structure is bellow."
+msgstr "アノテーションのリストを返却します。各アノテーションはキーとしてボックスと名前を含むような辞書のリストからなります。構造は以下に示す通りです。"
+
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection
+msgid "This returns list of annotations."
+msgstr "アノテーションのリストを返却します。"
+
+#: ../../docstring of renom_img.api.utility.load.parse_xml_detection:7
+msgid ""
+"Each annotation has a list of dictionary which includes keys 'box' and "
+"'name'. The structure is bellow."
+msgstr "各アノテーションはキーとしてボックスと名前を含むような辞書のリストからなります。構造は以下に示す通りです。"
+
+#: ../../rst/renom_img.api.utility.rst:20
 msgid "renom\\_img.api.utility.nms"
 msgstr ""
 
 #: ../../docstring of renom_img.api.utility.nms.nms:1
-msgid "NMS(Non maximum suppression)"
-msgstr ""
+#: renom_img.api.utility.nms.soft_nms:1
+msgid "This list has 4 variable that reporesent above coordinates."
+msgstr "このリストは上の座標で表現される4つの変数からなります。"
 
 #: ../../docstring of renom_img.api.utility.nms.nms:3
-#: renom_img.api.utility.nms.nms:20 renom_img.api.utility.nms.soft_nms:19
-msgid ""
-"[         [ # Objects of 1st image.             {'box': [x(float), y, w, "
-"h], 'class': class_id(int), 'score': score},             {'box': "
-"[x(float), y, w, h], 'class': class_id(int), 'score': score},"
-"             ...         ],         [ # Objects of 2nd image."
-"             {'box': [x(float), y, w, h], 'class': class_id(int), "
-"'score': score},             {'box': [x(float), y, w, h], 'class': "
-"class_id(int), 'score': score},             ...         ]     ]"
-msgstr ""
-
-#: ../../docstring of renom_img.api.utility.nms.nms:6
-#: renom_img.api.utility.nms.nms:11 renom_img.api.utility.nms.nms:24
-#: renom_img.api.utility.nms.nms:29 renom_img.api.utility.nms.soft_nms:5
-#: renom_img.api.utility.nms.soft_nms:10 renom_img.api.utility.nms.soft_nms:23
-#: renom_img.api.utility.nms.soft_nms:28
-msgid ""
-"{'box': [x(float), y, w, h], 'class': class_id(int), 'score': score}, "
-"{'box': [x(float), y, w, h], 'class': class_id(int), 'score': score}, ..."
-msgstr ""
-
-#: ../../docstring of renom_img.api.utility.nms.nms:17
-#: renom_img.api.utility.nms.soft_nms:16
+#: renom_img.api.utility.nms.soft_nms:3
 msgid "Defaults to `0.5`. This represents the ratio of overlap between boxes."
+msgstr "デフォルト値は0.5です。これはボックス間の重なりの割合を表します。"
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:41
+msgid "References"
 msgstr ""
 
-#: ../../docstring of renom_img.api.utility.nms.soft_nms:1
-msgid "Soft-NMS. :param preds:"
-msgstr ""
-
-#: ../../docstring of renom_img.api.utility.nms.soft_nms:37
-msgid "Reference:"
-msgstr ""
-
-#: ../../docstring of renom_img.api.utility.nms.soft_nms:36
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:42
 msgid ""
 "Navaneeth Bodla, Bharat Singh, Rama Chellappa, Larry S. Davis, Soft-NMS "
 "-- Improving Object Detection With One Line of Code "
 "https://arxiv.org/abs/1704.04503"
 msgstr ""
 
-#: ../../rst/renom_img.api.utility.rst:27
+#: ../../rst/renom_img.api.utility.rst:28
 msgid "renom\\_img.api.utility.target"
 msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderBase:1
-msgid "Bases: :class:`object`"
-msgstr ""
-
-#: of renom_img.api.utility.target.DataBuilderClassification:1
+#: ../../docstring of renom_img.api.utility.target.DataBuilderClassification:1
 #: renom_img.api.utility.target.DataBuilderDetection:1
 #: renom_img.api.utility.target.DataBuilderSegmentation:1
 msgid "Bases: :class:`renom_img.api.utility.target.DataBuilderBase`"
 msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderClassification:1
+#: ../../docstring of renom_img.api.utility.target.DataBuilderClassification:1
 msgid "Data builder for classification task"
-msgstr ""
+msgstr "分類タスク用のデータビルダー"
 
-#: of renom_img.api.utility.target.DataBuilderClassification:3
+#: ../../docstring of renom_img.api.utility.target.DataBuilderClassification:3
 #: renom_img.api.utility.target.DataBuilderDetection:3
 msgid "Input image size"
-msgstr ""
+msgstr "入力画像サイズ"
 
-#: of renom_img.api.utility.target.DataBuilderClassification:5
+#: ../../docstring of renom_img.api.utility.target.DataBuilderClassification:5
 #: renom_img.api.utility.target.DataBuilderDetection:5
 msgid "List of class id"
-msgstr ""
+msgstr "クラスIDのリスト"
 
-#: of renom_img.api.utility.target.DataBuilderClassification.build:1
+#: ../../docstring of
+#: renom_img.api.utility.target.DataBuilderClassification.build:1
 #: renom_img.api.utility.target.DataBuilderDetection.build:1
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:1
 msgid "List of input image paths."
-msgstr ""
+msgstr "入力画像のパスのリスト"
 
-#: of renom_img.api.utility.target.DataBuilderClassification.build:3
-#: renom_img.api.utility.target.DataBuilderDetection.build:3
+#: ../../docstring of
+#: renom_img.api.utility.target.DataBuilderClassification.build:3
 msgid "List of class id [1, 4, 6 (int)]"
-msgstr ""
+msgstr "クラスIDのリスト[1, 4, 6(int)]"
 
-#: of renom_img.api.utility.target.DataBuilderClassification.build:6
-#: renom_img.api.utility.target.DataBuilderDetection.build:6
+#: ../../docstring of
+#: renom_img.api.utility.target.DataBuilderClassification.build:6
+#: renom_img.api.utility.target.DataBuilderDetection.build:5
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:5
 msgid "Instance of the augmentation class."
-msgstr ""
+msgstr "Augmentationクラスのインスタンス"
 
-#: of renom_img.api.utility.target.DataBuilderClassification.build:9
+#: ../../docstring of
+#: renom_img.api.utility.target.DataBuilderClassification.build:9
 msgid "Batch of images y(ndarray): One hot labels for each image in a batch"
+msgstr "画像のバッチ y(ndarray): バッチ内の各画像のOne-hotラベル"
+
+#: ../../docstring of
+#: renom_img.api.utility.target.DataBuilderClassification.build:14
+#: renom_img.api.utility.target.DataBuilderDetection.build:13
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:13
+msgid "Example"
 msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderDetection:1
+#: ../../docstring of renom_img.api.utility.target.DataBuilderDetection:1
 msgid "Data builder for detection task"
-msgstr ""
+msgstr "認識タスクのデータビルダー"
 
-#: of renom_img.api.utility.target.DataBuilderDetection.build:9
+#: ../../docstring of renom_img.api.utility.target.DataBuilderDetection.build:3
+msgid "List of annotations"
+msgstr "アノテーションのリスト"
+
+#: ../../docstring of renom_img.api.utility.target.DataBuilderDetection.build:8
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:8
 msgid ""
-"Batch of images y(ndarray): The shape of ndarray is [# images, maximum "
-"number of objects in an image * (4(coordinates) + 1(confidence))]"
+"* x(ndarray): Batch of images * y(ndarray): The shape of ndarray is [# "
+"images, maximum number of objects in an image * (4(coordinates) + "
+"1(confidence))]"
 msgstr ""
 
-#: of renom_img.api.utility.target.DataBuilderSegmentation:1
-msgid "Annotation_list must be list of class name."
+#: ../../docstring of renom_img.api.utility.target.DataBuilderDetection.build:8
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:8
+msgid "x(ndarray): Batch of images"
+msgstr "画像のバッチ"
+
+#: ../../docstring of renom_img.api.utility.target.DataBuilderDetection.build:9
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:9
+msgid ""
+"y(ndarray): The shape of ndarray is [# images, maximum number of objects "
+"in an image * (4(coordinates) + 1(confidence))]"
 msgstr ""
+
+#: ../../docstring of renom_img.api.utility.target.DataBuilderSegmentation:1
+msgid "Annotation_list must be list of class name."
+msgstr "アノテーションのリストはクラス名のリストでなければなりません。"
+
+#: ../../docstring of
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:3
+msgid "List of annotation"
+msgstr "アノテーションのリスト"
 
 #~ msgid "Soft-NMS."
 #~ msgstr ""
@@ -263,5 +318,83 @@ msgstr ""
 #~ "x y w h 2 ... ], [existence"
 #~ " x y w h 3 existence x y"
 #~ " w h 1 ... ],"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This returns list of annotations.     "
+#~ "Each annotation has a list of "
+#~ "dictionary which includes keys 'box' and"
+#~ " 'name'.     The structure is bellow. "
+#~ "[     [ # Objects of 1st image."
+#~ "         {'box': [x(float), y, w, h], "
+#~ "'name': class_name(string), 'class': id(int)},"
+#~ "         {'box': [x(float), y, w, h], "
+#~ "'name': class_name(string), 'class': id(int)},"
+#~ "         ...     ],     [ # Objects "
+#~ "of 2nd image.         {'box': [x(float), "
+#~ "y, w, h], 'name': class_name(string), "
+#~ "'class': id(int)},         {'box': [x(float), "
+#~ "y, w, h], 'name': class_name(string), "
+#~ "'class': id(int)},         ...     ] ]"
+#~ msgstr ""
+
+#~ msgid "["
+#~ msgstr ""
+
+#~ msgid "[ # Objects of 1st image."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{'box': [x(float), y, w, h], 'name': "
+#~ "class_name(string), 'class': id(int)}, {'box': "
+#~ "[x(float), y, w, h], 'name': "
+#~ "class_name(string), 'class': id(int)}, ..."
+#~ msgstr ""
+
+#~ msgid "], [ # Objects of 2nd image."
+#~ msgstr ""
+
+#~ msgid "]"
+#~ msgstr ""
+
+#~ msgid "NMS(Non maximum suppression)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "[         [ # Objects of 1st "
+#~ "image.             {'box': [x(float), y, w,"
+#~ " h], 'class': class_id(int), 'score': "
+#~ "score},             {'box': [x(float), y, w,"
+#~ " h], 'class': class_id(int), 'score': "
+#~ "score},             ...         ],         [ #"
+#~ " Objects of 2nd image.             {'box':"
+#~ " [x(float), y, w, h], 'class': "
+#~ "class_id(int), 'score': score},             {'box':"
+#~ " [x(float), y, w, h], 'class': "
+#~ "class_id(int), 'score': score},             ..."
+#~ "         ]     ]"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{'box': [x(float), y, w, h], 'class':"
+#~ " class_id(int), 'score': score}, {'box': "
+#~ "[x(float), y, w, h], 'class': "
+#~ "class_id(int), 'score': score}, ..."
+#~ msgstr ""
+
+#~ msgid "Soft-NMS. :param preds:"
+#~ msgstr ""
+
+#~ msgid "Reference:"
+#~ msgstr ""
+
+#~ msgid "Bases: :class:`object`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Batch of images y(ndarray): The shape"
+#~ " of ndarray is [# images, maximum "
+#~ "number of objects in an image *"
+#~ " (4(coordinates) + 1(confidence))]"
 #~ msgstr ""
 
