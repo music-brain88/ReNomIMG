@@ -26,6 +26,7 @@ evaluating the model, and so on.
 Especially, even if deep learning era, it is required to tune up the hyper parameters of 
 the recognition model. It requires many try and errors.
 
+ReNomIMG allows you to build object detection model easily.
 
 2. What ReNomIMG provides you.
 -------------------------------

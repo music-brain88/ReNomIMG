@@ -12,6 +12,7 @@ class ImageDistributorBase(object):
     """Base class distribute images.
 
     """
+
     def __init__(self, img_path_list, label_list=None,
                  target_builder=None,
                  augmentation=None,

@@ -288,7 +288,7 @@ class Yolov2(rm.Model):
         """
         reg = 0
         for layer in self.iter_models():
-            
+
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
@@ -472,8 +472,8 @@ class Yolov2(rm.Model):
                 img_array = load_img(img_list, self.imsize)[None]
                 img_array = self.preprocess(img_array)
                 return self.get_bbox(self(img_array),
-                                    score_threshold,
-                                    nms_threshold)[0]
+                                     score_threshold,
+                                     nms_threshold)[0]
         else:
             img_array = img_list
         return self.get_bbox(self(img_array),
