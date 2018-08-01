@@ -104,13 +104,11 @@ export default {
 
 <style lang="scss" scoped>
 #model-sample {
-
   margin: 0;
   margin-top: $component-margin-top;
   margin-left: $content-parts-margin;
-  .clear-padding{
-    padding-right: 0;
-  }
+  height: $content-prediction-height;
+
   .title {
     display: flex;
     height: $content-top-header-hight;
@@ -140,6 +138,7 @@ export default {
   }
 
   .content {
+    margin-top: $content-top-margin;
     width: 100%;
     min-height: calc(170px * 3);
     border: 1px solid $content-border-color;

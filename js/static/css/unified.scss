@@ -40,14 +40,19 @@ $content-top-margin:10px;
 $content-top-header-font-family: Open Sans Regular;
 $content-top-header-font-size: 14pt;
 
-$content-bg-color: #ffffff;
-$content-border-color: #cccccc;
+// contents Height Width
 $content-dashboard-height: 320px;
 $content-dashboard-width: 600px;
+$content-detail-height:240px;
+$content-prediction-height:535px;
+$content-taglist-hegiht:160px;
+
+$content-bg-color: #ffffff;
+$content-border-color: #cccccc;
 $content-inner-header-font-family: Open Sans Regular;
 $content-inner-header-font-size: 13pt;
-$content-inner-horizontal-margin:35px;
-$content-inner-top-margin:30px;
+$content-horizontal-padding:35px;
+$content-top-padding:30px;
 
 $content-parts-margin:15px;
 

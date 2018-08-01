@@ -1,7 +1,7 @@
 <template>
   <div id="dashboard">
     <div class="row">
-      <div class="col-md-7 col-sm-12 clear-padding dashboard_left">
+      <div class="col-md-7 col-sm-12">
         <div class="title">
           <div class="title-text">
             Dashboard
@@ -19,7 +19,7 @@
 
         </div>
       </div>
-      <div class="col-md-5 col-sm-12 clear-padding dashboard_right">
+      <div class="col-md-5 col-sm-12">
         <div class="title">
           <div class="title-text">
             Model Map
@@ -62,10 +62,6 @@ export default {
   margin-top: $component-margin-top;
   margin-left: $component-inner-horizontal-margin;
 
-  .clear-padding{
-    padding-right: 0;
-  }
-
   .title {
     height:$content-top-header-hight;
     background-color: $header-color;
@@ -81,7 +77,7 @@ export default {
   .content {
     display: flex;
     display: -webkit-flex;
-
+    margin-top: $content-top-margin;
     height: $content-dashboard-height;
     padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
     background-color: $content-bg-color;

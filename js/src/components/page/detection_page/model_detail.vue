@@ -60,24 +60,14 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail {
-  $model-detail-height: 360px;
-
-  $title-height: 44px;
-  $title-font-size: 15pt;
-  $font-weight-medium: 500;
 
   $content-padding-top: 24px;
   $content-padding-horizontal: 24px;
   $content-padding-bottom: 16px;
 
-  height: $model-detail-height;
   margin: 0;
   margin-top: $component-margin-top;
   margin-left: $component-inner-horizontal-margin;
-
-  .clear-padding{
-    padding-right: 0;
-  }
 
   .title {
     height:$content-top-header-hight;
@@ -98,11 +88,12 @@ export default {
   }
 
   .content {
+    height: $content-detail-height;
+    margin-top: $content-top-margin;
     display: flex;
     display: -webkit-flex;
 
-    min-height:240px;
-    height: calc(100% - #{$title-height});
+    // min-height:calc(100% - #{$content-top-header-hight});
     padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
 
     background-color: $content-bg-color;
@@ -111,6 +102,9 @@ export default {
     .model-detail-text {
       width: 100%;
       height: 100%;
+    }
+    &:after{
+      content:'';
     }
 
     .model-detail-learning-curve {

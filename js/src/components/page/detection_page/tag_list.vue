@@ -1,7 +1,9 @@
 <template>
   <div id="tag-list">
     <div class="title">
-      Tags
+      <div class="title-text">
+        Tags
+      </div>
     </div>
 
     <div class="content">
@@ -67,23 +69,31 @@ export default {
 
   margin: 0;
   margin-top: $component-margin-top;
-  border-top: $border-width solid $border-color;
+  margin-left: $content-parts-margin;
 
   .title {
-    line-height: $title-height;
-    font-size: $title-font-size;
-    font-weight: $font-weight-medium;
+    height: $content-top-header-hight;
+    background: $header-color;
+    font-size: $content-top-header-font-size;
+    font-family: $content-top-header-font-family;
+    color:$font-color;
+    .title-text{
+      margin-left: $content-top-heder-horizonral-margin;
+      line-height: $content-top-header-hight;
+    }
   }
 
   .content {
+    display: flex;
+    height: $content-taglist-hegiht;
+    margin-top: $content-top-margin;
     padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
     background-color: $content-bg-color;
     border: 1px solid $content-border-color;
-    border-radius: 4px;
 
     .tag-item{
-      display: flex;
-      border-bottom: 1px solid #c3c3c3;
+      padding-left: $content-horizontal-padding;
+      // border-bottom: 1px solid #c3c3c3;
       box-sizing:border-box;
       font-size: 0.8rem;
       color: #5a5a5a;
@@ -104,7 +114,6 @@ export default {
           align-self: center;
         }
       }
-
     }
   }
 }
