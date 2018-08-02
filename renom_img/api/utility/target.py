@@ -156,6 +156,7 @@ class DataBuilderSegmentation(DataBuilderBase):
     """
     Annotation_list must be list of class name.
     """
+
     def load_annotation(self, path):
         img = Image.open(path)
         img.load()
@@ -185,4 +186,3 @@ class DataBuilderSegmentation(DataBuilderBase):
             return augmentation(np.array(img_list), np.array(label_list), mode="segmentation")
         else:
             return np.array(img_list), np.array(label_list)
-

@@ -72,6 +72,7 @@ class FCN_Base(SemanticSegmentation):
         x[:, 2, :, :] -= 103.939  # B
         return x
 
+
 class FCN32s(FCN_Base):
     """ Fully convolutional network (21s) for semantic segmentation
 
@@ -98,6 +99,7 @@ class FCN32s(FCN_Base):
 
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -109,7 +111,8 @@ class FCN32s(FCN_Base):
         self._opt = rm.Sgd(0.001, 0.9)
 
         if load_pretrained_weight:
-            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight, train_whole_network=train_whole_network)
+            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
+                          train_whole_network=train_whole_network)
             self._model.block1 = vgg16._model.block1
             self._model.block2 = vgg16._model.block2
             self._model.block3 = vgg16._model.block3
@@ -151,6 +154,7 @@ class FCN16s(FCN_Base):
 
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -162,7 +166,8 @@ class FCN16s(FCN_Base):
         self._opt = rm.Sgd(0.001, 0.9)
 
         if load_pretrained_weight:
-            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight, train_whole_network=train_whole_network)
+            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
+                          train_whole_network=train_whole_network)
             self._model.block1 = vgg16._model.block1
             self._model.block2 = vgg16._model.block2
             self._model.block3 = vgg16._model.block3
@@ -204,6 +209,7 @@ class FCN8s(FCN_Base):
 
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -215,7 +221,8 @@ class FCN8s(FCN_Base):
         self._opt = rm.Sgd(0.001, 0.9)
 
         if load_pretrained_weight:
-            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight, train_whole_network=train_whole_network)
+            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
+                          train_whole_network=train_whole_network)
             self._model.block1 = vgg16._model.block1
             self._model.block2 = vgg16._model.block2
             self._model.block3 = vgg16._model.block3
@@ -228,6 +235,7 @@ class FCN8s(FCN_Base):
         self._model.block3.set_auto_update(self._train_whole_network)
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
+
 
 class CNN_FCN8s(rm.Model):
     def __init__(self, num_class):
@@ -291,6 +299,7 @@ class CNN_FCN8s(rm.Model):
         t = self.upscore8(t)
         return t
 
+
 class CNN_FCN16s(rm.Model):
     def __init__(self, num_class):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
@@ -336,6 +345,7 @@ class CNN_FCN16s(rm.Model):
 
         return t
 
+
 class CNN_FCN32s(rm.Model):
     def __init__(self, num_class):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
@@ -368,4 +378,3 @@ class CNN_FCN32s(rm.Model):
         score_fr = t
         t = self.upscore(t)
         return t
-

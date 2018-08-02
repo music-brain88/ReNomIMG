@@ -119,21 +119,19 @@ def draw_segment(img, prediction, font_path=None, color_list=None, show_backgrou
 
     class_num = np.max(prediction)
     if show_background:
-        for c in range(class_num+1):
-            mask = Image.fromarray(np.uint8(np.where(prediction == c, True, False))*255).convert("L")
+        for c in range(class_num + 1):
+            mask = Image.fromarray(
+                np.uint8(np.where(prediction == c, True, False)) * 255).convert("L")
             class_canvas = Image.new("RGBA", (w, h), color_list[c % len(color_list)])
             canvas.paste(class_canvas, mask=mask)
         return Image.alpha_composite(img, canvas.resize(img.size, Image.BILINEAR))
     else:
         new_img = np.zeros((h, w, 3))
-        for c in range(class_num+1):
-            new_img[prediction == c] = color_list[c%len(color_list)][:3]
+        for c in range(class_num + 1):
+            new_img[prediction == c] = color_list[c % len(color_list)][:3]
 
         img = Image.fromarray(new_img.astype(np.uint8)).resize(img.size, Image.BILINEAR)
         return img
-
-
-
 
 
 def pil2array(img):
@@ -153,4 +151,3 @@ def pil2array(img):
 
     """
     return np.asarray(img).transpose(2, 0, 1).copy()
-
