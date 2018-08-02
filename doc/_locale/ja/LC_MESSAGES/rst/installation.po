@@ -39,7 +39,7 @@ msgstr "ReNomIMGはpipコマンドによりインストールできます。こ�
 msgid ""
 "This is linux OS only. If your OS is windows or MAC, please install "
 "ReNomIMG from binary code."
-msgstr "この方法はlinux OSのみ利用できます。もしWindowsかMacをご利用の場合は、バイナリコードによりインストールして下さい。"
+msgstr "この方法はlinux OSのみ利用できます。もしWindowsかMacをご利用の場合は、バイナリコードからインストールして下さい。"
 
 #: ../../rst/installation.rst:24
 msgid "Install from binary."

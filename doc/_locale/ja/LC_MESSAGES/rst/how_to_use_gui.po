@@ -23,11 +23,11 @@ msgstr "ReNomIMG GUIツールの利用方法"
 
 #: ../../rst/how_to_use_gui.rst:5
 msgid "Start the Application"
-msgstr "アプリケーションを起動します"
+msgstr "アプリケーションの起動"
 
 #: ../../rst/how_to_use_gui.rst:8
 msgid "Place your data"
-msgstr "データを配置します"
+msgstr "データの配置"
 
 #: ../../rst/how_to_use_gui.rst:11
 msgid "Where to place the data"

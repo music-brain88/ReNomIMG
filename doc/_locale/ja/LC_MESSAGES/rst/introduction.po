@@ -25,7 +25,7 @@ msgstr ""
 msgid ""
 "**ReNomIMG is a GUI tool & PythonAPI for building image recognition "
 "models.**"
-msgstr "**ReNomIMGは画像認識モデルを作成するためのGUIツールトPythonAPIです**"
+msgstr "**ReNomIMGは画像認識モデルを作成するためのGUIツール及びPython APIです**"
 
 #: ../../rst/introduction.rst:9
 msgid "1. Concept"
@@ -35,7 +35,9 @@ msgstr "1. コンセプト"
 msgid ""
 "The concept of ReNomIMG is **ensure that users can create AI models "
 "according to the purpose by themselves**."
-msgstr "ReNomIMGのコンセプトは、**AIのモデルをユーザーの目的によって、自分自身で作成してもらう**といったものです。"
+msgstr "**ReNomIMGのコンセプトは、"
+        "AIのモデルをユーザーの目的の沿って自分自身で作成してもらう"
+        "といったものです。**"
 
 #: ../../rst/introduction.rst:16
 msgid ""
@@ -61,7 +63,7 @@ msgid ""
 "Especially, even if deep learning era, it is required to tune up the "
 "hyper parameters of the recognition model. It requires many try and "
 "errors."
-msgstr "特に、ディープラーニングの時代であるにしても認識モデルのパラメータのチューニングは必要になります。"
+msgstr "特に、このディープラーニングの時代でも認識モデルのパラメータのチューニングは必要となります。"
 
 #: ../../rst/introduction.rst:31
 msgid "2. What ReNomIMG provides you."
@@ -73,7 +75,7 @@ msgstr "ReNomIMGは以下の機能を提供します。"
 
 #: ../../rst/introduction.rst:35
 msgid "**Building Image Recognition Model without Programming.**"
-msgstr "**プログラミング無しでの画像認識モデルをビルド**"
+msgstr "**プログラミングを必要としない画像認識モデルのビルド**"
 
 #: ../../rst/introduction.rst:36
 msgid "**aa**"
