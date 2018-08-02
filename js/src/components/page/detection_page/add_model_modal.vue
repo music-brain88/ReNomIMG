@@ -297,6 +297,7 @@ export default {
   top: $header-height;
   width: 100vw;
   height: calc(100vh - #{$header-height});
+  z-index: 3;
 
   .modal-background {
     width: 100%;

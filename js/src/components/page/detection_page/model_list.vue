@@ -9,7 +9,7 @@
       </div>
       <div class="select-wrapper">
         <select class="sort-selectbox" v-model="selected" @change="sortModels">
-          <option class="select-values" disabled value="">sort by</option>
+          <option disabled value="">sort by</option>
           <option class="select-values" value="0">Model ID</option>
           <option class="select-values" value="1">IoU</option>
           <option class="select-values" value="2">mAP</option>
@@ -61,7 +61,7 @@ export default {
   margin: 0;
   margin-top: $component-margin-top;
   // border-top: $border-width solid $border-color;
-  z-index: 3;
+  z-index: 2;
   position: fixed;
 
   .title-selectbox {
@@ -108,6 +108,8 @@ export default {
     position: relative;
     /* webkit*/
   }
+
+
   .sort-selectbox {
     height: $selectbox-height;
     margin: 0;
@@ -120,17 +122,6 @@ export default {
     font-size: $selectbox-font-size;
     background: $header-color;
     color:$font-color;
-    // .select-values{
-    //   background: $content-bg-color;
-    //   color:#000000;
-    // }
-    // disabled .select-values{
-    //   background: #CCCCCC;
-    //   color:#000000;
-    //   :hover{
-    //     background: #BBBBBB;
-    //   }
-    // }
   }
 
   .model-item-area {
