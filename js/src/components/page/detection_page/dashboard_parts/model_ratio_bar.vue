@@ -119,17 +119,12 @@ export default {
 
 <style lang="scss" scoped>
 #model-ratio-bar {
-  $title-height: 24px;
-  $title-font-size: 16px;
-  $font-weight-medium: 500;
 
   overflow: visible;
 
   .title {
-    line-height: $title-height;
-    font-size: $title-font-size;
-    font-weight: $font-weight-medium;
+    font-family:$content-inner-header-font-family;
+    font-size: $content-inner-header-font-size;
   }
 }
 </style>
-

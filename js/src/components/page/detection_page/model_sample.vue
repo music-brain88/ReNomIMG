@@ -107,7 +107,6 @@ export default {
   margin: 0;
   margin-top: $component-margin-top;
   margin-left: $content-parts-margin;
-  height: $content-prediction-height;
 
   .title {
     display: flex;
@@ -140,9 +139,10 @@ export default {
   .content {
     margin-top: $content-top-margin;
     width: 100%;
-    min-height: calc(170px * 3);
+    height:$content-prediction-height;
+    //min-height: calc(170px * 3);
     border: 1px solid $content-border-color;
-
+    padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
 
     display: flex;
     display: -webkit-flex;

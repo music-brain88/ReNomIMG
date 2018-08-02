@@ -6,7 +6,7 @@ $header-height: 44px;
 $header-color: #063662;
 $panel-bg-color:#006ea1;
 $panel-bg-color-hover:#0A7BB1;
-$panel-height: 40px;
+$panel-height: 35px;
 
 
 $font-size: 15pt;
@@ -22,11 +22,11 @@ $footer-copyright-color:#1d1547;
 $application-header-hight:40px;
 
 $header-product-name-font-family: Open Sans Semibold;
-$header-product-name-font-size: 20pt;
+$header-product-name-font-size: 14pt;
 
 // header title
 $header-title-font-family: Open Sans Regular;
-$header-title-font-size:20pt;
+$header-title-font-size:14pt;
 
 //component style setteing
 $component-margin-top: 20px;
@@ -37,33 +37,39 @@ $content-top-header-hight:35px;
 $content-top-header-width:600px;
 $content-top-heder-horizonral-margin:25px;
 $content-top-margin:10px;
-$content-top-header-font-family: Open Sans Regular;
-$content-top-header-font-size: 14pt;
+$content-top-header-font-family: Open Sans light;
+$content-top-header-font-size: 10.5pt;
 
 // contents Height Width
 $content-dashboard-height: 320px;
 $content-dashboard-width: 600px;
+
+$content-dashboard-modelmap-width:400px;
+
 $content-detail-height:240px;
 $content-prediction-height:535px;
 $content-taglist-hegiht:160px;
 
 $content-bg-color: #ffffff;
 $content-border-color: #cccccc;
-$content-inner-header-font-family: Open Sans Regular;
-$content-inner-header-font-size: 13pt;
+$content-inner-header-font-family: Open Sans light;
+$content-inner-header-font-size: 10pt;
 
-$content-inner-box-font-family: Open Sans Regular;
-$content-inner-box-font-size: 12pt;
+$content-inner-box-font-family: Open Sans light;
+$content-inner-box-font-size: 9pt;
 
-$content-taglist-tagbox-font-family: Open Sans Semibold;
+$content-taglist-tagbox-font-family: Open Sans Regular;
 $content-taglist-tagbox-font-colot:#666666;
 $content-taglist-tagbox-font-size:12pt;
 
-$content-horizontal-padding:35px;
 $content-top-padding:30px;
+$content-bottom-padding:30px;
+$content-large-padding:45px;
+$content-horizontal-padding:35px;
 
 $content-parts-margin:15px;
 
 // Figure
 $content-figure-font-famly: Open Sans light;
-$content-figure-font-size: 9pt;
+$content-figure-font-color:#666666;
+$content-figure-font-size: 8pt;

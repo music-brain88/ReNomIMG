@@ -61,10 +61,6 @@ export default {
 <style lang="scss" scoped>
 #model-detail {
 
-  $content-padding-top: 24px;
-  $content-padding-horizontal: 24px;
-  $content-padding-bottom: 16px;
-
   margin: 0;
   margin-top: $component-margin-top;
   margin-left: $component-inner-horizontal-margin;
@@ -94,7 +90,7 @@ export default {
     display: -webkit-flex;
 
     // min-height:calc(100% - #{$content-top-header-hight});
-    padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
+    padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
 
     background-color: $content-bg-color;
     border: 1px solid $content-border-color;
@@ -110,7 +106,6 @@ export default {
     .model-detail-learning-curve {
       width: 100%;
       height: 100%;
-      margin-left: 24px;
     }
   }
 }

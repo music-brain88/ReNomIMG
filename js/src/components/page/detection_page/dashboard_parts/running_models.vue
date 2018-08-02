@@ -29,22 +29,18 @@ export default {
 
 <style lang="scss" scoped>
 #running-models {
-  $title-height: 24px;
-  $title-font-size: 16px;
-  $font-weight-medium: 500;
 
   width: 100%;
   height: 100%;
   margin-top: 24px;
 
   .title {
-    line-height: $title-height;
-    font-size: $title-font-size;
-    font-weight: $font-weight-medium;
+    font-family:$content-inner-header-font-family;
+    font-size: $content-inner-header-font-size;
   }
 
   .progress-bar-area {
-    height: calc(100% - #{$title-height});
+    height: calc(100% - #{$content-top-header-hight});
     overflow: auto;
   }
 }

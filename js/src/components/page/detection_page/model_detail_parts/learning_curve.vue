@@ -1,16 +1,28 @@
 <template>
   <div id="learning-curve">
-    <div class="curve-area">
-      <div id='curve-canvas'></div>
-      <div class="curve-legend">
-        <div class="train">
-          <span class="box"></span>Train
-        </div>
 
-        <div class="validation">
-          <span class="box"></span>Validation
+    <div class="curve-legend">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="yaxis">
+            Loss[-]
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="train">
+            <span class="box"></span>Train
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="validation">
+            <span class="box"></span>Validation
+          </div>
         </div>
       </div>
+    </div>
+    <div id='curve-canvas'></div>
+    <div class="xaxis">
+      Epoch
     </div>
   </div>
 </template>
@@ -56,7 +68,7 @@ export default {
 
       let curve_area = document.getElementById('learning-curve')
 
-      const margin = { 'top': 20, 'bottom': 60, 'right': 30, 'left': 60 }
+      const margin = { 'top': 0, 'bottom': 30, 'right': 5, 'left': 27 }
       const width = curve_area.clientWidth
       const height = curve_area.clientHeight
       const inner_width = width - (margin.right + margin.left)
@@ -127,7 +139,6 @@ export default {
         .attr('x', (width - margin.left - margin.right) / 2 + margin.left)
         .attr('y', 35)
         .style('font-size', '0.8em')
-        .text('Epoch')
 
       gY.append('text')
         .attr('fill', d3.rgb(0, 0, 0, 0.5))
@@ -135,7 +146,6 @@ export default {
         .attr('y', -35)
         .attr('transform', 'rotate(-90)')
         .style('font-size', '0.8em')
-        .text('Loss')
 
       // Define tooltips
       let tooltips = d3.select('#learning-curve')
@@ -294,56 +304,39 @@ export default {
 
 <style lang="scss" scoped>
 #learning-curve {
-  $title-height: 24px;
-  $title-font-size: 16px;
-  $font-weight-medium: 500;
-
-  $content-margin: 8px;
-
-  $legend-font-size: 10px;
   $train-color: #0762ad;
   $validation-color: #ef8200;
-
   width: 100%;
   height: 100%;
+  font-family: $content-figure-font-famly;
+  font-size: $content-figure-font-size;
+  color:$content-figure-font-color;
+  float: right;
+  .curve-legend{
+    top: 0px;
+    right: 20px;
 
-  .title {
-    line-height: $title-height;
-    font-size: $title-font-size;
-    font-weight: $font-weight-medium;
-  }
-
-  .curve-area {
-    position: relative;
-
-    .curve-legend {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-
-      .train, .validation {
-        display: flex;
-        font-size: $legend-font-size;
-        line-height: $legend-font-size;
-      }
-
-      .validation {
-        margin-top: 2px;
-      }
-
-      .box {
-        width: $legend-font-size;
-        height: $legend-font-size;
-        margin-right: 4px;
-      }
-
-      .train .box {
-        background-color: $train-color;
-      }
-      .validation .box {
-        background-color: $validation-color;
-      }
+    .yaxis, .train, .validation {
+      display: inline-flex;
+      font-size: $content-figure-font-size;
+      line-height: $content-figure-font-size;
     }
+
+    .box {
+      width: $content-figure-font-size;
+      height: $content-figure-font-size;
+      margin-right: 4px;
+    }
+
+    .train .box {
+      background-color: $train-color;
+    }
+    .validation .box {
+      background-color: $validation-color;
+    }
+  }
+  .xaxis{
+    margin-left: 90%;
   }
 }
 </style>

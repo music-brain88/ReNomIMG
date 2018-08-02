@@ -14,11 +14,13 @@
         <value-item :label="'Image Width'" :val="model.hyper_parameters['image_width']"></value-item>
         <value-item :label="'Image Height'" :val="model.hyper_parameters['image_height']"></value-item>
         <!-- <value-item :label="'Seed'" :val="model.hyper_parameters['seed']"></value-item> -->
-        <br>
-        <component :is="additional_param_components[model.algorithm]" :params="model.algorithm_params"></component>
       </div>
 
       <div class="model-values">
+        <div class="additional_param">
+          <component :is="additional_param_components[model.algorithm]" :params="model.algorithm_params"></component>
+        </div>
+
         <value-item :label="'IoU'" :val="round_percent(model.best_epoch_iou) + '%'"></value-item>
         <value-item :label="'mAP'" :val="round_percent(model.best_epoch_map) + '%'"></value-item>
         <value-item :label="'Validation Loss'" :val="round(model.validation_loss_list[model.best_epoch], 1000)"></value-item>
@@ -82,31 +84,27 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail-text {
-  $title-height: 24px;
-  $title-font-size: 16px;
-  $font-weight-medium: 500;
-
-  $content-margin: 8px;
-
   width: calc(100% - 12px);
   height: 100%;
-
+  display: flex;
   .title {
-    line-height: $title-height;
-    font-size: $title-font-size;
-    font-weight: $font-weight-medium;
-    border-bottom: 1px solid #ccc;
+    display: inline-flex;
+    font-family: $content-inner-box-font-family;
+    font-size: $content-inner-box-font-size;
+  }
+
+  .additional_param{
+    padding-bottom: $content-bottom-padding;
   }
 
   .model-content {
-    display: flex;
-
-    margin-bottom: $content-margin;
+    display: inline-flex;
+    padding-left: $content-horizontal-padding;
+    margin-bottom: $content-large-padding;
     .model-values {
       position: relative;
-      width: 50%;
-      margin-right: $content-margin;
-      padding-top: $content-margin;
+      width: 100%;
+      padding-left: $content-horizontal-padding;
 
       .predict-model-selection-area {
         position: absolute;

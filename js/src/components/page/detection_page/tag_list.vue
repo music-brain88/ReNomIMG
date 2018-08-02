@@ -58,21 +58,6 @@ export default {
 
 <style lang="scss" scoped>
 #tag-list {
-  $component-margin-top: 32px;
-
-  $border-width: 2px;
-  $border-color: #006699;
-
-  $title-height: 44px;
-  $title-font-size: 15pt;
-  $font-weight-medium: 500;
-
-  $content-padding-top: 36px;
-  $content-padding-horizontal: 32px;
-  $content-padding-bottom: 36px;
-
-  $content-bg-color: #ffffff;
-  $content-border-color: #cccccc;
 
   margin: 0;
   margin-top: $component-margin-top;
@@ -95,7 +80,7 @@ export default {
     display: flex;
     height: $content-taglist-hegiht;
     margin-top: $content-top-margin;
-    padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
+    padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
     background-color: $content-bg-color;
     border: 1px solid $content-border-color;
 

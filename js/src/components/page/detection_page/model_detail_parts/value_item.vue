@@ -25,22 +25,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$item-font-size: 12px;
-$content-margin: 8px;
+
 
 .value-item {
   display: flex;
   margin: 4px;
-  font-size: $item-font-size;
+  font-size: $content-inner-box-font-size;
 }
 
 .label {
-  margin-right: $content-margin;
+  margin-right: 8px;
   color: #999999;
-  font-size: $item-font-size;
+  font-size: $content-inner-box-font-size;
 }
 
 .value {
-  font-size: $item-font-size;
+  font-size: $content-inner-box-font-size;
 }
 </style>

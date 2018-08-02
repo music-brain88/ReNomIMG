@@ -16,7 +16,6 @@
               <running-models></running-models>
             </div>
           </div>
-
         </div>
       </div>
       <div class="col-md-5 col-sm-12">
@@ -27,9 +26,9 @@
         </div>
         <div class="content">
 
-          <div class="dashboard-model-plot">
-            <model-plot></model-plot>
-          </div>
+            <div class="dashboard-model-plot">
+              <model-plot></model-plot>
+            </div>
         </div>
 
       </div>
@@ -54,9 +53,6 @@ export default {
 
 <style lang="scss" scoped>
 #dashboard {
-  $content-padding-top: 24px;
-  $content-padding-horizontal: 24px;
-  $content-padding-bottom: 16px;
 
   margin: 0;
   margin-top: $component-margin-top;
@@ -79,9 +75,9 @@ export default {
     display: -webkit-flex;
     margin-top: $content-top-margin;
     height: $content-dashboard-height;
-    padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
     background-color: $content-bg-color;
     border: 1px solid $content-border-color;
+    padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
 
 
     .dashboard-model-summary {
