@@ -1,7 +1,7 @@
 import numpy as np
 from collections import defaultdict
 
-cpdef get_segmentation_mean_iou(pred_list, gt_list, n_class=None, n_round_off=3, background_class=0):
+cpdef get_segmentation_metrics(pred_list, gt_list, n_class=None, digits=3, background_class=0):
     """Computing IoU for each class and mean IoU
     """
     class_num = np.max([pred_list, gt_list])
@@ -19,8 +19,14 @@ cpdef get_segmentation_mean_iou(pred_list, gt_list, n_class=None, n_round_off=3,
             tp[c] += np.sum(np.where(pred==c, True, False) * np.where(gt==c, True, False))
 
     ious = {}
+    precision = {}
+    f1 = {}
+    recall = {}
     total_area = 0
     total_tp = 0
+    mean_f1 = 0
+    mean_precision = 0
+    mean_recall = 0
     for c in range(class_num+1):
         if c == background_class:
             continue
@@ -32,5 +38,42 @@ cpdef get_segmentation_mean_iou(pred_list, gt_list, n_class=None, n_round_off=3,
         else:
             ious[c] = float(tp[c]) / float(area)
 
+        if pred_sum[c] == 0:
+            precision[c] = 0
+        else:
+            precision[c] = float(tp[c]) / float(pred_sum[c])
+
+        if true_sum[c] == 0:
+            recall[c] = 0
+        else:
+            recall[c] = float(tp[c]) / float(true_sum[c])
+
+        if recall[c] + precision[c] > 0:
+            f1[c] = 2 * precision[c] * recall[c] / (precision[c] + recall[c])
+        else:
+            f1[c] = 0.
+
+        mean_f1 += f1[c] * (float(true_sum[c]) / np.fromiter(true_sum.values(), dtype=float).sum())
+        mean_precision += precision[c] * (float(true_sum[c]) / np.fromiter(true_sum.values(), dtype=float).sum())
+        mean_recall += recall[c] * (float(true_sum[c]) / np.fromiter(true_sum.values(), dtype=float).sum())
+
     mean_iou = total_tp / total_area
-    return ious, mean_iou
+    return precision, mean_precision, recall, mean_recall, f1, mean_f1, ious, mean_iou, tp, true_sum
+
+cpdef segmentation_iou(pred_list, gt_list, n_class=None, digits=3, background_class=0):
+    _, _, _, _, _, _, iou, mean_iou, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, digits, background_class)
+    return iou, mean_iou
+
+cpdef segmentation_precision(pred_list, gt_list, n_class=None, digits=3, background_class=0):
+    precision, mean_precision, _, _, _, _, _, _, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, digits, background_class)
+    return precision, mean_precision
+
+cpdef segmentation_recall(pred_list, gt_list, n_class=None, digits=3, background_class=0):
+    _, _, recall, mean_recall, _, _, _, _, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, digits, background_class)
+    return recall, mean_recall
+
+cpdef segmentation_f1(pred_list, gt_list, n_class=None, digits=3, background_class=0):
+    _, _, _, _, f1, mean_f1, _, _, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, digits, background_class)
+    return f1, mean_f1
+
+

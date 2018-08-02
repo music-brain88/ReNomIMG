@@ -1,6 +1,7 @@
 import numpy as np
 from .detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
 from .classification import precision_score, recall_score, f1_score, accuracy_score
+from .segmentation import segmentation_iou, segmentation_precision, segmentation_recall, segmentation_f1, get_segmentation_metrics
 from collections import defaultdict
 
 
@@ -276,11 +277,59 @@ class EvaluatorSegmentation(EvaluatorBase):
         """ Returns iou for each class
         """
 
-        iou, _ = get_segmentation_mean_iou(
+        iou, mean_iou = segmentation_iou(
             self.prediction, self.target, background_class=background_class)
-        return iou
+        return iou, mean_iou
 
-    def mean_iou(self, background_class=0):
-        _, mean_iou = get_segmentation_mean_iou(
-            self.prediction, self.target, background_class=background_class)
-        return mean_iou
+    def precision(self, background_class=0, digits=3):
+        """ Returns precision for each class
+        """
+        precision, mean_precision = segmentation_precision(self.prediction,
+                                                           self.target,
+                                                           digits=digits,
+                                                           background_class=background_class)
+        return precision, mean_precision
+
+    def recall(self, background_class=0, digits=3):
+        """ Returns recall for each class and mean recall
+        """
+        recall, mean_recall = segmentation_recall(self.prediction,
+                                                  self.target,
+                                                  digits=digits,
+                                                  background_class=background_class)
+
+    def f1(self, background_class=0, digits=3):
+        """ Returns f1 for each class and mean f1 score
+        """
+        f1, mean_f1 = segmentation_f1(self.prediction,
+                                      self.target,
+                                      digits=digits,
+                                      background_class=background_class)
+
+    def report(self, background_class=0, digits=3):
+        precision, mean_precision, \
+                recall, mean_recall, \
+                f1, mean_f1, iou, \
+                mean_iou, tp, true_sum = get_segmentation_metrics(self.prediction,
+                                                                  self.target,
+                                                                  digits=digits,
+                                                                  background_class=background_class)
+
+        headers = ["IoU", "Precision", "Recall", "F1 score", "#pred/#target"]
+        rows = []
+        class_names = list(precision.keys())
+
+        for c in class_names:
+            rows.append((str(c), iou[c], precision[c], recall[c], f1[c], tp[c], true_sum[c]))
+        last_line_heading = 'Average'
+        last_row = (mean_iou, mean_precision, mean_recall, mean_f1, np.sum(
+            list(tp.values())), np.sum(list(true_sum.values())))
+        row_fmt = '{:>{width}s} ' + ' {:>12.{digits}f}' * \
+            (len(headers) - 1) + ' {:>12d}/{:d}' + ' \n'
+
+        report = self.build_report(class_names, headers, rows,
+                                   last_line_heading, row_fmt, last_row, digits)
+        report += '\n'
+        return report
+
+

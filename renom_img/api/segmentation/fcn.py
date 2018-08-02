@@ -247,9 +247,10 @@ class CNN_FCN8s(rm.Model):
         self.block5 = layer_factory(channel=512, conv_layer_num=3)
 
         self.fc6 = rm.Conv2d(4096, filter=7, padding=3)
+        self.dr1 = rm.Dropout(0.5)
         self.fc7 = rm.Conv2d(4096, filter=1)
+        self.dr2 = rm.Dropout(0.5)
 
-        self.drop_out = rm.Dropout(0.5)
 
         self.score_fr = rm.Conv2d(num_class, filter=1)
         self.upscore2 = rm.Deconv2d(num_class, filter=2, stride=2, padding=0)
@@ -271,10 +272,11 @@ class CNN_FCN8s(rm.Model):
         t = self.block5(t)
 
         t = rm.relu(self.fc6(t))
-        t = self.drop_out(t)
+        t = self.dr1(t)
         fc6 = t
 
         t = rm.relu(self.fc7(t))
+        t = self.dr2(t)
         fc7 = t
 
         t = self.score_fr(t)
