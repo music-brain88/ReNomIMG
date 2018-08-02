@@ -297,6 +297,7 @@ class EvaluatorSegmentation(EvaluatorBase):
                                                   self.target,
                                                   digits=digits,
                                                   background_class=background_class)
+        return recall, mean_recall
 
     def f1(self, background_class=0, digits=3):
         """ Returns f1 for each class and mean f1 score
@@ -305,6 +306,7 @@ class EvaluatorSegmentation(EvaluatorBase):
                                       self.target,
                                       digits=digits,
                                       background_class=background_class)
+        return f1, mean_f1
 
     def report(self, background_class=0, digits=3):
         precision, mean_precision, \
