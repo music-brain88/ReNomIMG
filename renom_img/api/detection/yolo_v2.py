@@ -288,12 +288,12 @@ class Yolov2(rm.Model):
         """
         reg = 0
         for layer in self.iter_models():
-            
+
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return 0.0005 * reg
 
-    def get_bbox(self, z):
+    def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
         Example:
             >>> z = model(x)
@@ -378,7 +378,7 @@ class Yolov2(rm.Model):
             a_box[:, 0] = x1 + a_box[:, 2] / 2.
             a_box[:, 1] = y1 + a_box[:, 3] / 2.
 
-            keep = np.where(max_conf > 0.3)
+            keep = np.where(max_conf > score_threshold)
             for i, (b, s, c) in enumerate(zip(a_box[keep[0], :, keep[1], keep[2]],
                                               max_conf[keep[0], keep[1], keep[2]],
                                               score[keep[0], :, keep[1], keep[2]])):
@@ -397,7 +397,7 @@ class Yolov2(rm.Model):
                 for j, ind2 in enumerate(sorted_ind[i + 1:]):
                     box2 = box_list[n][ind2]
                     if keep[j] and score_list[n][ind1][1] == score_list[n][ind2][1]:
-                        keep[j] = calc_iou_xywh(box1, box2) < 0.4
+                        keep[j] = calc_iou_xywh(box1, box2) < nms_threshold
 
             box_list[n] = [{
                 "box": box_list[n][i],
@@ -408,7 +408,7 @@ class Yolov2(rm.Model):
 
         return box_list
 
-    def predict(self, img_list):
+    def predict(self, img_list, score_threshold=0.3, nms_threshold=0.4):
         """
         This method accepts either ndarray and list of image path.
 
@@ -448,19 +448,37 @@ class Yolov2(rm.Model):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
-        imsize = self.imsize
+        batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                img_array = np.vstack([load_img(path, imsize)[None] for path in img_list])
+                if len(img_list) >= 32:
+                    test_dist = ImageDistributor(img_list)
+                    results = []
+                    bar = tqdm()
+                    bar.total = int(np.ceil(len(test_dist) / batch_size))
+                    for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
+                        img_array = np.vstack([load_img(path, self.imsize)[None]
+                                               for path in x_img_list])
+                        img_array = self.preprocess(img_array)
+                        results.extend(self.get_bbox(self(img_array).as_ndarray(),
+                                                     score_threshold,
+                                                     nms_threshold))
+                        bar.update(1)
+                    return results
+                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
                 img_array = self.preprocess(img_array)
             else:
-                img_array = load_img(img_list, imsize)[None]
+                img_array = load_img(img_list, self.imsize)[None]
                 img_array = self.preprocess(img_array)
-                return self.get_bbox(self(img_array).as_ndarray())[0]
+                return self.get_bbox(self(img_array),
+                                     score_threshold,
+                                     nms_threshold)[0]
         else:
             img_array = img_list
-        return self.get_bbox(self(img_array).as_ndarray())
+        return self.get_bbox(self(img_array),
+                             score_threshold,
+                             nms_threshold)
 
     def build_data(self, imsize_list=None):
         """

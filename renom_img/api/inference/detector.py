@@ -10,6 +10,12 @@ from renom_img.api.detection.yolo_v2 import Yolov2
 
 
 class Detector(object):
+    """This class allows you to pull model which trained on ReNomIMG GUI Tool.
+
+    Args:
+        url (string): The url ReNomIMG server running.
+        port (string): The port number ReNomIMG server running.
+    """
 
     def __init__(self, url="http://localhost", port='8080'):
         self._pj_id = 1
@@ -19,7 +25,21 @@ class Detector(object):
         self._alg_name = None
         self._model_info = {}
 
+    def __call__(self, x):
+        assert self._model is not None, "Please pull trained weight first."
+        return self._model(x)
+
     def pull(self):
+        """Pull trained weight from ReNomIMG server.
+        Trained weight will be downloaded into current directory.
+
+        Example:
+            >>> from renom_img.api.inference.detector import Detector
+            >>> detector = Detector()
+            >>> detector.pull()
+
+        """
+        # TODO: Check server status.
         url = self._url + ':' + self._port
         download_weight_api = "/api/renom_img/v1/projects/{}/deployed_model".format(self._pj_id)
         download_param_api = "/api/renom_img/v1/projects/{}/deployed_model_info".format(self._pj_id)
@@ -29,7 +49,6 @@ class Detector(object):
         ret = requests.get(download_param_api).json()
         model_name = ret["filename"]
 
-        # TODO: Check algorithm.
         if ret["algorithm"] == ALG_YOLOV1:
             self._alg_name = "Yolov1"
             img_w = ret["hyper_parameters"]["image_width"]
@@ -52,10 +71,30 @@ class Detector(object):
             "Num class": "{}".format(self._model._num_class)
         }
 
-    def predict(self, img):
+    def predict(self, img_list):
+        """
+        Perform prediction to given image.
+
+        Args:
+            img_list (string, list, ndarray): Path to the image, list of path or ndarray can be passed.
+
+        Example:
+            >>> from renom_img.api.inference.detector import Detector
+            >>> detector = Detector()
+            >>> detector.pull()
+            >>> detector.predict()
+        """
         assert self._model
         return self._model.predict(img)
 
     @property
     def model_info(self):
+        """This function returns information of pulled model.
+
+        Example:
+            >>> from renom_img.api.inference.detector import Detector
+            >>> detector = Detector()
+            >>> detector.pull()
+            >>> print(detector.model_info)
+        """
         return self._model_info

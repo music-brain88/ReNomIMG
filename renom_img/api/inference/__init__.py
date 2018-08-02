@@ -1,1 +1,1 @@
-from .inference import Detector
+from .detector import Detector

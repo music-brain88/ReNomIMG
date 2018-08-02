@@ -3,6 +3,7 @@
 from __future__ import division
 import numpy as np
 from PIL import Image
+from sklearn.feature_extraction.image import extract_patches
 
 
 """Naming Rule.
@@ -52,7 +53,7 @@ class DataBuilderClassification(DataBuilderBase):
     Args:
         imsize(int or tuple): Input image size
         class_map(list): List of class id
-   """
+    """
 
     def __init__(self, class_map, imsize):
         super(DataBuilderClassification, self).__init__(class_map, imsize)
@@ -68,12 +69,7 @@ class DataBuilderClassification(DataBuilderBase):
         Returns:
             x(ndarray): Batch of images
             y(ndarray): One hot labels for each image in a batch
-
-        Example:
-            >>> from renom_img.api.utility.target import DataBuilderClassification
-            >>> builder = DataBuilderClassification(class_map, imsize)
-            >>> x_train, y_train = builder.build(img_path_list, annotation_list)
-       """
+        """
 
         # Check the class mapping.
         n_class = len(self.class_map)
@@ -104,18 +100,13 @@ class DataBuilderDetection(DataBuilderBase):
         """
         Args:
             img_path_list(list): List of input image paths.
-            annotation_list(list): List of annotations
+            annotation_list(list): List of class id
+                                    [1, 4, 6 (int)]
             augmentation(Augmentation): Instance of the augmentation class.
 
         Returns:
-            (tuple):
-                * x(ndarray): Batch of images
-                * y(ndarray): The shape of ndarray is [# images, maximum number of objects in an image * (4(coordinates) + 1(confidence))]
-
-        Example:
-            >>> from renom_img.api.utility.target import DataBuilderDetection
-            >>> builder = DataBuilderDetection(class_map, imsize)
-            >>> x_train, y_train = builder.build(img_path_list, annotation_list)
+            x(ndarray): Batch of images
+            y(ndarray): The shape of ndarray is [# images, maximum number of objects in an image * (4(coordinates) + 1(confidence))]
         """
         # Check the class mapping.
         if self.class_map is None:
@@ -164,40 +155,34 @@ class DataBuilderDetection(DataBuilderBase):
 class DataBuilderSegmentation(DataBuilderBase):
     """
     Annotation_list must be list of class name.
-
     """
+    def load_annotation(self, path):
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        img = img.resize(self.imsize, RESIZE_METHOD)
+        return np.array(img), self.imsize[0] / float(w), self.imsize[1] / h
 
-    def build(self, img_path_list, annotation_path_list, augmentation=None, **kwargs):
-        """
-        Args:
-            img_path_list(list): List of input image paths.
-            annotation_list(list): List of annotation
-            augmentation(Augmentation): Instance of the augmentation class.
-
-        Returns:
-            (tuple):
-                * x(ndarray): Batch of images
-                * y(ndarray): The shape of ndarray is [# images, maximum number of objects in an image * (4(coordinates) + 1(confidence))]
-
-        Example:
-            >>> from renom_img.api.utility.target import DataBuilderSegmentation
-            >>> builder = DataBuilderSegmentation(class_map, imsize)
-            >>> x_train, y_train = builder.build(img_path_list, annotation_list)
-        """
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
         # Check the class mapping.
         n_class = len(self.class_map)
 
         img_list = []
         label_list = []
-        for img_path, an_path in zip(img_path_list, annotation_path_list):
+        for img_path, an_path in zip(img_path_list, annotation_list):
             annot = np.zeros((n_class, self.imsize[0], self.imsize[1]))
             img, sw, sh = self.load_img(img_path)
-            label, sw, sh = self.load_img(an_path)[0]
+            labels, asw, ash = self.load_annotation(an_path)
             img_list.append(img)
-            for i in range(len(self.class_map)):
-                annot[i, label == i] = 1.
+            for i in range(self.imsize[0]):
+                for j in range(self.imsize[1]):
+                    if int(labels[i][j]) >= n_class:
+                        annot[0, i, j] = 1
+                    else:
+                        annot[int(labels[i][j]), i, j] = 1
             label_list.append(annot)
         if augmentation is not None:
             return augmentation(np.array(img_list), np.array(label_list), mode="segmentation")
         else:
             return np.array(img_list), np.array(label_list)
+
