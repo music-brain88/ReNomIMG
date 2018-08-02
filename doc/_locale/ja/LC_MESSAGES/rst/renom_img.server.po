@@ -1,0 +1,138 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-01 16:25+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/renom_img.server.rst:2
+msgid "renom\\_img.server package"
+msgstr ""
+
+#: ../../rst/renom_img.server.rst:5
+msgid "Subpackages"
+msgstr ""
+
+#: ../../rst/renom_img.server.rst:12
+msgid "Submodules"
+msgstr ""
+
+#: ../../rst/renom_img.server.rst:15
+msgid "renom\\_img.server.prediction\\_thread module"
+msgstr ""
+
+#: of renom_img.server.prediction_thread.PredictionThread:1
+#: renom_img.server.train_thread.TrainThread:1
+#: renom_img.server.wsgi_server.Server:1
+msgid "Bases: :class:`object`"
+msgstr ""
+
+#: ../../rst/renom_img.server.rst:23
+msgid "renom\\_img.server.server module"
+msgstr ""
+
+#: of renom_img.server.server.run_model:1
+msgid ""
+"Create thread(Future object) and submit it to executor. The thread is "
+"stored to train_thread_pool as a pair of thread_id and thread."
+msgstr ""
+
+#: ../../rst/renom_img.server.rst:31
+msgid "renom\\_img.server.train\\_thread module"
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist:1
+msgid ""
+"This function creates img path list and annotation list from filename "
+"list."
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist:4
+msgid ""
+"Image file name and label file must be same. Because of that, data_list "
+"is a list of file names."
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist:7
+msgid "Data formats are bellow."
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist:9
+msgid "image path list: [path_to_img1, path_to_img2, ...] annotation list:"
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist
+msgid "Parameters"
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist:25
+msgid "[filename1, filename2, ...]"
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist:27
+msgid "If it's ture, augmentation will be added to distributor."
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist
+msgid "Returns"
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist:30
+msgid "ImageDistributor object with augmentation."
+msgstr ""
+
+#: of renom_img.server.train_thread.TrainThread.create_dist
+msgid "Return type"
+msgstr ""
+
+#: ../../rst/renom_img.server.rst:39
+msgid "renom\\_img.server.wsgi\\_server module"
+msgstr ""
+
+#: of renom_img.server.wsgi_server.ThreadingWSGIServer:1
+msgid ""
+"Bases: :class:`socketserver.ThreadingMixIn`, "
+":class:`wsgiref.simple_server.WSGIServer`"
+msgstr ""
+
+#: of renom_img.server.wsgi_server.ThreadingWSGIServer:1
+msgid "Constructor.  May be extended, do not override."
+msgstr ""
+
+#: ../../rst/renom_img.server.rst:48
+msgid "Module contents"
+msgstr ""
+
+#~ msgid "image path list: [path_to_img1, path_to_img2, ...] annotation list: ["
+#~ msgstr ""
+
+#~ msgid "[ # Annotations of each image."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{\"box\":[x, y, w, h], \"name\":\"dog\", "
+#~ "\"class\":1}, {\"box\":[x, y, w, h], "
+#~ "\"name\":\"cat\", \"class\":0},"
+#~ msgstr ""
+
+#~ msgid "], ["
+#~ msgstr ""
+
+#~ msgid "{\"box\":[x, y, w, h], \"name\":\"cat\", \"class\":0},"
+#~ msgstr ""
+
+#~ msgid "]"
+#~ msgstr ""
+

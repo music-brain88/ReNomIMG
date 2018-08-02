@@ -45,21 +45,18 @@ class EvaluatorDetection(EvaluatorBase):
         pred_list (list): A list of prediction. The format is as follows
 
         predict_list:
-
-    .. code-block :: python
-
-        [
-            [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                ...
-            ],
-            [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
-                ...
+            [
+                [ # Objects of 1st image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    ...
+                ],
+                [ # Objects of 2nd image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
+                    ...
+                ]
             ]
-        ]
 
     Example:
             >>> evaluator = EvaluatorDetection(pred, gt)
@@ -179,18 +176,11 @@ class EvaluatorDetection(EvaluatorBase):
             class_names: List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
 
         Returns:
-            +--------------+----------+------------+-----------------+
-            |              |    AP    |    IoU     |  #pred/#target  |
-            +--------------+----------+------------+-----------------+
-            | class_name1: |  0.091   |   0.561    |      1/13       |
-            +--------------+----------+------------+-----------------+
-            | class_name2: |  0.369   |   0.824    |      6/15       |
-            +--------------+----------+------------+-----------------+
-            |    \.\.\.\.  |          |            |                 |
-            +--------------+----------+------------+-----------------+
-            |mAP / mean IoU|  0.317   |   0.698    |     266/686     |
-            +--------------+----------+------------+-----------------+
-
+                                AP         IoU        #pred/#target
+            class_name1:      0.091      0.561            1/13
+            class_name2:      0.369      0.824            6/15
+                ....
+            mAP / mean IoU    0.317      0.698          266/686
         """
 
         prec, rec, n_pred, n_pos_list = get_prec_and_rec(
@@ -213,35 +203,6 @@ class EvaluatorDetection(EvaluatorBase):
 
 
 class EvaluatorClassification(EvaluatorBase):
-    """ Evaluator for object classification tasks
-
-    Args:
-        gt_list (list): A list of ground truth.
-        classification_list (list): A list of classification. The format is as follows
-
-        predict_list:
-
-    .. code-block :: python
-
-        [
-            [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                ...
-            ],
-            [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
-                ...
-            ]
-        ]
-
-    Example:
-            >>> evaluator = EvaluatorClassification(pred, gt)
-            >>> evaluator.precision()
-            >>> evaluator.recall()
-            >>> evaluator.accuracy()
-    """
 
     def __init__(self, prediction, target):
         super(EvaluatorClassification, self).__init__(prediction, target)
@@ -263,10 +224,6 @@ class EvaluatorClassification(EvaluatorBase):
         return recall, mean_recall
 
     def accuracy(self):
-        """
-        Returns:
-            accuracy(float)
-        """
         accuracy = accuracy_score(self.prediction, self.target)
         return accuracy
 
@@ -309,10 +266,18 @@ class EvaluatorClassification(EvaluatorBase):
         report += ('Accuracy' + ' {:>12.{digits}f}'.format(accuracy, digits=digits))
         return report
 
-    # def confusion_matrix(self):
-    #     raise NotImplemented
-
 
 class EvaluatorSegmentation(EvaluatorBase):
-    def __init__(self):
-        pass
+    def __init__(self, prediction, target):
+        super(EvaluatorSegmentation, self).__init__(prediction, target)
+
+    def iou(self, background_class=0):
+        """ Returns iou for each class
+        """
+
+        iou, _ = get_segmentation_mean_iou(self.prediction, self.target, background_class=background_class)
+        return iou
+
+    def mean_iou(self, background_class=0):
+        _, mean_iou = get_segmentation_mean_iou(self.prediction, self.target, background_class=background_class)
+        return mean_iou

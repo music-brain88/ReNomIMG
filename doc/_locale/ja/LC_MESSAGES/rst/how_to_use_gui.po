@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-01 11:10+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/how_to_use_gui.rst:2
+msgid "How to Use ReNomIMG GUI TOOL"
+msgstr "ReNomIMG GUIツールの利用方法"
+
+#: ../../rst/how_to_use_gui.rst:5
+msgid "Start the Application"
+msgstr "アプリケーションを起動します"
+
+#: ../../rst/how_to_use_gui.rst:8
+msgid "Place your data"
+msgstr "データを配置します"
+
+#: ../../rst/how_to_use_gui.rst:11
+msgid "Where to place the data"
+msgstr "データの配置場所"
+
+#: ../../rst/how_to_use_gui.rst:14
+msgid "Format of the data"
+msgstr "データのフォーマット"
+
+#: ../../rst/how_to_use_gui.rst:17
+msgid "Create Detection Model"
+msgstr "予測モデルの作成"
+
+#: ../../rst/how_to_use_gui.rst:20
+msgid "Hyper parameter setting"
+msgstr "ハイパーパラメータの設定"
+
+#: ../../rst/how_to_use_gui.rst:23
+msgid "Create Dataset"
+msgstr "データセットの作成"
+
+#: ../../rst/how_to_use_gui.rst:26
+msgid "Model Evaluation"
+msgstr "モデルの評価"
+
+#: ../../rst/how_to_use_gui.rst:29
+msgid "Learning Curve"
+msgstr "学習曲線"
+
+#: ../../rst/how_to_use_gui.rst:32
+msgid "IOU & mAP"
+msgstr ""
+
+#: ../../rst/how_to_use_gui.rst:35
+msgid "Use Trained Model"
+msgstr "訓練済みモデルの利用"
+
+#: ../../rst/how_to_use_gui.rst:38
+msgid "Deploying"
+msgstr "デプロイ"
+
+#: ../../rst/how_to_use_gui.rst:41
+msgid "Prediction"
+msgstr "予測"
+
