@@ -1,6 +1,5 @@
 <template>
   <div id="learning-curve">
-    <div class="title">Learning Curve</div>
     <div class="curve-area">
       <div id='curve-canvas'></div>
       <div class="curve-legend">

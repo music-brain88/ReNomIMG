@@ -4,9 +4,9 @@
   <navigation-bar></navigation-bar>
   <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
 
-  <!-- <div class="container"> -->
+  <div class="container">
     <router-view></router-view>
-  <!-- </div> -->
+  </div>
 
   <app-footer></app-footer>
 </div>

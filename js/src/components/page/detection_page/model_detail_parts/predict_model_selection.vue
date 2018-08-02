@@ -2,7 +2,7 @@
   <div id="predict-model-selection">
     <div class="button-area">
       <div class="set-predict-model" v-if="!isPredict" :disabled="model.state !== 2" @click="setPredictModel">
-        <i class="fa fa-angle-right icon-navgation"></i>Deploy Model<i aria-label="If you push this button,<br /> you can use current selected<br />model in prediction." @mouseenter="hoverDescription(true)" @mouseleave="hoverDescription(false)" class="fa fa-info button-description"></i>
+        <i class="fa fa-angle-right icon-navgation"></i>Deploy Model <span class="tooltip" data-html="true" aria-label="If you push this button, you can use current selected model in prediction."><i class="fa fa-info button-description"></i></span>
       </div>
 
       <div class="set-predict-model" v-if="isPredict" @click="show_undeploy_dialog=true">
@@ -109,7 +109,7 @@ export default {
   }
 
   .button-description {
-    margin-left: $content-parts-margin;
+    margin-right: $content-parts-margin;
     line-height: $content-top-header-hight;
     border-color: $font-color;
     // margin-top: calc(#{$content-top-header-hight}*0.25);
@@ -149,6 +149,12 @@ export default {
   }
   .modal-contents{
     color:#000000;
+  }
+  span{
+    &:after{
+      width:147px;
+      white-space: pre-line;
+    }
   }
 }
 </style>

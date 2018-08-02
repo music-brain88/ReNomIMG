@@ -1,15 +1,22 @@
 <template>
   <div id="tag-list">
-    <div class="title">
-      <div class="title-text">
-        Tags
-      </div>
-    </div>
-
-    <div class="content">
-      <div class='tag-item' v-for="(name, id) in selectedModelTags">
-        <span> {{ name }} </span>
-        <div class='box' v-bind:style="{backgroundColor: color_list[id%4]}"><span>{{id}}</span></div>
+    <div class="row">
+      <div class="col-md-12 col-sm-12">
+        <div class="title">
+          <div class="title-text">
+            Tags
+          </div>
+        </div>
+        <div class="content">
+          <div class='tag-item' v-for="(name, id) in selectedModelTags">
+            <div class="item-name">
+              <span> {{ name }} </span>
+            </div>
+            <div class='box' v-bind:style="{backgroundColor: color_list[id%4]}">
+              <span>{{id}}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -84,6 +91,7 @@ export default {
   }
 
   .content {
+    font-family: $content-inner-box-font-family;
     display: flex;
     height: $content-taglist-hegiht;
     margin-top: $content-top-margin;
@@ -92,21 +100,37 @@ export default {
     border: 1px solid $content-border-color;
 
     .tag-item{
-      padding-left: $content-horizontal-padding;
-      // border-bottom: 1px solid #c3c3c3;
+      display: flex;
+      float:left;
+      margin-left:$content-parts-margin;
       box-sizing:border-box;
-      font-size: 0.8rem;
-      color: #5a5a5a;
+      font-size: $content-inner-box-font-size;
+      color: $content-taglist-tagbox-font-colot;
       padding-top: 2px;
       padding-bottom: 2px;
+      width:100px;
+      height: 1rem;
+      .item-name{
+        height: 1rem;
+        display: inline-flex;
+        align-self: center;
+        line-height: 1rem;
+        span{
+          width: 100%;
+          text-align: center;
+          align-self: center;
+        }
+      }
       .box {
-        display: flex;
-        margin-left: auto;
+        font-family: $content-taglist-tagbox-font-family;
+        font-size: $content-taglist-tagbox-font-size;
+        display: inline-flex;
+        margin-left:$content-parts-margin;
         margin-right: 8px;
         border-radius: 2px;
         align-self: center;
-        height: 1rem;
-        width: 25px;
+        height: 1.5rem;
+        width: 30px;
         color: #ffffff;
         span {
           width: 100%;

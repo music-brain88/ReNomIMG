@@ -61,7 +61,8 @@ export default {
   margin: 0;
   margin-top: $component-margin-top;
   // border-top: $border-width solid $border-color;
-  z-index: 999;
+  z-index: 3;
+  position: fixed;
 
   .title-selectbox {
     display: flex;
@@ -83,6 +84,7 @@ export default {
   .select-wrapper{
     position: relative;
     display: inline-block;
+    margin-left:$content-parts-margin;
   }
   .select-wrapper::before{
     z-index: 1;
