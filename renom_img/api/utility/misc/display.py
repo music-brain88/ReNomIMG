@@ -41,14 +41,17 @@ def draw_box(img, prediction, font_path=None, color_list=None):
     Args:
         img(string):
         prediction(list): List of annotations.
-            Each annotation has a list of dictionary which includes keys 'box', 'name' and 'score'.
+            Each annotation has a list of dictionary which includes keys ``box``, ``name`` and ``score``.
             The format is below.
 
-        [
-            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-            ...
-        ]
+            .. code-block :: python
+
+                [
+                    {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+                    {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+                    ...
+                ]
+
         font_path(string):
 
     Returns:

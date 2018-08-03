@@ -11,13 +11,13 @@ def parse_xml_detection(xml_path_list):
         xml_path_list (list): List of xml-file's path.
 
     Returns:
-        (list):
-            | This returns list of annotations.
-            Each annotation has a list of dictionary which includes keys 'box' and 'name'.
-            The structure is bellow.
+        (list): This returns list of annotations.
+        Each annotation has a list of dictionary which includes keys 'box' and 'name'.
+        The structure is bellow.
 
     .. code-block :: python
 
+        # An example of returned list.
         [
             [ # Objects of 1st image.
                 {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},

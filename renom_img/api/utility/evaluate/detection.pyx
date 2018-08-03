@@ -10,8 +10,6 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
     This function calculates precision and recall value of provided ground truth box list(gt_list) and
     predicted box list(pred_list).
 
-    # TODO: write reference
-
     Args:
         gt_list (list):
         pred_list (list): A list of predicted bounding boxes.
@@ -166,20 +164,20 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
         gt_list (list):
         pred_list (list): A list of predicted bounding boxes.
 
-        .. code-block :: python
+            .. code-block :: python
 
-            [
-                [ # Objects of 1st image.
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    ...
-                ],
-                [ # Objects of 2nd image.
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    ...
+                [
+                    [ # Objects of 1st image.
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        ...
+                    ],
+                    [ # Objects of 2nd image.
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        ...
+                    ]
                 ]
-            ]
 
         n_class(int): The number of classes
         iou_threshold(float): This represents the ratio of overlapped area between two boxes. Defaults to 0.5
@@ -258,20 +256,20 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
         gt_list (list):
         pred_list (list): A list of predicted bounding boxes.
 
-        .. code-block :: python
-
-            [
-                [ # Objects of 1st image.
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    ...
-                ],
-                [ # Objects of 2nd image.
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    ...
+            .. code-block :: python
+    
+                [
+                    [ # Objects of 1st image.
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        ...
+                    ],
+                    [ # Objects of 2nd image.
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        ...
+                    ]
                 ]
-            ]
 
         n_class(int): The number of classes
         iou_threshold(float): This represents the ratio of overlapped area between two boxes. Defaults to 0.5
