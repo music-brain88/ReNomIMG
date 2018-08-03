@@ -216,35 +216,61 @@ class EvaluatorClassification(EvaluatorBase):
         super(EvaluatorClassification, self).__init__(prediction, target)
 
     def precision(self):
-        """
-        Returns:
-            precision(float)
+        """ returns precision for each class and mean precision
+        returns:
+            precision(dict): {class_name1(int): precision(float), class_name2(int): precision(float), ...}
+            mean_precision(float): Average of precision
         """
         precision, mean_precision = precision_score(self.prediction, self.target)
         return precision, mean_precision
 
     def recall(self):
-        """
-        Returns:
-            recall(float)
+        """ returns recall for each class and mean recall
+        returns:
+            recall(dict): {class_name1(int): recall(float), class_name2(int): recall(float), ...}
+            mean_recall(float): Average of recall
         """
         recall, mean_recall = recall_score(self.prediction, self.target)
         return recall, mean_recall
 
     def accuracy(self):
+        """ returns accuracy
+        returns:
+            accuracy(float):
+        """
+
         accuracy = accuracy_score(self.prediction, self.target)
         return accuracy
 
     def f1(self):
-        """
-        Returns:
-            f1_score(dict):
-            mean_f1_score(float):
+        """ returns f1 for each class and mean f1 score
+        returns:
+            f1(dict): {class_name1(int): f1 score(float), class_name2(int): f1_score(float), ...}
+            mean_f1(float): Average of F1 score
         """
         f1, mean_f1 = f1_score(self.prediction, self.target)
         return f1, mean_f1
 
     def report(self, round_off=3):
+        """ Output a table which shows precision, recall, F1 score, the number of true positive pixels and the number of ground truth pixels for each class.
+        Args:
+            background_class(int): Background class is ignored in the output table. Defaults to 0.
+            round_off(int): This rounds off output values by assigned number.
+
+        Returns:
+            +--------------+-------------+-------------+-------------+-----------------+
+            |              |  Precision  |    recall   |   F1 score  |  #pred/#target  |
+            +--------------+-------------+-------------+-------------+-----------------+
+            | class_name1: |    0.800    |    0.308    |    0.444    |      4/13       |
+            +--------------+-------------+-------------+-------------+-----------------+
+            | class_name2: |    0.949    |    0.909    |    0.929    |    150/165      |
+            +--------------+-------------+-------------+-------------+-----------------+
+            |    \.\.\.\.  |             |             |             |                 |
+            +--------------+-------------+-------------+-------------+-----------------+
+            |   Average    |    0.364    |    0.500    |    0.421    |    742/1256     |
+            +--------------+-------------+-------------+-------------+-----------------+
+
+        """
         precision, mean_precision = self.precision()
         recall, mean_recall = self.recall()
         f1, mean_f1 = self.f1()
@@ -328,14 +354,14 @@ class EvaluatorSegmentation(EvaluatorBase):
         return recall, mean_recall
 
     def f1(self, background_class=0, round_off=3):
-        """ Returns f1 for each class and mean f1 score
+        """ returns f1 for each class and mean f1 score
         args:
             background_class(int): background class is ignored in the output table. defaults to 0.
             round_off(int): this rounds off output values by assigned number.
 
         returns:
             f1(dict): {class_name1(int): f1 score(float), class_name2(int): f1_score(float), ...}
-            mean_f1(float): Average of F1 score
+            mean_f1(float): average of f1 score
         """
         f1, mean_f1 = segmentation_f1(self.prediction,
                                       self.target,
