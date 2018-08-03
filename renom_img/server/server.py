@@ -406,6 +406,68 @@ def get_datasets():
         ret = create_response(body)
         return ret
 
+@route("/api/renom_img/v1/load_dataset_split_detail", method=['POST','GET'])
+def load_dataset_split_detail():
+    try:
+        datasrc = pathlib.Path(DATASRC_DIR)
+        imgdirname = pathlib.Path("img")
+        xmldirname = pathlib.Path("label")
+
+        imgdir = (datasrc / imgdirname)
+        xmldir = (datasrc / xmldirname)
+
+        name = request.params.name
+        ratio = float(request.params.ratio)
+        # search image files
+        imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
+
+        # remove images without label
+        imgs = set([img for img in imgs if (xmldir / img).with_suffix('.xml').is_file()])
+        assert len(imgs) > 0, "Image not found in directory. Please set images to 'datasrc/img' directory and xml files to 'datasrc/label' directory."
+
+        # split files into trains and validations
+        n_imgs = len(imgs)
+
+        trains = set(random.sample(imgs, int(ratio * n_imgs)))
+        valids = imgs - trains
+
+        # build filename of images and labels
+        train_imgs = [str(img) for img in trains]
+        valid_imgs = [str(img) for img in valids]
+
+        _, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
+
+        # register dataset
+        #id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)
+
+        # Insert detailed informations
+        train_num = len(train_imgs)
+        valid_num = len(valid_imgs)
+        count = {}
+
+        for i in range(len(_)) :
+            for j in range(len(class_map)):
+                if _[i][0].get('name') == class_map[j] :
+                    if class_map[j] not in count:
+                        count[class_map[j]] = 1
+                    else :
+                        count[class_map[j]] += 1
+
+        body = json.dumps(
+            {"total": n_imgs,
+            "train_num": train_num,
+            "valid_num": valid_num,
+            "class_maps": count
+            })
+
+        ret = create_response(body)
+        return ret
+
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
 @route("/api/renom_img/v1/weights/progress/<progress_num:int>", method="GET")
 def weight_download_progress(progress_num):
