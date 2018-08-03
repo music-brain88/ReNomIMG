@@ -310,12 +310,12 @@ class EvaluatorSegmentation(EvaluatorBase):
 
     def report(self, background_class=0, digits=3):
         precision, mean_precision, \
-                recall, mean_recall, \
-                f1, mean_f1, iou, \
-                mean_iou, tp, true_sum = get_segmentation_metrics(self.prediction,
-                                                                  self.target,
-                                                                  digits=digits,
-                                                                  background_class=background_class)
+            recall, mean_recall, \
+            f1, mean_f1, iou, \
+            mean_iou, tp, true_sum = get_segmentation_metrics(self.prediction,
+                                                              self.target,
+                                                              digits=digits,
+                                                              background_class=background_class)
 
         headers = ["IoU", "Precision", "Recall", "F1 score", "#pred/#target"]
         rows = []
@@ -333,5 +333,3 @@ class EvaluatorSegmentation(EvaluatorBase):
                                    last_line_heading, row_fmt, last_row, digits)
         report += '\n'
         return report
-
-

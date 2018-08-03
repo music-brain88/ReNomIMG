@@ -251,7 +251,6 @@ class CNN_FCN8s(rm.Model):
         self.fc7 = rm.Conv2d(4096, filter=1)
         self.dr2 = rm.Dropout(0.5)
 
-
         self.score_fr = rm.Conv2d(num_class, filter=1)
         self.upscore2 = rm.Deconv2d(num_class, filter=2, stride=2, padding=0)
         self.upscore8 = rm.Deconv2d(num_class, filter=8, stride=8, padding=0)
