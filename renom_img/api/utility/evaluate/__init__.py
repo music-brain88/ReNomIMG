@@ -171,7 +171,7 @@ class EvaluatorDetection(EvaluatorBase):
         return prec. rec
 
     def report(self, iou_thresh=0.5, round_off=3):
-        """ Output a table whcih shows AP, IoU, the number of predicted instances for each class, and the number of ground truth instances for each class.
+        """ Output a table which shows AP, IoU, the number of predicted instances for each class, and the number of ground truth instances for each class.
         Args:
             iou_thresh: IoU threshold. The default value is 0.5.
             class_names: List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
