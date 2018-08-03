@@ -2,8 +2,7 @@ import numpy as np
 from .detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
 from .classification import precision_score, recall_score, f1_score, accuracy_score
 from .segmentation import segmentation_iou, segmentation_precision, segmentation_recall, segmentation_f1, get_segmentation_metrics
-from collections import defaultdict
-
+from collections import defaultdict 
 
 class EvaluatorBase(object):
 
@@ -42,8 +41,9 @@ class EvaluatorDetection(EvaluatorBase):
     """ Evaluator for object detection tasks
 
     Args:
-        gt_list (list): A list of ground truth.
-        pred_list (list): A list of prediction. The format is as follows
+        prediction (list): A list of prediction. The format is as follows
+        target (list): A list of ground truth.
+        num_class (int): The number of classes
 
             .. code-block :: python
 
@@ -66,33 +66,35 @@ class EvaluatorDetection(EvaluatorBase):
             >>> evaluator.mean_iou()
     """
 
-    def __init__(self, prediction, target, n_class=None):
+    def __init__(self, prediction, target, num_class=None):
         super(EvaluatorDetection, self).__init__(prediction, target)
-        self.n_class = n_class
+        self.num_class = num_class
 
     def mAP(self, iou_thresh=0.5, round_off=3):
         """ mAP (mean Average Precision)
+
         Args:
-            iou_thresh: IoU threshold. The default value is 0.5.
-            round_off: The number of decimal.
+            iou_thresh(float): IoU threshold. The default value is 0.5.
+            round_off(int): The number of output decimal
 
         Returns:
-            mAP (float)
+            mAP (float): Mean Average Precision
         """
 
-        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
         _, mAP = get_ap_and_map(prec, rec, round_off)
         return mAP
 
     def AP(self, iou_thresh=0.5, round_off=3):
-        """
-        Calculates AP(Average Precision) for each class.
+        """ Calculates AP(Average Precision) for each class.
+
+        :math:`AP = \frac{1}{11} \sum_{r \in \{0.0,..1.0\}} AP_{r}`
 
         Args:
             iou_thresh: IoU threshold. The default value is 0.5.
-            round_off: The number of decimal.
+            round_off(int): The number of output decimal
 
-        Returns: 
+        Returns:
             AP of each class as dictionary. An example is bellow.
 
             .. code-block :: python
@@ -104,7 +106,7 @@ class EvaluatorDetection(EvaluatorBase):
                 }
         """
 
-        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
         AP, _ = get_ap_and_map(prec, rec, round_off)
         return AP
 
@@ -113,21 +115,21 @@ class EvaluatorDetection(EvaluatorBase):
 
         Args:
             iou_thresh: IoU threshold. The default value is 0.5.
-            round_off: The number of decimal.
+            round_off(int): The number of output decimal
 
         Returns:
             mean_iou (float)
         """
         _, mean_iou = get_mean_iou(self.prediction, self.target,
-                                   self.n_class, iou_thresh, round_off)
+                                   self.num_class, iou_thresh, round_off)
         return mean_iou
 
     def iou(self, iou_thresh=0.5, round_off=3):
         """ IoU for each class
 
         Args:
-            iou_thresh: IoU threshold. The default value is 0.5.
-            round_off: The number of decimal.
+            iou_thresh (float): IoU threshold. The default value is 0.5.
+            round_off (int): The number of output decimal
 
         Returns:
             IOU of each class as dictionary. An example is bellow.
@@ -141,7 +143,7 @@ class EvaluatorDetection(EvaluatorBase):
                 }
         """
 
-        iou, _ = get_mean_iou(self.prediction, self.target, self.n_class, iou_thresh, round_off)
+        iou, _ = get_mean_iou(self.prediction, self.target, self.num_class, iou_thresh, round_off)
         return iou
 
     def plot_pr_curve(self, iou_thresh=0.5, class_names=None):
@@ -152,7 +154,7 @@ class EvaluatorDetection(EvaluatorBase):
             class_names: List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
         """
 
-        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
+        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
         if not isinstance(class_names, list) and class_names is not None:
             class_names = [class_names]
 
@@ -174,22 +176,32 @@ class EvaluatorDetection(EvaluatorBase):
     def prec_rec(self, iou_thresh=0.5):
         """ Return precision and recall for each class
         Args:
-            iou_thresh: IoU threshold. The default value is 0.5.
-            round_off: The number of decimal of output values
+            iou_thresh (float): IoU threshold. The default value is 0.5.
 
         Returns:
-            precision(dictionary): {class_id1(int): [0.5, 0.3,....], class_id2(int): [0.9....]}
-            recall(dictionary): {class_id1(int): [0.5, 0.3,....], class_id2(int): [0.9....]}
+            precision (dictionary): Precision for each class
+            recall (dictionary): Recall for each class
+
+            .. code-block :: python
+                {
+                    class_name1(str): [precision1(float), precision2(float), ..],
+                    class_name2(str): [precision3(float), precision4(float), ..],
+                }
+
+                {
+                    class_name1(str): [recall1(float), recall2(float), ..]
+                    class_name2(str): [recall3(float), recall4(float), ..]
+                }
         """
 
-        prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
-        return prec. rec
+        precision, recall, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
+        return precision. recall
 
     def report(self, iou_thresh=0.5, round_off=3):
         """ Output a table which shows AP, IoU, the number of predicted instances for each class, and the number of ground truth instances for each class.
         Args:
-            iou_thresh: IoU threshold. The default value is 0.5.
-            class_names: List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
+            iou_thresh (flaot): IoU threshold. The default value is 0.5.
+            round_off (int): The number of output decimal
 
         Returns:
             +--------------+----------+------------+-----------------+
@@ -207,7 +219,7 @@ class EvaluatorDetection(EvaluatorBase):
         """
 
         prec, rec, n_pred, n_pos_list = get_prec_and_rec(
-            self.prediction, self.target, self.n_class, iou_thresh)
+            self.prediction, self.target, self.num_class, iou_thresh)
         AP, mAP = get_ap_and_map(prec, rec, round_off)
         iou = self.iou()
         class_names = list(AP.keys())
@@ -226,24 +238,58 @@ class EvaluatorDetection(EvaluatorBase):
 
 
 class EvaluatorClassification(EvaluatorBase):
+    """ Evaluator for classification tasks
+
+    Args:
+        prediction (list): A list of predicted class
+        target (list): A list of target class. The format is as follows
+        num_class (int): The number of classes (Optional)
+
+            .. code-block :: python
+
+                [
+                    class_id1(int),
+                    class_id2(int),
+                    class_id3(int),
+                ]
+
+    Example:
+            >>> evaluator = EvaluatorClassification(prediction, target)
+            >>> evaluator.precision()
+            >>> evaluator.recall()
+    """
 
     def __init__(self, prediction, target):
         super(EvaluatorClassification, self).__init__(prediction, target)
 
     def precision(self):
         """ returns precision for each class and mean precision
-        returns:
-            precision(dict): {class_name1(int): precision(float), class_name2(int): precision(float), ...}
+
+        Returns:
+            precision(dict): Precision for each class
             mean_precision(float): Average of precision
+
+            .. code-block :: python
+                {
+                    class_name1(str): precision(float),
+                    class_name2(str): precision(float),
+                }
         """
         precision, mean_precision = precision_score(self.prediction, self.target)
         return precision, mean_precision
 
     def recall(self):
         """ returns recall for each class and mean recall
-        returns:
-            recall(dict): {class_name1(int): recall(float), class_name2(int): recall(float), ...}
+
+        Returns:
+            recall(dict): Recall for each class
             mean_recall(float): Average of recall
+
+            .. code-block :: python
+                {
+                    class_name1(str): recall(float),
+                    class_name2(str): recall(float),
+                }
         """
         recall, mean_recall = recall_score(self.prediction, self.target)
         return recall, mean_recall
@@ -253,7 +299,6 @@ class EvaluatorClassification(EvaluatorBase):
 
         Returns:
             accuracy(float):
-
         """
 
         accuracy = accuracy_score(self.prediction, self.target)
@@ -264,8 +309,14 @@ class EvaluatorClassification(EvaluatorBase):
         Returns f1 for each class and mean f1 score.
 
         Returns:
-            f1(dict): {class_name1(int): f1 score(float), class_name2(int): f1_score(float), ...}
+            f1(dict): F1 score for each class.
             mean_f1(float): Average of F1 score
+
+            .. code-block :: python
+                {
+                    class_name1(str): f1 score(float),
+                    class_name2(str): f1_score(float)
+                }
         """
         f1, mean_f1 = f1_score(self.prediction, self.target)
         return f1, mean_f1
@@ -273,8 +324,7 @@ class EvaluatorClassification(EvaluatorBase):
     def report(self, round_off=3):
         """ Output a table which shows precision, recall, F1 score, the number of true positive pixels and the number of ground truth pixels for each class.
         Args:
-            background_class(int): Background class is ignored in the output table. Defaults to 0.
-            round_off(int): This rounds off output values by assigned number.
+            round_off(int): The number of output decimal
 
         Returns:
             +--------------+-------------+-------------+-------------+-----------------+
@@ -306,8 +356,7 @@ class EvaluatorClassification(EvaluatorBase):
 
         headers = ["Precision", "Recall", "F1 score", "#pred/#target"]
         rows = []
-        for c in class_names:
-            rows.append((str(c), precision[c], recall[c], f1[c], tp[c], true_sum[c]))
+        for c in class_names: rows.append((str(c), precision[c], recall[c], f1[c], tp[c], true_sum[c]))
         last_line_heading = 'Average'
         last_row = (mean_precision, mean_recall, mean_f1, np.sum(
             list(tp.values())), np.sum(list(true_sum.values())))
@@ -322,14 +371,34 @@ class EvaluatorClassification(EvaluatorBase):
 
 
 class EvaluatorSegmentation(EvaluatorBase):
-    def __init__(self, prediction, target):
-        super(EvaluatorSegmentation, self).__init__(prediction, target)
+    """ Evaluator for classification tasks
 
-    def iou(self, background_class=0):
+    Args:
+        prediction (list): A list of predicted class
+        target (list): A list of target class. The format is as follows
+        background_class(int): background class is ignored in the output table. defaults to 0.
+
+            .. code-block :: python
+
+                [
+                    class_id1(int),
+                    class_id2(int),
+                    class_id3(int),
+                ]
+
+    Example:
+            >>> evaluator = EvaluatorClassification(prediction, target)
+            >>> evaluator.precision()
+            >>> evaluator.recall()
+    """
+    def __init__(self, prediction, target, background_class=0):
+        super(EvaluatorSegmentation, self).__init__(prediction, target)
+        self.background_class = background_class
+
+    def iou(self):
         """ Returns iou for each class
         args:
-            background_class(int): background class is ignored in the output table. defaults to 0.
-            round_off(int): this rounds off output values by assigned number.
+            round_off(int): The number of output decimal
 
         returns:
             iou(dict): {class_name1(int): IoU(float), class_name2(int): IoU(float), ...}
@@ -337,61 +406,57 @@ class EvaluatorSegmentation(EvaluatorBase):
         """
 
         iou, mean_iou = segmentation_iou(
-            self.prediction, self.target, background_class=background_class)
+            self.prediction, self.target, background_class=self.background_class)
         return iou, mean_iou
 
-    def precision(self, background_class=0, round_off=3):
+    def precision(self, round_off=3):
         """ Returns precision for each class
-        args:
-            background_class(int): background class is ignored in the output table. defaults to 0.
+        Args:
             round_off(int): this rounds off output values by assigned number.
 
-        returns:
+        Returns:
             precision(dict): {class_name1(int): precision(float), class_name2(int): precision(float), ...}
             mean_precision(float): Average of precision
         """
         precision, mean_precision = segmentation_precision(self.prediction,
                                                            self.target,
                                                            round_off=round_off,
-                                                           background_class=background_class)
+                                                           background_class=self.background_class)
         return precision, mean_precision
 
-    def recall(self, background_class=0, round_off=3):
+    def recall(self, round_off=3):
         """ Returns recall for each class and mean recall
-        args:
-            background_class(int): background class is ignored in the output table. defaults to 0.
+        Args:
             round_off(int): this rounds off output values by assigned number.
 
-        returns:
+        Returns:
             recall(dict): {class_name1(int): recall(float), class_name2(int): recall(float), ...}
             mean_recall(float): Average of recall
         """
         recall, mean_recall = segmentation_recall(self.prediction,
                                                   self.target,
                                                   round_off=round_off,
-                                                  background_class=background_class)
+                                                  background_class=self.background_class)
         return recall, mean_recall
 
-    def f1(self, background_class=0, round_off=3):
+    def f1(self, round_off=3):
         """ returns f1 for each class and mean f1 score
-        args:
-            background_class(int): background class is ignored in the output table. defaults to 0.
+        Args:
             round_off(int): this rounds off output values by assigned number.
 
-        returns:
+        Returns:
             f1(dict): {class_name1(int): f1 score(float), class_name2(int): f1_score(float), ...}
             mean_f1(float): average of f1 score
         """
         f1, mean_f1 = segmentation_f1(self.prediction,
                                       self.target,
                                       round_off=round_off,
-                                      background_class=background_class)
+                                      background_class=self.background_class)
         return f1, mean_f1
 
-    def report(self, background_class=0, round_off=3):
+    def report(self, round_off=3):
         """ Output a table which shows IoU, precision, recall, F1 score, the number of true positive pixels and the number of ground truth pixels for each class.
         Args:
-            background_class(int): Background class is ignored in the output table. Defaults to 0.
             round_off(int): This rounds off output values by assigned number.
 
         Returns:
@@ -414,7 +479,7 @@ class EvaluatorSegmentation(EvaluatorBase):
             mean_iou, tp, true_sum = get_segmentation_metrics(self.prediction,
                                                               self.target,
                                                               round_off=round_off,
-                                                              background_class=background_class)
+                                                              background_class=self.background_class)
 
         headers = ["IoU", "Precision", "Recall", "F1 score", "#pred/#target"]
         rows = []
