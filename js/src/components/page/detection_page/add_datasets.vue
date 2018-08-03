@@ -34,7 +34,9 @@
               <div class="row justify-content-center space-top">
                 <label class="col-sm-4 col-form-label text-right">Arrange number of data</label>
                 <div class="col-sm-8">
-                  <input type='checkbox' class="form-control">後ほど修正
+                  <div class="form-check">
+                    <input class="form-check-input position-static" type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                  </div>
                 </div>
               </div>
 
@@ -201,6 +203,12 @@ nav {
   background: #ffffff;
   border: none;
 
+}
+
+input[type=checkbox]{
+  height: auto;
+  width: auto;
+  clip-path:none;
 }
 
 .space-top{
