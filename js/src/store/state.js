@@ -87,5 +87,7 @@ export default {
   dataset_defs: [],
 
   // show dataset creating modal
-  dataset_creating_modal: false
+  dataset_creating_modal: false,
+  // dataset detail info
+  dataset_detail: []
 }

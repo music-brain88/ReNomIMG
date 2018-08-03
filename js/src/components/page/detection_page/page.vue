@@ -13,7 +13,8 @@
     </div>
     <image-modal v-if='show_modal_image_sample'/>
 
-    <add-model-modal v-if="$store.state.add_model_modal_show_flag"></add-model-modal>
+    <!-- <add-model-modal v-if="$store.state.add_model_modal_show_flag"></add-model-modal> -->
+    <setting-page v-if="$store.state.add_model_modal_show_flag"></setting-page>
     <weight-downloading-modal v-if="$store.state.weight_downloading_modal"></weight-downloading-modal>
   </div>
 </template>
@@ -26,9 +27,10 @@ import DashBoard from './dashboard.vue'
 import ModelDetail from './model_detail.vue'
 import ModelSample from './model_sample.vue'
 import TagList from './tag_list.vue'
-import AddModelModal from './add_model_modal.vue'
+// import AddModelModal from './add_model_modal.vue'
 import WeightDownloadingModal from './weight_downloading_modal.vue'
 import ImageModal from './image_modal.vue'
+import DataSettingPage from './setting_page.vue'
 
 export default {
   name: 'DetectionPage',
@@ -38,7 +40,7 @@ export default {
     'model-detail': ModelDetail,
     'model-sample': ModelSample,
     'tag-list': TagList,
-    'add-model-modal': AddModelModal,
+    'setting-page': DataSettingPage,
     'weight-downloading-modal': WeightDownloadingModal,
     'image-modal': ImageModal
   },
