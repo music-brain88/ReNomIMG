@@ -6,10 +6,12 @@ def nms(preds, threshold=0.5):
     nms(preds, threshold=0.5)
 
     Args:
-        preds(list): This list has 4 variable that reporesent above coordinates.
+        preds(list): A list of predicted bbox. The format is bellow.
         threshold(float, optional): Defaults to `0.5`. This represents the ratio of overlap between boxes.
 
+
     .. code-block :: python
+        :caption: **Example of the argument "preds".**
 
         [
             [ # Objects of 1st image.
@@ -29,6 +31,7 @@ def nms(preds, threshold=0.5):
         (list): Returns reformatted bounding box.
 
     .. code-block :: python
+        :caption: **Example of return value.**
 
         [
             [ # Objects of 1st image.
