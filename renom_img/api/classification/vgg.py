@@ -61,6 +61,7 @@ class VGGBase(Classification):
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
 
+
 class VGG11(VGGBase):
     """VGG11 model.
 
@@ -110,6 +111,7 @@ class VGG11(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
+
 
 class VGG16(VGGBase):
     """VGG16 model.
