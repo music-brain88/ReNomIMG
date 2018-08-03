@@ -45,19 +45,20 @@ class EvaluatorDetection(EvaluatorBase):
         gt_list (list): A list of ground truth.
         pred_list (list): A list of prediction. The format is as follows
 
-        predict_list:
-            [
-                [ # Objects of 1st image.
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    ...
-                ],
-                [ # Objects of 2nd image.
-                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                    {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
-                    ...
+            .. code-block :: python
+
+                [
+                    [ # Objects of 1st image.
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        ...
+                    ],
+                    [ # Objects of 2nd image.
+                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                        {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
+                        ...
+                    ]
                 ]
-            ]
 
     Example:
             >>> evaluator = EvaluatorDetection(pred, gt)
@@ -84,17 +85,23 @@ class EvaluatorDetection(EvaluatorBase):
         return mAP
 
     def AP(self, iou_thresh=0.5, round_off=3):
-        """ AP (Average Precision for each class)
+        """
+        Calculates AP(Average Precision) for each class.
+
         Args:
             iou_thresh: IoU threshold. The default value is 0.5.
             round_off: The number of decimal.
 
-        Returns:
-            {
-                class_name1(str): AP1 (float),
-                class_name2(str): AP2 (float),
-                class_name3(str): AP3 (float),
-            }
+        Returns: 
+            AP of each class as dictionary. An example is bellow.
+
+            .. code-block :: python
+
+                {
+                    class_name1(str): AP1 (float),
+                    class_name2(str): AP2 (float),
+                    class_name3(str): AP3 (float),
+                }
         """
 
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
@@ -103,28 +110,35 @@ class EvaluatorDetection(EvaluatorBase):
 
     def mean_iou(self, iou_thresh=0.5, round_off=3):
         """ mean IoU for all classes
+
         Args:
             iou_thresh: IoU threshold. The default value is 0.5.
             round_off: The number of decimal.
 
-        returns:
+        Returns:
             mean_iou (float)
         """
-        _, mean_iou = get_mean_iou(self.prediction, self.target, self.n_class, iou_thresh, round_off)
+        _, mean_iou = get_mean_iou(self.prediction, self.target,
+                                   self.n_class, iou_thresh, round_off)
         return mean_iou
 
     def iou(self, iou_thresh=0.5, round_off=3):
         """ IoU for each class
+
         Args:
             iou_thresh: IoU threshold. The default value is 0.5.
             round_off: The number of decimal.
 
-        returns:
-            {
-                class_name1(str): iou1 (float),
-                class_name2(str): iou2 (float),
-                class_name3(str): iou3 (float),
-            }
+        Returns:
+            IOU of each class as dictionary. An example is bellow.
+
+            .. code-block :: python
+
+                {
+                    class_name1(str): iou1 (float),
+                    class_name2(str): iou2 (float),
+                    class_name3(str): iou3 (float),
+                }
         """
 
         iou, _ = get_mean_iou(self.prediction, self.target, self.n_class, iou_thresh, round_off)
@@ -132,6 +146,7 @@ class EvaluatorDetection(EvaluatorBase):
 
     def plot_pr_curve(self, iou_thresh=0.5, class_names=None):
         """ Plot a precision-recall curve.
+
         Args:
             iou_thresh: IoU threshold. The default value is 0.5.
             class_names: List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
@@ -234,17 +249,21 @@ class EvaluatorClassification(EvaluatorBase):
         return recall, mean_recall
 
     def accuracy(self):
-        """ returns accuracy
-        returns:
+        """ Returns accuracy.
+
+        Returns:
             accuracy(float):
+
         """
 
         accuracy = accuracy_score(self.prediction, self.target)
         return accuracy
 
     def f1(self):
-        """ returns f1 for each class and mean f1 score
-        returns:
+        """
+        Returns f1 for each class and mean f1 score.
+
+        Returns:
             f1(dict): {class_name1(int): f1 score(float), class_name2(int): f1_score(float), ...}
             mean_f1(float): Average of F1 score
         """
