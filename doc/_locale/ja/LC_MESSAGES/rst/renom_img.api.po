@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-01 11:10+0900\n"
+"POT-Creation-Date: 2018-08-03 16:02+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,10 +18,12 @@ msgstr ""
 "Generated-By: Babel 2.6.0\n"
 
 #: ../../rst/renom_img.api.rst:2
-msgid "renom\\_img.api package"
+msgid "renom\\_img.api"
 msgstr ""
 
-#: ../../rst/renom_img.api.rst:5
-msgid "Subpackages"
-msgstr ""
+#~ msgid "renom\\_img.api package"
+#~ msgstr ""
+
+#~ msgid "Subpackages"
+#~ msgstr ""
 

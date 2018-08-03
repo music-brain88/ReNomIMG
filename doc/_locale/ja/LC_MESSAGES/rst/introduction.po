@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-01 11:10+0900\n"
+"POT-Creation-Date: 2018-08-03 16:02+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,9 +35,7 @@ msgstr "1. コンセプト"
 msgid ""
 "The concept of ReNomIMG is **ensure that users can create AI models "
 "according to the purpose by themselves**."
-msgstr "**ReNomIMGのコンセプトは、"
-        "AIのモデルをユーザーの目的の沿って自分自身で作成してもらう"
-        "といったものです。**"
+msgstr "**ReNomIMGのコンセプトは、AIのモデルをユーザーの目的の沿って自分自身で作成してもらうといったものです。**"
 
 #: ../../rst/introduction.rst:16
 msgid ""
@@ -65,25 +63,55 @@ msgid ""
 "errors."
 msgstr "特に、このディープラーニングの時代でも認識モデルのパラメータのチューニングは必要となります。"
 
-#: ../../rst/introduction.rst:31
+#: ../../rst/introduction.rst:29
+msgid "ReNomIMG allows you to build object detection model easily."
+msgstr ""
+
+#: ../../rst/introduction.rst:32
 msgid "2. What ReNomIMG provides you."
 msgstr "2. ReNomIMGが提供するもの"
 
-#: ../../rst/introduction.rst:33
-msgid "ReNomIMG provides you following features."
-msgstr "ReNomIMGは以下の機能を提供します。"
-
-#: ../../rst/introduction.rst:35
-msgid "**Building Image Recognition Model without Programming.**"
-msgstr "**プログラミングを必要としない画像認識モデルのビルド**"
-
-#: ../../rst/introduction.rst:36
-msgid "**aa**"
-msgstr ""
+#: ../../rst/introduction.rst:34
+msgid "ReNomIMG provides gui tool and python api."
+msgstr "ReNomIMGはGUIツールとPython APIを提供します。"
 
 #: ../../rst/introduction.rst:37
-msgid "**Using built model from program with tiny code.**"
-msgstr "**少量のプログラミングによるモデルのビルド**"
+msgid "GUI tool"
+msgstr "GUIツール"
+
+#: ../../rst/introduction.rst:39
+msgid ""
+"ReNomIMG GUI tool allows you to build object detection models. What users"
+" have to do are **preparing training data**, **setting train "
+"configuration** and **pushing run button**."
+msgstr "ReNomIMG GUIツールを利用して、物体認識モデルを作成することができます。ユーザーはトレーニングデータの用意と、訓練の設定、RUNボタンの押下のみです。"
+
+#: ../../rst/introduction.rst:50
+msgid "Python API"
+msgstr ""
+
+#: ../../rst/introduction.rst:51
+msgid ""
+"ReNomIMG API is a python api which provides you not only modern **object "
+"detection model** but also **classification model**, **segmentation "
+"model**."
+msgstr "ReNomIMG APIは現代的な物体認識モデルのみでなく、分類モデル、セグメンテーションモデル作成用のAPIも提供してくれます。"
+
+#: ../../rst/introduction.rst:54
+msgid ""
+"And more, all those models have pretrained weights. This makes models "
+"more accurate one."
+msgstr "加えて、これら全てのモデルは事前学習の重みを持ちます。これによりモデルはより正確になります。"
+
+#: ../../rst/introduction.rst:57
+msgid ""
+"An example code is bellow. Using ReNomIMG, you can build a model and "
+"train it in 3 lines."
+msgstr "サンプルのソースコードを以下に示します。ReNomIMGを使うと、モデルの作成と訓練が３行で可能になります。"
+
+#: ../../rst/introduction.rst:59
+msgid "**Building a VGG16 Model**"
+msgstr "VGG16モデルの作成"
 
 #~ msgid "ReNomIMG"
 #~ msgstr ""
@@ -93,4 +121,16 @@ msgstr "**少量のプログラミングによるモデルのビルド**"
 
 #~ msgid "IMG will be here."
 #~ msgstr "画像はここです。"
+
+#~ msgid "ReNomIMG provides you following features."
+#~ msgstr "ReNomIMGは以下の機能を提供します。"
+
+#~ msgid "**Building Image Recognition Model without Programming.**"
+#~ msgstr "**プログラミングを必要としない画像認識モデルのビルド**"
+
+#~ msgid "**aa**"
+#~ msgstr ""
+
+#~ msgid "**Using built model from program with tiny code.**"
+#~ msgstr "**少量のプログラミングによるモデルのビルド**"
 

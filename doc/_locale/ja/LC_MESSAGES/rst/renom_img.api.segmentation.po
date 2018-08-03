@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-01 11:10+0900\n"
+"POT-Creation-Date: 2018-08-03 16:02+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,17 +21,17 @@ msgstr ""
 msgid "renom\\_img.api.segmentation"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.fcn.FCN16s:1
+#: of renom_img.api.segmentation.fcn.FCN16s:1
 #: renom_img.api.segmentation.fcn.FCN32s:1
 #: renom_img.api.segmentation.fcn.FCN8s:1
 msgid "Bases: :class:`renom_img.api.segmentation.fcn.FCN_Base`"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.fcn.FCN32s:1
+#: of renom_img.api.segmentation.fcn.FCN32s:1
 msgid "Fully convolutional network (21s) for semantic segmentation"
 msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
 
-#: ../../docstring of renom_img.api.segmentation.fcn.FCN16s
+#: of renom_img.api.segmentation.fcn.FCN16s
 #: renom_img.api.segmentation.fcn.FCN32s renom_img.api.segmentation.fcn.FCN8s
 #: renom_img.api.segmentation.unet.UNet
 #: renom_img.api.segmentation.unet.UNet.get_optimizer
@@ -39,20 +39,20 @@ msgstr "セマンティックセグメンテーション用の全畳み込みネ
 msgid "Parameters"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.fcn.FCN16s:4
+#: of renom_img.api.segmentation.fcn.FCN16s:4
 #: renom_img.api.segmentation.fcn.FCN32s:3
 #: renom_img.api.segmentation.fcn.FCN8s:4
 #: renom_img.api.segmentation.unet.UNet:3
 msgid "The number of classes"
 msgstr "クラス数"
 
-#: ../../docstring of renom_img.api.segmentation.fcn.FCN16s:6
+#: of renom_img.api.segmentation.fcn.FCN16s:6
 #: renom_img.api.segmentation.fcn.FCN32s:5
 #: renom_img.api.segmentation.fcn.FCN8s:6
 msgid "If True, the pre-trained weight of ImageNet is loaded."
 msgstr "Trueの場合、ImageNetで事前学習済みのモデルがロードされます。"
 
-#: ../../docstring of renom_img.api.segmentation.fcn.FCN16s:10
+#: of renom_img.api.segmentation.fcn.FCN16s:10
 #: renom_img.api.segmentation.fcn.FCN32s:9
 #: renom_img.api.segmentation.fcn.FCN8s:10
 #: renom_img.api.segmentation.unet.UNet:7
@@ -60,7 +60,7 @@ msgstr "Trueの場合、ImageNetで事前学習済みのモデルがロードさ
 msgid "Example"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.fcn.FCN16s:23
+#: of renom_img.api.segmentation.fcn.FCN16s:23
 #: renom_img.api.segmentation.fcn.FCN32s:22
 #: renom_img.api.segmentation.fcn.FCN8s:23
 msgid ""
@@ -69,58 +69,58 @@ msgid ""
 "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.fcn.FCN16s:1
+#: of renom_img.api.segmentation.fcn.FCN16s:1
 msgid ""
 "Fully convolutional network (16s) for semantic segmentation Reference: "
 "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.fcn.FCN8s:1
+#: of renom_img.api.segmentation.fcn.FCN8s:1
 msgid ""
 "Fully convolutional network (8s) for semantic segmentation Reference: "
 "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet:1
-msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
+#: of renom_img.api.segmentation.unet.UNet:1
+msgid "Bases: :class:`renom_img.api.segmentation.SemanticSegmentation`"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet:1
+#: of renom_img.api.segmentation.unet.UNet:1
 msgid "U-Net: Convolutional Networks for Biomedical Image Segmentation"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet:20
+#: of renom_img.api.segmentation.unet.UNet:20
 msgid ""
 "Olaf Ronneberger, Philipp Fischer, Thomas Brox U-Net: Convolutional "
 "Networks for Biomedical Image Segmentation "
 "https://arxiv.org/pdf/1505.04597.pdf"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet.get_optimizer:1
-msgid "Returns an instance of Optimiser for training Yolov1 algorithm."
+#: of renom_img.api.segmentation.unet.UNet.get_optimizer:1
+msgid "Returns an instance of Optimiser for training U-Net algorithm."
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet.preprocess:1
-msgid "Image preprocess for Yolov1."
+#: of renom_img.api.segmentation.unet.UNet.preprocess:1
+msgid "Image preprocess for U-Net."
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet.preprocess:3
+#: of renom_img.api.segmentation.unet.UNet.preprocess:3
 msgid ":math:`new_x = x*2/255. - 1`"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet.preprocess
+#: of renom_img.api.segmentation.unet.UNet.preprocess
 msgid "Returns"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet.preprocess:8
+#: of renom_img.api.segmentation.unet.UNet.preprocess:8
 msgid "Preprocessed data."
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet.preprocess
+#: of renom_img.api.segmentation.unet.UNet.preprocess
 msgid "Return type"
 msgstr ""
 
-#: ../../docstring of renom_img.api.segmentation.unet.UNet.regularize:1
+#: of renom_img.api.segmentation.unet.UNet.regularize:1
 msgid ""
 "Regularize term. You can use this function to add regularize term to loss"
 " function."
@@ -145,5 +145,14 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Module contents"
+#~ msgstr ""
+
+#~ msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
+#~ msgstr ""
+
+#~ msgid "Returns an instance of Optimiser for training Yolov1 algorithm."
+#~ msgstr ""
+
+#~ msgid "Image preprocess for Yolov1."
 #~ msgstr ""
 
