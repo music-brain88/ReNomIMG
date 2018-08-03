@@ -80,7 +80,7 @@ footer {
   }
   .copyright{
     background: $footer-copyright-color;
-    margin-top: 5%;
+    margin-top: 1%;
     .copyright-text{
       margin-top: 3px;
       margin-bottom: 3px;

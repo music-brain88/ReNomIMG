@@ -54,15 +54,15 @@ export default {
 #model-list {
 
   $selectbox-height: 20px;
-  $selectbox-font-family:Open Sans Regular;
-  $selectbox-font-size: 10pt;
 
-  height: 810px;
+  height: 555px;
   margin: 0;
   margin-top: $component-margin-top;
   // border-top: $border-width solid $border-color;
   z-index: 2;
   position: fixed;
+  font-family: $content-top-header-font-family;
+  font-size: $content-inner-header-font-size;
 
   .title-selectbox {
     display: flex;
@@ -118,8 +118,8 @@ export default {
     padding: 0;
     padding-left: 4px;
     padding-right: 16px;
-    font-family: $selectbox-font-family;
-    font-size: $selectbox-font-size;
+    font-family: $content-modellist-font-family;
+    font-size: $content-modellist-font-size;
     background: $header-color;
     color:$font-color;
   }

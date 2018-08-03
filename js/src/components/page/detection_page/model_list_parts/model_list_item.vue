@@ -143,7 +143,7 @@ export default {
   $item-margin-bottom: 8px;
   $state-width: 8px;
   $label-color: #999999;
-  $label-color-hover: #666666;
+  $label-color-hover: #CCCCCC;
   $label-size: 12px;
 
   display: flex;
@@ -159,8 +159,8 @@ export default {
     bottom: 0;
     right: 0;
     padding: 0 4px;
-    background-color: #c13d18;
-    color: #fff;
+    // background-color: #c13d18;
+    color: $panel-bg-color;
     font-size: 12px;
   }
 
@@ -222,9 +222,10 @@ export default {
 }
 
 #model-list-item:hover {
-  background-color: #eeeeee;
+  background-color: #CCCCCC;
 }
 #model-list-item.active {
-  background-color: #d1d1d1;
+  // background-color: #d1d1d1;
+  border: solid 1px $panel-bg-color;
 }
 </style>
