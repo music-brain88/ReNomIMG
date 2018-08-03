@@ -468,5 +468,12 @@ export default {
    */
   setDatasetCreateModal (state, payload) {
     state.dataset_creating_modal = payload.dataset_creating_modal
+  },
+
+  setDataSplitDetail (state, payload) {
+    state.dataset_detail = payload
+  },
+  setMaxDataDetailValue (state, payload) {
+    state.dataset_detail_max_value = payload
   }
 }

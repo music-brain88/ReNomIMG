@@ -423,5 +423,35 @@ export default {
         })
       }
     })
+  },
+  /**
+   * This function view datasets detail
+   *
+   */
+  async loadDatasetSplitDetail (context, payload) {
+    let url = '/api/renom_img/v1/load_dataset_split_detail'
+
+    let fd = new FormData()
+    fd.append('ratio', payload.ratio)
+    fd.append('name', payload.name)
+
+    console.log('ratio:', payload.ratio)
+    console.log('name:', payload.name)
+
+    context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
+
+    return axios.post(url, fd).then(function (response) {
+      if (response.data.error_msg) {
+        console.log('error:', response)
+        context.commit('setAlertModalFlag', {'flag': true})
+        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
+        context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
+      } else {
+        // let max_value = Math.max.apply(null, response.data.map(function (o) { return o.class_maps }))
+        console.log('action:', response.data.class_maps)
+        context.commit('setDataSplitDetail', response.data)
+        // context.commit('setMaxDataDetailValue', max_value)
+      }
+    })
   }
 }
