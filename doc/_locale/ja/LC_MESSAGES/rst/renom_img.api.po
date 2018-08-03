@@ -17,10 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: ../../rst/renom_img.api.inference.rst:2
-msgid "renom\\_img.api.inference"
+#: ../../rst/renom_img.api.rst:2
+msgid "renom\\_img.api package"
 msgstr ""
 
-#~ msgid "renom\\_img.api.inference.inference"
-#~ msgstr ""
+#: ../../rst/renom_img.api.rst:5
+msgid "Subpackages"
+msgstr ""
 

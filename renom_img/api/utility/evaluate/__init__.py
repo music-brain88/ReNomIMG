@@ -1,6 +1,8 @@
 import numpy as np
 from .detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
-from .classification import precision_score, recall_score, accuracy_score
+from .classification import precision_score, recall_score, f1_score, accuracy_score
+from .segmentation import segmentation_iou, segmentation_precision, segmentation_recall, segmentation_f1, get_segmentation_metrics
+from collections import defaultdict
 
 
 class EvaluatorBase(object):
@@ -9,12 +11,11 @@ class EvaluatorBase(object):
         self.prediction = prediction
         self.target = target
 
-    def report(self, class_names, headers, rows, last_line_heading, row_fmt, last_row=None, digits=3):
-        last_line_heading = 'mAP / mean IoU'
-        name_width = max(len(cn) for cn in class_names)
+    def build_report(self, class_names, headers, rows, last_line_heading, row_fmt, last_row=None, digits=3):
+        name_width = max(len(str(cn)) for cn in class_names)
         width = max(name_width, len(last_line_heading), digits * 2)
 
-        head_fmt = '{:>{width}s} ' + ' {:>12}' * len(headers)
+        head_fmt = '{:>{width}s} ' + ' {:>12}' * (len(headers) - 1) + '{:>16}'
         report = head_fmt.format('', *headers, width=width)
         report += ' \n\n'
 
@@ -45,21 +46,18 @@ class EvaluatorDetection(EvaluatorBase):
         pred_list (list): A list of prediction. The format is as follows
 
         predict_list:
-
-    .. code-block :: python
-
-        [
-            [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                ...
-            ],
-            [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
-                ...
+            [
+                [ # Objects of 1st image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    ...
+                ],
+                [ # Objects of 2nd image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
+                    ...
+                ]
             ]
-        ]
 
     Example:
             >>> evaluator = EvaluatorDetection(pred, gt)
@@ -172,25 +170,18 @@ class EvaluatorDetection(EvaluatorBase):
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.n_class, iou_thresh)
         return prec. rec
 
-    def detection_report(self, iou_thresh=0.5, digits=3):
+    def report(self, iou_thresh=0.5, digits=3):
         """ Output a table whcih shows AP, IoU, the number of predicted instances for each class, and the number of ground truth instances for each class.
         Args:
             iou_thresh: IoU threshold. The default value is 0.5.
             class_names: List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
 
         Returns:
-            +--------------+----------+------------+-----------------+
-            |              |    AP    |    IoU     |  #pred/#target  |
-            +--------------+----------+------------+-----------------+
-            | class_name1: |  0.091   |   0.561    |      1/13       |
-            +--------------+----------+------------+-----------------+
-            | class_name2: |  0.369   |   0.824    |      6/15       |
-            +--------------+----------+------------+-----------------+
-            |    \.\.\.\.  |          |            |                 |
-            +--------------+----------+------------+-----------------+
-            |mAP / mean IoU|  0.317   |   0.698    |     266/686     |
-            +--------------+----------+------------+-----------------+
-
+                                AP         IoU        #pred/#target
+            class_name1:      0.091      0.561            1/13
+            class_name2:      0.369      0.824            6/15
+                ....
+            mAP / mean IoU    0.317      0.698          266/686
         """
 
         prec, rec, n_pred, n_pos_list = get_prec_and_rec(
@@ -203,45 +194,16 @@ class EvaluatorDetection(EvaluatorBase):
         headers = ["AP", "IoU", "  #pred/#target"]
         rows = []
         for c in class_names:
-            rows.append((c, AP[c], iou[c], n_pred[c], n_pos_list[c]))
+            rows.append((str(c), AP[c], iou[c], n_pred[c], n_pos_list[c]))
         last_line_heading = 'mAP / mean IoU'
         last_row = (mAP, mean_iou, np.sum(list(n_pred.values())), np.sum(list(n_pos_list.values())))
         row_fmt = '{:>{width}s} ' + ' {:>12.{digits}f}' * \
             (len(headers) - 1) + ' {:>12d}/{:d}' + ' \n'
 
-        return self.report(class_names, headers, rows, last_line_heading, row_fmt, last_row, digits)
+        return self.build_report(class_names, headers, rows, last_line_heading, row_fmt, last_row, digits)
 
 
 class EvaluatorClassification(EvaluatorBase):
-    """ Evaluator for object classification tasks
-
-    Args:
-        gt_list (list): A list of ground truth.
-        classification_list (list): A list of classification. The format is as follows
-
-        predict_list:
-
-    .. code-block :: python
-
-        [
-            [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                ...
-            ],
-            [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
-                ...
-            ]
-        ]
-
-    Example:
-            >>> evaluator = EvaluatorClassification(pred, gt)
-            >>> evaluator.precision()
-            >>> evaluator.recall()
-            >>> evaluator.accuracy()
-    """
 
     def __init__(self, prediction, target):
         super(EvaluatorClassification, self).__init__(prediction, target)
@@ -251,29 +213,123 @@ class EvaluatorClassification(EvaluatorBase):
         Returns:
             precision(float)
         """
-        precision = precision_score(self.prediction, self.target)
-        return precision
+        precision, mean_precision = precision_score(self.prediction, self.target)
+        return precision, mean_precision
 
     def recall(self):
         """
         Returns:
             recall(float)
         """
-        recall = recall_score(self.prediction, self.target)
-        return recall
+        recall, mean_recall = recall_score(self.prediction, self.target)
+        return recall, mean_recall
 
     def accuracy(self):
-        """
-        Returns:
-            accuracy(float)
-        """
         accuracy = accuracy_score(self.prediction, self.target)
         return accuracy
 
-    # def confusion_matrix(self):
-    #     raise NotImplemented
+    def f1(self):
+        """
+        Returns:
+            f1_score(dict):
+            mean_f1_score(float):
+        """
+        f1, mean_f1 = f1_score(self.prediction, self.target)
+        return f1, mean_f1
+
+    def report(self, digits=3):
+        precision, mean_precision = self.precision()
+        recall, mean_recall = self.recall()
+        f1, mean_f1 = self.f1()
+        accuracy = self.accuracy()
+        class_names = list(precision.keys())
+
+        tp = defaultdict(int)
+        true_sum = defaultdict(int)
+
+        for p, t in zip(self.prediction, self.target):
+            true_sum[t] += 1
+            if p == t:
+                tp[p] += 1
+
+        headers = ["Precision", "Recall", "F1 score", "#pred/#target"]
+        rows = []
+        for c in class_names:
+            rows.append((str(c), precision[c], recall[c], f1[c], tp[c], true_sum[c]))
+        last_line_heading = 'Average'
+        last_row = (mean_precision, mean_recall, mean_f1, np.sum(
+            list(tp.values())), np.sum(list(true_sum.values())))
+        row_fmt = '{:>{width}s} ' + ' {:>12.{digits}f}' * \
+            (len(headers) - 1) + ' {:>12d}/{:d}' + ' \n'
+
+        report = self.build_report(class_names, headers, rows,
+                                   last_line_heading, row_fmt, last_row, digits)
+        report += '\n'
+        report += ('Accuracy' + ' {:>12.{digits}f}'.format(accuracy, digits=digits))
+        return report
 
 
 class EvaluatorSegmentation(EvaluatorBase):
-    def __init__(self):
-        pass
+    def __init__(self, prediction, target):
+        super(EvaluatorSegmentation, self).__init__(prediction, target)
+
+    def iou(self, background_class=0):
+        """ Returns iou for each class
+        """
+
+        iou, mean_iou = segmentation_iou(
+            self.prediction, self.target, background_class=background_class)
+        return iou, mean_iou
+
+    def precision(self, background_class=0, digits=3):
+        """ Returns precision for each class
+        """
+        precision, mean_precision = segmentation_precision(self.prediction,
+                                                           self.target,
+                                                           digits=digits,
+                                                           background_class=background_class)
+        return precision, mean_precision
+
+    def recall(self, background_class=0, digits=3):
+        """ Returns recall for each class and mean recall
+        """
+        recall, mean_recall = segmentation_recall(self.prediction,
+                                                  self.target,
+                                                  digits=digits,
+                                                  background_class=background_class)
+        return recall, mean_recall
+
+    def f1(self, background_class=0, digits=3):
+        """ Returns f1 for each class and mean f1 score
+        """
+        f1, mean_f1 = segmentation_f1(self.prediction,
+                                      self.target,
+                                      digits=digits,
+                                      background_class=background_class)
+        return f1, mean_f1
+
+    def report(self, background_class=0, digits=3):
+        precision, mean_precision, \
+            recall, mean_recall, \
+            f1, mean_f1, iou, \
+            mean_iou, tp, true_sum = get_segmentation_metrics(self.prediction,
+                                                              self.target,
+                                                              digits=digits,
+                                                              background_class=background_class)
+
+        headers = ["IoU", "Precision", "Recall", "F1 score", "#pred/#target"]
+        rows = []
+        class_names = list(precision.keys())
+
+        for c in class_names:
+            rows.append((str(c), iou[c], precision[c], recall[c], f1[c], tp[c], true_sum[c]))
+        last_line_heading = 'Average'
+        last_row = (mean_iou, mean_precision, mean_recall, mean_f1, np.sum(
+            list(tp.values())), np.sum(list(true_sum.values())))
+        row_fmt = '{:>{width}s} ' + ' {:>12.{digits}f}' * \
+            (len(headers) - 1) + ' {:>12d}/{:d}' + ' \n'
+
+        report = self.build_report(class_names, headers, rows,
+                                   last_line_heading, row_fmt, last_row, digits)
+        report += '\n'
+        return report

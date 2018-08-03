@@ -281,16 +281,20 @@ class TrainThread(object):
         Data formats are bellow.  
 
         image path list: [path_to_img1, path_to_img2, ...]
-        annotation list: [
-                            [ # Annotations of each image.
-                                {"box":[x, y, w, h], "name":"dog", "class":1},
-                                {"box":[x, y, w, h], "name":"cat", "class":0},
-                            ],
-                            [
-                                {"box":[x, y, w, h], "name":"cat", "class":0},
-                            ],
-                            ...
-                          ]
+        annotation list:
+
+        .. code-block :: python
+
+            [
+                [ # Annotations of each image.
+                    {"box":[x, y, w, h], "name":"dog", "class":1},
+                    {"box":[x, y, w, h], "name":"cat", "class":0},
+                ],
+                [
+                    {"box":[x, y, w, h], "name":"cat", "class":0},
+                ],
+                ...
+            ]
 
         Args:
             filename_list(list): [filename1, filename2, ...]
@@ -298,7 +302,9 @@ class TrainThread(object):
 
         Returns:
             (ImageDistributor): ImageDistributor object with augmentation.
+
         """
+
         img_path_list = []
         label_path_list = []
         for path in filename_list:

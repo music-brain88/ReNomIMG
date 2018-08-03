@@ -44,14 +44,11 @@ def draw_box(img, prediction, font_path=None, color_list=None):
             Each annotation has a list of dictionary which includes keys 'box', 'name' and 'score'.
             The format is below.
 
-    .. code-block :: python
-
         [
             {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
             {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
             ...
         ]
-
         font_path(string):
 
     Returns:
@@ -109,50 +106,32 @@ def draw_box(img, prediction, font_path=None, color_list=None):
     return Image.alpha_composite(img, canvas)
 
 
-def draw_segment(img, prediction, font_path=None, color_list=None):
-    """
-
-    Example:
-        >>> from PIL import Image
-        >>> from renom_img.api.utility.load import *
-        >>> prediction = load(prediction_xml_path)
-        >>> image = Image.open(img_path)
-        >>> segment_image = draw_segment(img_path, prediction)
-
-    Args:
-        img(str): path for target image
-        prediction(list): List of annotations.
-            Each annotation has a list of dictionary which includes keys 'box', 'name' and 'score'.
-            The format is below.
-
-    .. code-block :: python
-
-        [
-            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-            ...
-        ]
-
-        font_path: font path of chanracters on the image
-
-    Return:
-        (PIL.Image): This returns image described segment.
-    """
+def draw_segment(img, prediction, font_path=None, color_list=None, show_background=True):
     if color_list is None:
         color_list = default_color_list
 
-    img = Image.open(img).convert("RGBA")
+    if isinstance(img, str):
+        img = Image.open(img).convert("RGBA")
+    elif isinstance(img, np.ndarray):
+        img = Image.fromarray(img.transpose(1, 2, 0).astype(np.uint8)).convert("RGBA")
     h, w = prediction.shape
     canvas = Image.new("RGBA", (w, h), "#00000000")
 
-    class_num = np.max(prediction) - np.min(prediction)
+    class_num = np.max(prediction)
+    if show_background:
+        for c in range(class_num + 1):
+            mask = Image.fromarray(
+                np.uint8(np.where(prediction == c, True, False)) * 255).convert("L")
+            class_canvas = Image.new("RGBA", (w, h), color_list[c % len(color_list)])
+            canvas.paste(class_canvas, mask=mask)
+        return Image.alpha_composite(img, canvas.resize(img.size, Image.BILINEAR))
+    else:
+        new_img = np.zeros((h, w, 3))
+        for c in range(class_num + 1):
+            new_img[prediction == c] = color_list[c % len(color_list)][:3]
 
-    for c in range(class_num):
-        mask = Image.fromarray(np.where(prediction == c, True, False)).convert("L")
-        class_canvas = Image.new("RGBA", (w, h), color_list[c % len(color_list)])
-        canvas.paste(class_canvas, mask=mask)
-
-    return Image.alpha_composite(img, canvas.resize(img.size, Image.BILINEAR))
+        img = Image.fromarray(new_img.astype(np.uint8)).resize(img.size, Image.BILINEAR)
+        return img
 
 
 def pil2array(img):
