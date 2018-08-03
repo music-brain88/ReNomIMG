@@ -1,7 +1,7 @@
 import numpy as np
 from collections import defaultdict
 
-cpdef get_segmentation_metrics(pred_list, gt_list, n_class=None, digits=3, background_class=0):
+cpdef get_segmentation_metrics(pred_list, gt_list, n_class=None, round_off=3, background_class=0):
     """Computing IoU for each class and mean IoU
     """
     class_num = np.max([pred_list, gt_list])
@@ -60,20 +60,20 @@ cpdef get_segmentation_metrics(pred_list, gt_list, n_class=None, digits=3, backg
     mean_iou = total_tp / total_area
     return precision, mean_precision, recall, mean_recall, f1, mean_f1, ious, mean_iou, tp, true_sum
 
-cpdef segmentation_iou(pred_list, gt_list, n_class=None, digits=3, background_class=0):
-    _, _, _, _, _, _, iou, mean_iou, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, digits, background_class)
+cpdef segmentation_iou(pred_list, gt_list, n_class=None, round_off=3, background_class=0):
+    _, _, _, _, _, _, iou, mean_iou, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, round_off, background_class)
     return iou, mean_iou
 
-cpdef segmentation_precision(pred_list, gt_list, n_class=None, digits=3, background_class=0):
-    precision, mean_precision, _, _, _, _, _, _, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, digits, background_class)
+cpdef segmentation_precision(pred_list, gt_list, n_class=None, round_off=3, background_class=0):
+    precision, mean_precision, _, _, _, _, _, _, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, round_off, background_class)
     return precision, mean_precision
 
-cpdef segmentation_recall(pred_list, gt_list, n_class=None, digits=3, background_class=0):
-    _, _, recall, mean_recall, _, _, _, _, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, digits, background_class)
+cpdef segmentation_recall(pred_list, gt_list, n_class=None, round_off=3, background_class=0):
+    _, _, recall, mean_recall, _, _, _, _, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, round_off, background_class)
     return recall, mean_recall
 
-cpdef segmentation_f1(pred_list, gt_list, n_class=None, digits=3, background_class=0):
-    _, _, _, _, f1, mean_f1, _, _, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, digits, background_class)
+cpdef segmentation_f1(pred_list, gt_list, n_class=None, round_off=3, background_class=0):
+    _, _, _, _, f1, mean_f1, _, _, _, _ = get_segmentation_metrics(pred_list, gt_list, n_class, round_off, background_class)
     return f1, mean_f1
 
 
