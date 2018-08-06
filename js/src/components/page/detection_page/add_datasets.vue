@@ -64,30 +64,14 @@
                   </div>
                 </nav>
 
+
                 <div class="tab-content" id="nav-tabContent">
                   <div class="tab-pane fade show active" id="nav-number" role="tabpanel">
                     <div class="row">
-                      <div class="col-md-9 offset-md-1">
+                      <div class="col-md-4 offset-md-4">
 
-                        <div class="space-top">
-                          <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
-                          </div>
-                        </div>
-                        <div class="space-top">
-                          <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">20%</div>
-                          </div>
-                        </div>
-                        <div class="space-top">
-                          <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">10%</div>
-                          </div>
-                        </div>
-                        <div class="space-top">
-                          <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 45%;" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">45%</div>
-                          </div>
+                        <div class="loading-space">
+                          <div v-show='loading' class="spinner-donut primary"></div>
                         </div>
 
                       </div>
@@ -153,6 +137,7 @@ const DEFAULT_RATIO = 80.0
 export default {
   data: function () {
     return {
+      loading: true,
       ratio: DEFAULT_RATIO,
       discription: '',
       name: ''
@@ -216,5 +201,8 @@ input[type=checkbox]{
 }
 .space-top-last{
   margin-top: 20%;
+}
+.loading-space{
+  margin-top: 40%;
 }
 </style>
