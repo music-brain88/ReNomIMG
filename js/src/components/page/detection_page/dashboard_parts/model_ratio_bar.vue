@@ -1,6 +1,56 @@
 <template>
   <div id="model-ratio-bar">
-    <div class='title'>Total Models: {{$store.state.models.filter(model => model.state !== 3).length}}</div>
+    <div class="row">
+      <div class="col-md-3">
+        <div class='title'>Total Models: {{$store.state.models.filter(model => model.state !== 3).length}}</div>
+      </div>
+      <div class="col-md-9 legend">
+        <div class="row">
+          <div class="col-md-2">
+            <div class="nightblue">
+              <span class="box"></span>YOLO
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="lightblue">
+              <span class="box"></span>YOLO2
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="green">
+              <span class="box"></span>SSD
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="lightgreen">
+              <span class="box"></span>DSSD
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="yellow">
+              <span class="box"></span>SPPnet
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="grape">
+              <span class="box"></span>R-FCN
+            </div>
+          </div>
+        </div>
+        <div class="row status">
+          <div class="status-info">
+            <div class="status-running">
+              <span class="box"></span>Running
+            </div>
+          </div>
+          <div class="status-info">
+            <div class="status-reserve">
+              <span class="box"></span>Reserved
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <canvas id="horizontal-stack-bar"></canvas>
   </div>
 </template>
@@ -86,13 +136,13 @@ export default {
             display: false,
             stacked: true,
             barParcentage: 0.5,
-            categoryPercentage: 0.5
+            categoryPercentage: 0.3
           }]
         },
         responsive: false,
         maintainAspectRatio: false,
         legend: {
-          display: true,
+          display: false,
           position: 'bottom',
           labels: {
             boxWidth: 10,
@@ -125,6 +175,50 @@ export default {
   .title {
     font-family:$content-inner-header-font-family;
     font-size: $content-inner-header-font-size;
+  }
+  .status{
+    float: right;
+    .status-info{
+      display: flex;
+      margin-left: 4px;
+    }
+  }
+  .box {
+    width: $content-figure-font-size;
+    height: $content-figure-font-size;
+    margin-right: 4px;
+  }
+  .grape, .nightblue, .lightblue, .green, .lightgreen,
+  .yellow, .status-running, .status-reserve{
+    display: inline-flex;
+    font-size: $content-figure-font-size;
+    vertical-align: baseline;
+  }
+
+  .grape .box{
+    background-color: $grape;
+  }
+
+  .nightblue .box{
+    background-color: $nightblue;
+  }
+  .lightblue .box{
+    background-color: $lightblue;
+  }
+  .green .box{
+    background-color: $green
+  }
+  .lightgreen .box{
+    background-color: $lightgreen;
+  }
+  .yellow .box{
+    background: $yellow;
+  }
+  .status-running .box{
+    background-color: $status-running;
+  }
+  .status-reserve .box{
+    background: $status-reserve;
   }
 }
 </style>
