@@ -49,46 +49,72 @@
         </div>
         <div class="col-md-6">
           <form>
-            <h5>Train</h5>
+            <h5>Detail</h5>
 
             <div class="row space-top">
 
               <div v-if='dataset_detail.length===0'>
 
-                <nav>
-                  <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link disabled active" id="nav-number-tab" data-toggle="tab" role="tab" aria-controls="nav-number" aria-selected="true">Total number</a>
-                    <a class="nav-item nav-link disabled">All </a>
-                    <a class="nav-item nav-link disabled">Train </a>
-                    <a class="nav-item nav-link disabled">Vallidation </a>
+                <div class="row">
+                  <div class="col-md-4">
+                    Total number
                   </div>
-                </nav>
-
-
-                <div class="tab-content" id="nav-tabContent">
-                  <div class="tab-pane fade show active" id="nav-number" role="tabpanel">
-                    <div class="row">
-                      <div class="col-md-4 offset-md-4">
-
-                        <div class="loading-space">
-                          <div v-show='loading' class="spinner-donut primary"></div>
-                        </div>
-
-                      </div>
-                    </div>
+                  <div class="col-md-4">
+                    All
                   </div>
+                  <div class="col-md-4">
+                    Vallidation
+                  </div>
+                </div>
+                <div class="row">
 
+                </div>
+                <div class="row">
+                  <div class="loading-space">
+                    <div v-show='loading' class="spinner-donut primary"></div>
+                  </div>
                 </div>
 
               </div>
               <div v-else>
+                <div class="row">
+                  <div class="col-md-4">
+                    Total number {{dataset_detail.total}}
+                  </div>
+                  <div class="col-md-4">
+                    Train {{dataset_detail.train_num}}
+                  </div>
+                  <div class="col-md-4">
+                    Vallidation {{dataset_detail.valid_num}}
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-9 offset-md-1">
+                    Total Number of Tag
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-9 offset-md-1">
+                    <div class="row" v-for="(val, key) in dataset_detail.class_maps">
+                      <div class="col-md-5">
+                        Class name {{key}} :
+                      </div>
+                      <div class="col-md-7">
+                        <div class="progress">
+                          <div class="progress-bar" role="progressbar" :style="'width:' + calc_percentage(val, dataset_detail.total)+'%;'" :aria-valuenow="calc_percentage(val, dataset_detail.total)" aria-valuemin="0" aria-valuemax="100">{{calc_percentage(val, dataset_detail.total)}}%</div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
 
                 <nav>
                   <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <a class="nav-item nav-link disabled active" id="nav-number-tab" data-toggle="tab" role="tab" aria-controls="nav-number" aria-selected="true">Total number</a>
                     <a class="nav-item nav-link disabled">All {{dataset_detail.total}}</a>
                     <a class="nav-item nav-link disabled">Train {{dataset_detail.train_num}}</a>
-                    <a class="nav-item nav-link disabled">Vallidation {{dataset_detail.valid_num}}</a>
+                    <a class="nav-item nav-link disabled">Vallidation </a>
                   </div>
                 </nav>
 

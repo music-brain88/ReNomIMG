@@ -5,7 +5,7 @@
         <div class="modal-body">
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-              <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Setting of New Training Model</a>
+              <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Setting of New Model</a>
               <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Setting of Dataset</a>
             </div>
           </nav>
