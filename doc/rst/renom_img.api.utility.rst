@@ -49,18 +49,8 @@ renom\_img.api.utility.evaluate
 ------------------------------------
 
 .. automodule:: renom_img.api.utility.evaluate
-    :members: EvaluatorClassification, EvaluatorDetection
+    :members: EvaluatorClassification, EvaluatorDetection, EvaluatorSegmentation
     :undoc-members: confusion_matrix
-    :show-inheritance:
-
-.. automodule:: renom_img.api.utility.evaluate.classification
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: renom_img.api.utility.evaluate.detection
-    :members:
-    :undoc-members:
     :show-inheritance:
 
 renom\_img.api.utility.distributor

@@ -4,40 +4,17 @@ from renom_img.api.utility.nms import *
 import warnings
 
 cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
-    """
-    get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5)
-
-    This function calculates precision and recall value of provided ground truth box list(gt_list) and
-    predicted box list(pred_list).
+    """ This function calculates precision and recall value of provided ground truth box list(gt_list) and predicted box list(pred_list).
 
     Args:
         gt_list (list):
         pred_list (list): A list of predicted bounding boxes.
-
-            .. code-block :: python
-
-                [
-                    [ # Objects of 1st image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ],
-                    [ # Objects of 2nd image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ]
-                ]
-
         n_class(int): The number of classes
         iou_threshold(float): This represents the ratio of overlapped area between two boxes. Defaults to 0.5
 
     Returns:
-        precisions(dict): Dictionary of precision for each class
-        recalls(dict): Dictionary of recall for each class
-        n_pred: The number of predicted objects for each class
-        n_pos_list: The number of positive objects for each class
-
+        4-tuples. Each element represents a dictionary pf precisions, a dictionary of recall. the number of predicted boxes which match to ground truth boxes,
+        and the number of positive boxes for each class.
     """
 
     class_map = np.unique(np.concatenate([[g['name'] for gt in gt_list for g in gt], [p['name'] for pre in pred_list for p in pre]]))
@@ -121,16 +98,14 @@ cpdef get_prec_and_rec(pred_list, gt_list, n_class=None, iou_threshold=0.5):
 
 
 cpdef get_ap_and_map(prec, rec, n_class=None, n_round_off=3):
-    """
-    get_ap_and_map(prec, rec, n_class=None, n_round_off=3)
+    """ Returns AP and mAP
 
     Args:
         prec(dict): Dictionary of precision for each class returned by get_prec_and_rec method
         rec(dict): Dictionary of recall for each class returned by get_prec_and_rec method
 
     Returns:
-        aps(dict): dictionary of AP for each class
-        mAP(float): mean Average Precision
+        2-tuple. Each element represetns a dictionary of AP for each class and mAP (mean Average Precision).
     """
     class_map = list(prec.keys())
     aps = {}
@@ -157,34 +132,16 @@ cpdef get_ap_and_map(prec, rec, n_class=None, n_round_off=3):
 
 
 cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_off=3):
-    """
-    get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_off=3)
+    """ Mean IoU
 
     Args:
         gt_list (list):
         pred_list (list): A list of predicted bounding boxes.
-
-            .. code-block :: python
-
-                [
-                    [ # Objects of 1st image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ],
-                    [ # Objects of 2nd image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ]
-                ]
-
         n_class(int): The number of classes
         iou_threshold(float): This represents the ratio of overlapped area between two boxes. Defaults to 0.5
 
     Returns:
-        mean_iou_per_cls(dict): Mean IoU for each class
-        mean_iou: Average mean IoU in all classes
+        2-tuple. Each element represents a dictioanry of IoU for each class and mean IoU.
     """
 
     class_map = np.unique(np.concatenate([[g['name'] for gt in gt_list for g in gt], [p['name'] for pre in pred_list for p in pre]]))
@@ -249,36 +206,17 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
     return mean_iou_per_cls, mean_iou
 
 cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_off=3):
-    """
-    get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_off=3)
+    """ Returns preision, recall and IoU.
 
     Args:
         gt_list (list):
         pred_list (list): A list of predicted bounding boxes.
-
-            .. code-block :: python
-    
-                [
-                    [ # Objects of 1st image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ],
-                    [ # Objects of 2nd image.
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                        ...
-                    ]
-                ]
-
         n_class(int): The number of classes
         iou_threshold(float): This represents the ratio of overlapped area between two boxes. Defaults to 0.5
 
     Returns:
-        precisions(dict): Dictionary of precision for each class
-        recalls(dict): Dictionary of recall for each class
-        mean_iou_per_cls(dict): Mean IoU for each class
-        mean_iou: Average mean IoU in all classes
+        4-tuple. Each element represetns a ditionary of precision foe each class, a dictionary of recall for each class,
+        a dictionary for IoU for each class, and mean IoU (float).
     """
 
     class_map = np.unique(np.concatenate([[g['name'] for gt in gt_list for g in gt], [p['name'] for pre in pred_list for p in pre]]))
