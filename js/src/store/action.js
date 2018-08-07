@@ -431,6 +431,8 @@ export default {
   async loadDatasetSplitDetail (context, payload) {
     let url = '/api/renom_img/v1/load_dataset_split_detail'
 
+    context.commit('setLoadingflg', true)
+
     let fd = new FormData()
     fd.append('ratio', payload.ratio)
     fd.append('name', payload.name)
@@ -446,8 +448,10 @@ export default {
         context.commit('setAlertModalFlag', {'flag': true})
         context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
         context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
+        context.commit('setLoadingflg', false)
       } else {
         // let max_value = Math.max.apply(null, response.data.map(function (o) { return o.class_maps }))
+        context.commit('setLoadingflg', false)
         console.log('action:', response.data.class_maps)
         context.commit('setDataSplitDetail', response.data)
         // context.commit('setMaxDataDetailValue', max_value)

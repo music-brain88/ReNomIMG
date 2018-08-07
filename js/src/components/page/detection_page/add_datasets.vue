@@ -52,7 +52,7 @@
             <h5>Detail</h5>
 
             <div class="row space-top">
-
+              <div class="col-md-12">
               <div v-if='dataset_detail.length===0'>
 
                 <div class="row">
@@ -70,8 +70,10 @@
 
                 </div>
                 <div class="row">
-                  <div class="loading-space">
-                    <div v-show='loading' class="spinner-donut primary"></div>
+                  <div class="col-md-2 offset-5">
+                    <div class="loading-space">
+                      <div v-if='loading_flg' class="spinner-donut primary"></div>
+                    </div>
                   </div>
                 </div>
 
@@ -95,6 +97,7 @@
                 </div>
                 <div class="row">
                   <div class="col-md-9 offset-md-1">
+                    <p>{{dataset_detail.class_maps}}</p>
                     <div class="row" v-for="(val, key) in dataset_detail.class_maps">
                       <div class="col-md-5">
                         Class name {{key}} :
@@ -109,40 +112,9 @@
                   </div>
                 </div>
 
-                <nav>
-                  <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link disabled active" id="nav-number-tab" data-toggle="tab" role="tab" aria-controls="nav-number" aria-selected="true">Total number</a>
-                    <a class="nav-item nav-link disabled">All {{dataset_detail.total}}</a>
-                    <a class="nav-item nav-link disabled">Train {{dataset_detail.train_num}}</a>
-                    <a class="nav-item nav-link disabled">Vallidation </a>
-                  </div>
-                </nav>
-
-                <div class="tab-content" id="nav-tabContent">
-                  <div class="tab-pane fade show active" id="nav-number" role="tabpanel">
-                    <div class="row">
-                      <div class="col-md-9 offset-md-1">
-
-                        <p>{{dataset_detail.class_maps}}</p>
-                        <div class="row" v-for="(val, key) in dataset_detail.class_maps">
-                          <div class="col-md-5">
-                            Class name {{key}} :
-                          </div>
-                          <div class="col-md-7">
-                            <div class="progress">
-                              <div class="progress-bar" role="progressbar" :style="'width:' + calc_percentage(val, dataset_detail.total)+'%;'" :aria-valuenow="calc_percentage(val, dataset_detail.total)" aria-valuemin="0" aria-valuemax="100">{{calc_percentage(val, dataset_detail.total)}}%</div>
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-
               </div>
 
+              </div>
             </div>
 
             <div class="modal-button-area space-top-last float-right">
@@ -163,14 +135,13 @@ const DEFAULT_RATIO = 80.0
 export default {
   data: function () {
     return {
-      loading: true,
       ratio: DEFAULT_RATIO,
       discription: '',
       name: ''
     }
   },
   computed: {
-    ...mapState(['dataset_detail']),
+    ...mapState(['dataset_detail', 'loading_flg']),
     load_dataset_detail: function () {
       return this.$store.state.dataset_detail
     }
@@ -229,6 +200,7 @@ input[type=checkbox]{
   margin-top: 20%;
 }
 .loading-space{
-  margin-top: 40%;
+  padding-top: 60%;
+  margin-top: 100%;
 }
 </style>

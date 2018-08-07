@@ -470,6 +470,10 @@ export default {
     state.dataset_creating_modal = payload.dataset_creating_modal
   },
 
+  setLoadingflg (state, payload) {
+    state.loading_flg = payload
+  },
+
   setDataSplitDetail (state, payload) {
     state.dataset_detail = payload
   },
