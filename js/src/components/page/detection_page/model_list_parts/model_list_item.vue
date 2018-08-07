@@ -149,6 +149,7 @@ export default {
   display: flex;
   position: relative;
   width: calc(100% - 16px);
+  // width: calc(100% - 24px);
   height: 95px;
   margin: 0px 0px $item-margin-bottom;
   box-shadow: 1px 1px #ddd;

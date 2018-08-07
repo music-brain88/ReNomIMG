@@ -20,8 +20,8 @@
               </div>
 
               <div class="row justify-content-center space-top">
-                <label class="col-sm-4 col-form-label text-right">Ratio of training data</label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 col-form-label text-right">Ratio of training data</label>
+                <div class="col-sm-6">
                   <div class="input-group">
                     <input v-model='ratio' type="number" class="form-control" min="0" max="100" placeholder="80">
                     <div class="input-group-append">
@@ -31,97 +31,104 @@
                 </div>
               </div>
 
-              <div class="row justify-content-center space-top">
-                <label class="col-sm-4 col-form-label text-right">Arrange number of data</label>
-                <div class="col-sm-8">
-                  <div class="form-check">
-                    <input class="form-check-input position-static" type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
-                  </div>
-                </div>
-              </div>
-
               <div class="modal-button-area space-top float-right">
-                <button>Confirm</button>
+                <button class="submit">Confirm</button>
               </div>
 
             </div>
           </form>
         </div>
         <div class="col-md-6">
-          <form>
+          <form  v-on:submit.prevent="register">
             <h5>Detail</h5>
+            <div class="container">
+              <div class="row space-top">
+                <div class="col-md-12">
+                  <div v-if='dataset_detail.length===0'>
 
-            <div class="row space-top">
-              <div class="col-md-12">
-              <div v-if='dataset_detail.length===0'>
-
-                <div class="row">
-                  <div class="col-md-4">
-                    Total number
-                  </div>
-                  <div class="col-md-4">
-                    All
-                  </div>
-                  <div class="col-md-4">
-                    Vallidation
-                  </div>
-                </div>
-                <div class="row">
-
-                </div>
-                <div class="row">
-                  <div class="col-md-2 offset-5">
-                    <div class="loading-space">
-                      <div v-if='loading_flg' class="spinner-donut primary"></div>
+                    <div class="row">
+                      <div class="col-md-4">
+                        Number of Images
+                      </div>
+                      <div class="col-md-4">
+                        Train
+                      </div>
+                      <div class="col-md-4">
+                        Vallidation
+                      </div>
                     </div>
-                  </div>
-                </div>
+                    <div class="row space-top">
+                      <div class="col-md-4">
+                        All
+                      </div>
+                      <div class="col-md-8">
+                        <div class="progress">
+                          <div class="progress-bar" role="progressbar" style="width:0%;" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-2 offset-5">
+                        <div class="loading-space">
+                          <div v-if='loading_flg' class="spinner-donut primary"></div>
+                        </div>
+                      </div>
+                    </div>
 
-              </div>
-              <div v-else>
-                <div class="row">
-                  <div class="col-md-4">
-                    Total number {{dataset_detail.total}}
                   </div>
-                  <div class="col-md-4">
-                    Train {{dataset_detail.train_num}}
-                  </div>
-                  <div class="col-md-4">
-                    Vallidation {{dataset_detail.valid_num}}
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-9 offset-md-1">
-                    Total Number of Tag
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-9 offset-md-1">
-                    <p>{{dataset_detail.class_maps}}</p>
-                    <div class="row" v-for="(val, key) in dataset_detail.class_maps">
-                      <div class="col-md-5">
+                  <div v-else>
+
+                    <div class="row">
+                      <div class="col-md-4">
+                        Number of Images
+                      </div>
+                      <div class="col-md-4">
+                        Train {{dataset_detail.train_num}}
+                      </div>
+                      <div class="col-md-4">
+                        Vallidation {{dataset_detail.valid_num}}
+                      </div>
+                    </div>
+
+                    <div class="row space-top">
+                      <div class="col-md-4">
+                        All
+                      </div>
+                      <div class="col-md-8">
+                        <div class="progress">
+                          <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.train_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
+                          <div class="progress-bar validation-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.valid_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row space-top">
+                      <div class="col-md-4">
+                        <span>Total Number of Tag</span>
+                      </div>
+                    </div>
+
+                    <div v-for="(val, key) in dataset_detail.class_maps" class="row space-top">
+
+                      <div class="col-md-4">
                         Class name {{key}} :
                       </div>
-                      <div class="col-md-7">
+                      <div class="col-md-8">
                         <div class="progress">
-                          <div class="progress-bar" role="progressbar" :style="'width:' + calc_percentage(val, dataset_detail.total)+'%;'" :aria-valuenow="calc_percentage(val, dataset_detail.total)" aria-valuemin="0" aria-valuemax="100">{{calc_percentage(val, dataset_detail.total)}}%</div>
+                          <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(val, dataset_detail.total)+'%;'" :aria-valuenow="calc_percentage(val, dataset_detail.total)" aria-valuemin="0" aria-valuemax="100">{{calc_percentage(val, dataset_detail.total)}}%</div>
                         </div>
                       </div>
 
                     </div>
                   </div>
                 </div>
-
               </div>
-
-              </div>
-            </div>
 
             <div class="modal-button-area space-top-last float-right">
-              <button>Create</button>
-              <button>Reset</button>
+              <button class="submit">Save</button>
+              <button>Cancel</button>
             </div>
 
+            </div>
           </form>
         </div>
       </div>
@@ -202,5 +209,15 @@ input[type=checkbox]{
 .loading-space{
   padding-top: 60%;
   margin-top: 100%;
+}
+.train-color{
+  background-color: $train-color;
+}
+.validation-color{
+  background-color: $validation-color;
+}
+.submit{
+  background-color: $push-button;
+  color:$font-color;
 }
 </style>

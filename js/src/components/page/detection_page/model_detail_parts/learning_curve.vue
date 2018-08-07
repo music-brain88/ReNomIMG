@@ -304,8 +304,6 @@ export default {
 
 <style lang="scss" scoped>
 #learning-curve {
-  $train-color: #0762ad;
-  $validation-color: #ef8200;
   width: 100%;
   height: 100%;
   font-family: $content-figure-font-famly;

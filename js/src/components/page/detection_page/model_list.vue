@@ -64,6 +64,20 @@ export default {
   font-family: $content-top-header-font-family;
   font-size: $content-inner-header-font-size;
 
+  div::-webkit-scrollbar{
+    width: 8px;
+  }
+  div::-webkit-scrollbar-track{
+    background: #fff;
+    border: none;
+    border-radius: 6px;
+  }
+  div::-webkit-scrollbar-thumb{
+    background: #aaa;
+    border-radius: 6px;
+    box-shadow: none;
+  }
+
   .title-selectbox {
     display: flex;
     display: -webkit-flex;
@@ -126,8 +140,9 @@ export default {
 
   .model-item-area {
     height: calc(100% - #{$content-top-header-hight} - #{$panel-height});
+    width:100%;
     margin-top: 12px;
-    overflow: auto;
+    overflow-y: scroll;
   }
 
   .add-panel {
