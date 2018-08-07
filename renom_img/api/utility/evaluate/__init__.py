@@ -4,6 +4,7 @@ from .classification import precision_score, recall_score, f1_score, accuracy_sc
 from .segmentation import segmentation_iou, segmentation_precision, segmentation_recall, segmentation_f1, get_segmentation_metrics
 from collections import defaultdict
 
+
 class EvaluatorBase(object):
 
     def __init__(self, prediction, target):
@@ -194,7 +195,8 @@ class EvaluatorDetection(EvaluatorBase):
                 }
         """
 
-        precision, recall, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
+        precision, recall, _, _ = get_prec_and_rec(
+            self.prediction, self.target, self.num_class, iou_thresh)
         return precision. recall
 
     def report(self, iou_thresh=0.5, round_off=3):
@@ -355,7 +357,8 @@ class EvaluatorClassification(EvaluatorBase):
 
         headers = ["Precision", "Recall", "F1 score", "#pred/#target"]
         rows = []
-        for c in class_names: rows.append((str(c), precision[c], recall[c], f1[c], tp[c], true_sum[c]))
+        for c in class_names:
+            rows.append((str(c), precision[c], recall[c], f1[c], tp[c], true_sum[c]))
         last_line_heading = 'Average'
         last_row = (mean_precision, mean_recall, mean_f1, np.sum(
             list(tp.values())), np.sum(list(true_sum.values())))
@@ -389,6 +392,7 @@ class EvaluatorSegmentation(EvaluatorBase):
             >>> evaluator.precision()
             >>> evaluator.recall()
     """
+
     def __init__(self, prediction, target, background_class=0):
         super(EvaluatorSegmentation, self).__init__(prediction, target)
         self.background_class = background_class
