@@ -20,4 +20,3 @@ msgstr ""
 #: ../../rst/how_to_use.rst:2
 msgid "How to Use"
 msgstr "利用方法"
-
