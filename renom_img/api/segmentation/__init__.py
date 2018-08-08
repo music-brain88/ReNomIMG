@@ -77,7 +77,7 @@ class SemanticSegmentation(Base):
                 except:
                     loss = loss.as_ndarray()
                 display_loss += loss
-                bar.set_description("Epoch:{:03d} Train Loss:{:5.4f}".format(e, loss))
+                bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
             avg_train_loss = display_loss / (i + 1)
             avg_train_loss_list.append(avg_train_loss)
@@ -95,14 +95,14 @@ class SemanticSegmentation(Base):
                     except:
                         loss = loss.as_ndarray()
                     display_loss += loss
-                    bar.set_description("Epoch:{:03d} Valid Loss:{:5.4f}".format(e, loss))
+                    bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
                 avg_valid_loss = display_loss / (i + 1)
                 avg_valid_loss_list.append(avg_valid_loss)
-                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.4f} Avg Valid Loss:{:5.4f}".format(
+                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
                     e, avg_train_loss, avg_valid_loss))
             else:
-                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.4f}".format(e, avg_train_loss))
+                bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f}".format(e, avg_train_loss))
             bar.close()
             if callback_end_epoch is not None:
                 callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)

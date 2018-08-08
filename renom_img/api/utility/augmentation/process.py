@@ -600,6 +600,11 @@ def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'
     Args:
         x (list of str): List of path of images.
         y (list of annotation): list of annotation for x. It is only used when prediction.
+        alpha(float or list of two floats): Higher value increases contrast, and lower value decreases contrast.
+                                            if a list [a, b], alpha value is sampled from uniform distribution ranging from [a, b).
+                                            if a float, constant value of alpha is used.
+        per_channel(Bool): Whether to apply contrast normalization for each channel.
+                           If alpha is given a list, then different values for each channel are used.
 
     Returns:
         tupple: list of transformed images and list of annotation for x.
