@@ -1,53 +1,49 @@
 <template>
   <div id="model-ratio-bar">
     <div class="row">
-      <div class="col-md-3">
+      <div class="col-md-12">
         <div class='title'>Total Models: {{$store.state.models.filter(model => model.state !== 3).length}}</div>
       </div>
-      <div class="col-md-9 legend">
-        <div class="row">
-          <div class="col-md-2">
-            <div class="nightblue">
-              <span class="box"></span>YOLO
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="lightblue">
-              <span class="box"></span>YOLO2
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="green">
-              <span class="box"></span>SSD
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="lightgreen">
-              <span class="box"></span>DSSD
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="yellow">
-              <span class="box"></span>SPPnet
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="grape">
-              <span class="box"></span>R-FCN
-            </div>
-          </div>
+    </div>
+    <div class="row legend">
+      <div class="col-md">
+        <div class="nightblue">
+          <span class="box"></span>YOLO
         </div>
-        <div class="row status">
-          <div class="status-info">
-            <div class="status-running">
-              <span class="box"></span>Running
-            </div>
-          </div>
-          <div class="status-info">
-            <div class="status-reserve">
-              <span class="box"></span>Reserved
-            </div>
-          </div>
+      </div>
+      <div class="col-md">
+        <div class="lightblue">
+          <span class="box"></span>YOLO2
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="green">
+          <span class="box"></span>SSD
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="lightgreen">
+          <span class="box"></span>DSSD
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="yellow">
+          <span class="box"></span>SPPnet
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="grape">
+          <span class="box"></span>R-FCN
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="status-running">
+          <span class="box"></span>Running
+        </div>
+      </div>
+      <div class="col-md">
+        <div class="status-reserve">
+          <span class="box"></span>Reserved
         </div>
       </div>
     </div>
@@ -176,12 +172,8 @@ export default {
     font-family:$content-inner-header-font-family;
     font-size: $content-inner-header-font-size;
   }
-  .status{
-    float: right;
-    .status-info{
-      display: flex;
-      margin-left: 4px;
-    }
+  .legend {
+    margin-top: $content-top-margin;
   }
   .box {
     width: $content-figure-font-size;

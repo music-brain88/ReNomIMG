@@ -435,7 +435,12 @@ def load_dataset_split_detail():
         train_imgs = [str(img) for img in trains]
         valid_imgs = [str(img) for img in valids]
 
-        _, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
+        parsed_data, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
+        #view = [*[l["class"] for l in label] for p, label in zip(path, parsed_data) if p in trains]
+        #
+        # for i in range(len(parsed_data)):
+        #     print(i)
+
 
         # register dataset
         #id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)
@@ -445,7 +450,7 @@ def load_dataset_split_detail():
         valid_num = len(valid_imgs)
         count = {}
 
-        for i in range(len(_)) :
+        for i in range(len(parsed_data)) :
             for j in range(len(class_map)):
                 if _[i][0].get('name') == class_map[j] :
                     if class_map[j] not in count:
@@ -455,9 +460,10 @@ def load_dataset_split_detail():
 
         body = json.dumps(
             {"total": n_imgs,
-            "train_num": train_num,
-            "valid_num": valid_num,
-            "class_maps": count
+            "train_image_num": train_num,
+            "valid_image_num": valid_num,
+            "class_maps": count,
+            "view": view
             })
 
         ret = create_response(body)

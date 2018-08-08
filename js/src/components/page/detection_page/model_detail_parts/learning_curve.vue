@@ -70,7 +70,7 @@ export default {
 
       const margin = { 'top': 0, 'bottom': 30, 'right': 5, 'left': 27 }
       const width = curve_area.clientWidth
-      const height = curve_area.clientHeight
+      const height = curve_area.clientHeight * 0.9
       const inner_width = width - (margin.right + margin.left)
       const inner_height = height - (margin.top + margin.bottom)
 
@@ -275,7 +275,7 @@ export default {
           .style('stroke-dasharray', '2,2')
         gX.selectAll('.tick').selectAll('text')
           .style('fill', d3.rgb(0, 0, 0, 0.5))
-          .style('font-size', '0.75em')
+          .style('font-size', '0.60em')
 
         gY.selectAll('path')
           .style('stroke', d3.rgb(128, 128, 128, 0.5))
@@ -284,7 +284,7 @@ export default {
           .style('stroke-dasharray', '2,2')
         gY.selectAll('.tick').selectAll('text')
           .style('fill', d3.rgb(0, 0, 0, 0.5))
-          .style('font-size', '0.75em')
+          .style('font-size', '0.60em')
       }
       function resetZoom () {
         svg.transition()
@@ -310,6 +310,7 @@ export default {
   font-size: $content-figure-font-size;
   color:$content-figure-font-color;
   float: right;
+  margin-bottom: 20px;
   .curve-legend{
     top: 0px;
     right: 20px;
@@ -334,6 +335,7 @@ export default {
     }
   }
   .xaxis{
+    margin-top: -15px;
     margin-left: 90%;
   }
 }

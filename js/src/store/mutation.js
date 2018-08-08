@@ -423,6 +423,8 @@ export default {
     state.dataset_defs = payload.dataset_defs
 
     const IMG_ROW_HEIGHT = 160
+    const IMG_ROW_WIDTH = 943
+    /*
     const IMG_ROW_WIDTH = (1280 - // width
                            12 * 2 - // padding of container
                            72 * 2 - // margin of detection-page
@@ -430,8 +432,8 @@ export default {
                            24 - // margin of tag-list
                            4 - // margin
                            4 // image imargin
-
     )
+    */
     const IMG_MARGIN = 4
     for (const dataset of state.dataset_defs) {
       dataset.pages = []
