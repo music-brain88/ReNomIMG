@@ -3,6 +3,7 @@ import os
 import numpy as np
 import renom as rm
 from tqdm import tqdm
+from renom_img.api import Base, adddoc
 from renom_img.api.classification import Classification
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.load import prepare_detection_data, load_img
@@ -20,16 +21,10 @@ def layer_factory(channel=32, conv_layer_num=2):
     return rm.Sequential(layers)
 
 
+@adddoc
 class VGGBase(Classification):
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training VGG algorithm.
 
-        Args:
-            current_epoch:
-            total_epoch:
-            current_batch:
-            total_epoch:
-        """
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
@@ -41,13 +36,15 @@ class VGGBase(Classification):
             return self._opt
 
     def preprocess(self, x):
-        """Image preprocess for VGG.
+        """
+        Preprocessing for VGG is follows.
 
-        Args:
-            x (ndarray):
+        .. math::
 
-        Returns:
-            (ndarray): Preprocessed data.
+            x_{red} -= 123.68 \\\\
+            x_{green} -= 116.779 \\\\
+            x_{blue} -= 103.939
+
         """
         x[:, 0, :, :] -= 123.68  # R
         x[:, 1, :, :] -= 116.779  # G
@@ -62,6 +59,7 @@ class VGGBase(Classification):
         self._model.block5.set_auto_update(self._train_whole_network)
 
 
+@adddoc
 class VGG11(VGGBase):
     """VGG11 model.
 

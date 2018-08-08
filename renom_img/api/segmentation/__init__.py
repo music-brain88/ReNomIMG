@@ -11,11 +11,6 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 
 class SemanticSegmentation(Base):
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        pass
-
-    def preprocess(self, x):
-        return x / 255.
 
     def predict(self, img_list):
         batch_size = 32

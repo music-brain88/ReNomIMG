@@ -96,6 +96,40 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# Document settings.
+import re
+import inspect
+from renom_img.api import Base
+from renom.layers.function.parameterized import Model
+
+global processing_class
+processing_class = None
+
+
+def skip_doc(app, what, name, obj, skip, options):
+    model_method = list(Model.__dict__.values())
+    if obj in model_method or (name not in str(options["members"]) and what == "module"):
+        return True
+    return None
+
+
+def process_doc(app, what, name, obj, options, lines):
+    global processing_class
+    if what == "method":
+        class_name = re.search(r".+\.", str(obj).split(" ")[1]).group()
+        if class_name:
+            class_name = class_name[:-1]
+            if class_name in [c.__name__ for c in processing_class.mro()] and len(lines):
+                for l in range(len(lines)):
+                    lines[l] = re.sub(r"\$\{class\}", processing_class.__name__, lines[l])
+    else:
+        processing_class = obj
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip_doc)
+    app.connect("autodoc-process-docstring", process_doc)
+
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
