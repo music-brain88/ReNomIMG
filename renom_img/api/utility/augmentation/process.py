@@ -217,6 +217,31 @@ class Shift(ProcessBase):
             new_y.append(ny)
         return new_x, new_y
 
+    def _transform_segmentation(self, x, y):
+        assert len(x.shape) == 4
+        n, c, h, w = x.shape
+        new_x = np.zeros_like(x)
+        new_y = np.zeros_like(y)
+        rand_h = ((np.random.rand(n) * 2 - 1) * self._h).astype(np.int)
+        rand_v = ((np.random.rand(n) * 2 - 1) * self._v).astype(np.int)
+
+        new_min_x = np.clip(rand_h, 0, w)
+        new_min_y = np.clip(rand_v, 0, h)
+        new_max_x = np.clip(rand_h + w, 0, w)
+        new_max_y = np.clip(rand_v + h, 0, h)
+
+        orig_min_x = np.maximum(-rand_h, 0)
+        orig_min_y = np.maximum(-rand_v, 0)
+        orig_max_x = np.minimum(-rand_h + w, w)
+        orig_max_y = np.minimum(-rand_v + h, h)
+
+        for i in range(n):
+            new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
+                x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
+            new_y[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
+                y[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
+        return new_x, new_y
+
 
 def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
     """Shift images randomly according to given parameter.
@@ -318,6 +343,24 @@ class Rotate(ProcessBase):
                     for j, obj in enumerate(y[i])])
         return new_x, new_y
 
+    def _transform_segmentation(self, x, y):
+        assert len(x.shape) == 4
+        n, c, h, w = x.shape
+        new_x = np.empty_like(x)
+        new_y = np.empty_like(y)
+
+        if h == w:
+            # 0, 90, 180 or 270 degree.
+            rotate_frag = np.random.randint(4, size=(n, ))
+        else:
+            # 0 or 180 degree.
+            rotate_frag = np.random.randint(2, size=(n, )) * 2
+
+        for i, r in enumerate(rotate_frag):
+            new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))
+            new_y[i, :, :, :] = np.rot90(y[i], r, axes=(1, 2))
+        return new_x, new_y
+
 
 def rotate(x, y=None, mode="classification"):
     """Rotate images randomly from 0, 90, 180, 270 degree.
@@ -357,6 +400,10 @@ class WhiteNoise(ProcessBase):
         assert len(x.shape) == 4
         return x + self._std * np.random.randn(*x.shape), y
 
+    def _transform_segmentation(self, x, y):
+        assert len(x.shape) == 4
+        return x + self._std * np.random.randn(*x.shape), y
+
 
 def white_noise(x, y=None, std=0.01, mode="classification"):
     """Add white noise to images.
@@ -388,6 +435,54 @@ class Jitter(ProcessBase):
         pass
 
     def _transform_classification(self, x, y):
+        """
+        Color is "RGB" 0~255 image.
+        """
+        raise NotImplementedError
+        N = len(x)
+        dim0 = np.arange(N)
+        scale_h = np.random.uniform(0.9, 1.1)
+        scale_s = np.random.uniform(0.9, 1.1)
+        scale_v = np.random.uniform(0.9, 1.1)
+        new_x = np.zeros_like(x)
+        max_color_index = np.argmax(x, axis=1)
+        max_color = x[(dim0, max_color_index)]
+        min_color = np.min(x, axis=1)
+        h = (x[(dim0, max_color_index - 2)] - x[(dim0, max_color_index - 1)]) / \
+            (max_color - min_color) * 60 + max_color_index * 120
+        s = (max_color - min_color) / max_color
+        v = max_color
+
+        h = np.clip(h * scale_h, 0, 359)
+        s = np.clip(s * scale_s, 0, 1)
+        v = np.clip(v * scale_v, 0, 255)
+        return x, y
+
+    def _transform_detection(self, x, y):
+        """
+        Color is "RGB" 0~255 image.
+        """
+        raise NotImplementedError
+        N = len(x)
+        dim0 = np.arange(N)
+        scale_h = np.random.uniform(0.9, 1.1)
+        scale_s = np.random.uniform(0.9, 1.1)
+        scale_v = np.random.uniform(0.9, 1.1)
+        new_x = np.zeros_like(x)
+        max_color_index = np.argmax(x, axis=1)
+        max_color = x[(dim0, max_color_index)]
+        min_color = np.min(x, axis=1)
+        h = (x[(dim0, max_color_index - 2)] - x[(dim0, max_color_index - 1)]) / \
+            (max_color - min_color) * 60 + max_color_index * 120
+        s = (max_color - min_color) / max_color
+        v = max_color
+
+        h = np.clip(h * scale_h, 0, 359)
+        s = np.clip(s * scale_s, 0, 1)
+        v = np.clip(v * scale_v, 0, 255)
+        return x, y
+
+    def _transform_segmentation(self, x, y):
         """
         Color is "RGB" 0~255 image.
         """
@@ -460,6 +555,22 @@ class ContrastNorm(ProcessBase):
 
         return new_x, y
 
+    def _transform_segmentation(self, x, y):
+        assert len(x.shape) == 4
+        n = x.shape[0]
+        new_x = np.empty_like(x)
+        for i in range(n):
+            if self._per_channel and isinstance(self._alpha, list):
+                channel = x.shape[1]
+                alpha = self._draw_sample(size=channel)
+                for c in range(channel):
+                    new_x[i, c, :, :] = np.clip(alpha[c] * (x[i, c, :, :] - 128) + 128, 0, 255)
+            else:
+                alpha = self._draw_sample()
+                new_x[i] = np.clip(alpha * (x[i] - 128) + 128, 0, 255)
+
+        return new_x, y
+
 
 def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'):
     """ Contrast Normalization
@@ -467,7 +578,7 @@ def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'
         alpha(float or list of two floats): Higher value increases contrast, and lower value decreases contrast.
                                             if a list [a, b], alpha value is sampled from uniform distribution ranging from [a, b).
                                             if a float, constant value of alpha is used.
-        per_channel(Bool): Whether to apply contrast normalization for each channel. 
+        per_channel(Bool): Whether to apply contrast normalization for each channel.
                            If alpha is given a list, then different values for each channel are used.
 
     Returns:

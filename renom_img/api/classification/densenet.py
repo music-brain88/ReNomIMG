@@ -133,9 +133,10 @@ class DenseNet121(DenseNetBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
-    Densely Connected Convolutional Network
-    https://arxiv.org/pdf/1608.06993.pdf
+    References:
+        Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
+        Densely Connected Convolutional Network
+        https://arxiv.org/pdf/1608.06993.pdf
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -187,9 +188,10 @@ class DenseNet169(DenseNetBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
-    Densely Connected Convolutional Network
-    https://arxiv.org/pdf/1608.06993.pdf
+    References:
+        Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
+        Densely Connected Convolutional Network
+        https://arxiv.org/pdf/1608.06993.pdf
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -242,9 +244,10 @@ class DenseNet201(DenseNetBase):
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
-    Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
-    Densely Connected Convolutional Network
-    https://arxiv.org/pdf/1608.06993.pdf
+    References:
+        Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger
+        Densely Connected Convolutional Network
+        https://arxiv.org/pdf/1608.06993.pdf
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")

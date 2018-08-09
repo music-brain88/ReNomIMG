@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-29 14:03+0900\n"
+"POT-Creation-Date: 2018-08-01 11:10+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,6 @@ msgstr ""
 msgid "renom\\_img.api.inference"
 msgstr ""
 
-#: ../../rst/renom_img.api.inference.rst:5
-msgid "renom\\_img.api.inference.inference"
-msgstr ""
+#~ msgid "renom\\_img.api.inference.inference"
+#~ msgstr ""
 

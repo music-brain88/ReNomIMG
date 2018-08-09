@@ -12,8 +12,12 @@ def parse_xml_detection(xml_path_list):
 
     Returns:
         (list): This returns list of annotations.
-            Each annotation has a list of dictionary which includes keys 'box' and 'name'.
-            The structure is bellow.
+        Each annotation has a list of dictionary which includes keys 'box' and 'name'.
+        The structure is bellow.
+
+    .. code-block :: python
+
+        # An example of returned list.
         [
             [ # Objects of 1st image.
                 {'box': [x(float), y, w, h], 'name': class_name(string), 'class': id(int)},
@@ -26,7 +30,9 @@ def parse_xml_detection(xml_path_list):
                 ...
             ]
         ]
+
     """
+
     annotation_list = []
     class_map = {}
     for filename in xml_path_list:
@@ -70,8 +76,7 @@ def prepare_detection_data(img_path_list, annotation_list, imsize):
         img = img.resize(imsize, Image.BILINEAR).convert('RGB')
         new_obj_list = [{
             "box": [obj["box"][0] * sw, obj["box"][1] * sh, obj["box"][2] * sw, obj["box"][3] * sh],
-            "name": obj["name"],
-            "class": obj["class"]
+            **{k: v for k, v in obj.items() if k != "box"}
         } for obj in obj_list]
         img_list.append(np.asarray(img))
         label_list.append(new_obj_list)

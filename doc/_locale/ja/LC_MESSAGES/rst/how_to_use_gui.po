@@ -1,0 +1,267 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-03 16:02+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/how_to_use_gui.rst:2
+msgid "How to Use ReNomIMG GUI tool"
+msgstr "ReNomIMG GUIツールの使い方"
+
+#: ../../rst/how_to_use_gui.rst:5
+msgid "Start the Application"
+msgstr "アプリケーションの起動"
+
+#: ../../rst/how_to_use_gui.rst:7
+msgid ""
+"ReNomIMG is a single page web application. If your installation have done"
+" successfully, you can run application in any directory with following "
+"commands."
+msgstr "ReNomIMGは単一ページウェブアプリケーションです。インストールが成功しましたら、任意の場所でコマンドによりアプリケーションを実行できるようになります。"
+
+#: ../../rst/how_to_use_gui.rst:16
+msgid "For the command ``renom_img``, you can give following arguments."
+msgstr "コマンド`renom_img`を利用する際に、以下の引数を与えることができます。。"
+
+#: ../../rst/how_to_use_gui.rst:18
+msgid "--host : This specifies server address."
+msgstr "--host: サーバーのアドレスを指定します。"
+
+#: ../../rst/how_to_use_gui.rst:19
+msgid "--port : This specifies port number of the server."
+msgstr "--port : サーバのポート番号を指定します。"
+
+#: ../../rst/how_to_use_gui.rst:21
+msgid "For example, following code runs ReNomIMG with port 8888."
+msgstr "例えば、以下のコードを実行するとReNomIMGは8888のポートで実行されます。"
+
+#: ../../rst/how_to_use_gui.rst:27
+msgid ""
+"If the application server runs, open web browser and type the server "
+"address to the address bar like this."
+msgstr "アプリケーションサーバーが実行されましたら、Webブラウザが開きますので以下のようにサーバーのアドレスをアドレスバーに入力してください。"
+
+#: ../../rst/how_to_use_gui.rst:32
+msgid "Then the application will be appeared."
+msgstr "アプリケーションが表示されます。"
+
+#: ../../rst/how_to_use_gui.rst:36
+msgid "Place your dataset"
+msgstr "データの配置"
+
+#: ../../rst/how_to_use_gui.rst:38
+msgid ""
+"When the server starts, ``datasrc`` directory and ``storage`` directory "
+"will be created in the server running directory."
+msgstr "サーバーが実行された場合、datasrcディレクトリとstorageディレクトリがサーバ実行されているディレクトリに作成されます。"
+
+#: ../../rst/how_to_use_gui.rst:41
+msgid "The ``datasrc`` directory has following folder structure."
+msgstr "datasrcディレクトリは以下のようなフォルダ構造をしています。"
+
+#: ../../rst/how_to_use_gui.rst:54
+msgid ""
+"As written in the above comments, please set training image data to "
+"``datasrc/img``, set training label data to ``datasrc/label``."
+msgstr "上のコメントに書かれているように訓練画像データをdatasrc/imgディレクトリに、訓練ラベルデータをdatasrc/labelディレクトリに配置してください。"
+
+#: ../../rst/how_to_use_gui.rst:59
+msgid ""
+"The name of image file and corresponded label file name have to be same. "
+"For example, the image file name is ``image01.jpg``, corresponded label "
+"file name have to be ``image01.xml``."
+msgstr "画像ファイル名と対応するラベルファイル名は同じでなければなりません。"
+"例えば、画像ファイルの名前がimage01.jpgの場合、対応するラベルの名前はimage01.xmlでなければなりません。"
+
+#: ../../rst/how_to_use_gui.rst:65
+msgid "Format of the data"
+msgstr "データのフォーマット"
+
+#: ../../rst/how_to_use_gui.rst:67
+msgid ""
+"**Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` "
+"formatted image files."
+msgstr "**画像ファイルの形式** : ReNomIMGはJPEGかPNG形式の画像ファイルのみを受け付けます。"
+
+#: ../../rst/how_to_use_gui.rst:69
+msgid ""
+"**Format of label files** : ReNomIMG only accepts ``xml`` formatted label"
+" files. The format of xml file is bellow."
+msgstr "**ラベルの形式** : ReNomIMGはxml形式のラベルのみを受け付けます。"
+
+#: ../../rst/how_to_use_gui.rst:91
+msgid "ReNomIMG accepts PASCAL VOC formatted object detection data."
+msgstr "ReNomIMGはPASCAL VOC形式の物体検出データを受け付けます。"
+
+#: ../../rst/how_to_use_gui.rst:93
+msgid "**The PASCAL Visual Object Classes**"
+msgstr ""
+
+#: ../../rst/how_to_use_gui.rst:94
+msgid "http://host.robots.ox.ac.uk/pascal/VOC/"
+msgstr ""
+
+#: ../../rst/how_to_use_gui.rst:100
+msgid "Create Detection Model"
+msgstr "予測モデルの作成"
+
+#: ../../rst/how_to_use_gui.rst:102
+msgid ""
+"So far, the server and dataset are prepared. Let's build a object "
+"detection model. For building a model, you have to specify ``dataset`` "
+"and ``hyper parameters``."
+msgstr "これまでに、サーバーとデータセットが準備されています。それでは物体検出モデルを作成してみましょう。"
+"モデルを作成するためには、datasetとハイパーパラメータを指定しなければなりません。"
+
+#: ../../rst/how_to_use_gui.rst:106
+msgid "Create Dataset"
+msgstr "データセットの作成"
+
+#: ../../rst/how_to_use_gui.rst:108
+msgid ""
+"For training a machine learning model, you have to prepare training "
+"dataset and validation dataset. Training dataset is used for training "
+"model, and validation dataset is used for evaluating a model in terms of "
+"how accurately predict data that have not used in training."
+msgstr "機械学習のモデルを訓練するためには、訓練用データセットとバリデーション用データセットの用意が必要です。"
+"訓練用データセットはモデルの学習に利用し、バリデーション用データセットはどれだけ正確にモデルがデータを予測できるか評価するためのもので、学習に利用してはいけません。"
+#: ../../rst/how_to_use_gui.rst:112
+msgid ""
+"In ReNomIMG, training dataset and validation dataset will be **randomly**"
+" sampled from the data that is in the ``datasrc`` directory."
+msgstr "ReNomIMGでは、datasrcディレクトリ内のデータから訓練用データとバリデーション用データをランダムにサンプリングします。"
+
+#: ../../rst/how_to_use_gui.rst:117
+msgid ""
+"According to the above figure, you can create ``dataset`` from datasrc. "
+"Once a dataset is created its content will never be change."
+msgstr "上の画像によると、データソースからデータセットを作成できます。"
+"一度データセットが作成されると、その内容は決して変更できません。"
+
+#: ../../rst/how_to_use_gui.rst:120
+msgid ""
+"For creating a ``dataset``, please move to dataset page. Following "
+"figures guide you to the dataset page."
+msgstr "データセットを作成するために、データセットページに移動してください。以下の画像はデータセットページへの移動方法を示したものです。"
+
+#: ../../rst/how_to_use_gui.rst:125
+msgid "Then following page will be appeared."
+msgstr "そうしましたら、以下のページが表れます。"
+
+#: ../../rst/how_to_use_gui.rst:129
+#, python-format
+msgid ""
+"As you can see, you can specify the ``dataset name`` and ``ratio of "
+"training data``. In the above figure, 2 dataset are already created and "
+"each has 80% of dataset for training and 20% for validation."
+msgstr "画像から分かりますように、データセット名と、トレーニングデータ名を指定できます。"
+"上の画像では2つのデータセットがすでに作成されており、それぞれデータセットのうち80%がトレーニング用、20%が訓練用のものとなっています。"
+
+#: ../../rst/how_to_use_gui.rst:134
+msgid "Hyper parameter setting"
+msgstr "ハイパーパラメータの設定"
+
+#: ../../rst/how_to_use_gui.rst:136
+msgid ""
+"So far you got all the materials, let's build a model and run training. "
+"For creating a model please push the button ``Add New Model``."
+msgstr "ここまでで全て材料がそろいました。それでは、モデルの作成して訓練させましょう。"
+"モデルを作成するために、'Add New Model'ボタンを押してください。"
+
+#: ../../rst/how_to_use_gui.rst:141
+msgid "Then you can see a hyper parameter setting modal like following figure."
+msgstr "そうしましたら、ハイパーパラメータを設定するモーダルが以下の図のように表れます。"
+
+#: ../../rst/how_to_use_gui.rst:145
+msgid "As you can see in above figure, you can specify following parameters."
+msgstr "上の図から分かりますように、以下のパラメータを指定することができます。"
+
+#: ../../rst/how_to_use_gui.rst:147
+msgid "**Dataset Name** ... Select the dataset for training."
+msgstr "Dataset Name ... 訓練用のデータセットを選択してください。"
+
+#: ../../rst/how_to_use_gui.rst:148
+msgid "**CNN architecture** ... Select the object detection algorithm."
+msgstr "CNN architecture ... 物体認識アルゴリズムを選択してください。"
+
+#: ../../rst/how_to_use_gui.rst:149
+msgid ""
+"**Train Whole network** ... If this is set to True, whole network weight "
+"will be trained."
+msgstr "Train Whole network ... もしこの項目がTrueでしたら、全ネットワークの重みが訓練されます。"
+
+#: ../../rst/how_to_use_gui.rst:150
+msgid "**Image size** ... Image size for training."
+msgstr "Image size ... 訓練用画像のサイズ"
+
+#: ../../rst/how_to_use_gui.rst:151
+msgid "**Training loop setting** ... Number of training and batch size."
+msgstr "Training loop setting ... トレーニング数とバッチサイズ"
+
+#: ../../rst/how_to_use_gui.rst:155
+msgid ""
+"Depending on your GPU device, larger image size or batch size causes "
+"memory overflow."
+msgstr "GPUデバイスによりましては、サイズの大きい画像や大きなバッチサイズによりメモリがオーバーフローします。"
+
+#: ../../rst/how_to_use_gui.rst:158
+msgid "Training Model"
+msgstr "訓練モデル"
+
+#: ../../rst/how_to_use_gui.rst:160
+msgid ""
+"Finishing hyper parameter settings, then **push run button to start "
+"training!**"
+msgstr "ハイパーパラメータ設定が完了しましたら、[start training]ボタンを押してトレーニングを開始してください。"
+
+#: ../../rst/how_to_use_gui.rst:162
+msgid ""
+"If the training starts, model will be appeared in model list and progress"
+" bar will be shown."
+msgstr "訓練が開始しましたら、モデルがモデル一覧に表示され、進捗バーが現れます。"
+
+#: ../../rst/how_to_use_gui.rst:168
+msgid "Uninstall ReNomIMG"
+msgstr "ReNomIMGのアンインストール"
+
+#: ../../rst/how_to_use_gui.rst:170
+msgid "You can uninstall ReNomIMG by following pip command."
+msgstr "以下のpipコマンドにより、ReNomIMGをアンインストールすることができます。"
+
+#~ msgid "How to Use ReNomIMG GUI TOOL"
+#~ msgstr "ReNomIMG GUIツールの利用方法"
+
+#~ msgid "Where to place the data"
+#~ msgstr "データの配置場所"
+
+#~ msgid "Model Evaluation"
+#~ msgstr "モデルの評価"
+
+#~ msgid "Learning Curve"
+#~ msgstr "学習曲線"
+
+#~ msgid "IOU & mAP"
+#~ msgstr ""
+
+#~ msgid "Use Trained Model"
+#~ msgstr "訓練済みモデルの利用"
+
+#~ msgid "Deploying"
+#~ msgstr "デプロイ"
+
+#~ msgid "Prediction"
+#~ msgstr "予測"
+

@@ -4,6 +4,7 @@ import numpy as np
 import renom as rm
 from tqdm import tqdm
 from renom_img.api.segmentation import SemanticSegmentation
+from renom_img.api.classification.vgg import VGG16
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
@@ -29,6 +30,10 @@ class FCN_Base(SemanticSegmentation):
 
         Note: In FCN, the learning rate is fixed.
         """
+        if current_epoch == 100:
+            self._opt._lr = 1e-4
+        elif current_epoch == 150:
+            self._opt._lr = 1e-5
         return self._opt
 
     def regularize(self, decay_rate=2e-4):
@@ -92,6 +97,9 @@ class FCN32s(FCN_Base):
         https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
     """
 
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -101,6 +109,22 @@ class FCN32s(FCN_Base):
         self._model = CNN_FCN32s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
+
+        if load_pretrained_weight:
+            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
+                          train_whole_network=train_whole_network)
+            self._model.block1 = vgg16._model.block1
+            self._model.block2 = vgg16._model.block2
+            self._model.block3 = vgg16._model.block3
+            self._model.block4 = vgg16._model.block4
+            self._model.block5 = vgg16._model.block5
+
+    def _freeze(self):
+        self._model.block1.set_auto_update(self._train_whole_network)
+        self._model.block2.set_auto_update(self._train_whole_network)
+        self._model.block3.set_auto_update(self._train_whole_network)
+        self._model.block4.set_auto_update(self._train_whole_network)
+        self._model.block5.set_auto_update(self._train_whole_network)
 
 
 class FCN16s(FCN_Base):
@@ -128,6 +152,9 @@ class FCN16s(FCN_Base):
         https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
     """
 
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -137,6 +164,22 @@ class FCN16s(FCN_Base):
         self._model = CNN_FCN16s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
+
+        if load_pretrained_weight:
+            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
+                          train_whole_network=train_whole_network)
+            self._model.block1 = vgg16._model.block1
+            self._model.block2 = vgg16._model.block2
+            self._model.block3 = vgg16._model.block3
+            self._model.block4 = vgg16._model.block4
+            self._model.block5 = vgg16._model.block5
+
+    def _freeze(self):
+        self._model.block1.set_auto_update(self._train_whole_network)
+        self._model.block2.set_auto_update(self._train_whole_network)
+        self._model.block3.set_auto_update(self._train_whole_network)
+        self._model.block4.set_auto_update(self._train_whole_network)
+        self._model.block5.set_auto_update(self._train_whole_network)
 
 
 class FCN8s(FCN_Base):
@@ -164,6 +207,9 @@ class FCN8s(FCN_Base):
         https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
     """
 
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -174,20 +220,36 @@ class FCN8s(FCN_Base):
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
 
+        if load_pretrained_weight:
+            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
+                          train_whole_network=train_whole_network)
+            self._model.block1 = vgg16._model.block1
+            self._model.block2 = vgg16._model.block2
+            self._model.block3 = vgg16._model.block3
+            self._model.block4 = vgg16._model.block4
+            self._model.block5 = vgg16._model.block5
+
+    def _freeze(self):
+        self._model.block1.set_auto_update(self._train_whole_network)
+        self._model.block2.set_auto_update(self._train_whole_network)
+        self._model.block3.set_auto_update(self._train_whole_network)
+        self._model.block4.set_auto_update(self._train_whole_network)
+        self._model.block5.set_auto_update(self._train_whole_network)
+
 
 class CNN_FCN8s(rm.Model):
     def __init__(self, num_class):
 
-        self.conv_block1 = layer_factory(channel=64, conv_layer_num=2)
-        self.conv_block2 = layer_factory(channel=128, conv_layer_num=2)
-        self.conv_block3 = layer_factory(channel=256, conv_layer_num=3)
-        self.conv_block4 = layer_factory(channel=512, conv_layer_num=3)
-        self.conv_block5 = layer_factory(channel=512, conv_layer_num=3)
+        self.block1 = layer_factory(channel=64, conv_layer_num=2)
+        self.block2 = layer_factory(channel=128, conv_layer_num=2)
+        self.block3 = layer_factory(channel=256, conv_layer_num=3)
+        self.block4 = layer_factory(channel=512, conv_layer_num=3)
+        self.block5 = layer_factory(channel=512, conv_layer_num=3)
 
         self.fc6 = rm.Conv2d(4096, filter=7, padding=3)
+        self.dr1 = rm.Dropout(0.5)
         self.fc7 = rm.Conv2d(4096, filter=1)
-
-        self.drop_out = rm.Dropout(0.5)
+        self.dr2 = rm.Dropout(0.5)
 
         self.score_fr = rm.Conv2d(num_class, filter=1)
         self.upscore2 = rm.Deconv2d(num_class, filter=2, stride=2, padding=0)
@@ -200,19 +262,20 @@ class CNN_FCN8s(rm.Model):
 
     def forward(self, x):
         t = x
-        t = self.conv_block1(t)
-        t = self.conv_block2(t)
-        t = self.conv_block3(t)
+        t = self.block1(t)
+        t = self.block2(t)
+        t = self.block3(t)
         pool3 = t
-        t = self.conv_block4(t)
+        t = self.block4(t)
         pool4 = t
-        t = self.conv_block5(t)
+        t = self.block5(t)
 
         t = rm.relu(self.fc6(t))
-        t = self.drop_out(t)
+        t = self.dr1(t)
         fc6 = t
 
         t = rm.relu(self.fc7(t))
+        t = self.dr2(t)
         fc7 = t
 
         t = self.score_fr(t)
@@ -240,11 +303,11 @@ class CNN_FCN8s(rm.Model):
 
 class CNN_FCN16s(rm.Model):
     def __init__(self, num_class):
-        self.conv_block1 = layer_factory(channel=64, conv_layer_num=2)
-        self.conv_block2 = layer_factory(channel=128, conv_layer_num=2)
-        self.conv_block3 = layer_factory(channel=256, conv_layer_num=3)
-        self.conv_block4 = layer_factory(channel=512, conv_layer_num=3)
-        self.conv_block5 = layer_factory(channel=512, conv_layer_num=3)
+        self.block1 = layer_factory(channel=64, conv_layer_num=2)
+        self.block2 = layer_factory(channel=128, conv_layer_num=2)
+        self.block3 = layer_factory(channel=256, conv_layer_num=3)
+        self.block4 = layer_factory(channel=512, conv_layer_num=3)
+        self.block5 = layer_factory(channel=512, conv_layer_num=3)
 
         self.fc6 = rm.Conv2d(4096, filter=7, padding=3)
         self.fc7 = rm.Conv2d(4096, filter=1)
@@ -257,12 +320,12 @@ class CNN_FCN16s(rm.Model):
 
     def forward(self, x):
         t = x
-        t = self.conv_block1(t)
-        t = self.conv_block2(t)
-        t = self.conv_block3(t)
-        t = self.conv_block4(t)
+        t = self.block1(t)
+        t = self.block2(t)
+        t = self.block3(t)
+        t = self.block4(t)
         pool4 = t
-        t = self.conv_block5(t)
+        t = self.block5(t)
 
         t = rm.relu(self.fc6(t))
 
@@ -286,11 +349,11 @@ class CNN_FCN16s(rm.Model):
 
 class CNN_FCN32s(rm.Model):
     def __init__(self, num_class):
-        self.conv_block1 = layer_factory(channel=64, conv_layer_num=2)
-        self.conv_block2 = layer_factory(channel=128, conv_layer_num=2)
-        self.conv_block3 = layer_factory(channel=256, conv_layer_num=3)
-        self.conv_block4 = layer_factory(channel=512, conv_layer_num=3)
-        self.conv_block5 = layer_factory(channel=512, conv_layer_num=3)
+        self.block1 = layer_factory(channel=64, conv_layer_num=2)
+        self.block2 = layer_factory(channel=128, conv_layer_num=2)
+        self.block3 = layer_factory(channel=256, conv_layer_num=3)
+        self.block4 = layer_factory(channel=512, conv_layer_num=3)
+        self.block5 = layer_factory(channel=512, conv_layer_num=3)
 
         self.fc6 = rm.Conv2d(4096, filter=7, padding=3)
         self.fc7 = rm.Conv2d(4096, filter=1)
@@ -300,11 +363,11 @@ class CNN_FCN32s(rm.Model):
 
     def forward(self, x):
         t = x
-        t = self.conv_block1(t)
-        t = self.conv_block2(t)
-        t = self.conv_block3(t)
-        t = self.conv_block4(t)
-        t = self.conv_block5(t)
+        t = self.block1(t)
+        t = self.block2(t)
+        t = self.block3(t)
+        t = self.block4(t)
+        t = self.block5(t)
 
         t = rm.relu(self.fc6(t))
         fc6 = t

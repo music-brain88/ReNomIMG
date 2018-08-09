@@ -2,32 +2,27 @@ renom\_img.api.classification
 =============================
 
 .. automodule:: renom_img.api.classification.darknet
-    :members:
+    :members: Darknet, Darknet19
     :undoc-members:
     :show-inheritance:
 
 .. automodule:: renom_img.api.classification.densenet
-    :members:
+    :members: DenseNet121, DenseNet169, DenseNet201
     :undoc-members:
     :show-inheritance:
 
 .. automodule:: renom_img.api.classification.inception
-    :members:
+    :members: InceptionV1, InceptionV2, InceptionV3, InceptionV4
     :undoc-members:
     :show-inheritance:
 
 .. automodule:: renom_img.api.classification.resnet
-    :members:
+    :members: ResNet32, ResNet34, ResNet44, ResNet50, ResNet56, ResNet101, ResNet110
     :undoc-members:
     :show-inheritance:
 
 .. automodule:: renom_img.api.classification.vgg
-    :members:
+    :members: VGG16, VGG19
     :undoc-members:
     :show-inheritance:
 
-
-.. automodule:: renom_img.api.classification
-    :members:
-    :undoc-members:
-    :show-inheritance:

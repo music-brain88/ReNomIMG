@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-17 16:12+0900\n"
+"POT-Creation-Date: 2018-08-01 11:10+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,13 +23,25 @@ msgstr ""
 
 #: ../../rst/renom_img.rst:4
 msgid "ReNomIMG also provides python APIs."
-msgstr ""
+msgstr "ReNomIMGはPython APIも提供しています。"
 
 #: ../../rst/renom_img.rst:6
 msgid ""
 "These APIs allows you to build not only building object detection model "
 "but also classification model and object segmentation model."
-msgstr ""
+msgstr "これらのAPIによって物体検出モデルだけでなく、分類モデルとセグメンテーションモデルも作成できます。"
+
+#: ../../rst/renom_img.rst:10
+msgid "**# Model's for each image processing tasks.**"
+msgstr "**# 画像前処理タスクごとのモデル**"
+
+#: ../../rst/renom_img.rst:17
+msgid "**# Utility apis**"
+msgstr " # ユーティリティーAPI "
+
+#: ../../rst/renom_img.rst:22
+msgid "**# Use models which trained on ReNomIMG GUI tool**"
+msgstr "**# ReNomIMG GUIツールで学習したモデルの利用**"
 
 #~ msgid "renom\\_img"
 #~ msgstr ""

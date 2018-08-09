@@ -9,6 +9,9 @@ from renom_img.api.utility.load import load_img
 
 
 class ImageDistributorBase(object):
+    """Base class distribute images.
+
+    """
 
     def __init__(self, img_path_list, label_list=None,
                  target_builder=None,
@@ -35,6 +38,12 @@ class ImageDistributorBase(object):
 
     def get_resized_annotation_list(self, imsize):
         """This function only for object detection.
+
+        Args:
+            imsize(float, float): size of image
+
+        Return:
+              resized_annotation_list(list): resized_annotation
         """
         resized_annotation_list = []
         for path, annotation in zip(self.img_path_list, self.annotation_list):
@@ -50,9 +59,13 @@ class ImageDistributorBase(object):
 
     def batch(self, batch_size, callback=None, shuffle=True):
         """
-        Default: Classification
-            Detection
-            Segmentation
+
+        Default
+
+            * Classification
+            * Detection
+            * Segmentation
+
         Input data format is specified with task.
         """
         N = len(self)
@@ -110,9 +123,26 @@ class ImageDistributor(ImageDistributorBase):
                                                label_list, target_builder, augmentation, imsize, num_worker)
 
     def batch(self, batch_size, target_builder=None, shuffle=True):
+        """
+
+        Args:
+            batch_size(int): batch size
+            target_builder(ImageDistributor): target builder
+            shuffle(bool): shuffle or not when splitting data
+
+        Yields:
+            (path of images(list), path of labels(list)
+
+       """
         return super(ImageDistributor, self).batch(batch_size, target_builder, shuffle)
 
     def split(self, ratio, shuffle=True):
+        """ split image and laebls
+
+        Args:
+            ratio(float): ratio between training set and validation set
+            shuffle(bool): shuffle or not when splitting data
+        """
         assert ratio < 1.0 and ratio > 0.0
         data1_N = int(ratio * len(self))
         if shuffle:

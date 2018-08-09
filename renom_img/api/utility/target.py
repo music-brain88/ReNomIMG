@@ -3,6 +3,7 @@
 from __future__ import division
 import numpy as np
 from PIL import Image
+from sklearn.feature_extraction.image import extract_patches
 
 
 """Naming Rule.
@@ -156,6 +157,13 @@ class DataBuilderSegmentation(DataBuilderBase):
     Annotation_list must be list of class name.
     """
 
+    def load_annotation(self, path):
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        img = img.resize(self.imsize, RESIZE_METHOD)
+        return np.array(img), self.imsize[0] / float(w), self.imsize[1] / h
+
     def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
         # Check the class mapping.
         n_class = len(self.class_map)
@@ -165,11 +173,14 @@ class DataBuilderSegmentation(DataBuilderBase):
         for img_path, an_path in zip(img_path_list, annotation_list):
             annot = np.zeros((n_class, self.imsize[0], self.imsize[1]))
             img, sw, sh = self.load_img(img_path)
-            labels, asw, ash = self.load_img(an_path)[0]
+            labels, asw, ash = self.load_annotation(an_path)
             img_list.append(img)
             for i in range(self.imsize[0]):
                 for j in range(self.imsize[1]):
-                    annot[int(labels[i][j]), i, j] = 1
+                    if int(labels[i][j]) >= n_class:
+                        annot[0, i, j] = 1
+                    else:
+                        annot[int(labels[i][j]), i, j] = 1
             label_list.append(annot)
         if augmentation is not None:
             return augmentation(np.array(img_list), np.array(label_list), mode="segmentation")

@@ -1,8 +1,5 @@
-renom\_img.api package
+renom\_img.api
 ======================
-
-Subpackages
------------
 
 .. toctree::
 
@@ -11,11 +8,3 @@ Subpackages
     renom_img.api.inference
     renom_img.api.segmentation
     renom_img.api.utility
-
-Module contents
----------------
-
-.. automodule:: renom_img.api
-    :members:
-    :undoc-members:
-    :show-inheritance:
