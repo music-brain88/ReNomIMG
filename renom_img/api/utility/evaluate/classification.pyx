@@ -2,69 +2,58 @@ import numpy as np
 from collections import defaultdict
 
 cpdef precision_score(y_pred, y_true):
-    """
-    precision_score(y_pred, y_true)
-
-    Precision score for classification
+    """ Precision score for classification
 
     Args:
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
 
     Return:
-        precision(dict): {class_id: precision(float), ..}
-        mean_precision(float):
+        Two values are returned. First output is dictionary of precision for each class.
+        The second represents the mean precision for all classes.
     """
     p, mean_p, _, _, _, _ = precision_recall_f1_score(y_pred, y_true)
     return p, mean_p
 
 cpdef recall_score(y_pred, y_true):
-    """
-    recall_score(y_pred, y_true)
-
-    Recall score for classification
+    """ Recall score for classification
 
     Args:
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
 
     Return:
-        recall(dict): {class_id: recall(float), ..}
-        mean_recall(float):
+        Two values are returned. First output is dictionary of recall for each class.
+        The second represents the mean recall for all classes.
     """
     _, _, r, mean_r, _, _ = precision_recall_f1_score(y_pred, y_true)
     return r, mean_r
 
 cpdef f1_score(y_pred, y_true):
-    """
-    f1_score(y_pred, y_true)
-
-    F1 score for classification
+    """ F1 score for classification
 
     Args:
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
 
     Return:
-        f1_score(dict): {class_id: f1_score(float), ..}
-        mean_f1_score(float):
+        Two values are returned. First output is dictionary of F1 score for each class.
+        The second represents the mean F1 score for all classes.
     """
     _, _, _, _, f1_score, mean_f1_score = precision_recall_f1_score(y_pred, y_true)
     return f1_score, mean_f1_score
 
 
 cpdef precision_recall_f1_score(y_pred, y_true):
-    """
-    precision_recall_score(y_pred, y_true)
-
-    Recall score for classification
+    """ Returns precision, recall, F1 score
 
     Args:
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
 
     Return:
-        precision(float), recall(float)
+        6-tuple. Each element represents a dictionary of precision, mean precision of float, a dictionary of recall, mean recall of float,
+        a dictionary of F1 score, and F1 score of float value.
     """
     np.bin
     tp = defaultdict(int)
@@ -105,15 +94,14 @@ cpdef precision_recall_f1_score(y_pred, y_true):
     return precision, mean_precision, recall, mean_recall, f1, mean_f1
 
 cpdef accuracy_score(y_pred, y_true):
-    """
-    accuracy_score(y_pred, y_true)
+    """ Accuracy
 
     Args:
         y_pred: [class_id(int), class_id(int), ...]
         y_true: [class_id(int), class_id(int), ...]
 
     Return:
-        accuracy(float):
+        Outputs accuracy whose type is float.
     """
     accuracy = np.sum(y_pred==y_true) / len(y_true)
     return accuracy
