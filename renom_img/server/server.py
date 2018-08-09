@@ -452,7 +452,7 @@ def load_dataset_split_detail():
 
         for i in range(len(parsed_data)) :
             for j in range(len(class_map)):
-                if _[i][0].get('name') == class_map[j] :
+                if parsed_data[i][0].get('name') == class_map[j] :
                     if class_map[j] not in count:
                         count[class_map[j]] = 1
                     else :
@@ -462,8 +462,7 @@ def load_dataset_split_detail():
             {"total": n_imgs,
             "train_image_num": train_num,
             "valid_image_num": valid_num,
-            "class_maps": count,
-            "view": view
+            "class_maps": count
             })
 
         ret = create_response(body)

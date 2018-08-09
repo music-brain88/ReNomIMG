@@ -115,8 +115,8 @@ export default {
   }
 
   select {
-    text-align: center;
-    text-align-last: center;
+    text-align: left;
+    // text-align-last: center;
     -webkit-appearance: none;
 	  -moz-appearance: none;
 	  appearance: none;

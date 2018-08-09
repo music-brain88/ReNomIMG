@@ -96,3 +96,17 @@ $status-reserve: #cccccc;
 
 // button color
 $push-button:#006ea1;
+
+::-webkit-scrollbar{
+  width: 10px;
+}
+::-webkit-scrollbar-track{
+  background: $body-color;
+  border: none;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb{
+  background: #aaa;
+  border-radius: 6px;
+  box-shadow: none;
+}

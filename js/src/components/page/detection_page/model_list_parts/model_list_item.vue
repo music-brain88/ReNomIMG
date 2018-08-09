@@ -34,7 +34,8 @@
     </div>
 
     <div v-if="!isPredict" class="delete-button" @click.stop="show_delete_dialog=true">
-      <i class="fa fa-times-circle-o" aria-hidden="true"></i>
+      <!-- <i class="fa fa-times-circle-o" aria-hidden="true"></i> -->
+      &times;
     </div>
 
     <modal-box v-if='show_delete_dialog'
@@ -192,9 +193,10 @@ export default {
     bottom: 0;
     right: 4px;
     color: $label-color;
-  }
-  .delete-button:hover {
-    color: $label-color-hover;
+    cursor: pointer;
+    &:hover{
+      color:#FFFFFF;
+    }
   }
   .space-top{
     padding-top: 10px;

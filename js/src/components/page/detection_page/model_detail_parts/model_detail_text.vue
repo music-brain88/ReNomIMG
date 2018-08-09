@@ -1,10 +1,13 @@
 <template>
-  <div id="model-detail-text">
-    <div class="title">
-      Model ID {{ model.model_id }}
-    </div>
+  <div id="model-detail-text" class="row">
 
-    <div class="model-content">
+    <div class="col-md-3">
+      <div class="title">
+        Model ID {{ model.model_id }}
+      </div>
+    </div>
+    <div class="col-md-4">
+
       <div class="model-values">
         <value-item :label="'Dataset'" :val="getDatasetName(model.dataset_def_id)"></value-item>
         <value-item :label="'Algorithm'" :val="getAlgorithmName(model.algorithm)"></value-item>
@@ -16,7 +19,35 @@
         <!-- <value-item :label="'Seed'" :val="model.hyper_parameters['seed']"></value-item> -->
       </div>
 
-      <div class="model-values">
+    </div>
+    <div class="col-md-5">
+
+      <div class="additional_param">
+        <component :is="additional_param_components[model.algorithm]" :params="model.algorithm_params"></component>
+      </div>
+
+      <value-item :label="'IoU'" :val="round_percent(model.best_epoch_iou) + '%'"></value-item>
+      <value-item :label="'mAP'" :val="round_percent(model.best_epoch_map) + '%'"></value-item>
+      <value-item :label="'Validation Loss'" :val="round(model.validation_loss_list[model.best_epoch], 1000)"></value-item>
+
+    </div>
+    <!-- <div class="title">
+      Model ID {{ model.model_id }}
+    </div> -->
+
+    <!-- <div class="model-content"> -->
+      <!-- <div class="model-values"> -->
+        <!-- <value-item :label="'Dataset'" :val="getDatasetName(model.dataset_def_id)"></value-item>
+        <value-item :label="'Algorithm'" :val="getAlgorithmName(model.algorithm)"></value-item>
+        <value-item :label="'Train Whole'" :val="Boolean(model.hyper_parameters['train_whole_network'])"></value-item>
+        <value-item :label="'Total Epoch'" :val="model.hyper_parameters['total_epoch']"></value-item>
+        <value-item :label="'Batch Size'" :val="model.hyper_parameters['batch_size']"></value-item>
+        <value-item :label="'Image Width'" :val="model.hyper_parameters['image_width']"></value-item>
+        <value-item :label="'Image Height'" :val="model.hyper_parameters['image_height']"></value-item> -->
+        <!-- <value-item :label="'Seed'" :val="model.hyper_parameters['seed']"></value-item> -->
+      <!-- </div> -->
+
+      <!-- <div class="model-values">
         <div class="additional_param">
           <component :is="additional_param_components[model.algorithm]" :params="model.algorithm_params"></component>
         </div>
@@ -24,8 +55,8 @@
         <value-item :label="'IoU'" :val="round_percent(model.best_epoch_iou) + '%'"></value-item>
         <value-item :label="'mAP'" :val="round_percent(model.best_epoch_map) + '%'"></value-item>
         <value-item :label="'Validation Loss'" :val="round(model.validation_loss_list[model.best_epoch], 1000)"></value-item>
-      </div>
-    </div>
+      </div> -->
+    <!-- </div> -->
   </div>
 </template>
 
@@ -84,7 +115,7 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail-text {
-  width: calc(100% - 12px);
+  // width: calc(100% - 12px);
   height: 100%;
   display: flex;
   .title {
