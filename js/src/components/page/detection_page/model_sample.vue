@@ -7,8 +7,8 @@
             Prediction Sample
           </div>
           <div>
-            <span @click='prevPage' v-bind:class='{inactive: !hasPrevPage}'><i class="fa fa-arrow-left" aria-hidden="true"></i></span>
-            <span @click='nextPage' v-bind:class='{inactive: !hasNextPage}'><i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+            <span @click='prevPage' v-bind:class='{inactive: !hasPrevPage}'><img class="left_arrow" :src="left_arrow"></span>
+            <span @click='nextPage' v-bind:class='{inactive: !hasNextPage}'><img class="right_arrow" :src="right_arrow"></span>
           </div>
         </div>
         <div class="content">
@@ -39,6 +39,8 @@ export default {
   },
   data: function () {
     return {
+      left_arrow: require('../../../../static/img/yajileft.png'),
+      right_arrow: require('../../../../static/img/yajiright.png')
     }
   },
   computed: {
@@ -151,5 +153,6 @@ export default {
 
     background-color: #fff;
   }
+
 }
 </style>

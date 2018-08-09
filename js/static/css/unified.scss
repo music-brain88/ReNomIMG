@@ -6,6 +6,7 @@ $header-height: 44px;
 $header-color: #063662;
 $panel-bg-color:#006ea1;
 $panel-bg-color-hover:#0A7BB1;
+$tooltips-color:#02294C;
 $body-color:#f3f3f1;
 $panel-height: 35px;
 
@@ -15,8 +16,8 @@ $font-color: #ffffff;
 $content-margin: 32px;
 
 $content-header-color: #1e264b;
-$footer-color: #1e264b;
-$footer-copyright-color:#1d1547;
+$footer-color: #063662;
+$footer-copyright-color:#02294C;
 
 
 // Application header
@@ -63,7 +64,7 @@ $content-modellist-font-family: Open Sans Semibold;
 $content-modellist-font-size: 11pt;
 
 $content-taglist-tagbox-font-family: Open Sans Regular;
-$content-taglist-tagbox-font-colot:#666666;
+$content-taglist-tagbox-font-color:#666666;
 $content-taglist-tagbox-font-size:11pt;
 
 $content-top-padding:30px;
@@ -78,6 +79,7 @@ $content-figure-font-famly: Open Sans light;
 $content-figure-font-color:#666666;
 $content-figure-font-size: 8pt;
 
+$content-footer-margin-top:20px;
 
 //　algorithm color
 $grape: #903e84;

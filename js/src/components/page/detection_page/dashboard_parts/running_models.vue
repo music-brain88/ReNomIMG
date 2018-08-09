@@ -32,7 +32,7 @@ export default {
 
   width: 100%;
   height: 100%;
-  margin-top: 24px;
+  margin-top: 5px;
 
   .title {
     font-family:$content-inner-header-font-family;
@@ -40,7 +40,7 @@ export default {
   }
 
   .progress-bar-area {
-    height: calc(100% - #{$content-top-header-hight});
+    height: 98px;
     overflow: auto;
   }
 }

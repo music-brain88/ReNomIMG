@@ -36,9 +36,9 @@ export const STATE_COLOR = {
   0: '#898989',
   'Created': '#898989',
 
-  1: '#953136',
-  'Running': '#953136',
+  1: '#0099ce',
+  'Running': '#0099ce',
 
-  4: '#e4b520',
-  'Reserved': '#e4b520'
+  4: '#cccccc',
+  'Reserved': '#cccccc'
 }

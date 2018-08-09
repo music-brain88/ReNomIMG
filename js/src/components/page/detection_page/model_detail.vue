@@ -73,7 +73,7 @@ export default {
     color:$font-color;
     .title-text{
       line-height: $content-top-header-hight;
-      margin-left: 10px;
+      margin-left: $content-top-heder-horizonral-margin;
     }
     .panel{
       background-color: $panel-bg-color;

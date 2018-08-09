@@ -11,13 +11,10 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
           <div class="label-value">
-            IoU&nbsp;&nbsp;<span class="value">{{ round_percent(model.best_epoch_iou) }}%</span>
+            IoU&nbsp;&nbsp;<span class="value">{{ round_percent(model.best_epoch_iou) }}%&nbsp;&nbsp;&nbsp;&nbsp;</span>mAP&nbsp;&nbsp;<span class="value">{{ round_percent(model.best_epoch_map) }}%</span>
           </div>
-        </div>
-        <div class="col-md-6">
-          mAP&nbsp;&nbsp;<span class="value">{{ round_percent(model.best_epoch_map) }}%</span>
         </div>
       </div>
       <div class="row space-bottom">

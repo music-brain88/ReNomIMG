@@ -1,8 +1,8 @@
 <template>
-  <div id="model-list">
+  <div id="model-list" class="list-child">
     <div class="add-panel" @click="showAddModelModal">
       <!-- <i class="fa fa-plus" aria-hidden="true"></i>  -->
-      <img :src="url">Add New Model
+      <img class="plus" :src="url">Add New Model
     </div>
     <div class="title-selectbox">
       <div class="title">
@@ -35,7 +35,7 @@ export default {
   },
   data: function () {
     return {
-      url: require('../../../../static/img/pu.png'),
+      url: require('../../../../static/img/plus.png'),
       selected: ''
     }
   },
@@ -61,7 +61,7 @@ export default {
   margin: 0;
   margin-top: $component-margin-top;
   // border-top: $border-width solid $border-color;
-  z-index: 2;
+  z-index: 0;
   position: fixed;
   font-family: $content-top-header-font-family;
   font-size: $content-top-header-font-size;
@@ -157,6 +157,10 @@ export default {
   }
   .add-panel:hover {
     background-color: $panel-bg-color-hover;
+  }
+  .plus{
+    margin-right: 10px;
+    vertical-align: middle;
   }
 }
 </style>

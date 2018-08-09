@@ -42,7 +42,6 @@
       <div class="progress-bar-back">
         <div class="progress">
           <div class="progress-bar progress-bar-striped" role="progressbar"
-            v-bind:style="{backgroundColor:progress_bar_color}"
             v-bind:class="{'progress-bar-animated' : model.running_state===running_state['training']}">
           </div>
         </div>
@@ -111,7 +110,7 @@ export default {
   },
   data: function () {
     return {
-      progress_bar_color: '#953136',
+      progress_bar_color: '#0099CE',
       running_state: {
         'training': 0,
         'validating': 1,
@@ -186,7 +185,7 @@ export default {
   $progress-bar-width: 24%;
   $progress-bar-height: 12px;
   $progress-bar-bg-color: #e8e8e8;
-  $progress-bar-color: #000099;
+  $progress-bar-color: #0099ce;
 
   $stop-button-color: #999999;
   $stop-button-color-hover: #666666;
@@ -242,14 +241,15 @@ export default {
       .progress{
         margin-top: 15%;
         margin-left: 10%;
-        height: 10px;
+        height: 9px;
         background-color: #21212157;
+        border-radius: 0;
       }
 
       .progress-bar .progress-bar-striped {
         bottom: 2px;
         width: 100%;
-        background-color: $progress-bar-bg-color;
+        background-color: $status-running;
         border-radius: 1px;
         border-width: 1px;
         border-color: #a5a5a5;
@@ -264,7 +264,7 @@ export default {
   }
 
   .loader {
-    border: 3px solid #953136; /* Light grey */
+    border: 3px solid $status-running; /* Light grey */
     border-top: 3px solid #f3f3f3; /* Bar color */
     border-radius: 50%;
     width: 10px;

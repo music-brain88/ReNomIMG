@@ -2,7 +2,7 @@
   <div id="predict-model-selection">
     <div class="button-area">
       <div class="set-predict-model" v-if="!isPredict" :disabled="model.state !== 2" @click="setPredictModel">
-        <i class="fa fa-angle-right icon-navgation"></i>Deploy Model <span class="tooltip" data-html="true" aria-label="If you push this button, you can use current selected model in prediction."><i class="fa fa-info button-description"></i></span>
+        <i class="fa fa-angle-right icon-navgation"></i>Deploy<span class="tooltip" data-html="true" aria-label="If you push this button, you can use current selected model in prediction."><img class="info" :src="info_png_url"></span>
       </div>
 
       <div class="set-predict-model" v-if="isPredict" @click="show_undeploy_dialog=true">
@@ -54,6 +54,7 @@ export default {
   },
   data: function () {
     return {
+      info_png_url: '../../../../../static/img/info.png',
       show_undeploy_dialog: false,
       show_description: false
     }
@@ -151,10 +152,20 @@ export default {
     color:#000000;
   }
   span{
+    &:before{
+      background: $tooltips-color;
+    }
     &:after{
+      background: $tooltips-color;
+      text-align: left;
       width:147px;
       white-space: pre-line;
     }
+  }
+  .info{
+    margin-left: $content-parts-margin;
+    margin-right: $content-parts-margin;
+    margin-top: calc(#{$content-top-header-hight}*0.25);
   }
 }
 </style>

@@ -15,7 +15,7 @@
               <div class="row justify-content-center space-top">
                 <label class="col-sm-4 col-form-label text-right">Discription</label>
                 <div class="col-sm-8">
-                  <textarea class="form-control" rows="5"></textarea>
+                  <textarea class="form-control" rows="7"></textarea>
                 </div>
               </div>
 
