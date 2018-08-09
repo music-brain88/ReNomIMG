@@ -63,7 +63,7 @@ export default {
 
   margin: 0;
   margin-top: $component-margin-top;
-  margin-left: $component-inner-horizontal-margin;
+  // margin-left: $component-inner-horizontal-margin;
 
   .title {
     height:$content-top-header-hight;
@@ -73,7 +73,7 @@ export default {
     color:$font-color;
     .title-text{
       line-height: $content-top-header-hight;
-      margin-left: $content-top-heder-horizonral-margin;
+      margin-left: 10px;
     }
     .panel{
       background-color: $panel-bg-color;

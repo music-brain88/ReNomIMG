@@ -6,6 +6,7 @@ $header-height: 44px;
 $header-color: #063662;
 $panel-bg-color:#006ea1;
 $panel-bg-color-hover:#0A7BB1;
+$body-color:#f3f3f1;
 $panel-height: 35px;
 
 
@@ -21,12 +22,12 @@ $footer-copyright-color:#1d1547;
 // Application header
 $application-header-hight:40px;
 
-$header-product-name-font-family: Open Sans Semibold;
-$header-product-name-font-size: 14pt;
+$header-product-name-font-family: Open Sans Regular;
+$header-product-name-font-size: 15pt;
 
 // header title
 $header-title-font-family: Open Sans Regular;
-$header-title-font-size:14pt;
+$header-title-font-size:15pt;
 
 //component style setteing
 $component-margin-top: 20px;
@@ -38,7 +39,7 @@ $content-top-header-width:600px;
 $content-top-heder-horizonral-margin:25px;
 $content-top-margin:10px;
 $content-top-header-font-family: Open Sans light;
-$content-top-header-font-size: 10.5pt;
+$content-top-header-font-size: 12pt;
 
 // contents Height Width
 $content-dashboard-height: 320px;
@@ -47,23 +48,23 @@ $content-dashboard-width: 600px;
 $content-dashboard-modelmap-width:400px;
 
 $content-detail-height:240px;
-$content-prediction-height:535px;
+$content-prediction-height:570px;
 $content-taglist-hegiht:160px;
 
 $content-bg-color: #ffffff;
-$content-border-color: #cccccc;
+$content-border-color: #ffffff;
 $content-inner-header-font-family: Open Sans light;
-$content-inner-header-font-size: 10pt;
+$content-inner-header-font-size: 12pt;
 
 $content-inner-box-font-family: Open Sans light;
-$content-inner-box-font-size: 9pt;
+$content-inner-box-font-size: 11pt;
 
 $content-modellist-font-family: Open Sans Semibold;
-$content-modellist-font-size: 9pt;
+$content-modellist-font-size: 11pt;
 
 $content-taglist-tagbox-font-family: Open Sans Regular;
 $content-taglist-tagbox-font-colot:#666666;
-$content-taglist-tagbox-font-size:12pt;
+$content-taglist-tagbox-font-size:11pt;
 
 $content-top-padding:30px;
 $content-bottom-padding:25px;

@@ -5,7 +5,7 @@
   </div>
 
   <div id="soft-symbol">
-    <span class="renom">ReNom</span>
+    <span class="renom">ReNom&nbsp;&nbsp;</span>
     <span class="current-page">IMG > {{ currentPage }}</span>
   </div>
 

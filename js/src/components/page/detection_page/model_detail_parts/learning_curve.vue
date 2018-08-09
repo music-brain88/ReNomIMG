@@ -20,7 +20,9 @@
         </div>
       </div>
     </div>
-    <div id='curve-canvas'></div>
+    <div class="row">
+      <div class="col-md-12" id='curve-canvas'></div>
+    </div>
     <div class="xaxis">
       Epoch
     </div>

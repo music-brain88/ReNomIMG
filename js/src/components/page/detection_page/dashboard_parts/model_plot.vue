@@ -50,7 +50,7 @@ export default {
           backgroundColor: selected_color,
           pointRadius: 10,
           pointHoverRadius: 12,
-          pointStyle: 'rectRot'
+          pointStyle: 'circle'
         },
         'Running': {
           data: [],
@@ -153,8 +153,8 @@ export default {
           padding: {
             top: 24,
             bottom: 0,
-            left: 24,
-            right: 24
+            left: 0,
+            right: 0
           }
         },
         legend: false,

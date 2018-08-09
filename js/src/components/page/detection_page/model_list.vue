@@ -1,7 +1,8 @@
 <template>
   <div id="model-list">
     <div class="add-panel" @click="showAddModelModal">
-      <i class="fa fa-plus" aria-hidden="true"></i> Add New Model
+      <!-- <i class="fa fa-plus" aria-hidden="true"></i>  -->
+      <img :src="url">Add New Model
     </div>
     <div class="title-selectbox">
       <div class="title">
@@ -34,6 +35,7 @@ export default {
   },
   data: function () {
     return {
+      url: require('../../../../static/img/pu.png'),
       selected: ''
     }
   },
@@ -55,20 +57,20 @@ export default {
 
   $selectbox-height: 20px;
 
-  height: 555px;
+  height: 650px;
   margin: 0;
   margin-top: $component-margin-top;
   // border-top: $border-width solid $border-color;
   z-index: 2;
   position: fixed;
   font-family: $content-top-header-font-family;
-  font-size: $content-inner-header-font-size;
+  font-size: $content-top-header-font-size;
 
   div::-webkit-scrollbar{
-    width: 8px;
+    width: 6px;
   }
   div::-webkit-scrollbar-track{
-    background: #fff;
+    background: $body-color;
     border: none;
     border-radius: 6px;
   }
@@ -127,7 +129,7 @@ export default {
   .sort-selectbox {
     height: $selectbox-height;
     margin: 0;
-    margin-top: calc(#{$content-top-header-hight}*0.25);
+    margin-top: calc(#{$content-top-header-hight}*0.225);
     margin-right: $content-top-heder-horizonral-margin;
     padding: 0;
     padding-left: 4px;

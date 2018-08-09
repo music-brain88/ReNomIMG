@@ -106,7 +106,7 @@ export default {
 #model-sample {
   margin: 0;
   margin-top: $component-margin-top;
-  margin-left: $content-parts-margin;
+  // margin-left: $content-parts-margin;
 
   .title {
     display: flex;

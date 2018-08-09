@@ -3,32 +3,29 @@
     <div class="model-state" v-bind:style="{backgroundColor: getColor(model.state, model.algorithm)}"></div>
 
     <div class="model-id-algorithm">
-      <div class="label-value">
-        <p class="label">Model ID</p>
-        <p class="value">{{ model.model_id }}</p>
-      </div>
-      <div class="label-value">
-        <p class="label">Algorithm</p>
-        <p class="value">{{ getAlgorithmName(model.algorithm) }}</p>
-      </div>
-    </div>
-
-    <div class="model-values">
-      <div class="model-iou-map">
-        <div class="label-value">
-          <p class="label">IoU</p>
-          <p class="value value-bold">{{ round_percent(model.best_epoch_iou) }}%</p>
-        </div>
-
-        <div class="label-value">
-          <p class="label">mAP</p>
-          <p class="value value-bold">{{ round_percent(model.best_epoch_map) }}%</p>
+      <div class="row space-top">
+        <div class="col-md-12">
+          <div class="label-value">
+            Model ID&nbsp;&nbsp;<span class="value">{{ model.model_id }}</span>&nbsp;&nbsp;&nbsp;&nbsp;Algorithm&nbsp;&nbsp;<span class="value">{{ getAlgorithmName(model.algorithm) }}</span>
+          </div>
         </div>
       </div>
-
-      <div class="model-validation-loss">
-        <p class="label">Validation Loss</p>
-        <p class="value value-bold">{{ round(model.validation_loss_list[model.best_epoch], 1000) }}</p>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="label-value">
+            IoU&nbsp;&nbsp;<span class="value">{{ round_percent(model.best_epoch_iou) }}%</span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          mAP&nbsp;&nbsp;<span class="value">{{ round_percent(model.best_epoch_map) }}%</span>
+        </div>
+      </div>
+      <div class="row space-bottom">
+        <div class="col-md-12">
+          <div class="label-value">
+            Validation Loss&nbsp;&nbsp;<span class="value">{{ round(model.validation_loss_list[model.best_epoch], 1000) }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -141,40 +138,36 @@ export default {
 <style lang="scss" scoped>
 #model-list-item {
   $item-margin-bottom: 8px;
-  $state-width: 8px;
+  $state-width: 5px;
   $label-color: #999999;
   $label-color-hover: #CCCCCC;
-  $label-size: 12px;
 
   display: flex;
   position: relative;
-  width: calc(100% - 16px);
-  // width: calc(100% - 24px);
-  height: 95px;
+  // width: calc(100% - 16px);
+  width: calc(100% - 5px);
+  height: 90px;
   margin: 0px 0px $item-margin-bottom;
-  box-shadow: 1px 1px #ddd;
   background-color: #ffffff;
+  color: $label-color;
+  font-size: $content-inner-box-font-size;
 
   .predict_icon {
     position:absolute;
     bottom: 0;
     right: 0;
     padding: 0 4px;
-    // background-color: #c13d18;
     color: $panel-bg-color;
-    font-size: 12px;
+    font-size: $content-inner-box-font-size;
   }
 
   .label {
     margin: 0;
-    font-size: $label-size;
+    font-size: $content-inner-box-font-size;
     color: $label-color;
   }
   .value {
-    margin: 0;
-  }
-  .value-bold {
-    font-weight: bold;
+    color:#000000;
   }
 
   .model-state {
@@ -184,8 +177,6 @@ export default {
   }
 
   .label-value {
-    flex-grow: 1;
-    display: flex;
     flex-direction: column;
     padding: 2px 8px;
   }
@@ -196,21 +187,6 @@ export default {
     flex-direction: column;
   }
 
-  .model-values {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-
-    .model-iou-map {
-      flex-grow: 1;
-      display: flex;
-    }
-    .model-validation-loss {
-      flex-grow: 1;
-      padding: 2px 8px;
-    }
-  }
-
   .delete-button {
     position: absolute;
     bottom: 0;
@@ -219,6 +195,12 @@ export default {
   }
   .delete-button:hover {
     color: $label-color-hover;
+  }
+  .space-top{
+    padding-top: 10px;
+  }
+  .space-bottom{
+    padding-bottom: 10px;
   }
 }
 

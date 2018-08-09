@@ -110,7 +110,7 @@ export default {
       let canvas = document.getElementById('horizontal-stack-bar')
       let ctx = canvas.getContext('2d')
       ctx.canvas.width = parent.clientWidth
-      ctx.canvas.height = 100
+      ctx.canvas.height = 50
 
       // set chart data
       let chart_data = {

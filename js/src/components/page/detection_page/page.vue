@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-md-10 col-sm-12">
+      <div class="col-md-9 col-sm-12">
         <dashboard></dashboard>
         <model-detail></model-detail>
         <model-sample></model-sample>
         <tag-list></tag-list>
       </div>
-      <div class="col-md-2 col-sm-12">
+      <div class="col-md-3 col-sm-12">
         <model-list></model-list>
       </div>
     </div>

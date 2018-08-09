@@ -423,17 +423,26 @@ export default {
     state.dataset_defs = payload.dataset_defs
 
     const IMG_ROW_HEIGHT = 160
-    const IMG_ROW_WIDTH = 943
-    /*
+    // const IMG_ROW_WIDTH = 943
+
     const IMG_ROW_WIDTH = (1280 - // width
-                           12 * 2 - // padding of container
-                           72 * 2 - // margin of detection-page
-                           216 - // width of tag-list
-                           24 - // margin of tag-list
-                           4 - // margin
-                           4 // image imargin
+                           12 -
+                           4 * 2 -
+                           1280 * 0.3 -
+                           4 * 2 -
+                           35 * 2 -
+                           4
     )
-    */
+
+    // const IMG_ROW_WIDTH = (1280 - // width
+    //                        60 - // padding of container
+    //                        35 * 2 - // margin of detection-page
+    //                        216 - // width of tag-list
+    //                        24 - // margin of tag-list
+    //                        4 - // margin
+    //                        4 // image imargin
+    // )
+
     const IMG_MARGIN = 4
     for (const dataset of state.dataset_defs) {
       dataset.pages = []

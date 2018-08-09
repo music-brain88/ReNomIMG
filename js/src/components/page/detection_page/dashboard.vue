@@ -56,7 +56,7 @@ export default {
 
   margin: 0;
   margin-top: $component-margin-top;
-  margin-left: $component-inner-horizontal-margin;
+  // margin-left: $component-inner-horizontal-margin;
 
   .title {
     height:$content-top-header-hight;
@@ -93,7 +93,7 @@ export default {
     .dashboard-model-plot {
       width: 100%;
       height: 100%;
-      margin-left: 24px;
+      margin-left: 0;
     }
   }
 }

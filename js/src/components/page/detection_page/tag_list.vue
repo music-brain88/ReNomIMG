@@ -61,7 +61,7 @@ export default {
 
   margin: 0;
   margin-top: $component-margin-top;
-  margin-left: $content-parts-margin;
+  // margin-left: $content-parts-margin;
 
   .title {
     height: $content-top-header-hight;
@@ -89,12 +89,14 @@ export default {
       float:left;
       margin-left:$content-parts-margin;
       box-sizing:border-box;
-      font-size: $content-inner-box-font-size;
+      font-size: $content-taglist-tagbox-font-size;
       color: $content-taglist-tagbox-font-colot;
       padding-top: 2px;
+      padding-left: 15px;
       padding-bottom: 2px;
       width:100px;
       height: 1rem;
+      border-left: 1px solid $panel-bg-color;
       .item-name{
         height: 1rem;
         display: inline-flex;
@@ -112,10 +114,9 @@ export default {
         display: inline-flex;
         margin-left:$content-parts-margin;
         margin-right: 8px;
-        border-radius: 2px;
         align-self: center;
-        height: 1.5rem;
-        width: 30px;
+        height: 18px;
+        width: 35px;
         color: #ffffff;
         span {
           width: 100%;
