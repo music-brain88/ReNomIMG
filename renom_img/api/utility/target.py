@@ -180,8 +180,25 @@ class DataBuilderSegmentation(DataBuilderBase):
         img = Image.open(path)
         img.load()
         w, h = img.size
+        img = self.crop_to_square(img)
         img = img.resize(self.imsize, RESIZE_METHOD)
         return np.array(img), self.imsize[0] / float(w), self.imsize[1] / h
+
+    def load_img(self, path):
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        img = img.convert('RGB')
+        img = self.crop_to_square(img)
+        img = img.resize(self.imsize, RESIZE_METHOD)
+        img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+        return img, self.imsize[0] / float(w), self.imsize[1] / h
+
+    def crop_to_square(self, image):
+        size = min(image.size)
+        left, upper = (image.width - size) // 2, (image.height - size) // 2
+        right, bottom = (image.width + size) // 2, (image.height + size) // 2
+        return image.crop((left, upper, right, bottom))
 
     def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
         """
@@ -207,7 +224,7 @@ class DataBuilderSegmentation(DataBuilderBase):
             for i in range(self.imsize[0]):
                 for j in range(self.imsize[1]):
                     if int(labels[i][j]) >= n_class:
-                        annot[0, i, j] = 1
+                        annot[n_class-1, i, j] = 1
                     else:
                         annot[int(labels[i][j]), i, j] = 1
             label_list.append(annot)

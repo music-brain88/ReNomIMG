@@ -52,7 +52,7 @@ class UNet(SemanticSegmentation):
         self.class_map = class_map
         self._model = CNN_UNet(self.num_class)
         self._train_whole_network = train_whole_network
-        self._opt = rm.Sgd(1e-3, 0.9)
+        self._opt = rm.Sgd(1e-2, 0.6)
         self._freeze()
 
     def preprocess(self, x):
@@ -72,9 +72,9 @@ class UNet(SemanticSegmentation):
             ind1 = int(total_epoch * 0.5)
             ind2 = int(total_epoch * 0.3) + ind1 + 1
             if current_epoch == ind1:
-                self._opt._lr = 1e-3
+                self._opt._lr = 6e-3
             else:
-                self._opt._lr = 4e-4
+                self._opt._lr = 4e-3
             return self._opt
 
     def regularize(self):
@@ -82,8 +82,7 @@ class UNet(SemanticSegmentation):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        #return 0.0004 * reg
-        return 0.00004 * reg
+        return 0.00001 * reg
 
     def _freeze(self):
         self._model.conv1_1.set_auto_update(self._train_whole_network)
@@ -96,7 +95,6 @@ class UNet(SemanticSegmentation):
         self._model.conv4_2.set_auto_update(self._train_whole_network)
         self._model.conv5_1.set_auto_update(self._train_whole_network)
         self._model.conv5_2.set_auto_update(self._train_whole_network)
-
 
 class CNN_UNet(rm.Model):
     def __init__(self, num_class):
@@ -137,15 +135,19 @@ class CNN_UNet(rm.Model):
         t = rm.relu(self.bn1_1(self.conv1_1(x)))
         c1 = rm.relu(self.bn1_2(self.conv1_2(t)))
         t = rm.max_pool2d(c1, filter=2, stride=2)
+        t = rm.dropout(t, 0.5)
         t = rm.relu(self.bn2_1(self.conv2_1(t)))
         c2 = rm.relu(self.bn2_2(self.conv2_2(t)))
         t = rm.max_pool2d(c2, filter=2, stride=2)
+        t = rm.dropout(t, 0.5)
         t = rm.relu(self.bn3_1(self.conv3_1(t)))
         c3 = rm.relu(self.bn3_2(self.conv3_2(t)))
         t = rm.max_pool2d(c3, filter=2, stride=2)
+        t = rm.dropout(t, 0.5)
         t = rm.relu(self.bn4_1(self.conv4_1(t)))
         c4 = rm.relu(self.bn4_2(self.conv4_2(t)))
         t = rm.max_pool2d(c4, filter=2, stride=2)
+        t = rm.dropout(t, 0.5)
         t = rm.relu(self.bn5_1(self.conv5_1(t)))
         t = rm.relu(self.bn5_2(self.conv5_2(t)))
 

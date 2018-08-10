@@ -4,6 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import sys
 
 default_color_list = [
+    (0, 0, 0, 150),
     (176, 58, 46, 150),
     (91, 44, 111, 150),
     (40, 116, 166, 150),
