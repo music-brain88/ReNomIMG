@@ -55,7 +55,6 @@ cpdef precision_recall_f1_score(y_pred, y_true):
         6-tuple. Each element represents a dictionary of precision, mean precision of float, a dictionary of recall, mean recall of float,
         a dictionary of F1 score, and F1 score of float value.
     """
-    np.bin
     tp = defaultdict(int)
     pred_sum = defaultdict(int)
     true_sum = defaultdict(int)
