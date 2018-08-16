@@ -38,7 +38,7 @@ class TernausNet(SemanticSegmentation):
         >>> from renom_img.api.segmentation.ternausnet import TernausNet
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = TernausNet(12)
+        >>> model = TernausNet()
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)

@@ -29,7 +29,7 @@ class UNet(SemanticSegmentation):
         >>> from renom_img.api.segmentation.unet import UNet
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = UNet(12)
+        >>> model = UNet()
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)
