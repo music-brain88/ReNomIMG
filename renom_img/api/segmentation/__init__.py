@@ -3,16 +3,22 @@ import sys
 import numpy as np
 import renom as rm
 from tqdm import tqdm
-from renom_img.api.utility.load import load_img
 
+from renom_img.api import adddoc
+from renom_img.api.utility.load import load_img
 from renom_img.api import Base
 from renom_img.api.utility.target import DataBuilderSegmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 
-
 class SemanticSegmentation(Base):
 
     def predict(self, img_list):
+        """
+        Returns:
+            (Numpy.array or list): If only an image or a path is given, an array whose shape is **(width, height)** is returned.
+            If multiple images or paths are given, then a list in which there are arrays whose shape is **(width, height)** is returned.
+        """
+
         batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):

@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import renom as rm
 from tqdm import tqdm
+from renom_img.api import adddoc
 from renom_img.api.segmentation import SemanticSegmentation
 from renom_img.api.classification.vgg import VGG16
 
@@ -17,68 +18,47 @@ def layer_factory(channel=32, conv_layer_num=2):
     layers.append(rm.MaxPool2d(filter=2, stride=2))
     return rm.Sequential(layers)
 
-
+@adddoc
 class FCN_Base(SemanticSegmentation):
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training FCN algorithm.
-
-        Args:
-            current_epoch:
-            total_epoch:
-            current_batch:
-            total_epoch:
-
-        Note: In FCN, the learning rate is fixed.
-        """
         if current_epoch == 100:
             self._opt._lr = 1e-4
         elif current_epoch == 150:
             self._opt._lr = 1e-5
         return self._opt
 
-    def regularize(self, decay_rate=2e-4):
-        """Regularize term. You can use this function to add regularize term to loss function.
-
-        In FCN, weight decay of 2e-4 is applied.
-
-        Example:
-            >>> import numpy as np
-            >>> from renom_img.api.segmentation.fcn import FCN32s
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> model = FCN32s()
-            >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # Add weight decay term.
-
-        """
-
+    def regularize(self):
         reg = 0
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return decay_rate * reg
+        return 2e-4 * reg
 
     def preprocess(self, x):
-        """Image preprocess for VGG.
-
-        Args:
-            x (ndarray):
-
-        Returns:
-            (ndarray): Preprocessed data.
         """
+        Preprocessing for FCN is follows.
+
+        .. math::
+
+            x_{red} -= 123.68 \\\\
+            x_{green} -= 116.779 \\\\
+            x_{blue} -= 103.939
+
+        """
+
         x[:, 0, :, :] -= 123.68  # R
         x[:, 1, :, :] -= 116.779  # G
         x[:, 2, :, :] -= 103.939  # B
         return x
 
-
 class FCN32s(FCN_Base):
     """ Fully convolutional network (21s) for semantic segmentation
 
     Args:
-        num_class (int): The number of classes
-        load_weight (Bool): If True, the pre-trained weight of ImageNet is loaded.
+        class_map(array): Array of class names
+        imsize(int or tuple): Input image size
+        load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
+        train_whole_network(bool): True if the overall model is trained, otherwise False
 
     Example:
         >>> import renom as rm
@@ -86,15 +66,17 @@ class FCN32s(FCN_Base):
         >>> from renom_img.api.segmentation.fcn import FCN32s
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = FCN32s(12)
+        >>> model = FCN32s()
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)
 
-    Note:
-        Jonathan Long, Evan Shelhamer, Trevor Darrell
-        Fully Convolutional Networks for Semantic Segmentation
-        https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+    References:
+        | Jonathan Long, Evan Shelhamer, Trevor Darrell
+        | **Fully Convolutional Networks for Semantic Segmentation**
+        | https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+        |
+
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -126,14 +108,14 @@ class FCN32s(FCN_Base):
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
 
-
 class FCN16s(FCN_Base):
     """ Fully convolutional network (16s) for semantic segmentation
-    Reference: https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 
     Args:
-        num_class (int): The number of classes
-        load_weight (Bool): If True, the pre-trained weight of ImageNet is loaded.
+        class_map(array): Array of class names
+        imsize(int or tuple): Input image size
+        load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
+        train_whole_network(bool): True if the overall model is trained, otherwise False
 
     Example:
         >>> import renom as rm
@@ -141,15 +123,17 @@ class FCN16s(FCN_Base):
         >>> from renom_img.api.segmentation.fcn import FCN16s
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = FCN16s(12)
+        >>> model = FCN16s()
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)
 
-    Note:
-        Jonathan Long, Evan Shelhamer, Trevor Darrell
-        Fully Convolutional Networks for Semantic Segmentation
-        https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+    References:
+        | Jonathan Long, Evan Shelhamer, Trevor Darrell
+        | **Fully Convolutional Networks for Semantic Segmentation**
+        | https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+        |
+
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -181,14 +165,14 @@ class FCN16s(FCN_Base):
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
 
-
 class FCN8s(FCN_Base):
     """ Fully convolutional network (8s) for semantic segmentation
-    Reference: https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 
     Args:
-        num_class (int): The number of classes
-        load_weight (Bool): If True, the pre-trained weight of ImageNet is loaded.
+        class_map(array): Array of class names
+        imsize(int or tuple): Input image size
+        load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
+        train_whole_network(bool): True if the overall model is trained, otherwise False
 
     Example:
         >>> import renom as rm
@@ -196,15 +180,17 @@ class FCN8s(FCN_Base):
         >>> from renom_img.api.segmentation.fcn import FCN8s
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = FCN8s(12)
+        >>> model = FCN8s()
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)
 
-    Note:
-        Jonathan Long, Evan Shelhamer, Trevor Darrell
-        Fully Convolutional Networks for Semantic Segmentation
-        https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+    References:
+        | Jonathan Long, Evan Shelhamer, Trevor Darrell
+        | **Fully Convolutional Networks for Semantic Segmentation**
+        | https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
+        |
+
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
