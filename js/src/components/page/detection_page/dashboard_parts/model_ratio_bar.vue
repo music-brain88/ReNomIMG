@@ -174,6 +174,9 @@ export default {
   }
   .legend {
     margin-top: $content-top-margin;
+    .col-md{
+      padding: 0;
+    }
   }
   .box {
     width: $content-figure-font-size;

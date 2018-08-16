@@ -8,18 +8,27 @@
           </div>
         </div>
         <div class="content">
-          <div class='row tag-item' v-for="(name, id) in selectedModelTags">
-            <div class="col-md-10 item-name">
-
+          <!-- tag-item -->
+          <div class='tag-item' v-for="(name, id) in selectedModelTags">
+            <div class="item-name">
                 <span> &nbsp;{{ name }} </span>
-
             </div>
-            <div class="col-md-2" v-bind:style="{backgroundColor: color_list[id%4]}">
-              <div class=" box">
-                <span>{{id}}</span>
-              </div>
+            <div class="box" v-bind:style="{backgroundColor: color_list[id%4]}">
+              <span>{{id}}</span>
             </div>
           </div>
+          <!-- tag-item -->
+
+          <!-- tag-item -->
+          <!-- <div class='tag-item' v-for="i in 10000">
+            <div class="item-name">
+                <span> &nbsp;{{ i }} </span>
+            </div>
+            <div class="box" v-bind:style="{backgroundColor: color_list[i%10]}">
+              <span>{{i}}</span>
+            </div>
+          </div> -->
+          <!-- tag-item -->
         </div>
       </div>
     </div>
@@ -33,7 +42,10 @@ export default {
   name: 'TagList',
   data: function () {
     return {
-      color_list: ['#E7009A', '#9F14C1', '#582396', '#0A20C4', '#3E9AAF', '#13894B', '#8BAA1A', '#FFCC33', '#EF8200', '#E94C33']
+      color_list: ['#E94C33', '#E7009A', '#9F14C1',
+        '#582396', '#0A20C4', '#3E9AAF', '#13894B',
+        '#8BAA1A', '#FFCC33', '#EF8200'
+      ]
     }
   },
   computed: {
@@ -81,7 +93,7 @@ export default {
 
   .content {
     font-family: $content-inner-box-font-family;
-    display: flex;
+    flex-wrap: wrap;
     // height: $content-taglist-hegiht;
     margin-top: $content-top-margin;
     padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
@@ -89,15 +101,13 @@ export default {
     border: 1px solid $content-border-color;
 
     .tag-item{
-      display: flex;
-      float:left;
-      // margin-top: 8px;
+      display: inline-flex;
       box-sizing:border-box;
       font-size: $content-taglist-tagbox-font-size;
       color: $content-taglist-tagbox-font-color;
       padding-top: 2px;
       padding-bottom: 2px;
-      width:180px;
+      width:165px;
       border-left: 1px solid $content-taglist-tagbox-font-color;
       .item-name{
         height: 1rem;
@@ -117,6 +127,8 @@ export default {
         height: 18px;
         width: 35px;
         color: #ffffff;
+        margin-left: auto;
+        margin-right: 4px;
         span {
           width: 100%;
           text-align: center;
