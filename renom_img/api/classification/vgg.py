@@ -79,6 +79,7 @@ class VGGBase(Classification):
         self._freeze()
         return self._model(x)
 
+
 @adddoc
 class VGG11(VGGBase):
     """VGG11 model.

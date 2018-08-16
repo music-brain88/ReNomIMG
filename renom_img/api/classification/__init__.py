@@ -84,4 +84,3 @@ class Classification(Base):
             >>> loss = model.loss(z, y)
         """
         return DataBuilderClassification(self.class_map, self.imsize)
-

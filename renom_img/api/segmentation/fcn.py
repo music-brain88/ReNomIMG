@@ -18,6 +18,7 @@ def layer_factory(channel=32, conv_layer_num=2):
     layers.append(rm.MaxPool2d(filter=2, stride=2))
     return rm.Sequential(layers)
 
+
 @adddoc
 class FCN_Base(SemanticSegmentation):
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
@@ -50,6 +51,7 @@ class FCN_Base(SemanticSegmentation):
         x[:, 1, :, :] -= 116.779  # G
         x[:, 2, :, :] -= 103.939  # B
         return x
+
 
 class FCN32s(FCN_Base):
     """ Fully convolutional network (21s) for semantic segmentation
@@ -108,6 +110,7 @@ class FCN32s(FCN_Base):
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
 
+
 class FCN16s(FCN_Base):
     """ Fully convolutional network (16s) for semantic segmentation
 
@@ -164,6 +167,7 @@ class FCN16s(FCN_Base):
         self._model.block3.set_auto_update(self._train_whole_network)
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
+
 
 class FCN8s(FCN_Base):
     """ Fully convolutional network (8s) for semantic segmentation

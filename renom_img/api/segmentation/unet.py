@@ -13,6 +13,7 @@ from renom_img.api.segmentation import SemanticSegmentation
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
+
 @adddoc
 class UNet(SemanticSegmentation):
     """ U-Net: Convolutional Networks for Biomedical Image Segmentation
@@ -43,7 +44,7 @@ class UNet(SemanticSegmentation):
     """
 
     def __init__(self, class_map=[], imsize=(512, 512), load_pretrained_weight=False, train_whole_network=False):
-        assert not load_pretrained_weight, "Currently pretrained weight of %s is not prepared. Please set False to `load_pretrained_weight` flag."%self.__class__.__name__
+        assert not load_pretrained_weight, "Currently pretrained weight of %s is not prepared. Please set False to `load_pretrained_weight` flag." % self.__class__.__name__
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.imsize = imsize

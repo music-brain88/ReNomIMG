@@ -117,12 +117,14 @@ def process_doc(app, what, name, obj, options, lines):
     global processing_class
     if what == "method":
         class_name = re.search(r".+\.", str(obj).split(" ")[1])
-        if class_name is None: return 
+        if class_name is None:
+            return
         class_name = class_name.group()
 
         if class_name:
             class_name = class_name[:-1]
-            if not hasattr(processing_class, "mro"): return
+            if not hasattr(processing_class, "mro"):
+                return
             if class_name in [c.__name__ for c in processing_class.mro()] and len(lines):
                 for l in range(len(lines)):
                     lines[l] = re.sub(r"\$\{class\}", processing_class.__name__, lines[l])

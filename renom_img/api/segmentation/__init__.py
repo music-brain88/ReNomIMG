@@ -10,6 +10,7 @@ from renom_img.api import Base
 from renom_img.api.utility.target import DataBuilderSegmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 
+
 class SemanticSegmentation(Base):
 
     def predict(self, img_list):
