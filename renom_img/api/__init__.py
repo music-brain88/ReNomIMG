@@ -14,7 +14,6 @@ def adddoc(cls):
     """Insert parent doc strings to inherited class.
     """
     for m in cls.__dict__.values():
-        print(m)
         if isinstance(m, types.FunctionType):
             parent_list = cls.mro()
             first = 1
@@ -22,19 +21,14 @@ def adddoc(cls):
             add_string = ""
             last_add_string = None
             for parent in parent_list[first:end][::-1]:
-                # print(cls, parent, m)
                 parent_meth = getattr(parent, m.__name__, False)
                 if parent_meth and parent_meth.__doc__:
                     if last_add_string != parent_meth.__doc__:
                         add_string += parent_meth.__doc__
                         last_add_string = parent_meth.__doc__
-                    else:
-                        pass
-                        # print(last_add_string)
             if m.__doc__:
                 m.__doc__ = add_string + m.__doc__
             else:
-                # print(add_string)
                 m.__doc__ = add_string
     return cls
 
