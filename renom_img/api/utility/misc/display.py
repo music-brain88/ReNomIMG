@@ -39,23 +39,24 @@ def draw_box(img, prediction, font_path=None, color_list=None):
         >>> bbox_image = draw_bbox(img_path, prediction)
 
     Args:
-        img(string):
-        prediction(list): List of annotations.
-            Each annotation has a list of dictionary which includes keys ``box``, ``name`` and ``score``.
-            The format is below.
+        img (list of str): list of path of images.
+        font_path(string): path of font file.
+        annotation (list of annotation):
+            | List of annotations.Each annotation has a list of dictionary
+            | which includes keys ``box``, ``name`` and ``score``.
+            | The format is below.
 
-            .. code-block :: python
+    .. code-block :: python
 
-                [
-                    {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-                    {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-                    ...
-                ]
+        [
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            ...
+        ]
 
-        font_path(string):
 
     Returns:
-        (PIL.Image): This returns image described prediction result.
+        (PIL.Image): This returns image described bounding box.
 
     Note:
         The values of `box` is a relational coordinate so their values are in [0.0 ~ 1.0].
@@ -110,6 +111,36 @@ def draw_box(img, prediction, font_path=None, color_list=None):
 
 
 def draw_segment(img, prediction, font_path=None, color_list=None, show_background=True):
+    """Function for describing segmentation, class name and socre for an input image.
+
+    Example:
+        >>> from PIL import Image
+        >>> from renom_img.api.utility.load import *
+        >>> prediction = load(prediction_xml_path)
+        >>> image = Image.open(img_path)
+        >>> segmentation_image = draw_segment(img_path, prediction)
+
+    Args:
+        img (list of str): list of path of images.
+        font_path(string): path of font file.
+        annotation (list of annotation):
+            | List of annotations.Each annotation has a list of dictionary
+            | which includes keys ``box``, ``name`` and ``score``.
+            | The format is below.
+
+    .. code-block :: python
+
+        [
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            ...
+        ]
+
+
+    Returns:
+        (PIL.Image): This returns image described  segmentation.
+
+    """
     if color_list is None:
         color_list = default_color_list
 
