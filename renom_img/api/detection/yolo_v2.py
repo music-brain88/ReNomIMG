@@ -93,6 +93,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
 
 class Yolov2(rm.Model):
     """
+    Yolov2 object detection algorithm.
 
     Args:
         class_map(list): List of class name.
@@ -209,7 +210,7 @@ class Yolov2(rm.Model):
             return self._opt
 
     def preprocess(self, x):
-        """Image preprocess for Yolov1.
+        """Image preprocess for Yolov2.
 
         :math:`x_{new} = x*2/255 - 1`
 
@@ -235,11 +236,11 @@ class Yolov2(rm.Model):
 
         Example:
             >>> import numpy as np
-            >>> from renom_img.api.detection.yolo_v1 import Yolov1
+            >>> from renom_img.api.detection.yolo_v2 import Yolov2
             >>>
             >>> x = np.random.rand(1, 3, 224, 224)
             >>> class_map = ["dog", "cat"]
-            >>> model = Yolov1(class_map)
+            >>> model = Yolov2(class_map)
             >>> y = model.forward(x) # Forward propagation.
             >>> y = model(x)  # Same as above result.
             >>> 
@@ -420,6 +421,11 @@ class Yolov2(rm.Model):
 
         Args:
             img_list (string, list, ndarray): Path to an image, list of path or ndarray.
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
+
 
         Return:
             (list): List of predicted bbox, score and class of each image.
@@ -681,13 +687,6 @@ class Yolov2(rm.Model):
         requires list of image size. If it is not given, the model will be trained 
         using fixed image size.
 
-        Following arguments will be given to the function ``callback_end_epoch``.
-
-        - **epoch** (int) - Number of current epoch.
-        - **model** (Model) - Yolo2 object.
-        - **avg_train_loss_list** (list) - List of average train loss of each epoch.
-        - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
-
         Args:
             train_img_path_list(list): List of image path.
             train_annotation_list(list): List of annotations.
@@ -703,10 +702,10 @@ class Yolov2(rm.Model):
             (tuple): Training loss list and validation loss list.
 
         Example:
-            >>> from renom_img.api.detection.yolo_v2 import Yolov1
+            >>> from renom_img.api.detection.yolo_v2 import Yolov2
             >>> train_img_path_list, train_annot_list = ... # Define own data.
             >>> valid_img_path_list, valid_annot_list = ...
-            >>> model = Yolov1()
+            >>> model = Yolov2()
             >>> model.fit(
             ...     # Feeds image and annotation data.
             ...     train_img_path_list,
@@ -716,6 +715,13 @@ class Yolov2(rm.Model):
             ...     epoch=8,
             ...     batch_size=8)
             >>> 
+
+        Following arguments will be given to the function ``callback_end_epoch``.
+
+        - **epoch** (int) - Number of current epoch.
+        - **model** (Model) - Yolo2 object.
+        - **avg_train_loss_list** (list) - List of average train loss of each epoch.
+        - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
 
         """
 

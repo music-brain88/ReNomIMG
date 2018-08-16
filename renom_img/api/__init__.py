@@ -14,6 +14,7 @@ def adddoc(cls):
     """Insert parent doc strings to inherited class.
     """
     for m in cls.__dict__.values():
+        print(m)
         if isinstance(m, types.FunctionType):
             parent_list = cls.mro()
             first = 1
@@ -21,18 +22,19 @@ def adddoc(cls):
             add_string = ""
             last_add_string = None
             for parent in parent_list[first:end][::-1]:
-                print(cls, parent, m)
+                # print(cls, parent, m)
                 parent_meth = getattr(parent, m.__name__, False)
                 if parent_meth and parent_meth.__doc__:
                     if last_add_string != parent_meth.__doc__:
                         add_string += parent_meth.__doc__
                         last_add_string = parent_meth.__doc__
                     else:
-                        print(last_add_string)
+                        pass
+                        # print(last_add_string)
             if m.__doc__:
                 m.__doc__ = add_string + m.__doc__
             else:
-                print(add_string)
+                # print(add_string)
                 m.__doc__ = add_string
     return cls
 
@@ -45,8 +47,7 @@ class Base(rm.Model):
         """
         Returns an instance of Optimizer for training ${class} algorithm.
         If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
-        an optimizer object which whose learning rate is modified according to the
-        number of training iteration. Otherwise, constant learning rate is set.
+        the learning rate is modified according to the number of training iterations or the constant learning rate is used.
 
         Args:
             current_epoch (int): The number of current epoch.
@@ -61,8 +62,7 @@ class Base(rm.Model):
 
     def regularize(self):
         """
-        L2 Regularization term. You can use this function to add L2 regularization 
-        term to a loss function.
+        Regularization term to a loss function.
 
         Example:
             >>> x = numpu.random.rand(1, 3, 224, 224)
@@ -78,7 +78,7 @@ class Base(rm.Model):
         return self.decay_rate * reg
 
     def preprocess(self, x):
-        """Performs preprocess for given array.
+        """Performs preprocess for a given array.
 
         Args:
             x(ndarray, Node): Image array for preprocessing.
@@ -90,13 +90,6 @@ class Base(rm.Model):
             epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None):
         """
         This function performs training with given data and hyper parameters.
-
-        Following arguments will be given to the function ``callback_end_epoch``.
-
-        - **epoch** (int) - Number of current epoch.
-        - **model** (Model) - Yolo1 object.
-        - **avg_train_loss_list** (list) - List of average train loss of each epoch.
-        - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
 
         Args:
             train_img_path_list(list): List of image path.
@@ -124,6 +117,13 @@ class Base(rm.Model):
             ...     epoch=8,
             ...     batch_size=8)
             >>> 
+
+        Following arguments will be given to the function ``callback_end_epoch``.
+
+        - **epoch** (int) - Number of current epoch.
+        - **model** (Model) - Yolo1 object.
+        - **avg_train_loss_list** (list) - List of average train loss of each epoch.
+        - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
 
         """
 
