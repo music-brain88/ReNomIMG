@@ -60,8 +60,8 @@ class DataBuilderClassification(DataBuilderBase):
     """ Data builder for a classification task
 
     Args:
-        imsize(int or tuple): Input image size
         class_map(array): Array of class names
+        imsize(int or tuple): Input image size
     """
 
     def __init__(self, class_map, imsize):
@@ -101,8 +101,8 @@ class DataBuilderDetection(DataBuilderBase):
     """ Data builder for a detection task
 
     Args:
-        imsize(int or tuple): Input image size
         class_map(array): Array of class names
+        imsize(int or tuple): Input image size
     """
 
     def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
@@ -164,8 +164,8 @@ class DataBuilderSegmentation(DataBuilderBase):
     """ Data builder for a semantic segmentation task
 
     Args:
-        imsize(int or tuple): Input image size
         class_map(array): Array of class names
+        imsize(int or tuple): Input image size
     """
 
     def load_annotation(self, path):

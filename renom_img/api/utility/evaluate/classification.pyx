@@ -5,12 +5,12 @@ cpdef precision_score(y_pred, y_true):
     """ Precision score for classification
 
     Args:
-        y_pred: [class_id(int), class_id(int), ...]
-        y_true: [class_id(int), class_id(int), ...]
+        y_pred(list): A list of predicted class id
+        y_true(list): A list of target class id
 
     Return:
-        Two values are returned. First output is dictionary of precision for each class.
-        The second represents the mean precision for all classes.
+        (tuple): Two values are returned. First output is dictionary of precision for each class.
+                 The second represents the mean precision for all classes.
     """
     p, mean_p, _, _, _, _ = precision_recall_f1_score(y_pred, y_true)
     return p, mean_p
@@ -19,12 +19,12 @@ cpdef recall_score(y_pred, y_true):
     """ Recall score for classification
 
     Args:
-        y_pred: [class_id(int), class_id(int), ...]
-        y_true: [class_id(int), class_id(int), ...]
+        y_pred(list): A list of predicted class id
+        y_true(list): A list of target class id
 
     Return:
-        Two values are returned. First output is dictionary of recall for each class.
-        The second represents the mean recall for all classes.
+        (tuple): Two values are returned. First output is dictionary of recall for each class.
+                 The second represents the mean recall for all classes.
     """
     _, _, r, mean_r, _, _ = precision_recall_f1_score(y_pred, y_true)
     return r, mean_r
@@ -33,12 +33,12 @@ cpdef f1_score(y_pred, y_true):
     """ F1 score for classification
 
     Args:
-        y_pred: [class_id(int), class_id(int), ...]
-        y_true: [class_id(int), class_id(int), ...]
+        y_pred(list): A list of predicted class id
+        y_true(list): A list of target class id
 
     Return:
-        Two values are returned. First output is dictionary of F1 score for each class.
-        The second represents the mean F1 score for all classes.
+        (tuple): Two values are returned. First output is dictionary of F1 score for each class.
+                 The second represents the mean F1 score for all classes.
     """
     _, _, _, _, f1_score, mean_f1_score = precision_recall_f1_score(y_pred, y_true)
     return f1_score, mean_f1_score
@@ -48,12 +48,13 @@ cpdef precision_recall_f1_score(y_pred, y_true):
     """ Returns precision, recall, F1 score
 
     Args:
-        y_pred: [class_id(int), class_id(int), ...]
-        y_true: [class_id(int), class_id(int), ...]
+        y_pred(list): A list of predicted class id
+        y_true(list): A list of target class id
 
     Return:
-        6-tuple. Each element represents a dictionary of precision, mean precision of float, a dictionary of recall, mean recall of float,
-        a dictionary of F1 score, and F1 score of float value.
+        (tuple): 6 values are returned. Each element represents a dictionary of precision,
+                 mean precision of float, a dictionary of recall, mean recall of float,
+                 a dictionary of F1 score, and F1 score of float value.
     """
     tp = defaultdict(int)
     pred_sum = defaultdict(int)
@@ -96,11 +97,11 @@ cpdef accuracy_score(y_pred, y_true):
     """ Accuracy
 
     Args:
-        y_pred: [class_id(int), class_id(int), ...]
-        y_true: [class_id(int), class_id(int), ...]
+        y_pred(list): A list of predicted class id
+        y_true(list): A list of target class id
 
     Return:
-        Outputs accuracy whose type is float.
+        (float): Returns accuracy
     """
     accuracy = np.sum(y_pred==y_true) / len(y_true)
     return accuracy
