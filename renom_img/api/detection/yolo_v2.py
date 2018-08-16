@@ -189,7 +189,7 @@ class Yolov2(rm.Model):
             current_epoch (int): The number of current epoch.
             total_epoch (int): The number of total epoch.
             current_batch (int): The number of current batch.
-            total_epoch (int): The number of total batch.
+            total_batch (int): The number of total batch.
 
         Returns:
             (Optimizer): Optimizer object.
