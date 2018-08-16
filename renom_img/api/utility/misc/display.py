@@ -37,19 +37,19 @@ def draw_box(img, prediction, font_path=None, color_list=None):
             Each annotation has a list of dictionary which includes keys ``box``, ``name`` and ``score``.
             The format is below.
 
-            .. code-block :: python
+    .. code-block :: python
 
-                [
-                    {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-                    {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
-                    ...
-                ]
+        [
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            {'box': [x(float), y, w, h], 'name': class name(string), 'score': score(float)},
+            ...
+        ]
 
         font_path(string): Path to font file for showing object's name. If None is given, default font will be used.
         color_list(list): A list of color for rendering bounding boxes. If None is given, default color list will be used.
 
     Returns:
-        (PIL.Image): This returns image described prediction result.
+        (PIL.Image): This returns image described bounding box.
 
     Example:
         >>> from PIL import Image
