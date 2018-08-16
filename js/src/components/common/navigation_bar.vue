@@ -60,14 +60,13 @@ export default {
 
 <style lang="scss" scoped>
 #navigation {
-  $header-height: 44px;
 
   position: fixed;
   z-index: 999;
 
   #mask {
     position: fixed;
-    top: $header-height;
+    top: $application-header-hight;
     left: 0;
     width: 100vw;
     height: 100vh;
@@ -77,7 +76,7 @@ export default {
 
   #navigation-bar {
     position: fixed;
-    top: $header-height;
+    top: $application-header-hight;
     height: calc(100vh - 35px);
 
     background-color: #262a4e;

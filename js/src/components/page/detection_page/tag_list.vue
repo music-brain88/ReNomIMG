@@ -9,25 +9,25 @@
         </div>
         <div class="content">
           <!-- tag-item -->
-          <div class='tag-item' v-for="(name, id) in selectedModelTags">
+          <!-- <div class='tag-item' v-for="(name, id) in selectedModelTags">
             <div class="item-name">
                 <span> &nbsp;{{ name }} </span>
             </div>
-            <div class="box" v-bind:style="{backgroundColor: color_list[id%4]}">
+            <div class="box" v-bind:style="{backgroundColor: color_list[id%10]}">
               <span>{{id}}</span>
             </div>
-          </div>
+          </div> -->
           <!-- tag-item -->
 
           <!-- tag-item -->
-          <!-- <div class='tag-item' v-for="i in 10000">
+          <div class='tag-item' v-for="i in 20">
             <div class="item-name">
                 <span> &nbsp;{{ i }} </span>
             </div>
             <div class="box" v-bind:style="{backgroundColor: color_list[i%10]}">
               <span>{{i}}</span>
             </div>
-          </div> -->
+          </div>
           <!-- tag-item -->
         </div>
       </div>
@@ -42,6 +42,10 @@ export default {
   name: 'TagList',
   data: function () {
     return {
+      // color_list: ['#E7009A', '#9F14C1',
+      //   '#582396', '#0A20C4', '#3E9AAF', '#13894B',
+      //   '#8BAA1A', '#FFCC33', '#EF8200', '#E94C33'
+      // ]
       color_list: ['#E94C33', '#E7009A', '#9F14C1',
         '#582396', '#0A20C4', '#3E9AAF', '#13894B',
         '#8BAA1A', '#FFCC33', '#EF8200'
@@ -100,6 +104,9 @@ export default {
     background-color: $content-bg-color;
     border: 1px solid $content-border-color;
 
+    .FirstCol{
+      border-left: 1px solid $content-taglist-tagbox-font-color;
+    }
     .tag-item{
       display: inline-flex;
       box-sizing:border-box;
@@ -107,9 +114,10 @@ export default {
       color: $content-taglist-tagbox-font-color;
       padding-top: 2px;
       padding-bottom: 2px;
-      width:165px;
+      width:170px;
       border-left: 1px solid $content-taglist-tagbox-font-color;
       .item-name{
+        margin-left: 5px;
         height: 1rem;
         display: inline-flex;
         align-self: center;
@@ -128,7 +136,7 @@ export default {
         width: 35px;
         color: #ffffff;
         margin-left: auto;
-        margin-right: 4px;
+        margin-right: 10px;
         span {
           width: 100%;
           text-align: center;

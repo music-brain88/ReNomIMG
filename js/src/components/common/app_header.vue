@@ -1,7 +1,8 @@
 <template>
 <header>
   <div class="global-menu-button" @click="toggleMenu">
-    <i id="menu-toggle" class="fa fa-bars fa-lg" aria-hidden="true"></i>
+    <!-- <i id="menu-toggle" class="fa fa-bars fa-lg" aria-hidden="true"></i>_ -->
+    <img id="menu-toggle" :src="url" aria-hidden="true">
   </div>
 
   <div id="soft-symbol">
@@ -18,6 +19,11 @@
 <script>
 export default {
   name: 'AppHeader',
+  data: function () {
+    return {
+      url: require('../../../static/img/han.png')
+    }
+  },
   computed: {
     currentPage () {
       return this.$store.state.page_name
@@ -53,8 +59,11 @@ header {
     line-height: $application-header-hight;
     vertical-align: middle;
 
-    #menu-toggle:hover {
+    #menu-toggle{
       color: #bbbbbb;
+      cursor: pointer;
+      vertical-align: middle;
+      height:$header-product-name-font-size;
     }
   }
 

@@ -48,8 +48,8 @@ export default {
         'Selected': {
           data: [],
           backgroundColor: selected_color,
-          pointRadius: 10,
-          pointHoverRadius: 12,
+          pointRadius: 4,
+          pointHoverRadius: 6,
           pointStyle: 'circle'
         },
         'Running': {

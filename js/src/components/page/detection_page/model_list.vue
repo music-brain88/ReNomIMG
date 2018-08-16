@@ -151,6 +151,7 @@ export default {
     height: $panel-height;
     background-color: $panel-bg-color;
     color: $font-color;
+    font-size: $content-top-header-font-size;
     text-align: center;
     line-height: $panel-height;
     cursor: pointer;
@@ -161,6 +162,7 @@ export default {
   .plus{
     margin-right: 10px;
     vertical-align: middle;
+    height:$content-top-header-font-size;
   }
 }
 </style>
