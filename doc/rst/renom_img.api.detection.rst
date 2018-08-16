@@ -6,6 +6,6 @@ renom\_img.api.detection
     :inherited-members:
 
 .. automodule:: renom_img.api.detection.yolo_v2
-    :members:
+    :members: Yolov2
     :inherited-members:
 
