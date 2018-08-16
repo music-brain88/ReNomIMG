@@ -109,14 +109,17 @@ processing_class = None
 def skip_doc(app, what, name, obj, skip, options):
     model_method = list(Model.__dict__.values())
     if obj in model_method or (name not in str(options["members"]) and what == "module"):
-        return None
-    return None
+        return False
+    return False
 
 
 def process_doc(app, what, name, obj, options, lines):
     global processing_class
     if what == "method":
-        class_name = re.search(r".+\.", str(obj).split(" ")[1]).group()
+        class_name = re.search(r".+\.", str(obj).split(" ")[1])
+        if class_name is None: return 
+        class_name = class_name.group()
+
         if class_name:
             class_name = class_name[:-1]
             if not hasattr(processing_class, "mro"): return
