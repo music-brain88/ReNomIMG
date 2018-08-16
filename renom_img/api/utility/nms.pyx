@@ -84,38 +84,40 @@ def soft_nms(preds, threshold=0.5):
         threshold(float, optional): Defaults to `0.5`. This represents the ratio of overlap between two boxes.
 
     .. code-block :: python
+        :caption: **Example of the argument, "preds".**
 
-        [
-            [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                ...
-            ],
-            [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                ...
+            [
+                [ # Objects of 1st image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    ...
+                ],
+                [ # Objects of 2nd image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    ...
+                ]
             ]
-        ]
 
 
     Returns:
         (list): Returns reformatted bounding box.
 
     .. code-block :: python
+        :caption: **Example of the output.**
 
-        [
-            [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                ...
-            ],
-            [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                ...
+            [
+                [ # Objects of 1st image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    ...
+                ],
+                [ # Objects of 2nd image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    ...
+                ]
             ]
-        ]
 
     References:
         | Navaneeth Bodla, Bharat Singh, Rama Chellappa, Larry S. Davis,
