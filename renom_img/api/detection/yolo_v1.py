@@ -4,6 +4,7 @@ import renom as rm
 from tqdm import tqdm
 from PIL import Image
 
+from renom_img.api import Base, adddoc
 from renom_img.api.classification.darknet import Darknet
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
@@ -118,7 +119,7 @@ class Yolov1(rm.Model):
             current_epoch (int): The number of current epoch.
             total_epoch (int): The number of total epoch.
             current_batch (int): The number of current batch.
-            total_epoch (int): The number of total batch.
+            total_batch (int): The number of total batch.
 
         Returns:
             (Optimizer): Optimizer object.
@@ -205,11 +206,6 @@ class Yolov1(rm.Model):
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
-        Example:
-            >>> z = model(x)
-            >>> model.get_bbox(z)
-            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
-             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
             z (ndarray): Output array of neural network. The shape of array
@@ -239,6 +235,12 @@ class Yolov1(rm.Model):
                 ],
                 ...
             ]
+
+        Example:
+            >>> z = model(x)
+            >>> model.get_bbox(z)
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Note:
             Box coordinate and size will be returned as ratio to the original image size.
@@ -316,12 +318,6 @@ class Yolov1(rm.Model):
         """
         This method accepts either ndarray and list of image path.
 
-        Example:
-            >>>
-            >>> model.predict(['img01.jpg', 'img02.jpg']])
-            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
-             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
-
         Args:
             img_list (string, list, ndarray): Path to an image, list of path or ndarray.
             score_threshold (float): The threshold for confidence score.
@@ -350,6 +346,12 @@ class Yolov1(rm.Model):
                 ],
                 ...
             ]
+
+        Example:
+            >>>
+            >>> model.predict(['img01.jpg', 'img02.jpg']])
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Note:
             Box coordinate and size will be returned as ratio to the original image size.
@@ -485,13 +487,6 @@ class Yolov1(rm.Model):
         """
         This function performs training with given data and hyper parameters.
 
-        Following arguments will be given to the function ``callback_end_epoch``.
-
-        - **epoch** (int) - Number of current epoch.
-        - **model** (Model) - Yolo1 object.
-        - **avg_train_loss_list** (list) - List of average train loss of each epoch.
-        - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
-
         Args:
             train_img_path_list(list): List of image path.
             train_annotation_list(list): List of annotations.
@@ -506,7 +501,7 @@ class Yolov1(rm.Model):
             (tuple): Training loss list and validation loss list.
 
         Example:
-            >>> from renom_img.api.detection.yolo_v2 import Yolov1
+            >>> from renom_img.api.detection.yolo_v1 import Yolov1
             >>> train_img_path_list, train_annot_list = ... # Define own data.
             >>> valid_img_path_list, valid_annot_list = ...
             >>> model = Yolov1()
@@ -519,6 +514,13 @@ class Yolov1(rm.Model):
             ...     epoch=8,
             ...     batch_size=8)
             >>> 
+
+        Following arguments will be given to the function ``callback_end_epoch``.
+
+        - **epoch** (int) - Number of current epoch.
+        - **model** (Model) - Yolo1 object.
+        - **avg_train_loss_list** (list) - List of average train loss of each epoch.
+        - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
 
         """
 
