@@ -12,7 +12,7 @@ from sklearn.feature_extraction.image import extract_patches
 This type of function performs following transformation.
   annotation_list => algorithm specific target data
 
-For confirming the format of annotation_list, 
+For confirming the format of annotation_list,
 see the function 'parse_xml_detection' written in load.py.
 """
 
@@ -38,6 +38,15 @@ class DataBuilderBase(object):
         pass
 
     def load_img(self, path):
+        """ Loads an image
+
+        Args:
+            path(str): A path of an image
+
+        Returns:
+            (tuple): Returns image(numpy.array), the ratio of the given width to the actual image width,
+                     and the ratio of the given height to the actual image height
+        """
         img = Image.open(path)
         img.load()
         w, h = img.size
@@ -48,18 +57,19 @@ class DataBuilderBase(object):
 
 
 class DataBuilderClassification(DataBuilderBase):
-    """ Data builder for classification task
+    """ Data builder for a classification task
 
     Args:
         imsize(int or tuple): Input image size
-        class_map(list): List of class id
+        class_map(array): Array of class names
     """
 
     def __init__(self, class_map, imsize):
         super(DataBuilderClassification, self).__init__(class_map, imsize)
 
     def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
-        """
+        """ Builds an array of images and corresponding labels
+
         Args:
             img_path_list(list): List of input image paths.
             annotation_list(list): List of class id
@@ -67,8 +77,7 @@ class DataBuilderClassification(DataBuilderBase):
             augmentation(Augmentation): Instance of the augmentation class.
 
         Returns:
-            x(ndarray): Batch of images
-            y(ndarray): One hot labels for each image in a batch
+            (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
 
         # Check the class mapping.
@@ -89,24 +98,23 @@ class DataBuilderClassification(DataBuilderBase):
 
 
 class DataBuilderDetection(DataBuilderBase):
-    """ Data builder for detection task
+    """ Data builder for a detection task
 
     Args:
         imsize(int or tuple): Input image size
-        class_map(list): List of class id
+        class_map(array): Array of class names
     """
 
     def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
         """
         Args:
             img_path_list(list): List of input image paths.
-            annotation_list(list): List of class id
-                                    [1, 4, 6 (int)]
+            annotation_list(list): The format of annotation list is as follows.
             augmentation(Augmentation): Instance of the augmentation class.
 
         Returns:
-            x(ndarray): Batch of images
-            y(ndarray): The shape of ndarray is [# images, maximum number of objects in an image * (4(coordinates) + 1(confidence))]
+            (tuple): Batch of images and ndarray whose shape is **(# images, maximum number of objects in an image * (4(coordinates) + 1(confidence)))**
+
         """
         # Check the class mapping.
         if self.class_map is None:
@@ -153,11 +161,22 @@ class DataBuilderDetection(DataBuilderBase):
 
 
 class DataBuilderSegmentation(DataBuilderBase):
-    """
-    Annotation_list must be list of class name.
+    """ Data builder for a semantic segmentation task
+
+    Args:
+        imsize(int or tuple): Input image size
+        class_map(array): Array of class names
     """
 
     def load_annotation(self, path):
+        """ Loads annotation data
+
+        Args:
+            path: A path of annotation file
+
+        Returns:
+            (tuple): Returns annotation data(numpy.array), the ratio of the given width to the actual image width,
+        """
         img = Image.open(path)
         img.load()
         w, h = img.size
@@ -165,6 +184,16 @@ class DataBuilderSegmentation(DataBuilderBase):
         return np.array(img), self.imsize[0] / float(w), self.imsize[1] / h
 
     def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        """
+        Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): The format of annotation list is as follows.
+            augmentation(Augmentation): Instance of the augmentation class.
+
+        Returns:
+            (tuple): Batch of images and ndarray whose shape is **(batch size, #classes, width, height)**
+
+        """
         # Check the class mapping.
         n_class = len(self.class_map)
 

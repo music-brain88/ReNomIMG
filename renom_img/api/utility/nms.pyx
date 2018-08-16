@@ -2,12 +2,11 @@ import numpy as np
 from renom_img.api.utility.box import calc_iou_xyxy
 
 def nms(preds, threshold=0.5):
-    """
-    nms(preds, threshold=0.5)
+    """ Non-Maximum Suppression
 
     Args:
-        preds(list): A list of predicted bbox. The format is bellow.
-        threshold(float, optional): Defaults to `0.5`. This represents the ratio of overlap between boxes.
+        preds(list): A list of predicted boxes. The format is as follows.
+        threshold(float, optional): Defaults to `0.5`. This represents the ratio of overlap between two boxes.
 
 
     .. code-block :: python
@@ -78,12 +77,11 @@ def nms(preds, threshold=0.5):
     return result
 
 def soft_nms(preds, threshold=0.5):
-    """
-    soft_nms(preds, threshold=0.5)
+    """ Soft Non-Maximum Suppression
 
     Args:
-        preds(list): This list has 4 variable that reporesent above coordinates.
-        threshold(float, optional): Defaults to `0.5`. This represents the ratio of overlap between boxes.
+        preds(list): A list of predicted boxes. The format is as follows.
+        threshold(float, optional): Defaults to `0.5`. This represents the ratio of overlap between two boxes.
 
     .. code-block :: python
 
@@ -120,9 +118,9 @@ def soft_nms(preds, threshold=0.5):
         ]
 
     References:
-        Navaneeth Bodla, Bharat Singh, Rama Chellappa, Larry S. Davis,
-        Soft-NMS -- Improving Object Detection With One Line of Code
-        https://arxiv.org/abs/1704.04503
+        | Navaneeth Bodla, Bharat Singh, Rama Chellappa, Larry S. Davis,
+        | Soft-NMS -- Improving Object Detection With One Line of Code
+        | https://arxiv.org/abs/1704.04503
 
     """
 

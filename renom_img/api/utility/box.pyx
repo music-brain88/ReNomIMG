@@ -8,7 +8,7 @@ cpdef rescale(box, before_size, after_size):
     Rescale box coordinates and size to specific size.
 
     Args:
-        box(list): This list has 4 variables that represent above coordinates.
+        box(list): This list has 4 elements that represent above coordinates.
         before_size(float): Size of the box before rescaling.
         after_size(float): Size of the box before rescaling.
 
@@ -19,8 +19,8 @@ cpdef rescale(box, before_size, after_size):
             d["box"][1]/before_size[1] * after_size[1],
             d["box"][2]/before_size[0] * after_size[0],
             d["box"][3]/before_size[1] * after_size[1],
-        ] 
-    
+        ]
+
 
 cpdef transform2xywh(box):
     """
@@ -28,7 +28,7 @@ cpdef transform2xywh(box):
 
     This function changes box's coordinate format from (x1, y1, x2, y2) to
     (x, y, w, h).
-    
+
     (``x1``, ``y1``) represents the coordinate of upper left corner.
     (``x2``, ``y2``) represents the coordinate of lower right corner.
 
@@ -42,7 +42,7 @@ cpdef transform2xywh(box):
         [x1(float), y1(float), x2(float), y2(float)]
 
     Args:
-        box(list): This list has 4 variables that represent above coordinates.
+        box(list): This list has 4 elements that represent above coordinates.
 
     Return:
         (list): Returns reformatted bounding box.
@@ -77,7 +77,7 @@ cpdef transform2xy12(box):
         [x(float), y(float), w(float), h(float)]
 
     Args:
-        box(list): This list has 4 variables that represent above coordinates.
+        box(list): This list has 4 elements that represent above coordinates.
 
     Return:
         (list): Returns reformatted bounding box.
@@ -96,19 +96,20 @@ cpdef calc_iou_xyxy(box1, box2):
     """
     calc_iou_xyxy(box1, box2)
 
-    This function calculates IOU in the coordinate format (x1, y1, x2, y2).
+    This function calculates IOU in the coordinate format (x, y, w, h).
 
-    (``x1``, ``y1``) represents the coordinate of upper left corner.
-    (``x2``, ``y2``) represents the coordinate of lower right corner.
+    (``x``, ``y``) represents the coordinate of the center.
+    (``w``, ``h``) represents the width and height.
 
     The format of argument box have to be following example.
 
     .. code-block :: python
 
-        [x1(float), y1(float), x2(float), y2(float)]
+        [x(float), y(float), w(float), h(float)]
 
     Args:
-        [box1(list), box2(list)]: List of boxes. Each box has 4 variables that represent above coordinates.
+        box1(list): List of a box. The list has 4 elements that represent above coordinates.
+        box2(list): List of a box. The list has 4 elements that represent above coordinates.
 
     Return:
         (float): Returns value of IOU.
@@ -138,7 +139,8 @@ cpdef calc_iou_xywh(box1, box2):
         [x1(float), y1(float), x2(float), y2(float)]
 
     Args:
-        [box1(list), box2(list)]: List of boxes. Each box has 4 variables that represent above coordinates.
+        box1(list): List of a box. The list has 4 elements that represent above coordinates.
+        box2(list): List of a box. The list has 4 elements that represent above coordinates.
 
     Return:
         (float): Returns value of IOU.
