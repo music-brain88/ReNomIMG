@@ -31,15 +31,8 @@ default_color_list = [
 def draw_box(img, prediction, font_path=None, color_list=None):
     """Function for describing bounding box, class name and socre for an input image.
 
-    Example:
-        >>> from PIL import Image
-        >>> from renom_img.api.utility.load import *
-        >>> prediction = load(prediction_xml_path)
-        >>> image = Image.open(img_path)
-        >>> bbox_image = draw_bbox(img_path, prediction)
-
     Args:
-        img(string):
+        img(string, ndarray): An path of image or image array.
         prediction(list): List of annotations.
             Each annotation has a list of dictionary which includes keys ``box``, ``name`` and ``score``.
             The format is below.
@@ -52,13 +45,23 @@ def draw_box(img, prediction, font_path=None, color_list=None):
                     ...
                 ]
 
-        font_path(string):
+        font_path(string): Path to font file for showing object's name. If None is given, default font will be used.
+        color_list(list): A list of color for rendering bounding boxes. If None is given, default color list will be used.
 
     Returns:
         (PIL.Image): This returns image described prediction result.
 
+    Example:
+        >>> from PIL import Image
+        >>> from renom_img.api.utility.load import *
+        >>> prediction = parse_xml_detection(prediction_xml_path_list)[0]
+        >>> bbox_image = draw_bbox(img_path, prediction)
+
     Note:
         The values of `box` is a relational coordinate so their values are in [0.0 ~ 1.0].
+        If you pass the argument ``img`` as ndarray, it must have the format of (channel, height, width).
+        For example, an RGB color which size is (100, 10), the matrix will be (3, 10, 100).
+
     """
     if color_list is None:
         color_list = default_color_list
@@ -109,7 +112,30 @@ def draw_box(img, prediction, font_path=None, color_list=None):
     return Image.alpha_composite(img, canvas)
 
 
-def draw_segment(img, prediction, font_path=None, color_list=None, show_background=True):
+def draw_segment(img, prediction, color_list=None, show_background=True):
+    """Function for draw segment according to the argument ``prediction``.
+
+    Args:
+        img(string, ndarray): An path of image or image array.
+        prediction(ndarray): List of predicted annotations. This must be a matrix which size equals to image.
+        color_list(list): A list of color for rendering bounding boxes. If None is given, default color list will be used.
+        show_background(bool): If this is false, background class whose id is 0 will not be drawn.
+
+    Returns:
+        (PIL.Image): This returns image described prediction result.
+
+    Example:
+        >>> from PIL import Image
+        >>> prediction = Image.open(predicticted_result)
+        >>> image = Image.open(img_path)
+        >>> bbox_image = draw_segment(img_path, prediction)
+
+    Note:
+        If you pass the argument ``img`` as ndarray, it must have the format of (channel, height, width).
+        Same as it, the argument ``prediction`` must be a matrix which format is (channel, height, width).
+        For example, an RGB color which size is (100, 10), the matrix will be (3, 10, 100).
+    """
+
     if color_list is None:
         color_list = default_color_list
 
