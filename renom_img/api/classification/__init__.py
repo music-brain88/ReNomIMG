@@ -16,6 +16,16 @@ class Classification(Base):
         return x / 255.
 
     def predict(self, img_list):
+        """Perform prediction.
+        Argument can be an image array, image path list or a image path.
+
+        Args:
+            img_list(ndarray, list, string): Image array, image path list or image path.
+
+        Return:
+            (list): List of class of each image.
+
+        """
         batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
@@ -42,7 +52,36 @@ class Classification(Base):
         return np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1)
 
     def loss(self, x, y):
+        """
+        Loss function of ${class} algorithm.
+
+        Args:
+            x(ndarray, Node): Output of model.
+            y(ndarray, Node): Target array.
+
+        Returns:
+            (Node): Loss between x and y.
+        Example:
+            >>> builder = model.build_data()  # This will return function.
+            >>> x, y = builder(image_path_list, annotation_list)
+            >>> z = model(x)
+            >>> loss = model.loss(z, y)
+        """
         return rm.softmax_cross_entropy(x, y)
 
     def build_data(self):
+        """
+        This function returns a function which creates input data and target data
+        specified for ${class}.
+
+        Returns:
+            (function): Returns function which creates input data and target data.
+
+        Example:
+            >>> builder = model.build_data()  # This will return function.
+            >>> x, y = builder(image_path_list, annotation_list)
+            >>> z = model(x)
+            >>> loss = model.loss(z, y)
+        """
         return DataBuilderClassification(self.class_map, self.imsize)
+

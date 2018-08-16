@@ -37,6 +37,9 @@ class VGGBase(Classification):
 
     def preprocess(self, x):
         """
+        Returns:
+            (ndarray): Preprocessed data.
+
         Preprocessing for VGG is follows.
 
         .. math::
@@ -58,29 +61,46 @@ class VGGBase(Classification):
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
 
+    def forward(self, x):
+        """
+        Returns:
+            (Node): Returns raw output of ${class}.
+
+        Example:
+            >>> import numpy as np
+            >>> from renom_img.api.classification.vgg import ${class}
+            >>>
+            >>> x = np.random.rand(1, 3, 224, 224)
+            >>> class_map = ["dog", "cat"]
+            >>> model = ${class}(class_map)
+            >>> y = model.forward(x) # Forward propagation.
+            >>> y = model(x)  # Same as above result.
+        """
+        self._freeze()
+        return self._model(x)
 
 @adddoc
 class VGG11(VGGBase):
     """VGG11 model.
 
-    If the argument load_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
-
     Args:
         class_map(array): Array of class names
-        load_weight(bool):
         imsize(int or tuple): Input image size
         train_whole_network(bool): True if the overall model is trained, otherwise False
-
+        load_pretrained_weight (bool, str): If true, pretrained weight will be
+          downloaded to current directory. If string is given, pretrained weight
+          will be saved as given name.
 
     Note:
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     References:
-        Karen Simonyan, Andrew Zisserman
-        Very Deep Convolutional Networks for Large-Scale Image Recognition
-        https://arxiv.org/abs/1409.1556
+        | Karen Simonyan, Andrew Zisserman
+        | Very Deep Convolutional Networks for Large-Scale Image Recognition
+        | https://arxiv.org/abs/1409.1556
+        |
+
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -110,7 +130,10 @@ class VGG11(VGGBase):
             self._model.fc2.params = {}
             self._model.fc3.params = {}
 
+        assert not load_pretrained_weight, "Currently pretrained weight of %s is not prepared. Please set False to `load_pretrained_weight` flag." % self.__class__.___name__
 
+
+@adddoc
 class VGG16(VGGBase):
     """VGG16 model.
     If the argument load_weight is True, pretrained weight will be downloaded.
@@ -118,9 +141,11 @@ class VGG16(VGGBase):
 
     Args:
         class_map(array): Array of class names
-        load_pretrained_weight(bool, str):
         imsize(int or tuple): Input image size
         train_whole_network(bool): True if the overall model is trained, otherwise False
+        load_pretrained_weight (bool, str): If true, pretrained weight will be
+          downloaded to current directory. If string is given, pretrained weight
+          will be saved as given name.
 
 
     Note:
@@ -128,9 +153,11 @@ class VGG16(VGGBase):
         the pretrained weight is trained on 1000 classification dataset.
 
     References:
-        Karen Simonyan, Andrew Zisserman
-        Very Deep Convolutional Networks for Large-Scale Image Recognition
-        https://arxiv.org/abs/1409.1556
+        | Karen Simonyan, Andrew Zisserman
+        | Very Deep Convolutional Networks for Large-Scale Image Recognition
+        | https://arxiv.org/abs/1409.1556
+        |
+
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
@@ -160,6 +187,7 @@ class VGG16(VGGBase):
             self._model.fc3.params = {}
 
 
+@adddoc
 class VGG19(VGGBase):
     """VGG19 model.
 
@@ -168,19 +196,22 @@ class VGG19(VGGBase):
 
     Args:
         class_map(array): Array of class names
-        load_weight(bool):
         imsize(int or tuple): Input image size
         train_whole_network(bool): True if the overall model is trained, otherwise False
-
+        load_pretrained_weight (bool, str): If true, pretrained weight will be
+          downloaded to current directory. If string is given, pretrained weight
+          will be saved as given name.
 
     Note:
         if the argument num_class is not 1000, last dense layer will be reset because
         the pretrained weight is trained on 1000 classification dataset.
 
     References:
-        Karen Simonyan, Andrew Zisserman
-        Very Deep Convolutional Networks for Large-Scale Image Recognition
-        https://arxiv.org/abs/1409.1556
+        | Karen Simonyan, Andrew Zisserman
+        | Very Deep Convolutional Networks for Large-Scale Image Recognition
+        | https://arxiv.org/abs/1409.1556
+        |
+
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
