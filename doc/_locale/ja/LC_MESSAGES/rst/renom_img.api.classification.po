@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 09:09+0900\n"
+"POT-Creation-Date: 2018-08-17 09:52+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -260,7 +260,7 @@ msgstr ""
 #: of renom_img.api.classification.vgg.VGG11.fit:41
 #: renom_img.api.classification.vgg.VGG16.fit:41
 #: renom_img.api.classification.vgg.VGG19.fit:41
-msgid "**model** (Model) - Yolo1 object."
+msgid "**model** (Model) - Model object."
 msgstr ""
 
 #: of renom_img.api.classification.vgg.VGG11.fit:42
@@ -600,5 +600,8 @@ msgstr ""
 #~ "Deep Convolutional Networks for Large-"
 #~ "Scale Image Recognition "
 #~ "https://arxiv.org/abs/1409.1556"
+#~ msgstr ""
+
+#~ msgid "**model** (Model) - Yolo1 object."
 #~ msgstr ""
 

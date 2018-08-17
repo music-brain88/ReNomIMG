@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 09:09+0900\n"
+"POT-Creation-Date: 2018-08-17 09:52+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,7 +28,6 @@ msgid "Bases: :class:`renom_img.api.segmentation.fcn.FCN_Base`"
 msgstr ""
 
 #: of renom_img.api.segmentation.fcn.FCN16s:1
-#, fuzzy
 msgid "Fully convolutional network (16s) for semantic segmentation"
 msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
 
@@ -63,7 +62,7 @@ msgstr "セマンティックセグメンテーション用の全畳み込みネ
 #: renom_img.api.segmentation.unet.UNet.loss
 #: renom_img.api.segmentation.unet.UNet.preprocess
 msgid "Parameters"
-msgstr ""
+msgstr "パラメーター"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:3
 #: renom_img.api.segmentation.fcn.FCN32s:3
@@ -71,7 +70,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet:3
 #: renom_img.api.segmentation.unet.UNet:3
 msgid "Array of class names"
-msgstr ""
+msgstr "クラス名の配列"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:5
 #: renom_img.api.segmentation.fcn.FCN32s:5
@@ -79,7 +78,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet:5
 #: renom_img.api.segmentation.unet.UNet:5
 msgid "Input image size"
-msgstr ""
+msgstr "入力の画像サイズ"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:7
 #: renom_img.api.segmentation.fcn.FCN32s:7
@@ -87,7 +86,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet:7
 #: renom_img.api.segmentation.unet.UNet:7
 msgid "True if pre-trained weight is used, otherwise False."
-msgstr ""
+msgstr "事前学習済みの重みを利用する場合はTrue、さもなければFalse"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:9
 #: renom_img.api.segmentation.fcn.FCN32s:9
@@ -95,7 +94,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet:9
 #: renom_img.api.segmentation.unet.UNet:9
 msgid "True if the overall model is trained, otherwise False"
-msgstr ""
+msgstr "モデル全体の学習を行う場合はTrue、さもなければFalse"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:13
 #: renom_img.api.segmentation.fcn.FCN16s.fit:24
@@ -113,7 +112,7 @@ msgstr ""
 #: renom_img.api.segmentation.unet.UNet.fit:24
 #: renom_img.api.segmentation.unet.UNet.regularize:4
 msgid "Example"
-msgstr ""
+msgstr "例"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:25
 #: renom_img.api.segmentation.fcn.FCN32s:25
@@ -121,7 +120,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet:25
 #: renom_img.api.segmentation.unet.UNet:25
 msgid "References"
-msgstr ""
+msgstr "参照"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:26
 #: renom_img.api.segmentation.fcn.FCN32s:26
@@ -148,7 +147,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:1
 #: renom_img.api.segmentation.unet.UNet.fit:1
 msgid "This function performs training with given data and hyper parameters."
-msgstr ""
+msgstr "この関数は与えられたデータとパラメータをもとに、モデルの学習を行います。"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:3
 #: renom_img.api.segmentation.fcn.FCN32s.fit:3
@@ -156,7 +155,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:3
 #: renom_img.api.segmentation.unet.UNet.fit:3
 msgid "List of image path."
-msgstr ""
+msgstr "画像ファイルのパスのリスト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:5
 #: renom_img.api.segmentation.fcn.FCN32s.fit:5
@@ -164,7 +163,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:5
 #: renom_img.api.segmentation.unet.UNet.fit:5
 msgid "List of annotations."
-msgstr ""
+msgstr "アノテーションファイルのパスのリスト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:7
 #: renom_img.api.segmentation.fcn.FCN32s.fit:7
@@ -172,7 +171,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:7
 #: renom_img.api.segmentation.unet.UNet.fit:7
 msgid "List of image path for validation."
-msgstr ""
+msgstr "バリデーション用の画像パスのリスト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:9
 #: renom_img.api.segmentation.fcn.FCN32s.fit:9
@@ -180,7 +179,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:9
 #: renom_img.api.segmentation.unet.UNet.fit:9
 msgid "List of annotations for validation."
-msgstr ""
+msgstr "バリデーション用のアノテーションファイルのパスリスト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:11
 #: renom_img.api.segmentation.fcn.FCN32s.fit:11
@@ -188,16 +187,15 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:11
 #: renom_img.api.segmentation.unet.UNet.fit:11
 msgid "Number of training epoch."
-msgstr ""
+msgstr "学習エポック数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:13
 #: renom_img.api.segmentation.fcn.FCN32s.fit:13
 #: renom_img.api.segmentation.fcn.FCN8s.fit:13
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:13
 #: renom_img.api.segmentation.unet.UNet.fit:13
-#, fuzzy
 msgid "Number of batch size."
-msgstr "クラス数"
+msgstr "バッチサイズ"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:15
 #: renom_img.api.segmentation.fcn.FCN32s.fit:15
@@ -205,7 +203,7 @@ msgstr "クラス数"
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:15
 #: renom_img.api.segmentation.unet.UNet.fit:15
 msgid "Augmentation object."
-msgstr ""
+msgstr "Augmentationオブジェクト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:17
 #: renom_img.api.segmentation.fcn.FCN32s.fit:17
@@ -213,7 +211,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:17
 #: renom_img.api.segmentation.unet.UNet.fit:17
 msgid "Given function will be called at the end of each epoch."
-msgstr ""
+msgstr "与えられた関数が各エポックの最後に呼ばれます"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit
 #: renom_img.api.segmentation.fcn.FCN16s.get_optimizer
@@ -238,7 +236,7 @@ msgstr ""
 #: renom_img.api.segmentation.unet.UNet.predict
 #: renom_img.api.segmentation.unet.UNet.preprocess
 msgid "Returns"
-msgstr ""
+msgstr "戻り値"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:20
 #: renom_img.api.segmentation.fcn.FCN32s.fit:20
@@ -246,7 +244,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:20
 #: renom_img.api.segmentation.unet.UNet.fit:20
 msgid "Training loss list and validation loss list."
-msgstr ""
+msgstr "学習誤差とバリデーション誤差のリスト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit
 #: renom_img.api.segmentation.fcn.FCN16s.get_optimizer
@@ -271,7 +269,7 @@ msgstr ""
 #: renom_img.api.segmentation.unet.UNet.predict
 #: renom_img.api.segmentation.unet.UNet.preprocess
 msgid "Return type"
-msgstr ""
+msgstr "戻り値の型"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:38
 #: renom_img.api.segmentation.fcn.FCN32s.fit:38
@@ -279,7 +277,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:38
 #: renom_img.api.segmentation.unet.UNet.fit:38
 msgid "Following arguments will be given to the function ``callback_end_epoch``."
-msgstr ""
+msgstr "以下の引数が ``callback_end_epoch`` に与えられます。"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:40
 #: renom_img.api.segmentation.fcn.FCN32s.fit:40
@@ -287,15 +285,15 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:40
 #: renom_img.api.segmentation.unet.UNet.fit:40
 msgid "**epoch** (int) - Number of current epoch."
-msgstr ""
+msgstr "**epoch** (int) - 現在のエポック数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:41
 #: renom_img.api.segmentation.fcn.FCN32s.fit:41
 #: renom_img.api.segmentation.fcn.FCN8s.fit:41
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:41
 #: renom_img.api.segmentation.unet.UNet.fit:41
-msgid "**model** (Model) - Yolo1 object."
-msgstr ""
+msgid "**model** (Model) - Model object."
+msgstr "**model** (Model) - モデルオブジェクト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:42
 #: renom_img.api.segmentation.fcn.FCN32s.fit:42
@@ -303,7 +301,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:42
 #: renom_img.api.segmentation.unet.UNet.fit:42
 msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
-msgstr ""
+msgstr "**avg_train_loss_list** (list) -　各エポックの学習誤差の平均のリスト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:43
 #: renom_img.api.segmentation.fcn.FCN32s.fit:43
@@ -311,7 +309,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:43
 #: renom_img.api.segmentation.unet.UNet.fit:43
 msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
-msgstr ""
+msgstr "**avg_valid_loss_list** (list) - 各エポックのバリデーション誤差の平均のリスト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.forward:1
 #: renom_img.api.segmentation.fcn.FCN32s.forward:1
@@ -321,11 +319,11 @@ msgstr ""
 msgid ""
 "Performs forward propagation. You can call this function using "
 "``__call__`` method."
-msgstr ""
+msgstr "順伝播を行います。これは ``__call__`` 関数によって呼ばれます。"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.forward:4
 msgid "Input to FCN16s."
-msgstr ""
+msgstr "FCN16sに対する入力"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:1
 msgid ""
@@ -334,15 +332,17 @@ msgid ""
 "given, the learning rate is modified according to the number of training "
 "iterations or the constant learning rate is used."
 msgstr ""
+"FCN16s アルゴリズム学習用のOptimizerを返します。全ての引数(current_epoch, total_epoch, "
+"current_batch, total_batch) "
+"が渡された場合、学習のイテレーション数にしたがって、学習率を変更します。そうでない場合は、一定の学習率がセットされます。"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:5
 #: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:5
 #: renom_img.api.segmentation.fcn.FCN8s.get_optimizer:5
 #: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:5
 #: renom_img.api.segmentation.unet.UNet.get_optimizer:5
-#, fuzzy
 msgid "The number of current epoch."
-msgstr "クラス数"
+msgstr "現在のエポック数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:7
 #: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:7
@@ -350,16 +350,15 @@ msgstr "クラス数"
 #: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:7
 #: renom_img.api.segmentation.unet.UNet.get_optimizer:7
 msgid "The number of total epoch."
-msgstr ""
+msgstr "合計エポック数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:9
 #: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:9
 #: renom_img.api.segmentation.fcn.FCN8s.get_optimizer:9
 #: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:9
 #: renom_img.api.segmentation.unet.UNet.get_optimizer:9
-#, fuzzy
 msgid "The number of current batch."
-msgstr "クラス数"
+msgstr "現在のバッチ数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:11
 #: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:11
@@ -367,7 +366,7 @@ msgstr "クラス数"
 #: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:11
 #: renom_img.api.segmentation.unet.UNet.get_optimizer:11
 msgid "The number of total batch."
-msgstr ""
+msgstr "全体のバッチ数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:14
 #: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:14
@@ -375,11 +374,11 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:14
 #: renom_img.api.segmentation.unet.UNet.get_optimizer:14
 msgid "Optimizer object."
-msgstr ""
+msgstr "Optimizer オブジェクト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.loss:1
 msgid "Loss function of FCN16s algorithm."
-msgstr ""
+msgstr "FCN16sで指定された損失関数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.loss:3
 #: renom_img.api.segmentation.fcn.FCN32s.loss:3
@@ -387,7 +386,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.loss:3
 #: renom_img.api.segmentation.unet.UNet.loss:3
 msgid "Output of model."
-msgstr ""
+msgstr "ニューラルネッチワークの出力データ"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.loss:5
 #: renom_img.api.segmentation.fcn.FCN32s.loss:5
@@ -395,7 +394,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.loss:5
 #: renom_img.api.segmentation.unet.UNet.loss:5
 msgid "Target array."
-msgstr ""
+msgstr "教師データ"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.loss:8
 #: renom_img.api.segmentation.fcn.FCN32s.loss:8
@@ -403,7 +402,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.loss:8
 #: renom_img.api.segmentation.unet.UNet.loss:8
 msgid "Loss between x and y."
-msgstr ""
+msgstr "xとy間の損失"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.predict:1
 #: renom_img.api.segmentation.fcn.FCN32s.predict:1
@@ -416,6 +415,8 @@ msgid ""
 " in which there are arrays whose shape is **(width, height)** is "
 "returned."
 msgstr ""
+"一枚の画像もしくは画像のパスが与えられた場合、 **(幅、高さ)** "
+"の形のarrayが返されます。複数の画像もしくは画像のパスが与えられた場合は、 **(幅、高さ)** の形のarrayが入ったリストが返されます。"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.preprocess:1
 #: renom_img.api.segmentation.fcn.FCN32s.preprocess:1
@@ -423,7 +424,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.preprocess:1
 #: renom_img.api.segmentation.unet.UNet.preprocess:1
 msgid "Performs preprocess for a given array."
-msgstr ""
+msgstr "与えられたarrayに対して前処理を行います。"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.preprocess:3
 #: renom_img.api.segmentation.fcn.FCN32s.preprocess:3
@@ -431,13 +432,13 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.preprocess:3
 #: renom_img.api.segmentation.unet.UNet.preprocess:3
 msgid "Image array for preprocessing."
-msgstr ""
+msgstr "前処理を行うための画像のarray"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.preprocess:6
 #: renom_img.api.segmentation.fcn.FCN32s.preprocess:6
 #: renom_img.api.segmentation.fcn.FCN8s.preprocess:6
 msgid "Preprocessing for FCN is follows."
-msgstr ""
+msgstr "FCNのための前処理は以下のとおりです。"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.regularize:1
 #: renom_img.api.segmentation.fcn.FCN32s.regularize:1
@@ -445,7 +446,7 @@ msgstr ""
 #: renom_img.api.segmentation.ternausnet.TernausNet.regularize:1
 #: renom_img.api.segmentation.unet.UNet.regularize:1
 msgid "Regularization term to a loss function."
-msgstr ""
+msgstr "損失関数に追加する正則化項"
 
 #: of renom_img.api.segmentation.fcn.FCN32s:1
 msgid "Fully convolutional network (21s) for semantic segmentation"
@@ -453,7 +454,7 @@ msgstr "セマンティックセグメンテーション用の全畳み込みネ
 
 #: of renom_img.api.segmentation.fcn.FCN32s.forward:4
 msgid "Input to FCN32s."
-msgstr ""
+msgstr "FCN32sに対する入力"
 
 #: of renom_img.api.segmentation.fcn.FCN32s.get_optimizer:1
 msgid ""
@@ -462,19 +463,21 @@ msgid ""
 "given, the learning rate is modified according to the number of training "
 "iterations or the constant learning rate is used."
 msgstr ""
+"FCN32s アルゴリズム学習用のOptimizerを返します。全ての引数(current_epoch, total_epoch, "
+"current_batch, total_batch) "
+"が渡された場合、学習のイテレーション数にしたがって、学習率を変更します。そうでない場合は、一定の学習率がセットされます。"
 
 #: of renom_img.api.segmentation.fcn.FCN32s.loss:1
 msgid "Loss function of FCN32s algorithm."
-msgstr ""
+msgstr "FCN32sの損失関数"
 
 #: of renom_img.api.segmentation.fcn.FCN8s:1
-#, fuzzy
 msgid "Fully convolutional network (8s) for semantic segmentation"
 msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
 
 #: of renom_img.api.segmentation.fcn.FCN8s.forward:4
 msgid "Input to FCN8s."
-msgstr ""
+msgstr "FCN8sに対する入力"
 
 #: of renom_img.api.segmentation.fcn.FCN8s.get_optimizer:1
 msgid ""
@@ -483,10 +486,13 @@ msgid ""
 "given, the learning rate is modified according to the number of training "
 "iterations or the constant learning rate is used."
 msgstr ""
+"FCN8s アルゴリズム学習用のOptimizerを返します。全ての引数(current_epoch, total_epoch, "
+"current_batch, total_batch) "
+"が渡された場合、学習のイテレーション数にしたがって、学習率を変更します。そうでない場合は、一定の学習率がセットされます。"
 
 #: of renom_img.api.segmentation.fcn.FCN8s.loss:1
 msgid "Loss function of FCN8s algorithm."
-msgstr ""
+msgstr "FCN8sの損失関数"
 
 #: of renom_img.api.segmentation.ternausnet.TernausNet:1
 #: renom_img.api.segmentation.unet.UNet:1
@@ -494,6 +500,7 @@ msgid "Bases: :class:`renom_img.api.segmentation.SemanticSegmentation`"
 msgstr ""
 
 #: of renom_img.api.segmentation.unet.UNet:1
+#, fuzzy
 msgid "U-Net: Convolutional Networks for Biomedical Image Segmentation"
 msgstr ""
 
@@ -512,7 +519,7 @@ msgstr ""
 
 #: of renom_img.api.segmentation.unet.UNet.forward:4
 msgid "Input to UNet."
-msgstr ""
+msgstr "U-Netに対する入力"
 
 #: of renom_img.api.segmentation.unet.UNet.get_optimizer:1
 msgid ""
@@ -521,15 +528,18 @@ msgid ""
 "given, the learning rate is modified according to the number of training "
 "iterations or the constant learning rate is used."
 msgstr ""
+"U-Net アルゴリズム学習用のOptimizerを返します。全ての引数(current_epoch, total_epoch, "
+"current_batch, total_batch) "
+"が渡された場合、学習のイテレーション数にしたがって、学習率を変更します。そうでない場合は、一定の学習率がセットされます。"
 
 #: of renom_img.api.segmentation.unet.UNet.loss:1
 msgid "Loss function of UNet algorithm."
-msgstr ""
+msgstr "U-Netの損失関数"
 
 #: of renom_img.api.segmentation.ternausnet.TernausNet.preprocess:6
 #: renom_img.api.segmentation.unet.UNet.preprocess:6
 msgid "Image preprocess for U-Net."
-msgstr ""
+msgstr "U-Netのための前処理"
 
 #: of renom_img.api.segmentation.unet.UNet.preprocess:8
 msgid ":math:`new_x = x/255`"
@@ -538,7 +548,7 @@ msgstr ""
 #: of renom_img.api.segmentation.ternausnet.TernausNet.preprocess:10
 #: renom_img.api.segmentation.unet.UNet.preprocess:10
 msgid "Preprocessed data."
-msgstr ""
+msgstr "前処理されたデータ"
 
 #: of renom_img.api.segmentation.ternausnet.TernausNet:1
 msgid ""
@@ -562,7 +572,7 @@ msgstr ""
 
 #: of renom_img.api.segmentation.ternausnet.TernausNet.forward:4
 msgid "Input to TernausNet."
-msgstr ""
+msgstr "TernausNetに対する入力"
 
 #: of renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:1
 msgid ""
@@ -571,10 +581,13 @@ msgid ""
 "given, the learning rate is modified according to the number of training "
 "iterations or the constant learning rate is used."
 msgstr ""
+"TernausNet アルゴリズム学習用のOptimizerを返します。全ての引数(current_epoch, total_epoch, "
+"current_batch, total_batch) "
+"が渡された場合、学習のイテレーション数にしたがって、学習率を変更します。そうでない場合は、一定の学習率がセットされます。"
 
 #: of renom_img.api.segmentation.ternausnet.TernausNet.loss:1
 msgid "Loss function of TernausNet algorithm."
-msgstr ""
+msgstr "TernausNetのための損失関数"
 
 #: of renom_img.api.segmentation.ternausnet.TernausNet.preprocess:8
 msgid ":math:`new_x = x/255.`"
