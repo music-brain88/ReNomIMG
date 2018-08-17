@@ -135,12 +135,12 @@ def flip(x, y=None, mode="classification"):
     Returns:
         tupple: list of transformed images and list of annotation for x.
 
-        .. code-block :: python
+    .. code-block :: python
 
-            [
-                x (list of numpy.ndarray), # List of transformed images.
-                y (list of annotation) # list of annotation for x.
-            ]
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
 
     Examples:
         >>> from renom_img.api.utility.augmentation.process import Flip
@@ -259,12 +259,12 @@ def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
     Returns:
         tupple: list of transformed images and list of annotation for x.
 
-        .. code-block :: python
+    .. code-block :: python
 
-            [
-                x (list of numpy.ndarray), # List of transformed images.
-                y (list of annotation) # list of annotation for x.
-            ]
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
 
 
     Examples:
@@ -384,12 +384,12 @@ def rotate(x, y=None, mode="classification"):
     Returns:
         tupple: list of transformed images and list of annotation for x.
 
-        .. code-block :: python
+    .. code-block :: python
 
-            [
-                x (list of numpy.ndarray), # List of transformed images.
-                y (list of annotation) # list of annotation for x.
-            ]
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
 
     Examples:
         >>> from renom_img.api.utility.augmentation.process import rotate
@@ -439,7 +439,7 @@ def white_noise(x, y=None, std=0.01, mode="classification"):
                 y (list of annotation) # list of annotation for x.
             ]
 
-   Examples:
+    Examples:
         >>> from renom_img.api.utility.augmentation.process import white_noise
         >>> from PIL import Image
         >>>
@@ -604,12 +604,12 @@ def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'
     Returns:
         tupple: list of transformed images and list of annotation for x.
 
-        .. code-block :: python
+    .. code-block :: python
 
-            [
-                x (list of numpy.ndarray), # List of transformed images.
-                y (list of annotation) # list of annotation for x.
-            ]
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
 
 
     Example:
