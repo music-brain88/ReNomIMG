@@ -28,7 +28,7 @@ msgstr ""
 
 #: of renom_img.api.utility.evaluate.EvaluatorClassification:1
 msgid "Evaluator for object classification tasks"
-msgstr ""
+msgstr "クラス分類のための評価器"
 
 #: ../../docstring of renom_img.api.utility.evaluate.EvaluatorClassification
 #: renom_img.api.utility.evaluate.EvaluatorDetection
@@ -43,12 +43,12 @@ msgstr ""
 #: renom_img.api.utility.evaluate.detection.get_prec_and_rec
 #: renom_img.api.utility.evaluate.detection.get_prec_rec_iou
 msgid "Parameters"
-msgstr ""
+msgstr "パラメータ"
 
 #: of renom_img.api.utility.evaluate.EvaluatorClassification:3
 #: renom_img.api.utility.evaluate.EvaluatorDetection:3
 msgid "A list of ground truth."
-msgstr ""
+msgstr "教師データのリスト"
 
 #: of renom_img.api.utility.evaluate.EvaluatorClassification:5
 msgid "A list of classification. The format is as follows"
@@ -57,7 +57,7 @@ msgstr ""
 #: of renom_img.api.utility.evaluate.EvaluatorClassification:25
 #: renom_img.api.utility.evaluate.EvaluatorDetection:25
 msgid "Example"
-msgstr ""
+msgstr "例"
 
 #: ../../docstring of
 #: renom_img.api.utility.evaluate.EvaluatorClassification.accuracy
@@ -78,37 +78,37 @@ msgstr ""
 #: renom_img.api.utility.evaluate.detection.get_prec_and_rec
 #: renom_img.api.utility.evaluate.detection.get_prec_rec_iou
 msgid "Returns"
-msgstr ""
+msgstr "戻り値"
 
 #: of renom_img.api.utility.evaluate.EvaluatorClassification.accuracy:1
 msgid "accuracy(float)"
-msgstr ""
+msgstr "全体正解率(flaot)"
 
 #: of renom_img.api.utility.evaluate.EvaluatorClassification.precision:1
 msgid "precision(float)"
-msgstr ""
+msgstr "適合率(float)"
 
 #: of renom_img.api.utility.evaluate.EvaluatorClassification.recall:1
 msgid "recall(float)"
-msgstr ""
+msgstr "再現率(float)"
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection:1
 msgid "Evaluator for object detection tasks"
-msgstr ""
+msgstr "物体検出用の評価器"
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection:5
 msgid "A list of prediction. The format is as follows"
-msgstr ""
+msgstr "予測のリスト。フォーマットは以下の通りになります。"
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.AP:1
 #: renom_img.api.utility.evaluate.EvaluatorDetection.mAP:1
 msgid "IoU threshold. The default value is 0.5."
-msgstr ""
+msgstr "IoU閾値。デフォルト値は0.5"
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.AP:2
 #: renom_img.api.utility.evaluate.EvaluatorDetection.mAP:2
 msgid "The number of decimal."
-msgstr ""
+msgstr "小数の数"
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.AP:4
 msgid ""
@@ -141,6 +141,10 @@ msgid ""
 "precision-recall curve of only one class. This specifies which precision-"
 "recall curve of classes to output."
 msgstr ""
+"それぞれのクラスのAP、IoU、予測されたインスタンスの数、教師データのインスタンスの数をデーブルとして表示します・。"
+":param iou_thresh: IoU閾値、デフォルト値は0.5。 :param "
+"class_names: 予測されたリストのキーもしくはprecision-recall曲線に表示したいクラスを一つ文字列で指定することができます。"
+
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.detection_report:5
 msgid ""
@@ -226,6 +230,8 @@ msgid ""
 "IoU for each class :param iou_thresh: IoU threshold. The default value is"
 " 0.5. :param digits: The number of decimal."
 msgstr ""
+"各クラスのIoU :param iou_thresh: IoU閾値. デフォルト値は"
+" 0.5。:param digits: 小数の数"
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.iou:5
 msgid ""
@@ -248,6 +254,8 @@ msgid ""
 "mean IoU for all classes :param iou_thresh: IoU threshold. The default "
 "value is 0.5. :param digits: The number of decimal."
 msgstr ""
+"クラス全体の平均のIoU :param iou_thresh: IoU閾値。 デフォルト値は "
+"0.5。:param digits: 小数の数."
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou:5
 msgid "mean_iou (float)"
@@ -260,6 +268,9 @@ msgid ""
 "list or string if you output precision-recall curve of only one class. "
 "This specifies which precision-recall curve of classes to output."
 msgstr ""
+"precision-recall曲線のプロットをします。 :param iou_thresh: IoU閾値. デフォルト値"
+"は0.5。 :param class_names: 予測されたリストのキーの配列もしくは、そのうちの一つを文字列として"
+"渡します。それにより、どのクラスに関して出力するかを選択することができます。"
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec:1
 msgid ""
@@ -267,6 +278,8 @@ msgid ""
 "threshold. The default value is 0.5. :param digits: The number of decimal"
 " of output values"
 msgstr ""
+"各クラスの適合率と再現率を返します。 :param iou_thresh: IoU閾値"
+"デフォルト値は0.5。 :param digits: 出力値の小数の数"
 
 #: of renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec:5
 msgid ""
@@ -285,7 +298,7 @@ msgstr ""
 #: renom_img.api.utility.evaluate.detection.get_prec_and_rec
 #: renom_img.api.utility.evaluate.detection.get_prec_rec_iou
 msgid "Return type"
-msgstr ""
+msgstr "戻り値の型"
 
 #: ../../docstring of
 #: renom_img.api.utility.evaluate.classification.accuracy_score:1
@@ -303,17 +316,17 @@ msgstr ""
 #: renom_img.api.utility.evaluate.classification.precision_recall_score:1
 #: renom_img.api.utility.evaluate.classification.recall_score:1
 msgid "Recall score for classification"
-msgstr ""
+msgstr "クラス分類のための再現率"
 
 #: ../../docstring of
 #: renom_img.api.utility.evaluate.classification.precision_recall_score:6
 msgid "precision(float), recall(float)"
-msgstr ""
+msgstr "適合率(float)、再現率(float)"
 
 #: ../../docstring of
 #: renom_img.api.utility.evaluate.classification.precision_score:1
 msgid "Precision score for classification"
-msgstr ""
+msgstr "クラス分類のための適合率"
 
 #: ../../docstring of renom_img.api.utility.evaluate.detection.get_ap_and_map:1
 msgid "Dictionary of precision for each class returned by get_prec_and_rec method"

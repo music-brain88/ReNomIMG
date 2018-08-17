@@ -99,13 +99,13 @@ class EvaluatorDetection(EvaluatorBase):
         Returns:
             (dictionary): AP for each class. The format is as follows
 
-            .. code-block :: python
+        .. code-block :: python
 
-                {
-                    class_id1(int): AP1 (float),
-                    class_id2(int): AP2 (float),
-                    class_id3(int): AP3 (float),
-                }
+            {
+                class_id1(int): AP1 (float),
+                class_id2(int): AP2 (float),
+                class_id3(int): AP3 (float),
+            }
         """
 
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
