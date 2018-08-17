@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-01 11:10+0900\n"
+"POT-Creation-Date: 2018-08-17 09:09+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,333 +21,584 @@ msgstr ""
 msgid "renom\\_img.api.classification"
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.darknet.Darknet:1
-msgid "Bases: :class:`renom.layers.function.parameterized.Sequential`"
+#: of renom_img.api.classification.vgg.VGG11:1
+msgid "VGG11 model."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.darknet.Darknet19:1
-msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:1
-#: renom_img.api.classification.densenet.DenseNet169:1
-#: renom_img.api.classification.densenet.DenseNet201:1
-msgid "Bases: :class:`renom_img.api.classification.densenet.DenseNetBase`"
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:1
-msgid "DenseNet121 Model"
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:3
-#: renom_img.api.classification.densenet.DenseNet169:3
-#: renom_img.api.classification.densenet.DenseNet201:3
-#: renom_img.api.classification.vgg.VGG19:3
-msgid ""
-"If the argument load_weight is True, pretrained weight will be "
-"downloaded. The pretrained weight is trained using ILSVRC2012."
-msgstr "もし引数load_weightがTrueなら、事前学習済みの重みがダウンロードされます。事前学習の重みはILSVRC2012を使って学習しています."
-
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121
-#: renom_img.api.classification.densenet.DenseNet169
-#: renom_img.api.classification.densenet.DenseNet201
-#: renom_img.api.classification.inception.InceptionV1
-#: renom_img.api.classification.inception.InceptionV1.get_optimizer
-#: renom_img.api.classification.inception.InceptionV2
-#: renom_img.api.classification.inception.InceptionV2.get_optimizer
-#: renom_img.api.classification.inception.InceptionV3
-#: renom_img.api.classification.inception.InceptionV4
-#: renom_img.api.classification.inception.InceptionV4.get_optimizer
-#: renom_img.api.classification.resnet.ResNet101
-#: renom_img.api.classification.resnet.ResNet110
-#: renom_img.api.classification.resnet.ResNet32
-#: renom_img.api.classification.resnet.ResNet34
-#: renom_img.api.classification.resnet.ResNet44
-#: renom_img.api.classification.resnet.ResNet50
-#: renom_img.api.classification.resnet.ResNet56
+#: of renom_img.api.classification.vgg.VGG11
+#: renom_img.api.classification.vgg.VGG11.fit
+#: renom_img.api.classification.vgg.VGG11.forward
+#: renom_img.api.classification.vgg.VGG11.get_optimizer
+#: renom_img.api.classification.vgg.VGG11.loss
+#: renom_img.api.classification.vgg.VGG11.predict
+#: renom_img.api.classification.vgg.VGG11.preprocess
 #: renom_img.api.classification.vgg.VGG16
+#: renom_img.api.classification.vgg.VGG16.fit
+#: renom_img.api.classification.vgg.VGG16.forward
+#: renom_img.api.classification.vgg.VGG16.get_optimizer
+#: renom_img.api.classification.vgg.VGG16.loss
+#: renom_img.api.classification.vgg.VGG16.predict
+#: renom_img.api.classification.vgg.VGG16.preprocess
 #: renom_img.api.classification.vgg.VGG19
+#: renom_img.api.classification.vgg.VGG19.fit
+#: renom_img.api.classification.vgg.VGG19.forward
+#: renom_img.api.classification.vgg.VGG19.get_optimizer
+#: renom_img.api.classification.vgg.VGG19.loss
+#: renom_img.api.classification.vgg.VGG19.predict
+#: renom_img.api.classification.vgg.VGG19.preprocess
 msgid "Parameters"
 msgstr "パラメータ"
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:6
-#: renom_img.api.classification.densenet.DenseNet169:6
-#: renom_img.api.classification.densenet.DenseNet201:6
-#: renom_img.api.classification.inception.InceptionV1:6
-#: renom_img.api.classification.inception.InceptionV2:6
-#: renom_img.api.classification.inception.InceptionV3:6
-#: renom_img.api.classification.inception.InceptionV4:6
-#: renom_img.api.classification.resnet.ResNet101:8
-#: renom_img.api.classification.resnet.ResNet110:8
-#: renom_img.api.classification.resnet.ResNet32:8
-#: renom_img.api.classification.resnet.ResNet34:8
-#: renom_img.api.classification.resnet.ResNet44:8
-#: renom_img.api.classification.resnet.ResNet50:8
-#: renom_img.api.classification.resnet.ResNet56:8
+#: of renom_img.api.classification.vgg.VGG11:3
 #: renom_img.api.classification.vgg.VGG16:5
 #: renom_img.api.classification.vgg.VGG19:6
 msgid "Array of class names"
 msgstr "クラス名の配列"
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:7
-#: renom_img.api.classification.densenet.DenseNet169:7
-#: renom_img.api.classification.densenet.DenseNet201:7
-msgid "Growth rate of the number of filters."
-msgstr "特徴量マップの増加数"
+#: of renom_img.api.classification.vgg.VGG11:5
+#: renom_img.api.classification.vgg.VGG16:7
+#: renom_img.api.classification.vgg.VGG19:8
+msgid "Input image size"
+msgstr "入力画像サイズ"
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:9
-#: renom_img.api.classification.densenet.DenseNet169:9
-#: renom_img.api.classification.densenet.DenseNet201:11
-#: renom_img.api.classification.inception.InceptionV1:9
-#: renom_img.api.classification.inception.InceptionV2:9
-#: renom_img.api.classification.inception.InceptionV3:9
-#: renom_img.api.classification.inception.InceptionV4:9
-#: renom_img.api.classification.resnet.ResNet101:9
-#: renom_img.api.classification.resnet.ResNet110:9
-#: renom_img.api.classification.resnet.ResNet32:9
-#: renom_img.api.classification.resnet.ResNet34:9
-#: renom_img.api.classification.resnet.ResNet44:9
-#: renom_img.api.classification.resnet.ResNet50:9
-#: renom_img.api.classification.resnet.ResNet56:9
-msgid "Input image size."
-msgstr "入力画像のサイズ"
+#: of renom_img.api.classification.vgg.VGG11:7
+#: renom_img.api.classification.vgg.VGG16:9
+#: renom_img.api.classification.vgg.VGG19:10
+msgid "True if the overall model is trained, otherwise False"
+msgstr "モデル全体を学習させる場合はTrue、そうでなければFalse"
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:11
-#: renom_img.api.classification.densenet.DenseNet169:11
-#: renom_img.api.classification.densenet.DenseNet201:13
-#: renom_img.api.classification.inception.InceptionV1:11
-#: renom_img.api.classification.inception.InceptionV2:11
-#: renom_img.api.classification.inception.InceptionV3:11
-#: renom_img.api.classification.inception.InceptionV4:11
-#: renom_img.api.classification.resnet.ResNet101:11
-#: renom_img.api.classification.resnet.ResNet110:11
-#: renom_img.api.classification.resnet.ResNet32:11
-#: renom_img.api.classification.resnet.ResNet34:11
-#: renom_img.api.classification.resnet.ResNet44:11
-#: renom_img.api.classification.resnet.ResNet50:11
-#: renom_img.api.classification.resnet.ResNet56:11
-msgid "True if the overal model is trained."
-msgstr "モデル全体を学習する場合はTrue"
+#: of renom_img.api.classification.vgg.VGG11:9
+#: renom_img.api.classification.vgg.VGG16:11
+#: renom_img.api.classification.vgg.VGG19:12
+msgid ""
+"If true, pretrained weight will be downloaded to current directory. If "
+"string is given, pretrained weight will be saved as given name."
+msgstr ""
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:16
-#: renom_img.api.classification.densenet.DenseNet169:16
-#: renom_img.api.classification.densenet.DenseNet201:18
-#: renom_img.api.classification.inception.InceptionV1:16
-#: renom_img.api.classification.inception.InceptionV2:16
-#: renom_img.api.classification.inception.InceptionV3:16
-#: renom_img.api.classification.inception.InceptionV4:16
-#: renom_img.api.classification.resnet.ResNet101:16
-#: renom_img.api.classification.resnet.ResNet110:16
-#: renom_img.api.classification.resnet.ResNet32:20
-#: renom_img.api.classification.resnet.ResNet34:16
-#: renom_img.api.classification.resnet.ResNet44:16
-#: renom_img.api.classification.resnet.ResNet50:16
-#: renom_img.api.classification.resnet.ResNet56:16
-#: renom_img.api.classification.vgg.VGG16:16
-#: renom_img.api.classification.vgg.VGG19:17
+#: of renom_img.api.classification.vgg.VGG11:16
+#: renom_img.api.classification.vgg.VGG16:18
+#: renom_img.api.classification.vgg.VGG19:19
 msgid ""
 "if the argument num_class is not 1000, last dense layer will be reset "
 "because the pretrained weight is trained on 1000 classification dataset."
 msgstr "事前学習のデータセットは1000クラスのため、もし引数num_classが1000でなかった場合は最後のDense層はリセットされます。"
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:20
-#: renom_img.api.classification.densenet.DenseNet169:20
-#: renom_img.api.classification.densenet.DenseNet201:22
-#: renom_img.api.classification.inception.InceptionV1:20
-#: renom_img.api.classification.inception.InceptionV2:20
-#: renom_img.api.classification.inception.InceptionV3:20
-#: renom_img.api.classification.inception.InceptionV4:20
-#: renom_img.api.classification.resnet.ResNet101:20
-#: renom_img.api.classification.resnet.ResNet110:20
-#: renom_img.api.classification.resnet.ResNet32:24
-#: renom_img.api.classification.resnet.ResNet34:20
-#: renom_img.api.classification.resnet.ResNet44:20
-#: renom_img.api.classification.resnet.ResNet50:20
-#: renom_img.api.classification.resnet.ResNet56:20
-#: renom_img.api.classification.vgg.VGG16:20
-#: renom_img.api.classification.vgg.VGG19:21
+#: of renom_img.api.classification.vgg.VGG11:20
+#: renom_img.api.classification.vgg.VGG16:22
+#: renom_img.api.classification.vgg.VGG19:23
 msgid "References"
 msgstr "引用"
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet121:21
-#: renom_img.api.classification.densenet.DenseNet169:21
-#: renom_img.api.classification.densenet.DenseNet201:23
+#: of renom_img.api.classification.vgg.VGG11:21
+#: renom_img.api.classification.vgg.VGG16:23
+#: renom_img.api.classification.vgg.VGG19:24
+msgid "Karen Simonyan, Andrew Zisserman"
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11:22
+#: renom_img.api.classification.vgg.VGG16:24
+#: renom_img.api.classification.vgg.VGG19:25
+msgid "Very Deep Convolutional Networks for Large-Scale Image Recognition"
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11:23
+#: renom_img.api.classification.vgg.VGG16:25
+#: renom_img.api.classification.vgg.VGG19:26
+msgid "https://arxiv.org/abs/1409.1556"
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.build_data:1
 msgid ""
-"Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger "
-"Densely Connected Convolutional Network "
-"https://arxiv.org/pdf/1608.06993.pdf"
+"This function returns a function which creates input data and target data"
+" specified for VGG11."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet169:1
-msgid "DenseNet169 Model"
+#: of renom_img.api.classification.vgg.VGG11.build_data
+#: renom_img.api.classification.vgg.VGG11.fit
+#: renom_img.api.classification.vgg.VGG11.forward
+#: renom_img.api.classification.vgg.VGG11.get_optimizer
+#: renom_img.api.classification.vgg.VGG11.loss
+#: renom_img.api.classification.vgg.VGG11.predict
+#: renom_img.api.classification.vgg.VGG11.preprocess
+#: renom_img.api.classification.vgg.VGG16.build_data
+#: renom_img.api.classification.vgg.VGG16.fit
+#: renom_img.api.classification.vgg.VGG16.forward
+#: renom_img.api.classification.vgg.VGG16.get_optimizer
+#: renom_img.api.classification.vgg.VGG16.loss
+#: renom_img.api.classification.vgg.VGG16.predict
+#: renom_img.api.classification.vgg.VGG16.preprocess
+#: renom_img.api.classification.vgg.VGG19.build_data
+#: renom_img.api.classification.vgg.VGG19.fit
+#: renom_img.api.classification.vgg.VGG19.forward
+#: renom_img.api.classification.vgg.VGG19.get_optimizer
+#: renom_img.api.classification.vgg.VGG19.loss
+#: renom_img.api.classification.vgg.VGG19.predict
+#: renom_img.api.classification.vgg.VGG19.preprocess
+msgid "Returns"
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet201:1
-msgid "DenseNet201 Model"
+#: of renom_img.api.classification.vgg.VGG11.build_data:4
+#: renom_img.api.classification.vgg.VGG16.build_data:4
+#: renom_img.api.classification.vgg.VGG19.build_data:4
+msgid "Returns function which creates input data and target data."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.densenet.DenseNet201:9
-#: renom_img.api.classification.inception.InceptionV1:7
-#: renom_img.api.classification.inception.InceptionV2:7
-#: renom_img.api.classification.inception.InceptionV3:7
-#: renom_img.api.classification.inception.InceptionV4:7
-msgid "True if the pre-trained weight is loaded."
-msgstr "事前学習の重みがロードされていない場合はTrue"
-
-#: ../../docstring of renom_img.api.classification.inception.InceptionV1:1
-#: renom_img.api.classification.inception.InceptionV2:1
-#: renom_img.api.classification.inception.InceptionV3:1
-#: renom_img.api.classification.inception.InceptionV4:1
-msgid "Bases: :class:`renom_img.api.classification.Classification`"
+#: of renom_img.api.classification.vgg.VGG11.build_data
+#: renom_img.api.classification.vgg.VGG11.fit
+#: renom_img.api.classification.vgg.VGG11.forward
+#: renom_img.api.classification.vgg.VGG11.get_optimizer
+#: renom_img.api.classification.vgg.VGG11.loss
+#: renom_img.api.classification.vgg.VGG11.predict
+#: renom_img.api.classification.vgg.VGG11.preprocess
+#: renom_img.api.classification.vgg.VGG16.build_data
+#: renom_img.api.classification.vgg.VGG16.fit
+#: renom_img.api.classification.vgg.VGG16.forward
+#: renom_img.api.classification.vgg.VGG16.get_optimizer
+#: renom_img.api.classification.vgg.VGG16.loss
+#: renom_img.api.classification.vgg.VGG16.predict
+#: renom_img.api.classification.vgg.VGG16.preprocess
+#: renom_img.api.classification.vgg.VGG19.build_data
+#: renom_img.api.classification.vgg.VGG19.fit
+#: renom_img.api.classification.vgg.VGG19.forward
+#: renom_img.api.classification.vgg.VGG19.get_optimizer
+#: renom_img.api.classification.vgg.VGG19.loss
+#: renom_img.api.classification.vgg.VGG19.predict
+#: renom_img.api.classification.vgg.VGG19.preprocess
+msgid "Return type"
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.inception.InceptionV1:1
-msgid "Inception V1 model"
+#: of renom_img.api.classification.vgg.VGG11.build_data:8
+#: renom_img.api.classification.vgg.VGG11.fit:24
+#: renom_img.api.classification.vgg.VGG11.forward:11
+#: renom_img.api.classification.vgg.VGG11.loss:12
+#: renom_img.api.classification.vgg.VGG11.regularize:4
+#: renom_img.api.classification.vgg.VGG16.build_data:8
+#: renom_img.api.classification.vgg.VGG16.fit:24
+#: renom_img.api.classification.vgg.VGG16.forward:11
+#: renom_img.api.classification.vgg.VGG16.loss:12
+#: renom_img.api.classification.vgg.VGG16.regularize:4
+#: renom_img.api.classification.vgg.VGG19.build_data:8
+#: renom_img.api.classification.vgg.VGG19.fit:24
+#: renom_img.api.classification.vgg.VGG19.forward:11
+#: renom_img.api.classification.vgg.VGG19.loss:12
+#: renom_img.api.classification.vgg.VGG19.regularize:4
+msgid "Example"
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.inception.InceptionV1:3
-#: renom_img.api.classification.inception.InceptionV2:3
-#: renom_img.api.classification.inception.InceptionV3:3
-#: renom_img.api.classification.inception.InceptionV4:3
-#: renom_img.api.classification.resnet.ResNet101:3
-#: renom_img.api.classification.resnet.ResNet110:3
-#: renom_img.api.classification.resnet.ResNet32:3
-#: renom_img.api.classification.resnet.ResNet34:3
-#: renom_img.api.classification.resnet.ResNet44:3
-#: renom_img.api.classification.resnet.ResNet50:3
-#: renom_img.api.classification.resnet.ResNet56:3
+#: of renom_img.api.classification.vgg.VGG11.fit:1
+#: renom_img.api.classification.vgg.VGG16.fit:1
+#: renom_img.api.classification.vgg.VGG19.fit:1
+msgid "This function performs training with given data and hyper parameters."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:3
+#: renom_img.api.classification.vgg.VGG16.fit:3
+#: renom_img.api.classification.vgg.VGG19.fit:3
+msgid "List of image path."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:5
+#: renom_img.api.classification.vgg.VGG16.fit:5
+#: renom_img.api.classification.vgg.VGG19.fit:5
+msgid "List of annotations."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:7
+#: renom_img.api.classification.vgg.VGG16.fit:7
+#: renom_img.api.classification.vgg.VGG19.fit:7
+msgid "List of image path for validation."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:9
+#: renom_img.api.classification.vgg.VGG16.fit:9
+#: renom_img.api.classification.vgg.VGG19.fit:9
+msgid "List of annotations for validation."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:11
+#: renom_img.api.classification.vgg.VGG16.fit:11
+#: renom_img.api.classification.vgg.VGG19.fit:11
+msgid "Number of training epoch."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:13
+#: renom_img.api.classification.vgg.VGG16.fit:13
+#: renom_img.api.classification.vgg.VGG19.fit:13
+msgid "Number of batch size."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:15
+#: renom_img.api.classification.vgg.VGG16.fit:15
+#: renom_img.api.classification.vgg.VGG19.fit:15
+msgid "Augmentation object."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:17
+#: renom_img.api.classification.vgg.VGG16.fit:17
+#: renom_img.api.classification.vgg.VGG19.fit:17
+msgid "Given function will be called at the end of each epoch."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:20
+#: renom_img.api.classification.vgg.VGG16.fit:20
+#: renom_img.api.classification.vgg.VGG19.fit:20
+msgid "Training loss list and validation loss list."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:38
+#: renom_img.api.classification.vgg.VGG16.fit:38
+#: renom_img.api.classification.vgg.VGG19.fit:38
+msgid "Following arguments will be given to the function ``callback_end_epoch``."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:40
+#: renom_img.api.classification.vgg.VGG16.fit:40
+#: renom_img.api.classification.vgg.VGG19.fit:40
+msgid "**epoch** (int) - Number of current epoch."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:41
+#: renom_img.api.classification.vgg.VGG16.fit:41
+#: renom_img.api.classification.vgg.VGG19.fit:41
+msgid "**model** (Model) - Yolo1 object."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:42
+#: renom_img.api.classification.vgg.VGG16.fit:42
+#: renom_img.api.classification.vgg.VGG19.fit:42
+msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.fit:43
+#: renom_img.api.classification.vgg.VGG16.fit:43
+#: renom_img.api.classification.vgg.VGG19.fit:43
+msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.forward:1
+#: renom_img.api.classification.vgg.VGG16.forward:1
+#: renom_img.api.classification.vgg.VGG19.forward:1
 msgid ""
-"If the argument load_pretrained_weight is True, pretrained weight will be"
-" downloaded. The pretrained weight is trained using ILSVRC2012."
-msgstr "もし引数load_pretrained_weightがTrueなら、事前学習済みの重みがダウンロードされます。事前学習の重みはILSVRC2012を使って学習しています."
+"Performs forward propagation. You can call this function using "
+"``__call__`` method."
+msgstr ""
 
-#: ../../docstring of renom_img.api.classification.inception.InceptionV1:21
+#: of renom_img.api.classification.vgg.VGG11.forward:4
+msgid "Input to VGG11."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.forward:7
+msgid "Returns raw output of VGG11."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.get_optimizer:1
 msgid ""
-"Christian Szegedy, Wei Liu, Yangqing Jia , Pierre Sermanet, Scott Reed "
-",Dragomir Anguelov, Dumitru Erhan, Vincent Vanhoucke, Andrew Rabinovich "
-"Going Deeper with Convolutions "
-"https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf"
+"Returns an instance of Optimizer for training VGG11 algorithm. If all "
+"argument(current_epoch, total_epoch, current_batch, total_batch) are "
+"given, the learning rate is modified according to the number of training "
+"iterations or the constant learning rate is used."
 msgstr ""
 
-#: ../../docstring of
-#: renom_img.api.classification.inception.InceptionV1.get_optimizer:1
-#: renom_img.api.classification.inception.InceptionV2.get_optimizer:1
-#: renom_img.api.classification.inception.InceptionV4.get_optimizer:1
-msgid "Returns an instance of Optimiser for training Yolov1 algorithm."
-msgstr "Yolov1アルゴリズムのOptimiserのインスタンスを返却します。"
-
-#: ../../docstring of renom_img.api.classification.inception.InceptionV2:1
-msgid "Inception V2 model"
+#: of renom_img.api.classification.vgg.VGG11.get_optimizer:5
+#: renom_img.api.classification.vgg.VGG16.get_optimizer:5
+#: renom_img.api.classification.vgg.VGG19.get_optimizer:5
+msgid "The number of current epoch."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.inception.InceptionV2:21
-#: renom_img.api.classification.inception.InceptionV3:21
+#: of renom_img.api.classification.vgg.VGG11.get_optimizer:7
+#: renom_img.api.classification.vgg.VGG16.get_optimizer:7
+#: renom_img.api.classification.vgg.VGG19.get_optimizer:7
+msgid "The number of total epoch."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.get_optimizer:9
+#: renom_img.api.classification.vgg.VGG16.get_optimizer:9
+#: renom_img.api.classification.vgg.VGG19.get_optimizer:9
+msgid "The number of current batch."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.get_optimizer:11
+#: renom_img.api.classification.vgg.VGG16.get_optimizer:11
+#: renom_img.api.classification.vgg.VGG19.get_optimizer:11
+msgid "The number of total batch."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.get_optimizer:14
+#: renom_img.api.classification.vgg.VGG16.get_optimizer:14
+#: renom_img.api.classification.vgg.VGG19.get_optimizer:14
+msgid "Optimizer object."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.loss:1
+msgid "Loss function of VGG11 algorithm."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.loss:3
+#: renom_img.api.classification.vgg.VGG16.loss:3
+#: renom_img.api.classification.vgg.VGG19.loss:3
+msgid "Output of model."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.loss:5
+#: renom_img.api.classification.vgg.VGG16.loss:5
+#: renom_img.api.classification.vgg.VGG19.loss:5
+msgid "Target array."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.loss:8
+#: renom_img.api.classification.vgg.VGG16.loss:8
+#: renom_img.api.classification.vgg.VGG19.loss:8
+msgid "Loss between x and y."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG11.predict:1
+#: renom_img.api.classification.vgg.VGG16.predict:1
+#: renom_img.api.classification.vgg.VGG19.predict:1
 msgid ""
-"Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, "
-"Zbigniew Wojna Rethinking the Inception Architecture for Computer Vision "
-"https://arxiv.org/abs/1512.00567"
+"Perform prediction. Argument can be an image array, image path list or a "
+"image path."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.inception.InceptionV3:1
-msgid "Inception V3 model"
+#: of renom_img.api.classification.vgg.VGG11.predict:4
+#: renom_img.api.classification.vgg.VGG16.predict:4
+#: renom_img.api.classification.vgg.VGG19.predict:4
+msgid "Image array, image path list or image path."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.inception.InceptionV4:1
-msgid "Inception V4 model"
+#: of renom_img.api.classification.vgg.VGG11.predict:7
+#: renom_img.api.classification.vgg.VGG16.predict:7
+#: renom_img.api.classification.vgg.VGG19.predict:7
+msgid "List of class of each image."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.inception.InceptionV4:21
-msgid ""
-"Christian Szegedy, Sergey Ioffe, Vincent Vanhoucke, Alex Alemi "
-"Inception-v4, Inception-ResNet and the Impact of Residual Connections on "
-"Learning https://arxiv.org/abs/1602.07261"
+#: of renom_img.api.classification.vgg.VGG11.preprocess:1
+#: renom_img.api.classification.vgg.VGG16.preprocess:1
+#: renom_img.api.classification.vgg.VGG19.preprocess:1
+msgid "Performs preprocess for a given array."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.resnet.ResNet101:1
-#: renom_img.api.classification.resnet.ResNet110:1
-#: renom_img.api.classification.resnet.ResNet32:1
-#: renom_img.api.classification.resnet.ResNet34:1
-#: renom_img.api.classification.resnet.ResNet44:1
-#: renom_img.api.classification.resnet.ResNet50:1
-#: renom_img.api.classification.resnet.ResNet56:1
-msgid "Bases: :class:`renom_img.api.classification.resnet.ResNetBase`"
+#: of renom_img.api.classification.vgg.VGG11.preprocess:3
+#: renom_img.api.classification.vgg.VGG16.preprocess:3
+#: renom_img.api.classification.vgg.VGG19.preprocess:3
+msgid "Image array for preprocessing."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.resnet.ResNet32:1
-msgid "ResNet32 model."
+#: of renom_img.api.classification.vgg.VGG11.preprocess:6
+#: renom_img.api.classification.vgg.VGG16.preprocess:6
+#: renom_img.api.classification.vgg.VGG19.preprocess:6
+msgid "Preprocessed data."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.resnet.ResNet32:16
-msgid ""
-"6n + 2(The first conv and the last dense) = 32 → n = 5 5 sets of a layer "
-"block in each block"
+#: of renom_img.api.classification.vgg.VGG11.preprocess:9
+#: renom_img.api.classification.vgg.VGG16.preprocess:9
+#: renom_img.api.classification.vgg.VGG19.preprocess:9
+msgid "Preprocessing for VGG is follows."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.resnet.ResNet101:21
-#: renom_img.api.classification.resnet.ResNet110:21
-#: renom_img.api.classification.resnet.ResNet32:25
-#: renom_img.api.classification.resnet.ResNet34:21
-#: renom_img.api.classification.resnet.ResNet44:21
-#: renom_img.api.classification.resnet.ResNet50:21
-#: renom_img.api.classification.resnet.ResNet56:21
-msgid ""
-"Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun Deep Residual Learning "
-"for Image Recognition https://arxiv.org/abs/1512.03385"
+#: of renom_img.api.classification.vgg.VGG11.regularize:1
+#: renom_img.api.classification.vgg.VGG16.regularize:1
+#: renom_img.api.classification.vgg.VGG19.regularize:1
+msgid "Regularization term to a loss function."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.resnet.ResNet34:1
-msgid "ResNet34 model."
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.resnet.ResNet44:1
-msgid "ResNet44 model."
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.resnet.ResNet50:1
-msgid "ResNet50 model."
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.resnet.ResNet56:1
-msgid "ResNet56 model."
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.resnet.ResNet101:1
-msgid "ResNet101 model."
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.resnet.ResNet110:1
-msgid "ResNet110 model."
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.vgg.VGG16:1
-#: renom_img.api.classification.vgg.VGG19:1
-msgid "Bases: :class:`renom_img.api.classification.vgg.VGGBase`"
-msgstr ""
-
-#: ../../docstring of renom_img.api.classification.vgg.VGG16:1
+#: of renom_img.api.classification.vgg.VGG16:1
 msgid ""
 "VGG16 model. If the argument load_weight is True, pretrained weight will "
 "be downloaded. The pretrained weight is trained using ILSVRC2012."
 msgstr "VGG16モデル。もし引数load_weightがTrueなら、事前学習済みの重みがダウンロードされます。事前学習の重みはILSVRC2012を使って学習しいます."
 
-#: ../../docstring of renom_img.api.classification.vgg.VGG16:9
-#: renom_img.api.classification.vgg.VGG19:10
-msgid "Input image size"
-msgstr "入力画像サイズ"
-
-#: ../../docstring of renom_img.api.classification.vgg.VGG16:11
-#: renom_img.api.classification.vgg.VGG19:12
-msgid "True if the overall model is trained, otherwise False"
-msgstr "モデル全体を学習させる場合はTrue、そうでなければFalse"
-
-#: ../../docstring of renom_img.api.classification.vgg.VGG16:21
-#: renom_img.api.classification.vgg.VGG19:22
+#: of renom_img.api.classification.vgg.VGG16.build_data:1
 msgid ""
-"Karen Simonyan, Andrew Zisserman Very Deep Convolutional Networks for "
-"Large-Scale Image Recognition https://arxiv.org/abs/1409.1556"
+"This function returns a function which creates input data and target data"
+" specified for VGG16."
 msgstr ""
 
-#: ../../docstring of renom_img.api.classification.vgg.VGG19:1
+#: of renom_img.api.classification.vgg.VGG16.forward:4
+msgid "Input to VGG16."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG16.forward:7
+msgid "Returns raw output of VGG16."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG16.get_optimizer:1
+msgid ""
+"Returns an instance of Optimizer for training VGG16 algorithm. If all "
+"argument(current_epoch, total_epoch, current_batch, total_batch) are "
+"given, the learning rate is modified according to the number of training "
+"iterations or the constant learning rate is used."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG16.loss:1
+msgid "Loss function of VGG16 algorithm."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG19:1
 msgid "VGG19 model."
 msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG19:3
+msgid ""
+"If the argument load_weight is True, pretrained weight will be "
+"downloaded. The pretrained weight is trained using ILSVRC2012."
+msgstr "もし引数load_weightがTrueなら、事前学習済みの重みがダウンロードされます。事前学習の重みはILSVRC2012を使って学習しています."
+
+#: of renom_img.api.classification.vgg.VGG19.build_data:1
+msgid ""
+"This function returns a function which creates input data and target data"
+" specified for VGG19."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG19.forward:4
+msgid "Input to VGG19."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG19.forward:7
+msgid "Returns raw output of VGG19."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG19.get_optimizer:1
+msgid ""
+"Returns an instance of Optimizer for training VGG19 algorithm. If all "
+"argument(current_epoch, total_epoch, current_batch, total_batch) are "
+"given, the learning rate is modified according to the number of training "
+"iterations or the constant learning rate is used."
+msgstr ""
+
+#: of renom_img.api.classification.vgg.VGG19.loss:1
+msgid "Loss function of VGG19 algorithm."
+msgstr ""
+
+#~ msgid "Bases: :class:`renom.layers.function.parameterized.Sequential`"
+#~ msgstr ""
+
+#~ msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
+#~ msgstr ""
+
+#~ msgid "Bases: :class:`renom_img.api.classification.densenet.DenseNetBase`"
+#~ msgstr ""
+
+#~ msgid "DenseNet121 Model"
+#~ msgstr ""
+
+#~ msgid "Growth rate of the number of filters."
+#~ msgstr "特徴量マップの増加数"
+
+#~ msgid "Input image size."
+#~ msgstr "入力画像のサイズ"
+
+#~ msgid "True if the overal model is trained."
+#~ msgstr "モデル全体を学習する場合はTrue"
+
+#~ msgid ""
+#~ "Gao Huang, Zhuang Liu, Laurens van "
+#~ "der Maaten, Kilian Q. Weinberger Densely"
+#~ " Connected Convolutional Network "
+#~ "https://arxiv.org/pdf/1608.06993.pdf"
+#~ msgstr ""
+
+#~ msgid "DenseNet169 Model"
+#~ msgstr ""
+
+#~ msgid "DenseNet201 Model"
+#~ msgstr ""
+
+#~ msgid "True if the pre-trained weight is loaded."
+#~ msgstr "事前学習の重みがロードされていない場合はTrue"
+
+#~ msgid "Bases: :class:`renom_img.api.classification.Classification`"
+#~ msgstr ""
+
+#~ msgid "Inception V1 model"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If the argument load_pretrained_weight is "
+#~ "True, pretrained weight will be "
+#~ "downloaded. The pretrained weight is "
+#~ "trained using ILSVRC2012."
+#~ msgstr "もし引数load_pretrained_weightがTrueなら、事前学習済みの重みがダウンロードされます。事前学習の重みはILSVRC2012を使って学習しています."
+
+#~ msgid ""
+#~ "Christian Szegedy, Wei Liu, Yangqing Jia"
+#~ " , Pierre Sermanet, Scott Reed "
+#~ ",Dragomir Anguelov, Dumitru Erhan, Vincent "
+#~ "Vanhoucke, Andrew Rabinovich Going Deeper "
+#~ "with Convolutions "
+#~ "https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf"
+#~ msgstr ""
+
+#~ msgid "Returns an instance of Optimiser for training Yolov1 algorithm."
+#~ msgstr "Yolov1アルゴリズムのOptimiserのインスタンスを返却します。"
+
+#~ msgid "Inception V2 model"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Christian Szegedy, Vincent Vanhoucke, Sergey"
+#~ " Ioffe, Jonathon Shlens, Zbigniew Wojna "
+#~ "Rethinking the Inception Architecture for "
+#~ "Computer Vision https://arxiv.org/abs/1512.00567"
+#~ msgstr ""
+
+#~ msgid "Inception V3 model"
+#~ msgstr ""
+
+#~ msgid "Inception V4 model"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Christian Szegedy, Sergey Ioffe, Vincent "
+#~ "Vanhoucke, Alex Alemi Inception-v4, "
+#~ "Inception-ResNet and the Impact of "
+#~ "Residual Connections on Learning "
+#~ "https://arxiv.org/abs/1602.07261"
+#~ msgstr ""
+
+#~ msgid "Bases: :class:`renom_img.api.classification.resnet.ResNetBase`"
+#~ msgstr ""
+
+#~ msgid "ResNet32 model."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "6n + 2(The first conv and the "
+#~ "last dense) = 32 → n = 5 "
+#~ "5 sets of a layer block in "
+#~ "each block"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Kaiming He, Xiangyu Zhang, Shaoqing Ren,"
+#~ " Jian Sun Deep Residual Learning for"
+#~ " Image Recognition https://arxiv.org/abs/1512.03385"
+#~ msgstr ""
+
+#~ msgid "ResNet34 model."
+#~ msgstr ""
+
+#~ msgid "ResNet44 model."
+#~ msgstr ""
+
+#~ msgid "ResNet50 model."
+#~ msgstr ""
+
+#~ msgid "ResNet56 model."
+#~ msgstr ""
+
+#~ msgid "ResNet101 model."
+#~ msgstr ""
+
+#~ msgid "ResNet110 model."
+#~ msgstr ""
+
+#~ msgid "Bases: :class:`renom_img.api.classification.vgg.VGGBase`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Karen Simonyan, Andrew Zisserman Very "
+#~ "Deep Convolutional Networks for Large-"
+#~ "Scale Image Recognition "
+#~ "https://arxiv.org/abs/1409.1556"
+#~ msgstr ""
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-03 16:02+0900\n"
+"POT-Creation-Date: 2018-08-17 09:09+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,61 +27,469 @@ msgstr ""
 msgid "Bases: :class:`renom_img.api.segmentation.fcn.FCN_Base`"
 msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN32s:1
-msgid "Fully convolutional network (21s) for semantic segmentation"
+#: of renom_img.api.segmentation.fcn.FCN16s:1
+#, fuzzy
+msgid "Fully convolutional network (16s) for semantic segmentation"
 msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
 
 #: of renom_img.api.segmentation.fcn.FCN16s
-#: renom_img.api.segmentation.fcn.FCN32s renom_img.api.segmentation.fcn.FCN8s
+#: renom_img.api.segmentation.fcn.FCN16s.fit
+#: renom_img.api.segmentation.fcn.FCN16s.forward
+#: renom_img.api.segmentation.fcn.FCN16s.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN16s.loss
+#: renom_img.api.segmentation.fcn.FCN16s.preprocess
+#: renom_img.api.segmentation.fcn.FCN32s
+#: renom_img.api.segmentation.fcn.FCN32s.fit
+#: renom_img.api.segmentation.fcn.FCN32s.forward
+#: renom_img.api.segmentation.fcn.FCN32s.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN32s.loss
+#: renom_img.api.segmentation.fcn.FCN32s.preprocess
+#: renom_img.api.segmentation.fcn.FCN8s
+#: renom_img.api.segmentation.fcn.FCN8s.fit
+#: renom_img.api.segmentation.fcn.FCN8s.forward
+#: renom_img.api.segmentation.fcn.FCN8s.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN8s.loss
+#: renom_img.api.segmentation.fcn.FCN8s.preprocess
+#: renom_img.api.segmentation.ternausnet.TernausNet
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit
+#: renom_img.api.segmentation.ternausnet.TernausNet.forward
+#: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer
+#: renom_img.api.segmentation.ternausnet.TernausNet.loss
+#: renom_img.api.segmentation.ternausnet.TernausNet.preprocess
 #: renom_img.api.segmentation.unet.UNet
+#: renom_img.api.segmentation.unet.UNet.fit
+#: renom_img.api.segmentation.unet.UNet.forward
 #: renom_img.api.segmentation.unet.UNet.get_optimizer
+#: renom_img.api.segmentation.unet.UNet.loss
 #: renom_img.api.segmentation.unet.UNet.preprocess
 msgid "Parameters"
 msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN16s:4
+#: of renom_img.api.segmentation.fcn.FCN16s:3
 #: renom_img.api.segmentation.fcn.FCN32s:3
-#: renom_img.api.segmentation.fcn.FCN8s:4
+#: renom_img.api.segmentation.fcn.FCN8s:3
+#: renom_img.api.segmentation.ternausnet.TernausNet:3
 #: renom_img.api.segmentation.unet.UNet:3
-msgid "The number of classes"
-msgstr "クラス数"
+msgid "Array of class names"
+msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN16s:6
+#: of renom_img.api.segmentation.fcn.FCN16s:5
 #: renom_img.api.segmentation.fcn.FCN32s:5
-#: renom_img.api.segmentation.fcn.FCN8s:6
-msgid "If True, the pre-trained weight of ImageNet is loaded."
-msgstr "Trueの場合、ImageNetで事前学習済みのモデルがロードされます。"
+#: renom_img.api.segmentation.fcn.FCN8s:5
+#: renom_img.api.segmentation.ternausnet.TernausNet:5
+#: renom_img.api.segmentation.unet.UNet:5
+msgid "Input image size"
+msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN16s:10
-#: renom_img.api.segmentation.fcn.FCN32s:9
-#: renom_img.api.segmentation.fcn.FCN8s:10
+#: of renom_img.api.segmentation.fcn.FCN16s:7
+#: renom_img.api.segmentation.fcn.FCN32s:7
+#: renom_img.api.segmentation.fcn.FCN8s:7
+#: renom_img.api.segmentation.ternausnet.TernausNet:7
 #: renom_img.api.segmentation.unet.UNet:7
-#: renom_img.api.segmentation.unet.UNet.regularize:5
+msgid "True if pre-trained weight is used, otherwise False."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s:9
+#: renom_img.api.segmentation.fcn.FCN32s:9
+#: renom_img.api.segmentation.fcn.FCN8s:9
+#: renom_img.api.segmentation.ternausnet.TernausNet:9
+#: renom_img.api.segmentation.unet.UNet:9
+msgid "True if the overall model is trained, otherwise False"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s:13
+#: renom_img.api.segmentation.fcn.FCN16s.fit:24
+#: renom_img.api.segmentation.fcn.FCN16s.regularize:4
+#: renom_img.api.segmentation.fcn.FCN32s:13
+#: renom_img.api.segmentation.fcn.FCN32s.fit:24
+#: renom_img.api.segmentation.fcn.FCN32s.regularize:4
+#: renom_img.api.segmentation.fcn.FCN8s:13
+#: renom_img.api.segmentation.fcn.FCN8s.fit:24
+#: renom_img.api.segmentation.fcn.FCN8s.regularize:4
+#: renom_img.api.segmentation.ternausnet.TernausNet:13
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:24
+#: renom_img.api.segmentation.ternausnet.TernausNet.regularize:4
+#: renom_img.api.segmentation.unet.UNet:13
+#: renom_img.api.segmentation.unet.UNet.fit:24
+#: renom_img.api.segmentation.unet.UNet.regularize:4
 msgid "Example"
 msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN16s:23
-#: renom_img.api.segmentation.fcn.FCN32s:22
-#: renom_img.api.segmentation.fcn.FCN8s:23
-msgid ""
-"Jonathan Long, Evan Shelhamer, Trevor Darrell Fully Convolutional "
-"Networks for Semantic Segmentation "
-"https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+#: of renom_img.api.segmentation.fcn.FCN16s:25
+#: renom_img.api.segmentation.fcn.FCN32s:25
+#: renom_img.api.segmentation.fcn.FCN8s:25
+#: renom_img.api.segmentation.ternausnet.TernausNet:25
+#: renom_img.api.segmentation.unet.UNet:25
+msgid "References"
 msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN16s:1
+#: of renom_img.api.segmentation.fcn.FCN16s:26
+#: renom_img.api.segmentation.fcn.FCN32s:26
+#: renom_img.api.segmentation.fcn.FCN8s:26
+msgid "Jonathan Long, Evan Shelhamer, Trevor Darrell"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s:27
+#: renom_img.api.segmentation.fcn.FCN32s:27
+#: renom_img.api.segmentation.fcn.FCN8s:27
+#, fuzzy
+msgid "**Fully Convolutional Networks for Semantic Segmentation**"
+msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
+
+#: of renom_img.api.segmentation.fcn.FCN16s:28
+#: renom_img.api.segmentation.fcn.FCN32s:28
+#: renom_img.api.segmentation.fcn.FCN8s:28
+msgid "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:1
+#: renom_img.api.segmentation.fcn.FCN32s.fit:1
+#: renom_img.api.segmentation.fcn.FCN8s.fit:1
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:1
+#: renom_img.api.segmentation.unet.UNet.fit:1
+msgid "This function performs training with given data and hyper parameters."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:3
+#: renom_img.api.segmentation.fcn.FCN32s.fit:3
+#: renom_img.api.segmentation.fcn.FCN8s.fit:3
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:3
+#: renom_img.api.segmentation.unet.UNet.fit:3
+msgid "List of image path."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:5
+#: renom_img.api.segmentation.fcn.FCN32s.fit:5
+#: renom_img.api.segmentation.fcn.FCN8s.fit:5
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:5
+#: renom_img.api.segmentation.unet.UNet.fit:5
+msgid "List of annotations."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:7
+#: renom_img.api.segmentation.fcn.FCN32s.fit:7
+#: renom_img.api.segmentation.fcn.FCN8s.fit:7
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:7
+#: renom_img.api.segmentation.unet.UNet.fit:7
+msgid "List of image path for validation."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:9
+#: renom_img.api.segmentation.fcn.FCN32s.fit:9
+#: renom_img.api.segmentation.fcn.FCN8s.fit:9
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:9
+#: renom_img.api.segmentation.unet.UNet.fit:9
+msgid "List of annotations for validation."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:11
+#: renom_img.api.segmentation.fcn.FCN32s.fit:11
+#: renom_img.api.segmentation.fcn.FCN8s.fit:11
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:11
+#: renom_img.api.segmentation.unet.UNet.fit:11
+msgid "Number of training epoch."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:13
+#: renom_img.api.segmentation.fcn.FCN32s.fit:13
+#: renom_img.api.segmentation.fcn.FCN8s.fit:13
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:13
+#: renom_img.api.segmentation.unet.UNet.fit:13
+#, fuzzy
+msgid "Number of batch size."
+msgstr "クラス数"
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:15
+#: renom_img.api.segmentation.fcn.FCN32s.fit:15
+#: renom_img.api.segmentation.fcn.FCN8s.fit:15
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:15
+#: renom_img.api.segmentation.unet.UNet.fit:15
+msgid "Augmentation object."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:17
+#: renom_img.api.segmentation.fcn.FCN32s.fit:17
+#: renom_img.api.segmentation.fcn.FCN8s.fit:17
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:17
+#: renom_img.api.segmentation.unet.UNet.fit:17
+msgid "Given function will be called at the end of each epoch."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit
+#: renom_img.api.segmentation.fcn.FCN16s.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN16s.loss
+#: renom_img.api.segmentation.fcn.FCN16s.predict
+#: renom_img.api.segmentation.fcn.FCN32s.fit
+#: renom_img.api.segmentation.fcn.FCN32s.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN32s.loss
+#: renom_img.api.segmentation.fcn.FCN32s.predict
+#: renom_img.api.segmentation.fcn.FCN8s.fit
+#: renom_img.api.segmentation.fcn.FCN8s.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN8s.loss
+#: renom_img.api.segmentation.fcn.FCN8s.predict
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit
+#: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer
+#: renom_img.api.segmentation.ternausnet.TernausNet.loss
+#: renom_img.api.segmentation.ternausnet.TernausNet.predict
+#: renom_img.api.segmentation.ternausnet.TernausNet.preprocess
+#: renom_img.api.segmentation.unet.UNet.fit
+#: renom_img.api.segmentation.unet.UNet.get_optimizer
+#: renom_img.api.segmentation.unet.UNet.loss
+#: renom_img.api.segmentation.unet.UNet.predict
+#: renom_img.api.segmentation.unet.UNet.preprocess
+msgid "Returns"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:20
+#: renom_img.api.segmentation.fcn.FCN32s.fit:20
+#: renom_img.api.segmentation.fcn.FCN8s.fit:20
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:20
+#: renom_img.api.segmentation.unet.UNet.fit:20
+msgid "Training loss list and validation loss list."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit
+#: renom_img.api.segmentation.fcn.FCN16s.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN16s.loss
+#: renom_img.api.segmentation.fcn.FCN16s.predict
+#: renom_img.api.segmentation.fcn.FCN32s.fit
+#: renom_img.api.segmentation.fcn.FCN32s.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN32s.loss
+#: renom_img.api.segmentation.fcn.FCN32s.predict
+#: renom_img.api.segmentation.fcn.FCN8s.fit
+#: renom_img.api.segmentation.fcn.FCN8s.get_optimizer
+#: renom_img.api.segmentation.fcn.FCN8s.loss
+#: renom_img.api.segmentation.fcn.FCN8s.predict
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit
+#: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer
+#: renom_img.api.segmentation.ternausnet.TernausNet.loss
+#: renom_img.api.segmentation.ternausnet.TernausNet.predict
+#: renom_img.api.segmentation.ternausnet.TernausNet.preprocess
+#: renom_img.api.segmentation.unet.UNet.fit
+#: renom_img.api.segmentation.unet.UNet.get_optimizer
+#: renom_img.api.segmentation.unet.UNet.loss
+#: renom_img.api.segmentation.unet.UNet.predict
+#: renom_img.api.segmentation.unet.UNet.preprocess
+msgid "Return type"
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:38
+#: renom_img.api.segmentation.fcn.FCN32s.fit:38
+#: renom_img.api.segmentation.fcn.FCN8s.fit:38
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:38
+#: renom_img.api.segmentation.unet.UNet.fit:38
+msgid "Following arguments will be given to the function ``callback_end_epoch``."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:40
+#: renom_img.api.segmentation.fcn.FCN32s.fit:40
+#: renom_img.api.segmentation.fcn.FCN8s.fit:40
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:40
+#: renom_img.api.segmentation.unet.UNet.fit:40
+msgid "**epoch** (int) - Number of current epoch."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:41
+#: renom_img.api.segmentation.fcn.FCN32s.fit:41
+#: renom_img.api.segmentation.fcn.FCN8s.fit:41
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:41
+#: renom_img.api.segmentation.unet.UNet.fit:41
+msgid "**model** (Model) - Yolo1 object."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:42
+#: renom_img.api.segmentation.fcn.FCN32s.fit:42
+#: renom_img.api.segmentation.fcn.FCN8s.fit:42
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:42
+#: renom_img.api.segmentation.unet.UNet.fit:42
+msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:43
+#: renom_img.api.segmentation.fcn.FCN32s.fit:43
+#: renom_img.api.segmentation.fcn.FCN8s.fit:43
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:43
+#: renom_img.api.segmentation.unet.UNet.fit:43
+msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.forward:1
+#: renom_img.api.segmentation.fcn.FCN32s.forward:1
+#: renom_img.api.segmentation.fcn.FCN8s.forward:1
+#: renom_img.api.segmentation.ternausnet.TernausNet.forward:1
+#: renom_img.api.segmentation.unet.UNet.forward:1
 msgid ""
-"Fully convolutional network (16s) for semantic segmentation Reference: "
-"https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+"Performs forward propagation. You can call this function using "
+"``__call__`` method."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.forward:4
+msgid "Input to FCN16s."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:1
+msgid ""
+"Returns an instance of Optimizer for training FCN16s algorithm. If all "
+"argument(current_epoch, total_epoch, current_batch, total_batch) are "
+"given, the learning rate is modified according to the number of training "
+"iterations or the constant learning rate is used."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:5
+#: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:5
+#: renom_img.api.segmentation.fcn.FCN8s.get_optimizer:5
+#: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:5
+#: renom_img.api.segmentation.unet.UNet.get_optimizer:5
+#, fuzzy
+msgid "The number of current epoch."
+msgstr "クラス数"
+
+#: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:7
+#: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:7
+#: renom_img.api.segmentation.fcn.FCN8s.get_optimizer:7
+#: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:7
+#: renom_img.api.segmentation.unet.UNet.get_optimizer:7
+msgid "The number of total epoch."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:9
+#: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:9
+#: renom_img.api.segmentation.fcn.FCN8s.get_optimizer:9
+#: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:9
+#: renom_img.api.segmentation.unet.UNet.get_optimizer:9
+#, fuzzy
+msgid "The number of current batch."
+msgstr "クラス数"
+
+#: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:11
+#: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:11
+#: renom_img.api.segmentation.fcn.FCN8s.get_optimizer:11
+#: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:11
+#: renom_img.api.segmentation.unet.UNet.get_optimizer:11
+msgid "The number of total batch."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.get_optimizer:14
+#: renom_img.api.segmentation.fcn.FCN32s.get_optimizer:14
+#: renom_img.api.segmentation.fcn.FCN8s.get_optimizer:14
+#: renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:14
+#: renom_img.api.segmentation.unet.UNet.get_optimizer:14
+msgid "Optimizer object."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.loss:1
+msgid "Loss function of FCN16s algorithm."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.loss:3
+#: renom_img.api.segmentation.fcn.FCN32s.loss:3
+#: renom_img.api.segmentation.fcn.FCN8s.loss:3
+#: renom_img.api.segmentation.ternausnet.TernausNet.loss:3
+#: renom_img.api.segmentation.unet.UNet.loss:3
+msgid "Output of model."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.loss:5
+#: renom_img.api.segmentation.fcn.FCN32s.loss:5
+#: renom_img.api.segmentation.fcn.FCN8s.loss:5
+#: renom_img.api.segmentation.ternausnet.TernausNet.loss:5
+#: renom_img.api.segmentation.unet.UNet.loss:5
+msgid "Target array."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.loss:8
+#: renom_img.api.segmentation.fcn.FCN32s.loss:8
+#: renom_img.api.segmentation.fcn.FCN8s.loss:8
+#: renom_img.api.segmentation.ternausnet.TernausNet.loss:8
+#: renom_img.api.segmentation.unet.UNet.loss:8
+msgid "Loss between x and y."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.predict:1
+#: renom_img.api.segmentation.fcn.FCN32s.predict:1
+#: renom_img.api.segmentation.fcn.FCN8s.predict:1
+#: renom_img.api.segmentation.ternausnet.TernausNet.predict:1
+#: renom_img.api.segmentation.unet.UNet.predict:1
+msgid ""
+"If only an image or a path is given, an array whose shape is **(width, "
+"height)** is returned. If multiple images or paths are given, then a list"
+" in which there are arrays whose shape is **(width, height)** is "
+"returned."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.preprocess:1
+#: renom_img.api.segmentation.fcn.FCN32s.preprocess:1
+#: renom_img.api.segmentation.fcn.FCN8s.preprocess:1
+#: renom_img.api.segmentation.ternausnet.TernausNet.preprocess:1
+#: renom_img.api.segmentation.unet.UNet.preprocess:1
+msgid "Performs preprocess for a given array."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.preprocess:3
+#: renom_img.api.segmentation.fcn.FCN32s.preprocess:3
+#: renom_img.api.segmentation.fcn.FCN8s.preprocess:3
+#: renom_img.api.segmentation.ternausnet.TernausNet.preprocess:3
+#: renom_img.api.segmentation.unet.UNet.preprocess:3
+msgid "Image array for preprocessing."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.preprocess:6
+#: renom_img.api.segmentation.fcn.FCN32s.preprocess:6
+#: renom_img.api.segmentation.fcn.FCN8s.preprocess:6
+msgid "Preprocessing for FCN is follows."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN16s.regularize:1
+#: renom_img.api.segmentation.fcn.FCN32s.regularize:1
+#: renom_img.api.segmentation.fcn.FCN8s.regularize:1
+#: renom_img.api.segmentation.ternausnet.TernausNet.regularize:1
+#: renom_img.api.segmentation.unet.UNet.regularize:1
+msgid "Regularization term to a loss function."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN32s:1
+msgid "Fully convolutional network (21s) for semantic segmentation"
+msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
+
+#: of renom_img.api.segmentation.fcn.FCN32s.forward:4
+msgid "Input to FCN32s."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN32s.get_optimizer:1
+msgid ""
+"Returns an instance of Optimizer for training FCN32s algorithm. If all "
+"argument(current_epoch, total_epoch, current_batch, total_batch) are "
+"given, the learning rate is modified according to the number of training "
+"iterations or the constant learning rate is used."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN32s.loss:1
+msgid "Loss function of FCN32s algorithm."
 msgstr ""
 
 #: of renom_img.api.segmentation.fcn.FCN8s:1
-msgid ""
-"Fully convolutional network (8s) for semantic segmentation Reference: "
-"https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+#, fuzzy
+msgid "Fully convolutional network (8s) for semantic segmentation"
+msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
+
+#: of renom_img.api.segmentation.fcn.FCN8s.forward:4
+msgid "Input to FCN8s."
 msgstr ""
 
-#: of renom_img.api.segmentation.unet.UNet:1
+#: of renom_img.api.segmentation.fcn.FCN8s.get_optimizer:1
+msgid ""
+"Returns an instance of Optimizer for training FCN8s algorithm. If all "
+"argument(current_epoch, total_epoch, current_batch, total_batch) are "
+"given, the learning rate is modified according to the number of training "
+"iterations or the constant learning rate is used."
+msgstr ""
+
+#: of renom_img.api.segmentation.fcn.FCN8s.loss:1
+msgid "Loss function of FCN8s algorithm."
+msgstr ""
+
+#: of renom_img.api.segmentation.ternausnet.TernausNet:1
+#: renom_img.api.segmentation.unet.UNet:1
 msgid "Bases: :class:`renom_img.api.segmentation.SemanticSegmentation`"
 msgstr ""
 
@@ -89,41 +497,87 @@ msgstr ""
 msgid "U-Net: Convolutional Networks for Biomedical Image Segmentation"
 msgstr ""
 
-#: of renom_img.api.segmentation.unet.UNet:20
-msgid ""
-"Olaf Ronneberger, Philipp Fischer, Thomas Brox U-Net: Convolutional "
-"Networks for Biomedical Image Segmentation "
-"https://arxiv.org/pdf/1505.04597.pdf"
+#: of renom_img.api.segmentation.unet.UNet:26
+msgid "Olaf Ronneberger, Philipp Fischer, Thomas Brox"
+msgstr ""
+
+#: of renom_img.api.segmentation.unet.UNet:27
+#, fuzzy
+msgid "**U-Net: Convolutional Networks for Biomedical Image Segmentation**"
+msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
+
+#: of renom_img.api.segmentation.unet.UNet:28
+msgid "https://arxiv.org/pdf/1505.04597.pdf"
+msgstr ""
+
+#: of renom_img.api.segmentation.unet.UNet.forward:4
+msgid "Input to UNet."
 msgstr ""
 
 #: of renom_img.api.segmentation.unet.UNet.get_optimizer:1
-msgid "Returns an instance of Optimiser for training U-Net algorithm."
+msgid ""
+"Returns an instance of Optimizer for training UNet algorithm. If all "
+"argument(current_epoch, total_epoch, current_batch, total_batch) are "
+"given, the learning rate is modified according to the number of training "
+"iterations or the constant learning rate is used."
 msgstr ""
 
-#: of renom_img.api.segmentation.unet.UNet.preprocess:1
+#: of renom_img.api.segmentation.unet.UNet.loss:1
+msgid "Loss function of UNet algorithm."
+msgstr ""
+
+#: of renom_img.api.segmentation.ternausnet.TernausNet.preprocess:6
+#: renom_img.api.segmentation.unet.UNet.preprocess:6
 msgid "Image preprocess for U-Net."
 msgstr ""
 
-#: of renom_img.api.segmentation.unet.UNet.preprocess:3
-msgid ":math:`new_x = x*2/255. - 1`"
-msgstr ""
-
-#: of renom_img.api.segmentation.unet.UNet.preprocess
-msgid "Returns"
-msgstr ""
-
 #: of renom_img.api.segmentation.unet.UNet.preprocess:8
+msgid ":math:`new_x = x/255`"
+msgstr ""
+
+#: of renom_img.api.segmentation.ternausnet.TernausNet.preprocess:10
+#: renom_img.api.segmentation.unet.UNet.preprocess:10
 msgid "Preprocessed data."
 msgstr ""
 
-#: of renom_img.api.segmentation.unet.UNet.preprocess
-msgid "Return type"
+#: of renom_img.api.segmentation.ternausnet.TernausNet:1
+msgid ""
+"TernausNet: U-Net with VGG11 Encoder Pre-Trained on ImageNet for Image "
+"Segmentation"
 msgstr ""
 
-#: of renom_img.api.segmentation.unet.UNet.regularize:1
+#: of renom_img.api.segmentation.ternausnet.TernausNet:26
+msgid "Vladimir Iglovikov, Alexey Shvets"
+msgstr ""
+
+#: of renom_img.api.segmentation.ternausnet.TernausNet:27
 msgid ""
-"Regularize term. You can use this function to add regularize term to loss"
-" function."
+"**TernausNet: U-Net with VGG11 Encoder Pre-Trained on ImageNet for Image "
+"Segmentation**"
+msgstr ""
+
+#: of renom_img.api.segmentation.ternausnet.TernausNet:28
+msgid "https://arxiv.org/pdf/1801.05746.pdf"
+msgstr ""
+
+#: of renom_img.api.segmentation.ternausnet.TernausNet.forward:4
+msgid "Input to TernausNet."
+msgstr ""
+
+#: of renom_img.api.segmentation.ternausnet.TernausNet.get_optimizer:1
+msgid ""
+"Returns an instance of Optimizer for training TernausNet algorithm. If "
+"all argument(current_epoch, total_epoch, current_batch, total_batch) are "
+"given, the learning rate is modified according to the number of training "
+"iterations or the constant learning rate is used."
+msgstr ""
+
+#: of renom_img.api.segmentation.ternausnet.TernausNet.loss:1
+msgid "Loss function of TernausNet algorithm."
+msgstr ""
+
+#: of renom_img.api.segmentation.ternausnet.TernausNet.preprocess:8
+msgid ":math:`new_x = x/255.`"
 msgstr ""
 
 #~ msgid "renom\\_img.api.segmentation package"
@@ -154,5 +608,46 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Image preprocess for Yolov1."
+#~ msgstr ""
+
+#~ msgid "If True, the pre-trained weight of ImageNet is loaded."
+#~ msgstr "Trueの場合、ImageNetで事前学習済みのモデルがロードされます。"
+
+#~ msgid ""
+#~ "Jonathan Long, Evan Shelhamer, Trevor "
+#~ "Darrell Fully Convolutional Networks for "
+#~ "Semantic Segmentation "
+#~ "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Fully convolutional network (16s) for "
+#~ "semantic segmentation Reference: "
+#~ "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Fully convolutional network (8s) for "
+#~ "semantic segmentation Reference: "
+#~ "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Olaf Ronneberger, Philipp Fischer, Thomas "
+#~ "Brox U-Net: Convolutional Networks for "
+#~ "Biomedical Image Segmentation "
+#~ "https://arxiv.org/pdf/1505.04597.pdf"
+#~ msgstr ""
+
+#~ msgid "Returns an instance of Optimiser for training U-Net algorithm."
+#~ msgstr ""
+
+#~ msgid ":math:`new_x = x*2/255. - 1`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Regularize term. You can use this "
+#~ "function to add regularize term to "
+#~ "loss function."
 #~ msgstr ""
 
