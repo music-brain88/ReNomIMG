@@ -115,7 +115,7 @@ class Base(rm.Model):
         Following arguments will be given to the function ``callback_end_epoch``.
 
         - **epoch** (int) - Number of current epoch.
-        - **model** (Model) - Yolo1 object.
+        - **model** (Model) - Model object.
         - **avg_train_loss_list** (list) - List of average train loss of each epoch.
         - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
 
