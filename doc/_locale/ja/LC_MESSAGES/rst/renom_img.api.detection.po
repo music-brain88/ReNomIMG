@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-03 16:02+0900\n"
+"POT-Creation-Date: 2018-08-17 09:09+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,7 +33,6 @@ msgstr "Yolo 物体識別アルゴリズム"
 #: renom_img.api.detection.yolo_v1.Yolov1.loss
 #: renom_img.api.detection.yolo_v1.Yolov1.predict
 #: renom_img.api.detection.yolo_v1.Yolov1.preprocess
-#: renom_img.api.detection.yolo_v2.AnchorYolov2
 #: renom_img.api.detection.yolo_v2.Yolov2
 #: renom_img.api.detection.yolo_v2.Yolov2.fit
 #: renom_img.api.detection.yolo_v2.Yolov2.forward
@@ -42,7 +41,6 @@ msgstr "Yolo 物体識別アルゴリズム"
 #: renom_img.api.detection.yolo_v2.Yolov2.loss
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 #: renom_img.api.detection.yolo_v2.Yolov2.preprocess
-#: renom_img.api.detection.yolo_v2.create_anchor
 msgid "Parameters"
 msgstr "パラメータ"
 
@@ -59,7 +57,6 @@ msgid "Number of boxes."
 msgstr "Boxの数"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1:9
-#: renom_img.api.detection.yolo_v2.AnchorYolov2:5
 msgid "Image size."
 msgstr "画像サイズ"
 
@@ -70,7 +67,7 @@ msgid ""
 msgstr "Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。文字列が渡された場合には、その名前で重みが保存されます。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1:17
-#: renom_img.api.detection.yolo_v2.Yolov2:16
+#: renom_img.api.detection.yolo_v2.Yolov2:18
 msgid "References"
 msgstr "引用"
 
@@ -108,7 +105,6 @@ msgstr "この関数はYolov1で指定された入力データとターゲット
 #: renom_img.api.detection.yolo_v2.Yolov2.loss
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 #: renom_img.api.detection.yolo_v2.Yolov2.preprocess
-#: renom_img.api.detection.yolo_v2.create_anchor
 msgid "Returns"
 msgstr ""
 
@@ -133,19 +129,18 @@ msgstr "入力データとターゲットデータを作成する関数を返却
 #: renom_img.api.detection.yolo_v2.Yolov2.loss
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 #: renom_img.api.detection.yolo_v2.Yolov2.preprocess
-#: renom_img.api.detection.yolo_v2.create_anchor
 msgid "Return type"
 msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.build_data:8
-#: renom_img.api.detection.yolo_v1.Yolov1.fit:31
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:24
 #: renom_img.api.detection.yolo_v1.Yolov1.forward:13
-#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:2
+#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:33
 #: renom_img.api.detection.yolo_v1.Yolov1.loss:12
-#: renom_img.api.detection.yolo_v1.Yolov1.predict:4
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:35
 #: renom_img.api.detection.yolo_v1.Yolov1.regularize:7
 #: renom_img.api.detection.yolo_v2.Yolov2.build_data:8
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:36
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:29
 #: renom_img.api.detection.yolo_v2.Yolov2.forward:13
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:2
 #: renom_img.api.detection.yolo_v2.Yolov2.loss:12
@@ -160,72 +155,72 @@ msgstr "この関数は与えられたデータとハイパーパラメータを
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.fit:3
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:6
-msgid "Following arguments will be given to the function ``callback_end_epoch``."
-msgstr "以下の引数は``callback_end_epoch``関数に渡されます。"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:5
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:8
-msgid "**epoch** (int) - Number of current epoch."
-msgstr "epoch (int) - 現在のエポック数"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:6
-msgid "**model** (Model) - Yolo1 object."
-msgstr "model (Model) - Yolo1オブジェクト"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:7
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:10
-msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
-msgstr "avg_train_loss_list (list) - 各エポック毎の平均学習損失のリスト"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:8
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:11
-msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
-msgstr "avg_valid_loss_list (list) - 各エポック毎の平均バリデーション損失のリスト"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:10
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:13
 msgid "List of image path."
 msgstr "画像のパスのリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:12
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:15
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:5
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:8
 msgid "List of annotations."
 msgstr "アノテーションのリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:14
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:17
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:7
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:10
 msgid "List of image path for validation."
 msgstr "バリデーション用の画像のパスのリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:16
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:19
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:9
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:12
 msgid "List of annotations for validation."
 msgstr "バリデーション用のアノテーションのリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:18
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:21
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:11
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:14
 msgid "Number of training epoch."
 msgstr "学習エポック数"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:20
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:23
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:13
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:16
 msgid "Number of batch size."
 msgstr "バッチサイズ"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:22
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:27
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:15
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:20
 msgid "Augmentation object."
 msgstr "Augmentationオブジェクト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:24
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:29
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:17
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:22
 msgid "Given function will be called at the end of each epoch."
 msgstr "与えられた関数は各エポックの最後に呼び出されます。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:27
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:32
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:20
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:25
 msgid "Training loss list and validation loss list."
 msgstr "学習損失のリストとバリデーション損失のリスト"
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:39
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:44
+msgid "Following arguments will be given to the function ``callback_end_epoch``."
+msgstr "以下の引数は``callback_end_epoch``関数に渡されます。"
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:41
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:46
+msgid "**epoch** (int) - Number of current epoch."
+msgstr "epoch (int) - 現在のエポック数"
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:42
+msgid "**model** (Model) - Yolo1 object."
+msgstr "model (Model) - Yolo1オブジェクト"
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:43
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:48
+msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
+msgstr "avg_train_loss_list (list) - 各エポック毎の平均学習損失のリスト"
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:44
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:49
+msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
+msgstr "avg_valid_loss_list (list) - 各エポック毎の平均バリデーション損失のリスト"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.forward:1
 #: renom_img.api.detection.yolo_v2.Yolov2.forward:1
@@ -246,27 +241,29 @@ msgid ""
 "using the method ``get_bbox``."
 msgstr "Yolo v1の生の出力を返却します。get_bboxメソッドによりバウンディングボックス形式に変形できます。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:8
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:1
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:8
 msgid "Output array of neural network. The shape of array"
 msgstr "ニューラルネットワークの配列を出力します。配列の型"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:10
-#: renom_img.api.detection.yolo_v1.Yolov1.predict:12
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:3
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:5
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:12
 msgid ""
 "The threshold for confidence score. Predicted boxes which have lower "
 "confidence score than the threshold are discarderd. Defaults to 0.3"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:14
-#: renom_img.api.detection.yolo_v1.Yolov1.predict:16
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:7
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:9
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:16
 msgid "The threshold for non maximum supression. Defaults to 0.4"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:17
-#: renom_img.api.detection.yolo_v1.Yolov1.predict:19
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:10
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:12
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:11
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:13
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:19
 msgid ""
 "List of predicted bbox, score and class of each image. The format of "
 "return value is bellow. Box coordinates and size will be returned as "
@@ -277,7 +274,7 @@ msgstr "予測されたbbox、スコア、各画像のクラスの配列。戻�
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:41
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:43
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:35
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:37
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:43
 msgid ""
 "Box coordinate and size will be returned as ratio to the original image "
 "size. Therefore the range of 'box' is [0 ~ 1]."
@@ -347,13 +344,12 @@ msgstr "xとy間の損失"
 msgid "This method accepts either ndarray and list of image path."
 msgstr "このメソッドはndarrayか画像のパスのリストを受け取ります。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:10
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:3
 #: renom_img.api.detection.yolo_v2.Yolov2.predict:10
 msgid "Path to an image, list of path or ndarray."
 msgstr "画像へのパス、パスのリストもしくはndarray"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:1
-#: renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
 msgid "Image preprocess for Yolov1."
 msgstr "Yolov1用の前処理"
 
@@ -378,31 +374,20 @@ msgstr "正則化項。この関数は損失関数に正則化項を加えるた
 msgid "In Yolo v1, weight decay of 0.0005 will be added."
 msgstr "Yolo v1では、重み減衰は0.0005です。"
 
-#: of renom_img.api.detection.yolo_v2.AnchorYolov2:1
-msgid "Bases: :class:`object`"
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v2.AnchorYolov2:1
-msgid "This class contains anchors that will used by in Yolov2."
-msgstr "このクラスはYolov2で利用されるアンカーが含まれています。"
-
-#: of renom_img.api.detection.yolo_v2.AnchorYolov2:3
-msgid "List of anchors."
-msgstr "アンカーのリスト"
-
 #: of renom_img.api.detection.yolo_v2.Yolov2:1
-msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
-msgstr ""
+#, fuzzy
+msgid "Yolov2 object detection algorithm."
+msgstr "Yolo 物体識別アルゴリズム"
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:1
+#: of renom_img.api.detection.yolo_v2.Yolov2:3
 msgid "List of class name."
 msgstr "クラス名のリスト"
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:3
+#: of renom_img.api.detection.yolo_v2.Yolov2:5
 msgid "Anchors."
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:5
+#: of renom_img.api.detection.yolo_v2.Yolov2:7
 msgid ""
 "Image size. This can be both image size ex):(320, 320) and list of image "
 "size ex):[(288, 288), (320, 320)]. If list of image size is given, the "
@@ -411,19 +396,19 @@ msgstr ""
 "画像サイズ。画像サイズ ex):(320, 320)と画像サイズのリストex):[(288, 288), (320, "
 "320)]が可能です。画像サイズのリストが与えられた場合、予測の際にはリストの最後のサイズが利用されます。"
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:17
+#: of renom_img.api.detection.yolo_v2.Yolov2:19
 msgid "Joseph Redmon, Ali Farhadi"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:18
+#: of renom_img.api.detection.yolo_v2.Yolov2:20
 msgid "**YOLO9000: Better, Faster, Stronger**"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:19
+#: of renom_img.api.detection.yolo_v2.Yolov2:21
 msgid "https://arxiv.org/abs/1612.08242"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:24
+#: of renom_img.api.detection.yolo_v2.Yolov2:26
 msgid ""
 "If you save this model using 'save' method, anchor information(anchor "
 "list and base size of them) will be saved. So when you load your own "
@@ -447,13 +432,13 @@ msgstr ""
 "この関数は与えられたデータとハイパーパラメータを学習するように振舞います。Yolo "
 "v2は様々なスケールの画像から学習します。よって、この関数は画像サイズのリストを必要とします。これらが与えられない場合、モデルは固定の画像サイズで学習します。"
 
-#: of renom_img.api.detection.yolo_v2.Yolov2.fit:9
-msgid "**model** (Model) - Yolo2 object."
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v2.Yolov2.fit:25
+#: of renom_img.api.detection.yolo_v2.Yolov2.fit:18
 msgid "List of image size."
 msgstr "画像サイズのリスト"
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.fit:47
+msgid "**model** (Model) - Yolo2 object."
+msgstr ""
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:1
 msgid "Returns an instance of Optimizer for training Yolov2 algorithm."
@@ -463,29 +448,14 @@ msgstr "Yolov2アルゴリズム学習用のOptimizerのインスタンス"
 msgid "Loss function specified for yolov2."
 msgstr "Yolov2で指定された損失関数"
 
+#: of renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
+#, fuzzy
+msgid "Image preprocess for Yolov2."
+msgstr "Yolov1用の前処理"
+
 #: of renom_img.api.detection.yolo_v2.Yolov2.regularize:4
 msgid "In Yolo v2, weight decay of 0.0005 will be added."
 msgstr "Yolo v2では重み減衰0.0005が加えられます。"
-
-#: of renom_img.api.detection.yolo_v2.create_anchor:1
-msgid ""
-"This function creates 'anchors' for yolo v2 algorithm using k-means "
-"clustering."
-msgstr "この関数はk-meansクラスタリングを利用してYolo v2用の'anchor'を作成します。"
-
-#: of renom_img.api.detection.yolo_v2.create_anchor:3
-msgid "Requires following annotation list."
-msgstr "以下のアノテーションのリストが必要です。"
-
-#: of renom_img.api.detection.yolo_v2.create_anchor:5
-msgid ""
-"Perform k-means clustering using custom metric. We want to get only "
-"anchor's size so we don't have to consider coordinates."
-msgstr "カスタムのメトリックを利用してK-meansクラスタリングを実行します。画像のサイズのみが必要なため、座標を考慮する必要はありません。"
-
-#: of renom_img.api.detection.yolo_v2.create_anchor:15
-msgid "Anchor list."
-msgstr "アンカーのリスト"
 
 #~ msgid "Image path list."
 #~ msgstr "画像のパスのリスト"
@@ -616,4 +586,34 @@ msgstr "アンカーのリスト"
 
 #~ msgid "Regularize term of"
 #~ msgstr ""
+
+#~ msgid "Bases: :class:`object`"
+#~ msgstr ""
+
+#~ msgid "This class contains anchors that will used by in Yolov2."
+#~ msgstr "このクラスはYolov2で利用されるアンカーが含まれています。"
+
+#~ msgid "List of anchors."
+#~ msgstr "アンカーのリスト"
+
+#~ msgid "Bases: :class:`renom.layers.function.parameterized.Model`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This function creates 'anchors' for yolo"
+#~ " v2 algorithm using k-means clustering."
+#~ msgstr "この関数はk-meansクラスタリングを利用してYolo v2用の'anchor'を作成します。"
+
+#~ msgid "Requires following annotation list."
+#~ msgstr "以下のアノテーションのリストが必要です。"
+
+#~ msgid ""
+#~ "Perform k-means clustering using custom "
+#~ "metric. We want to get only "
+#~ "anchor's size so we don't have to"
+#~ " consider coordinates."
+#~ msgstr "カスタムのメトリックを利用してK-meansクラスタリングを実行します。画像のサイズのみが必要なため、座標を考慮する必要はありません。"
+
+#~ msgid "Anchor list."
+#~ msgstr "アンカーのリスト"
 

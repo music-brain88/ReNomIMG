@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-01 11:10+0900\n"
+"POT-Creation-Date: 2018-08-17 09:09+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,21 +29,20 @@ msgstr ""
 msgid "renom\\_img.server.utility.console\\_funcs module"
 msgstr ""
 
-#: ../../docstring of renom_img.server.utility.console_funcs.divide_datasets:1
-msgid ""
-"This method creates directories, 'train_set' and 'valid_set'. And "
-"automatically copies images and labels into them."
-msgstr ""
-
 #: ../../rst/renom_img.server.utility.rst:16
 msgid "renom\\_img.server.utility.storage module"
-msgstr ""
-
-#: ../../docstring of renom_img.server.utility.storage.Storage:1
-msgid "Bases: :class:`object`"
 msgstr ""
 
 #: ../../rst/renom_img.server.utility.rst:25
 msgid "Module contents"
 msgstr ""
+
+#~ msgid ""
+#~ "This method creates directories, 'train_set'"
+#~ " and 'valid_set'. And automatically copies"
+#~ " images and labels into them."
+#~ msgstr ""
+
+#~ msgid "Bases: :class:`object`"
+#~ msgstr ""
 
