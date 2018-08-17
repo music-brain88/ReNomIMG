@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 09:09+0900\n"
+"POT-Creation-Date: 2018-08-17 11:45+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,7 +87,7 @@ msgstr ""
 msgid ""
 "This function returns a function which creates input data and target data"
 " specified for Yolov1."
-msgstr "この関数はYolov1で指定された入力データとターゲットデータを返却します。"
+msgstr "この関数はYolov1クラスでで指定された形式の入力データとターゲットデータを返却します。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.build_data
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
@@ -106,7 +106,7 @@ msgstr "この関数はYolov1で指定された入力データとターゲット
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 #: renom_img.api.detection.yolo_v2.Yolov2.preprocess
 msgid "Returns"
-msgstr ""
+msgstr "戻り値"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.build_data:4
 #: renom_img.api.detection.yolo_v2.Yolov2.build_data:4
@@ -130,7 +130,7 @@ msgstr "入力データとターゲットデータを作成する関数を返却
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 #: renom_img.api.detection.yolo_v2.Yolov2.preprocess
 msgid "Return type"
-msgstr ""
+msgstr "戻り値の型"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.build_data:8
 #: renom_img.api.detection.yolo_v1.Yolov1.fit:24
@@ -147,11 +147,11 @@ msgstr ""
 #: renom_img.api.detection.yolo_v2.Yolov2.predict:4
 #: renom_img.api.detection.yolo_v2.Yolov2.regularize:7
 msgid "Example"
-msgstr ""
+msgstr "例"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.fit:1
 msgid "This function performs training with given data and hyper parameters."
-msgstr "この関数は与えられたデータとハイパーパラメータを学習させます。"
+msgstr "この関数は与えられたデータとハイパーパラメータを元に学習を実行します。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.fit:3
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:6
@@ -201,7 +201,7 @@ msgstr "学習損失のリストとバリデーション損失のリスト"
 #: of renom_img.api.detection.yolo_v1.Yolov1.fit:39
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:44
 msgid "Following arguments will be given to the function ``callback_end_epoch``."
-msgstr "以下の引数は``callback_end_epoch``関数に渡されます。"
+msgstr "以下の引数はcallback_end_epoch関数に渡されます。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.fit:41
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:46
@@ -227,7 +227,7 @@ msgstr "avg_valid_loss_list (list) - 各エポック毎の平均バリデーシ�
 msgid ""
 "Performs forward propagation. This function can be called using "
 "``__call__`` method. See following example of method usage."
-msgstr ""
+msgstr "順伝播を実行します。この関数は__call__メソッドにより呼ばれます。メソッドの利用例については以下を参照してください。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.forward:5
 #: renom_img.api.detection.yolo_v2.Yolov2.forward:5
@@ -244,7 +244,7 @@ msgstr "Yolo v1の生の出力を返却します。get_bboxメソッドにより
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:1
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:8
 msgid "Output array of neural network. The shape of array"
-msgstr "ニューラルネットワークの配列を出力します。配列の型"
+msgstr "ニューラルネットワークの結果得られた配列を出力します。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:3
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:5
@@ -252,13 +252,13 @@ msgstr "ニューラルネットワークの配列を出力します。配列の
 msgid ""
 "The threshold for confidence score. Predicted boxes which have lower "
 "confidence score than the threshold are discarderd. Defaults to 0.3"
-msgstr ""
+msgstr "信頼スコアの閾値。予測さればボックスのうち、信頼スコアが閾値に満たないものは破棄されます。デフォルト値は0.3"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:7
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:9
 #: renom_img.api.detection.yolo_v2.Yolov2.predict:16
 msgid "The threshold for non maximum supression. Defaults to 0.4"
-msgstr ""
+msgstr "nmsの閾値。デファルト値は0.4。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:10
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:12
@@ -269,7 +269,9 @@ msgid ""
 "return value is bellow. Box coordinates and size will be returned as "
 "ratio to the original image size. Therefore the range of 'box' is [0 ~ "
 "1]."
-msgstr "予測されたbbox、スコア、各画像のクラスの配列。戻り値のフォーマットは下に記載してある通りです。ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0~1]です。"
+msgstr ""
+"予測した結果得られたbbox、スコア、各画像に対応するクラスの配列。戻り値のフォーマットは下に記載してある通りです。ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0"
+" ~ 1]です。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:41
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:43
@@ -278,7 +280,7 @@ msgstr "予測されたbbox、スコア、各画像のクラスの配列。戻�
 msgid ""
 "Box coordinate and size will be returned as ratio to the original image "
 "size. Therefore the range of 'box' is [0 ~ 1]."
-msgstr "ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0~1]です。"
+msgstr "ボックスの座標と大きさは元画像のサイズに対する比で返されます。よって、boxの範囲は[0 ~ 1]です。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:1
 msgid "Returns an instance of Optimizer for training Yolov1 algorithm."
@@ -318,7 +320,7 @@ msgstr "全体のバッチ数"
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:16
 #: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:16
 msgid "Optimizer object."
-msgstr ""
+msgstr "Optimizerオブジェクト"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.loss:1
 msgid "Loss function specified for yolov1."
@@ -372,7 +374,7 @@ msgstr "正則化項。この関数は損失関数に正則化項を加えるた
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.regularize:4
 msgid "In Yolo v1, weight decay of 0.0005 will be added."
-msgstr "Yolo v1では、重み減衰は0.0005です。"
+msgstr "Yolo v1では重み減衰として0.0005が利用されます。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2:1
 #, fuzzy
@@ -385,7 +387,7 @@ msgstr "クラス名のリスト"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2:5
 msgid "Anchors."
-msgstr ""
+msgstr "アンカー"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2:7
 msgid ""
@@ -414,13 +416,13 @@ msgid ""
 "list and base size of them) will be saved. So when you load your own "
 "saved model, you don't have to give the arguments 'anchor' and "
 "'anchor_size'."
-msgstr "`save`メソッドを利用して保存する場合、アンカー情報(アンカーのリストとそれらの基本サイズ)が保存されます。従って、保存したモデルをロードする場合に`ancoor`と`anchor_size`を指定する必要はありません。"
+msgstr "saveメソッドを利用して保存する場合、アンカー情報(アンカーのリストとそれらの基本サイズ)が保存されます。従って、保存したモデルをロードする場合にはancoorとanchor_sizeを指定する必要はありません。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.build_data:1
 msgid ""
 "This function returns a function which creates input data and target data"
 " specified for Yolov2."
-msgstr "この関数はYolov2で指定された入力データとターゲットデータを作成します。；"
+msgstr "この関数はYolov2で指定された入力データとターゲットデータを作成します。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.fit:1
 msgid ""
@@ -428,9 +430,7 @@ msgid ""
 "Yolov2 is trained using multiple scale images. Therefore, this function "
 "requires list of image size. If it is not given, the model will be "
 "trained using fixed image size."
-msgstr ""
-"この関数は与えられたデータとハイパーパラメータを学習するように振舞います。Yolo "
-"v2は様々なスケールの画像から学習します。よって、この関数は画像サイズのリストを必要とします。これらが与えられない場合、モデルは固定の画像サイズで学習します。"
+msgstr "この関数は与えられたデータとハイパーパラメータを元に学習を実行します。Yolov2は様々なスケールの画像を利用して学習します。よって、この関数は画像サイズのリストを必要とします。これらが与えられない場合、モデルは固定の画像サイズで学習します。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.fit:18
 msgid "List of image size."
@@ -438,7 +438,7 @@ msgstr "画像サイズのリスト"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.fit:47
 msgid "**model** (Model) - Yolo2 object."
-msgstr ""
+msgstr "model (Model) - Yolov2オブジェクト"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:1
 msgid "Returns an instance of Optimizer for training Yolov2 algorithm."
@@ -451,11 +451,12 @@ msgstr "Yolov2で指定された損失関数"
 #: of renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
 #, fuzzy
 msgid "Image preprocess for Yolov2."
-msgstr "Yolov1用の前処理"
+msgstr "Yolov2用の前処理"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.regularize:4
+#, fuzzy
 msgid "In Yolo v2, weight decay of 0.0005 will be added."
-msgstr "Yolo v2では重み減衰0.0005が加えられます。"
+msgstr "Yolov2では重み減衰として0.0005が利用されます。"
 
 #~ msgid "Image path list."
 #~ msgstr "画像のパスのリスト"

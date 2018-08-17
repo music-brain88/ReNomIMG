@@ -32,23 +32,23 @@ msgstr ""
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.batch
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.split
 msgid "Parameters"
-msgstr ""
+msgstr "パラメータ"
 
 #: ../../docstring of
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.batch:1
 msgid "batch size"
-msgstr ""
+msgstr "バッチサイズ"
 
 #: ../../docstring of
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.batch:3
 msgid "target builder"
-msgstr ""
+msgstr "ターゲットビルダー"
 
 #: ../../docstring of
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.batch:5
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.split:5
 msgid "shuffle or not when splitting data"
-msgstr ""
+msgstr "データを分割する際にシャッフルするかどうか"
 
 #: ../../docstring of
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.batch
@@ -58,17 +58,17 @@ msgstr ""
 #: ../../docstring of
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.batch:8
 msgid "(path of images(list), path of labels(list)"
-msgstr ""
+msgstr "(画像のパス(リスト), ラベルのパス(リスト))"
 
 #: ../../docstring of
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.split:1
 msgid "split image and laebls"
-msgstr ""
+msgstr "画像とラベルを分割します。"
 
 #: ../../docstring of
 #: renom_img.api.utility.distributor.distributor.ImageDistributor.split:3
 msgid "ratio between training set and validation set"
-msgstr ""
+msgstr "トレーニングセットとバリデーションセットの割合"
 
 #~ msgid "renom\\_img.api.utility.distributor package"
 #~ msgstr ""
