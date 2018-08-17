@@ -32,21 +32,23 @@ msgid ""
 "augmentation is passed to ImageDistributor module, and is called only "
 "when training process is runnning. You could choose augmentation methods "
 "from Process module."
-msgstr "このクラスは画像に前処理を適用させるためのものです。AugmentationクラスのインスタンスはImageDistributorモジュールに渡され、学習プロセスが実行された時のみに呼び出されます。前処理の方法はProcessモジュールから選択できます。"
+msgstr "このクラスは画像に前処理を適用させるためのものです。"
+"AugmentationクラスのインスタンスはImageDistributorモジュールに渡され、学習プロセスが実行された時のみに呼び出されます。"
+"前処理の方法はProcessモジュールから選択できます。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.Augmentation:8
 msgid "*list of Process modules* -- list of Process modules."
-msgstr ""
+msgstr "*list of Process modules* -- Processモジュールのリスト"
 
 #: ../../docstring of renom_img.api.utility.augmentation.Augmentation:15
 #: renom_img.api.utility.augmentation.process.contrast_norm:15
 msgid "Example"
-msgstr ""
+msgstr "例"
 
 #: ../../docstring of
 #: renom_img.api.utility.augmentation.Augmentation.transform:1
 msgid "This function is for applying augmentation to ImageDistributor"
-msgstr ""
+msgstr "この関数はImageDistributorに前処理を適用するためのものです。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.Augmentation.transform
 #: renom_img.api.utility.augmentation.process.contrast_norm
@@ -55,17 +57,17 @@ msgstr ""
 #: renom_img.api.utility.augmentation.process.shift
 #: renom_img.api.utility.augmentation.process.white_noise
 msgid "Parameters"
-msgstr ""
+msgstr "パラメータ"
 
 #: ../../docstring of
 #: renom_img.api.utility.augmentation.Augmentation.transform:5
 msgid "list of label for x. It is only used when prediction."
-msgstr ""
+msgstr "xに対応するラベルのリスト。予測時のみ利用します。"
 
 #: ../../docstring of
 #: renom_img.api.utility.augmentation.Augmentation.transform:8
 msgid "Returns:"
-msgstr ""
+msgstr "戻り値:"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.ContrastNorm:1
 #: renom_img.api.utility.augmentation.process.Flip:1
@@ -78,11 +80,11 @@ msgstr ""
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.ProcessBase:1
 msgid "Base class for applying augmentation to images."
-msgstr ""
+msgstr "画像に前処理を適用するためのベースクラス"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.ProcessBase:3
 msgid "X and Y must be resized as specified img size."
-msgstr ""
+msgstr "XとYは指定の画像サイズにリサイズされます。"
 
 #: ../../docstring of
 #: renom_img.api.utility.augmentation.process.contrast_norm:1
@@ -96,7 +98,8 @@ msgstr "コントラスト正規化 :params alpha: 大きい値ではコント�
 msgid ""
 "if a list [a, b], alpha value is sampled from uniform distribution "
 "ranging from [a, b). if a float, constant value of alpha is used."
-msgstr ""
+msgstr "リスト[a, b]が与えられた場合、alphaの値は区間[a, b)の一様分布からサンプリングされます。"
+"floatが与えられた場合、定数のalphaの値が利用されます。"
 
 #: ../../docstring of
 #: renom_img.api.utility.augmentation.process.contrast_norm:6
@@ -111,14 +114,14 @@ msgstr "各チャンネルにコントラスト正規化を適用するか。alp
 #: renom_img.api.utility.augmentation.process.shift
 #: renom_img.api.utility.augmentation.process.white_noise
 msgid "Returns"
-msgstr ""
+msgstr "戻り値"
 
 #: ../../docstring of
 #: renom_img.api.utility.augmentation.process.contrast_norm:10
 msgid ""
 "List of images normalized by contrast (list of dict): List of annotation "
 "results."
-msgstr ""
+msgstr "コントラスト正規化された画像のリスト(list of dict): アノテーションの結果のリスト"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.contrast_norm
 #: renom_img.api.utility.augmentation.process.flip
@@ -126,74 +129,74 @@ msgstr ""
 #: renom_img.api.utility.augmentation.process.shift
 #: renom_img.api.utility.augmentation.process.white_noise
 msgid "Return type"
-msgstr ""
+msgstr "戻り値の型"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.flip:1
 msgid "Flip image randomly."
-msgstr ""
+msgstr "画像をランダムに反転させます。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.flip:3
 #: renom_img.api.utility.augmentation.process.rotate:3
 #: renom_img.api.utility.augmentation.process.shift:3
 #: renom_img.api.utility.augmentation.process.white_noise:3
 msgid "List of images."
-msgstr ""
+msgstr "画像のリスト"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.flip:5
 #: renom_img.api.utility.augmentation.process.rotate:5
 #: renom_img.api.utility.augmentation.process.shift:5
 #: renom_img.api.utility.augmentation.process.white_noise:5
 msgid "List of annotation results."
-msgstr ""
+msgstr "アノテーションの結果のリスト"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.flip:7
 #: renom_img.api.utility.augmentation.process.shift:7
 #: renom_img.api.utility.augmentation.process.white_noise:7
 msgid "Type of task. You could chooose Classification, Detection or Segmentation."
-msgstr ""
+msgstr "タスクの種類。分類、検知、セグメンテーションから選択できます。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.flip:10
 msgid "List of flipped images. (list of dict): List of annotation results."
-msgstr ""
+msgstr "反転された画像のリスト。(list of dict): アノテーションの結果のリスト。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.flip:15
 #: renom_img.api.utility.augmentation.process.rotate:15
 #: renom_img.api.utility.augmentation.process.shift:15
 #: renom_img.api.utility.augmentation.process.white_noise:15
 msgid "Examples"
-msgstr ""
+msgstr "例"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.rotate:1
 msgid "Rotate images randomly from 0, 90, 180, 270 degree."
-msgstr ""
+msgstr "0度、90度、180度、270度からランダムに回転されます。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.rotate:7
 msgid ""
 "Type of task. You could choose from Classification, Detection and "
 "Segmentation."
-msgstr ""
+msgstr "タスクの種類。分類、検知、セグメンテーションから選択できます。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.rotate:10
 msgid "List of rotated images. (list of dict): List of annotation results."
-msgstr ""
+msgstr "反転された画像のリスト。(list of dict): アノテーションの結果のリスト。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.shift:1
 msgid "Shift images randomly according to given parameter."
-msgstr ""
+msgstr "与えられたパラメータに従ってランダムに画像をシフトさせます。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.shift:10
 msgid "List of shifted images. (list of dict): List of annotation results."
-msgstr ""
+msgstr "シフトされた画像のリスト。(list of dict): アノテーションの結果のリスト"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.white_noise:1
 msgid "Add white noise to images."
-msgstr ""
+msgstr "画像にホワイトノイズを加えます。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.process.white_noise:10
 msgid ""
 "List of images added white noise. (list of dict): List of annotation "
 "results."
-msgstr ""
+msgstr "ホワイトノイズが加えられた画像のリスト(list of dict): アノテーションの結果のリスト。"
 
 #~ msgid "renom\\_img.api.utility.augmentation package"
 #~ msgstr ""
