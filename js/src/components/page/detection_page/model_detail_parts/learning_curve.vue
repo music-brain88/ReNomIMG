@@ -141,6 +141,7 @@ export default {
         .attr('x', (width - margin.left - margin.right) / 2 + margin.left)
         .attr('y', 35)
         .style('font-size', '0.8em')
+        .style('font-family', 'Open Sans Light')
 
       gY.append('text')
         .attr('fill', d3.rgb(0, 0, 0, 0.5))
@@ -148,6 +149,7 @@ export default {
         .attr('y', -35)
         .attr('transform', 'rotate(-90)')
         .style('font-size', '0.8em')
+        .style('font-family', 'Open Sans Light')
 
       // Define tooltips
       let tooltips = d3.select('#learning-curve')

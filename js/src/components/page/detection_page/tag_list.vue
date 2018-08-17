@@ -22,7 +22,7 @@
           <!-- tag-item -->
           <div class='tag-item' v-for="i in 20">
             <div class="item-name">
-                <span> &nbsp;{{ i }} </span>
+                <span>ABCDEFGHI</span>
             </div>
             <div class="box" v-bind:style="{backgroundColor: color_list[i%10]}">
               <span>{{i}}</span>
@@ -42,13 +42,13 @@ export default {
   name: 'TagList',
   data: function () {
     return {
-      // color_list: ['#E7009A', '#9F14C1',
-      //   '#582396', '#0A20C4', '#3E9AAF', '#13894B',
-      //   '#8BAA1A', '#FFCC33', '#EF8200', '#E94C33'
+      // color_list: ['#E7009A', '#0A20C4', '#3E9AAF',
+      //   '#FFCC33', '#EF8200', '#9F14C1', '#582396',
+      //   '#8BAA1A', '#13894B','#E94C33'
       // ]
-      color_list: ['#E94C33', '#E7009A', '#9F14C1',
-        '#582396', '#0A20C4', '#3E9AAF', '#13894B',
-        '#8BAA1A', '#FFCC33', '#EF8200'
+      color_list: ['#E94C33', '#E7009A', '#0A20C4', '#3E9AAF',
+        '#FFCC33', '#EF8200', '#9F14C1', '#582396',
+        '#8BAA1A', '#13894B'
       ]
     }
   },
@@ -88,8 +88,10 @@ export default {
     background: $header-color;
     font-size: $content-top-header-font-size;
     font-family: $content-top-header-font-family;
-    color:$font-color;
+    color: $font-color;
     .title-text{
+      font-family: $content-top-header-font-family;
+      font-size: $content-top-header-font-size;
       margin-left: $content-top-heder-horizonral-margin;
       line-height: $content-top-header-hight;
     }
@@ -98,9 +100,10 @@ export default {
   .content {
     font-family: $content-inner-box-font-family;
     flex-wrap: wrap;
-    // height: $content-taglist-hegiht;
     margin-top: $content-top-margin;
-    padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
+    padding-top: $content-top-padding;
+    padding-left: $content-horizontal-padding;
+    padding-bottom:$content-bottom-padding;
     background-color: $content-bg-color;
     border: 1px solid $content-border-color;
 
@@ -114,17 +117,20 @@ export default {
       color: $content-taglist-tagbox-font-color;
       padding-top: 2px;
       padding-bottom: 2px;
-      width:170px;
-      border-left: 1px solid $content-taglist-tagbox-font-color;
+      width:177.5px;
       .item-name{
-        margin-left: 5px;
         height: 1rem;
         display: inline-flex;
         align-self: center;
         line-height: 1rem;
+        border-left: 1px solid $content-taglist-tagbox-font-color;
         span{
-          width: 100%;
+          font-size: $content-taglist-tagbox-font-size;
+          margin-left: calc(#{$content-taglist-tagbox-font-size}/2);
           align-self: center;
+          width:calc(#{$content-taglist-tagbox-font-size}*6.5);
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
       .box {
@@ -136,11 +142,12 @@ export default {
         width: 35px;
         color: #ffffff;
         margin-left: auto;
-        margin-right: 10px;
+        margin-right: $content-horizontal-padding;
         span {
           width: 100%;
           text-align: center;
           align-self: center;
+          // margin-right: 10px;
         }
       }
     }

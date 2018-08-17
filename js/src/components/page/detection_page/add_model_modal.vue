@@ -1,9 +1,119 @@
 <template>
-  <div>
-    <div class="modal-title">
-      Setting of New Training Model
-    </div>
+  <div id="add-model">
+      <div class="form-group row">
+        <div class="col-md-6">
+          <div class="sub-param-title">
+            Dataset
+          </div>
+          <div class="row justify-content-center">
+            <label class="col-sm-5 label">
+              Dataset Name
+            </label>
+            <div class="col-sm-7">
+              <select class="form-control" v-model="dataset_def_id">
+                <option v-for="d in dataset_defs" v-bind:value="d.id">
+                  {{ d.name }}
+                </option>
+              </select>
+            </div>
+          </div>
 
+          <div class="sub-param-title">
+            Algorithm
+          </div>
+
+          <div class="row justify-content-center">
+
+            <label class="col-sm-5 label">
+              CNN Architecture
+            </label>
+            <div class="col-sm-7">
+              <select class="algorithm-select-box form-control" v-model="algorithm">
+                <option value="0">YOLOv1</option>
+                <option value="1">YOLOv2</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row justify-content-center">
+
+            <label class="col-sm-5 label">
+              Train Whole Network
+            </label>
+            <div class="col-sm-7">
+              <select class="algorithm-select-box form-control" v-model="yolo1_train_whole_flag" v-if="algorithm == 0">
+                <option value="0">False</option>
+                <option value="1">True</option>
+              </select>
+              <select class="algorithm-select-box form-control" v-model="yolo2_train_whole_flag" v-if="algorithm == 1">
+                <option value="0">False</option>
+                <option value="1">True</option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="algorithm == 0" class="row justify-content-center">
+
+            <label class="col-sm-5 label">
+              Cells
+            </label>
+            <div class="col-sm-7">
+              <input type="text" class="form-control" v-model="cells" maxlength="2">
+              <div class="input-alert" v-if="cells < 3">Cells must greater than 3</div>
+              <div class="input-alert" v-if="cells > 20">Cells must lower than 20</div>
+            </div>
+          </div>
+
+          <div v-if="algorithm == 0" class="row justify-content-center">
+
+            <label class="col-sm-5 label">
+              Bounding Box
+            </label>
+            <div class="col-sm-7">
+              <input type="text" class="form-control" v-model="bounding_box" maxlength="2">
+              <div class="input-alert" v-if="bounding_box < 1">Cells must greater than 3</div>
+              <div class="input-alert" v-if="bounding_box > 10">Cells must lower than 20</div>
+            </div>
+          </div>
+
+          <div v-if="algorithm == 1" class="row justify-content-center">
+
+            <label class="col-sm-5 label">
+              Anchors
+            </label>
+            <div class="col-sm-7">
+              <input type="text" class="form-control" v-model="anchor" maxlength="2">
+              <div class="input-alert" v-if="anchor < 1">Anchors must greater than 1</div>
+              <div class="input-alert" v-if="anchor > 10">Anchors must lower than 10</div>
+            </div>
+          </div>
+
+
+
+
+        </div>
+        <div class="col-md-6">
+
+          <div class="sub-param-title">
+            Hyper params
+          </div>
+          <div class="row justify-content-center">
+            <label class="col-sm-5 label">
+              Image Width
+            </label>
+            <div v-if="algorithm == 0" class="col-sm-7">
+              <input type="text" class="form-control" v-model="image_width" maxlength="4">
+              <div class="input-alert" v-if="image_width < 32">Image Width must greater than 32</div>
+              <div class="input-alert" v-if="image_width > 1024">Image Width must lower than 1024</div>
+            </div>
+            <div v-if="algorithm == 1" class="col-sm-7">
+              <input type="text" class="form-control"  v-model="image_height" maxlength="4" readonly="readonly">
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     <div class="modal-param-area">
       <div class="sub-param-area">
         <div class="sub-param-title">
@@ -11,7 +121,6 @@
         </div>
 
         <div class="param-item">
-          <div class="label">Dataset Name</div>
           <div class="item">
             <select v-model="dataset_def_id">
               <option v-for="d in dataset_defs" v-bind:value="d.id">
@@ -269,6 +378,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/../node_modules/bootstrap/scss/bootstrap.scss';
+
 $app-max-width: 1280px;
 $header-height: 35px;
 
@@ -285,11 +396,25 @@ $modal-sub-title-font-size: 16px;
 
 $content-margin: 8px;
 $content-label-width: 120px;
-$content-font-size: 16px;
+
+#add-model{
+  font-family: $content-inner-box-font-family;
+  font-size: $content-inner-box-font-size;
+  form {
+    background: #FFFFFF;
+    border:none;
+  }
+  .form-control{
+    border-radius: 0;
+    height: 20px;
+  }
+  .label{
+    padding-left: calc(#{$content-inner-box-font-size}*2);
+  }
+}
 
 .modal-title {
-  font-size: $modal-title-font-size;
-  font-weight: bold;
+  font-size: $content-inner-header-font-size;
 }
 
 .modal-param-area {
@@ -306,8 +431,7 @@ $content-font-size: 16px;
 
     .sub-param-title {
       margin-top: $content-margin;
-      font-size: $modal-sub-title-font-size;
-      font-weight: bold;
+      font-size: $content-inner-header-font-size;
     }
 
     .param-item {
@@ -315,12 +439,11 @@ $content-font-size: 16px;
       position: relative;
       margin-top: $content-margin;
 
-      .label {
-        width: $content-label-width;
-        font-weight: 500;
-        font-size: $content-font-size;
-        line-height: $content-font-size*1.5;
-      }
+      // .label {
+      //   width: $content-label-width;
+      //   font-size: $content-inner-box-font-size;
+      //   line-height: $content-inner-box-font-size*1.5;
+      // }
       .item {
         margin-left: $content-margin;
         width: $content-label-width;
@@ -343,13 +466,13 @@ $content-font-size: 16px;
   }
 }
 
-.modal-button-area {
-  display: flex;
-  flex-direction: row-reverse;
-
-  position: absolute;
-  bottom: $modal-content-padding;
-  right: $modal-content-padding;
-}
+// .modal-button-area {
+//   display: flex;
+//   flex-direction: row-reverse;
+//
+//   position: absolute;
+//   bottom: $modal-content-padding;
+//   right: $modal-content-padding;
+// }
 
 </style>

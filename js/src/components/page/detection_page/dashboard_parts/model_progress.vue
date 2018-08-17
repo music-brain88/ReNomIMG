@@ -53,13 +53,13 @@
         <span v-if="model.running_state===running_state['starting']">
           Starting...
         </span>
-        <span v-if="model.running_state===running_state['training']">
+        <span v-else-if="model.running_state===running_state['training']">
           Train Loss
         </span>
-        <span v-if="model.running_state===running_state['validating']">
+        <span v-else-if="model.running_state===running_state['validating']">
           Validating
         </span>
-        <span v-if="model.running_state===running_state['stopping']">
+        <span v-else-if="model.running_state===running_state['stopping']">
           Stopping...
         </span>
       </div>
@@ -79,7 +79,8 @@
     <div class="stop-button-area">
       <div class="stop-button" @click="show_stop_dialog=true"
         v-if="model.running_state!==running_state['stopping']">
-        <i class="fa fa-pause-circle-o" aria-hidden="true"></i>
+        <!-- <i class="fa fa-pause-circle-o" aria-hidden="true"></i> -->
+        <img :src="url" aria-hidden="true">
       </div>
     </div>
 
@@ -110,6 +111,7 @@ export default {
   },
   data: function () {
     return {
+      url: require('../../../../../static/img/stop.png'),
       progress_bar_color: '#0099CE',
       running_state: {
         'training': 0,
@@ -179,11 +181,9 @@ export default {
   $content-margin: 8px;
 
   $label-color: #666666;
-  $label-font-size: 12px;
-  $value-font-size: 14px;
 
   $progress-bar-width: 24%;
-  $progress-bar-height: 12px;
+  $progress-bar-height: 11pt;
   $progress-bar-bg-color: #e8e8e8;
   $progress-bar-color: #0099ce;
 
@@ -206,13 +206,13 @@ export default {
 
     .label, .label span {
       color: $label-color;
-      font-size: $label-font-size;
-      line-height: $label-font-size;
+      font-size: $content-inner-box-font-size;
+      line-height: $content-inner-box-font-size;
     }
 
     .value, .value span {
-      font-size: $value-font-size;
-      line-height: $value-font-size;
+      font-size: $content-inner-box-font-size;
+      line-height:  $content-inner-box-font-size;
     }
   }
 
@@ -221,11 +221,17 @@ export default {
     .stop-button {
       position: absolute;
       bottom: 0;
-
+      width: 14px;
+      height: 14px;
       margin-right: $content-margin;
-      line-height: $value-font-size;
-      font-size: $value-font-size;
+      line-height: $content-inner-box-font-size;
+      font-size: $content-inner-box-font-size;
       color: $stop-button-color;
+      cursor: pointer;
+      img{
+        height: 10px;
+        width:10px;
+      }
     }
     .stop-button:hover {
       color: $stop-button-color-hover;
@@ -235,7 +241,7 @@ export default {
   .progress-bar-area {
     position: relative;
     width: $progress-bar-width;
-    height: calc(#{$label-font-size} + #{$value-font-size});
+    height: calc(#{$content-inner-box-font-size} + #{$content-inner-box-font-size});
     margin-right: $content-margin;
 
       .progress{

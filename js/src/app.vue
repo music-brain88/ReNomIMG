@@ -35,7 +35,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import url('https://rsms.me/inter/inter-ui.css');
 * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -43,7 +42,7 @@ export default {
   -ms-box-sizing: border-box;
   box-sizing: border-box;
 
-  font-family: 'Inter UI', sans-serif;
+  font-family: $content-top-header-font-family;
 }
 
 #app {

@@ -1,31 +1,31 @@
 <template>
-  <div>
+  <div id="data-setting">
       <div class="form-group row">
-        <div class="col-md-6">
+        <div class="col-md-6 col-padding-clear">
           <form  v-on:submit.prevent="register">
             <h5>Dataset Setting</h5>
             <div class="container">
               <div class="row justify-content-center space-top">
-                <label class="col-sm-4 col-form-label text-right">Dataset Name</label>
-                <div class="col-sm-8">
-                  <input type="text" v-model='name' class="form-control" placeholder="Dataset Name">
+                <label class="col-sm-5 col-form-label label">Dataset Name</label>
+                <div class="col-sm-7">
+                  <input type="text" v-model='name' class="form-control input-text sort-line" placeholder="Dataset Name">
                 </div>
               </div>
 
               <div class="row justify-content-center space-top">
-                <label class="col-sm-4 col-form-label text-right">Discription</label>
-                <div class="col-sm-8">
-                  <textarea class="form-control" rows="7"></textarea>
+                <label class="col-sm-5 col-form-label label">Discription</label>
+                <div class="col-sm-7">
+                  <textarea class="form-control sort-line" rows="7"></textarea>
                 </div>
               </div>
 
               <div class="row justify-content-center space-top">
-                <label class="col-sm-6 col-form-label text-right">Ratio of training data</label>
-                <div class="col-sm-6">
+                <label class="col-sm-5 col-form-label label">Ratio of training data</label>
+                <div class="col-sm-7">
                   <div class="input-group">
-                    <input v-model='ratio' type="number" class="form-control" min="0" max="100" placeholder="80">
+                    <input v-model='ratio' type="number" class="form-control input-text sort-line" min="0" max="100" placeholder="80">
                     <div class="input-group-append">
-                      <span class="input-group-text">%</span>
+                      <span class="input-group-text input-text sort-line">%</span>
                     </div>
                   </div>
                 </div>
@@ -38,7 +38,7 @@
             </div>
           </form>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 col-padding-clear">
           <form  v-on:submit.prevent="register">
             <h5>Detail</h5>
             <div class="container">
@@ -47,22 +47,22 @@
                   <div v-if='dataset_detail.length===0'>
 
                     <div class="row">
-                      <div class="col-md-4">
+                      <div class="col-md-6">
                         Number of Images
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-3 figure">
                         Train
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-3 figure">
                         Vallidation
                       </div>
                     </div>
                     <div class="row space-top">
-                      <div class="col-md-4">
+                      <div class="col-md-6">
                         All
                       </div>
-                      <div class="col-md-8">
-                        <div class="progress">
+                      <div class="col-md-6">
+                        <div class="progress figure total-progress">
                           <div class="progress-bar" role="progressbar" style="width:0%;" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                       </div>
@@ -79,42 +79,43 @@
                   <div v-else>
 
                     <div class="row">
-                      <div class="col-md-4">
+                      <div class="col-md-6">
                         Number of Images
                       </div>
-                      <div class="col-md-4">
-                        Train {{dataset_detail.train_num}}
+                      <div class="col-md-3 figure">
+                        Train {{dataset_detail.train_image_num}}
                       </div>
-                      <div class="col-md-4">
-                        Vallidation {{dataset_detail.valid_num}}
+                      <div class="col-md-3 figure">
+                        Vallidation {{dataset_detail.valid_image_num}}
                       </div>
                     </div>
 
                     <div class="row space-top">
-                      <div class="col-md-4">
-                        All
+                      <div class="col-md-6">
+                        All {{dataset_detail.total}}
                       </div>
-                      <div class="col-md-8">
-                        <div class="progress">
-                          <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.train_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
-                          <div class="progress-bar validation-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.valid_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
+                      <div class="col-md-6">
+                        <div class="progress total-progress">
+                          <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.train_image_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
+                          <div class="progress-bar validation-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.valid_image_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                       </div>
                     </div>
-                    <div class="row space-top">
-                      <div class="col-md-4">
+                    <div class="row space-top-2nd">
+                      <div class="col-md-6">
                         <span>Total Number of Tag</span>
                       </div>
                     </div>
 
                     <div v-for="(val, key) in dataset_detail.class_maps" class="row space-top">
 
-                      <div class="col-md-4">
+                      <div class="col-md-6">
                         Class name {{key}} :
                       </div>
-                      <div class="col-md-8">
-                        <div class="progress">
-                          <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(val, dataset_detail.total)+'%;'" :aria-valuenow="calc_percentage(val, dataset_detail.total)" aria-valuemin="0" aria-valuemax="100">{{calc_percentage(val, dataset_detail.total)}}%</div>
+                      <div class="col-md-6 figure">
+                        {{calc_percentage(val, dataset_detail.total)}}
+                        <div class="progress figure tag-progress">
+                          <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(val, dataset_detail.total)+'%;'"  aria-valuemin="0" aria-valuemax="100">{{calc_percentage(val, dataset_detail.total)}}%</div>
                         </div>
                       </div>
 
@@ -123,9 +124,9 @@
                 </div>
               </div>
 
-            <div class="modal-button-area space-top-last float-right">
+            <div v-if='dataset_detail.length!==0' class="modal-button-area space-top-last float-right">
               <button class="submit">Save</button>
-              <button>Cancel</button>
+              <button class="button">Cancel</button>
             </div>
 
             </div>
@@ -171,9 +172,9 @@ export default {
         this.name = ''
       })
     },
-    calc_percentage: function (train, total) {
+    calc_percentage: function (target, total) {
       // let value = (train / this.$store.state.dataset_detail_max_value) * 100
-      let value = (train / total) * 100
+      let value = (target / total) * 100
       return Math.round(value, 3)
     }
   }
@@ -183,41 +184,109 @@ export default {
 <style lang="scss" scoped>
 @import '@/../node_modules/bootstrap/scss/bootstrap.scss';
 
-form {
-  background: #FFFFFF;
-  border:none;
-}
+#data-setting{
 
-nav {
-  background: #ffffff;
-  border: none;
+  font-family: $content-inner-box-font-family;
+  font-size: $content-inner-box-font-size;
+  color:$font-color-label;
+  ::-webkit-input-placeholder {
+    color: #999999;
+  }
 
-}
+  h5{
+    font-family: $content-inner-header-font-family;
+    font-size: $content-inner-header-font-size;
+  }
+  form {
+    background: #FFFFFF;
+    border:none;
+  }
 
-input[type=checkbox]{
-  height: auto;
-  width: auto;
-  clip-path:none;
-}
+  nav {
+    background: #ffffff;
+    border: none;
 
-.space-top{
-  margin-top: 5%;
-}
-.space-top-last{
-  margin-top: 20%;
-}
-.loading-space{
-  padding-top: 60%;
-  margin-top: 100%;
-}
-.train-color{
-  background-color: $train-color;
-}
-.validation-color{
-  background-color: $validation-color;
-}
-.submit{
-  background-color: $push-button;
-  color:$font-color;
+  }
+
+  input[type=checkbox]{
+    height: auto;
+    width: auto;
+    clip-path:none;
+  }
+
+  .form-control{
+    border-radius: 0;
+    font-size: $content-inner-box-font-size;
+  }
+
+  .label{
+    padding-left: calc(#{$content-inner-box-font-size}*2);
+  }
+
+  .input-text{
+    height: 20px;
+  }
+  .sort-line{
+    margin-top: 10px;
+  }
+
+  .input-group-text{
+    border-radius: 0;
+  }
+
+  .space-top{
+    margin-top: 2%;
+  }
+  .space-top-2nd{
+    margin-top: 5%;
+  }
+
+  .space-top-last{
+    margin-top: 20%;
+  }
+  .loading-space{
+    padding-top: 60%;
+    margin-top: 100%;
+  }
+
+  .progress{
+    border-radius: 0;
+  }
+  .total-progress{
+    height:9px;
+  }
+  .tag-progress{
+    height:6px;
+  }
+
+
+  .train-color{
+    background-color: $train-color;
+  }
+  .validation-color{
+    background-color: $validation-color;
+  }
+  .submit{
+    font-size: $push-button-font-size;
+    height:$push-button-size;
+    background-color: $push-button;
+    color:$font-color;
+    line-height: calc(#{$push-button-size}*0.4);
+  }
+  .button{
+    font-size: $push-button-font-size;
+    height:$push-button-size;
+    background-color:#FFFFFF;
+    border: 1px solid $push-cancel;
+    line-height: calc(#{$push-button-size}*0.4);
+  }
+
+  .col-padding-clear{
+    padding: 0;
+  }
+  .figure{
+    font-size: calc(#{$tab-figure-font-size}*0.8);
+  }
+
 }
 </style>

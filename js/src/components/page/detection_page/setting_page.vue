@@ -48,23 +48,18 @@ export default {
 <style lang="scss" scoped>
 @import '@/../node_modules/bootstrap/scss/bootstrap.scss';
 #add-model-modal {
-  $app-max-width: 1280px;
   $header-height: 35px;
 
   $modal-color: #000000;
   $modal-opacity: 0.7;
 
-  $modal-content-width: 80%;
-  $modal-content-height: 70%;
+
   $modal-content-bg-color: #fefefe;
   $modal-content-padding: 32px;
 
-  $modal-title-font-size: 24px;
-  $modal-sub-title-font-size: 16px;
+
 
   $content-margin: 8px;
-  $content-label-width: 120px;
-  $content-font-size: 16px;
 
   position: fixed;
   left: 0;
@@ -73,10 +68,43 @@ export default {
   height: calc(100vh - #{$header-height});
   z-index: 3;
 
+
+  a{
+    opacity: 1;
+    transition: opacity 0s;
+  }
+
+  #nav-home-tab{
+    display: block;
+    width:205px;
+    height:35px;
+    background-color: $tab-bg-color;
+    color: $font-color;
+    border-radius: 0px;
+    text-align: center;
+    &.active{
+      background-color: #FFFFFF;
+      color: #000000;
+    }
+  }
+  #nav-contact-tab{
+    display: block;
+    width:205px;
+    height:35px;
+    background-color: $tab-bg-color;
+    color: $font-color;
+    border-radius: 0px;
+    text-align: center;
+    &.active{
+      background-color: #FFFFFF;
+      color: #000000;
+    }
+  }
+
   nav {
     background: #ffffff;
     border: none;
-
+    padding: 0;
   }
   @media (min-width: 576px){
     .modal-dialog{
@@ -99,12 +127,17 @@ export default {
     left: 50%;
     -webkit-transform: translateY(-50%) translateX(-50%);
     transform: translateY(-50%) translateX(-50%);
-
-    width: $modal-content-width;
-    max-width: $app-max-width;
-    padding: $modal-content-padding;
+    padding-left: $content-horizontal-padding;
+    padding-right: $content-horizontal-padding;
+    padding-top: $content-top-padding;
+    padding-bottom: $content-bottom-padding;
+    width: calc(#{$modal-content-width} * #{$max-width}); //896
     background-color: $modal-content-bg-color;
     opacity: 1;
+    border-radius: 0;
+  }
+  .modal-body{
+    padding: 0;
   }
 }
 </style>

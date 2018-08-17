@@ -1,5 +1,7 @@
 
 $max-width:1280px;
+$modal-content-width: 0.8;
+$modal-content-height:0.7;
 
 $header-height: 44px;
 
@@ -10,6 +12,15 @@ $tooltips-color:#02294C;
 $body-color:#f3f3f1;
 $panel-height: 35px;
 
+$tab-bg-color:#063662;
+$tab-figure-font-size:11pt;
+$font-color-label:#666666;
+
+// button color
+$push-button:#006ea1;
+$push-cancel:#CCCCCC;
+$push-button-size:25px;
+$push-button-font-size:10.5pt;
 
 $font-size: 15pt;
 $font-color: #ffffff;
@@ -96,8 +107,7 @@ $validation-color:#ef8200;
 $status-running: #0099ce;
 $status-reserve: #cccccc;
 
-// button color
-$push-button:#006ea1;
+
 
 ::-webkit-scrollbar{
   width: 10px;
