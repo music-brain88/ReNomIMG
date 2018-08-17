@@ -1,5 +1,5 @@
 
-ReNomImg version 0.0
+ReNomImg version 0.9Beta
 =====================
 
 .. toctree::
