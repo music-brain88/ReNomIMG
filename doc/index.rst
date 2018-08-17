@@ -1,6 +1,6 @@
 
-ReNomImg version 0.9Beta
-=====================
+ReNom IMG 0.9beta
+==================
 
 .. toctree::
     :maxdepth: 3

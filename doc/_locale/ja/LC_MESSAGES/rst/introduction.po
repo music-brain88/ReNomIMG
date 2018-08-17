@@ -35,37 +35,37 @@ msgstr "1. コンセプト"
 msgid ""
 "The concept of ReNomIMG is **ensure that users can create AI models "
 "according to the purpose by themselves**."
-msgstr "**ReNomIMGのコンセプトは、AIのモデルをユーザーの目的の沿って自分自身で作成してもらうといったものです。**"
+msgstr "**ReNomIMGのコンセプトは、AIのモデルをユーザーの目的の沿って自分自身で作成してもらうといったものです.**"
 
 #: ../../rst/introduction.rst:16
 msgid ""
 "Recent developing deep learning technology realizes extremely big "
 "improvement at recognition accuracy."
-msgstr "近年のディープラーニング技術の発展により、画像認識の精度は非常によくなりました。"
+msgstr "近年のディープラーニング技術の発展により、画像認識の精度は非常によくなりました."
 
 #: ../../rst/introduction.rst:19
 msgid ""
 "However if you would create a recognition model for any business scene "
 "such as recognising damages of manufactured products, there are still "
 "many problems for earning high accuracy recognition model."
-msgstr "しかしながら、工業製品の傷を認識させるといったようなビジネスの場面において認識モデルを作成しようとした場合、高精度の認識モデルを得るためにはまだ多くの課題が存在します。"
+msgstr "しかしながら、工業製品の傷を認識させるといったようなビジネスの場面において認識モデルを作成しようとした場合、高精度の認識モデルを得るためにはまだ多くの課題が存在します."
 
 #: ../../rst/introduction.rst:23
 msgid ""
 "For example, correcting training dataset, programming recognition model "
 "and train it, evaluating the model, and so on."
-msgstr "例えば、トレーニング用のデータセットを集める、認識モデルのプログラミングとその学習、モデルの評価といったものです。"
+msgstr "例えば、トレーニング用のデータセットを集める、認識モデルのプログラミングとその学習、モデルの評価といったものです."
 
 #: ../../rst/introduction.rst:26
 msgid ""
 "Especially, even if deep learning era, it is required to tune up the "
 "hyper parameters of the recognition model. It requires many try and "
 "errors."
-msgstr "特に、このディープラーニングの時代でも認識モデルのパラメータのチューニングは必要となります。"
+msgstr "特に、このディープラーニングの時代でも認識モデルのパラメータのチューニングは必要となります."
 
 #: ../../rst/introduction.rst:29
 msgid "ReNomIMG allows you to build object detection model easily."
-msgstr ""
+msgstr "ReNomIMGを使用することで, 画像認識モデルの構築を容易に行うことができます."
 
 #: ../../rst/introduction.rst:32
 msgid "2. What ReNomIMG provides you."
@@ -73,7 +73,7 @@ msgstr "2. ReNomIMGが提供するもの"
 
 #: ../../rst/introduction.rst:34
 msgid "ReNomIMG provides gui tool and python api."
-msgstr "ReNomIMGはGUIツールとPython APIを提供します。"
+msgstr "ReNomIMGはGUIツールとPython APIを提供します."
 
 #: ../../rst/introduction.rst:37
 msgid "GUI tool"
@@ -84,7 +84,7 @@ msgid ""
 "ReNomIMG GUI tool allows you to build object detection models. What users"
 " have to do are **preparing training data**, **setting train "
 "configuration** and **pushing run button**."
-msgstr "ReNomIMG GUIツールを利用して、物体認識モデルを作成することができます。ユーザーはトレーニングデータの用意と、訓練の設定、RUNボタンの押下のみです。"
+msgstr "ReNomIMG GUIツールを利用して、物体認識モデルを作成することができます.ユーザーはトレーニングデータの用意と、訓練の設定、RUNボタンの押下のみです."
 
 #: ../../rst/introduction.rst:50
 msgid "Python API"
@@ -95,19 +95,19 @@ msgid ""
 "ReNomIMG API is a python api which provides you not only modern **object "
 "detection model** but also **classification model**, **segmentation "
 "model**."
-msgstr "ReNomIMG APIは現代的な物体認識モデルのみでなく、分類モデル、セグメンテーションモデル作成用のAPIも提供してくれます。"
+msgstr "ReNomIMG APIは現代的な物体認識モデルのみでなく、分類モデル、セグメンテーションモデル作成用のAPIも提供してくれます."
 
 #: ../../rst/introduction.rst:54
 msgid ""
 "And more, all those models have pretrained weights. This makes models "
 "more accurate one."
-msgstr "加えて、これら全てのモデルは事前学習の重みを持ちます。これによりモデルはより正確になります。"
+msgstr "加えて、これら全てのモデルは事前学習の重みを持ちます.これによりモデルはより正確になります."
 
 #: ../../rst/introduction.rst:57
 msgid ""
 "An example code is bellow. Using ReNomIMG, you can build a model and "
 "train it in 3 lines."
-msgstr "サンプルのソースコードを以下に示します。ReNomIMGを使うと、モデルの作成と訓練が３行で可能になります。"
+msgstr "サンプルのソースコードを以下に示します.ReNomIMGを使うと、モデルの作成と訓練が３行で可能になります."
 
 #: ../../rst/introduction.rst:59
 msgid "**Building a VGG16 Model**"
@@ -117,13 +117,13 @@ msgstr "VGG16モデルの作成"
 #~ msgstr ""
 
 #~ msgid "**ReNomIMG is a GUI tool for building object detection model.**"
-#~ msgstr "**ReNomIMGは物体認識モデルを作成するためのGUIツールです。**"
+#~ msgstr "**ReNomIMGは物体認識モデルを作成するためのGUIツールです.**"
 
 #~ msgid "IMG will be here."
-#~ msgstr "画像はここです。"
+#~ msgstr "画像はここです."
 
 #~ msgid "ReNomIMG provides you following features."
-#~ msgstr "ReNomIMGは以下の機能を提供します。"
+#~ msgstr "ReNomIMGは以下の機能を提供します."
 
 #~ msgid "**Building Image Recognition Model without Programming.**"
 #~ msgstr "**プログラミングを必要としない画像認識モデルのビルド**"
