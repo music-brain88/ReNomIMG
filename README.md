@@ -1,5 +1,5 @@
 
-# ReNomIMG 0.8beta
+# ReNomIMG 0.9beta
 
 ReNom IMG is model developing tool for object detection.
 
@@ -26,7 +26,7 @@ The Wheel package is provided at:
 
 You can install the wheel package with pip3 command::
 
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-0.8b0-cp35-cp35m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-0.9b0-cp35-cp35m-linux_x86_64.whl`
 
 ## Install from source
 For installing ReNomIMG, download the repository from following url.
