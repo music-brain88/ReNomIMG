@@ -52,7 +52,7 @@ class UNet(SemanticSegmentation):
         self.class_map = class_map
         self._model = CNN_UNet(self.num_class)
         self._train_whole_network = train_whole_network
-        self._opt = rm.Sgd(1e-2, 0.6)
+        self._opt = rm.Sgd(1e-2, 0.9)
         self._freeze()
 
     def preprocess(self, x):
@@ -72,9 +72,9 @@ class UNet(SemanticSegmentation):
             ind1 = int(total_epoch * 0.5)
             ind2 = int(total_epoch * 0.3) + ind1 + 1
             if current_epoch == ind1:
-                self._opt._lr = 6e-4
+                self._opt._lr = 6e-3
             else:
-                self._opt._lr = 4e-4
+                self._opt._lr = 1e-3
             return self._opt
 
     def regularize(self):
