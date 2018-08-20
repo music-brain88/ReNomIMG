@@ -72,9 +72,9 @@ class UNet(SemanticSegmentation):
             ind1 = int(total_epoch * 0.5)
             ind2 = int(total_epoch * 0.3) + ind1 + 1
             if current_epoch == ind1:
-                self._opt._lr = 6e-3
+                self._opt._lr = 6e-4
             else:
-                self._opt._lr = 4e-3
+                self._opt._lr = 4e-4
             return self._opt
 
     def regularize(self):
