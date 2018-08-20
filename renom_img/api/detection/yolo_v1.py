@@ -75,8 +75,7 @@ class Yolov1(rm.Model):
             imsize = (imsize, imsize)
 
         self.num_class = num_class
-        self.class_map = class_map
-        self.class_map = [c.encode("ascii", "ignore") for c in self.class_map]
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]

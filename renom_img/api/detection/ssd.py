@@ -380,7 +380,7 @@ class SSD(rm.Model):
             imsize = (imsize, imsize)
 
         self.num_class = len(class_map) + 1
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._train_whole_network = train_whole_network
         self.prior = create_priors()
         self.num_prior = len(self.prior)

@@ -128,8 +128,7 @@ class Yolov2(rm.Model):
               exp),imsize=(320, 320)."
 
         num_class = len(class_map)
-        self.class_map = class_map
-        self.class_map = [c.encode("ascii", "ignore") for c in self.class_map]
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self.freezed_network = Darknet19Base()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor

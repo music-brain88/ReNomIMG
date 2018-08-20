@@ -113,7 +113,7 @@ class VGG11(VGGBase):
 
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_VGG11(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.01, 0.9)
@@ -170,7 +170,7 @@ class VGG16(VGGBase):
 
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_VGG16(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
@@ -224,7 +224,7 @@ class VGG19(VGGBase):
 
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_VGG19(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.01, 0.9)

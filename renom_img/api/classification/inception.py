@@ -113,8 +113,8 @@ class InceptionV1(Classification):
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        self.class_map = class_map
         self.num_class = len(class_map)
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.045, 0.9)
@@ -454,9 +454,8 @@ class InceptionV3(Classification):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.imsize = imsize
-        self.class_map = class_map
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._train_whole_network = train_whole_network
         self._model = CNN_InceptionV3(self.num_class)
         self._opt = rm.Sgd(0.045, 0.9)
@@ -564,7 +563,7 @@ class InceptionV2(Classification):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._train_whole_network = train_whole_network
         self._model = CNN_InceptionV2(self.num_class)
         self._opt = rm.Sgd(0.045, 0.9)
@@ -933,7 +932,7 @@ class InceptionV4(Classification):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._train_whole_network = train_whole_network
         self._model = CNN_InceptionV4(self.num_class)
         self._opt = rm.Sgd(0.045, 0.9)

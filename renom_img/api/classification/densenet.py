@@ -150,7 +150,7 @@ class DenseNet121(DenseNetBase):
         growth_rate = 32
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._train_whole_network = train_whole_network
         self._model = CNN_DenseNet(self.num_class, layer_per_block,
                                    growth_rate, train_whole_network)
@@ -205,7 +205,7 @@ class DenseNet169(DenseNetBase):
         growth_rate = 32
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._train_whole_network = train_whole_network
         self._model = CNN_DenseNet(self.num_class, layer_per_block,
                                    growth_rate, train_whole_network)
@@ -261,7 +261,7 @@ class DenseNet201(DenseNetBase):
         growth_rate = 32
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._train_whole_network = train_whole_network
         self._model = CNN_DenseNet(self.num_class, layer_per_block,
                                    growth_rate, train_whole_network)

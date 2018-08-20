@@ -89,7 +89,7 @@ class FCN32s(FCN_Base):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN32s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
@@ -147,7 +147,7 @@ class FCN16s(FCN_Base):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN16s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
@@ -205,7 +205,7 @@ class FCN8s(FCN_Base):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN8s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
