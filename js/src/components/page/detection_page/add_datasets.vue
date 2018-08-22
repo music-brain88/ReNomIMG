@@ -2,7 +2,7 @@
   <div id="data-setting">
       <div class="form-group row">
         <div class="col-md-6 col-padding-clear">
-          <form  v-on:submit.prevent="register">
+          <form  >
             <h5>Dataset Setting</h5>
             <div class="container">
               <div class="row justify-content-center space-top">
@@ -31,10 +31,7 @@
                 </div>
               </div>
 
-              <div class="modal-button-area space-top float-right">
-                <button class="submit">Confirm</button>
-              </div>
-
+             
             </div>
           </form>
         </div>
@@ -79,13 +76,13 @@
                   <div v-else>
 
                     <div class="row">
-                      <div class="col-md-6">
+                      <div class="col-md-6 col-form-label">
                         Number of Images
                       </div>
-                      <div class="col-md-3 figure">
+                      <div class="col-md-3 figure col-form-label">
                         Train {{dataset_detail.train_image_num}}
                       </div>
-                      <div class="col-md-3 figure">
+                      <div class="col-md-3 figure col-form-label">
                         Vallidation {{dataset_detail.valid_image_num}}
                       </div>
                     </div>
@@ -95,27 +92,30 @@
                         All {{dataset_detail.total}}
                       </div>
                       <div class="col-md-6">
-                        <div class="progress total-progress">
+                        <div class="progress total-progress sort-line">
                           <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.train_image_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
                           <div class="progress-bar validation-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.valid_image_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                       </div>
                     </div>
                     <div class="row space-top-2nd">
-                      <div class="col-md-6">
+                      <div class="col-md-6 col-form-label">
                         <span>Total Number of Tag</span>
                       </div>
                     </div>
 
                     <div v-for="(val, key) in dataset_detail.class_maps" class="row space-top">
 
-                      <div class="col-md-6">
+                      <div class="col-md-6 col-form-label">
                         Class name {{key}} :
                       </div>
-                      <div class="col-md-6 figure">
-                        {{calc_percentage(val, dataset_detail.total)}}
-                        <div class="progress figure tag-progress">
-                          <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(val, dataset_detail.total)+'%;'"  aria-valuemin="0" aria-valuemax="100">{{calc_percentage(val, dataset_detail.total)}}%</div>
+                      <div class="col-md-6 figure" data-toggle="tooltip" data-placement="top" :title="val">
+                        <div class="progress figure tag-data-figure tag-progress">
+                          <div class="progress-bar train-color"
+                              role="progressbar" :style="'width:' + calc_percentage(val, dataset_detail.total)+'%;'"
+                              aria-valuemin="0" 
+                              aria-valuemax="100">
+                          </div>
                         </div>
                       </div>
 
@@ -123,16 +123,19 @@
                   </div>
                 </div>
               </div>
-
-            <div v-if='dataset_detail.length!==0' class="modal-button-area space-top-last float-right">
-              <button class="submit">Save</button>
-              <button class="button">Cancel</button>
-            </div>
-
+           
             </div>
           </form>
         </div>
       </div>
+      <div class="modal-button-area-confirm">
+        <button @click="register" class="submit">Confirm</button>
+      </div>
+      <div v-if='dataset_detail.length!==0' class="modal-button-area">
+        <button class="button" @click="hideAddModelModal">Cancel</button>
+        <button class="submit">Save</button>
+      </div>
+
   </div>
 </template>
 
@@ -145,7 +148,8 @@ export default {
     return {
       ratio: DEFAULT_RATIO,
       discription: '',
-      name: ''
+      name: '',
+      show_tag_data_num: false
     }
   },
   computed: {
@@ -155,6 +159,9 @@ export default {
     }
   },
   methods: {
+    hideAddModelModal: function () {
+      this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
+    },
     register: function () {
       console.log('register')
       const name = this.name.trim()
@@ -176,6 +183,14 @@ export default {
       // let value = (train / this.$store.state.dataset_detail_max_value) * 100
       let value = (target / total) * 100
       return Math.round(value, 3)
+    },
+    show_tag_data: function () {
+      this.show_tag_data_num = true
+      return this.show_tag_data_num
+    },
+    hidden_tag_data: function () {
+      this.show_tag_data_num = false
+      return this.show_tag_data_num
     }
   }
 }
@@ -189,6 +204,7 @@ export default {
   font-family: $content-inner-box-font-family;
   font-size: $content-inner-box-font-size;
   color:$font-color-label;
+  $modal-content-padding: 32px;
   ::-webkit-input-placeholder {
     color: #999999;
   }
@@ -266,26 +282,66 @@ export default {
   .validation-color{
     background-color: $validation-color;
   }
-  .submit{
-    font-size: $push-button-font-size;
-    height:$push-button-size;
-    background-color: $push-button;
-    color:$font-color;
-    line-height: calc(#{$push-button-size}*0.4);
+  .modal-button-area {
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
+    bottom:0;
+    right: $modal-content-padding;
+  
+    .submit{
+      font-size: $push-button-font-size;
+      height:$push-button-size;
+      background-color: $push-button;
+      color:$font-color;
+      line-height: calc(#{$push-button-size}*0.4);
+    }
+    .button{
+      font-size: $push-button-font-size;
+      height:$push-button-size;
+      background-color:#FFFFFF;
+      border: 1px solid $push-cancel;
+      line-height: calc(#{$push-button-size}*0.4);
+      margin-left:11px;
+    }
   }
-  .button{
-    font-size: $push-button-font-size;
-    height:$push-button-size;
-    background-color:#FFFFFF;
-    border: 1px solid $push-cancel;
-    line-height: calc(#{$push-button-size}*0.4);
+
+  .modal-button-area-confirm {
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
+    bottom:0;
+    left:calc(403px - calc(0.5rem + 0.75rem + 15px));
+  
+    .submit{
+      font-size: $push-button-font-size;
+      height:$push-button-size;
+      background-color: $push-button;
+      color:$font-color;
+      line-height: calc(#{$push-button-size}*0.4);
+    }
+    .button{
+      font-size: $push-button-font-size;
+      height:$push-button-size;
+      background-color:#FFFFFF;
+      border: 1px solid $push-cancel;
+      line-height: calc(#{$push-button-size}*0.4);
+      margin-left:11px;
+    }
   }
+
 
   .col-padding-clear{
     padding: 0;
   }
   .figure{
     font-size: calc(#{$tab-figure-font-size}*0.8);
+  }
+  .tag_data{
+    height: $tab-figure-font-size;
+  }  
+  .tag-data-figure{
+    margin-top: calc(#{$tab-figure-font-size});
   }
 
 }

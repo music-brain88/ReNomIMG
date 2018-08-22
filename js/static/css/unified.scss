@@ -1,7 +1,7 @@
 
 $max-width:1280px;
 $modal-content-width: 0.8;
-$modal-content-height:0.7;
+$modal-content-height:535px;
 
 $header-height: 44px;
 
@@ -74,6 +74,9 @@ $content-inner-box-font-size: 11pt;
 $content-modellist-font-family: Open Sans Semibold;
 $content-modellist-font-size: 11pt;
 
+$content-setting-modal-font-color:#666666;
+$content-setting-modal-error-color:#DC3545;
+
 $content-taglist-tagbox-font-family: Open Sans Regular;
 $content-taglist-tagbox-font-color:#666666;
 $content-taglist-tagbox-font-size:11pt;
@@ -92,7 +95,7 @@ $content-figure-font-size: 8pt;
 
 $content-footer-margin-top:20px;
 
-//　algorithm color
+// algorithm color
 $grape: #903e84;
 $nightblue: #423885;
 $lightblue: #136eab;
@@ -117,6 +120,7 @@ $status-reserve: #cccccc;
   border: none;
   border-radius: 6px;
 }
+
 ::-webkit-scrollbar-thumb{
   background: #aaa;
   border-radius: 6px;
