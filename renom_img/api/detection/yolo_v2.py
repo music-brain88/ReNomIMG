@@ -395,7 +395,7 @@ class Yolov2(rm.Model):
                 if not keep[i]:
                     continue
                 box1 = box_list[n][ind1]
-                for j, ind2 in enumerate(sorted_ind[i + 1:]):
+                for j, ind2 in enumerate(sorted_ind[i + 1:], i+1):
                     box2 = box_list[n][ind2]
                     if keep[j] and score_list[n][ind1][1] == score_list[n][ind2][1]:
                         keep[j] = calc_iou_xywh(box1, box2) < nms_threshold
@@ -584,7 +584,7 @@ class Yolov2(rm.Model):
         num_anchor = self.num_anchor
         mask = np.zeros((N, C, H, W), dtype=np.float32)
         mask = mask.reshape(N, num_anchor, 5 + self.num_class, H, W)
-        mask[:, :, 1:5, ...] = 0.1
+        mask[:, :, 1:5, ...] = 0.01
         mask = mask.reshape(N, C, H, W)
 
         target = np.zeros((N, C, H, W), dtype=np.float32)
@@ -622,7 +622,7 @@ class Yolov2(rm.Model):
 
                 # scale of noobject iou
                 if max_iou <= low_thresh:
-                    mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
+                    mask[n, ind[0]*offset, ind[1], ind[2]] = x[n, ind[0]*offset, ind[1], ind[2]]*1
 
             # Create target and mask for cell that contains obj.
             for h, w in zip(*gt_index):
@@ -675,7 +675,8 @@ class Yolov2(rm.Model):
                 # scale of class
                 mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
         diff = (x - target)
-        # N = np.sum(y[:, 0] > 0)
+        N = np.sum(y[:, 0] > 0)
+        mask = mask**2
         return rm.sum(diff * diff * mask) / N / 2.
 
     def fit(self, train_img_path_list, train_annotation_list,
