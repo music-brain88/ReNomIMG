@@ -436,10 +436,27 @@ def load_dataset_split_detail():
         valid_imgs = [str(img) for img in valids]
 
         parsed_data, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
+
+        path =[ str(path) for path in xmldir.iterdir()]
+        
+        perm_train, perm_valid = np.split(np.random.permutation(int(n_imgs)), [int(n_imgs*ratio)])
+        
+        imgs = list(imgs)
+        
+        parsed_train_imgs = []
+        parsed_valid_imgs = []
+
+        for i in range(len(perm_train)):
+            parsed_train_imgs.append(str(imgs[int(perm_train[i])]).split('.')[0])
+       
+        for i in range(len(perm_valid)):
+            parsed_valid_imgs.append(str(imgs[int(perm_valid[i])]).split('.')[0])
+
+
+        parsed_train,train_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(path).split('/')[-1].split('.')[0] in parsed_train_imgs])
+        parsed_valid,valid_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(path).split('/')[-1].split('.')[0] in parsed_valid_imgs])
+
         #view = [*[l["class"] for l in label] for p, label in zip(path, parsed_data) if p in trains]
-        #
-        # for i in range(len(parsed_data)):
-        #     print(i)
 
 
         # register dataset
@@ -448,21 +465,39 @@ def load_dataset_split_detail():
         # Insert detailed informations
         train_num = len(train_imgs)
         valid_num = len(valid_imgs)
-        count = {}
+        total_count = {}
 
         for i in range(len(parsed_data)) :
             for j in range(len(class_map)):
                 if parsed_data[i][0].get('name') == class_map[j] :
-                    if class_map[j] not in count:
-                        count[class_map[j]] = 1
+                    if class_map[j] not in total_count:
+                        total_count[class_map[j]] = 1
                     else :
-                        count[class_map[j]] += 1
+                        total_count[class_map[j]] += 1
+       
+        train_tag_count = {}
+
+        for i in range(len(parsed_train)):
+            for j in range(len(train_map)):
+                if parsed_train[i][0].get('name') == train_map[j]:
+                    if train_map[j] not in train_tag_count:
+                        train_tag_count[train_map[j]] = 1
+                    else : 
+                        train_tag_count[train_map[j]] += 1
+
+       # print(parsed_train)
+
+       # print(parsed_valid)
 
         body = json.dumps(
             {"total": n_imgs,
             "train_image_num": train_num,
             "valid_image_num": valid_num,
-            "class_maps": count
+            "class_maps": total_count,
+            "train_imgs": train_imgs,
+            "valid_imgs": valid_imgs,
+            "parsed_train": train_tag_count,
+            "parsed_valid": parsed_valid
             })
 
         ret = create_response(body)

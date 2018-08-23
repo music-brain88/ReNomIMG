@@ -11,12 +11,13 @@
                 Dataset Name
               </label>
               <div class="col-sm-7">
-                <select class="form-control" v-model="dataset_def_id">
+                <select class="form-control sort-line" v-model="dataset_def_id">
                   <option v-for="d in dataset_defs" v-bind:value="d.id">
                     {{ d.name }}
                   </option>
                 </select>
               </div>
+              
             </div>
 
             <div class="sub-param-title category-top">
@@ -29,7 +30,7 @@
                 CNN Architecture
               </label>
               <div class="col-sm-7 form-group">
-                <select class="form-control" v-model="algorithm">
+                <select class="form-control sort-line" v-model="algorithm">
                   <option value="0">YOLOv1</option>
                   <option value="1">YOLOv2</option>
                 </select>
@@ -42,11 +43,11 @@
                 Train Whole Network
               </label>
               <div class="col-sm-7">
-                <select class="algorithm-select-box form-control" v-model="yolo1_train_whole_flag" v-if="algorithm == 0">
+                <select class="algorithm-select-box form-control sort-line" v-model="yolo1_train_whole_flag" v-if="algorithm == 0">
                   <option value="0">False</option>
                   <option value="1">True</option>
                 </select>
-                <select class="algorithm-select-box form-control" v-model="yolo2_train_whole_flag" v-if="algorithm == 1">
+                <select class="algorithm-select-box form-control sort-line" v-model="yolo2_train_whole_flag" v-if="algorithm == 1">
                   <option value="0">False</option>
                   <option value="1">True</option>
                 </select>
@@ -59,7 +60,7 @@
                 Cells
               </label>
               <div class="col-sm-7">
-                <input type="text" class="form-control" v-model="cells" maxlength="2">
+                <input type="text" class="form-control sort-line" v-model="cells" maxlength="2">
                 <div class="input-alert" v-if="cells < 3">Cells must greater than 3</div>
                 <div class="input-alert" v-if="cells > 20">Cells must lower than 20</div>
               </div>
@@ -71,7 +72,7 @@
                 Bounding Box
               </label>
               <div class="col-sm-7">
-                <input type="text" class="form-control" v-model="bounding_box" maxlength="2">
+                <input type="text" class="form-control sort-line" v-model="bounding_box" maxlength="2">
                 <div class="input-alert" v-if="bounding_box < 1">Cells must greater than 3</div>
                 <div class="input-alert" v-if="bounding_box > 10">Cells must lower than 20</div>
               </div>
@@ -102,22 +103,22 @@
                 Image Width
               </label>
               <div v-if="algorithm == 0" class="col-sm-7">
-                <input type="text" class="form-control" v-model="image_width" maxlength="4">
+                <input type="text" class="form-control sort-line" v-model="image_width" maxlength="4">
                 <div class="input-alert" v-if="image_width < 32">Image Width must greater than 32</div>
                 <div class="input-alert" v-if="image_width > 1024">Image Width must lower than 1024</div>
               </div>
               <div v-if="algorithm == 1" class="col-sm-7">
-                <input type="text" class="form-control"  v-model="image_width" maxlength="4" readonly="readonly">
+                <input type="text" class="form-control sort-line"  v-model="image_width" maxlength="4" readonly="readonly">
               </div>
             </div>
           
 
             <div class="row justify-content-center space-top">
-              <label class="col-sm-5 label" col-form-label>
+              <label class="col-sm-5 label col-from-label">
                 Image Hight
               </label>
               <div v-if="algorithm == 0" class="col-sm-7">
-                <input type="text" class="form-control" v-model="image_height" maxlength="4">
+                <input type="text" class="form-control sort-line" v-model="image_height" maxlength="4">
                 <div class="input-alert" v-if="image_height < 32">Image Height must greater than 32</div>
                 <div class="input-alert" v-if="image_height > 1024">Image Height must lower than 1024</div>
               </div>
@@ -132,26 +133,26 @@
             </div>
 
             <div class="row justify-content-center space-top">
-              <label class="col-sm-5 label">
+              <label class="col-sm-5 label col-form-label">
                 Total Epoch
               </label>
               <div v-if="algorithm == 0" class="col-sm-7">
-                <input type="text" class="form-control" v-model="total_epoch" maxlength="4">
+                <input type="text" class="form-control sort-line" v-model="total_epoch" maxlength="4">
                 <div class="input-alert" v-if="total_epoch < 1">Epoch must greater than 1</div>
                 <div class="input-alert" v-if="total_epoch > 1000">Epoch must lower than 1000</div>
               </div>
               <div v-if="algorithm == 1" class="col-sm-7">
-                <input type="text" class="form-control"  v-model="total_epoch" maxlength="4">
+                <input type="text" class="form-control sort-line"  v-model="total_epoch" maxlength="4">
               </div>
             </div>
             
             <div class="row justify-content-center space-top">
-              <label class="col-sm-5 label">
+              <label class="col-sm-5 label col-form-label">
                 Batch Size
               </label>
               <div class="col-sm-7">
-                <input type="text" class="form-control" v-model="yolo1_batch_size" maxlength="5" v-if="algorithm == 0">
-                <input type="text" class="form-control" v-model="yolo2_batch_size" maxlength="5" v-if="algorithm == 1">
+                <input type="text" class="form-control sort-line" v-model="yolo1_batch_size" maxlength="5" v-if="algorithm == 0">
+                <input type="text" class="form-control sort-line" v-model="yolo2_batch_size" maxlength="5" v-if="algorithm == 1" readonly="readonly">
                 <div class="input-alert" v-if="batch_size < 1">Batch Size must greater than 1</div>
                 <div class="input-alert" v-if="batch_size > 512">Batch Size must lower than 512</div>
               </div>
@@ -212,7 +213,7 @@ export default {
     ...mapState(['gpu_num']),
 
     status: function () {
-      return this.$store.getters.getModelsFromState(1).length < this.gpu_num ? 'Run' : 'Reserve'
+      return this.$store.getters.getModelsFromState(1).length < this.gpu_num ? 'Reserve' : 'Run'
     },
     dataset_defs: function () {
       return this.$store.state.dataset_defs
@@ -338,6 +339,10 @@ $content-label-width: 120px;
   font-size: $content-inner-header-font-size;
 }
 
+ .sort-line{
+    margin-top: 10px;
+  }
+
 .modal-param-area {
   display: flex;
 
@@ -396,6 +401,7 @@ $content-label-width: 120px;
     .submit{
       font-size: $push-button-font-size;
       height:$push-button-size;
+      width:88px;
       background-color: $push-button;
       color:$font-color;
       line-height: calc(#{$push-button-size}*0.4);
@@ -403,6 +409,7 @@ $content-label-width: 120px;
     .button{
       font-size: $push-button-font-size;
       height:$push-button-size;
+      width:88px;
       background-color:#FFFFFF;
       border: 1px solid $push-cancel;
       line-height: calc(#{$push-button-size}*0.4);

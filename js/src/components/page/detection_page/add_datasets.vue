@@ -118,8 +118,26 @@
                           </div>
                         </div>
                       </div>
-
+ 
                     </div>
+                    <div v-for="i in 10"  class="row space-top">
+                      <!--<div class="col">-->
+                      <!--{{ dataset_detail.path[i]}}-->
+                      <!--</div>-->
+                     <!--<div class="col">-->
+                       <!--{{dataset_detail.train_imgs[i] }}-->
+                      <!--</div>-->
+                      <!--<div class="col">-->
+                      <!--{{ dataset_detail.valid_imgs[i]}}-->
+                      <!--</div>-->
+                      <div class="col">
+                      {{ dataset_detail.parsed_train}}
+                      </div>
+                    <!--<div class="col">-->
+                      <!--{{ dataset_detail.parsed_valid[i]}}-->
+                      <!--</div>-->
+                    </div>
+
                   </div>
                 </div>
               </div>
@@ -286,12 +304,13 @@ export default {
     display: flex;
     flex-direction: row-reverse;
     position: absolute;
-    bottom:0;
+    bottom: $modal-content-padding;
     right: $modal-content-padding;
   
     .submit{
       font-size: $push-button-font-size;
       height:$push-button-size;
+      width:88px;
       background-color: $push-button;
       color:$font-color;
       line-height: calc(#{$push-button-size}*0.4);
@@ -299,6 +318,7 @@ export default {
     .button{
       font-size: $push-button-font-size;
       height:$push-button-size;
+      width:88px;
       background-color:#FFFFFF;
       border: 1px solid $push-cancel;
       line-height: calc(#{$push-button-size}*0.4);
@@ -310,12 +330,13 @@ export default {
     display: flex;
     flex-direction: row-reverse;
     position: absolute;
-    bottom:0;
+    bottom: $modal-content-padding;
     left:calc(403px - calc(0.5rem + 0.75rem + 15px));
   
     .submit{
       font-size: $push-button-font-size;
       height:$push-button-size;
+      width:88px;
       background-color: $push-button;
       color:$font-color;
       line-height: calc(#{$push-button-size}*0.4);
@@ -323,6 +344,7 @@ export default {
     .button{
       font-size: $push-button-font-size;
       height:$push-button-size;
+      width:88px;
       background-color:#FFFFFF;
       border: 1px solid $push-cancel;
       line-height: calc(#{$push-button-size}*0.4);
