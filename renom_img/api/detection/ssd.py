@@ -701,7 +701,7 @@ class SSD(rm.Model):
             else:
                 img_array = load_img(img_list, self.imsize)[None]
                 img_array = self.preprocess(img_array)
-                return self.bbox_util.get_bbox(self(img_array).as_ndarray(),
+                return self.get_bbox(self(img_array).as_ndarray(),
                                                score_threshold,
                                                nms_threshold)[0]
         else:
@@ -741,7 +741,7 @@ class SSD(rm.Model):
                 bounding_boxes = np.asarray(bounding_boxes)
                 one_hot_classes = np.asarray(one_hot_classes)
                 boxes = np.hstack((bounding_boxes, one_hot_classes))
-                target = self.bbox_util.assign_boxes(boxes)
+                target = self.assign_boxes(boxes)
                 targets.append(target)
 
             return self.preprocess(img_data), np.array(targets)
