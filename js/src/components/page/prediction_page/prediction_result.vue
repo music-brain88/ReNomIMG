@@ -1,21 +1,30 @@
 <template>
   <div id="prediction-result">
-    <div class="result-head">
-      <div class="title">
-        Prediction result
+    <div class="row">
+      <div class="col-md-12">
+        <div class="title">
+          <div class="title-text">
+            Prediction result
+          </div>
+          <pager></pager>
+        </div>
+        <div v-if="getPredictResults.length > 0" class="content">
+          <sample-image
+            v-for="(item, index) in getPredictResults"
+            :key="index"
+            :image_path="item.path"
+            :bboxes="item.predicted_bboxes"
+            :index="index">
+          </sample-image>
+        </div>
+        <div v-else class="content none-image">
+          None Image
+        </div>
       </div>
-      <pager></pager>
     </div>
 
-    <div v-if="getPredictResults.length > 0" class="content">
-      <sample-image
-        v-for="(item, index) in getPredictResults"
-        :key="index"
-        :image_path="item.path"
-        :bboxes="item.predicted_bboxes"
-        :index="index">
-      </sample-image>
-    </div>
+
+
 
     <div id='loading' v-if='$store.state.predict_running_flag'>
       <div class="loading">
@@ -58,49 +67,48 @@ export default {
 
 <style lang="scss" scoped>
 #prediction-result {
-  $component-margin-top: 32px;
-
-  $border-width: 2px;
-  $border-color: #006699;
-
-  $title-height: 44px;
-  $title-font-size: 15pt;
-  $font-weight-medium: 500;
-
-  $content-bg-color: #ffffff;
-  $content-border-color: #cccccc;
 
   width: 100%;
   margin: 0;
   margin-top: $component-margin-top;
-  border-top: $border-width solid $border-color;
 
-  .result-head, .result-foot {
-    display: flex;
+  .title {
+    height: $content-top-header-hight;
 
-    .title {
-      line-height: $title-height;
-      font-size: $title-font-size;
-      font-weight: $font-weight-medium;
-    }
-    .page_nav {
-      display: flex;
-      margin-left: auto;
-      margin-top: 16px;
+    font-family: $content-top-header-font-family;
+    font-size: $content-top-header-font-size;
+    background-color: $header-color;
+    color:$font-color;
+    .title-text{
+      line-height: $content-top-header-hight;
+      margin-left: $content-top-heder-horizonral-margin;
     }
   }
 
   .content {
+    margin-top: $content-top-margin;
+    width: 100%;
+    height:$content-prediction-height;
+    //min-height: calc(170px * 3);
+    border: 1px solid $content-border-color;
+    padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
+
     display: flex;
     display: -webkit-flex;
 
     flex-flow: row wrap;
 
-    width: 100%;
+    background-color: #fff;
+  }
+  .none-image{
+    text-align: center;
+    margin-left: auto;
+  }
 
-    background-color: $content-bg-color;
-    border: 1px solid $content-border-color;
-    border-radius: 4px;
+  .page_nav {
+    display: flex;
+    margin-left: auto;
+    margin-top: 16px;
   }
 }
 
@@ -170,4 +178,6 @@ export default {
   color: #fff;
   opacity: 1;
 }
+
+
 </style>

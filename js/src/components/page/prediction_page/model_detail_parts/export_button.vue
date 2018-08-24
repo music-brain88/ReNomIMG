@@ -2,9 +2,9 @@
   <div id="export-button">
     <div class="export-button" :disabled="!predictModelId" @click="exportCSV">
       <span class="icon">
-        <i class="fa fa-file-o" aria-hidden="true"></i>
+        <i class="fa fa-file-o" aria-hidden="true"></i>Export csv
       </span>
-      Export csv
+      prdiction results as csv
     </div>
   </div>
 </template>
@@ -31,24 +31,17 @@ export default {
 <style lang="scss" scoped>
 #export-button {
   $button-height: 32px;
-  $button-border-color: #7F9DB5;
-
   position: absolute;
-  bottom: 0;
-  width: 100%;
+  bottom: $content-bottom-padding;
 
   .export-button {
-    width: 96%;
     height: $button-height;
     margin: 0;
-    margin-left: 4%;
-
-    background-color: #ffffff;
-    color: $button-border-color;
-    text-align: center;
+    padding-bottom: $content-bottom-padding;
+    color:$panel-bg-color;
+    // text-align: center;
+    margin-left: 10px;
     line-height: $button-height;
-    border: 1px solid $button-border-color;
-    border-radius: 4px;
     cursor: pointer;
   }
 }

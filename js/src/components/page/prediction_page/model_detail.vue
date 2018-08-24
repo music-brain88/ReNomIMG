@@ -1,7 +1,12 @@
 <template>
   <div id="model-detail">
-    <div class="title">
-      Model Detail
+    <div class="add-panel">
+      <run-prediction-button></run-prediction-button>
+    </div>
+    <div class="title-selectbox">
+      <div class="title">
+        Model Detail
+      </div>
     </div>
 
     <div class="information" v-if="!$store.state.project || !$store.state.project.deploy_model_id">
@@ -11,12 +16,13 @@
     <div class="content">
       <div class="model-detail-area">
         <model-detail-text></model-detail-text>
-      </div>
-
-      <div class="button-area">
-        <run-prediction-button></run-prediction-button>
         <export-button></export-button>
       </div>
+
+      <!-- <div class="button-area">
+
+        <export-button></export-button>
+      </div> -->
     </div>
   </div>
 </template>
@@ -38,52 +44,77 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail {
-  $component-margin-top: 32px;
-
-  $model-detail-height: 150px;
-
-  $border-width: 2px;
-  $border-color: #006699;
-
-  $title-height: 44px;
-  $title-font-size: 15pt;
-  $font-weight-medium: 500;
-
-  $content-bg-color: #ffffff;
-  $content-border-color: #cccccc;
+  // $component-margin-top: 32px;
+  //
+  // $model-detail-height: 150px;
+  //
+  // $border-width: 2px;
+  // $border-color: #006699;
+  //
+  // $title-height: 44px;
+  // $title-font-size: 15pt;
+  // $font-weight-medium: 500;
+  //
+  // $content-bg-color: #ffffff;
+  // $content-border-color: #cccccc;
 
   width: 100%;
-  height: $model-detail-height;
   margin: 0;
   margin-top: $component-margin-top;
-  border-top: $border-width solid $border-color;
+
+  .add-panel {
+    height: $panel-height;
+    background-color: $panel-bg-color;
+    color: $font-color;
+    font-size: $content-top-header-font-size;
+    text-align: center;
+    line-height: $panel-height;
+    cursor: pointer;
+  }
+  .add-panel:hover {
+    background-color: $panel-bg-color-hover;
+  }
+
+  .title-selectbox {
+    display: flex;
+    display: -webkit-flex;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    color: $font-color;
+    background: $header-color;
+    margin-top:$content-top-margin;
+  }
 
   .title {
-    line-height: $title-height;
-    font-size: $title-font-size;
-    font-weight: $font-weight-medium;
+    line-height: $content-top-header-hight;
+    font-family:$content-top-header-font-family;
+    font-size:$content-top-header-font-size;
+    margin-left: $content-top-heder-horizonral-margin;
   }
 
   .content {
+    margin-top:$content-top-margin;
+    margin-bottom: $content-top-margin;
+    height:$content-prediction-height;
     display: flex;
     display: -webkit-flex;
 
     width: 100%;
-    height: calc(100% - #{$title-height});
+    // height: calc(100% - #{$title-height});
 
-    .model-detail-area {
-      width: 84%;
-      height: 100%;
-    }
+    // .model-detail-area {
+    //   width: 84%;
+    //   height: 100%;
+    // }
 
-    .button-area {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-
-      width: 16%;
-      height: 100%;
-    }
+    // .button-area {
+    //   display: flex;
+    //   flex-direction: column;
+    //   position: relative;
+    //
+    //   width: 16%;
+    //   height: 100%;
+    // }
   }
 }
 </style>

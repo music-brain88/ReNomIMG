@@ -1,11 +1,17 @@
 <template>
-  <div id="prediction-page">
-    <div class="model-detail-area">
+  <div id="prediction-page" class="row">
+    <div class="col-md-3">
+      <model-detail></model-detail>
+    </div>
+    <div class="col-md-9">
+      <prediction-result></prediction-result>
+    </div>
+    <!-- <div class="model-detail-area">
       <model-detail></model-detail>
     </div>
     <div class="prediction-result-area">
       <prediction-result></prediction-result>
-    </div>
+    </div> -->
 
     <image-modal v-if="$store.state.image_modal_show_flag"></image-modal>
   </div>
@@ -32,21 +38,20 @@ export default {
 
 <style lang="scss" scoped>
 #prediction-page {
-  display: flex;
-  display: -webkit-flex;
-  flex-direction: column;
-  -webkit-flex-direction: column;
-
+  // display: flex;
+  // display: -webkit-flex;
+  // flex-direction: column;
+  // -webkit-flex-direction: column;
+  
   width: 100%;
-  padding-bottom: 64px;
+  // padding-bottom: 64px;
 
-  .model-detail-area {
-    width: 100%;
-  }
-
-  .prediction-result-area {
-    width: 100%;
-  }
+  // .model-detail-area {
+  //   width: 100%;
+  // }
+  //
+  // .prediction-result-area {
+  //   width: 100%;
+  // }
 }
 </style>
-

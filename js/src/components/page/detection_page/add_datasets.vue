@@ -31,7 +31,7 @@
                 </div>
               </div>
 
-             
+
             </div>
           </form>
         </div>
@@ -102,56 +102,47 @@
                       <div class="col-md-6 col-form-label">
                         <span>Total Number of Tag</span>
                       </div>
+                      <div class="col-md-6 col-form-label">
+                        <span></span>
+                      </div>
                     </div>
 
-                    <div v-for="(val, key) in dataset_detail.class_maps" class="row space-top">
+                    <div v-for=" data in dataset_detail.class_maps" class="row space-top">
 
                       <div class="col-md-6 col-form-label">
-                        Class name {{key}} :
+                        {{data.tags}} :
                       </div>
-                      <div class="col-md-6 figure" data-toggle="tooltip" data-placement="top" :title="val">
-                        <div class="progress figure tag-data-figure tag-progress">
+                      <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
+                        <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                        <div class="progress figure tag-progress">
                           <div class="progress-bar train-color"
-                              role="progressbar" :style="'width:' + calc_percentage(val, dataset_detail.total)+'%;'"
-                              aria-valuemin="0" 
+                              role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
+                              aria-valuemin="0"
+                              aria-valuemax="100">
+                          </div>
+                          <div class="progress-bar validation-color"
+                              role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
+                              aria-valuemin="0"
                               aria-valuemax="100">
                           </div>
                         </div>
                       </div>
- 
-                    </div>
-                    <div v-for="i in 10"  class="row space-top">
-                      <!--<div class="col">-->
-                      <!--{{ dataset_detail.path[i]}}-->
-                      <!--</div>-->
-                     <!--<div class="col">-->
-                       <!--{{dataset_detail.train_imgs[i] }}-->
-                      <!--</div>-->
-                      <!--<div class="col">-->
-                      <!--{{ dataset_detail.valid_imgs[i]}}-->
-                      <!--</div>-->
-                      <div class="col">
-                      {{ dataset_detail.parsed_train}}
-                      </div>
-                    <!--<div class="col">-->
-                      <!--{{ dataset_detail.parsed_valid[i]}}-->
-                      <!--</div>-->
-                    </div>
 
+                    </div>
                   </div>
                 </div>
               </div>
-           
+
             </div>
           </form>
         </div>
       </div>
       <div class="modal-button-area-confirm">
-        <button @click="register" class="submit">Confirm</button>
+        <button @click="confirm" class="submit">Confirm</button>
       </div>
       <div v-if='dataset_detail.length!==0' class="modal-button-area">
         <button class="button" @click="hideAddModelModal">Cancel</button>
-        <button class="submit">Save</button>
+        <button class="submit"  @click="register">Save</button>
       </div>
 
   </div>
@@ -167,7 +158,7 @@ export default {
       ratio: DEFAULT_RATIO,
       discription: '',
       name: '',
-      show_tag_data_num: false
+      show_tag_data_flg: false
     }
   },
   computed: {
@@ -191,6 +182,23 @@ export default {
       if ((ratio <= 0) || (ratio > 100)) {
         return
       }
+      let f = this.$store.dispatch('registerDatasetDef', {ratio, name})
+      f.finally(() => {
+        this.ratio = DEFAULT_RATIO
+        this.name = ''
+      })
+    },
+    confirm: function () {
+      console.log('confirm')
+      const name = this.name.trim()
+      if (!name) {
+        return
+      }
+
+      const ratio = parseFloat(this.ratio) / 100
+      if ((ratio <= 0) || (ratio > 100)) {
+        return
+      }
       let f = this.$store.dispatch('loadDatasetSplitDetail', {ratio, name})
       f.finally(() => {
         this.ratio = DEFAULT_RATIO
@@ -203,12 +211,12 @@ export default {
       return Math.round(value, 3)
     },
     show_tag_data: function () {
-      this.show_tag_data_num = true
-      return this.show_tag_data_num
+      this.show_tag_data_flg = true
+      return this.show_tag_data_flg
     },
     hidden_tag_data: function () {
-      this.show_tag_data_num = false
-      return this.show_tag_data_num
+      this.show_tag_data_flg = false
+      return this.show_tag_data_flg
     }
   }
 }
@@ -306,7 +314,7 @@ export default {
     position: absolute;
     bottom: $modal-content-padding;
     right: $modal-content-padding;
-  
+
     .submit{
       font-size: $push-button-font-size;
       height:$push-button-size;
@@ -332,7 +340,7 @@ export default {
     position: absolute;
     bottom: $modal-content-padding;
     left:calc(403px - calc(0.5rem + 0.75rem + 15px));
-  
+
     .submit{
       font-size: $push-button-font-size;
       height:$push-button-size;
@@ -359,12 +367,13 @@ export default {
   .figure{
     font-size: calc(#{$tab-figure-font-size}*0.8);
   }
-  .tag_data{
-    height: $tab-figure-font-size;
-  }  
-  .tag-data-figure{
-    margin-top: calc(#{$tab-figure-font-size});
+  .tag-visible{
+    visibility: visible;
   }
+  .tag-hidden{
+    visibility: hidden;
+  }
+
 
 }
 </style>
