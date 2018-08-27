@@ -14,10 +14,10 @@
     </div>
 
     <div class="content">
-      <div class="model-detail-area">
+      <!-- <div class="model-detail-area"> -->
         <model-detail-text></model-detail-text>
         <export-button></export-button>
-      </div>
+      <!-- </div> -->
 
       <!-- <div class="button-area">
 
