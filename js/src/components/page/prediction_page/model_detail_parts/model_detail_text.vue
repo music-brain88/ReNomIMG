@@ -22,7 +22,6 @@
       <value-item :label="'mAP'" :val="round(predictModel.best_epoch_map, 100)*100 + '%'"></value-item>
 
       <value-item :label="'Validation Loss'" :val="round(predictModel.validation_loss_list[predictModel.best_epoch], 1000)"></value-item>
-      {{predictModel}}
     </div>
   </div>
 </template>
