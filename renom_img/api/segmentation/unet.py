@@ -49,7 +49,7 @@ class UNet(SemanticSegmentation):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_UNet(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(1e-2, 0.9)
