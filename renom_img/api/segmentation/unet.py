@@ -73,7 +73,7 @@ class UNet(SemanticSegmentation):
             ind2 = int(total_epoch * 0.3) + ind1 + 1
             if current_epoch == ind1:
                 self._opt._lr = 6e-3
-            else:
+            elif current_epoch == ind2:
                 self._opt._lr = 1e-3
             return self._opt
 
