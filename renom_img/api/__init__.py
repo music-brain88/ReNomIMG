@@ -1,5 +1,8 @@
+import abc
 import os
 import sys
+import inspect
+import types
 import numpy as np
 import renom as rm
 from tqdm import tqdm
@@ -7,23 +10,60 @@ from tqdm import tqdm
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 
+def adddoc(cls):
+    """Insert parent doc strings to inherited class.
+    """
+    for m in cls.__dict__.values():
+        if isinstance(m, types.FunctionType):
+            parent_list = cls.mro()
+            first = 1
+            end = parent_list.index(Base) + 1
+            add_string = ""
+            last_add_string = None
+            for parent in parent_list[first:end][::-1]:
+                parent_meth = getattr(parent, m.__name__, False)
+                if parent_meth and parent_meth.__doc__:
+                    if last_add_string != parent_meth.__doc__:
+                        add_string += parent_meth.__doc__
+                        last_add_string = parent_meth.__doc__
+            if m.__doc__:
+                m.__doc__ = add_string + m.__doc__
+            else:
+                m.__doc__ = add_string
+    return cls
+
+
 class Base(rm.Model):
+    """Base class of all ReNomIMG algorithm api.
+    """
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
+        """
+        Returns an instance of Optimizer for training ${class} algorithm.
+        If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
+        the learning rate is modified according to the number of training iterations or the constant learning rate is used.
+
+        Args:
+            current_epoch (int): The number of current epoch.
+            total_epoch (int): The number of total epoch.
+            current_batch (int): The number of current batch.
+            total_batch (int): The number of total batch.
+
+        Returns:
+            (Optimizer): Optimizer object.
+        """
         pass
 
     def regularize(self):
-        """L2 Regularization term. You can use this function to add L2 regularization term to a loss function.
+        """
+        Regularization term to a loss function.
 
         Example:
-            >>> import numpy as np
-            >>> from renom_img.api.model.vgg import VGG16
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> model = VGG16()
+            >>> x = numpu.random.rand(1, 3, 224, 224)
+            >>> y = numpy.random.rand(1, (5*2+20)*7*7)
+            >>> model = ${class}()
             >>> loss = model.loss(x, y)
             >>> reg_loss = loss + model.regularize() # Add weight decay term.
-
         """
         reg = 0
         for layer in self.iter_models():
@@ -32,11 +72,54 @@ class Base(rm.Model):
         return self.decay_rate * reg
 
     def preprocess(self, x):
+        """Performs preprocess for a given array.
+
+        Args:
+            x(ndarray, Node): Image array for preprocessing.
+        """
         pass
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
             epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None):
+        """
+        This function performs training with given data and hyper parameters.
+
+        Args:
+            train_img_path_list(list): List of image path.
+            train_annotation_list(list): List of annotations.
+            valid_img_path_list(list): List of image path for validation.
+            valid_annotation_list(list): List of annotations for validation.
+            epoch(int): Number of training epoch.
+            batch_size(int): Number of batch size.
+            augmentation(Augmentation): Augmentation object.
+            callback_end_epoch(function): Given function will be called at the end of each epoch.
+
+        Returns:
+            (tuple): Training loss list and validation loss list.
+
+        Example:
+            >>> train_img_path_list, train_annot_list = ... # Define own data.
+            >>> valid_img_path_list, valid_annot_list = ...
+            >>> model = ${class}() # Any algorithm which provided by ReNomIMG here.
+            >>> model.fit(
+            ...     # Feeds image and annotation data.
+            ...     train_img_path_list,
+            ...     train_annot_list,
+            ...     valid_img_path_list,
+            ...     valid_annot_list,
+            ...     epoch=8,
+            ...     batch_size=8)
+            >>> 
+
+        Following arguments will be given to the function ``callback_end_epoch``.
+
+        - **epoch** (int) - Number of current epoch.
+        - **model** (Model) - Model object.
+        - **avg_train_loss_list** (list) - List of average train loss of each epoch.
+        - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
+
+        """
 
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation)
@@ -92,14 +175,40 @@ class Base(rm.Model):
         return avg_train_loss_list, avg_valid_loss_list
 
     def predict(self, img_list):
+        """Perform prediction.
+        Argument can be an image array, image path list or a image path.
+        The form of return value depends on your task(classification, detection or segmentation).
+
+        Args:
+            img_list(ndarray, list, string): Image array, image path list or image path.
+
+        """
         pass
 
     def loss(self, x, y):
+        """
+        Loss function of ${class} algorithm.
+
+        Args:
+            x(ndarray, Node): Output of model.
+            y(ndarray, Node): Target array.
+
+        Returns:
+            (Node): Loss between x and y.
+
+        """
         pass
 
     def _freeze(self):
         pass
 
     def forward(self, x):
+        """
+        Performs forward propagation.
+        You can call this function using ``__call__`` method.
+
+        Args:
+            x(ndarray, Node): Input to ${class}.
+        """
         self._freeze()
         return self._model(x)

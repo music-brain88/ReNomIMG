@@ -3,6 +3,8 @@ import sys
 import numpy as np
 import renom as rm
 from tqdm import tqdm
+
+from renom_img.api import adddoc
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.load import load_img
@@ -12,11 +14,15 @@ from renom_img.api.segmentation import SemanticSegmentation
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
 
+@adddoc
 class UNet(SemanticSegmentation):
     """ U-Net: Convolutional Networks for Biomedical Image Segmentation
 
     Args:
-        n_class (int): The number of classes
+        class_map(array): Array of class names
+        imsize(int or tuple): Input image size
+        load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
+        train_whole_network(bool): True if the overall model is trained, otherwise False
 
     Example:
         >>> import renom as rm
@@ -24,18 +30,21 @@ class UNet(SemanticSegmentation):
         >>> from renom_img.api.segmentation.unet import UNet
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = UNet(12)
+        >>> model = UNet()
         >>> t = model(x)
         >>> t.shape
         (2, 12, 64, 64)
 
-    Note:
-        Olaf Ronneberger, Philipp Fischer, Thomas Brox
-        U-Net: Convolutional Networks for Biomedical Image Segmentation
-        https://arxiv.org/pdf/1505.04597.pdf
+    References:
+        | Olaf Ronneberger, Philipp Fischer, Thomas Brox
+        | **U-Net: Convolutional Networks for Biomedical Image Segmentation**
+        | https://arxiv.org/pdf/1505.04597.pdf
+        |
+
     """
 
     def __init__(self, class_map=[], imsize=(512, 512), load_pretrained_weight=False, train_whole_network=False):
+        assert not load_pretrained_weight, "Currently pretrained weight of %s is not prepared. Please set False to `load_pretrained_weight` flag." % self.__class__.__name__
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.imsize = imsize
@@ -49,25 +58,14 @@ class UNet(SemanticSegmentation):
     def preprocess(self, x):
         """Image preprocess for U-Net.
 
-        :math:`new_x = x*2/255. - 1`
-
-        Args:
-            x (ndarray):
+        :math:`new_x = x/255`
 
         Returns:
             (ndarray): Preprocessed data.
         """
-        return (x / 255.) * 2 - 1
+        return x / 255.
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training U-Net algorithm.
-
-        Args:
-            current_epoch:
-            total_epoch:
-            current_batch:
-            total_epoch:
-        """
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
@@ -83,19 +81,6 @@ class UNet(SemanticSegmentation):
             return self._opt
 
     def regularize(self):
-        """Regularize term. You can use this function to add regularize term to 
-        loss function.
-
-        Example:
-            >>> import numpy as np
-            >>> from renom_img.api.segmentation import UNet
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> model = UNet()
-            >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # Add weight decay term.
-
-        """
         reg = 0
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):

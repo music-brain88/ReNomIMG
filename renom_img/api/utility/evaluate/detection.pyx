@@ -244,7 +244,7 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
         pred_confs = [obj['score'] for obj in pred_list_per_img]
 
-        for l in gt_labels:
+        for l in gt_names:
             n_pos_list[l] += 1
 
         gt_seen = np.zeros(len(gt_boxes), dtype=bool)

@@ -1,0 +1,126 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-01 11:10+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rst/renom_img.api.utility.misc.rst:2
+msgid "renom\\_img.api.utility.misc"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_box:1
+msgid ""
+"Function for describing bounding box, class name and socre for an input "
+"image."
+msgstr "入力画像に対し、バウンディングボックス、クラスメイ、スコアを記述するようの関数"
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_box:4
+#: renom_img.api.utility.misc.display.draw_segment:2
+#: renom_img.api.utility.misc.display.pil2array:4
+msgid "Example"
+msgstr "例"
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_box
+#: renom_img.api.utility.misc.display.draw_segment
+#: renom_img.api.utility.misc.display.pil2array
+#: renom_img.api.utility.misc.download.download
+msgid "Parameters"
+msgstr "パラメータ"
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_box:13
+#: renom_img.api.utility.misc.display.draw_segment:11
+msgid ""
+"List of annotations. Each annotation has a list of dictionary which "
+"includes keys 'box', 'name' and 'score'. The format is below."
+msgstr "アノテーションのリスト。各アノテーションはキーとして'box', 'name', 'score'を持つような辞書のリストを返します。"
+"フォーマットは以下の通りです。"
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_box
+#: renom_img.api.utility.misc.display.draw_segment
+#: renom_img.api.utility.misc.display.pil2array
+msgid "Returns"
+msgstr "戻り値"
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_box:28
+msgid "This returns image described prediction result."
+msgstr "予測結果が記述された画像を返します。"
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_box
+#: renom_img.api.utility.misc.display.draw_segment
+#: renom_img.api.utility.misc.display.pil2array
+msgid "Return type"
+msgstr "戻り値の型"
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_box:31
+msgid ""
+"The values of `box` is a relational coordinate so their values are in "
+"[0.0 ~ 1.0]."
+msgstr "boxの値は相対座標です。よって、値の範囲は[0.0 ~ 1.0]となります。"
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_segment:9
+msgid "path for target image"
+msgstr "ターゲット画像のパス"
+
+#: ../../docstring of renom_img.api.utility.misc.display.draw_segment:26
+msgid "This returns image described segment."
+msgstr "セグメントが記述された画像を返します。"
+
+#: ../../docstring of renom_img.api.utility.misc.display.pil2array:1
+msgid "Function for convert PIL image to numpy array."
+msgstr "PIL画像をnumpy配列に変換する関数"
+
+#: ../../docstring of renom_img.api.utility.misc.display.pil2array:10
+msgid "PIL Image"
+msgstr "PIL画像"
+
+#: ../../docstring of renom_img.api.utility.misc.display.pil2array:13
+msgid "This returns numpy array object."
+msgstr "numpy配列オブジェクトを返します。"
+
+#: ../../docstring of renom_img.api.utility.misc.download.download:1
+msgid "Download method with progress bar."
+msgstr "プログレスバーを表示しながらダウンロードするメソッド"
+
+#: ../../docstring of renom_img.api.utility.misc.download.download:3
+msgid "Download url."
+msgstr "ダウンロードURL"
+
+#: ../../docstring of renom_img.api.utility.misc.download.download:5
+msgid ""
+"If not passed, the url's base name will be used and it'll be saved to "
+"current directory."
+msgstr "何も渡されない場合、urlの基底名称でカレントディレクトリに保存されます。"
+
+#~ msgid "renom\\_img.api.utility.misc package"
+#~ msgstr ""
+
+#~ msgid "renom\\_img.api.utility.misc.display module"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{'box': [x(float), y, w, h], 'name': "
+#~ "class name(string), 'score': score(float)}, "
+#~ "{'box': [x(float), y, w, h], 'name': "
+#~ "class name(string), 'score': score(float)}, "
+#~ "..."
+#~ msgstr ""
+
+#~ msgid "renom\\_img.api.utility.misc.download module"
+#~ msgstr ""
+
+#~ msgid "Module contents"
+#~ msgstr ""
+

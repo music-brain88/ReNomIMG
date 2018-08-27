@@ -27,7 +27,3 @@ def download(url, save_path=None):
     urllib.request.urlretrieve(url, filename=save_path, reporthook=progress)
     bar.n = filesize
     bar.close()
-
-
-if __name__ == "__main__":
-    download("https://www.python.org/ftp/python/3.5.5/Python-3.5.5.tgz")

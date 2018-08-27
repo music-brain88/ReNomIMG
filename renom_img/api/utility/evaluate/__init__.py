@@ -42,24 +42,25 @@ class EvaluatorDetection(EvaluatorBase):
     """ Evaluator for object detection tasks
 
     Args:
-        prediction (list): A list of prediction. The format is as follows
-        target (list): A list of ground truth.
+        prediction (list): A list of prediction results. The format is as follows
+        target (list): A list of ground truth boxes and classes.
         num_class (int): The number of classes
 
     .. code-block :: python
+        :caption: **Example of the arguments, "prediction" and "target".**
 
-        [
-            [ # Objects of 1st image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                ...
-            ],
-            [ # Objects of 2nd image.
-                {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
-                {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
-                ...
+            [
+                [ # Objects of 1st image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    ...
+                ],
+                [ # Objects of 2nd image.
+                    {'box': [x(float), y, w, h], 'class': class_id(int), 'score': score},
+                    {'box': [x(float), y, w, h], 'clas': class_id(int), 'score': score},
+                    ...
+                ]
             ]
-        ]
 
     Example:
             >>> evaluator = EvaluatorDetection(pred, gt)
@@ -79,7 +80,7 @@ class EvaluatorDetection(EvaluatorBase):
             round_off(int): The number of output decimal
 
         Returns:
-            mAP(mean Average Precision) whose type is float.
+            (float): mAP(mean Average Precision).
         """
 
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
@@ -96,15 +97,15 @@ class EvaluatorDetection(EvaluatorBase):
             round_off(int): The number of output decimal
 
         Returns:
-            AP of each class as a dictionary.
+            (dictionary): AP for each class. The format is as follows
 
-            .. code-block :: python
+        .. code-block :: python
 
-                {
-                    class_name1(str): AP1 (float),
-                    class_name2(str): AP2 (float),
-                    class_name3(str): AP3 (float),
-                }
+            {
+                class_id1(int): AP1 (float),
+                class_id2(int): AP2 (float),
+                class_id3(int): AP3 (float),
+            }
         """
 
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
@@ -119,7 +120,7 @@ class EvaluatorDetection(EvaluatorBase):
             round_off(int): The number of output decimal
 
         Returns:
-            Mean IoU (float)
+            (float): Mean IoU
         """
         _, mean_iou = get_mean_iou(self.prediction, self.target,
                                    self.num_class, iou_thresh, round_off)
@@ -133,14 +134,14 @@ class EvaluatorDetection(EvaluatorBase):
             round_off (int): The number of output decimal
 
         Returns:
-            IoU of each class as a dictionary.
+            (dictionary): IoU for each class. The format is as follows
 
             .. code-block :: python
 
                 {
-                    class_name1(str): iou1 (float),
-                    class_name2(str): iou2 (float),
-                    class_name3(str): iou3 (float),
+                    class_id1(int): iou1 (float),
+                    class_id2(int): iou2 (float),
+                    class_id3(int): iou3 (float),
                 }
         """
 
@@ -151,8 +152,8 @@ class EvaluatorDetection(EvaluatorBase):
         """ Plot a precision-recall curve.
 
         Args:
-            iou_thresh: IoU threshold. The default value is 0.5.
-            class_names: List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
+            iou_thresh(float): IoU threshold. The default value is 0.5.
+            class_names(list): List of keys in a prediction list or string if you output precision-recall curve of only one class. This specifies which precision-recall curve of classes to output.
         """
 
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
@@ -178,21 +179,23 @@ class EvaluatorDetection(EvaluatorBase):
         """ Return precision and recall for each class
 
         Args:
-            iou_thresh (float): IoU threshold. Defaults to 0.5
+            iou_thresh(float): IoU threshold. Defaults to 0.5
 
         Returns:
-            2-tuple. Each element represents a dictionary of precision for each class and a dictionary of recall for each class.
+            (tuple): 2 values are returned. Each element represents a dictionary of precision for each class and a dictionary of recall for each class.\
+                     The format is as follows.
 
-            .. code-block :: python
-                {
-                    class_name1(str): [precision1(float), precision2(float), ..],
-                    class_name2(str): [precision3(float), precision4(float), ..],
-                }
+        .. code-block :: python
+            :caption: **Example of outputs.**
 
+                ({
+                    class_id1(int): [precision1(float), precision2(float), ..],
+                    class_id2(int): [precision3(float), precision4(float), ..],
+                },
                 {
-                    class_name1(str): [recall1(float), recall2(float), ..]
-                    class_name2(str): [recall3(float), recall4(float), ..]
-                }
+                    class_id1(int): [recall1(float), recall2(float), ..]
+                    class_id2(int): [recall3(float), recall4(float), ..]
+                })
         """
 
         precision, recall, _, _ = get_prec_and_rec(
@@ -200,7 +203,7 @@ class EvaluatorDetection(EvaluatorBase):
         return precision. recall
 
     def report(self, iou_thresh=0.5, round_off=3):
-        """ Output a table which shows AP, IoU, the number of predicted instances for each class, and the number of ground truth instances for each class.
+        """ Outputs a table which shows AP, IoU, the number of predicted instances for each class, and the number of ground truth instances for each class.
 
         Args:
             iou_thresh (flaot): IoU threshold. The default value is 0.5.
@@ -247,13 +250,14 @@ class EvaluatorClassification(EvaluatorBase):
         prediction (list): A list of predicted class
         target (list): A list of target class. The format is as follows
 
-            .. code-block :: python
+    .. code-block :: python
+        :caption: **Example of the arguments, "prediction" and "target".**
 
-                [
-                    class_id1(int),
-                    class_id2(int),
-                    class_id3(int),
-                ]
+            [
+                class_id1(int),
+                class_id2(int),
+                class_id3(int),
+            ]
 
     Example:
             >>> evaluator = EvaluatorClassification(prediction, target)
@@ -268,13 +272,16 @@ class EvaluatorClassification(EvaluatorBase):
         """ Returns precision for each class and mean precision
 
         Returns:
-            2-tuple. Each element represents a dictioanry of precision and the mean precision.
+            (tuple): 2 values are returned. Each element represents a dictioanry of precision for each class and the mean precision(float).\
+                     The format is as follows.
 
-            .. code-block :: python
-                {
-                    class_name1(str): precision(float),
-                    class_name2(str): precision(float),
-                }
+        .. code-block :: python
+            :caption: **Example of outputs.**
+
+                ({
+                    class_id1(int): precision(float),
+                    class_id2(int): precision(float),
+                }, mean_precision(float))
         """
         precision, mean_precision = precision_score(self.prediction, self.target)
         return precision, mean_precision
@@ -283,13 +290,16 @@ class EvaluatorClassification(EvaluatorBase):
         """ Returns recall for each class and mean recall
 
         Returns:
-            2-tuple. Each element represents a dictionary of recall for each class and the average recall (Float).
+            (tuple): 2 values are returned. Each element represents a dictionary of recall for each class and the mean recall(float).\
+                     The format is as follows.
 
-            .. code-block :: python
-                {
-                    class_name1(str): recall(float),
-                    class_name2(str): recall(float),
-                }
+        .. code-block :: python
+            :caption: **Example of outputs.**
+
+                ){
+                    class_id1(int): recall(float),
+                    class_id2(int): recall(float),
+                }, mean_recall(float))
         """
 
         recall, mean_recall = recall_score(self.prediction, self.target)
@@ -298,7 +308,8 @@ class EvaluatorClassification(EvaluatorBase):
     def accuracy(self):
         """ Returns accuracy.
 
-        Returns: Accuracy(float)
+        Returns:
+            (float): Accuracy
         """
 
         accuracy = accuracy_score(self.prediction, self.target)
@@ -309,20 +320,23 @@ class EvaluatorClassification(EvaluatorBase):
         Returns f1 for each class and mean f1 score.
 
         Returns:
-            2-tuple. Each element represents a dictionary of F1 score for each class and average F1 score.
+            (tuple): 2 values are returned. Each element represents a dictionary of F1 score for each class and mean F1 score(float).\
+                     The format is as follows.
 
-            .. code-block :: python
-                {
-                    class_name1(str): f1 score(float),
-                    class_name2(str): f1_score(float)
-                }
+        .. code-block :: python
+            :caption: **Example of outputs.**
+
+                ({
+                    class_id1(int): f1 score(float),
+                    class_id2(int): f1_score(float)
+                }, mean_f1_score(float))
         """
 
         f1, mean_f1 = f1_score(self.prediction, self.target)
         return f1, mean_f1
 
     def report(self, round_off=3):
-        """ Output a table which shows precision, recall, F1 score, the number of true positive pixels and the number of ground truth pixels for each class.
+        """ Outputs a table which shows precision, recall, F1 score, the number of true positive pixels and the number of ground truth pixels for each class.
 
         Args:
             round_off(int): The number of output decimal
@@ -331,9 +345,9 @@ class EvaluatorClassification(EvaluatorBase):
             +--------------+-------------+-------------+-------------+-----------------+
             |              |  Precision  |    recall   |   F1 score  |  #pred/#target  |
             +--------------+-------------+-------------+-------------+-----------------+
-            | class_name1: |    0.800    |    0.308    |    0.444    |      4/13       |
+            | class_id1:   |    0.800    |    0.308    |    0.444    |      4/13       |
             +--------------+-------------+-------------+-------------+-----------------+
-            | class_name2: |    0.949    |    0.909    |    0.929    |    150/165      |
+            | class_id2:   |    0.949    |    0.909    |    0.929    |    150/165      |
             +--------------+-------------+-------------+-------------+-----------------+
             |    \.\.\.\.  |             |             |             |                 |
             +--------------+-------------+-------------+-------------+-----------------+
@@ -380,17 +394,19 @@ class EvaluatorSegmentation(EvaluatorBase):
         target (list): A list of target class. The format is as follows
         background_class(int): background class is ignored in the output table. defaults to 0.
 
-            .. code-block :: python
-                [
-                    class_id1(int),
-                    class_id2(int),
-                    class_id3(int),
-                ]
+    .. code-block :: python
+        :caption: **Example of the arguments, "prediction" and "target".**
+
+            [
+                class_id1(int),
+                class_id2(int),
+                class_id3(int),
+            ]
 
     Example:
-            >>> evaluator = EvaluatorClassification(prediction, target)
+            >>> evaluator = EvaluatorSegmentation(prediction, target)
+            >>> evaluator.iou()
             >>> evaluator.precision()
-            >>> evaluator.recall()
     """
 
     def __init__(self, prediction, target, background_class=0):
@@ -404,7 +420,7 @@ class EvaluatorSegmentation(EvaluatorBase):
             round_off(int): The number of output decimal
 
         Returns:
-            2-tuple. Each element represents a dictionary of each IoU and mean IoU (Float).
+            (tuple): 2 values are returned. Each element represents a dictionary of IoU for each class and mean IoU (float).
         """
 
         iou, mean_iou = segmentation_iou(self.prediction,
@@ -417,10 +433,10 @@ class EvaluatorSegmentation(EvaluatorBase):
         """ Returns precision for each class
 
         Args:
-            round_off(int): this rounds off output values by assigned number.
+            round_off(int): The number of output decimal
 
         Returns:
-            2-tuple. Each element represents a dictionary of precision and the mean precision (Float).
+            (tuple): 2 values are returned. Each element represents a dictionary of precision for each class and the mean precision(float).
         """
 
         precision, mean_precision = segmentation_precision(self.prediction,
@@ -433,10 +449,10 @@ class EvaluatorSegmentation(EvaluatorBase):
         """ Returns recall for each class and mean recall
 
         Args:
-            round_off(int): this rounds off output values by assigned number.
+            round_off(int): The number of output decimal
 
         Returns:
-            2-tuple. Each element represents a dicitonary of recall and mean recall (Float).
+            (tuple): 2 values are returned. Each element represents a dicitonary of recall for each class and mean recall(float).
         """
 
         recall, mean_recall = segmentation_recall(self.prediction,
@@ -449,10 +465,10 @@ class EvaluatorSegmentation(EvaluatorBase):
         """ Returns f1 for each class and mean f1 score
 
         Args:
-            round_off(int): this rounds off output values by assigned number.
+            round_off(int): The number of output decimal
 
         Returns:
-            2-tuple. Each element represents a dictionary of F1 score for each class and mean F1 score.
+            (tuple): 2 values are returned. Each element represents a dictionary of F1 score for each class and mean F1 score(float).
         """
 
         f1, mean_f1 = segmentation_f1(self.prediction,
@@ -462,18 +478,18 @@ class EvaluatorSegmentation(EvaluatorBase):
         return f1, mean_f1
 
     def report(self, round_off=3):
-        """ Output a table which shows IoU, precision, recall, F1 score, the number of true positive pixels and the number of ground truth pixels for each class.
+        """ Outputs a table which shows IoU, precision, recall, F1 score, the number of true positive pixels and the number of ground truth pixels for each class.
 
         Args:
-            round_off(int): This rounds off output values by assigned number.
+            round_off(int): The number of output decimal
 
         Returns:
             +--------------+----------+------------+-------------+-------------+-----------------+
             |              |    IoU   |  Precision |    recall   |   F1 score  |  #pred/#target  |
             +--------------+----------+------------+-------------+-------------+-----------------+
-            | class_name1: |  0.178   |   0.226    |    0.457    |    0.303    |  26094/571520   |
+            | class_id1:   |  0.178   |   0.226    |    0.457    |    0.303    |  26094/571520   |
             +--------------+----------+------------+-------------+-------------+-----------------+
-            | class_name2: |  0.058   |   0.106    |    0.114    |    0.110    |  25590/224398   |
+            | class_id2:   |  0.058   |   0.106    |    0.114    |    0.110    |  25590/224398   |
             +--------------+----------+------------+-------------+-------------+-----------------+
             |    \.\.\.\.  |          |            |             |             |                 |
             +--------------+----------+------------+-------------+-------------+-----------------+
