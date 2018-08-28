@@ -389,7 +389,8 @@ export default {
     let fd = new FormData()
     fd.append('ratio', payload.ratio)
     fd.append('name', payload.name)
-
+    fd.append('u_id', payload.u_id)
+    fd.append('discription', payload.discription)
     let url = '/api/renom_img/v1/dataset_defs/'
 
     context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
@@ -436,9 +437,8 @@ export default {
     let fd = new FormData()
     fd.append('ratio', payload.ratio)
     fd.append('name', payload.name)
-
-    console.log('ratio:', payload.ratio)
-    console.log('name:', payload.name)
+    fd.append('u_id', payload.u_id)
+    fd.append('discription', payload.discription)
 
     context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
 

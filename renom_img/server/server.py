@@ -45,6 +45,7 @@ executor = Executor(max_workers=MAX_THREAD_NUM)
 train_thread_pool = {}
 prediction_thread_pool = {}
 
+confirm_dataset = {}
 
 def get_train_thread_count():
     return len([th for th in train_thread_pool.values() if th[0].running()])
@@ -418,6 +419,9 @@ def load_dataset_split_detail():
 
         name = request.params.name
         ratio = float(request.params.ratio)
+        client_id = request.params.u_id
+        discription = request.params.discription
+
         # search image files
         imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
 
@@ -435,7 +439,8 @@ def load_dataset_split_detail():
         train_imgs = [str(img) for img in trains]
         valid_imgs = [str(img) for img in valids]
 
-        perm_train, perm_valid = np.split(np.random.permutation(int(n_imgs)), [int(n_imgs*ratio)])
+        perm = np.random.permutation(int(n_imgs))
+        perm_train, perm_valid = np.split(perm, [int(n_imgs*ratio)])
         imgs = list(imgs)
 
         parsed_train_imgs = []
@@ -448,7 +453,7 @@ def load_dataset_split_detail():
         parsed_valid,valid_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(path).split('/')[-1].split('.')[0] in parsed_valid_img_names])
 
         # register dataset
-        #id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)
+        # id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)
 
         # Insert detailed informations
         train_num = len(train_imgs)
@@ -480,9 +485,18 @@ def load_dataset_split_detail():
                     "valid" :valid_tag_count.get(tags) 
                     })
                     
-        print(class_maps)
+        
+        confirm_dataset[client_id] = {
+          "perm": perm ,
+          "class_map": class_maps,
+          "discription": discription
+        }
+        print(confirm_dataset) 
+
         body = json.dumps(
             {"total": n_imgs,
+            "id": client_id,
+            "discription": discription,
             "train_image_num": train_num,
             "valid_image_num": valid_num,
             "class_maps": class_maps,
@@ -538,6 +552,8 @@ def create_dataset_def():
 
         name = request.params.name
         ratio = float(request.params.ratio)
+        client_id = request.params.u_id
+        discription = request.params.discription
 
         # search image files
         imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
@@ -559,13 +575,23 @@ def create_dataset_def():
         _, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
 
         # register dataset
-        id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)
+        # id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)
 
         # Insert detailed informations
         train_num = len(train_imgs)
         valid_num = len(valid_imgs)
 
-        body = json.dumps({"id": id})
+        del confirm_dataset[client_id]
+
+        print("==confirm_dataset==")
+
+        print(confirm_dataset)
+
+        print("==confirm_dataset==")
+
+
+        #body = json.dumps({"id": id})
+        body = json.dumps({"id":"test"})
         ret = create_response(body)
         return ret
 

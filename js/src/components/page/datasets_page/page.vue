@@ -52,8 +52,8 @@
               <h5>Dataset Setting</h5>
               <div class="row justify-content-center space-top">
                 <div class="col-sm-12">
-                  <label class="text-left">Discription</label>
-                  <textarea class="form-control sort-line" rows="3"></textarea>
+                  <label class="discliption">Discription</label>
+                  <textarea class="form-control sort-line discliption" rows="3"></textarea>
                 </div>
               </div>
             </div>
@@ -191,13 +191,14 @@ export default {
       text-align: center;
       line-height: $content-top-header-hight;
       &:hover{
+        cursor:pointer;
         background-color: $panel-bg-color-hover;
       }
     }
   }
 
   .content {
-    height:$content-detail-height;
+    height:$content-prediction-height;
     margin-top: $content-top-margin;
     display: flex;
     display: -webkit-flex;
@@ -218,6 +219,9 @@ export default {
   }
   .clear-padding{
     padding-left: 0;
+  }
+  .discliption{
+    margin-left:15px;
   }
 }
 </style>

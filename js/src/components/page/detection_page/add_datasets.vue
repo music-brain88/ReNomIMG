@@ -15,7 +15,7 @@
               <div class="row justify-content-center space-top">
                 <label class="col-sm-5 col-form-label label">Discription</label>
                 <div class="col-sm-7">
-                  <textarea class="form-control sort-line" rows="7"></textarea>
+                  <textarea v-model='discription' class="form-control sort-line" rows="7"></textarea>
                 </div>
               </div>
 
@@ -127,8 +127,14 @@
                           </div>
                         </div>
                       </div>
-
                     </div>
+
+                    <div class="row">
+                      <div class="col-md-12">
+                        {{id}}
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               </div>
@@ -158,6 +164,7 @@ export default {
       ratio: DEFAULT_RATIO,
       discription: '',
       name: '',
+      id: '',
       show_tag_data_flg: false
     }
   },
@@ -182,10 +189,14 @@ export default {
       if ((ratio <= 0) || (ratio > 100)) {
         return
       }
-      let f = this.$store.dispatch('registerDatasetDef', {ratio, name})
+      const u_id = this.id
+      const discription = this.discription
+      let f = this.$store.dispatch('registerDatasetDef', {ratio, name, u_id, discription})
       f.finally(() => {
         this.ratio = DEFAULT_RATIO
+        this.discription = ''
         this.name = ''
+        this.id = ''
       })
     },
     confirm: function () {
@@ -199,11 +210,14 @@ export default {
       if ((ratio <= 0) || (ratio > 100)) {
         return
       }
-      let f = this.$store.dispatch('loadDatasetSplitDetail', {ratio, name})
-      f.finally(() => {
-        this.ratio = DEFAULT_RATIO
-        this.name = ''
-      })
+      let u_id = this.gen_unique_id()
+      let discription = this.discription
+      this.id = u_id
+      this.$store.dispatch('loadDatasetSplitDetail', {ratio, name, u_id, discription})
+      // f.finally(() => {
+      //   this.ratio = DEFAULT_RATIO
+      //  this.name = ''
+      // })
     },
     calc_percentage: function (target, total) {
       // let value = (train / this.$store.state.dataset_detail_max_value) * 100
@@ -217,6 +231,15 @@ export default {
     hidden_tag_data: function () {
       this.show_tag_data_flg = false
       return this.show_tag_data_flg
+    },
+    gen_unique_id: function (encript_strong) {
+      let default_strong = 1000
+      if (encript_strong) {
+        default_strong = encript_strong
+      }
+      let u_id = new Date().getTime().toString(16) + Math.floor(default_strong * Math.random()).toString(16)
+
+      return u_id
     }
   }
 }
