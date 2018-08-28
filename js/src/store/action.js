@@ -440,6 +440,11 @@ export default {
     fd.append('u_id', payload.u_id)
     fd.append('discription', payload.discription)
 
+    if (payload.delete_id) {
+      console.log('確認：', payload.delete_id)
+      fd.append('delete_id', payload.delete_id)
+    }
+
     context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
 
     return axios.post(url, fd).then(function (response) {

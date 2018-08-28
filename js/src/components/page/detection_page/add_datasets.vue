@@ -210,10 +210,13 @@ export default {
       if ((ratio <= 0) || (ratio > 100)) {
         return
       }
+
+      const delete_id = this.id
+
       let u_id = this.gen_unique_id()
-      let discription = this.discription
       this.id = u_id
-      this.$store.dispatch('loadDatasetSplitDetail', {ratio, name, u_id, discription})
+      let discription = this.discription
+      this.$store.dispatch('loadDatasetSplitDetail', {ratio, name, u_id, discription, delete_id})
       // f.finally(() => {
       //   this.ratio = DEFAULT_RATIO
       //  this.name = ''

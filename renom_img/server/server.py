@@ -422,6 +422,11 @@ def load_dataset_split_detail():
         client_id = request.params.u_id
         discription = request.params.discription
 
+        # if 2nd time delete confirmdataset id
+        if request.params.delete_id :
+          del confirm_dataset[request.params.delete_id]
+
+
         # search image files
         imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
 
