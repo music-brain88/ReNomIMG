@@ -224,7 +224,7 @@ class DataBuilderSegmentation(DataBuilderBase):
             for i in range(self.imsize[0]):
                 for j in range(self.imsize[1]):
                     if int(labels[i][j]) >= n_class:
-                        annot[n_class-1, i, j] = 1
+                        annot[n_class - 1, i, j] = 1
                     else:
                         annot[int(labels[i][j]), i, j] = 1
             label_list.append(annot)

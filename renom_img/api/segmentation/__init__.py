@@ -110,7 +110,8 @@ class SemanticSegmentation(Base):
 
     def loss(self, x, y):
         if hasattr(self, 'train_class_weight'):
-            loss = rm.softmax_cross_entropy(x, y, reduce_sum=False) * np.broadcast_to(class_weight.reshape(1, -1, 1, 1), x.shape)
+            loss = rm.softmax_cross_entropy(x, y, reduce_sum=False) * \
+                np.broadcast_to(class_weight.reshape(1, -1, 1, 1), x.shape)
             loss = rm.sum(loss)
         else:
             loss = rm.softmax_cross_entropy(x, y)
