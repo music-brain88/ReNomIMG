@@ -291,7 +291,7 @@ class Yolov2(rm.Model):
 
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.0005 * reg
+        return 0.0005 * reg / 2.
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """

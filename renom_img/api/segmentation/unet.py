@@ -53,6 +53,7 @@ class UNet(SemanticSegmentation):
         self._model = CNN_UNet(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(1e-2, 0.9)
+        self.decay_rate = 0.00002
         self._freeze()
 
     def preprocess(self, x):
@@ -76,13 +77,6 @@ class UNet(SemanticSegmentation):
             elif current_epoch == ind2:
                 self._opt._lr = 1e-3
             return self._opt
-
-    def regularize(self):
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.00001 * reg
 
     def _freeze(self):
         self._model.conv1_1.set_auto_update(self._train_whole_network)
