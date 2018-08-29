@@ -61,6 +61,7 @@ class TernausNet(SemanticSegmentation):
         self._model = CNN_TernausNet(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(4e-3, 0.9)
+        self.decay_rate = 0.00002
         self._freeze()
 
     def preprocess(self, x):
@@ -90,13 +91,6 @@ class TernausNet(SemanticSegmentation):
             elif current_epoch == ind3:
                 self._opt.lr = 4e-4
             return self._opt
-
-    def regularize(self):
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.00002 * reg
 
     def _freeze(self):
         self._model.conv1_1.set_auto_update(self._train_whole_network)

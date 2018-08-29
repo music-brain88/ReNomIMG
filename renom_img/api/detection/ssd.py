@@ -456,7 +456,7 @@ class SSD(rm.Model):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.0005 * reg
+        return 0.00004 * reg / 2
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4, keep_top_k=200):
         """
