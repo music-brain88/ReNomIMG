@@ -21,24 +21,30 @@
         <div class="content">
           <div class="row col-md-12 clear-padding">
             <div class="col-md-4 data-area">
-              <table class="table">
+              <table class="table table-borderless">
                 <thead>
                   <tr>
+                    <th>ID</th>
                     <th>Dataset name</th>
                     <th>Train</th>
-                    <th>Validation</th>
+                    <th>Valid</th>
                     <th>Create date</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr v-for="def in dataset_defs" :key="def.id">
-                   <td> {{ def.id }} </td>
+                <tbody class="scroll-controll" v-if="dataset_defs.length!==0">
+                <tr v-bind:class="{'selected': index === index }" v-for="(def, index) in dataset_defs" :key="def.id" @click="selectDataset(index)">
+                   <td> {{ def.id }}</td>
                    <td> {{ def.name }} </td>
-                   <td> {{ def.ratio * 100 }}%</td>
-                   <td> {{ datestr(def.created).toLocaleString() }} </td>
+                   <td> {{ def.train_imgs }} </td>
+                   <td> {{ def.valid_imgs.length }}</td>
+                   <td> {{ formatdate(datestr(def.created)) }} </td>
                   </tr>
                 </tbody>
-
+                <tbody v-else>
+                  <tr>
+                   <td colspan="4"> Dataset is empty. Please set the dataset</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
 
@@ -49,18 +55,111 @@
                 <div>Ratio of training data: <input v-model='ratio'  type='number' placeholder='80.0' style='width:100px' /> % </div>
                 <button @click="register">Create</button>
               </form> -->
-              <h5>Dataset Setting</h5>
-              <div class="row justify-content-center space-top">
-                <div class="col-sm-12">
-                  <label class="discliption">Discription</label>
-                  <textarea class="form-control sort-line discliption" rows="3"></textarea>
+              <h5 class="dataset-name" v-if=" index ==='' "></h5>
+              <h5 class="dataset-name" v-else>{{dataset_defs[index].name}}</h5>
+              <div class="row justify-content-center space-top space-label-bottom">
+                <div class="col-sm-12 space-label-bottom">
+                  <label class="discription-label">Discription</label>
+
+                  <textarea v-if="index !== ''" class="form-control sort-line discription-form" rows="3" v-model="dataset_defs[index].discription" readonly=readonly></textarea>
+                  <textarea v-else class="form-control sort-line discription-form" rows="3" readonly=readonly>None</textarea>
+
                 </div>
+                <div v-if=" index!=='' " class="row col-md-12 space-label-bottom">
+                  <div class="col-md-6 col-form-label">
+                    Number of Images
+                  </div>
+                  <div class="col-md-3 figure col-form-label">
+                    Train {{dataset_defs[index].train_imgs}}
+                  </div>
+                  <div class="col-md-3 figure col-form-label">
+                    Valid {{ dataset_defs[index].valid_imgs.length }}
+                  </div>
+                </div>
+
+                <div v-else class="row col-md-12 space-label-bottom">
+                  <div class="col-md-6 col-form-label">
+                    Number of Images
+                  </div>
+                  <div class="col-md-3 figure col-form-label">
+                    Train
+                  </div>
+                  <div class="col-md-3 figure col-form-label">
+                    Valid
+                  </div>
+                </div>
+
+
+                <div v-if=" index !=='' " class="row col-md-12">
+                  <div class="col-md-6">
+                    All {{dataset_defs[index].train_imgs + dataset_defs[index].valid_imgs.length}}
+                  </div>
+                  <div class="col-md-6">
+                    <div class="progress total-progress sort-line">
+                      <div class="progress-bar train-color" 
+                        role="progressbar" 
+                        :style="'width:' + calc_percentage(dataset_defs[index].train_imgs, dataset_defs[index].train_imgs + dataset_defs[index].valid_imgs.length)+'%;'" 
+                        aria-valuemin="0" aria-valuemax="100">
+                      </div>
+                      <div class="progress-bar validation-color" 
+                        role="progressbar" 
+                        :style="'width:' + calc_percentage(dataset_defs[index].valid_imgs.length, dataset_defs[index].train_imgs + dataset_defs[index].valid_imgs.length)+'%;'" 
+                        aria-valuemin="0" 
+                        aria-valuemax="100">
+                      </div>
+                    </div>
+                   </div>
+                </div>
+
               </div>
             </div>
             <!--Dataset preview -->
 
             <!--figure -->
             <div class="col-md-4">
+              <div class ="row space-label-bottom">
+                
+                <div class="col-md-6 col-form-label">
+                  <span>Total Number of Tag</span>
+                </div>
+                <div class="col-md-6 col-form-label">
+                  <span v-if="index!==''">{{dataset_defs[index].id}} </span>
+                </div>
+              </div>
+
+              <!-- taglist -->
+              <div v-if=" index===''"  class="row">
+               
+                <div class="col-md-12 col-form-label">
+                  <span>Please click table row.<br />After click you can see detail here</span>
+                </div>
+                
+              </div>
+              
+              <div v-else v-for="data in  dataset_defs[index].class_tag_list" class="row">
+                
+                
+                <div class="col-md-6 col-form-label">
+                  <span>{{data.tags}}</span>
+                </div>
+                <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data">
+                  <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                  <div class="progress figure tag-progress">
+                    <div class="progress-bar train-color"
+                      role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
+                      aria-valuemin="0"
+                      aria-valuemax="100">
+                    </div>
+                    <div class="progress-bar validation-color"
+                      role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
+                      aria-valuemin="0"
+                      aria-valuemax="100">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- taglist -->
+
             </div>
             <!--figure -->
 
@@ -93,7 +192,9 @@ export default {
   data: function () {
     return {
       ratio: DEFAULT_RATIO,
-      name: ''
+      name: '',
+      index: '',
+      show_tag_data_flg: false
     }
   },
   created: function () {
@@ -115,23 +216,34 @@ export default {
         'add_model_modal_show_flag': true
       })
     },
-
-    register: function () {
-      const name = this.name.trim()
-      if (!name) {
-        return
-      }
-
-      const ratio = parseFloat(this.ratio) / 100
-      if ((ratio <= 0) || (ratio > 100)) {
-        return
-      }
-
-      let f = this.$store.dispatch('registerDatasetDef', {ratio, name})
-      f.finally(() => {
-        this.ratio = DEFAULT_RATIO
-        this.name = ''
-      })
+    show_tag_data: function () {
+      this.show_tag_data_flg = true
+      return this.show_tag_data_flg
+    },
+    hidden_tag_data: function () {
+      this.show_tag_data_flg = false
+      return this.show_tag_data_flg
+    },
+    calc_percentage: function (target, total) {
+      let value = (target / total) * 100
+      return Math.round(value, 3)
+    },
+    formatdate: function (date) {
+      let format = 'yyyy/MM/dd'
+      format = format.replace(/yyyy/g, date.getFullYear())
+      format = format.replace(/MM/g, ('0' + (date.getMonth() + 1)).slice(-2))
+      format = format.replace(/dd/g, ('0' + date.getDate()).slice(-2))
+      format = format.replace(/HH/g, ('0' + date.getHours()).slice(-2))
+      format = format.replace(/mm/g, ('0' + date.getMinutes()).slice(-2))
+      format = format.replace(/ss/g, ('0' + date.getSeconds()).slice(-2))
+      format = format.replace(/SSS/g, ('00' + date.getMilliseconds()).slice(-3))
+      return format
+    },
+    selectDataset: function (index) {
+      this.index = index
+    },
+    calcTotaltag_numi: function (data) {
+      return data
     }
   }
 }
@@ -150,29 +262,61 @@ export default {
   margin-top: $component-margin-top;
   width: 100%;
   padding-bottom: 64px;
+  
+  tbody::-webkit-scrollbar{
+    width: 6px;
+  }
+  tbody::-webkit-scrollbar-track{
+    background: $body-color;
+    border: none;
+    border-radius: 6px;
+  }
+  tbody::-webkit-scrollbar-thumb{
+    background: #aaa;
+    border-radius: 6px;
+    box-shadow: none;
+  }
 
   form {
     background: #FFFFFF;
     border:none;
   }
   table{
-    border:none;
+    border:none; 
+    tbody{
+      tr:hover{
+        color:$table-hover-font-color;
+        background-color: $table-hover-color;
+      }
+    }
   }
+
+  thead, tbody{
+    display:block;
+    background: $content-bg-color;
+  }
+
   th{
     border-top: none;
     border-left: none;
-    background: $content-bg-color;
     line-height: $content-inner-header-font-size;
     font-family: $content-inner-box-font-family;
     font-size: calc(#{$content-inner-box-font-size});
+    background: transparent;
   }
   td{
+    background: transparent;
     border-left: none;
     font-family: $content-inner-box-font-family;
-    font-size: calc(#{$content-inner-box-font-size})//$content-inner-box-font-size;
-  }
+    font-size: calc(#{$content-inner-box-font-size});//$content-inner-box-font-size;
+  } 
+
   .data-area{
     border-right: 1px solid $content-taglist-tagbox-font-color;
+  }
+
+  .scroll-controll{ 
+    height:450px;
     overflow-y: scroll;
   }
 
@@ -217,11 +361,55 @@ export default {
       font-size: $content-inner-box-font-size;
     }
   }
+  
   .clear-padding{
     padding-left: 0;
   }
-  .discliption{
+  
+  .discription-label{
     margin-left:15px;
   }
+
+  .discription-form{
+    margin-left:25px;
+    width:90%;
+  }
+  
+  .figure{
+    font-size: calc(#{$tab-figure-font-size}*0.8);
+  }
+  
+  .space-label-bottom{
+    margin-bottom: 5%;
+  }
+  
+  .progress{
+    border-radius: 0;
+  }
+  .total-progress{
+    height:9px;
+  }
+  .tag-progress{
+    height:6px;
+  }
+ 
+  .train-color{
+    background-color: $train-color;
+  }
+  .validation-color{
+    background-color: $validation-color;
+  } 
+  
+  .tag-visible{
+    visibility: visible;
+  }
+  .tag-hidden{
+    visibility: hidden;
+  }
+  
+  .selected{
+    color:$table-selected-font-color;
+  }
+
 }
 </style>

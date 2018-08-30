@@ -8,16 +8,6 @@
       <div class="set-predict-model" v-if="isPredict" @click="show_undeploy_dialog=true">
         <i class="fa fa-angle-right icon-navgation"></i>Undeploy
       </div>
-
-      <div v-if="show_description">
-        <div class="balloon">
-          If you push this button,<br>
-          you can use current selected<br>
-          model in prediction.
-        </div>
-        <div class="triangle"></div>
-      </div>
-
     </div>
 
     <modal-box v-if='show_undeploy_dialog'
@@ -55,8 +45,7 @@ export default {
   data: function () {
     return {
       info_png_url: '../../../../../static/img/info.png',
-      show_undeploy_dialog: false,
-      show_description: false
+      show_undeploy_dialog: false
     }
   },
   computed: {
@@ -76,9 +65,6 @@ export default {
     resetPredictModel: function () {
       this.$store.dispatch('undeployModel', {'model_id': this.model.model_id})
       this.show_undeploy_dialog = false
-    },
-    hoverDescription: function (val) {
-      this.show_description = val
     }
   }
 }
@@ -116,45 +102,10 @@ export default {
     // margin-top: calc(#{$content-top-header-hight}*0.25);
   }
 
-  .balloon {
-    position: relative;
-    width: 240px;
-    top: -$balloon-top*2;
-    right: calc(-#{$balloon-border-width});
-    padding: 4px;
-    background-color: $balloon-color;
-    color: #fff;
-    border-radius: 4px;
-
-    &:after{
-      content: "";
-      position: relative;
-      right: 0;
-      bottom: -20px;
-      width: 0px;
-      height: 0px;
-      margin: auto;
-      border-style: solid;
-      border-color: $balloon-color transparent transparent transparent;
-      border-width: 20px 20px 0 20px;
-    }
-  }
-
-  .triangle {
-    position: absolute;
-    top: -4px;
-    right: calc(#{$balloon-border-width});
-    border-top: $balloon-border-width solid $balloon-color;
-    border-left: $balloon-border-width solid transparent;
-    border-right: $balloon-border-width solid transparent;
-  }
   .modal-contents{
     color:#000000;
   }
   span{
-    &:before{
-      background: $tooltips-color;
-    }
     &:after{
       background: $tooltips-color;
       text-align: left;

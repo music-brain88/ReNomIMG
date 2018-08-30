@@ -35,6 +35,17 @@ export default {
 </script>
 
 <style lang="scss">
+@font-face{
+  font-family: $content-top-header-font-family;
+  src: local ("../static/fonts/OpenSans-Regular.ttf");
+}
+
+@font-face{
+  font-family: $content-inner-header-font-family;
+  src: local ("../static/fonts/OpenSans-Light.ttf");
+}
+
+
 * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;

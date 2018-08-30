@@ -57,9 +57,11 @@ class Storage:
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
                  name VARCHAR(256),
                  ratio FLOAT,
+                 discription TEXT,
                  train_imgs CLOB,
                  valid_imgs CLOB,
                  class_map BLOB,
+                 class_tag_list BLOB,
                  created TIMESTAMP NOT NULL,
                  updated TIMESTAMP NOT NULL);
           """)
@@ -566,33 +568,48 @@ class Storage:
                 })
             return ret
 
-    def register_dataset_def(self, name, ratio, train_imgs, valid_imgs, class_map):
+    def register_dataset_def(self, name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list):
 
         train_imgs = json.dumps(train_imgs)
         valid_imgs = json.dumps(valid_imgs)
         class_map = json.dumps(class_map)
+        class_tag_list = json.dumps(class_tag_list)
 
         now = datetime.datetime.now()
         with self.db:
             c = self.cursor()
             c.execute("""
-                INSERT INTO dataset_def(name, ratio, train_imgs, valid_imgs, class_map,
-                    created, updated)
-                VALUES(?, ?, ?, ?, ?, ?, ?)
-            """, (name, ratio, train_imgs, valid_imgs, class_map, now, now))
+                INSERT INTO dataset_def(
+                name,
+                ratio,
+                discription,
+                train_imgs,
+                valid_imgs,
+                class_map,
+                class_tag_list,
+                created,
+                updated)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list, now, now))
             return c.lastrowid
 
     def fetch_dataset_defs(self):
         with self.db:
             ret = []
             c = self.cursor()
-            c.execute("""SELECT id, name, ratio, valid_imgs, class_map, created, updated FROM dataset_def""")
+            c.execute("""SELECT id, name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list, created, updated FROM dataset_def""")
             for rec in c:
                 ret.append([
-                    rec[0], rec[1], rec[2],
-                    json.loads(rec[3]),
+                    rec[0], 
+                    rec[1], 
+                    rec[2],
+                    rec[3],
                     json.loads(rec[4]),
-                    rec[5].isoformat(), rec[6].isoformat()
+                    json.loads(rec[5]),
+                    json.loads(rec[6]),
+                    json.loads(rec[7]),
+                    rec[8].isoformat(),
+                    rec[9].isoformat()
                 ])
             return ret
 

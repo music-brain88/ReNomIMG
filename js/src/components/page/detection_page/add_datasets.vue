@@ -51,7 +51,7 @@
                         Train
                       </div>
                       <div class="col-md-3 figure">
-                        Vallidation
+                        Valid
                       </div>
                     </div>
                     <div class="row space-top">
@@ -83,7 +83,7 @@
                         Train {{dataset_detail.train_image_num}}
                       </div>
                       <div class="col-md-3 figure col-form-label">
-                        Vallidation {{dataset_detail.valid_image_num}}
+                        Valid {{dataset_detail.valid_image_num}}
                       </div>
                     </div>
 
@@ -103,11 +103,11 @@
                         <span>Total Number of Tag</span>
                       </div>
                       <div class="col-md-6 col-form-label">
-                        <span></span>
+                        <span>{{dataset_detail.train_tag_count}}{{ dataset_detail.valid_tag_count}}</span>
                       </div>
                     </div>
 
-                    <div v-for=" data in dataset_detail.class_maps" class="row space-top">
+                    <div v-for=" data in dataset_detail.class_tag_list" class="row space-top">
 
                       <div class="col-md-6 col-form-label">
                         {{data.tags}} :

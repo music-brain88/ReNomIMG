@@ -95,7 +95,9 @@ def static(file_name):
 @route("/css/<file_name:path>")
 def css(file_name):
     return _get_resource('static/css/', file_name)
-
+@route("/fonts/<file_name:path>")
+def font(file_name):
+    return _get_resource('static/fonts/', file_name)
 
 @error(404)
 def error404(error):
@@ -384,7 +386,7 @@ def get_datasets():
         recs = storage.fetch_dataset_defs()
         ret = []
         for rec in recs:
-            id, name, ratio, valid_imgs, class_map, created, updated = rec
+            id, name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list, created, updated = rec
             valid_img_names = [os.path.join("datasrc/img/", path) for path in valid_imgs]
             valid_imgs = []
             for img_name in valid_img_names:
@@ -397,8 +399,19 @@ def get_datasets():
                     width = height = 50
                 valid_imgs.append(dict(filename=img_name, width=width, height=height))
 
-            ret.append(dict(id=id, name=name, ratio=ratio,
-                            valid_imgs=valid_imgs, class_map=class_map, created=created, updated=updated))
+
+            ret.append(dict(id=id,
+                            name=name,
+                            ratio=ratio,
+                            discription=discription,
+                            train_imgs=len(train_imgs),
+                            valid_imgs=valid_imgs,
+                            class_map=class_map,
+                            class_tag_list=class_tag_list,
+                            created=created,
+                            updated=updated
+                            )
+                       )
         return create_response(json.dumps({'dataset_defs': ret}))
 
     except Exception as e:
@@ -457,13 +470,10 @@ def load_dataset_split_detail():
         parsed_train,train_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(path).split('/')[-1].split('.')[0] in parsed_train_img_names])
         parsed_valid,valid_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(path).split('/')[-1].split('.')[0] in parsed_valid_img_names])
 
-        # register dataset
-        # id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)
-
         # Insert detailed informations
         train_num = len(train_imgs)
         valid_num = len(valid_imgs)
-        class_maps = []
+        class_tag_list = []
 
         train_tag_count = {}
         for i in range(len(parsed_train)):
@@ -484,19 +494,26 @@ def load_dataset_split_detail():
                         valid_tag_count[valid_class_map[j]] += 1
 
         for tags in train_tag_count:
-            class_maps.append({
+            class_tag_list.append({
                     "tags" : tags,
                     "train" :train_tag_count.get(tags),
                     "valid" :valid_tag_count.get(tags) 
                     })
                     
-        
+        # save datasplit setting        
         confirm_dataset[client_id] = {
-          "perm": perm ,
-          "class_map": class_maps,
-          "discription": discription
+            "name": name,
+            "ratio": ratio, 
+            "discription": discription,
+            "train_imgs": train_imgs,
+            "valid_imgs": valid_imgs,
+            "class_maps":train_class_map,
+            "class_tag_list": class_tag_list
         }
+
         print(confirm_dataset) 
+
+        print(confirm_dataset[client_id].get('class_tag_list')) 
 
         body = json.dumps(
             {"total": n_imgs,
@@ -504,11 +521,9 @@ def load_dataset_split_detail():
             "discription": discription,
             "train_image_num": train_num,
             "valid_image_num": valid_num,
-            "class_maps": class_maps,
+            "class_tag_list": class_tag_list,
             "train_imgs": train_imgs,
             "valid_imgs": valid_imgs,
-            "train_tag_count": train_tag_count,
-            "valid_tag_count": valid_tag_count
             })
 
         ret = create_response(body)
@@ -548,43 +563,52 @@ def weight_download_progress(progress_num):
 @route("/api/renom_img/v1/dataset_defs/", method="POST")
 def create_dataset_def():
     try:
-        datasrc = pathlib.Path(DATASRC_DIR)
-        imgdirname = pathlib.Path("img")
-        xmldirname = pathlib.Path("label")
-
-        imgdir = (datasrc / imgdirname)
-        xmldir = (datasrc / xmldirname)
-
-        name = request.params.name
-        ratio = float(request.params.ratio)
-        client_id = request.params.u_id
-        discription = request.params.discription
-
-        # search image files
-        imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
-
-        # remove images without label
-        imgs = set([img for img in imgs if (xmldir / img).with_suffix('.xml').is_file()])
-        assert len(imgs) > 0, "Image not found in directory. Please set images to 'datasrc/img' directory and xml files to 'datasrc/label' directory."
-
-        # split files into trains and validations
-        n_imgs = len(imgs)
-
-        trains = set(random.sample(imgs, int(ratio * n_imgs)))
-        valids = imgs - trains
-
-        # build filename of images and labels
-        train_imgs = [str(img) for img in trains]
-        valid_imgs = [str(img) for img in valids]
-
-        _, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
+        # datasrc = pathlib.Path(DATASRC_DIR)
+        # imgdirname = pathlib.Path("img")
+        # xmldirname = pathlib.Path("label")
+        #
+        # imgdir = (datasrc / imgdirname)
+        # xmldir = (datasrc / xmldirname)
+        #
+        # name = request.params.name
+        # ratio = float(request.params.ratio)
+        # discription = request.params.discription
+        #
+        # # search image files
+        # imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
+        #
+        # # remove images without label
+        # imgs = set([img for img in imgs if (xmldir / img).with_suffix('.xml').is_file()])
+        # assert len(imgs) > 0, "Image not found in directory. Please set images to 'datasrc/img' directory and xml files to 'datasrc/label' directory."
+        #
+        # # split files into trains and validations
+        # n_imgs = len(imgs)
+        #
+        # trains = set(random.sample(imgs, int(ratio * n_imgs)))
+        # valids = imgs - trains
+        #
+        # # build filename of images and labels
+        # train_imgs = [str(img) for img in trains]
+        # valid_imgs = [str(img) for img in valids]
+        #
+        # _, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
 
         # register dataset
-        # id = storage.register_dataset_def(name, ratio, train_imgs, valid_imgs, class_map)
+        client_id = request.params.u_id
+        id = storage.register_dataset_def(
+            confirm_dataset[client_id].get('name'),
+            confirm_dataset[client_id].get('ratio'),
+            confirm_dataset[client_id].get('discription'),
+            confirm_dataset[client_id].get('train_imgs'),
+            confirm_dataset[client_id].get('valid_imgs'),
+            confirm_dataset[client_id].get('class_maps'), 
+            confirm_dataset[client_id].get('class_tag_list')
+        )
+
 
         # Insert detailed informations
-        train_num = len(train_imgs)
-        valid_num = len(valid_imgs)
+        # train_num = len(train_imgs)
+        # valid_num = len(valid_imgs)
 
         del confirm_dataset[client_id]
 
@@ -595,8 +619,8 @@ def create_dataset_def():
         print("==confirm_dataset==")
 
 
-        #body = json.dumps({"id": id})
-        body = json.dumps({"id":"test"})
+        body = json.dumps({"id": id})
+        #body = json.dumps({"id":"test"})
         ret = create_response(body)
         return ret
 
