@@ -61,7 +61,7 @@ def fetch_detection_dataset_pets(split_validation=True, test_size=0.2):
     image_path_list = [os.path.join("pets/images", name + ".jpg") for name in name_list]
 
     if split_validation == False:
-        return annotation_list, image_path_list
+        return image_path_list, annotation_list
 
     else:
         image_path_list, annotation_list = np.array(image_path_list), np.array(annotation_list)
@@ -70,7 +70,7 @@ def fetch_detection_dataset_pets(split_validation=True, test_size=0.2):
         train_index, test_index = indices[threshold:], indices[:threshold]
         train_annotation_list, valid_annotation_list = annotation_list[train_index], annotation_list[test_index]
         train_image_path_list, valid_image_path_list = image_path_list[train_index], image_path_list[test_index]
-        return list(train_annotation_list), list(train_image_path_list), list(valid_annotation_list), list(valid_annotation_list)
+        return list(train_image_path_list), list(train_annotation_list), list(valid_image_path_list), list(valid_annotation_list)
 
 
 def fetch_detection_dataset_voc_2007(split_validation=True):
@@ -97,7 +97,6 @@ def fetch_detection_dataset_voc_2007(split_validation=True):
         ],
     """
     voc_2007_url = "http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar"
-
     voc_2007_tar = "VOCtrainval_06-Nov-2007.tar"
 
     image_voc_2007 = "VOCdevkit/VOC2007/JPEGImages/"
