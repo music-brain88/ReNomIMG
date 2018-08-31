@@ -166,12 +166,12 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
         pred_boxes = [obj['box'] for obj in pred_list_per_img]
 
         gt_seen = np.zeros(len(gt_boxes), dtype=bool)
-        for label, box in zip(pred_labels, pred_boxes):
+        for label, name, box in zip(pred_labels, pred_names, pred_boxes):
             x1, y1, x2, y2 = transform2xy12(box)
 
             maxiou = -1
             maxiou_id = -1
-            for j, (gt_label, name, gt_box) in enumerate(zip(gt_labels, gt_names, gt_boxes)):
+            for j, (gt_label, gt_box) in enumerate(zip(gt_labels, gt_boxes)):
                 if gt_label != label:
                     continue
                 gt_x1, gt_y1, gt_x2, gt_y2 = transform2xy12(gt_box)
