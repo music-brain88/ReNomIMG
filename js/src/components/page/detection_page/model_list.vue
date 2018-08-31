@@ -57,7 +57,7 @@ export default {
 
   $selectbox-height: 20px;
 
-  height: 650px;
+  height: calc(100% - #{$content-top-header-hight} - #{$component-margin-top} - #{$content-top-margin} - 223px);// 650
   margin: 0;
   margin-top: $component-margin-top;
   // border-top: $border-width solid $border-color;

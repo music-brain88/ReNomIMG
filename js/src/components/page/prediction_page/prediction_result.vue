@@ -6,7 +6,11 @@
           <div class="title-text">
             Prediction result
           </div>
-          <pager></pager>
+          <div>
+            <span><img class="left_arrow" :src="left_arrow"></span>
+            <span><img class="right_arrow" :src="right_arrow"></span>
+          </div>
+          <!-- <pager></pager>-->
         </div>
         <div v-if="getPredictResults.length > 0" class="content">
           <sample-image
@@ -58,6 +62,12 @@ export default {
     'sample-image': SampleImage,
     'pager': Pager
   },
+  data: function () {
+    return {
+      left_arrow: require('../../../../static/img/yajileft.png'),
+      right_arrow: require('../../../../static/img/yajiright.png')
+    }
+  },
   computed: {
     getPredictResults: function () {
       return this.$store.getters.getPredictResults
@@ -84,12 +94,25 @@ export default {
       line-height: $content-top-header-hight;
       margin-left: $content-top-heder-horizonral-margin;
     }
+   
+    div {
+      align-self: center;
+      padding-right: 10px;
+      span {
+        padding-left: 5px;
+        font-size: 1.4rem;
+      }
+      span:hover:not(.inactive) {
+        color: #004cc9;
+      }
+    }
+    
   }
 
   .content {
     margin-top: $content-top-margin;
     width: 100%;
-    height:$content-prediction-height;
+    height:calc(#{$content-prediction-height} + #{$content-top-margin} + #{$content-top-header-hight} );
     //min-height: calc(170px * 3);
     border: 1px solid $content-border-color;
     padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
