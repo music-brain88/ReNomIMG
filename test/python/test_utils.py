@@ -4,8 +4,7 @@ import shutil
 import pytest
 import numpy as np
 import inspect
-from PIL import Image
-
+from PIL import Image 
 from renom_img.api.utility.evaluate import EvaluatorDetection
 from renom_img.api.utility.augmentation.process import contrast_norm
 from renom_img.api.utility.augmentation.process import shift
@@ -168,7 +167,7 @@ def test_evaluator_mean_iou(pred, gt):
 @pytest.mark.parametrize('pred, gt', [
     [[[{'box': [40, 30, 60, 40], 'score': 0.8, 'class': 0, 'name': 'dog'},
         {'box': [70, 90, 40, 20], 'score': 0.9, 'class': 1, 'name': 'cat'},
-        {'box': [10, 20, 30, 40], 'score': 0.9, 'class': 1, 'name': 'cat'}],
+        {'box': [20, 20, 30, 40], 'score': 0.9, 'class': 1, 'name': 'cat'}],
         [{'box': [80, 100, 60, 40], 'score': 0.8, 'class': 0, 'name': 'dog'}]],
         [[{'box': [45, 30, 60, 50], 'class': 0, 'name': 'dog'},
             {'box': [70, 95, 40, 30], 'class': 1, 'name': 'cat'}],
@@ -177,5 +176,5 @@ def test_evaluator_mean_iou(pred, gt):
 def test_evaluator_iou(pred, gt):
     evalDetection = EvaluatorDetection(pred, gt)
     iou = evalDetection.iou()
-    assert round(iou['dog'], 3) == 0.662
-    assert round(iou['cat'], 3) == 0.667
+    assert iou['dog'] == 0.662
+    assert iou['cat'] == 0.667
