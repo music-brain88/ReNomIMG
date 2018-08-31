@@ -1,9 +1,11 @@
 <template>
   <div id='sample-image' @click.stop.prevent='onClick'>
     <img id='image' :src='image_path' :width='resized_width' :height='resized_height'/>
-    <div id='box'
-      v-for="(item, index) in bboxes" :key="index" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'2px solid '+getColor(item[0])}">
-      <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
+    <div v-if="bboxes.length !==0">
+      <div id='box'
+        v-for="(item, index) in bboxes" :key="index" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'2px solid '+getColor(item[0])}">
+        <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
+      </div>
     </div>
   </div>
 </template>

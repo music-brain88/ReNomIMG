@@ -21,7 +21,7 @@
         </button>
         <button class="bar-button" @click="goDataset">
           <tt>
-            <i class="fa fa-area-chart" aria-hidden="true"></i>
+            <i class="fa fa-database" aria-hidden="true"></i>
             Dataset
           </tt>
         </button>

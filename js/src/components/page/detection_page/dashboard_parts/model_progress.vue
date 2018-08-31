@@ -6,7 +6,7 @@
         Model ID
       </div>
       <div class="value">
-        {{ model.model_id }}
+      <span class="dynamic-label">{{ model.model_id }}</span>
       </div>
     </div>
 
@@ -16,7 +16,7 @@
       </div>
       <div class="value"
         v-if="model.running_state!==running_state['starting']">
-        {{model.last_epoch}}/{{model.hyper_parameters['total_epoch']}}
+        <span class="dynamic-label">{{model.last_epoch}}</span>/{{model.hyper_parameters['total_epoch']}}
       </div>
       <div class="value"
         v-if="model.running_state===running_state['starting']">
@@ -30,7 +30,7 @@
       </div>
       <div class="value"
         v-if="model.running_state!==running_state['starting']">
-        {{model.last_batch}}/{{model.total_batch}}
+        <span class="dynamic-label">{{model.last_batch}}</span>/{{model.total_batch}}
       </div>
       <div class="value"
         v-if="model.running_state===running_state['starting']">
@@ -65,7 +65,7 @@
       </div>
 
       <div class="value">
-        <span v-if="model.running_state===running_state['training']">
+        <span class="dynamic-label" v-if="model.running_state===running_state['training']">
           {{round(model.last_train_loss, 1000).toFixed(3)}}
         </span>
         <span v-if="model.running_state!==running_state['training']">
@@ -202,7 +202,7 @@ export default {
     flex-direction: column;
     -webkit-flex-direction: column;
 
-    width: 64px;
+   // width: 64px; 
 
     .label, .label span {
       color: $label-color;
@@ -211,9 +211,17 @@ export default {
     }
 
     .value, .value span {
+      color:$font-color-label;
       font-size: $content-inner-box-font-size;
       line-height:  $content-inner-box-font-size;
+      span.dynamic-label{
+        color:#000000;
+      }
     }
+  }
+
+  div.value-item:not(:first-child){
+   margin-left:20px; 
   }
 
   .stop-button-area {
@@ -221,16 +229,16 @@ export default {
     .stop-button {
       position: absolute;
       bottom: 0;
-      width: 14px;
-      height: 14px;
-      margin-right: $content-margin;
+      width: 20px;
+      height: 20px;
+      margin-left: calc(#{$content-margin}*3);
       line-height: $content-inner-box-font-size;
       font-size: $content-inner-box-font-size;
       color: $stop-button-color;
       cursor: pointer;
       img{
-        height: 10px;
-        width:10px;
+        height: 20px;
+        width:20px;
       }
     }
     .stop-button:hover {

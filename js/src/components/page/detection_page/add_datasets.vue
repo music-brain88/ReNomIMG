@@ -103,11 +103,11 @@
                         <span>Total Number of Tag</span>
                       </div>
                       <div class="col-md-6 col-form-label">
-                        <span>{{dataset_detail.train_tag_count}}{{ dataset_detail.valid_tag_count}}</span>
+                        <span>{{calcTotaltag_num(dataset_detail.class_tag_list)}}</span>
                       </div>
                     </div>
 
-                    <div v-for=" data in dataset_detail.class_tag_list" class="row space-top">
+                    <div v-for=" data in dataset_detail.class_tag_list" class="row space-top taglist-preview">
 
                       <div class="col-md-6 col-form-label">
                         {{data.tags}} :
@@ -127,14 +127,73 @@
                           </div>
                         </div>
                       </div>
-                    </div>
-
-                    <div class="row">
-                      <div class="col-md-12">
-                        {{id}}
+                      
+                      <!-- test -->
+                      <div class="col-md-6 col-form-label">
+                        {{data.tags}} :
                       </div>
-                    </div>
+                      <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
+                        <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                        <div class="progress figure tag-progress">
+                          <div class="progress-bar train-color"
+                              role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
+                              aria-valuemin="0"
+                              aria-valuemax="100">
+                          </div>
+                          <div class="progress-bar validation-color"
+                              role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
+                              aria-valuemin="0"
+                              aria-valuemax="100">
+                          </div>
+                        </div>
+                      </div>
+                      <!-- test -->
 
+                      <!-- test -->
+                      <div class="col-md-6 col-form-label">
+                        {{data.tags}} :
+                      </div>
+                      <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
+                        <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                        <div class="progress figure tag-progress">
+                          <div class="progress-bar train-color"
+                              role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
+                              aria-valuemin="0"
+                              aria-valuemax="100">
+                          </div>
+                          <div class="progress-bar validation-color"
+                              role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
+                              aria-valuemin="0"
+                              aria-valuemax="100">
+                          </div>
+                        </div>
+                      </div>
+                      <!-- test -->
+
+                      <!-- test -->
+                      <div class="col-md-6 col-form-label">
+                        {{data.tags}} :
+                      </div>
+                      <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
+                        <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                        <div class="progress figure tag-progress">
+                          <div class="progress-bar train-color"
+                              role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
+                              aria-valuemin="0"
+                              aria-valuemax="100">
+                          </div>
+                          <div class="progress-bar validation-color"
+                              role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
+                              aria-valuemin="0"
+                              aria-valuemax="100">
+                          </div>
+                        </div>
+                      </div>
+                      <!-- test -->
+
+
+                    </div>
+ 
                   </div>
                 </div>
               </div>
@@ -222,6 +281,14 @@ export default {
       //  this.name = ''
       // })
     },
+    calcTotaltag_num: function (list) {
+      let tag_sum = 0
+      for (let i in list) {
+        tag_sum += list[i].train
+        tag_sum += list[i].valid
+      }
+      return tag_sum
+    },
     calc_percentage: function (target, total) {
       // let value = (train / this.$store.state.dataset_detail_max_value) * 100
       let value = (target / total) * 100
@@ -260,6 +327,23 @@ export default {
   ::-webkit-input-placeholder {
     color: #999999;
   }
+
+  // scroll setting
+
+  div::-webkit-scrollbar{
+    width: 6px;
+  }
+  div::-webkit-scrollbar-track{
+    background: $body-color;
+    border: none;
+    border-radius: 6px;
+  }
+  div::-webkit-scrollbar-thumb{
+    background: #aaa;
+    border-radius: 6px;
+    box-shadow: none;
+  }
+
 
   h5{
     font-family: $content-inner-header-font-family;
@@ -399,7 +483,10 @@ export default {
   .tag-hidden{
     visibility: hidden;
   }
-
+  .taglist-preview{
+    overflow-y:scroll;
+    height:130px;
+  }
 
 }
 </style>

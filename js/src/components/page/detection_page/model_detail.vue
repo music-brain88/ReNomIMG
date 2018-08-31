@@ -9,7 +9,7 @@
                 Model Detail
               </div>
             </div>
-            <div class="col-md-3 col-sm-12 panel">
+            <div class="col-md-3 col-sm-12" v-bind:class="{'panel-selected':model,'panel-not-selected': !model}">
               <predict-model-selection v-if="model" :model="model"></predict-model-selection>
             </div>
           </div>
@@ -75,11 +75,15 @@ export default {
       line-height: $content-top-header-hight;
       margin-left: $content-top-heder-horizonral-margin;
     }
-    .panel{
+    .panel-selected{
       background-color: $panel-bg-color;
       &:hover{
         background-color: $panel-bg-color-hover;
       }
+    }
+
+    .panel-not-selected{
+      background: $panel-bg-color;
     }
   }
 

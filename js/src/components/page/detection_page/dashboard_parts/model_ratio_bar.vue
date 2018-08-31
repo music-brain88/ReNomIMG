@@ -132,7 +132,7 @@ export default {
             display: false,
             stacked: true,
             barParcentage: 0.5,
-            categoryPercentage: 0.3
+            categoryPercentage: 0.5
           }]
         },
         responsive: false,
@@ -146,7 +146,13 @@ export default {
           }
         },
         tooltips: {
-          bodyFontSize: 10
+          enabled: false
+        },
+        layout: {
+          padding: {
+            top: 0,
+            bottom: 20
+          }
         }
       }
 

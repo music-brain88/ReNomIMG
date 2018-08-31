@@ -19,6 +19,7 @@
         </div>
         <div v-else class="content none-image">
           None Image
+          {{getPredictResults}}
         </div>
       </div>
     </div>

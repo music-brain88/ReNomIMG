@@ -36,13 +36,13 @@ export default {
 
 <style lang="scss">
 @font-face{
-  font-family: $content-top-header-font-family;
-  src: local ("../static/fonts/OpenSans-Regular.ttf");
+  font-family: $header-product-name-font-family;
+  src: url("../static/fonts/OpenSans-Regular.ttf");
 }
 
 @font-face{
   font-family: $content-inner-header-font-family;
-  src: local ("../static/fonts/OpenSans-Light.ttf");
+  src: url("../static/fonts/OpenSans-Light.ttf");
 }
 
 

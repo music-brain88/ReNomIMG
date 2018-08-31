@@ -32,7 +32,7 @@
                   </tr>
                 </thead>
                 <tbody class="scroll-controll" v-if="dataset_defs.length!==0">
-                <tr v-bind:class="{'selected': index === index }" v-for="(def, index) in dataset_defs" :key="def.id" @click="selectDataset(index)">
+                <tr v-bind:class="{'selected': index === number }" v-for="(def, number) in dataset_defs" :key="def.id" @click="selectDataset(number)">
                    <td> {{ def.id }}</td>
                    <td> {{ def.name }} </td>
                    <td> {{ def.train_imgs }} </td>
@@ -50,13 +50,8 @@
 
             <!--Dataset preview -->
             <div class="col-md-4 preview">
-              <!-- <form>
-                <div>Name: <input v-model='name' type='text' placeholder='Dataset name' /> </div>
-                <div>Ratio of training data: <input v-model='ratio'  type='number' placeholder='80.0' style='width:100px' /> % </div>
-                <button @click="register">Create</button>
-              </form> -->
-              <h5 class="dataset-name" v-if=" index ==='' "></h5>
-              <h5 class="dataset-name" v-else>{{dataset_defs[index].name}}</h5>
+              <h5 class="dataset-name view-title" v-if=" index ==='' ">None dataset</h5>
+              <h5 class="dataset-name view-title selected" v-else>{{dataset_defs[index].name}}</h5>
               <div class="row justify-content-center space-top space-label-bottom">
                 <div class="col-sm-12 space-label-bottom">
                   <label class="discription-label">Discription</label>
@@ -117,43 +112,64 @@
 
             <!--figure -->
             <div class="col-md-4">
-              <div class ="row space-label-bottom">
+              <div class ="row space-label-bottom view-area">
                 
                 <div class="col-md-6 col-form-label">
                   <span>Total Number of Tag</span>
                 </div>
                 <div class="col-md-6 col-form-label">
-                  <span v-if="index!==''">{{dataset_defs[index].id}} </span>
+                  <span v-if="index!==''"> {{calcTotaltag_num(dataset_defs[index].class_tag_list)}}</span>
                 </div>
               </div>
 
               <!-- taglist -->
-              <div v-if=" index===''"  class="row">
-               
-                <div class="col-md-12 col-form-label">
-                  <span>Please click table row.<br />After click you can see detail here</span>
-                </div>
-                
-              </div>
-              
-              <div v-else v-for="data in  dataset_defs[index].class_tag_list" class="row">
-                
-                
-                <div class="col-md-6 col-form-label">
-                  <span>{{data.tags}}</span>
-                </div>
-                <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data">
-                  <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
-                  <div class="progress figure tag-progress">
-                    <div class="progress-bar train-color"
-                      role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
-                      aria-valuemin="0"
-                      aria-valuemax="100">
+              <div v-if=" index===''" class="row" v-bind:class="{'tag-list-view':test >= 5}">
+                <div v-for="i in test" class="row col-md-12">
+                 
+                 <!-- <div class="col-md-12 col-form-label">
+                    <span>Please click table row.<br />After click you can see detail here</span>
+                  </div> -->
+                  <div class="col-md-6 col-form-label">
+                    <span>{{i}}</span>
+                  </div>
+                  <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data">
+                    <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{300}}・{{400}}</div>
+                    <div class="progress figure tag-progress">
+                      <div class="progress-bar train-color"
+                        role="progressbar" :style="'width:' + calc_percentage(i*20, 100)+'%;'"
+                        aria-valuemin="0"
+                        aria-valuemax="100">
+                      </div>
+                      <div class="progress-bar validation-color"
+                        role="progressbar" :style="'width:' + calc_percentage(i*30, 100)+'%;'"
+                        aria-valuemin="0"
+                        aria-valuemax="100">
+                      </div>
                     </div>
-                    <div class="progress-bar validation-color"
-                      role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
-                      aria-valuemin="0"
-                      aria-valuemax="100">
+                  </div>
+                  
+                </div>
+              </div>
+             
+              <div v-else class="row" v-bind:class="{'tag-list-view':dataset_defs[index].class_tag_list.length >= 5}">
+                <div v-for="data in  dataset_defs[index].class_tag_list" class="row col-md-12">
+                  
+                  <div class="col-md-6 col-form-label">
+                    <span>{{data.tags}}</span>
+                  </div>
+                  <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data">
+                    <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                    <div class="progress figure tag-progress">
+                      <div class="progress-bar train-color"
+                        role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
+                        aria-valuemin="0"
+                        aria-valuemax="100">
+                      </div>
+                      <div class="progress-bar validation-color"
+                        role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
+                        aria-valuemin="0"
+                        aria-valuemax="100">
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -194,7 +210,8 @@ export default {
       ratio: DEFAULT_RATIO,
       name: '',
       index: '',
-      show_tag_data_flg: false
+      show_tag_data_flg: false,
+      test: 100
     }
   },
   created: function () {
@@ -242,8 +259,13 @@ export default {
     selectDataset: function (index) {
       this.index = index
     },
-    calcTotaltag_numi: function (data) {
-      return data
+    calcTotaltag_num: function (list) {
+      let tag_sum = 0
+      for (let i in list) {
+        tag_sum += list[i].train
+        tag_sum += list[i].valid
+      }
+      return tag_sum
     }
   }
 }
@@ -263,11 +285,12 @@ export default {
   width: 100%;
   padding-bottom: 64px;
   
+  /********************scroll***********************/
   tbody::-webkit-scrollbar{
     width: 6px;
   }
   tbody::-webkit-scrollbar-track{
-    background: $body-color;
+    background: $content-bg-color;
     border: none;
     border-radius: 6px;
   }
@@ -276,6 +299,22 @@ export default {
     border-radius: 6px;
     box-shadow: none;
   }
+
+
+  div::-webkit-scrollbar{
+    width: 6px;
+  }
+  div::-webkit-scrollbar-track{
+    background: $content-bg-color;
+    border: none;
+    border-radius: 6px;
+  }
+  div::-webkit-scrollbar-thumb{
+    background: #aaa;
+    border-radius: 6px;
+    box-shadow: none;
+  }
+  /********************scroll***********************/
 
   form {
     background: #FFFFFF;
@@ -286,7 +325,7 @@ export default {
     tbody{
       tr:hover{
         color:$table-hover-font-color;
-        background-color: $table-hover-color;
+       // background-color: $table-hover-color;
       }
     }
   }
@@ -409,6 +448,19 @@ export default {
   
   .selected{
     color:$table-selected-font-color;
+  }
+
+  .view-title{
+    margin-top:55px;
+  }
+
+  .view-area{
+    margin-top:80px; 
+  }
+
+  .tag-list-view{
+    height:175px;
+    overflow-y:scroll;
   }
 
 }
