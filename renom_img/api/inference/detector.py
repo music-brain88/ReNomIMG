@@ -1,7 +1,6 @@
 import asyncio
 import requests
 import urllib.request
-
 import numpy as np
 from renom_img.server import ALG_YOLOV1, ALG_YOLOV2, ALG_SSD
 from renom_img.api.utility.misc.download import download
@@ -39,7 +38,6 @@ class Detector(object):
             >>> detector.pull()
 
         """
-        # TODO: Check server status.
         url = self._url + ':' + self._port
         download_weight_api = "/api/renom_img/v1/projects/{}/deployed_model".format(self._pj_id)
         download_param_api = "/api/renom_img/v1/projects/{}/deployed_model_info".format(self._pj_id)
@@ -82,7 +80,10 @@ class Detector(object):
             >>> from renom_img.api.inference.detector import Detector
             >>> detector = Detector()
             >>> detector.pull()
-            >>> detector.predict()
+            >>> detector.predict(path_to_image)
+            {
+              {'box':[0.2, 0.1, 0.5, 0.3], 'class':0, 'name': 'dog', 'score':0.5}
+            }
         """
         assert self._model
         return self._model.predict(img)

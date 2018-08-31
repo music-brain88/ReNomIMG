@@ -4,7 +4,7 @@ import shutil
 import pytest
 import numpy as np
 import inspect
-from PIL import Image 
+from PIL import Image
 from renom_img.api.utility.evaluate import EvaluatorDetection
 from renom_img.api.utility.augmentation.process import contrast_norm
 from renom_img.api.utility.augmentation.process import shift

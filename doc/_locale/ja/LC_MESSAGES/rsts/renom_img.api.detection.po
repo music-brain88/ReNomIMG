@@ -377,7 +377,6 @@ msgid "In Yolo v1, weight decay of 0.0005 will be added."
 msgstr "Yolo v1では重み減衰として0.0005が利用されます。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2:1
-#, fuzzy
 msgid "Yolov2 object detection algorithm."
 msgstr "Yolo 物体識別アルゴリズム"
 
@@ -449,12 +448,10 @@ msgid "Loss function specified for yolov2."
 msgstr "Yolov2で指定された損失関数"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
-#, fuzzy
 msgid "Image preprocess for Yolov2."
 msgstr "Yolov2用の前処理"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.regularize:4
-#, fuzzy
 msgid "In Yolo v2, weight decay of 0.0005 will be added."
 msgstr "Yolov2では重み減衰として0.0005が利用されます。"
 

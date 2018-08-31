@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 13:30+0900\n"
+"POT-Creation-Date: 2018-08-31 20:48+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: ../../rst/renom_img.api.utility.rst:2
+#: ../../rsts/renom_img.api.utility.rst:2
 msgid "renom\\_img.api.utility"
 msgstr ""
 
-#: ../../rst/renom_img.api.utility.rst:5
+#: ../../rsts/renom_img.api.utility.rst:5
 msgid "renom\\_img.api.utility.box"
 msgstr ""
 
@@ -70,6 +70,7 @@ msgstr "ボックスが特定のサイズになるように座標とサイズを
 #: renom_img.api.utility.target.DataBuilderSegmentation
 #: renom_img.api.utility.target.DataBuilderSegmentation.build
 #: renom_img.api.utility.target.DataBuilderSegmentation.load_annotation
+#: renom_img.api.utility.target.DataBuilderSegmentation.load_img
 msgid "Parameters"
 msgstr "パラメータ"
 
@@ -146,6 +147,7 @@ msgstr "引数のボックスは以下の例のようなフォーマットでな
 #: renom_img.api.utility.target.DataBuilderDetection.build
 #: renom_img.api.utility.target.DataBuilderSegmentation.build
 #: renom_img.api.utility.target.DataBuilderSegmentation.load_annotation
+#: renom_img.api.utility.target.DataBuilderSegmentation.load_img
 msgid "Returns"
 msgstr "戻り値"
 
@@ -187,6 +189,7 @@ msgstr "フォームが変更されたバウンディングボックスを返し
 #: renom_img.api.utility.target.DataBuilderDetection.build
 #: renom_img.api.utility.target.DataBuilderSegmentation.build
 #: renom_img.api.utility.target.DataBuilderSegmentation.load_annotation
+#: renom_img.api.utility.target.DataBuilderSegmentation.load_img
 msgid "Return type"
 msgstr "戻り値の型"
 
@@ -228,7 +231,7 @@ msgstr "IOUの値を返却します。"
 msgid "This function calculates IOU in the coordinate format (x1, y1, x2, y2)."
 msgstr "この関数は座標のフォーマット(x1, y1, x2, y2)の下でIOUを計算します。"
 
-#: ../../rst/renom_img.api.utility.rst:13
+#: ../../rsts/renom_img.api.utility.rst:13
 msgid "renom\\_img.api.utility.load"
 msgstr ""
 
@@ -246,7 +249,7 @@ msgid ""
 "dictionary which includes keys 'box' and 'name'. The structure is bellow."
 msgstr "アノテーションのリストを返却します。各アノテーションはキーとしてボックスと名前を含むような辞書のリストからなります。構造は以下に示す通りです。"
 
-#: ../../rst/renom_img.api.utility.rst:20
+#: ../../rsts/renom_img.api.utility.rst:20
 msgid "renom\\_img.api.utility.nms"
 msgstr ""
 
@@ -300,7 +303,7 @@ msgstr ""
 msgid "https://arxiv.org/abs/1704.04503"
 msgstr ""
 
-#: ../../rst/renom_img.api.utility.rst:28
+#: ../../rsts/renom_img.api.utility.rst:28
 msgid "renom\\_img.api.utility.target"
 msgstr ""
 
@@ -389,7 +392,32 @@ msgid ""
 " actual image width,"
 msgstr "アノテーションデータ(numpy.array)、元画像の幅に対する与えられた幅の割合"
 
-#: ../../rst/renom_img.api.utility.rst:36
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:1
+msgid "Loads an image"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:3
+msgid "A path of an image"
+msgstr "入力画像のパスのリスト"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:6
+msgid ""
+"Returns image(numpy.array), the ratio of the given width to the actual "
+"image width,          and the ratio of the given height to the actual "
+"image height"
+msgstr "アノテーションデータ(numpy.array)、元画像の幅に対する与えられた幅の割合"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:8
+msgid ""
+"Returns image(numpy.array), the ratio of the given width to the actual "
+"image width,"
+msgstr "アノテーションデータ(numpy.array)、元画像の幅に対する与えられた幅の割合"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:9
+msgid "and the ratio of the given height to the actual image height"
+msgstr "アノテーションデータ(numpy.array)、元画像の幅に対する与えられた幅の割合"
+
+#: ../../rsts/renom_img.api.utility.rst:36
 msgid "renom\\_img.api.utility.augmentation"
 msgstr ""
 
@@ -420,7 +448,7 @@ msgid ""
 msgstr "Processモジュールのリスト。Flip, Shift, RotateそしてWhiteNoiseから選択できます。"
 
 #: of renom_img.api.utility.augmentation.Augmentation:10
-#: renom_img.api.utility.augmentation.process.contrast_norm:19
+#: renom_img.api.utility.augmentation.process.contrast_norm:27
 #: renom_img.api.utility.evaluate.EvaluatorClassification:18
 #: renom_img.api.utility.evaluate.EvaluatorDetection:27
 #: renom_img.api.utility.evaluate.EvaluatorSegmentation:20
@@ -453,7 +481,6 @@ msgid "list of annotation for x. It is only used when prediction."
 msgstr "xのアノテーションのリスト。予測時のみ利用されます。"
 
 #: of renom_img.api.utility.augmentation.Augmentation.transform:8
-#: renom_img.api.utility.augmentation.process.contrast_norm:8
 #: renom_img.api.utility.augmentation.process.white_noise:8
 msgid ""
 "list of transformed images and list of annotation for x.  .. code-block "
@@ -462,7 +489,7 @@ msgid ""
 msgstr ""
 
 #: of renom_img.api.utility.augmentation.Augmentation.transform:8
-#: renom_img.api.utility.augmentation.process.contrast_norm:8
+#: renom_img.api.utility.augmentation.process.contrast_norm:15
 #: renom_img.api.utility.augmentation.process.flip:8
 #: renom_img.api.utility.augmentation.process.rotate:8
 #: renom_img.api.utility.augmentation.process.shift:8
@@ -497,7 +524,20 @@ msgstr "画像にホワイトノイズを加えます。"
 msgid "Contrast Normalization"
 msgstr "コントラスト正規化"
 
-#: ../../rst/renom_img.api.utility.rst:49
+#: of renom_img.api.utility.augmentation.process.contrast_norm:7
+msgid ""
+"Higher value increases contrast, and lower value decreases contrast. if a"
+" list [a, b], alpha value is sampled from uniform distribution ranging "
+"from [a, b). if a float, constant value of alpha is used."
+msgstr ""
+
+#: of renom_img.api.utility.augmentation.process.contrast_norm:11
+msgid ""
+"Whether to apply contrast normalization for each channel. If alpha is "
+"given a list, then different values for each channel are used."
+msgstr ""
+
+#: ../../rsts/renom_img.api.utility.rst:49
 msgid "renom\\_img.api.utility.evaluate"
 msgstr ""
 
@@ -1003,7 +1043,7 @@ msgstr ""
 msgid "5553608/18351769"
 msgstr ""
 
-#: ../../rst/renom_img.api.utility.rst:57
+#: ../../rsts/renom_img.api.utility.rst:57
 msgid "renom\\_img.api.utility.distributor"
 msgstr ""
 
@@ -1042,7 +1082,7 @@ msgstr "画像とラベルを分割します。"
 msgid "ratio between training set and validation set"
 msgstr "トレーニングセットとバリデーションセットの割合"
 
-#: ../../rst/renom_img.api.utility.rst:65
+#: ../../rsts/renom_img.api.utility.rst:65
 msgid "renom\\_img.api.utility.misc"
 msgstr ""
 

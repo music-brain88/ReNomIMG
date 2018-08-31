@@ -108,7 +108,9 @@ processing_class = None
 
 def skip_doc(app, what, name, obj, skip, options):
     model_method = list(Model.__dict__.values())
-    if obj in model_method or (name not in str(options["members"]) and what == "module"):
+    # TODO: Modify this condition.
+    if obj in model_method or (name not in str(options["members"]) and what == "module") \
+            and name != "Detector":
         return True
     return None
 
