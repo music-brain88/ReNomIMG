@@ -298,7 +298,6 @@ export default {
       }
     },
     removeData: function () {
-      console.log('remove:', 'remove!!!!!')
       d3.select('#curve-canvas').selectAll('*')
         .remove()
     }

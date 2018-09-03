@@ -597,11 +597,12 @@ class Storage:
         with self.db:
             ret = []
             c = self.cursor()
-            c.execute("""SELECT id, name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list, created, updated FROM dataset_def""")
+            c.execute(
+                """SELECT id, name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list, created, updated FROM dataset_def""")
             for rec in c:
                 ret.append([
-                    rec[0], 
-                    rec[1], 
+                    rec[0],
+                    rec[1],
                     rec[2],
                     rec[3],
                     json.loads(rec[4]),

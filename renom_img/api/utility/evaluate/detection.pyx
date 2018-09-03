@@ -125,7 +125,7 @@ cpdef get_ap_and_map(prec, rec, n_class=None, n_round_off=3):
         aps[c] = round(ap, n_round_off)
     mAP = round(np.nanmean(list(aps.values())), n_round_off)
     if len(no_target_class) > 2:
-        warnings.warn("There is no following classes in the target data, (%s)"%",".join(no_target_class[:3] + '...'))
+        warnings.warn("There is no following classes in the target data, (%s)"%",".join(no_target_class[:3]) + '...')
     elif len(no_target_class) > 0:
         warnings.warn("There is no following classes in the target data. (%s)"%",".join(no_target_class))
     return aps, mAP
@@ -199,7 +199,7 @@ cpdef get_mean_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_round_
             if k not in target_class:
                 no_target_class.append(k)
     if len(no_target_class) > 2:
-        warnings.warn("There is no following classes in the target data, (%s)"%",".join(no_target_class[:3] + '...'))
+        warnings.warn("There is no following classes in the target data, (%s)"%",".join(no_target_class[:3]) + '...')
     elif len(no_target_class) > 0:
         warnings.warn("There is no following classes in the target data. (%s)"%",".join(no_target_class))
     mean_iou = round(np.nanmean(list(mean_iou_per_cls.values())), n_round_off)
@@ -308,7 +308,7 @@ cpdef get_prec_rec_iou(pred_list, gt_list, n_class=None, iou_threshold=0.5, n_ro
             if k in target_class:
                 no_target_class.append(k)
     if len(no_target_class) > 2:
-        warnings.warn("There is no following classes in the target data, (%s)"%",".join(no_target_class[:3] + '...'))
+        warnings.warn("There is no following classes in the target data, (%s)"%",".join(no_target_class[:3]) + '...')
     elif len(no_target_class) > 0:
         warnings.warn("There is no following classes in the target data. (%s)"%",".join(no_target_class))
     mean_iou = round(np.nanmean(list(mean_iou_per_cls.values())), n_round_off)
