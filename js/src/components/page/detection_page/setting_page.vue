@@ -54,7 +54,7 @@ export default {
   $modal-opacity: 0.7;
 
 
-  $modal-content-bg-color: #fefefe;
+  $modal-content-bg-color: #FFFFFF;
   $modal-content-padding: 32px;
 
 
@@ -67,7 +67,7 @@ export default {
   width: 100vw;
   height: calc(100vh - #{$header-height});
   z-index: 3;
-
+  background:$content-bg-color;
 
   a{
     opacity: 1;
@@ -133,11 +133,12 @@ export default {
     padding-bottom: $content-bottom-padding;
     width: calc(#{$modal-content-width} * #{$max-width}); //896
     height:$modal-content-height;
-    background-color: $modal-content-bg-color;
+    background-color: $content-bg-color;
     opacity: 1;
     border-radius: 0;
   }
   .modal-body{
+    background-color:$content-bg-color;
     padding: 0;
   }
 }

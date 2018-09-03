@@ -44,19 +44,6 @@ export default {
 
 <style lang="scss" scoped>
 #model-detail {
-  // $component-margin-top: 32px;
-  //
-  // $model-detail-height: 150px;
-  //
-  // $border-width: 2px;
-  // $border-color: #006699;
-  //
-  // $title-height: 44px;
-  // $title-font-size: 15pt;
-  // $font-weight-medium: 500;
-  //
-  // $content-bg-color: #ffffff;
-  // $content-border-color: #cccccc;
 
   width: 100%;
   margin: 0;
@@ -95,12 +82,12 @@ export default {
   .content {
     margin-top:$content-top-margin;
     margin-bottom: $content-top-margin;
-    height:$content-prediction-height;
+    //height:$content-prediction-height;
     display: flex;
     display: -webkit-flex;
-
+    
     width: 100%;
-    // height: calc(100% - #{$title-height});
+    height: calc(100% - #{$content-top-header-hight});
 
     // .model-detail-area {
     //   width: 84%;

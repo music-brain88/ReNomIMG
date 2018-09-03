@@ -228,17 +228,17 @@ export default {
     position: relative;
     .stop-button {
       position: absolute;
-      bottom: 0;
-      width: 20px;
-      height: 20px;
+      bottom: 5px;
+      width: 13px;
+      height: 13px;
       margin-left: calc(#{$content-margin}*3);
       line-height: $content-inner-box-font-size;
       font-size: $content-inner-box-font-size;
       color: $stop-button-color;
       cursor: pointer;
       img{
-        height: 20px;
-        width:20px;
+         height: 13px;
+         width:13px;
       }
     }
     .stop-button:hover {

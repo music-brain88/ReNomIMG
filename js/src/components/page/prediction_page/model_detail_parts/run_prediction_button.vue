@@ -4,7 +4,6 @@
       <span class="icon">
         <i class="fa fa-arrow-right" aria-hidden="true"></i> Prediction Start
       </span>
-      Start!
     </div>
   </div>
 </template>

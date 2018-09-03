@@ -107,6 +107,8 @@
                       </div>
                     </div>
 
+                    <!-- tag preview -->
+                   <!--  <div v-for=" data in dataset_detail.class_tag_list" class="row space-top taglist-preview">  -->
                     <div v-for=" data in dataset_detail.class_tag_list" class="row space-top taglist-preview">
 
                       <div class="col-md-6 col-form-label">
@@ -127,8 +129,8 @@
                           </div>
                         </div>
                       </div>
-                      
-                      <!-- test -->
+
+
                       <div class="col-md-6 col-form-label">
                         {{data.tags}} :
                       </div>
@@ -147,52 +149,9 @@
                           </div>
                         </div>
                       </div>
-                      <!-- test -->
-
-                      <!-- test -->
-                      <div class="col-md-6 col-form-label">
-                        {{data.tags}} :
-                      </div>
-                      <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
-                        <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
-                        <div class="progress figure tag-progress">
-                          <div class="progress-bar train-color"
-                              role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
-                              aria-valuemin="0"
-                              aria-valuemax="100">
-                          </div>
-                          <div class="progress-bar validation-color"
-                              role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
-                              aria-valuemin="0"
-                              aria-valuemax="100">
-                          </div>
-                        </div>
-                      </div>
-                      <!-- test -->
-
-                      <!-- test -->
-                      <div class="col-md-6 col-form-label">
-                        {{data.tags}} :
-                      </div>
-                      <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
-                        <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
-                        <div class="progress figure tag-progress">
-                          <div class="progress-bar train-color"
-                              role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
-                              aria-valuemin="0"
-                              aria-valuemax="100">
-                          </div>
-                          <div class="progress-bar validation-color"
-                              role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
-                              aria-valuemin="0"
-                              aria-valuemax="100">
-                          </div>
-                        </div>
-                      </div>
-                      <!-- test -->
-
 
                     </div>
+                    <!-- tag preview -->
  
                   </div>
                 </div>
@@ -422,7 +381,7 @@ export default {
     display: flex;
     flex-direction: row-reverse;
     position: absolute;
-    bottom: $modal-content-padding;
+    bottom: calc(#{$modal-content-padding} - 10px);
     right: $modal-content-padding;
 
     .submit{
@@ -448,7 +407,7 @@ export default {
     display: flex;
     flex-direction: row-reverse;
     position: absolute;
-    bottom: $modal-content-padding;
+    bottom: calc(#{$modal-content-padding} - 10px);
     left:calc(403px - calc(0.5rem + 0.75rem + 15px));
 
     .submit{
@@ -485,7 +444,7 @@ export default {
   }
   .taglist-preview{
     overflow-y:scroll;
-    height:130px;
+    //height:130px;
   }
 
 }

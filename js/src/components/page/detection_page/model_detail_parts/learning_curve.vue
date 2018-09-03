@@ -15,7 +15,7 @@
         </div>
         <div class="col-md-2">
           <div class="validation">
-            <span class="box"></span>Validation
+            <span class="box"></span>Valid
           </div>
         </div>
       </div>
@@ -31,7 +31,7 @@
 
 <script>
 import * as d3 from 'd3'
-
+import * as utils from '@/utils'
 export default {
   name: 'LearningCurve',
   props: {
@@ -196,7 +196,7 @@ export default {
         .attr('r', 2)
         .on('mousemove', function (d, index) {
           tooltips.style('display', 'inline-block')
-          tooltips.html(index + '<br />' + 'Train:' + d)
+          tooltips.html(index + '<br />' + 'Train:' + round(d, 1000).toFixed(3))
             .style('position', 'relative')
             .style('cursor', 'default')
             .style('left', (d3.select(this).attr('cx') - 30) + 'px')
@@ -204,7 +204,7 @@ export default {
             .style('color', d3.rgb(255, 255, 255, 0.8))
             .style('background', d3.rgb(0, 0, 0, 0.8))
             .style('padding', 2 + '%')
-            .style('border-radius', 6 + 'px')
+            .style('border-radius', 0 + 'px')
             .style('z-index', 10000)
             .on('mouseenter', function () {
               tooltips.style('display', 'inline-block')
@@ -231,7 +231,7 @@ export default {
         .attr('r', 2)
         .on('mouseenter', function (d, index) {
           tooltips.style('display', 'inline-block')
-          tooltips.html(index + '<br />' + 'Validation:' + d)
+          tooltips.html(index + '<br />' + 'Valid:' + round(d, 1000).toFixed(3))
             .style('position', 'relative')
             .style('cursor', 'default')
             .style('left', (d3.select(this).attr('cx') - 30) + 'px')
@@ -239,7 +239,7 @@ export default {
             .style('color', d3.rgb(255, 255, 255, 0.8))
             .style('background', d3.rgb(0, 0, 0, 0.8))
             .style('padding', 2 + '%')
-            .style('border-radius', 6 + 'px')
+            .style('border-radius', 0 + 'px')
             .style('z-index', 10000)
             .on('mouseenter', function () {
               tooltips.style('display', 'inline-block')
@@ -295,6 +295,9 @@ export default {
           .duration(1000)
           .call(zoom.transform, d3.zoomIdentity)
         d3.event.preventDefault()
+      }
+      function round (v, round_off) {
+        return utils.round(v, round_off)
       }
     },
     removeData: function () {

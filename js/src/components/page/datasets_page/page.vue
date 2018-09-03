@@ -20,8 +20,8 @@
 
         <div class="content">
           <div class="row col-md-12 clear-padding">
-            <div class="col-md-4 data-area">
-              <table class="table table-borderless">
+            <div class="col data-area table-responsive border-range">
+              <table class="table table-sm table-borderless">
                 <thead>
                   <tr>
                     <th>ID</th>
@@ -49,11 +49,11 @@
             </div>
 
             <!--Dataset preview -->
-            <div class="col-md-4 preview">
-              <h5 class="dataset-name view-title" v-if=" index ==='' ">None dataset</h5>
+            <div class="col preview">
+              <h5 class="dataset-name view-title" v-if=" index ==='' ">None dataset selected</h5>
               <h5 class="dataset-name view-title selected" v-else>{{dataset_defs[index].name}}</h5>
-              <div class="row justify-content-center space-top space-label-bottom">
-                <div class="col-sm-12 space-label-bottom">
+              <div class="row justify-content-center space-top">
+                <div class="col-sm-12 discription-bottom">
                   <label class="discription-label">Discription</label>
 
                   <textarea v-if="index !== ''" class="form-control sort-line discription-form" rows="3" v-model="dataset_defs[index].discription" readonly=readonly></textarea>
@@ -111,13 +111,13 @@
             <!--Dataset preview -->
 
             <!--figure -->
-            <div class="col-md-4">
+            <div class="col">
               <div class ="row space-label-bottom view-area">
                 
                 <div class="col-md-6 col-form-label">
                   <span>Total Number of Tag</span>
                 </div>
-                <div class="col-md-6 col-form-label">
+                <div class="col-md-6 col-form-label clear-padding">
                   <span v-if="index!==''"> {{calcTotaltag_num(dataset_defs[index].class_tag_list)}}</span>
                 </div>
               </div>
@@ -276,7 +276,7 @@ export default {
 #dataset-def-page {
   display: flex;
   display: -webkit-flex;
-  height: 784px;
+  height: 784px; //784
   flex-direction: column;
   -webkit-flex-direction: column;
 
@@ -323,6 +323,7 @@ export default {
   table{
     border:none; 
     tbody{
+      margin-top:10px;
       tr:hover{
         color:$table-hover-font-color;
        // background-color: $table-hover-color;
@@ -355,7 +356,7 @@ export default {
   }
 
   .scroll-controll{ 
-    height:450px;
+    height:460px;
     overflow-y: scroll;
   }
 
@@ -403,6 +404,7 @@ export default {
   
   .clear-padding{
     padding-left: 0;
+    padding-right:0;
   }
   
   .discription-label{
@@ -418,6 +420,10 @@ export default {
     font-size: calc(#{$tab-figure-font-size}*0.8);
   }
   
+  .discription-bottom{
+    margin-bottom: 10%;
+  }
+
   .space-label-bottom{
     margin-bottom: 5%;
   }
@@ -459,9 +465,10 @@ export default {
   }
 
   .tag-list-view{
-    height:175px;
+    height:350px; //175
     overflow-y:scroll;
   }
 
+  
 }
 </style>

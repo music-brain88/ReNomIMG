@@ -34,7 +34,7 @@ export default {
 }
 
 .label {
-  margin-right: 8px;
+  margin-right: $content-deploy-model-detail-text-margin;
   color: #999999;
   font-size: $content-inner-box-font-size;
 }

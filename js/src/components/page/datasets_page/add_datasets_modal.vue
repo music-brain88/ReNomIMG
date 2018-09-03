@@ -112,12 +112,13 @@ export default {
     padding-bottom: $content-bottom-padding;
     width: calc(#{$modal-content-width} * #{$max-width}); //896
     height:$modal-content-height;
-    background-color: $modal-content-bg-color;
+    background-color: $content-bg-color;
     opacity: 1;
     border-radius: 0;
   }
   .modal-body{
     padding: 0;
+    background-color: $content-bg-color;
   }
 }
 </style>

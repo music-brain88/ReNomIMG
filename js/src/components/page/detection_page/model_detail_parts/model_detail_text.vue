@@ -28,7 +28,7 @@
 
       <value-item :label="'IoU'" :val="round_percent(model.best_epoch_iou) + '%'"></value-item>
       <value-item :label="'mAP'" :val="round_percent(model.best_epoch_map) + '%'"></value-item>
-      <value-item :label="'Validation Loss'" :val="round(model.validation_loss_list[model.best_epoch], 1000)"></value-item>
+      <value-item :label="'Valid Loss'" :val="round(model.validation_loss_list[model.best_epoch], 1000)"></value-item>
 
     </div>
     <!-- <div class="title">

@@ -10,12 +10,15 @@
               <label class="col-sm-5 label col-form-label">
                 Dataset Name
               </label>
-              <div class="col-sm-7">
+              <div class="col-sm-7 row">
                 <select class="form-control sort-line" v-model="dataset_def_id">
                   <option v-for="d in dataset_defs" v-bind:value="d.id">
                     {{ d.name }}
                   </option>
                 </select>
+                <div class="link col-md-12 text-right">
+                  <a class="link"> &gt; Setting of Dataset</a>
+                </div>
               </div>
               
             </div>
@@ -137,9 +140,9 @@
                 Total Epoch
               </label>
               <div v-if="algorithm == 0" class="col-sm-7">
-                <input type="text" class="form-control sort-line" v-model="total_epoch" maxlength="4">
-                <div class="input-alert" v-if="total_epoch < 1">Epoch must greater than 1</div>
-                <div class="input-alert" v-if="total_epoch > 1000">Epoch must lower than 1000</div>
+                <input type="text" class="form-control sort-line is-invalid" v-bind:class="{'is-invalid': total_epoch < 1, 'is-invalid': total_epoch > 1000}" v-model="total_epoch" maxlength="4">
+                <div class="input-alert text-danger" v-if="total_epoch < 1">Epoch must greater than 1</div>
+                <div class="input-alert text-danger" v-if="total_epoch > 1000">Epoch must lower than 1000</div>
               </div>
               <div v-if="algorithm == 1" class="col-sm-7">
                 <input type="text" class="form-control sort-line"  v-model="total_epoch" maxlength="4">
@@ -153,8 +156,8 @@
               <div class="col-sm-7">
                 <input type="text" class="form-control sort-line" v-model="yolo1_batch_size" maxlength="5" v-if="algorithm == 0">
                 <input type="text" class="form-control sort-line" v-model="yolo2_batch_size" maxlength="5" v-if="algorithm == 1" readonly="readonly">
-                <div class="input-alert" v-if="batch_size < 1">Batch Size must greater than 1</div>
-                <div class="input-alert" v-if="batch_size > 512">Batch Size must lower than 512</div>
+                <div class="input-alert text-danger" v-if="batch_size < 1">Batch Size must greater than 1</div>
+                <div class="input-alert text-danger" v-if="batch_size > 512">Batch Size must lower than 512</div>
               </div>
             </div>
 
@@ -312,6 +315,10 @@ $content-label-width: 120px;
     ::-webkit-input-placeholder {
     color: #999999;
   }
+  .link{
+    color:#006ea1;
+    font-size:calc(#{$content-inner-box-font-size}*0.8);
+  }
 
   h5{
     font-family:$content-inner-header-font-family;
@@ -324,7 +331,7 @@ $content-label-width: 120px;
   }
 
   .form-control{
-    font-size: $content-inner-box-font-size;
+    font-size: calc(#{$content-inner-box-font-size} - 1pt);
     padding: 0;
     border-radius: 0;
     height: 20px;
@@ -358,7 +365,7 @@ $content-label-width: 120px;
     .sub-param-title {
       margin-top: $content-margin;
       font-size: $content-inner-header-font-size;
-    }
+    } 
 
     .param-item {
       display: flex;
@@ -384,7 +391,7 @@ $content-label-width: 120px;
         pading: 4px 8px;
         font-size: 12px;
         color:$content-setting-modal-error-color;
-      }
+      } 
     }
   }
   hr {
@@ -396,7 +403,7 @@ $content-label-width: 120px;
     display: flex;
     flex-direction: row-reverse;
     position: absolute;
-    bottom: $modal-content-padding;
+    bottom: calc(#{$modal-content-padding} - 10px);
     right: $modal-content-padding;
     .submit{
       font-size: $push-button-font-size;
@@ -428,5 +435,8 @@ $content-label-width: 120px;
   }
   .col-padding-clear{
    padding: 0;
+  }
+  .input-alert{
+    font-size:calc(#{$content-inner-box-font-size}*0.8);
   }
 </style>

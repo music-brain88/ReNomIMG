@@ -4,11 +4,17 @@
 
     <div class="model-id-algorithm">
       <div class="row space-top">
-        <div class="col-md-12">
-          <div class="label-value">
-            Model ID&nbsp;&nbsp;<span class="value">{{ model.model_id }}</span>&nbsp;&nbsp;&nbsp;&nbsp;Algorithm&nbsp;&nbsp;<span class="value">{{ getAlgorithmName(model.algorithm) }}</span>
+        <div class="col">
+          <div class="label-value model-id">
+            Model ID<span class="value">&nbsp;{{ model.model_id }}</span>
           </div>
         </div>
+        <div class="col">
+          <div class="label-value">
+            Algorithm
+          </div>
+        </div>
+        <span class="value">{{ getAlgorithmName(model.algorithm) }}</span>
       </div>
       <div class="row">
         <div class="col-md-12">
@@ -20,7 +26,7 @@
       <div class="row space-bottom">
         <div class="col-md-12">
           <div class="label-value">
-            Validation Loss&nbsp;&nbsp;<span class="value">{{ round(model.validation_loss_list[model.best_epoch], 1000) }}</span>
+            Valid Loss&nbsp;&nbsp;<span class="value">{{ round(model.validation_loss_list[model.best_epoch], 1000) }}</span>
           </div>
         </div>
       </div>
@@ -142,13 +148,13 @@ export default {
 
   display: flex;
   position: relative;
-  // width: calc(100% - 16px);
   width: calc(100% - 5px);
   height: 90px;
   margin: 0px 0px $item-margin-bottom;
   background-color: #ffffff;
   color: $label-color;
-  font-size: $content-inner-box-font-size;
+  font-family:$content-modellist-font-family;
+  font-size: calc(#{$content-inner-box-font-size});
 
   .predict_icon {
     position:absolute;
@@ -176,7 +182,7 @@ export default {
 
   .label-value {
     flex-direction: column;
-    padding: 2px 8px;
+    padding: 2px 2px 2px;
   }
 
   .model-id-algorithm {
@@ -202,7 +208,9 @@ export default {
     padding-bottom: 10px;
   }
 }
-
+.model-id{
+  margin-left:4px;
+}
 #model-list-item:hover {
   background-color: #CCCCCC;
 }

@@ -32,7 +32,7 @@ export default {
 #export-button {
   $button-height: 32px;
   position: absolute;
-  bottom: $content-bottom-padding;
+  bottom: 0;
 
   .export-button {
     height: $button-height;

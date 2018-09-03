@@ -32,7 +32,7 @@ export default {
 }
 
 .label {
-  margin-right: $content-margin;
+  margin-right: $content-deploy-model-detail-text-margin;
   color: #999999;
 }
 </style>

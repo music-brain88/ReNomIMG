@@ -2,7 +2,7 @@
   <div id="model-list" class="list-child">
     <div class="add-panel" @click="showAddModelModal">
       <!-- <i class="fa fa-plus" aria-hidden="true"></i>  -->
-      <img class="plus" :src="url">Add New Model
+      <p class="plus"><img :src="url">&nbsp;&nbsp;Add New Model</p>
     </div>
     <div class="title-selectbox">
       <div class="title">
@@ -14,7 +14,7 @@
           <option class="select-values" value="0">Model ID</option>
           <option class="select-values" value="1">IoU</option>
           <option class="select-values" value="2">mAP</option>
-          <option class="select-values" value="3">Validation Loss</option>
+          <option class="select-values" value="3">Valid Loss</option>
         </select>
       </div>
     </div>
@@ -60,7 +60,6 @@ export default {
   height: calc(100% - #{$content-top-header-hight} - #{$component-margin-top} - #{$content-top-margin} - 223px);// 650
   margin: 0;
   margin-top: $component-margin-top;
-  // border-top: $border-width solid $border-color;
   z-index: 0;
   position: fixed;
   font-family: $content-top-header-font-family;
@@ -160,9 +159,11 @@ export default {
     background-color: $panel-bg-color-hover;
   }
   .plus{
+    margin:0;
     margin-right: 10px;
-    vertical-align: middle;
-    height:$content-top-header-font-size;
+    // margin-top: calc(#{content-top-header-font-size} * 0.25)px;
+    line-height: calc(#{$panel-height} * 1.15);
+    //height: calc(#{$content-top-header-font-size});
   }
 }
 </style>

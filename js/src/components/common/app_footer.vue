@@ -44,6 +44,7 @@ export default {
 footer {
   display: block;
   width: 100%;
+  height:$footer-height;
   padding: 0;
   margin:0;
   background: $footer-color;
@@ -56,11 +57,11 @@ footer {
   .footer-content{
     padding-left: 3%;
     background: $footer-color;
-    height:150px;
+    height:118px;
   }
   .copyright{
     background: $footer-copyright-color;
-    margin-top: 1%;
+    margin-top: 0;
     height:35px;
     .copyright-text{
       line-height: 35px;
@@ -69,7 +70,7 @@ footer {
   }
 }
 .content-margin-top{
-  margin-top: 22px;
+  margin-top: 15px;
 }
 .media-wrapper{
   margin-top: $content-margin;

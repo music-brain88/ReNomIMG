@@ -9,25 +9,25 @@
         </div>
         <div class="content">
           <!-- tag-item -->
-          <!-- <div class='tag-item' v-for="(name, id) in selectedModelTags">
+          <div class='tag-item' v-for="(name, id) in selectedModelTags">
             <div class="item-name">
                 <span> &nbsp;{{ name }} </span>
             </div>
             <div class="box" v-bind:style="{backgroundColor: color_list[id%10]}">
               <span>{{id}}</span>
             </div>
-          </div> -->
+          </div>
           <!-- tag-item -->
 
           <!-- tag-item -->
-          <div class='tag-item' v-for="i in 20">
+          <!-- <div class='tag-item' v-for="i in 20">
             <div class="item-name">
                 <span>ABCDEFGHI</span>
             </div>
             <div class="box" v-bind:style="{backgroundColor: color_list[i%10]}">
               <span>{{i}}</span>
             </div>
-          </div>
+          </div> -->
           <!-- tag-item -->
         </div>
       </div>

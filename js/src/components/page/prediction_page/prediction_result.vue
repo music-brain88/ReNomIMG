@@ -112,7 +112,8 @@ export default {
   .content {
     margin-top: $content-top-margin;
     width: 100%;
-    height:calc(#{$content-prediction-height} + #{$content-top-margin} + #{$content-top-header-hight} );
+    // height:calc(#{$content-prediction-height} + #{$content-top-margin} + #{$content-top-header-hight} );
+    height: 500px;
     //min-height: calc(170px * 3);
     border: 1px solid $content-border-color;
     padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;

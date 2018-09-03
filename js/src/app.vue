@@ -5,7 +5,7 @@
   <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
 
   <div class="container">
-    <router-view></router-view>
+    <router-view></router-view> 
   </div>
 
   <app-footer></app-footer>
@@ -69,6 +69,7 @@ export default {
 
   .container {
     max-width: $max-width;
+    
   }
 }
 </style>
