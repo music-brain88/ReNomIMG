@@ -216,7 +216,7 @@ export default {
     ...mapState(['gpu_num']),
 
     status: function () {
-      return this.$store.getters.getModelsFromState(1).length < this.gpu_num ? 'Reserve' : 'Run'
+      return this.$store.getters.getModelsFromState(1).length < this.gpu_num ? 'Run' : 'Reserve'
     },
     dataset_defs: function () {
       return this.$store.state.dataset_defs

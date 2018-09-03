@@ -47,6 +47,7 @@ prediction_thread_pool = {}
 
 confirm_dataset = {}
 
+
 def get_train_thread_count():
     return len([th for th in train_thread_pool.values() if th[0].running()])
 
@@ -95,9 +96,12 @@ def static(file_name):
 @route("/css/<file_name:path>")
 def css(file_name):
     return _get_resource('static/css/', file_name)
+
+
 @route("/fonts/<file_name:path>")
 def font(file_name):
     return _get_resource('static/fonts/', file_name)
+
 
 @error(404)
 def error404(error):
@@ -399,7 +403,6 @@ def get_datasets():
                     width = height = 50
                 valid_imgs.append(dict(filename=img_name, width=width, height=height))
 
-
             ret.append(dict(id=id,
                             name=name,
                             ratio=ratio,
@@ -420,7 +423,8 @@ def get_datasets():
         ret = create_response(body)
         return ret
 
-@route("/api/renom_img/v1/load_dataset_split_detail", method=['POST','GET'])
+
+@route("/api/renom_img/v1/load_dataset_split_detail", method=['POST', 'GET'])
 def load_dataset_split_detail():
     try:
         datasrc = pathlib.Path(DATASRC_DIR)
@@ -436,9 +440,8 @@ def load_dataset_split_detail():
         discription = request.params.discription
 
         # if 2nd time delete confirmdataset id
-        if request.params.delete_id :
-          del confirm_dataset[request.params.delete_id]
-
+        if request.params.delete_id:
+            del confirm_dataset[request.params.delete_id]
 
         # search image files
         imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
@@ -458,7 +461,7 @@ def load_dataset_split_detail():
         valid_imgs = [str(img) for img in valids]
 
         perm = np.random.permutation(int(n_imgs))
-        perm_train, perm_valid = np.split(perm, [int(n_imgs*ratio)])
+        perm_train, perm_valid = np.split(perm, [int(n_imgs * ratio)])
         imgs = list(imgs)
 
         parsed_train_imgs = []
@@ -467,8 +470,10 @@ def load_dataset_split_detail():
         parsed_train_img_names = [str(imgs[perm]).split('.')[0] for perm in perm_train]
         parsed_valid_img_names = [str(imgs[perm]).split('.')[0] for perm in perm_valid]
 
-        parsed_train,train_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(path).split('/')[-1].split('.')[0] in parsed_train_img_names])
-        parsed_valid,valid_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(path).split('/')[-1].split('.')[0] in parsed_valid_img_names])
+        parsed_train, train_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
+            path).split('/')[-1].split('.')[0] in parsed_train_img_names])
+        parsed_valid, valid_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
+            path).split('/')[-1].split('.')[0] in parsed_valid_img_names])
 
         # Insert detailed informations
         train_num = len(train_imgs)
@@ -481,7 +486,7 @@ def load_dataset_split_detail():
                 if parsed_train[i][0].get('name') == train_class_map[j]:
                     if train_class_map[j] not in train_tag_count:
                         train_tag_count[train_class_map[j]] = 1
-                    else : 
+                    else:
                         train_tag_count[train_class_map[j]] += 1
 
         valid_tag_count = {}
@@ -490,41 +495,41 @@ def load_dataset_split_detail():
                 if parsed_valid[i][0].get('name') == valid_class_map[j]:
                     if valid_class_map[j] not in valid_tag_count:
                         valid_tag_count[valid_class_map[j]] = 1
-                    else : 
+                    else:
                         valid_tag_count[valid_class_map[j]] += 1
 
         for tags in train_tag_count:
             class_tag_list.append({
-                    "tags" : tags,
-                    "train" :train_tag_count.get(tags),
-                    "valid" :valid_tag_count.get(tags) 
-                    })
-                    
-        # save datasplit setting        
+                "tags": tags,
+                "train": train_tag_count.get(tags),
+                "valid": valid_tag_count.get(tags)
+            })
+
+        # save datasplit setting
         confirm_dataset[client_id] = {
             "name": name,
-            "ratio": ratio, 
+            "ratio": ratio,
             "discription": discription,
             "train_imgs": train_imgs,
             "valid_imgs": valid_imgs,
-            "class_maps":train_class_map,
+            "class_maps": train_class_map,
             "class_tag_list": class_tag_list
         }
 
-        print(confirm_dataset) 
+        print(confirm_dataset)
 
-        print(confirm_dataset[client_id].get('class_tag_list')) 
+        print(confirm_dataset[client_id].get('class_tag_list'))
 
         body = json.dumps(
             {"total": n_imgs,
-            "id": client_id,
-            "discription": discription,
-            "train_image_num": train_num,
-            "valid_image_num": valid_num,
-            "class_tag_list": class_tag_list,
-            "train_imgs": train_imgs,
-            "valid_imgs": valid_imgs,
-            })
+             "id": client_id,
+             "discription": discription,
+             "train_image_num": train_num,
+             "valid_image_num": valid_num,
+             "class_tag_list": class_tag_list,
+             "train_imgs": train_imgs,
+             "valid_imgs": valid_imgs,
+             })
 
         ret = create_response(body)
         return ret
@@ -534,6 +539,7 @@ def load_dataset_split_detail():
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
+
 
 @route("/api/renom_img/v1/weights/progress/<progress_num:int>", method="GET")
 def weight_download_progress(progress_num):
@@ -601,10 +607,9 @@ def create_dataset_def():
             confirm_dataset[client_id].get('discription'),
             confirm_dataset[client_id].get('train_imgs'),
             confirm_dataset[client_id].get('valid_imgs'),
-            confirm_dataset[client_id].get('class_maps'), 
+            confirm_dataset[client_id].get('class_maps'),
             confirm_dataset[client_id].get('class_tag_list')
         )
-
 
         # Insert detailed informations
         # train_num = len(train_imgs)
@@ -617,7 +622,6 @@ def create_dataset_def():
         print(confirm_dataset)
 
         print("==confirm_dataset==")
-
 
         body = json.dumps({"id": id})
         #body = json.dumps({"id":"test"})
