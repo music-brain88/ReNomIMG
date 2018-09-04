@@ -391,13 +391,13 @@ class Yolov2(rm.Model):
             sorted_ind = np.argsort([s[0] for s in score_list[n]])[::-1]
             keep = np.ones((len(score_list[n]),), dtype=np.bool)
             for i, ind1 in enumerate(sorted_ind):
-                if not keep[i]:
+                if not keep[ind1]:
                     continue
                 box1 = box_list[n][ind1]
                 for j, ind2 in enumerate(sorted_ind[i + 1:]):
                     box2 = box_list[n][ind2]
-                    if keep[j] and score_list[n][ind1][1] == score_list[n][ind2][1]:
-                        keep[j] = calc_iou_xywh(box1, box2) < nms_threshold
+                    if keep[ind2] and score_list[n][ind1][1] == score_list[n][ind2][1]:
+                        keep[ind2] = calc_iou_xywh(box1, box2) < nms_threshold
 
             box_list[n] = [{
                 "box": box_list[n][i],
