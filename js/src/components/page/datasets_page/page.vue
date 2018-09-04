@@ -32,7 +32,7 @@
                   </tr>
                 </thead>
                 <tbody class="scroll-controll" v-if="dataset_defs.length!==0">
-                <tr v-bind:class="{'selected': index === number }" v-for="(def, number) in dataset_defs" :key="def.id" @click="selectDataset(number)">
+                <tr class="dataset-row" v-bind:class="{'selected': index === number }" v-for="(def, number) in dataset_defs" :key="def.id" @click="selectDataset(number)">
                    <td> {{ def.id }}</td>
                    <td> {{ def.name }} </td>
                    <td> {{ def.train_imgs }} </td>
@@ -124,11 +124,13 @@
 
               <!-- taglist -->
               <div v-if=" index===''" class="row" v-bind:class="{'tag-list-view':test >= 5}">
-                <div v-for="i in test" class="row col-md-12">
+                <div class="col-md-12 col-form-label">
+                  <span>Please click table row.<br />After click you can see detail here</span>
+                </div>
+                
+                <!-- <div v-for="i in test" class="row col-md-12">
                  
-                 <!-- <div class="col-md-12 col-form-label">
-                    <span>Please click table row.<br />After click you can see detail here</span>
-                  </div> -->
+                  
                   <div class="col-md-6 col-form-label">
                     <span>{{i}}</span>
                   </div>
@@ -147,8 +149,8 @@
                       </div>
                     </div>
                   </div>
-                  
-                </div>
+                </div> -->
+
               </div>
              
               <div v-else class="row" v-bind:class="{'tag-list-view':dataset_defs[index].class_tag_list.length >= 5}">
@@ -276,14 +278,13 @@ export default {
 #dataset-def-page {
   display: flex;
   display: -webkit-flex;
-  height: 784px; //784
+  // height: 784px; //784
   flex-direction: column;
   -webkit-flex-direction: column;
 
   margin: 0;
-  margin-top: $component-margin-top;
   width: 100%;
-  padding-bottom: 64px;
+  //padding-bottom: 64px;
   
   /********************scroll***********************/
   tbody::-webkit-scrollbar{
@@ -326,7 +327,7 @@ export default {
       margin-top:10px;
       tr:hover{
         color:$table-hover-font-color;
-       // background-color: $table-hover-color;
+        cursor:pointer;
       }
     }
   }
@@ -366,6 +367,7 @@ export default {
     font-family: $content-top-header-font-family;
     background:$header-color;
     color:$font-color;
+    margin-top: $component-margin-top;
     .title-text{
       line-height: $content-top-header-hight;
       margin-left: $content-top-heder-horizonral-margin;

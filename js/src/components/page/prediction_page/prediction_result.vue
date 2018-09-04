@@ -10,16 +10,28 @@
             <span><img class="left_arrow" :src="left_arrow"></span>
             <span><img class="right_arrow" :src="right_arrow"></span>
           </div>
-          <!-- <pager></pager>-->
         </div>
         <div v-if="getPredictResults.length > 0" class="content">
-          <sample-image
-            v-for="(item, index) in getPredictResults"
-            :key="index"
-            :image_path="item.path"
-            :bboxes="item.predicted_bboxes"
-            :index="index">
-          </sample-image>
+          <div class="row">
+            <div class="col-md-12"> 
+             <pager></pager>
+            </div>
+          </div>
+          <div class="img">
+              <sample-image
+                v-for="(item, index) in getPredictResults"
+                :key="index"
+                :image_path="item.path"
+                :bboxes="item.predicted_bboxes"
+                :index="index">
+              </sample-image>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+             <pager></pager>
+            </div>
+          </div>
+
         </div>
         <div v-else class="content none-image">
           None Image
@@ -46,9 +58,7 @@
       </div>
     </div>
 
-    <div class="result-foot">
-      <pager></pager>
-    </div>
+    
   </div>
 </template>
 
@@ -113,17 +123,20 @@ export default {
     margin-top: $content-top-margin;
     width: 100%;
     // height:calc(#{$content-prediction-height} + #{$content-top-margin} + #{$content-top-header-hight} );
-    height: 500px;
+    height: $content-predictionpage-content-predict-result-height;
     //min-height: calc(170px * 3);
     border: 1px solid $content-border-color;
     padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
-
-    display: flex;
-    display: -webkit-flex;
-
-    flex-flow: row wrap;
-
     background-color: #fff;
+
+
+    .img{
+      display: flex;
+      display: -webkit-flex;
+      flex-flow:row wrap;
+    }
+
+
   }
   .none-image{
     text-align: center;

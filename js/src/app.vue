@@ -1,14 +1,16 @@
 <template>
 <div id="app">
-  <app-header></app-header>
-  <navigation-bar></navigation-bar>
-  <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
+  <div class="app-content">
+    <app-header></app-header>
+    <navigation-bar></navigation-bar>
+    <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
 
-  <div class="container">
-    <router-view></router-view> 
+    <div class="container">
+      <router-view></router-view> 
+    </div>
   </div>
 
-  <app-footer></app-footer>
+  <app-footer class="footer"></app-footer>
 </div>
 </template>
 
@@ -55,21 +57,23 @@ export default {
 
   font-family: $content-top-header-font-family;
 }
-
 #app {
-  // $max-width: 1280px;
-  // $header-height: 44px;
-
   position: relative;
   width: 100%;
-  height: calc(100% - #{$application-header-hight});
-  margin: 0 auto;
+//  height: calc(100% - #{$application-header-hight});
   padding: 0;
   padding-top: $application-header-hight;
 
+  .app-content{
+    min-height: calc(100vh - ( #{$footer-height} + #{$application-header-hight} + #{$content-footer-margin-top}));
+  }
+
   .container {
     max-width: $max-width;
-    
   }
+  .footer{
+    height:$footer-height;
+  }
+   
 }
 </style>

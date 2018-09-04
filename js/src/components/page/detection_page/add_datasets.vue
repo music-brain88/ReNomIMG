@@ -88,13 +88,15 @@
                     </div>
 
                     <div class="row space-top">
-                      <div class="col-md-6">
-                        All {{dataset_detail.total}}
-                      </div>
-                      <div class="col-md-6">
-                        <div class="progress total-progress sort-line">
-                          <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.train_image_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
-                          <div class="progress-bar validation-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.valid_image_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
+                      <div class="row col-md-12">
+                        <div class="col-md-6 col-form-label">
+                          All {{dataset_detail.total}}
+                        </div>
+                        <div class="col-md-6 col-form-label">
+                          <div class="progress total-progress sort-line">
+                            <div class="progress-bar train-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.train_image_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar validation-color" role="progressbar" :style="'width:' + calc_percentage(dataset_detail.valid_image_num, dataset_detail.total)+'%;'" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -108,48 +110,89 @@
                     </div>
 
                     <!-- tag preview -->
-                   <!--  <div v-for=" data in dataset_detail.class_tag_list" class="row space-top taglist-preview">  -->
-                    <div v-for=" data in dataset_detail.class_tag_list" class="row space-top taglist-preview">
+                   <div class="row space-top taglist-preview">
 
-                      <div class="col-md-6 col-form-label">
-                        {{data.tags}} :
-                      </div>
-                      <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
-                        <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
-                        <div class="progress figure tag-progress">
-                          <div class="progress-bar train-color"
-                              role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
-                              aria-valuemin="0"
-                              aria-valuemax="100">
+                      <div v-for=" data in dataset_detail.class_tag_list" class="row col-md-12">
+                        <div class="col-md-6 col-form-label">
+                          {{data.tags}} :
+                        </div>
+                        <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
+                          <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                          <div class="progress figure tag-progress">
+                            <div class="progress-bar train-color"
+                                role="progressbar" :style="'width:' + calc_percentage(data.train, calc_max_tag_num(dataset_detail.class_tag_list))+'%;'"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                            <div class="progress-bar validation-color"
+                                role="progressbar" :style="'width:' + calc_percentage(data.valid, calc_max_tag_num(dataset_detail.class_tag_list))+'%;'"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
                           </div>
-                          <div class="progress-bar validation-color"
-                              role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
-                              aria-valuemin="0"
-                              aria-valuemax="100">
+                        </div>
+                      </div>
+                      <div v-for=" data in dataset_detail.class_tag_list" class="row col-md-12">
+                        <div class="col-md-6 col-form-label">
+                          {{data.tags}} :
+                        </div>
+                        <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
+                          <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                          <div class="progress figure tag-progress">
+                            <div class="progress-bar train-color"
+                                role="progressbar" :style="'width:' + calc_percentage(data.train, calc_max_tag_num(dataset_detail.class_tag_list))+'%;'"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                            <div class="progress-bar validation-color"
+                                role="progressbar" :style="'width:' + calc_percentage(data.valid, calc_max_tag_num(dataset_detail.class_tag_list))+'%;'"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
                           </div>
                         </div>
                       </div>
 
-
-                      <div class="col-md-6 col-form-label">
-                        {{data.tags}} :
-                      </div>
-                      <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
-                        <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
-                        <div class="progress figure tag-progress">
-                          <div class="progress-bar train-color"
-                              role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
-                              aria-valuemin="0"
-                              aria-valuemax="100">
-                          </div>
-                          <div class="progress-bar validation-color"
-                              role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
-                              aria-valuemin="0"
-                              aria-valuemax="100">
+                      <div v-for=" data in dataset_detail.class_tag_list" class="row col-md-12">
+                        <div class="col-md-6 col-form-label">
+                          {{data.tags}} :
+                        </div>
+                        <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
+                          <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                          <div class="progress figure tag-progress">
+                            <div class="progress-bar train-color"
+                                role="progressbar" :style="'width:' + calc_percentage(data.train, calc_max_tag_num(dataset_detail.class_tag_list))+'%;'"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                            <div class="progress-bar validation-color"
+                                role="progressbar" :style="'width:' + calc_percentage(data.valid, calc_max_tag_num(dataset_detail.class_tag_list))+'%;'"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
                           </div>
                         </div>
                       </div>
-
+                      <div v-for=" data in dataset_detail.class_tag_list" class="row col-md-12">
+                        <div class="col-md-6 col-form-label">
+                          {{data.tags}} :
+                        </div>
+                        <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data"  data-toggle="tooltip" data-placement="top" :title="data.train +'・'+ data.valid">
+                          <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
+                          <div class="progress figure tag-progress">
+                            <div class="progress-bar train-color"
+                                role="progressbar" :style="'width:' + calc_percentage(data.train, calc_max_tag_num(dataset_detail.class_tag_list))+'%;'"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                            <div class="progress-bar validation-color"
+                                role="progressbar" :style="'width:' + calc_percentage(data.valid, calc_max_tag_num(dataset_detail.class_tag_list))+'%;'"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     <!-- tag preview -->
  
@@ -269,6 +312,18 @@ export default {
       let u_id = new Date().getTime().toString(16) + Math.floor(default_strong * Math.random()).toString(16)
 
       return u_id
+    },
+    calc_max_tag_num: function (taglist) {
+      let max_value = 0
+      for (let i in taglist) {
+        let conpare = taglist[i].valid + taglist[i].train
+        console.log(conpare)
+        if (max_value < conpare) {
+          max_value = conpare
+        }
+      }
+      console.log('result:', max_value)
+      return max_value
     }
   }
 }
@@ -362,6 +417,7 @@ export default {
 
   .progress{
     border-radius: 0;
+    background-color: $content-bg-color;
   }
   .total-progress{
     height:9px;
@@ -444,7 +500,7 @@ export default {
   }
   .taglist-preview{
     overflow-y:scroll;
-    //height:130px;
+    height:190px;
   }
 
 }

@@ -21,7 +21,7 @@
 
       <value-item :label="'mAP'" :val="round(predictModel.best_epoch_map, 100)*100 + '%'"></value-item>
 
-      <value-item :label="'Valid Loss'" :val="round(predictModel.validation_loss_list[predictModel.best_epoch], 1000)"></value-item>
+      <value-item class="last-value" :label="'Valid Loss'" :val="round(predictModel.validation_loss_list[predictModel.best_epoch], 1000)"></value-item>
     </div>
   </div>
 </template>
@@ -83,16 +83,12 @@ export default {
 
 
   .model-content {
-    // display: flex;
-    // flex-direction: column;
-    // flex-wrap: wrap;
-    //
-    // width: 100%;
-    // height: 100%;
-
-    //padding: $content-padding-top $content-padding-horizontal $content-padding-bottom;
 
     padding: calc(#{$content-padding-top}*4) $content-padding-horizontal $content-padding-bottom;
+  }
+
+  .last-value{
+    margin-bottom:30px;
   }
 }
 </style>

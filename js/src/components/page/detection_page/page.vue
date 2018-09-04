@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="detection-page">
     <div class="row">
       <div class="col-md-9 col-sm-12">
         <dashboard></dashboard>
@@ -57,49 +57,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// #detection-page {
-//   $header-height: 44px;
-//   $page-margin-top: 22px;
-//   $page-margin-horizontal: 72px;
-//
-//   $side-bar-width: 216px;
-//   $side-bar-margin: 24px;
-//
-//   display: flex;
-//   display: -webkit-flex;
-//   flex-direction: column;
-//   -webkit-flex-direction: column;
-//
-//   width: calc(100% - #{$page-margin-horizontal}*2);
-//   margin: 0 $page-margin-horizontal;
-//
-//   .detection-content {
-//     display: flex;
-//     display: -webkit-flex;
-//     height: 784px;
-//
-//     .detection-dashboard-and-detail {
-//       width: calc(1 - #{$side-bar-width});
-//       height: 100%;
-//     }
-//     .detection-page-sidebar {
-//       width: $side-bar-width;
-//       height: 100%;
-//       margin-left: $side-bar-margin;
-//     }
-//   }
-//
-//   .detection-sample-and-tags {
-//     display: flex;
-//     display: -webkit-flex;
-//     margin-bottom: 44px;
-//
-//     .model-sample {
-//       width: calc(100% - #{$side-bar-margin} - #{$side-bar-width});
-//     }
-//
-//   }
-//
-// }
+ #detection-page {
+  display: -webkit-flex;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+
+  margin: 0;
+//  margin-top: $component-margin-top;
+  width: 100%;
+
+ }
 
 </style>

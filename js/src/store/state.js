@@ -64,7 +64,7 @@ export default {
 
   // predict page
   predict_page: 0,
-  predict_page_image_count: 8,
+  predict_page_image_count: 10,
 
   // show image modal flag
   image_modal_show_flag: false,

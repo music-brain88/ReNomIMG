@@ -1,9 +1,14 @@
 <template>
   <div id="run-prediction-button">
     <div class="prediction-button" :disabled="!predictModelId" @click="runPrediction">
-      <span class="icon">
-        <i class="fa fa-arrow-right" aria-hidden="true"></i> Prediction Start
-      </span>
+      
+      <div>
+        <span>
+          <!-- <i class="fa fa-arrow-right" aria-hidden="true"></i> Prediction Start -->
+          <img class="right_arrow" :src="right_arrow">Prediction Start
+        </span>
+      </div>
+
     </div>
   </div>
 </template>
@@ -11,6 +16,11 @@
 <script>
 export default {
   name: 'RunPredictionButton',
+  data: function () {
+    return {
+      right_arrow: require('../../../../../static/img/yajiright.png')
+    }
+  },
   computed: {
     predictModelId: function () {
       if (this.$store.state.project) {
@@ -32,29 +42,15 @@ export default {
   .prediction-button{
       line-height: $panel-height;
   }
-  // $button-height: 64px;
-  // $button-bg-color: #7F9DB5;
-  //
-  // position: absolute;
-  // top: 0;
-  // width: 100%;
-  //
-  // .prediction-button {
-  //   width: 100%;
-  //   height: $button-height;
-  //   margin: 0;
-  //   // margin-left: 4%;
-  //
-  //   background-color: $button-bg-color;
-  //   color: #ffffff;
-  //   text-align: center;
-  //   line-height: $button-height;
-  //   border-radius: 4px;
-  //   cursor: pointer;
-  //
-  //   .icon {
-  //     margin-right: 4px;
-  //   }
-  // }
-}
+
+  div {
+      align-self: center;
+      padding-right: 10px;
+      span {
+        padding-left: 5px;
+        font-size: 1.4rem;
+      }
+  }
+
+ }
 </style>

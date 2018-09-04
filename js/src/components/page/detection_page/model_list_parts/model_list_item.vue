@@ -11,7 +11,7 @@
         </div>
         <div class="col">
           <div class="label-value">
-            Algorithm
+            Algo
           </div>
         </div>
         <span class="value">{{ getAlgorithmName(model.algorithm) }}</span>
@@ -213,6 +213,7 @@ export default {
 }
 #model-list-item:hover {
   background-color: #CCCCCC;
+  cursor:pointer;
 }
 #model-list-item.active {
   // background-color: #d1d1d1;

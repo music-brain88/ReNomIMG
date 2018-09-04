@@ -67,7 +67,6 @@ export default {
   width: 100vw;
   height: calc(100vh - #{$header-height});
   z-index: 3;
-  background:$content-bg-color;
 
   a{
     opacity: 1;

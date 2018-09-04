@@ -14,15 +14,18 @@
     </div>
 
     <div class="content">
-      <!-- <div class="model-detail-area"> -->
-        <model-detail-text></model-detail-text>
-        <export-button></export-button>
-      <!-- </div> -->
+      
+      <div class="row">
+        <div class="col-md-12">
+          <model-detail-text></model-detail-text>
+        </div> 
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <export-button></export-button>
+        </div>
+      </div>
 
-      <!-- <div class="button-area">
-
-        <export-button></export-button>
-      </div> -->
     </div>
   </div>
 </template>
@@ -43,6 +46,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 #model-detail {
 
   width: 100%;
@@ -82,26 +86,11 @@ export default {
   .content {
     margin-top:$content-top-margin;
     margin-bottom: $content-top-margin;
-    //height:$content-prediction-height;
-    display: flex;
-    display: -webkit-flex;
-    
     width: 100%;
-    height: calc(100% - #{$content-top-header-hight});
+    height: calc(#{$content-predictionpage-content-predict-result-height} - (#{$content-top-header-hight} + #{$content-top-margin}));
+    background:$content-bg-color;
+    padding: $content-top-padding 0 $content-bottom-padding;
 
-    // .model-detail-area {
-    //   width: 84%;
-    //   height: 100%;
-    // }
-
-    // .button-area {
-    //   display: flex;
-    //   flex-direction: column;
-    //   position: relative;
-    //
-    //   width: 16%;
-    //   height: 100%;
-    // }
   }
 }
 </style>
