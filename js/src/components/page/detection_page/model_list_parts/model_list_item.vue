@@ -3,26 +3,40 @@
     <div class="model-state" v-bind:style="{backgroundColor: getColor(model.state, model.algorithm)}"></div>
 
     <div class="model-id-algorithm">
+
       <div class="row space-top">
-        <div class="col">
-          <div class="label-value model-id">
-            Model ID<span class="value">&nbsp;{{ model.model_id }}</span>
-          </div>
-        </div>
-        <div class="col">
+        
+        <div class="col-md-6">
           <div class="label-value">
-            Algo
+            Model ID<span class="value">&nbsp;&nbsp;{{ model.model_id }}</span>
           </div>
         </div>
-        <span class="value">{{ getAlgorithmName(model.algorithm) }}</span>
+        
+        <div class="col-md-6">
+          <div class="label-value">
+            Algo&nbsp;&nbsp;<span class="value">{{ getAlgorithmName(model.algorithm) }}</span>
+          </div>
+        </div>
+        
+
       </div>
+
       <div class="row">
-        <div class="col-md-12">
+
+        <div class="col-md-6">
           <div class="label-value">
-            IoU&nbsp;&nbsp;<span class="value">{{ round_percent(model.best_epoch_iou) }}%&nbsp;&nbsp;&nbsp;&nbsp;</span>mAP&nbsp;&nbsp;<span class="value">{{ round_percent(model.best_epoch_map) }}%</span>
+            IoU<span class="value">&nbsp;&nbsp;{{ round_percent(model.best_epoch_iou) }}%</span>
           </div>
         </div>
+
+          <div class="col-md-6">
+            <div class="label-value">
+              mAP&nbsp;&nbsp;<span class="value">{{ round_percent(model.best_epoch_map) }}%</span>
+            </div>
+          </div>
+
       </div>
+
       <div class="row space-bottom">
         <div class="col-md-12">
           <div class="label-value">
@@ -148,7 +162,7 @@ export default {
 
   display: flex;
   position: relative;
-  width: calc(100% - 5px);
+  //width: calc(100% - 5px);
   height: 90px;
   margin: 0px 0px $item-margin-bottom;
   background-color: #ffffff;

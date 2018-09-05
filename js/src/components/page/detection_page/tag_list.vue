@@ -7,7 +7,7 @@
             Tags
           </div>
         </div>
-        <div class="content">
+        <div v-if="selected_model_id" class="content">
           <!-- tag-item -->
           <div class='tag-item' v-for="(name, id) in selectedModelTags">
             <div class="item-name">
@@ -18,18 +18,13 @@
             </div>
           </div>
           <!-- tag-item -->
-
-          <!-- tag-item -->
-          <!-- <div class='tag-item' v-for="i in 20">
-            <div class="item-name">
-                <span>ABCDEFGHI</span>
-            </div>
-            <div class="box" v-bind:style="{backgroundColor: color_list[i%10]}">
-              <span>{{i}}</span>
-            </div>
-          </div> -->
-          <!-- tag-item -->
         </div>
+
+
+        <div v-else class="content">
+        </div>
+
+
       </div>
     </div>
   </div>

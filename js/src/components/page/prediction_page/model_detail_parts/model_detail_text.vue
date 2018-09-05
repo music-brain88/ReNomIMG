@@ -84,7 +84,7 @@ export default {
 
   .model-content {
 
-    padding: calc(#{$content-padding-top}*4) $content-padding-horizontal $content-padding-bottom;
+    padding: 0 $content-padding-horizontal $content-padding-bottom;
   }
 
   .last-value{

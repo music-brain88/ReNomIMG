@@ -24,20 +24,20 @@
               <table class="table table-sm table-borderless">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Dataset name</th>
-                    <th>Train</th>
-                    <th>Valid</th>
+                    <th>ID&nbsp;&nbsp;</th>
+                    <th>Dataset name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                    <th>Train&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                    <th>Valid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                     <th>Create date</th>
                   </tr>
                 </thead>
                 <tbody class="scroll-controll" v-if="dataset_defs.length!==0">
-                <tr class="dataset-row" v-bind:class="{'selected': index === number }" v-for="(def, number) in dataset_defs" :key="def.id" @click="selectDataset(number)">
-                   <td> {{ def.id }}</td>
-                   <td> {{ def.name }} </td>
-                   <td> {{ def.train_imgs }} </td>
-                   <td> {{ def.valid_imgs.length }}</td>
-                   <td> {{ formatdate(datestr(def.created)) }} </td>
+                <tr class="dataset-row" v-bind:class="{'selected': index === number }" v-for="(def, number) in dataset_defs" :key="def.id" @click="selectDataset(number), set_num(def.train_imgs)">
+                   <td> {{ set_id(def.id) }}</td>
+                   <td> {{ get_dataset_name(def.name) }} </td>
+                   <td> {{ set_num(def.train_imgs) }} </td>
+                   <td> {{ set_num(def.valid_imgs.length) }}</td>
+                   <td class="date" > {{ formatdate(datestr(def.created)) }} </td>
                   </tr>
                 </tbody>
                 <tbody v-else>
@@ -163,12 +163,12 @@
                     <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{data.train}}・{{data.valid}}</div>
                     <div class="progress figure tag-progress">
                       <div class="progress-bar train-color"
-                        role="progressbar" :style="'width:' + calc_percentage(data.train, data.train + data.valid)+'%;'"
+                        role="progressbar" :style="'width:' + calc_percentage(data.train, calc_max_tag_num(dataset_defs[index].class_tag_list))+'%;'"
                         aria-valuemin="0"
                         aria-valuemax="100">
                       </div>
                       <div class="progress-bar validation-color"
-                        role="progressbar" :style="'width:' + calc_percentage(data.valid, data.train + data.valid)+'%;'"
+                        role="progressbar" :style="'width:' + calc_percentage(data.valid, calc_max_tag_num(dataset_defs[index].class_tag_list))+'%;'"
                         aria-valuemin="0"
                         aria-valuemax="100">
                       </div>
@@ -256,7 +256,7 @@ export default {
       format = format.replace(/mm/g, ('0' + date.getMinutes()).slice(-2))
       format = format.replace(/ss/g, ('0' + date.getSeconds()).slice(-2))
       format = format.replace(/SSS/g, ('00' + date.getMilliseconds()).slice(-3))
-      return format
+      return format.slice(2)
     },
     selectDataset: function (index) {
       this.index = index
@@ -268,6 +268,46 @@ export default {
         tag_sum += list[i].valid
       }
       return tag_sum
+    },
+    calc_max_tag_num: function (taglist) {
+      let max_value = 0
+      for (let i in taglist) {
+        let conpare = taglist[i].valid + taglist[i].train
+        console.log(conpare)
+        if (max_value < conpare) {
+          max_value = conpare
+        }
+      }
+      console.log('result:', max_value)
+      return max_value
+    },
+    get_dataset_name: function (dataset_name) {
+      if (dataset_name.length > 12) {
+        return dataset_name.slice(0, 12) + '...'
+      }
+      return dataset_name
+    },
+    set_num: function (num) {
+      if (String(num).length < 6) {
+        if (String(num).length === 4) {
+          return '00' + num
+        }
+        if (String(num).length === 3) {
+          return '000' + num
+        }
+      }
+      return num
+    },
+    set_id: function (num) {
+      if (String(num).length < 3) {
+        if (String(num).length === 1) {
+          return '00' + num
+        }
+        if (String(num).length === 2) {
+          return '0' + num
+        }
+      }
+      return num
     }
   }
 }
@@ -352,6 +392,12 @@ export default {
     font-size: calc(#{$content-inner-box-font-size});//$content-inner-box-font-size;
   } 
 
+  .date{
+    font-family: $content-inner-box-font-family;
+    font-size: calc(#{$content-inner-box-font-size - 1pt});//$content-inner-box-font-size;
+    vertical-align: middle; 
+  }
+
   .data-area{
     border-right: 1px solid $content-taglist-tagbox-font-color;
   }
@@ -432,6 +478,7 @@ export default {
   
   .progress{
     border-radius: 0;
+    background:$content-bg-color;
   }
   .total-progress{
     height:9px;
@@ -459,11 +506,11 @@ export default {
   }
 
   .view-title{
-    margin-top:55px;
+    margin-top:40px;
   }
 
   .view-area{
-    margin-top:80px; 
+    margin-top:64px; 
   }
 
   .tag-list-view{

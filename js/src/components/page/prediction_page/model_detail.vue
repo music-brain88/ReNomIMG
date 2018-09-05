@@ -85,7 +85,6 @@ export default {
 
   .content {
     margin-top:$content-top-margin;
-    margin-bottom: $content-top-margin;
     width: 100%;
     height: calc(#{$content-predictionpage-content-predict-result-height} - (#{$content-top-header-hight} + #{$content-top-margin}));
     background:$content-bg-color;

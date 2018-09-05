@@ -4,7 +4,7 @@
       <div class="col-md-12">
         <div class="title">
           <div class="title-text">
-            Prediction result
+            Prediction Result
           </div>
           <div>
             <span><img class="left_arrow" :src="left_arrow"></span>
@@ -12,11 +12,7 @@
           </div>
         </div>
         <div v-if="getPredictResults.length > 0" class="content">
-          <div class="row">
-            <div class="col-md-12"> 
-             <pager></pager>
-            </div>
-          </div>
+
           <div class="img">
               <sample-image
                 v-for="(item, index) in getPredictResults"
@@ -27,15 +23,12 @@
               </sample-image>
           </div>
           <div class="row">
-            <div class="col-md-12">
-             <pager></pager>
-            </div>
+             <pager class="col float-right"></pager>
           </div>
 
         </div>
         <div v-else class="content none-image">
           None Image
-          {{getPredictResults}}
         </div>
       </div>
     </div>
@@ -87,6 +80,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/../node_modules/bootstrap/scss/bootstrap.scss';
 #prediction-result {
 
   width: 100%;

@@ -2,7 +2,8 @@
   <div id="model-list" class="list-child">
     <div class="add-panel" @click="showAddModelModal">
       <!-- <i class="fa fa-plus" aria-hidden="true"></i>  -->
-      <p class="plus"><img :src="url">&nbsp;&nbsp;Add New Model</p>
+      <!-- <span class="plus"><img :src="url">&nbsp;&nbsp;</span><span class="text">Add New Model</span> -->
+      <img class="icon" :src="url">
     </div>
     <div class="title-selectbox">
       <div class="title">
@@ -35,7 +36,8 @@ export default {
   },
   data: function () {
     return {
-      url: require('../../../../static/img/plus.png'),
+      url: require('../../../../static/img/pA.svg'),
+      panel: require('../../../../static/img/add.svg'),
       selected: ''
     }
   },
@@ -56,12 +58,15 @@ export default {
 #model-list {
 
   $selectbox-height: 20px;
-
+  position: fixed;
   height: calc(100% - #{$content-top-header-hight} - #{$component-margin-top} - #{$content-top-margin} - 223px);// 650
+  max-width:15%;
+  width:100%;
+
   margin: 0;
   margin-top: $component-margin-top;
   z-index: 0;
-  position: fixed;
+  
   font-family: $content-top-header-font-family;
   font-size: $content-top-header-font-size;
 
@@ -152,7 +157,7 @@ export default {
     color: $font-color;
     font-size: $content-top-header-font-size;
     text-align: center;
-    line-height: $panel-height;
+    align-self:center;
     cursor: pointer;
   }
   .add-panel:hover {
@@ -162,8 +167,20 @@ export default {
     margin:0;
     margin-right: 10px;
     // margin-top: calc(#{content-top-header-font-size} * 0.25)px;
-    line-height: calc(#{$panel-height} * 1.15);
-    //height: calc(#{$content-top-header-font-size});
+    // margin-top: calc(#{$content-top-header-font-size});
+    img{
+      
+    }    
+  }
+  .icon{
+    margin-top: calc(#{$content-top-header-font-size} * 0.5);
+    height: calc(#{$content-top-header-font-size} * 1.2);
+    }
+  .text-wrap{
+  }
+  .text{
+    margin-top: calc(#{$content-top-header-font-size} * 0.5);
+    height: calc(#{$content-top-header-font-size}*1.3);
   }
 }
 </style>

@@ -2,13 +2,8 @@
   <div id="run-prediction-button">
     <div class="prediction-button" :disabled="!predictModelId" @click="runPrediction">
       
-      <div>
-        <span>
           <!-- <i class="fa fa-arrow-right" aria-hidden="true"></i> Prediction Start -->
-          <img class="right_arrow" :src="right_arrow">Prediction Start
-        </span>
-      </div>
-
+      <img class="title" :src="right_arrow">
     </div>
   </div>
 </template>
@@ -18,7 +13,7 @@ export default {
   name: 'RunPredictionButton',
   data: function () {
     return {
-      right_arrow: require('../../../../../static/img/yajiright.png')
+      right_arrow: require('../../../../../static/img/PS.svg')
     }
   },
   computed: {
@@ -40,7 +35,9 @@ export default {
 <style lang="scss" scoped>
 #run-prediction-button {
   .prediction-button{
-      line-height: $panel-height;
+    line-height: $panel-height;
+    font-family:$content-top-header-font-family;
+    font-size:$content-top-header-font-size;
   }
 
   div {
@@ -48,9 +45,14 @@ export default {
       padding-right: 10px;
       span {
         padding-left: 5px;
-        font-size: 1.4rem;
+        
       }
   }
+  .title{
+    margin-top: calc(#{$content-top-header-font-size} * 0.3);
+    height: calc(#{$content-top-header-font-size} * 1.2 + 5px);
+  }
+
 
  }
 </style>
