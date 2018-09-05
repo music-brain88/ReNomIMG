@@ -2,6 +2,7 @@ import asyncio
 import requests
 import urllib.request
 import numpy as np
+import os
 from renom_img.server import ALG_YOLOV1, ALG_YOLOV2, ALG_SSD
 from renom_img.api.utility.misc.download import download
 from renom_img.api.detection.yolo_v1 import Yolov1
@@ -45,7 +46,7 @@ class Detector(object):
         download_param_api = url + download_param_api
 
         ret = requests.get(download_param_api).json()
-        model_name = ret["filename"]
+        filename = ret["filename"]
 
         if ret["algorithm"] == ALG_YOLOV1:
             self._alg_name = "Yolov1"
@@ -66,7 +67,7 @@ class Detector(object):
         self._model_info = {
             "Algorithm": self._alg_name,
             "Image size": "{}x{}".format(img_w, img_h),
-            "Num class": "{}".format(self._model._num_class)
+            "Num class": "{}".format(self._model.num_class)
         }
 
     def predict(self, img_list):

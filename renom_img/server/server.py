@@ -602,7 +602,7 @@ def get_deployed_model_info(project_id):
         file_name = ret['best_epoch_weight']
         ret = storage.fetch_model(project_id, deployed_id,
                                   "algorithm,algorithm_params,hyper_parameters")
-        ret["filename"] = filename
+        ret["filename"] = file_name
         body = json.dumps(ret)
         ret = create_response(body)
         return ret
