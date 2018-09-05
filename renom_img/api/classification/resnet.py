@@ -78,7 +78,7 @@ class ResNetBase(Classification):
         else:
             avg_valid_loss_list = kwargs['avg_valid_loss_list']
             if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2]:
-                self._opt._lr = lr / 10.
+                self._opt._lr /= 10.
             return self._opt
 
     def _freeze(self):
