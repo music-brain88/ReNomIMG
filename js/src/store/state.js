@@ -91,6 +91,11 @@ export default {
 
   // loading flag
   loading_flg: false,
+
   // dataset detail info
-  dataset_detail: []
+  dataset_detail: [],
+
+  // modal tabs show flag
+  modal_tab_show_flag: true
+
 }
