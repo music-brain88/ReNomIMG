@@ -87,7 +87,7 @@ class Detector(object):
             }
         """
         assert self._model
-        return self._model.predict(img)
+        return self._model.predict(img_list)
 
     @property
     def model_info(self):
