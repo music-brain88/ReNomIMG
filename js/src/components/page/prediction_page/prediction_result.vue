@@ -128,6 +128,7 @@ export default {
       display: flex;
       display: -webkit-flex;
       flex-flow:row wrap;
+      height:100%;
     }
 
 
