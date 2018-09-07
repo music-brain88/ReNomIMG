@@ -2,6 +2,8 @@
 
 ReNom IMG is model developing tool for object detection.
 
+##### ReNomIMG - https://www.renom.jp/packages/renomimg/index.html
+
 ## Recommended Environment
 - OS: Ubuntu 16.04
 - Browser: Google Chrome(version 63.0.3239.132)
@@ -25,7 +27,7 @@ The Wheel package is provided at:
 
 You can install the wheel package with pip3 command::
 
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-0.9.1b0-cp35-cp35m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-1.0.0-cp35-cp35m-linux_x86_64.whl`
 
 ## Install from source
 For installing ReNomIMG, download the repository from following url.
