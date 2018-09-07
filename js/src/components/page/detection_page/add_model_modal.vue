@@ -22,7 +22,9 @@
                 </div>
                 <div class="row">
                   <div class="link col-sm-12 text-right">
-                    <a class="link"> &gt; Setting of Dataset</a>
+                    <a @click="changeTab(false)" class="link">
+                      &gt; Setting of Dataset
+                    </a>
                   </div>
                 </div>
               </div>
@@ -69,7 +71,7 @@
                 Cells
               </label>
               <div class="col-sm-6">
-                <input type="text" class="form-control sort-line" v-model="cells" maxlength="2">
+                <input type="text" class="form-control sort-line" v-bind:class="{'is-invalid': cells < 3 || cells > 20 }" v-model="cells" maxlength="2">
                 <div class="input-alert" v-if="cells < 3">Cells must greater than 3</div>
                 <div class="input-alert" v-if="cells > 20">Cells must lower than 20</div>
               </div>
@@ -81,7 +83,7 @@
                 Bounding Box
               </label>
               <div class="col-sm-6">
-                <input type="text" class="form-control sort-line" v-model="bounding_box" maxlength="2">
+                <input type="text" class="form-control sort-line" v-bind:class="{'is-invalid': bounding_box < 1 || bounding_box > 10 }"  v-model="bounding_box" maxlength="2">
                 <div class="input-alert" v-if="bounding_box < 1">Cells must greater than 3</div>
                 <div class="input-alert" v-if="bounding_box > 10">Cells must lower than 20</div>
               </div>
@@ -93,7 +95,7 @@
                 Anchors
               </label>
               <div class="col-sm-6">
-                <input type="text" class="form-control" v-model="anchor" maxlength="2">
+                <input type="text" class="form-control" v-bind:class="{'is-invalid': anchor < 1 || anchor > 10 }" v-model="anchor" maxlength="2">
                 <div class="input-alert" v-if="anchor < 1">Anchors must greater than 1</div>
                 <div class="input-alert" v-if="anchor > 10">Anchors must lower than 10</div>
               </div>
@@ -112,7 +114,7 @@
                 Image Width
               </label>
               <div v-if="algorithm == 0" class="col-sm-6">
-                <input type="text" class="form-control sort-line" v-model="image_width" maxlength="4">
+                <input type="text" class="form-control sort-line" v-bind:class="{'is-invalid': image_width < 32 || image_width > 1024 }" v-model="image_width" maxlength="4">
                 <div class="input-alert" v-if="image_width < 32">Image Width must greater than 32</div>
                 <div class="input-alert" v-if="image_width > 1024">Image Width must lower than 1024</div>
               </div>
@@ -127,11 +129,11 @@
                 Image Hight
               </label>
               <div v-if="algorithm == 0" class="col-sm-6">
-                <input type="text" class="form-control sort-line" v-model="image_height" maxlength="4">
+                <input type="text" class="form-control sort-line" v-bind:class="{'is-invalid': image_height < 32 || image_height > 1024 }" v-model="image_height" maxlength="4">
                 <div class="input-alert" v-if="image_height < 32">Image Height must greater than 32</div>
                 <div class="input-alert" v-if="image_height > 1024">Image Height must lower than 1024</div>
               </div>
-              <div v-if="algorithm == 1" class="col-sm-7">
+              <div v-if="algorithm == 1" class="col-sm-6">
                 <input type="text" class="form-control"  v-model="image_height" maxlength="4" readonly="readonly">
               </div>
             </div>
@@ -146,11 +148,11 @@
                 Total Epoch
               </label>
               <div v-if="algorithm == 0" class="col-sm-6">
-                <input type="text" class="form-control sort-line is-invalid" v-bind:class="{'is-invalid': total_epoch < 1, 'is-invalid': total_epoch > 1000}" v-model="total_epoch" maxlength="4">
+                <input type="text" class="form-control sort-line" v-bind:class="{'is-invalid': total_epoch < 1 || total_epoch > 1000 }" v-model="total_epoch" maxlength="4">
                 <div class="input-alert text-danger" v-if="total_epoch < 1">Epoch must greater than 1</div>
                 <div class="input-alert text-danger" v-if="total_epoch > 1000">Epoch must lower than 1000</div>
               </div>
-              <div v-if="algorithm == 1" class="col-sm-7">
+              <div v-if="algorithm == 1" class="col-sm-6">
                 <input type="text" class="form-control sort-line"  v-model="total_epoch" maxlength="4">
               </div>
             </div>
@@ -160,10 +162,10 @@
                 Batch Size
               </label>
               <div class="col-sm-6">
-                <input type="text" class="form-control sort-line" v-model="yolo1_batch_size" maxlength="5" v-if="algorithm == 0">
+                <input type="text" class="form-control sort-line" v-bind:class="{'is-invalid': yolo1_batch_size < 1 || yolo1_batch_size > 512 }" v-model="yolo1_batch_size" maxlength="5" v-if="algorithm == 0">
                 <input type="text" class="form-control sort-line" v-model="yolo2_batch_size" maxlength="5" v-if="algorithm == 1" readonly="readonly">
-                <div class="input-alert text-danger" v-if="batch_size < 1">Batch Size must greater than 1</div>
-                <div class="input-alert text-danger" v-if="batch_size > 512">Batch Size must lower than 512</div>
+                <div class="input-alert text-danger" v-if="yolo1_batch_size < 1">Batch Size must greater than 1</div>
+                <div class="input-alert text-danger" v-if="yolo1_batch_size > 512">Batch Size must lower than 512</div>
               </div>
             </div>
 
@@ -294,7 +296,11 @@ export default {
       })
 
       this.hideAddModelModal()
+    },
+    changeTab: function (changeflag) {
+      this.$store.commit('setChangeModalTabShowFlag', {'modal_tab_show_flag': changeflag})
     }
+
   }
 }
 </script>
@@ -324,6 +330,9 @@ $content-label-width: 120px;
   .link{
     color:#006ea1;
     font-size:calc(#{$content-inner-box-font-size}*0.8);
+    &:hover{
+      cursor:pointer;
+    }
   }
 
   h5{
@@ -443,6 +452,11 @@ $content-label-width: 120px;
    padding: 0;
   }
   .input-alert{
-    font-size:calc(#{$content-inner-box-font-size}*0.8);
+    font-size: calc(#{$content-inner-box-font-size} * 0.8);
+    color: #dc3545;
   }
+  .is-invalid:focus{
+    border-color: #dc3545;
+  }
+
 </style>

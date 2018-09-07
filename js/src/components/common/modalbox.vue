@@ -12,7 +12,7 @@
             <slot name="footer">
               <slot name="okbutton">
                 <button class="modal-default-button" @click="$emit('ok')">
-                  Ok
+                  OK
                 </button>
               </slot>
               <slot name="cancelbutton">
@@ -61,13 +61,14 @@ export default {
   margin: 0px auto;
   padding: 20px 30px;
   background-color: #fff;
-  border-radius: 2px;
+  border-radius: 0px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
   font-family: Helvetica, Arial, sans-serif;
 }
 
 .modal-default-button {
+  border-radius: 0px;
 }
 
 /*

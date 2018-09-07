@@ -1,18 +1,14 @@
 <template>
 <header>
   <div class="global-menu-button" @click="toggleMenu">
-    <!-- <i id="menu-toggle" class="fa fa-bars fa-lg" aria-hidden="true"></i>_ -->
     <img id="menu-toggle" :src="url" aria-hidden="true">
   </div>
 
   <div id="soft-symbol">
     <span class="renom">ReNom&nbsp;&nbsp;</span>
-    <span class="current-page">IMG > {{ currentPage }}</span>
+    <span class="current-page">IMG &gt; {{ currentPage }}</span>
   </div>
 
-  <!-- <div class="help-menu-button">
-    <i class="fa fa-th" aria-hidden="true"></i>
-  </div> -->
 </header>
 </template>
 

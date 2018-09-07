@@ -278,7 +278,6 @@ export default {
           max_value = conpare
         }
       }
-      console.log('result:', max_value)
       return max_value
     },
     get_dataset_name: function (dataset_name) {
@@ -289,22 +288,20 @@ export default {
     },
     set_num: function (num) {
       if (String(num).length < 6) {
-        if (String(num).length === 4) {
-          return '00' + num
-        }
-        if (String(num).length === 3) {
-          return '000' + num
+        let zero = '0'
+        let times = 6 - String(num).length
+        for (let i = 0; i < times; i++) {
+          num = zero + num
         }
       }
       return num
     },
     set_id: function (num) {
       if (String(num).length < 3) {
-        if (String(num).length === 1) {
-          return '00' + num
-        }
-        if (String(num).length === 2) {
-          return '0' + num
+        let zero = '0'
+        let times = 3 - String(num).length
+        for (let i = 0; i < times; i++) {
+          num = zero + num
         }
       }
       return num

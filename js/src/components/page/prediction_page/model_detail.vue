@@ -9,14 +9,14 @@
       </div>
     </div>
 
-    <div class="information" v-if="!$store.state.project || !$store.state.project.deploy_model_id">
-      Please choose a model which you want to deploy from model list.
-    </div>
 
     <div class="content">
       
       <div class="row">
         <div class="col-md-12">
+          <div class="information" v-if="!$store.state.project || !$store.state.project.deploy_model_id">
+            Please choose a model which you want to deploy from model list.
+          </div>
           <model-detail-text></model-detail-text>
         </div> 
       </div>

@@ -196,6 +196,13 @@ export default {
   setAddModelModalShowFlag (state, payload) {
     state.add_model_modal_show_flag = payload.add_model_modal_show_flag
   },
+  /**
+   * set change modal tabs
+   * @param {Boolean} payload.modal_tab_show_flag : Flag.
+   */
+  setChangeModalTabShowFlag (state, payload) {
+    state.modal_tab_show_flag = payload.modal_tab_show_flag
+  },
 
   /**
    *  Sort model list. The order of 'state.models' effects the order of displayed model list.

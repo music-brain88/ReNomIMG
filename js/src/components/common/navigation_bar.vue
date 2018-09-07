@@ -47,7 +47,7 @@ export default {
       this.hideMenu()
     },
     goDataset: function () {
-      this.$store.commit('setPageName', {'page_name': 'Datasets'})
+      this.$store.commit('setPageName', {'page_name': 'Dataset'})
       this.$router.push({path: '/datasets'})
       this.hideMenu()
     },

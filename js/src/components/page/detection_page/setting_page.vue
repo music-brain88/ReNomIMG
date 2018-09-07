@@ -5,16 +5,16 @@
         <div class="modal-body">
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-              <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Setting of New Model</a>
-              <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Setting of Dataset</a>
+              <a class="nav-item nav-link" v-bind:class="{'active': tab_show_flag }" id="nav-model-tab" @click="changeTab(true)">Setting of New Model</a>
+              <a class="nav-item nav-link" v-bind:class="{'active': !tab_show_flag }" id="nav-dataset-tab" @click="changeTab(false)">Setting of Dataset</a>
             </div>
           </nav>
 
           <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+            <div v-if="tab_show_flag">
               <add-model-modal></add-model-modal>
             </div>
-            <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+            <div v-else>
               <add-detasets></add-detasets>
             </div>
           </div>
@@ -37,9 +37,17 @@ export default {
     'jquery': jquery,
     'bootstrap': bootstrap
   },
+  computed: {
+    tab_show_flag: function () {
+      return this.$store.state.modal_tab_show_flag
+    }
+  },
   methods: {
     hideAddModelModal: function () {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
+    },
+    changeTab: function (changeflag) {
+      this.$store.commit('setChangeModalTabShowFlag', {'modal_tab_show_flag': changeflag})
     }
   }
 }
@@ -73,7 +81,7 @@ export default {
     transition: opacity 0s;
   }
 
-  #nav-home-tab{
+  #nav-model-tab{
     display: block;
     width:205px;
     height:35px;
@@ -85,8 +93,11 @@ export default {
       background-color: #FFFFFF;
       color: #000000;
     }
+    &:hover{
+      cursor:pointer;
+    }
   }
-  #nav-contact-tab{
+  #nav-dataset-tab{
     display: block;
     width:205px;
     height:35px;
@@ -97,6 +108,9 @@ export default {
     &.active{
       background-color: #FFFFFF;
       color: #000000;
+    }
+    &:hover{
+      cursor:pointer;
     }
   }
 

@@ -1,8 +1,6 @@
 <template>
   <div id="run-prediction-button">
-    <div class="prediction-button" :disabled="!predictModelId" @click="runPrediction">
-      
-          <!-- <i class="fa fa-arrow-right" aria-hidden="true"></i> Prediction Start -->
+    <div class="prediction-button" :disabled="!predictModelId" @click="runPrediction"> 
       <img class="title" :src="right_arrow">
     </div>
   </div>
