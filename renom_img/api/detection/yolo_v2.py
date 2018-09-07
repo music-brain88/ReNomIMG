@@ -2,11 +2,12 @@ import os
 from itertools import chain
 import numpy as np
 import renom as rm
+import matplotlib.pyplot as plt
 from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
-from PIL import Image
+from PIL import Image, ImageDraw
 
-from renom_img.api.classification.darknet import Darknet19Base, DarknetConv2dBN
+from renom_img.api.classification.darknet import Darknet19, DarknetConv2dBN
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor
@@ -130,7 +131,7 @@ class Yolov2(rm.Model):
         num_class = len(class_map)
         self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
-        self.freezed_network = Darknet19Base()
+        self.freezed_network = Darknet19()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
@@ -158,9 +159,9 @@ class Yolov2(rm.Model):
             if not os.path.exists(load_pretrained_weight):
                 download(self.WEIGHT_URL, load_pretrained_weight)
             try:
-                self.load(load_pretrained_weight)
+                self.freezed_network.load(load_pretrained_weight)
             except:
-                pass
+                raise Exception("Couldn't load pretrained weight.")
 
             for model in [self._conv1, self._conv2, self._last]:
                 for layer in model.iter_models():
@@ -176,6 +177,7 @@ class Yolov2(rm.Model):
                             "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
                             "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=True),
                         }
+        self.freezed_network = self.freezed_network._base
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimizer for training Yolov2 algorithm.
@@ -291,7 +293,7 @@ class Yolov2(rm.Model):
 
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.0005 * reg / 2.
+        return (0.0005 / 2.) * reg
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
@@ -394,7 +396,7 @@ class Yolov2(rm.Model):
                 if not keep[ind1]:
                     continue
                 box1 = box_list[n][ind1]
-                for j, ind2 in enumerate(sorted_ind[i + 1:]):
+                for j, ind2 in enumerate(sorted_ind[i + 1:], i + 1):
                     box2 = box_list[n][ind2]
                     if keep[ind2] and score_list[n][ind1][1] == score_list[n][ind2][1]:
                         keep[ind2] = calc_iou_xywh(box1, box2) < nms_threshold
@@ -583,7 +585,7 @@ class Yolov2(rm.Model):
         num_anchor = self.num_anchor
         mask = np.zeros((N, C, H, W), dtype=np.float32)
         mask = mask.reshape(N, num_anchor, 5 + self.num_class, H, W)
-        mask[:, :, 1:5, ...] = 0.1
+        mask[:, :, 1:5, ...] = 0.01
         mask = mask.reshape(N, C, H, W)
 
         target = np.zeros((N, C, H, W), dtype=np.float32)
@@ -597,13 +599,12 @@ class Yolov2(rm.Model):
         offset = 5 + self.num_class
 
         # Calc iou and get best matched prediction.
-        best_ious = np.zeros((N, num_anchor, H, W), dtype=np.float32)
         best_anchor_ious = np.zeros((N, 1, H, W), dtype=np.float32)
         for n in range(N):
             gt_index = np.where(y[n, 0] > 0)
 
             # Create mask for prediction that
-            for ind in np.ndindex((num_anchor, H, W)):
+            for k, ind in enumerate(np.ndindex((num_anchor, H, W))):
                 max_iou = -1
                 px = (nd_x[n, 1 + ind[0] * offset, ind[1], ind[2]] + ind[2]) * im_w / W
                 py = (nd_x[n, 2 + ind[0] * offset, ind[1], ind[2]] + ind[1]) * im_h / H
@@ -617,11 +618,12 @@ class Yolov2(rm.Model):
                     iou = calc_iou_xywh((px, py, pw, ph), (tx, ty, tw, th))
                     if iou > max_iou:
                         max_iou = iou
-                best_ious[n, ind[0], ind[1], ind[2]] = max_iou
 
                 # scale of noobject iou
                 if max_iou <= low_thresh:
-                    mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
+                    # mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
+                    mask[n, ind[0] * offset, ind[1], ind[2]] = nd_x[n,
+                                                                    ind[0] * offset, ind[1], ind[2]] * 1
 
             # Create target and mask for cell that contains obj.
             for h, w in zip(*gt_index):
@@ -663,7 +665,9 @@ class Yolov2(rm.Model):
                     calc_iou_xywh([px, py, pw, ph], [tx, ty, tw, th])
 
                 # scale of obj iou
-                mask[n, 0 + best_anc_ind * offset, h, w] = 5.
+                # mask[n, 0 + best_anc_ind * offset, h, w] = 5.
+                mask[n, 0 + best_anc_ind * offset, h,
+                     w] = (1 - nd_x[n, best_anc_ind * offset, h, w]) * 5
 
                 # scale of coordinate
                 mask[n, 1 + best_anc_ind * offset, h, w] = 1
@@ -673,9 +677,11 @@ class Yolov2(rm.Model):
 
                 # scale of class
                 mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
+
         diff = (x - target)
-        # N = np.sum(y[:, 0] > 0)
-        return rm.sum(diff * diff * mask) / N / 2.
+        N = np.sum(y[:, 0] > 0)
+        mask *= mask
+        return rm.sum(diff * diff * mask) / (N * 2)
 
     def fit(self, train_img_path_list, train_annotation_list,
             valid_img_path_list=None, valid_annotation_list=None,
