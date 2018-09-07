@@ -175,6 +175,9 @@ export default {
     ...mapState(['dataset_detail', 'loading_flg']),
     load_dataset_detail: function () {
       return this.$store.state.dataset_detail
+    },
+    currentPage () {
+      return this.$store.state.page_name
     }
   },
   methods: {
@@ -200,6 +203,9 @@ export default {
         this.description = ''
         this.name = ''
         this.id = ''
+        if (currentPage === 'Dataset'){
+          this.hideAddModelModal()   
+        }
       })
     },
     confirm: function () {
@@ -220,10 +226,6 @@ export default {
       let description = this.description
 
       this.$store.dispatch('loadDatasetSplitDetail', {ratio, name, u_id, description, delete_id})
-      // f.finally(() => {
-      //   this.ratio = DEFAULT_RATIO
-      //  this.name = ''
-      // })
     },
     calcTotaltag_num: function (list) {
       let tag_sum = 0
@@ -259,12 +261,10 @@ export default {
       let max_value = 0
       for (let i in taglist) {
         let conpare = taglist[i].valid + taglist[i].train
-        console.log(conpare)
         if (max_value < conpare) {
           max_value = conpare
         }
       }
-      console.log('result:', max_value)
       return max_value
     }
   }
