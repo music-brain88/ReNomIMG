@@ -581,9 +581,6 @@ def create_dataset_def():
 
         del confirm_dataset[client_id]
 
-
-
-
         body = json.dumps({"id": id})
         ret = create_response(body)
         return ret
