@@ -390,7 +390,7 @@ export default {
     fd.append('ratio', payload.ratio)
     fd.append('name', payload.name)
     fd.append('u_id', payload.u_id)
-    fd.append('discription', payload.discription)
+    fd.append('description', payload.description)
     let url = '/api/renom_img/v1/dataset_defs/'
 
     context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
@@ -438,7 +438,7 @@ export default {
     fd.append('ratio', payload.ratio)
     fd.append('name', payload.name)
     fd.append('u_id', payload.u_id)
-    fd.append('discription', payload.discription)
+    fd.append('description', payload.description)
 
     if (payload.delete_id) {
       fd.append('delete_id', payload.delete_id)

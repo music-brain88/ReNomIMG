@@ -13,9 +13,9 @@
               </div>
 
               <div class="row justify-content-center space-top">
-                <label class="col-sm-5 col-form-label label">Discription</label>
+                <label class="col-sm-5 col-form-label label">Description</label>
                 <div class="col-sm-7">
-                  <textarea v-model='discription' class="form-control sort-line" rows="7"></textarea>
+                  <textarea v-model='description' class="form-control sort-line" rows="7"></textarea>
                 </div>
               </div>
 
@@ -165,7 +165,7 @@ export default {
   data: function () {
     return {
       ratio: DEFAULT_RATIO,
-      discription: '',
+      description: '',
       name: '',
       id: '',
       show_tag_data_flg: false
@@ -175,11 +175,17 @@ export default {
     ...mapState(['dataset_detail', 'loading_flg']),
     load_dataset_detail: function () {
       return this.$store.state.dataset_detail
+    },
+    currentPage () {
+      return this.$store.state.page_name
     }
   },
   methods: {
     hideAddModelModal: function () {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
+    },
+    changeTab: function (changeflag) {
+      this.$store.commit('setChangeModalTabShowFlag', {'modal_tab_show_flag': changeflag})
     },
     register: function () {
       console.log('register')
@@ -193,17 +199,21 @@ export default {
         return
       }
       const u_id = this.id
-      const discription = this.discription
-      let f = this.$store.dispatch('registerDatasetDef', {ratio, name, u_id, discription})
+      const description = this.description
+      let f = this.$store.dispatch('registerDatasetDef', {ratio, name, u_id, description})
       f.finally(() => {
         this.ratio = DEFAULT_RATIO
-        this.discription = ''
+        this.description = ''
         this.name = ''
         this.id = ''
+        if (this.currentPage === 'Dataset') {
+          this.hideAddModelModal()
+        } else {
+          this.changeTab(true)
+        }
       })
     },
     confirm: function () {
-      console.log('confirm')
       const name = this.name.trim()
       if (!name) {
         return
@@ -218,12 +228,9 @@ export default {
 
       let u_id = this.gen_unique_id()
       this.id = u_id
-      let discription = this.discription
-      this.$store.dispatch('loadDatasetSplitDetail', {ratio, name, u_id, discription, delete_id})
-      // f.finally(() => {
-      //   this.ratio = DEFAULT_RATIO
-      //  this.name = ''
-      // })
+      let description = this.description
+
+      this.$store.dispatch('loadDatasetSplitDetail', {ratio, name, u_id, description, delete_id})
     },
     calcTotaltag_num: function (list) {
       let tag_sum = 0
@@ -259,12 +266,10 @@ export default {
       let max_value = 0
       for (let i in taglist) {
         let conpare = taglist[i].valid + taglist[i].train
-        console.log(conpare)
         if (max_value < conpare) {
           max_value = conpare
         }
       }
-      console.log('result:', max_value)
       return max_value
     }
   }
