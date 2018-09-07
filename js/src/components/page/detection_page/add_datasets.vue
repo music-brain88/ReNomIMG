@@ -184,6 +184,9 @@ export default {
     hideAddModelModal: function () {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
     },
+    changeTab: function (changeflag) {
+      this.$store.commit('setChangeModalTabShowFlag', {'modal_tab_show_flag': changeflag})
+    },
     register: function () {
       console.log('register')
       const name = this.name.trim()
@@ -205,6 +208,8 @@ export default {
         this.id = ''
         if (this.currentPage === 'Dataset') {
           this.hideAddModelModal()
+        } else {
+          this.changeTab(true)
         }
       })
     },
