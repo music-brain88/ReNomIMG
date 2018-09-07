@@ -498,7 +498,7 @@ def load_dataset_split_detail():
                     else:
                         valid_tag_count[valid_class_map[j]] += 1
 
-        for tags in train_tag_count:
+        for tags in sorted(train_tag_count.keys()):
             class_tag_list.append({
                 "tags": tags,
                 "train": train_tag_count.get(tags),
