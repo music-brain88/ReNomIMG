@@ -20,7 +20,7 @@ but also classification model and object segmentation model.
     renom_img.api.utility
 
 
-.. **# Use models which trained on ReNomIMG GUI tool**
+**# Use models which trained on ReNomIMG GUI tool**
 
-.. .. toctree::
-..     renom_img.api.inference
+.. toctree::
+    renom_img.api.inference

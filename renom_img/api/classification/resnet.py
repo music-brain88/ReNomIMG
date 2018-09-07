@@ -177,7 +177,7 @@ class ResNet32(ResNetBase):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self._train_whole_network = train_whole_network
 
@@ -227,7 +227,7 @@ class ResNet44(ResNetBase):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self._train_whole_network = train_whole_network
 
@@ -277,7 +277,7 @@ class ResNet56(ResNetBase):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self._train_whole_network = train_whole_network
 
@@ -327,7 +327,7 @@ class ResNet110(ResNetBase):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self._train_whole_network = train_whole_network
 
@@ -377,7 +377,7 @@ class ResNet34(ResNetBase):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self._train_whole_network = train_whole_network
         self.decay_rate = 0.0001
@@ -428,7 +428,7 @@ class ResNet50(ResNetBase):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self._train_whole_network = train_whole_network
         self.decay_rate = 0.0001
@@ -479,7 +479,7 @@ class ResNet101(ResNetBase):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self._train_whole_network = train_whole_network
         self.decay_rate = 0.0001

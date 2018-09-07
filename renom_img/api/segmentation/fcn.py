@@ -28,13 +28,6 @@ class FCN_Base(SemanticSegmentation):
             self._opt._lr = 1e-5
         return self._opt
 
-    def regularize(self):
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return 2e-4 * reg
-
     def preprocess(self, x):
         """
         Preprocessing for FCN is follows.
@@ -89,9 +82,10 @@ class FCN32s(FCN_Base):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN32s(self.num_class)
         self._train_whole_network = train_whole_network
+        self.decay_rate = 2e-4
         self._opt = rm.Sgd(0.001, 0.9)
 
         if load_pretrained_weight:
@@ -147,7 +141,7 @@ class FCN16s(FCN_Base):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN16s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
@@ -205,7 +199,7 @@ class FCN8s(FCN_Base):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN8s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)

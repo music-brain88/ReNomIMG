@@ -380,7 +380,7 @@ class SSD(rm.Model):
             imsize = (imsize, imsize)
 
         self.num_class = len(class_map) + 1
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._train_whole_network = train_whole_network
         self.prior = create_priors()
         self.num_prior = len(self.prior)
@@ -456,7 +456,7 @@ class SSD(rm.Model):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.0005 * reg
+        return 0.00004 * reg / 2
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4, keep_top_k=200):
         """

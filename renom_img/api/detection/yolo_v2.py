@@ -128,8 +128,7 @@ class Yolov2(rm.Model):
               exp),imsize=(320, 320)."
 
         num_class = len(class_map)
-        self.class_map = class_map
-        self.class_map = [c.encode("ascii", "ignore") for c in self.class_map]
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self.freezed_network = Darknet19Base()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
@@ -292,7 +291,7 @@ class Yolov2(rm.Model):
 
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.0005 * reg
+        return 0.0005 * reg / 2.
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
@@ -392,13 +391,13 @@ class Yolov2(rm.Model):
             sorted_ind = np.argsort([s[0] for s in score_list[n]])[::-1]
             keep = np.ones((len(score_list[n]),), dtype=np.bool)
             for i, ind1 in enumerate(sorted_ind):
-                if not keep[i]:
+                if not keep[ind1]:
                     continue
                 box1 = box_list[n][ind1]
                 for j, ind2 in enumerate(sorted_ind[i + 1:]):
                     box2 = box_list[n][ind2]
-                    if keep[j] and score_list[n][ind1][1] == score_list[n][ind2][1]:
-                        keep[j] = calc_iou_xywh(box1, box2) < nms_threshold
+                    if keep[ind2] and score_list[n][ind1][1] == score_list[n][ind2][1]:
+                        keep[ind2] = calc_iou_xywh(box1, box2) < nms_threshold
 
             box_list[n] = [{
                 "box": box_list[n][i],

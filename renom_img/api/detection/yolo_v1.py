@@ -75,8 +75,7 @@ class Yolov1(rm.Model):
             imsize = (imsize, imsize)
 
         self.num_class = num_class
-        self.class_map = class_map
-        self.class_map = [c.encode("ascii", "ignore") for c in self.class_map]
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._cells = cells
         self._bbox = bbox
         self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
@@ -202,7 +201,7 @@ class Yolov1(rm.Model):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.0005 * reg
+        return 0.0005 * reg / 2.
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
