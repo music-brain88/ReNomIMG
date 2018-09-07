@@ -13,9 +13,9 @@
               </div>
 
               <div class="row justify-content-center space-top">
-                <label class="col-sm-5 col-form-label label">Discription</label>
+                <label class="col-sm-5 col-form-label label">Description</label>
                 <div class="col-sm-7">
-                  <textarea v-model='discription' class="form-control sort-line" rows="7"></textarea>
+                  <textarea v-model='description' class="form-control sort-line" rows="7"></textarea>
                 </div>
               </div>
 
@@ -165,7 +165,7 @@ export default {
   data: function () {
     return {
       ratio: DEFAULT_RATIO,
-      discription: '',
+      description: '',
       name: '',
       id: '',
       show_tag_data_flg: false
@@ -193,17 +193,16 @@ export default {
         return
       }
       const u_id = this.id
-      const discription = this.discription
-      let f = this.$store.dispatch('registerDatasetDef', {ratio, name, u_id, discription})
+      const description = this.description
+      let f = this.$store.dispatch('registerDatasetDef', {ratio, name, u_id, description})
       f.finally(() => {
         this.ratio = DEFAULT_RATIO
-        this.discription = ''
+        this.description = ''
         this.name = ''
         this.id = ''
       })
     },
     confirm: function () {
-      console.log('confirm')
       const name = this.name.trim()
       if (!name) {
         return
@@ -218,8 +217,9 @@ export default {
 
       let u_id = this.gen_unique_id()
       this.id = u_id
-      let discription = this.discription
-      this.$store.dispatch('loadDatasetSplitDetail', {ratio, name, u_id, discription, delete_id})
+      let description = this.description
+
+      this.$store.dispatch('loadDatasetSplitDetail', {ratio, name, u_id, description, delete_id})
       // f.finally(() => {
       //   this.ratio = DEFAULT_RATIO
       //  this.name = ''

@@ -57,7 +57,7 @@ class Storage:
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
                  name VARCHAR(256),
                  ratio FLOAT,
-                 discription TEXT,
+                 description TEXT,
                  train_imgs CLOB,
                  valid_imgs CLOB,
                  class_map BLOB,
@@ -568,7 +568,7 @@ class Storage:
                 })
             return ret
 
-    def register_dataset_def(self, name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list):
+    def register_dataset_def(self, name, ratio, description, train_imgs, valid_imgs, class_map, class_tag_list):
 
         train_imgs = json.dumps(train_imgs)
         valid_imgs = json.dumps(valid_imgs)
@@ -582,7 +582,7 @@ class Storage:
                 INSERT INTO dataset_def(
                 name,
                 ratio,
-                discription,
+                description,
                 train_imgs,
                 valid_imgs,
                 class_map,
@@ -590,7 +590,7 @@ class Storage:
                 created,
                 updated)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list, now, now))
+            """, (name, ratio, description, train_imgs, valid_imgs, class_map, class_tag_list, now, now))
             return c.lastrowid
 
     def fetch_dataset_defs(self):
@@ -598,7 +598,7 @@ class Storage:
             ret = []
             c = self.cursor()
             c.execute(
-                """SELECT id, name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list, created, updated FROM dataset_def""")
+                """SELECT id, name, ratio, description, train_imgs, valid_imgs, class_map, class_tag_list, created, updated FROM dataset_def""")
             for rec in c:
                 ret.append([
                     rec[0],

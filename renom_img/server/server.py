@@ -390,7 +390,7 @@ def get_datasets():
         recs = storage.fetch_dataset_defs()
         ret = []
         for rec in recs:
-            id, name, ratio, discription, train_imgs, valid_imgs, class_map, class_tag_list, created, updated = rec
+            id, name, ratio, description, train_imgs, valid_imgs, class_map, class_tag_list, created, updated = rec
             valid_img_names = [os.path.join("datasrc/img/", path) for path in valid_imgs]
             valid_imgs = []
             for img_name in valid_img_names:
@@ -406,7 +406,7 @@ def get_datasets():
             ret.append(dict(id=id,
                             name=name,
                             ratio=ratio,
-                            discription=discription,
+                            description=description,
                             train_imgs=len(train_imgs),
                             valid_imgs=valid_imgs,
                             class_map=class_map,
@@ -437,7 +437,7 @@ def load_dataset_split_detail():
         name = request.params.name
         ratio = float(request.params.ratio)
         client_id = request.params.u_id
-        discription = request.params.discription
+        description = request.params.description
 
         # if 2nd time delete confirmdataset id
         if request.params.delete_id:
@@ -509,21 +509,17 @@ def load_dataset_split_detail():
         confirm_dataset[client_id] = {
             "name": name,
             "ratio": ratio,
-            "discription": discription,
+            "description": description,
             "train_imgs": train_imgs,
             "valid_imgs": valid_imgs,
             "class_maps": train_class_map,
             "class_tag_list": class_tag_list
         }
 
-        print(confirm_dataset)
-
-        print(confirm_dataset[client_id].get('class_tag_list'))
-
         body = json.dumps(
             {"total": n_imgs,
              "id": client_id,
-             "discription": discription,
+             "description": description,
              "train_image_num": train_num,
              "valid_image_num": valid_num,
              "class_tag_list": class_tag_list,
@@ -569,42 +565,12 @@ def weight_download_progress(progress_num):
 @route("/api/renom_img/v1/dataset_defs/", method="POST")
 def create_dataset_def():
     try:
-        # datasrc = pathlib.Path(DATASRC_DIR)
-        # imgdirname = pathlib.Path("img")
-        # xmldirname = pathlib.Path("label")
-        #
-        # imgdir = (datasrc / imgdirname)
-        # xmldir = (datasrc / xmldirname)
-        #
-        # name = request.params.name
-        # ratio = float(request.params.ratio)
-        # discription = request.params.discription
-        #
-        # # search image files
-        # imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
-        #
-        # # remove images without label
-        # imgs = set([img for img in imgs if (xmldir / img).with_suffix('.xml').is_file()])
-        # assert len(imgs) > 0, "Image not found in directory. Please set images to 'datasrc/img' directory and xml files to 'datasrc/label' directory."
-        #
-        # # split files into trains and validations
-        # n_imgs = len(imgs)
-        #
-        # trains = set(random.sample(imgs, int(ratio * n_imgs)))
-        # valids = imgs - trains
-        #
-        # # build filename of images and labels
-        # train_imgs = [str(img) for img in trains]
-        # valid_imgs = [str(img) for img in valids]
-        #
-        # _, class_map = parse_xml_detection([str(path) for path in xmldir.iterdir()])
-
         # register dataset
         client_id = request.params.u_id
         id = storage.register_dataset_def(
             confirm_dataset[client_id].get('name'),
             confirm_dataset[client_id].get('ratio'),
-            confirm_dataset[client_id].get('discription'),
+            confirm_dataset[client_id].get('description'),
             confirm_dataset[client_id].get('train_imgs'),
             confirm_dataset[client_id].get('valid_imgs'),
             confirm_dataset[client_id].get('class_maps'),
@@ -612,19 +578,13 @@ def create_dataset_def():
         )
 
         # Insert detailed informations
-        # train_num = len(train_imgs)
-        # valid_num = len(valid_imgs)
 
         del confirm_dataset[client_id]
 
-        print("==confirm_dataset==")
 
-        print(confirm_dataset)
 
-        print("==confirm_dataset==")
 
         body = json.dumps({"id": id})
-        #body = json.dumps({"id":"test"})
         ret = create_response(body)
         return ret
 

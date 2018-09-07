@@ -126,6 +126,19 @@ export default {
     let label_list = result.bbox_list
     let ret = []
 
+    // const IMG_ROW_HEIGHT = 160
+    //
+    // const IMG_ROW_WIDTH = (1280 - // width
+    //                        12 -
+    //                        4 * 2 -
+    //                        1280 * 0.3 -
+    //                        4 * 2 -
+    //                        35 * 2 -
+    //                        4
+    // )
+    //
+    // const IMG_MARGIN = 4
+
     const i_start = state.predict_page * state.predict_page_image_count
     let i_end = i_start + state.predict_page_image_count
     if (Array.isArray(image_path) && i_end > image_path.length) {

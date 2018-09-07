@@ -24,20 +24,20 @@
               <table class="table table-sm table-borderless">
                 <thead>
                   <tr>
-                    <th>ID&nbsp;&nbsp;</th>
-                    <th>Dataset name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                    <th>Train&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                    <th>Valid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                    <th>Create date</th>
+                    <th class="dataset-id">ID&nbsp;&nbsp;</th>
+                    <th class="dataset-name">Dataset name</th>
+                    <th class="imgs-num">Train</th>
+                    <th class="imgs-num">Valid</th>
+                    <th class="date">Create date</th>
                   </tr>
                 </thead>
                 <tbody class="scroll-controll" v-if="dataset_defs.length!==0">
                 <tr class="dataset-row" v-bind:class="{'selected': index === number }" v-for="(def, number) in dataset_defs" :key="def.id" @click="selectDataset(number), set_num(def.train_imgs)">
-                   <td> {{ set_id(def.id) }}</td>
-                   <td> {{ get_dataset_name(def.name) }} </td>
-                   <td> {{ set_num(def.train_imgs) }} </td>
-                   <td> {{ set_num(def.valid_imgs.length) }}</td>
-                   <td class="date" > {{ formatdate(datestr(def.created)) }} </td>
+                   <td class="dataset-id">{{ set_id(def.id) }}</td>
+                   <td class="dataset-name">{{ get_dataset_name(def.name) }} </td>
+                   <td class="imgs-num">{{ set_num(def.train_imgs) }} </td>
+                   <td class="imgs-num">{{ set_num(def.valid_imgs.length) }}</td>
+                   <td class="date" >{{ formatdate(datestr(def.created)) }} </td>
                   </tr>
                 </tbody>
                 <tbody v-else>
@@ -53,11 +53,11 @@
               <h5 class="dataset-name view-title" v-if=" index ==='' ">None dataset selected</h5>
               <h5 class="dataset-name view-title selected" v-else>{{dataset_defs[index].name}}</h5>
               <div class="row justify-content-center space-top">
-                <div class="col-sm-12 discription-bottom">
-                  <label class="discription-label">Discription</label>
+                <div class="col-sm-12 description-bottom">
+                  <label class="description-label">Description</label>
 
-                  <textarea v-if="index !== ''" class="form-control sort-line discription-form" rows="3" v-model="dataset_defs[index].discription" readonly=readonly></textarea>
-                  <textarea v-else class="form-control sort-line discription-form" rows="3" readonly=readonly>None</textarea>
+                  <textarea v-if="index !== ''" class="form-control sort-line description-form" rows="3" v-model="dataset_defs[index].description" readonly=readonly></textarea>
+                  <textarea v-else class="form-control sort-line description-form" rows="3" readonly=readonly>None</textarea>
 
                 </div>
                 <div v-if=" index!=='' " class="row col-md-12 space-label-bottom">
@@ -123,7 +123,7 @@
               </div>
 
               <!-- taglist -->
-              <div v-if=" index===''" class="row" v-bind:class="{'tag-list-view':test >= 5}">
+              <div v-if=" index===''" class="row">
                 <div class="col-md-12 col-form-label">
                   <span>Please click table row.<br />After click you can see detail here</span>
                 </div>
@@ -212,8 +212,7 @@ export default {
       ratio: DEFAULT_RATIO,
       name: '',
       index: '',
-      show_tag_data_flg: false,
-      test: 100
+      show_tag_data_flg: false
     }
   },
   created: function () {
@@ -281,9 +280,11 @@ export default {
       return max_value
     },
     get_dataset_name: function (dataset_name) {
-      if (dataset_name.length > 12) {
-        return dataset_name.slice(0, 12) + '...'
+      const name_length = 12
+      if (dataset_name.length > name_length) {
+        return dataset_name.slice(0, name_length) + '...'
       }
+
       return dataset_name
     },
     set_num: function (num) {
@@ -388,11 +389,36 @@ export default {
     font-family: $content-inner-box-font-family;
     font-size: calc(#{$content-inner-box-font-size});//$content-inner-box-font-size;
   } 
+  
+  .dataset-id{
+    width:35px;
+  }
+
+  th.dataset-name , td.dataset-name{
+    width:125px;
+    white-space:pre-wrap;    
+  }
+
+  td.dataset-name{
+    text-align:right;
+  }
+  
+  th.imgs-num ,td.imgs-num{
+     width:60px;
+  }
+
+  td.imgs-num{
+    text-align:right;
+  } 
 
   .date{
     font-family: $content-inner-box-font-family;
     font-size: calc(#{$content-inner-box-font-size - 1pt});//$content-inner-box-font-size;
-    vertical-align: middle; 
+    vertical-align: middle;
+    width:87px;
+  }
+  td.date{
+    text-align:center;
   }
 
   .data-area{
@@ -452,20 +478,21 @@ export default {
     padding-right:0;
   }
   
-  .discription-label{
+  .description-label{
     margin-left:15px;
   }
 
-  .discription-form{
+  .description-form{
     margin-left:25px;
     width:90%;
+    resize: none;
   }
   
   .figure{
     font-size: calc(#{$tab-figure-font-size}*0.8);
   }
   
-  .discription-bottom{
+  .description-bottom{
     margin-bottom: 10%;
   }
 
