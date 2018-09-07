@@ -203,8 +203,8 @@ export default {
         this.description = ''
         this.name = ''
         this.id = ''
-        if (currentPage === 'Dataset'){
-          this.hideAddModelModal()   
+        if (this.currentPage === 'Dataset') {
+          this.hideAddModelModal()
         }
       })
     },
