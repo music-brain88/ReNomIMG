@@ -64,7 +64,7 @@ class Yolov1(rm.Model):
     """
 
     SERIALIZED = ("_cells", "_bbox", "imsize", "class_map", "num_class", "_last_dense_size")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/Yolov1.h5"
+    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Yolov1.h5"
 
     def __init__(self, class_map=[], cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         num_class = len(class_map)
