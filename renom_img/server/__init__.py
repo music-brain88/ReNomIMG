@@ -59,3 +59,4 @@ def create_dirs():
                  DATASRC_PREDICTION_OUT_CSV, DATASRC_PREDICTION_OUT_XML]:
         if not os.path.exists(path):
             os.makedirs(path)
+            print("Directory %s is newly created." % (path))

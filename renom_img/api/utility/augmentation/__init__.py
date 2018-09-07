@@ -3,14 +3,14 @@ from renom_img.api.utility.augmentation.process import MODE
 
 
 class Augmentation(object):
-    """This class is for applying augmentation to images.
-    Instance of augmentation is passed to ImageDistributor module,
-    and is called only when training process is runnning.
-    You could choose augmentation methods from Process module.
+    """
+    | This class is for applying augmentation to images.
+    | Instance of augmentation is passed to ImageDistributor module,
+    | and is called only when training process is runnning.
+    | You could choose augmentation methods from Process module.
 
-    Attributes:
-        process_list (list of Process modules): list of Process modules.
-        You could choose from Flip, Shift, Rotate and WhiteNoise
+    Args:
+        process_list (list of Process modules): list of Process modules. You could choose from Flip, Shift, Rotate and WhiteNoise
 
     Example:
         >>> from renom_img.api.utility.augmentation import Augmentation
@@ -39,12 +39,12 @@ class Augmentation(object):
         """This function is for applying augmentation to images.
 
         Args:
-            x (list of numpy.ndarray): List of images.
-            y (list of dict): List of annotation results.
+            x (list of str): List of path of images.
+            y (list of annotation): List of annotation results.
 
         Returns:
             x (list of numpy.ndarray): List of transformed images.
-            y (list of dict): List of annotation results.
+            y (list of annotation): List of annotation results.
 
         """
         return self.transform(x, y, mode)
@@ -54,10 +54,18 @@ class Augmentation(object):
         This function is for applying augmentation to ImageDistributor
 
         Args:
-            x (list of numpy.ndarray):
-            y (list of str): list of label for x. It is only used when prediction.
+            x (list of str): List of path of images.
+            y (list of annotation): list of annotation for x. It is only used when prediction.
 
         Returns:
+            tupple: list of transformed images and list of annotation for x.
+
+            .. code-block :: python
+
+                [
+                    x (list of numpy.ndarray), # List of transformed images.
+                    y (list of annotation) # list of annotation for x.
+                ]
 
         """
         assert_msg = "{} is not supported transformation mode. {} are available."

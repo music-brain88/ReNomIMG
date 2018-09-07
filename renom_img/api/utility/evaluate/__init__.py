@@ -99,13 +99,13 @@ class EvaluatorDetection(EvaluatorBase):
         Returns:
             (dictionary): AP for each class. The format is as follows
 
-            .. code-block :: python
+        .. code-block :: python
 
-                {
-                    class_id1(int): AP1 (float),
-                    class_id2(int): AP2 (float),
-                    class_id3(int): AP3 (float),
-                }
+            {
+                class_id1(int): AP1 (float),
+                class_id2(int): AP2 (float),
+                class_id3(int): AP3 (float),
+            }
         """
 
         prec, rec, _, _ = get_prec_and_rec(self.prediction, self.target, self.num_class, iou_thresh)
@@ -392,7 +392,7 @@ class EvaluatorSegmentation(EvaluatorBase):
     Args:
         prediction (list): A list of predicted class
         target (list): A list of target class. The format is as follows
-        background_class(int): background class is ignored in the output table. defaults to 0.
+        ignore_class(int): background class is ignored in the output table. defaults to 0.
 
     .. code-block :: python
         :caption: **Example of the arguments, "prediction" and "target".**
@@ -409,9 +409,9 @@ class EvaluatorSegmentation(EvaluatorBase):
             >>> evaluator.precision()
     """
 
-    def __init__(self, prediction, target, background_class=0):
+    def __init__(self, prediction, target, ignore_class=0):
         super(EvaluatorSegmentation, self).__init__(prediction, target)
-        self.background_class = background_class
+        self.ignore_class = [ignore_class] if isinstance(ignore_class, int) else ignore_class
 
     def iou(self, round_off=3):
         """ Returns iou for each class
@@ -426,7 +426,7 @@ class EvaluatorSegmentation(EvaluatorBase):
         iou, mean_iou = segmentation_iou(self.prediction,
                                          self.target,
                                          round_off=round_off,
-                                         background_class=self.background_class)
+                                         ignore_class=self.ignore_class)
         return iou, mean_iou
 
     def precision(self, round_off=3):
@@ -442,7 +442,7 @@ class EvaluatorSegmentation(EvaluatorBase):
         precision, mean_precision = segmentation_precision(self.prediction,
                                                            self.target,
                                                            round_off=round_off,
-                                                           background_class=self.background_class)
+                                                           ignore_class=self.ignore_class)
         return precision, mean_precision
 
     def recall(self, round_off=3):
@@ -458,7 +458,7 @@ class EvaluatorSegmentation(EvaluatorBase):
         recall, mean_recall = segmentation_recall(self.prediction,
                                                   self.target,
                                                   round_off=round_off,
-                                                  background_class=self.background_class)
+                                                  ignore_class=self.ignore_class)
         return recall, mean_recall
 
     def f1(self, round_off=3):
@@ -474,7 +474,7 @@ class EvaluatorSegmentation(EvaluatorBase):
         f1, mean_f1 = segmentation_f1(self.prediction,
                                       self.target,
                                       round_off=round_off,
-                                      background_class=self.background_class)
+                                      ignore_class=self.ignore_class)
         return f1, mean_f1
 
     def report(self, round_off=3):
@@ -503,7 +503,7 @@ class EvaluatorSegmentation(EvaluatorBase):
             mean_iou, tp, true_sum = get_segmentation_metrics(self.prediction,
                                                               self.target,
                                                               round_off=round_off,
-                                                              background_class=self.background_class)
+                                                              ignore_class=self.ignore_class)
 
         headers = ["IoU", "Precision", "Recall", "F1 score", "#pred/#target"]
         rows = []

@@ -14,7 +14,6 @@ def adddoc(cls):
     """Insert parent doc strings to inherited class.
     """
     for m in cls.__dict__.values():
-        print(m)
         if isinstance(m, types.FunctionType):
             parent_list = cls.mro()
             first = 1
@@ -22,19 +21,14 @@ def adddoc(cls):
             add_string = ""
             last_add_string = None
             for parent in parent_list[first:end][::-1]:
-                # print(cls, parent, m)
                 parent_meth = getattr(parent, m.__name__, False)
                 if parent_meth and parent_meth.__doc__:
                     if last_add_string != parent_meth.__doc__:
                         add_string += parent_meth.__doc__
                         last_add_string = parent_meth.__doc__
-                    else:
-                        pass
-                        # print(last_add_string)
             if m.__doc__:
                 m.__doc__ = add_string + m.__doc__
             else:
-                # print(add_string)
                 m.__doc__ = add_string
     return cls
 
@@ -75,7 +69,7 @@ class Base(rm.Model):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return self.decay_rate * reg
+        return self.decay_rate * reg / 2
 
     def preprocess(self, x):
         """Performs preprocess for a given array.
@@ -121,7 +115,7 @@ class Base(rm.Model):
         Following arguments will be given to the function ``callback_end_epoch``.
 
         - **epoch** (int) - Number of current epoch.
-        - **model** (Model) - Yolo1 object.
+        - **model** (Model) - Model object.
         - **avg_train_loss_list** (list) - List of average train loss of each epoch.
         - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
 

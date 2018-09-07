@@ -18,6 +18,7 @@ def layer_factory(channel=32, conv_layer_num=2):
     layers.append(rm.MaxPool2d(filter=2, stride=2))
     return rm.Sequential(layers)
 
+
 @adddoc
 class FCN_Base(SemanticSegmentation):
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
@@ -26,13 +27,6 @@ class FCN_Base(SemanticSegmentation):
         elif current_epoch == 150:
             self._opt._lr = 1e-5
         return self._opt
-
-    def regularize(self):
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return 2e-4 * reg
 
     def preprocess(self, x):
         """
@@ -50,6 +44,7 @@ class FCN_Base(SemanticSegmentation):
         x[:, 1, :, :] -= 116.779  # G
         x[:, 2, :, :] -= 103.939  # B
         return x
+
 
 class FCN32s(FCN_Base):
     """ Fully convolutional network (21s) for semantic segmentation
@@ -87,9 +82,10 @@ class FCN32s(FCN_Base):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN32s(self.num_class)
         self._train_whole_network = train_whole_network
+        self.decay_rate = 2e-4
         self._opt = rm.Sgd(0.001, 0.9)
 
         if load_pretrained_weight:
@@ -107,6 +103,7 @@ class FCN32s(FCN_Base):
         self._model.block3.set_auto_update(self._train_whole_network)
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
+
 
 class FCN16s(FCN_Base):
     """ Fully convolutional network (16s) for semantic segmentation
@@ -144,7 +141,7 @@ class FCN16s(FCN_Base):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN16s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
@@ -164,6 +161,7 @@ class FCN16s(FCN_Base):
         self._model.block3.set_auto_update(self._train_whole_network)
         self._model.block4.set_auto_update(self._train_whole_network)
         self._model.block5.set_auto_update(self._train_whole_network)
+
 
 class FCN8s(FCN_Base):
     """ Fully convolutional network (8s) for semantic segmentation
@@ -201,7 +199,7 @@ class FCN8s(FCN_Base):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN8s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)

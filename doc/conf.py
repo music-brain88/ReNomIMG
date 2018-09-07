@@ -15,7 +15,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import sphinx_rtd_theme
+# import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
@@ -66,7 +66,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -83,7 +83,7 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme_path = ["_themes/sphinx_rtd_theme-master"]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -108,7 +108,9 @@ processing_class = None
 
 def skip_doc(app, what, name, obj, skip, options):
     model_method = list(Model.__dict__.values())
-    if obj in model_method or (name not in str(options["members"]) and what == "module"):
+    # TODO: Modify this condition.
+    if obj in model_method or (name not in str(options["members"]) and what == "module") \
+            and name != "Detector":
         return True
     return None
 
@@ -117,12 +119,14 @@ def process_doc(app, what, name, obj, options, lines):
     global processing_class
     if what == "method":
         class_name = re.search(r".+\.", str(obj).split(" ")[1])
-        if class_name is None: return 
+        if class_name is None:
+            return
         class_name = class_name.group()
 
         if class_name:
             class_name = class_name[:-1]
-            if not hasattr(processing_class, "mro"): return
+            if not hasattr(processing_class, "mro"):
+                return
             if class_name in [c.__name__ for c in processing_class.mro()] and len(lines):
                 for l in range(len(lines)):
                     lines[l] = re.sub(r"\$\{class\}", processing_class.__name__, lines[l])

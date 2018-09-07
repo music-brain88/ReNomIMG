@@ -52,15 +52,16 @@ class TernausNet(SemanticSegmentation):
     """
 
     def __init__(self, class_map=[], imsize=(512, 512), load_pretrained_weight=False, train_whole_network=False):
-        assert not load_pretrained_weight, "Currently pretrained weight of %s is not prepared. Please set False to `load_pretrained_weight` flag."%self.__class__.__name__
+        assert not load_pretrained_weight, "Currently pretrained weight of %s is not prepared. Please set False to `load_pretrained_weight` flag." % self.__class__.__name__
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = class_map
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_TernausNet(self.num_class)
         self._train_whole_network = train_whole_network
-        self._opt = rm.Adam(lr=1e-3)
+        self._opt = rm.Sgd(4e-3, 0.9)
+        self.decay_rate = 0.00002
         self._freeze()
 
     def preprocess(self, x):
@@ -71,29 +72,25 @@ class TernausNet(SemanticSegmentation):
         Returns:
             (ndarray): Preprocessed data.
         """
-        return x / 255.
+        x[:, 0, :, :] -= 123.68  # R
+        x[:, 1, :, :] -= 116.779  # G
+        x[:, 2, :, :] -= 103.939  # B
+        return x
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            ind1 = int(total_epoch * 0.5)
-            ind2 = int(total_epoch * 0.3)
-            ind3 = total_epoch - (ind1 + ind2 + 1)
-            lr_list = [0] + [0.01] * ind1 + [0.001] * ind2 + [0.0001] * ind3
-            if current_epoch == 0:
-                lr = 0.0001
-            else:
-                lr = lr_list[current_epoch]
-            self._opt._lr = lr
+            ind1 = int(total_epoch * 0.3)
+            ind2 = int(total_epoch * 0.5)
+            ind3 = int(total_epoch * 0.8)
+            if current_epoch == ind1:
+                self._opt._lr = 4e-3
+            elif current_epoch == ind2:
+                self._opt._lr = 1e-3
+            elif current_epoch == ind3:
+                self._opt.lr = 4e-4
             return self._opt
-
-    def regularize(self):
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.0004 * reg
 
     def _freeze(self):
         self._model.conv1_1.set_auto_update(self._train_whole_network)
@@ -109,13 +106,21 @@ class TernausNet(SemanticSegmentation):
 class CNN_TernausNet(rm.Model):
     def __init__(self, num_class):
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
+        self.bn1_1 = rm.BatchNormalize(mode='feature')
         self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
+        self.bn2_1 = rm.BatchNormalize(mode='feature')
         self.conv3_1 = rm.Conv2d(256, padding=1, filter=3)
+        self.bn3_1 = rm.BatchNormalize(mode='feature')
         self.conv3_2 = rm.Conv2d(256, padding=1, filter=3)
+        self.bn3_2 = rm.BatchNormalize(mode='feature')
         self.conv4_1 = rm.Conv2d(512, padding=1, filter=3)
+        self.bn4_1 = rm.BatchNormalize(mode='feature')
         self.conv4_2 = rm.Conv2d(512, padding=1, filter=3)
+        self.bn4_2 = rm.BatchNormalize(mode='feature')
         self.conv5_1 = rm.Conv2d(512, padding=1, filter=3)
+        self.bn5_1 = rm.BatchNormalize(mode='feature')
         self.conv5_2 = rm.Conv2d(512, padding=1, filter=3)
+        self.bn5_2 = rm.BatchNormalize(mode='feature')
 
         self.deconv1 = rm.Deconv2d(256, stride=2)
         self.conv6 = rm.Conv2d(512, padding=1)
@@ -129,18 +134,22 @@ class CNN_TernausNet(rm.Model):
         self.conv10 = rm.Conv2d(num_class, filter=1)
 
     def forward(self, x):
-        c1 = rm.relu(self.conv1_1(x))
+        c1 = rm.relu(self.bn1_1(self.conv1_1(x)))
         t = rm.max_pool2d(c1, filter=2, stride=2)
-        c2 = rm.relu(self.conv2_1(t))
+        t = rm.dropout(t, 0.5)
+        c2 = rm.relu(self.bn2_1(self.conv2_1(t)))
         t = rm.max_pool2d(c2, filter=2, stride=2)
-        t = rm.relu(self.conv3_1(t))
-        c3 = rm.relu(self.conv3_2(t))
+        t = rm.dropout(t, 0.5)
+        t = rm.relu(self.bn3_1(self.conv3_1(t)))
+        c3 = rm.relu(self.bn3_2(self.conv3_2(t)))
         t = rm.max_pool2d(c3, filter=2, stride=2)
-        t = rm.relu(self.conv4_1(t))
-        c4 = rm.relu(self.conv4_2(t))
+        t = rm.dropout(t, 0.5)
+        t = rm.relu(self.bn4_1(self.conv4_1(t)))
+        c4 = rm.relu(self.bn4_2(self.conv4_2(t)))
         t = rm.max_pool2d(c4, filter=2, stride=2)
-        t = rm.relu(self.conv5_1(t))
-        t = rm.relu(self.conv5_2(t))
+        t = rm.dropout(t, 0.5)
+        t = rm.relu(self.bn5_1(self.conv5_1(t)))
+        t = rm.relu(self.bn5_2(self.conv5_2(t)))
 
         t = self.deconv1(t)[:, :, :c4.shape[2], :c4.shape[3]]
         t = rm.concat([c4, t])

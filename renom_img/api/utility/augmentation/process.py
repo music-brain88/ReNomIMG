@@ -129,13 +129,19 @@ def flip(x, y=None, mode="classification"):
     """Flip image randomly.
 
     Args:
-        x(list of numpy.array): List of images.
-        y(list of dict): List of annotation results.
-        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+        x (list of str): List of path of images.
+        y (list of annotation): list of annotation for x. It is only used when prediction.
 
     Returns:
-        (list of numpy.array): List of flipped images.
-        (list of dict): List of annotation results.
+        tupple: list of transformed images and list of annotation for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
+
     Examples:
         >>> from renom_img.api.utility.augmentation.process import Flip
         >>> from PIL import Image
@@ -247,13 +253,19 @@ def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
     """Shift images randomly according to given parameter.
 
     Args:
-        x(list of numpy.array): List of images.
-        y(list of dict): List of annotation results.
-        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+        x (list of str): List of path of images.
+        y (list of annotation): list of annotation for x. It is only used when prediction.
 
     Returns:
-        (list of numpy.array): List of shifted images.
-        (list of dict): List of annotation results.
+        tupple: list of transformed images and list of annotation for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
+
 
     Examples:
         >>> from renom_img.api.utility.augmentation.process import shift
@@ -366,13 +378,18 @@ def rotate(x, y=None, mode="classification"):
     """Rotate images randomly from 0, 90, 180, 270 degree.
 
     Args:
-        x(list of numpy.array): List of images.
-        y(list of dict): List of annotation results.
-        mode(str): Type of task. You could choose from Classification, Detection and Segmentation.
+        x (list of str): List of path of images.
+        y (list of annotation): list of annotation for x. It is only used when prediction.
 
     Returns:
-        (list of numpy.array): List of rotated images.
-        (list of dict): List of annotation results.
+        tupple: list of transformed images and list of annotation for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
 
     Examples:
         >>> from renom_img.api.utility.augmentation.process import rotate
@@ -409,13 +426,18 @@ def white_noise(x, y=None, std=0.01, mode="classification"):
     """Add white noise to images.
 
     Args:
-        x(list of numpy.array): List of images.
-        y(list of dict): List of annotation results.
-        mode(str): Type of task. You could chooose Classification, Detection or Segmentation.
+        x (list of str): List of path of images.
+        y (list of annotation): list of annotation for x. It is only used when prediction.
 
     Returns:
-        (list of numpy.array): List of images added white noise.
-        (list of dict): List of annotation results.
+        tupple: list of transformed images and list of annotation for x.
+
+        .. code-block :: python
+
+            [
+                x (list of numpy.ndarray), # List of transformed images.
+                y (list of annotation) # list of annotation for x.
+            ]
 
     Examples:
         >>> from renom_img.api.utility.augmentation.process import white_noise
@@ -574,7 +596,10 @@ class ContrastNorm(ProcessBase):
 
 def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'):
     """ Contrast Normalization
+
     Args:
+        x (list of str): List of path of images.
+        y (list of annotation): list of annotation for x. It is only used when prediction.
         alpha(float or list of two floats): Higher value increases contrast, and lower value decreases contrast.
                                             if a list [a, b], alpha value is sampled from uniform distribution ranging from [a, b).
                                             if a float, constant value of alpha is used.
@@ -582,8 +607,15 @@ def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'
                            If alpha is given a list, then different values for each channel are used.
 
     Returns:
-        (list of numpy.array): List of images normalized by contrast
-        (list of dict): List of annotation results.
+        tupple: list of transformed images and list of annotation for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
+
 
     Example:
         >>> img = Image.open(img_path)

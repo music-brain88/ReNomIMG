@@ -129,8 +129,7 @@ class Yolov2(rm.Model):
               exp),imsize=(320, 320)."
 
         num_class = len(class_map)
-        self.class_map = class_map
-        self.class_map = [c.encode("ascii", "ignore") for c in self.class_map]
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self.freezed_network = Darknet19()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
@@ -294,7 +293,7 @@ class Yolov2(rm.Model):
 
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.0005/2.) * reg
+        return (0.0005 / 2.) * reg
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
@@ -397,7 +396,7 @@ class Yolov2(rm.Model):
                 if not keep[ind1]:
                     continue
                 box1 = box_list[n][ind1]
-                for j, ind2 in enumerate(sorted_ind[i + 1:], i+1):
+                for j, ind2 in enumerate(sorted_ind[i + 1:], i + 1):
                     box2 = box_list[n][ind2]
                     if keep[ind2] and score_list[n][ind1][1] == score_list[n][ind2][1]:
                         keep[ind2] = calc_iou_xywh(box1, box2) < nms_threshold
@@ -623,7 +622,8 @@ class Yolov2(rm.Model):
                 # scale of noobject iou
                 if max_iou <= low_thresh:
                     # mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
-                    mask[n, ind[0]*offset, ind[1], ind[2]] = nd_x[n, ind[0]*offset, ind[1], ind[2]]*1
+                    mask[n, ind[0] * offset, ind[1], ind[2]] = nd_x[n,
+                                                                    ind[0] * offset, ind[1], ind[2]] * 1
 
             # Create target and mask for cell that contains obj.
             for h, w in zip(*gt_index):
@@ -666,7 +666,8 @@ class Yolov2(rm.Model):
 
                 # scale of obj iou
                 # mask[n, 0 + best_anc_ind * offset, h, w] = 5.
-                mask[n, 0 + best_anc_ind * offset, h, w] = (1 - nd_x[n, best_anc_ind*offset, h, w])*5
+                mask[n, 0 + best_anc_ind * offset, h,
+                     w] = (1 - nd_x[n, best_anc_ind * offset, h, w]) * 5
 
                 # scale of coordinate
                 mask[n, 1 + best_anc_ind * offset, h, w] = 1
@@ -680,7 +681,7 @@ class Yolov2(rm.Model):
         diff = (x - target)
         N = np.sum(y[:, 0] > 0)
         mask *= mask
-        return rm.sum(diff * diff * mask) / (N*2)
+        return rm.sum(diff * diff * mask) / (N * 2)
 
     def fit(self, train_img_path_list, train_annotation_list,
             valid_img_path_list=None, valid_annotation_list=None,

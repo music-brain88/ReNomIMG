@@ -1,0 +1,1706 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-31 20:48+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rsts/renom_img.api.utility.rst:2
+msgid "renom\\_img.api.utility"
+msgstr ""
+
+#: ../../rsts/renom_img.api.utility.rst:5
+msgid "renom\\_img.api.utility.box"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.box.rescale:1
+msgid "Rescale box coordinates and size to specific size."
+msgstr "ボックスが特定のサイズになるように座標とサイズを変換します。"
+
+#: ../../docstring of renom_img.api.utility.augmentation.Augmentation
+#: renom_img.api.utility.augmentation.Augmentation.transform
+#: renom_img.api.utility.augmentation.process.contrast_norm
+#: renom_img.api.utility.augmentation.process.flip
+#: renom_img.api.utility.augmentation.process.rotate
+#: renom_img.api.utility.augmentation.process.shift
+#: renom_img.api.utility.augmentation.process.white_noise
+#: renom_img.api.utility.box.calc_iou_xywh
+#: renom_img.api.utility.box.calc_iou_xyxy renom_img.api.utility.box.rescale
+#: renom_img.api.utility.box.transform2xy12
+#: renom_img.api.utility.box.transform2xywh
+#: renom_img.api.utility.distributor.distributor.ImageDistributor.batch
+#: renom_img.api.utility.distributor.distributor.ImageDistributor.split
+#: renom_img.api.utility.evaluate.EvaluatorClassification
+#: renom_img.api.utility.evaluate.EvaluatorClassification.report
+#: renom_img.api.utility.evaluate.EvaluatorDetection
+#: renom_img.api.utility.evaluate.EvaluatorDetection.AP
+#: renom_img.api.utility.evaluate.EvaluatorDetection.iou
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mAP
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou
+#: renom_img.api.utility.evaluate.EvaluatorDetection.plot_pr_curve
+#: renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec
+#: renom_img.api.utility.evaluate.EvaluatorDetection.report
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.f1
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.iou
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.precision
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.recall
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report
+#: renom_img.api.utility.load.parse_xml_detection
+#: renom_img.api.utility.misc.display.draw_box
+#: renom_img.api.utility.misc.display.draw_segment
+#: renom_img.api.utility.misc.display.pil2array renom_img.api.utility.nms.nms
+#: renom_img.api.utility.nms.soft_nms
+#: renom_img.api.utility.target.DataBuilderClassification
+#: renom_img.api.utility.target.DataBuilderClassification.build
+#: renom_img.api.utility.target.DataBuilderDetection
+#: renom_img.api.utility.target.DataBuilderDetection.build
+#: renom_img.api.utility.target.DataBuilderSegmentation
+#: renom_img.api.utility.target.DataBuilderSegmentation.build
+#: renom_img.api.utility.target.DataBuilderSegmentation.load_annotation
+#: renom_img.api.utility.target.DataBuilderSegmentation.load_img
+msgid "Parameters"
+msgstr "パラメータ"
+
+#: ../../docstring of renom_img.api.utility.box.rescale:3
+#: renom_img.api.utility.box.transform2xy12:16
+#: renom_img.api.utility.box.transform2xywh:16
+msgid "This list has 4 elements that represent above coordinates."
+msgstr "このリストは上の座標で表現される4つの要素からなります。"
+
+#: ../../docstring of renom_img.api.utility.box.rescale:5
+#: renom_img.api.utility.box.rescale:7
+msgid "Size of the box before rescaling."
+msgstr "スケールを変換する前のボックスのサイズ"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xywh:1
+msgid ""
+"This function changes box's coordinate format from (x1, y1, x2, y2) to "
+"(x, y, w, h)."
+msgstr "この関数はボックスの座標のフォーマットを(x1, y1, x2, y2)から(x, y, w, h)に変換します。"
+
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:3
+#: renom_img.api.utility.box.transform2xy12:7
+#: renom_img.api.utility.box.transform2xywh:4
+msgid ""
+"(``x1``, ``y1``) represents the coordinate of upper left corner. (``x2``,"
+" ``y2``) represents the coordinate of lower right corner."
+msgstr "(x1, y1) は左上の角を表します。(x2, y2) は右下の角を表します。"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xywh:7
+msgid ""
+"(``x``, ``y``) represents the center of bounding box. (``w``, ``h``) "
+"represents the width and height of bonding box."
+msgstr "(x, y)はバウンディングボックスの中心を表します。 (w, h)はバウンディングボックスの幅と高さを表します。"
+
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:6
+#: renom_img.api.utility.box.calc_iou_xyxy:6
+#: renom_img.api.utility.box.transform2xy12:10
+#: renom_img.api.utility.box.transform2xywh:10
+msgid "The format of argument box have to be following example."
+msgstr "引数のボックスは以下の例のようなフォーマットでなければなりません。"
+
+#: ../../docstring of renom_img.api.utility.augmentation.Augmentation.transform
+#: renom_img.api.utility.augmentation.process.contrast_norm
+#: renom_img.api.utility.augmentation.process.flip
+#: renom_img.api.utility.augmentation.process.rotate
+#: renom_img.api.utility.augmentation.process.shift
+#: renom_img.api.utility.augmentation.process.white_noise
+#: renom_img.api.utility.box.calc_iou_xywh
+#: renom_img.api.utility.box.calc_iou_xyxy
+#: renom_img.api.utility.box.transform2xy12
+#: renom_img.api.utility.box.transform2xywh
+#: renom_img.api.utility.evaluate.EvaluatorClassification.accuracy
+#: renom_img.api.utility.evaluate.EvaluatorClassification.f1
+#: renom_img.api.utility.evaluate.EvaluatorClassification.precision
+#: renom_img.api.utility.evaluate.EvaluatorClassification.recall
+#: renom_img.api.utility.evaluate.EvaluatorClassification.report
+#: renom_img.api.utility.evaluate.EvaluatorDetection.AP
+#: renom_img.api.utility.evaluate.EvaluatorDetection.iou
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mAP
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou
+#: renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec
+#: renom_img.api.utility.evaluate.EvaluatorDetection.report
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.f1
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.iou
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.precision
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.recall
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report
+#: renom_img.api.utility.load.parse_xml_detection
+#: renom_img.api.utility.misc.display.draw_box
+#: renom_img.api.utility.misc.display.draw_segment
+#: renom_img.api.utility.misc.display.pil2array renom_img.api.utility.nms.nms
+#: renom_img.api.utility.nms.soft_nms
+#: renom_img.api.utility.target.DataBuilderClassification.build
+#: renom_img.api.utility.target.DataBuilderDetection.build
+#: renom_img.api.utility.target.DataBuilderSegmentation.build
+#: renom_img.api.utility.target.DataBuilderSegmentation.load_annotation
+#: renom_img.api.utility.target.DataBuilderSegmentation.load_img
+msgid "Returns"
+msgstr "戻り値"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xy12:19
+#: renom_img.api.utility.box.transform2xywh:19 renom_img.api.utility.nms.nms:25
+#: renom_img.api.utility.nms.soft_nms:25
+msgid "Returns reformatted bounding box."
+msgstr "フォームが変更されたバウンディングボックスを返します。"
+
+#: ../../docstring of renom_img.api.utility.augmentation.Augmentation.transform
+#: renom_img.api.utility.augmentation.process.contrast_norm
+#: renom_img.api.utility.augmentation.process.flip
+#: renom_img.api.utility.augmentation.process.rotate
+#: renom_img.api.utility.augmentation.process.shift
+#: renom_img.api.utility.augmentation.process.white_noise
+#: renom_img.api.utility.box.calc_iou_xywh
+#: renom_img.api.utility.box.calc_iou_xyxy
+#: renom_img.api.utility.box.transform2xy12
+#: renom_img.api.utility.box.transform2xywh
+#: renom_img.api.utility.evaluate.EvaluatorClassification.accuracy
+#: renom_img.api.utility.evaluate.EvaluatorClassification.f1
+#: renom_img.api.utility.evaluate.EvaluatorClassification.precision
+#: renom_img.api.utility.evaluate.EvaluatorClassification.recall
+#: renom_img.api.utility.evaluate.EvaluatorDetection.AP
+#: renom_img.api.utility.evaluate.EvaluatorDetection.iou
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mAP
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou
+#: renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.f1
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.iou
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.precision
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.recall
+#: renom_img.api.utility.load.parse_xml_detection
+#: renom_img.api.utility.misc.display.draw_box
+#: renom_img.api.utility.misc.display.draw_segment
+#: renom_img.api.utility.misc.display.pil2array renom_img.api.utility.nms.nms
+#: renom_img.api.utility.nms.soft_nms
+#: renom_img.api.utility.target.DataBuilderClassification.build
+#: renom_img.api.utility.target.DataBuilderDetection.build
+#: renom_img.api.utility.target.DataBuilderSegmentation.build
+#: renom_img.api.utility.target.DataBuilderSegmentation.load_annotation
+#: renom_img.api.utility.target.DataBuilderSegmentation.load_img
+msgid "Return type"
+msgstr "戻り値の型"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xy12:1
+msgid ""
+"This function changes box's coordinate format from (x, y, w, h) to (x1, "
+"y1, x2, y2)."
+msgstr "この関数はボックスの座標のフォーマットを(x, y, w, h)から(x1, y1, x2, y2)に変換します。"
+
+#: ../../docstring of renom_img.api.utility.box.transform2xy12:4
+msgid ""
+"(``x``, ``y``) represents the center of bonding box. (``w``, ``h``) "
+"represents the width and height of bonding box."
+msgstr "(x, y)はバウンディングボックスの中心を表します。 (w, h)はバウンディングボックスの幅と高さを表します。"
+
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xyxy:1
+msgid "This function calculates IOU in the coordinate format (x, y, w, h)."
+msgstr "この関数は座標のフォーマット(x, y, w, h)の下でIOUを計算します。"
+
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xyxy:3
+msgid ""
+"(``x``, ``y``) represents the coordinate of the center. (``w``, ``h``) "
+"represents the width and height."
+msgstr "(x, y)はバウンディングボックスの中心を表します。 (w, h)はバウンディングボックスの幅と高さを表します。"
+
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:12
+#: renom_img.api.utility.box.calc_iou_xywh:14
+#: renom_img.api.utility.box.calc_iou_xyxy:12
+#: renom_img.api.utility.box.calc_iou_xyxy:14
+msgid "List of a box. The list has 4 elements that represent above coordinates."
+msgstr "このリストは上の座標で表現される4つの要素からなります。"
+
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:17
+#: renom_img.api.utility.box.calc_iou_xyxy:17
+msgid "Returns value of IOU."
+msgstr "IOUの値を返却します。"
+
+#: ../../docstring of renom_img.api.utility.box.calc_iou_xywh:1
+msgid "This function calculates IOU in the coordinate format (x1, y1, x2, y2)."
+msgstr "この関数は座標のフォーマット(x1, y1, x2, y2)の下でIOUを計算します。"
+
+#: ../../rsts/renom_img.api.utility.rst:13
+msgid "renom\\_img.api.utility.load"
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:1
+msgid "XML format must be Pascal VOC format."
+msgstr "XMLのフォーマットはPascal VOCフォーマットである必要があります。"
+
+#: of renom_img.api.utility.load.parse_xml_detection:3
+msgid "List of xml-file's path."
+msgstr "xmlファイルのパスのリスト"
+
+#: of renom_img.api.utility.load.parse_xml_detection:6
+msgid ""
+"This returns list of annotations. Each annotation has a list of "
+"dictionary which includes keys 'box' and 'name'. The structure is bellow."
+msgstr "アノテーションのリストを返却します。各アノテーションはキーとしてボックスと名前を含むような辞書のリストからなります。構造は以下に示す通りです。"
+
+#: ../../rsts/renom_img.api.utility.rst:20
+msgid "renom\\_img.api.utility.nms"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.nms:1
+msgid "Non-Maximum Suppression"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.nms:3
+#: renom_img.api.utility.nms.soft_nms:3
+msgid "A list of predicted boxes. The format is as follows."
+msgstr "予測されたボックスのリスト。フォーマットは以下の通りになります。"
+
+#: ../../docstring of renom_img.api.utility.nms.nms:5
+#: renom_img.api.utility.nms.soft_nms:5
+msgid "Defaults to `0.5`. This represents the ratio of overlap between two boxes."
+msgstr "デフォルト値は0.5です。これはボックス間の重なりの割合を表します。"
+
+#: ../../docstring of renom_img.api.utility.nms.nms:8
+msgid "**Example of the argument \"preds\".**"
+msgstr "**\"preds\"** 引数の例"
+
+#: ../../docstring of renom_img.api.utility.nms.nms:28
+msgid "**Example of return value.**"
+msgstr "**戻り値の例**"
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:1
+msgid "Soft Non-Maximum Suppression"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:8
+msgid "**Example of the argument, \"preds\".**"
+msgstr "**\"preds\"** 引数の例"
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:28
+msgid "**Example of the output.**"
+msgstr "**出力の例"
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:45
+msgid "References"
+msgstr "引用"
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:46
+msgid "Navaneeth Bodla, Bharat Singh, Rama Chellappa, Larry S. Davis,"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:47
+msgid "Soft-NMS -- Improving Object Detection With One Line of Code"
+msgstr ""
+
+#: ../../docstring of renom_img.api.utility.nms.soft_nms:48
+msgid "https://arxiv.org/abs/1704.04503"
+msgstr ""
+
+#: ../../rsts/renom_img.api.utility.rst:28
+msgid "renom\\_img.api.utility.target"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification:1
+#: renom_img.api.utility.target.DataBuilderDetection:1
+#: renom_img.api.utility.target.DataBuilderSegmentation:1
+msgid "Bases: :class:`renom_img.api.utility.target.DataBuilderBase`"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderClassification:1
+msgid "Data builder for a classification task"
+msgstr "分類タスク用のデータビルダー"
+
+#: of renom_img.api.utility.target.DataBuilderClassification:3
+#: renom_img.api.utility.target.DataBuilderDetection:3
+#: renom_img.api.utility.target.DataBuilderSegmentation:3
+msgid "Array of class names"
+msgstr "クラス名の配列"
+
+#: of renom_img.api.utility.target.DataBuilderClassification:5
+#: renom_img.api.utility.target.DataBuilderDetection:5
+#: renom_img.api.utility.target.DataBuilderSegmentation:5
+msgid "Input image size"
+msgstr "入力画像サイズ"
+
+#: of renom_img.api.utility.target.DataBuilderClassification.build:1
+msgid "Builds an array of images and corresponding labels"
+msgstr "画像とそれに対するラベルを構築します。"
+
+#: of renom_img.api.utility.target.DataBuilderClassification.build:3
+#: renom_img.api.utility.target.DataBuilderDetection.build:1
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:1
+msgid "List of input image paths."
+msgstr "入力画像のパスのリスト"
+
+#: of renom_img.api.utility.target.DataBuilderClassification.build:5
+msgid "List of class id [1, 4, 6 (int)]"
+msgstr "クラスIDのリスト[1, 4, 6(int)]"
+
+#: of renom_img.api.utility.target.DataBuilderClassification.build:8
+#: renom_img.api.utility.target.DataBuilderDetection.build:5
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:5
+msgid "Instance of the augmentation class."
+msgstr "Augmentationクラスのインスタンス"
+
+#: of renom_img.api.utility.target.DataBuilderClassification.build:11
+msgid "Batch of images and corresponding one hot labels for each image in a batch"
+msgstr "画像のバッチ y(ndarray): バッチ内の各画像のOne-hotラベル"
+
+#: of renom_img.api.utility.target.DataBuilderDetection:1
+msgid "Data builder for a detection task"
+msgstr "物体検出タスクのデータビルダー"
+
+#: of renom_img.api.utility.target.DataBuilderDetection.build:3
+#: renom_img.api.utility.target.DataBuilderSegmentation.build:3
+msgid "The format of annotation list is as follows."
+msgstr "アノテーションのリストのフォーマットは以下の通りとなります。"
+
+#: of renom_img.api.utility.target.DataBuilderDetection.build:8
+msgid ""
+"Batch of images and ndarray whose shape is **(# images, maximum number of"
+" objects in an image * (4(coordinates) + 1(confidence)))**"
+msgstr "画像のバッチとshapeが **(画像の枚数, 画像一枚あたりにおける最大の物体数 * (4(座標) + 1(確信度)**のndarray"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation:1
+msgid "Data builder for a semantic segmentation task"
+msgstr "セマンティックセグメンテーションタスク用のデータビルダー"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.build:8
+msgid ""
+"Batch of images and ndarray whose shape is **(batch size, #classes, "
+"width, height)**"
+msgstr "画像のバッチとshapeが **(バッチサイズ, クラス数, 幅, 高さ)**"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_annotation:1
+msgid "Loads annotation data"
+msgstr "アノテーションデータのロード"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_annotation:3
+msgid "A path of annotation file"
+msgstr "アノテーションパスのリスト"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_annotation:5
+msgid ""
+"Returns annotation data(numpy.array), the ratio of the given width to the"
+" actual image width,"
+msgstr "アノテーションデータ(numpy.array)、元画像の幅に対する与えられた幅の割合"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:1
+msgid "Loads an image"
+msgstr ""
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:3
+msgid "A path of an image"
+msgstr "入力画像のパスのリスト"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:6
+msgid ""
+"Returns image(numpy.array), the ratio of the given width to the actual "
+"image width,          and the ratio of the given height to the actual "
+"image height"
+msgstr "アノテーションデータ(numpy.array)、元画像の幅に対する与えられた幅の割合"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:8
+msgid ""
+"Returns image(numpy.array), the ratio of the given width to the actual "
+"image width,"
+msgstr "アノテーションデータ(numpy.array)、元画像の幅に対する与えられた幅の割合"
+
+#: of renom_img.api.utility.target.DataBuilderSegmentation.load_img:9
+msgid "and the ratio of the given height to the actual image height"
+msgstr "アノテーションデータ(numpy.array)、元画像の幅に対する与えられた幅の割合"
+
+#: ../../rsts/renom_img.api.utility.rst:36
+msgid "renom\\_img.api.utility.augmentation"
+msgstr ""
+
+#: of renom_img.api.utility.augmentation.Augmentation:1
+msgid "Bases: :class:`object`"
+msgstr ""
+
+#: of renom_img.api.utility.augmentation.Augmentation:1
+msgid "This class is for applying augmentation to images."
+msgstr "このクラスは画像に前処理を適用します。"
+
+#: of renom_img.api.utility.augmentation.Augmentation:2
+msgid "Instance of augmentation is passed to ImageDistributor module,"
+msgstr "AugmentationのインスタンスはImageDistributorモジュールに渡されます、"
+
+#: of renom_img.api.utility.augmentation.Augmentation:3
+msgid "and is called only when training process is runnning."
+msgstr "そして学習プロセスが実行されている場合のみに呼び出されます。"
+
+#: of renom_img.api.utility.augmentation.Augmentation:4
+msgid "You could choose augmentation methods from Process module."
+msgstr "Processモジュールから前処理用のメソッドを呼び出せます。"
+
+#: of renom_img.api.utility.augmentation.Augmentation:6
+msgid ""
+"list of Process modules. You could choose from Flip, Shift, Rotate and "
+"WhiteNoise"
+msgstr "Processモジュールのリスト。Flip, Shift, RotateそしてWhiteNoiseから選択できます。"
+
+#: of renom_img.api.utility.augmentation.Augmentation:10
+#: renom_img.api.utility.augmentation.process.contrast_norm:27
+#: renom_img.api.utility.evaluate.EvaluatorClassification:18
+#: renom_img.api.utility.evaluate.EvaluatorDetection:27
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation:20
+#: renom_img.api.utility.misc.display.draw_box:25
+#: renom_img.api.utility.misc.display.draw_segment:16
+#: renom_img.api.utility.misc.display.pil2array:4
+msgid "Example"
+msgstr "例"
+
+#: of renom_img.api.utility.augmentation.Augmentation.transform:1
+msgid "This function is for applying augmentation to ImageDistributor"
+msgstr "この関数はImageDistributorに前処理を適用します。"
+
+#: of renom_img.api.utility.augmentation.Augmentation.transform:3
+#: renom_img.api.utility.augmentation.process.contrast_norm:3
+#: renom_img.api.utility.augmentation.process.flip:3
+#: renom_img.api.utility.augmentation.process.rotate:3
+#: renom_img.api.utility.augmentation.process.shift:3
+#: renom_img.api.utility.augmentation.process.white_noise:3
+msgid "List of path of images."
+msgstr "入力画像のパスのリスト"
+
+#: of renom_img.api.utility.augmentation.Augmentation.transform:5
+#: renom_img.api.utility.augmentation.process.contrast_norm:5
+#: renom_img.api.utility.augmentation.process.flip:5
+#: renom_img.api.utility.augmentation.process.rotate:5
+#: renom_img.api.utility.augmentation.process.shift:5
+#: renom_img.api.utility.augmentation.process.white_noise:5
+msgid "list of annotation for x. It is only used when prediction."
+msgstr "xのアノテーションのリスト。予測時のみ利用されます。"
+
+#: of renom_img.api.utility.augmentation.Augmentation.transform:8
+#: renom_img.api.utility.augmentation.process.white_noise:8
+msgid ""
+"list of transformed images and list of annotation for x.  .. code-block "
+":: python      [         x (list of numpy.ndarray), # List of transformed"
+" images.         y (list of annotation) # list of annotation for x.     ]"
+msgstr ""
+
+#: of renom_img.api.utility.augmentation.Augmentation.transform:8
+#: renom_img.api.utility.augmentation.process.contrast_norm:15
+#: renom_img.api.utility.augmentation.process.flip:8
+#: renom_img.api.utility.augmentation.process.rotate:8
+#: renom_img.api.utility.augmentation.process.shift:8
+#: renom_img.api.utility.augmentation.process.white_noise:8
+msgid "list of transformed images and list of annotation for x."
+msgstr "変換された画像のリストとxのアノテーションのリスト"
+
+#: of renom_img.api.utility.augmentation.process.flip:1
+msgid "Flip image randomly."
+msgstr "画像をランダムに反転させます。"
+
+#: of renom_img.api.utility.augmentation.process.flip:19
+#: renom_img.api.utility.augmentation.process.rotate:19
+#: renom_img.api.utility.augmentation.process.shift:20
+#: renom_img.api.utility.augmentation.process.white_noise:19
+msgid "Examples"
+msgstr "例"
+
+#: of renom_img.api.utility.augmentation.process.shift:1
+msgid "Shift images randomly according to given parameter."
+msgstr "与えられたパラメータを元に画像をランダムにシフトさせます。"
+
+#: of renom_img.api.utility.augmentation.process.rotate:1
+msgid "Rotate images randomly from 0, 90, 180, 270 degree."
+msgstr "0度、90度、180度、270度からランダムに画像を回転させます。"
+
+#: of renom_img.api.utility.augmentation.process.white_noise:1
+msgid "Add white noise to images."
+msgstr "画像にホワイトノイズを加えます。"
+
+#: of renom_img.api.utility.augmentation.process.contrast_norm:1
+msgid "Contrast Normalization"
+msgstr "コントラスト正規化"
+
+#: of renom_img.api.utility.augmentation.process.contrast_norm:7
+msgid ""
+"Higher value increases contrast, and lower value decreases contrast. if a"
+" list [a, b], alpha value is sampled from uniform distribution ranging "
+"from [a, b). if a float, constant value of alpha is used."
+msgstr ""
+
+#: of renom_img.api.utility.augmentation.process.contrast_norm:11
+msgid ""
+"Whether to apply contrast normalization for each channel. If alpha is "
+"given a list, then different values for each channel are used."
+msgstr ""
+
+#: ../../rsts/renom_img.api.utility.rst:49
+msgid "renom\\_img.api.utility.evaluate"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification:1
+#: renom_img.api.utility.evaluate.EvaluatorDetection:1
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation:1
+msgid "Bases: :class:`renom_img.api.utility.evaluate.EvaluatorBase`"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification:1
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation:1
+msgid "Evaluator for classification tasks"
+msgstr "クラス分類タスクのための評価器"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification:3
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation:3
+msgid "A list of predicted class"
+msgstr "予測されたクラスのリスト"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification:5
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation:5
+msgid "A list of target class. The format is as follows"
+msgstr "ターゲットクラスのリスト。フォーマットは以下の通りとなります。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification:8
+#: renom_img.api.utility.evaluate.EvaluatorDetection:10
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation:10
+msgid "**Example of the arguments, \"prediction\" and \"target\".**"
+msgstr "**\"prediction\" and \"target\"の引数の例**"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.accuracy:1
+msgid "Returns accuracy."
+msgstr "全体正解率を返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.accuracy:3
+msgid "Accuracy"
+msgstr "全体正解率"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.f1:1
+msgid "Returns f1 for each class and mean f1 score."
+msgstr "各クラスのf1スコアとその平均を返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.f1:3
+msgid ""
+"2 values are returned. Each element represents a dictionary of F1 score "
+"for each class and mean F1 score(float).                     The format "
+"is as follows."
+msgstr "2つの値が返されます。一つは各クラスのF1スコアでもう一つはその平均です。フォーマットは以下の通りとなります。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.f1:6
+#: renom_img.api.utility.evaluate.EvaluatorClassification.precision:6
+#: renom_img.api.utility.evaluate.EvaluatorClassification.recall:6
+#: renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec:9
+msgid "**Example of outputs.**"
+msgstr "**出力の例**"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.precision:1
+msgid "Returns precision for each class and mean precision"
+msgstr "各クラスの適合率とその平均を返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.precision:3
+msgid ""
+"2 values are returned. Each element represents a dictioanry of precision "
+"for each class and the mean precision(float).                     The "
+"format is as follows."
+msgstr "2つの値を返します。一つは各クラスのprecision(辞書型)、もう一つはその平均(float)です。フォーマットは以下の通りとなります。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.recall:1
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.recall:1
+msgid "Returns recall for each class and mean recall"
+msgstr "各クラスの再現率とその平均を返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.recall:3
+msgid ""
+"2 values are returned. Each element represents a dictionary of recall for"
+" each class and the mean recall(float).                     The format is"
+" as follows."
+msgstr "2つの値を返します。一つは各クラスの再現率(dictionary)、もう一つはその平均です。フォーマットは以下の通りとなります。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:1
+msgid ""
+"Outputs a table which shows precision, recall, F1 score, the number of "
+"true positive pixels and the number of ground truth pixels for each "
+"class."
+msgstr "各クラスの適合率、再現率、F1値、正解したクラス数と教師データのクラス数をデーブルとして出力します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:3
+#: renom_img.api.utility.evaluate.EvaluatorDetection.AP:6
+#: renom_img.api.utility.evaluate.EvaluatorDetection.iou:5
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mAP:5
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou:4
+#: renom_img.api.utility.evaluate.EvaluatorDetection.report:5
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.f1:3
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.iou:3
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.precision:3
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.recall:3
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:3
+msgid "The number of output decimal"
+msgstr "出力値の小数の数"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:6
+msgid ""
+"+--------------+-------------+-------------+-------------+-----------------+"
+" |              |  Precision  |    recall   |   F1 score  |  "
+"#pred/#target  | "
+"+--------------+-------------+-------------+-------------+-----------------+"
+" | class_id1:   |    0.800    |    0.308    |    0.444    |      4/13"
+"       | "
+"+--------------+-------------+-------------+-------------+-----------------+"
+" | class_id2:   |    0.949    |    0.909    |    0.929    |    150/165"
+"      | "
+"+--------------+-------------+-------------+-------------+-----------------+"
+" |    \\.\\.\\.\\.  |             |             |             |"
+"                 | "
+"+--------------+-------------+-------------+-------------+-----------------+"
+" |   Average    |    0.364    |    0.500    |    0.421    |    742/1256"
+"     | "
+"+--------------+-------------+-------------+-------------+-----------------+"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:7
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:7
+msgid "Precision"
+msgstr "適合率"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:7
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:7
+msgid "recall"
+msgstr "再現率"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:7
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:7
+msgid "F1 score"
+msgstr "F1値"
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:7
+#: renom_img.api.utility.evaluate.EvaluatorDetection.report:9
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:7
+msgid "#pred/#target"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:9
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:9
+msgid "class_id1:"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:9
+msgid "0.800"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:9
+msgid "0.308"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:9
+msgid "0.444"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:9
+msgid "4/13"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:11
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:11
+msgid "class_id2:"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:11
+msgid "0.949"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:11
+msgid "0.909"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:11
+msgid "0.929"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:11
+msgid "150/165"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:13
+#: renom_img.api.utility.evaluate.EvaluatorDetection.report:15
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:13
+msgid "\\.\\.\\.\\."
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:15
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:15
+msgid "Average"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:15
+msgid "0.364"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:15
+msgid "0.500"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:15
+msgid "0.421"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorClassification.report:15
+msgid "742/1256"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection:1
+msgid "Evaluator for object detection tasks"
+msgstr "物体検出のための評価器"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection:3
+msgid "A list of prediction results. The format is as follows"
+msgstr "予測結果のリスト。フォーマットは以下の通りとなります。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection:5
+msgid "A list of ground truth boxes and classes."
+msgstr "教師データのボックスとクラスのリスト"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection:7
+msgid "The number of classes"
+msgstr "クラスの数"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.AP:1
+msgid "Returns AP(Average Precision) for each class."
+msgstr "各クラスのAPを返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.AP:3
+msgid ":math:`AP = 1/11 \\sum_{r \\in \\{0.0,..1.0\\}} AP_{r}`"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.AP:5
+#: renom_img.api.utility.evaluate.EvaluatorDetection.iou:3
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mAP:3
+#: renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou:3
+#: renom_img.api.utility.evaluate.EvaluatorDetection.plot_pr_curve:3
+#: renom_img.api.utility.evaluate.EvaluatorDetection.report:3
+msgid "IoU threshold. The default value is 0.5."
+msgstr "IoU閾値。デフォルト値は0.5。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.AP:9
+msgid "AP for each class. The format is as follows"
+msgstr "各クラスのAP。　フォーマットは以下のとおりです。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.iou:1
+msgid "Returns IoU for each class"
+msgstr "各クラスのIoUを返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.iou:8
+msgid ""
+"IoU for each class. The format is as follows  .. code-block :: python"
+"      {         class_id1(int): iou1 (float),         class_id2(int): "
+"iou2 (float),         class_id3(int): iou3 (float),     }"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.iou:8
+msgid "IoU for each class. The format is as follows"
+msgstr "各クラスのIoUを返します。フォーマットは以下のとおりです。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.mAP:1
+msgid "Returns mAP (mean Average Precision)"
+msgstr "mAPを返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.mAP:8
+msgid "mAP(mean Average Precision)."
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou:1
+msgid "Returns mean IoU for all classes"
+msgstr "平均のIoUを返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.mean_iou:7
+msgid "Mean IoU"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.plot_pr_curve:1
+msgid "Plot a precision-recall curve."
+msgstr "precision-recall 曲線をプロットします。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.plot_pr_curve:5
+msgid ""
+"List of keys in a prediction list or string if you output precision-"
+"recall curve of only one class. This specifies which precision-recall "
+"curve of classes to output."
+msgstr ""
+"予測リストのキー、もしくはある特定のクラスのみのprecision-"
+"recall曲線を出力させる場合はキーのうちの一つを文字列として渡すことでprecision-recall曲線が出力されます。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec:1
+msgid "Return precision and recall for each class"
+msgstr "各クラスの適合率と再現率を返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec:3
+msgid "IoU threshold. Defaults to 0.5"
+msgstr "IoU閾値。デフォルト値は0.5"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.prec_rec:6
+msgid ""
+"2 values are returned. Each element represents a dictionary of precision "
+"for each class and a dictionary of recall for each class."
+"                     The format is as follows."
+msgstr "2つの値が返されます。一つは各クラスの適合率(辞書型)、もう一つはその平均の適合率(float)を返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:1
+msgid ""
+"Outputs a table which shows AP, IoU, the number of predicted instances "
+"for each class, and the number of ground truth instances for each class."
+msgstr "各クラスのAP、IoU、予測されたインスタンスの数、教師データのインスタンの数をテーブルとして表示"
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:8
+msgid ""
+"+--------------+----------+------------+-----------------+ |"
+"              |    AP    |    IoU     |  #pred/#target  | "
+"+--------------+----------+------------+-----------------+ | class_name1:"
+" |  0.091   |   0.561    |      1/13       | "
+"+--------------+----------+------------+-----------------+ | class_name2:"
+" |  0.369   |   0.824    |      6/15       | "
+"+--------------+----------+------------+-----------------+ |    "
+"\\.\\.\\.\\.  |          |            |                 | "
+"+--------------+----------+------------+-----------------+ |mAP / mean "
+"IoU|  0.317   |   0.698    |     266/686     | "
+"+--------------+----------+------------+-----------------+"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:9
+msgid "AP"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:9
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:7
+msgid "IoU"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:11
+msgid "class_name1:"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:11
+msgid "0.091"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:11
+msgid "0.561"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:11
+msgid "1/13"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:13
+msgid "class_name2:"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:13
+msgid "0.369"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:13
+msgid "0.824"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:13
+msgid "6/15"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:17
+msgid "mAP / mean IoU"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:17
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:15
+msgid "0.317"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:17
+#: renom_img.api.utility.evaluate.EvaluatorSegmentation.report:15
+msgid "0.698"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorDetection.report:17
+msgid "266/686"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation:7
+msgid "background class is ignored in the output table. defaults to 0."
+msgstr "background classは出力されるテーブルから無視されます。 デフォルト値は0"
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.f1:1
+msgid "Returns f1 for each class and mean f1 score"
+msgstr "各クラスのF1スコアとその平均を返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.f1:6
+msgid ""
+"2 values are returned. Each element represents a dictionary of F1 score "
+"for each class and mean F1 score(float)."
+msgstr "2つの値が返されます。１つは各クラスのF1スコア(dictionary)、もう一方はその平均値(float)です。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.iou:1
+msgid "Returns iou for each class"
+msgstr "各クラスのIoUを返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.iou:6
+msgid ""
+"2 values are returned. Each element represents a dictionary of IoU for "
+"each class and mean IoU (float)."
+msgstr "2つの値が返されます。１つは各クラスのIoU(dictionary)、もう一方はその平均値(float)です。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.precision:1
+msgid "Returns precision for each class"
+msgstr "各クラスの適合率を返します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.precision:6
+msgid ""
+"2 values are returned. Each element represents a dictionary of precision "
+"for each class and the mean precision(float)."
+msgstr "2つの値が返されます。一つは各クラスの適合率(dictionary)、もう一方はその平均値(float)です。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.recall:6
+msgid ""
+"2 values are returned. Each element represents a dicitonary of recall for"
+" each class and mean recall(float)."
+msgstr "2つの値が返されます。一つは各クラスの再現率(dictionary)、もう一方はその平均値(float)です。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:1
+msgid ""
+"Outputs a table which shows IoU, precision, recall, F1 score, the number "
+"of true positive pixels and the number of ground truth pixels for each "
+"class."
+msgstr "各クラスの適合率、再現率、F1値、true positiveなピクセル数と教師データのピクセル数をデーブルとして出力します。"
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:6
+msgid ""
+"+--------------+----------+------------+-------------+-------------+-----------------+"
+" |              |    IoU   |  Precision |    recall   |   F1 score  |  "
+"#pred/#target  | "
+"+--------------+----------+------------+-------------+-------------+-----------------+"
+" | class_id1:   |  0.178   |   0.226    |    0.457    |    0.303    |  "
+"26094/571520   | "
+"+--------------+----------+------------+-------------+-------------+-----------------+"
+" | class_id2:   |  0.058   |   0.106    |    0.114    |    0.110    |  "
+"25590/224398   | "
+"+--------------+----------+------------+-------------+-------------+-----------------+"
+" |    \\.\\.\\.\\.  |          |            |             |             |"
+"                 | "
+"+--------------+----------+------------+-------------+-------------+-----------------+"
+" |   Average    |  0.317   |   0.698    |    0.404    |    0.259    | "
+"5553608/18351769| "
+"+--------------+----------+------------+-------------+-------------+-----------------+"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:9
+msgid "0.178"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:9
+msgid "0.226"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:9
+msgid "0.457"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:9
+msgid "0.303"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:9
+msgid "26094/571520"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:11
+msgid "0.058"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:11
+msgid "0.106"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:11
+msgid "0.114"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:11
+msgid "0.110"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:11
+msgid "25590/224398"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:15
+msgid "0.404"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:15
+msgid "0.259"
+msgstr ""
+
+#: of renom_img.api.utility.evaluate.EvaluatorSegmentation.report:15
+msgid "5553608/18351769"
+msgstr ""
+
+#: ../../rsts/renom_img.api.utility.rst:57
+msgid "renom\\_img.api.utility.distributor"
+msgstr ""
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor:1
+msgid ""
+"Bases: "
+":class:`renom_img.api.utility.distributor.distributor.ImageDistributorBase`"
+msgstr ""
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.batch:1
+msgid "batch size"
+msgstr "バッチサイズ"
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.batch:3
+msgid "target builder"
+msgstr "ターゲットビルダー"
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.batch:5
+#: renom_img.api.utility.distributor.distributor.ImageDistributor.split:5
+msgid "shuffle or not when splitting data"
+msgstr "データを分割する際にシャッフルするかどうか"
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.batch
+msgid "Yields"
+msgstr ""
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.batch:8
+msgid "(path of images(list), path of labels(list)"
+msgstr "(画像のパス(list), ラベルのパス(list))"
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.split:1
+msgid "split image and laebls"
+msgstr "画像とラベルを分割します。"
+
+#: of renom_img.api.utility.distributor.distributor.ImageDistributor.split:3
+msgid "ratio between training set and validation set"
+msgstr "トレーニングセットとバリデーションセットの割合"
+
+#: ../../rsts/renom_img.api.utility.rst:65
+msgid "renom\\_img.api.utility.misc"
+msgstr ""
+
+#: of renom_img.api.utility.misc.display.draw_box:1
+msgid ""
+"Function for describing bounding box, class name and socre for an input "
+"image."
+msgstr "入力画像に対するバウンディングボックスとクラス名とスコアを描く関数"
+
+#: of renom_img.api.utility.misc.display.draw_box:3
+#: renom_img.api.utility.misc.display.draw_segment:3
+msgid "An path of image or image array."
+msgstr "画像と画像の配列のパス"
+
+#: of renom_img.api.utility.misc.display.draw_box:5
+msgid ""
+"List of annotations. Each annotation has a list of dictionary which "
+"includes keys ``box``, ``name`` and ``score``. The format is below."
+msgstr "アノテーションのリストを返却します。各アノテーションはキーとしてボックスと名前を含むような辞書のリストからなります。構造は以下に示す通りです。"
+
+#: of renom_img.api.utility.misc.display.draw_box:21
+msgid "This returns image described bounding box."
+msgstr "フォームが変更されたバウンディングボックスを返却します。"
+
+#: of renom_img.api.utility.misc.display.draw_box:33
+msgid ""
+"The values of `box` is a relational coordinate so their values are in "
+"[0.0 ~ 1.0]. If you pass the argument ``img`` as ndarray, it must have "
+"the format of (channel, height, width). For example, an RGB color which "
+"size is (100, 10), the matrix will be (3, 10, 100)."
+msgstr ""
+"boxの値は相対座標なので、[0.0 ~ 1.0]の範囲を取ります。ndarrayとしてimgを引数として渡す場合には、(channel, "
+"height, width)のフォーマットになります。例えば、サイズが(100, 10)のRGB画像の場合は、行列の型はは(3, 10 "
+"100)となります。"
+
+#: of renom_img.api.utility.misc.display.draw_segment:1
+msgid "Function for draw segment according to the argument ``prediction``."
+msgstr "prediction引数に対応するセグメントを記述する関数"
+
+#: of renom_img.api.utility.misc.display.draw_segment:5
+msgid ""
+"List of predicted annotations. This must be a matrix which size equals to"
+" image."
+msgstr "予測されたアノテーションのリスト。これはimageに等しいサイズの行列でなければなりません。"
+
+#: of renom_img.api.utility.misc.display.draw_segment:7
+msgid ""
+"A list of color for rendering bounding boxes. If None is given, default "
+"color list will be used."
+msgstr "バウンディングボックスのレンダリングに利用する色のリスト。Noneが与えられた場合、デファルトのろのリストが利用されます。"
+
+#: of renom_img.api.utility.misc.display.draw_segment:9
+msgid "If this is false, background class whose id is 0 will not be drawn."
+msgstr "Falseの場合、id 0のクラスの背景色は描写されません。"
+
+#: of renom_img.api.utility.misc.display.draw_segment:12
+msgid "This returns image described prediction result."
+msgstr "予測結果が描写された画像を返します。"
+
+#: of renom_img.api.utility.misc.display.draw_segment:24
+msgid ""
+"If you pass the argument ``img`` as ndarray, it must have the format of "
+"(channel, height, width). Same as it, the argument ``prediction`` must be"
+" a matrix which format is (channel, height, width). For example, an RGB "
+"color which size is (100, 10), the matrix will be (3, 10, 100)."
+msgstr ""
+"引数imgをndarrayとして渡す場合、フォーマットは(chanel, height, "
+"width)でなければなりません同様に、引数predictionは(channel, height, "
+"width)の行列でなければなりません。例えば、RGBでサイズが(100, 10)の画像の場合、行列の型は(3, 10, 100)となります。"
+
+#: of renom_img.api.utility.misc.display.pil2array:1
+msgid "Function for convert PIL image to numpy array."
+msgstr "PIL画像をnumpy配列に変換する関数"
+
+#: of renom_img.api.utility.misc.display.pil2array:10
+msgid "PIL Image"
+msgstr "PIL画像"
+
+#: of renom_img.api.utility.misc.display.pil2array:13
+msgid "This returns numpy array object."
+msgstr "numpy配列オブジェクトを返します。"
+
+#~ msgid "Soft-NMS."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Use to transform a list of objects"
+#~ " per image into a "
+#~ "image*cells*cells*(5+classes) matrix."
+#~ msgstr ""
+
+#~ msgid "Yolo formatted target array."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This method returns yolo formatted "
+#~ "target array which shape is (N, "
+#~ "cell*cell*(5 + 1). N is batch "
+#~ "size. The array consists of following"
+#~ " data."
+#~ msgstr ""
+
+#~ msgid "existence flag: A flag which indicates if an object exists in the cell."
+#~ msgstr ""
+
+#~ msgid "Coordinates and size(x, y, w, h): Coordinate and size of each objects."
+#~ msgstr ""
+
+#~ msgid "Class id: The object's class number."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "[existence x y w h 2 existence "
+#~ "x y w h 2 ... ], [existence"
+#~ " x y w h 3 existence x y"
+#~ " w h 1 ... ],"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This returns list of annotations.     "
+#~ "Each annotation has a list of "
+#~ "dictionary which includes keys 'box' and"
+#~ " 'name'.     The structure is bellow. "
+#~ "[     [ # Objects of 1st image."
+#~ "         {'box': [x(float), y, w, h], "
+#~ "'name': class_name(string), 'class': id(int)},"
+#~ "         {'box': [x(float), y, w, h], "
+#~ "'name': class_name(string), 'class': id(int)},"
+#~ "         ...     ],     [ # Objects "
+#~ "of 2nd image.         {'box': [x(float), "
+#~ "y, w, h], 'name': class_name(string), "
+#~ "'class': id(int)},         {'box': [x(float), "
+#~ "y, w, h], 'name': class_name(string), "
+#~ "'class': id(int)},         ...     ] ]"
+#~ msgstr ""
+
+#~ msgid "["
+#~ msgstr ""
+
+#~ msgid "[ # Objects of 1st image."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{'box': [x(float), y, w, h], 'name': "
+#~ "class_name(string), 'class': id(int)}, {'box': "
+#~ "[x(float), y, w, h], 'name': "
+#~ "class_name(string), 'class': id(int)}, ..."
+#~ msgstr ""
+
+#~ msgid "], [ # Objects of 2nd image."
+#~ msgstr ""
+
+#~ msgid "]"
+#~ msgstr ""
+
+#~ msgid "NMS(Non maximum suppression)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "[         [ # Objects of 1st "
+#~ "image.             {'box': [x(float), y, w,"
+#~ " h], 'class': class_id(int), 'score': "
+#~ "score},             {'box': [x(float), y, w,"
+#~ " h], 'class': class_id(int), 'score': "
+#~ "score},             ...         ],         [ #"
+#~ " Objects of 2nd image.             {'box':"
+#~ " [x(float), y, w, h], 'class': "
+#~ "class_id(int), 'score': score},             {'box':"
+#~ " [x(float), y, w, h], 'class': "
+#~ "class_id(int), 'score': score},             ..."
+#~ "         ]     ]"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{'box': [x(float), y, w, h], 'class':"
+#~ " class_id(int), 'score': score}, {'box': "
+#~ "[x(float), y, w, h], 'class': "
+#~ "class_id(int), 'score': score}, ..."
+#~ msgstr ""
+
+#~ msgid "Soft-NMS. :param preds:"
+#~ msgstr ""
+
+#~ msgid "Reference:"
+#~ msgstr ""
+
+#~ msgid "Bases: :class:`object`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Batch of images y(ndarray): The shape"
+#~ " of ndarray is [# images, maximum "
+#~ "number of objects in an image *"
+#~ " (4(coordinates) + 1(confidence))]"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "* x(ndarray): Batch of images * "
+#~ "y(ndarray): The shape of ndarray is "
+#~ "[# images, maximum number of objects "
+#~ "in an image * (4(coordinates) + "
+#~ "1(confidence))]"
+#~ msgstr ""
+
+#~ msgid "x(ndarray): Batch of images"
+#~ msgstr "画像のバッチ"
+
+#~ msgid ""
+#~ "y(ndarray): The shape of ndarray is "
+#~ "[# images, maximum number of objects "
+#~ "in an image * (4(coordinates) + "
+#~ "1(confidence))]"
+#~ msgstr ""
+
+#~ msgid "List of annotation"
+#~ msgstr "アノテーションのリスト"
+
+#~ msgid ""
+#~ "List of boxes. Each box has 4 "
+#~ "variables that represent above coordinates."
+#~ msgstr "ボックスのリスト。各ボックスは上の座標で表現される４つの変数からなります。"
+
+#~ msgid "This returns list of annotations."
+#~ msgstr "アノテーションのリストを返却します。"
+
+#~ msgid ""
+#~ "Each annotation has a list of "
+#~ "dictionary which includes keys 'box' and"
+#~ " 'name'. The structure is bellow."
+#~ msgstr "各アノテーションはキーとしてボックスと名前を含むような辞書のリストからなります。構造は以下に示す通りです。"
+
+#~ msgid "This list has 4 variable that reporesent above coordinates."
+#~ msgstr "このリストは上の座標で表現される4つの変数からなります。"
+
+#~ msgid ""
+#~ "Navaneeth Bodla, Bharat Singh, Rama "
+#~ "Chellappa, Larry S. Davis, Soft-NMS "
+#~ "-- Improving Object Detection With One"
+#~ " Line of Code https://arxiv.org/abs/1704.04503"
+#~ msgstr ""
+
+#~ msgid "List of class id"
+#~ msgstr "クラスIDのリスト"
+
+#~ msgid "Annotation_list must be list of class name."
+#~ msgstr "アノテーションのリストはクラス名のリストでなければなりません。"
+
+#~ msgid ""
+#~ "This class is for applying augmentation"
+#~ " to images. Instance of augmentation "
+#~ "is passed to ImageDistributor module, "
+#~ "and is called only when training "
+#~ "process is runnning. You could choose"
+#~ " augmentation methods from Process module."
+#~ msgstr ""
+
+#~ msgid "*list of Process modules* -- list of Process modules."
+#~ msgstr ""
+
+#~ msgid "list of label for x. It is only used when prediction."
+#~ msgstr ""
+
+#~ msgid "Bases: :class:`renom_img.api.utility.augmentation.process.ProcessBase`"
+#~ msgstr ""
+
+#~ msgid "Base class for applying augmentation to images."
+#~ msgstr ""
+
+#~ msgid "X and Y must be resized as specified img size."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Contrast Normalization :param alpha: Higher"
+#~ " value increases contrast, and lower "
+#~ "value decreases contrast."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "if a list [a, b], alpha value "
+#~ "is sampled from uniform distribution "
+#~ "ranging from [a, b). if a float,"
+#~ " constant value of alpha is used."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Whether to apply contrast normalization "
+#~ "for each channel. If alpha is "
+#~ "given a list, then different values "
+#~ "for each channel are used."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "List of images normalized by contrast"
+#~ " (list of dict): List of annotation"
+#~ " results."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Type of task. You could chooose "
+#~ "Classification, Detection or Segmentation."
+#~ msgstr ""
+
+#~ msgid "List of flipped images. (list of dict): List of annotation results."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Type of task. You could choose "
+#~ "from Classification, Detection and "
+#~ "Segmentation."
+#~ msgstr ""
+
+#~ msgid "List of rotated images. (list of dict): List of annotation results."
+#~ msgstr ""
+
+#~ msgid "List of shifted images. (list of dict): List of annotation results."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "List of images added white noise. "
+#~ "(list of dict): List of annotation "
+#~ "results."
+#~ msgstr ""
+
+#~ msgid "mean_f1_score(float):"
+#~ msgstr ""
+
+#~ msgid "precision(float)"
+#~ msgstr ""
+
+#~ msgid "recall(float)"
+#~ msgstr ""
+
+#~ msgid "A list of ground truth."
+#~ msgstr ""
+
+#~ msgid "A list of prediction. The format is as follows"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "[     [ # Objects of 1st image."
+#~ "         {'box': [x(float), y, w, h], "
+#~ "'class': class_id(int), 'score': score},         "
+#~ "{'box': [x(float), y, w, h], 'class':"
+#~ " class_id(int), 'score': score},         ..."
+#~ "     ],     [ # Objects of 2nd "
+#~ "image.         {'box': [x(float), y, w, "
+#~ "h], 'class': class_id(int), 'score': score},"
+#~ "         {'box': [x(float), y, w, h], "
+#~ "'clas': class_id(int), 'score': score},         "
+#~ "...     ] ]"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{'box': [x(float), y, w, h], 'class':"
+#~ " class_id(int), 'score': score}, {'box': "
+#~ "[x(float), y, w, h], 'clas': "
+#~ "class_id(int), 'score': score}, ..."
+#~ msgstr ""
+
+#~ msgid "The number of decimal."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{     class_name1(str): AP1 (float),     "
+#~ "class_name2(str): AP2 (float),     class_name3(str):"
+#~ " AP3 (float), }"
+#~ msgstr ""
+
+#~ msgid "{"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "class_name1(str): AP1 (float), class_name2(str): "
+#~ "AP2 (float), class_name3(str): AP3 (float),"
+#~ msgstr ""
+
+#~ msgid "}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "IoU for each class :param iou_thresh:"
+#~ " IoU threshold. The default value is"
+#~ " 0.5. :param digits: The number of"
+#~ " decimal."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{     class_name1(str): iou1 (float),     "
+#~ "class_name2(str): iou2 (float),     "
+#~ "class_name3(str): iou3 (float), }"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "class_name1(str): iou1 (float), class_name2(str):"
+#~ " iou2 (float), class_name3(str): iou3 "
+#~ "(float),"
+#~ msgstr ""
+
+#~ msgid "mAP (float)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "mean IoU for all classes :param "
+#~ "iou_thresh: IoU threshold. The default "
+#~ "value is 0.5. :param digits: The "
+#~ "number of decimal."
+#~ msgstr ""
+
+#~ msgid "mean_iou (float)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Plot a precision-recall curve. :param"
+#~ " iou_thresh: IoU threshold. The default "
+#~ "value is 0.5. :param class_names: List"
+#~ " of keys in a prediction list "
+#~ "or string if you output precision-"
+#~ "recall curve of only one class. "
+#~ "This specifies which precision-recall "
+#~ "curve of classes to output."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Return precision and recall for each "
+#~ "class :param iou_thresh: IoU threshold. "
+#~ "The default value is 0.5. :param "
+#~ "digits: The number of decimal of "
+#~ "output values"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{class_id1(int): [0.5, 0.3,....], class_id2(int):"
+#~ " [0.9....]} recall(dictionary): {class_id1(int): "
+#~ "[0.5, 0.3,....], class_id2(int): [0.9....]}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Output a table whcih shows AP, "
+#~ "IoU, the number of predicted instances"
+#~ " for each class, and the number "
+#~ "of ground truth instances for each "
+#~ "class. :param iou_thresh: IoU threshold. "
+#~ "The default value is 0.5. :param "
+#~ "class_names: List of keys in a "
+#~ "prediction list or string if you "
+#~ "output precision-recall curve of only"
+#~ " one class. This specifies which "
+#~ "precision-recall curve of classes to "
+#~ "output."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "AP         IoU        #pred/#target  class_name1:"
+#~ "      0.091      0.561            1/13 "
+#~ "class_name2:      0.369      0.824            6/15"
+#~ "     .... mAP / mean IoU    0.317"
+#~ "      0.698          266/686"
+#~ msgstr ""
+
+#~ msgid "AP         IoU        #pred/#target"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "class_name1:      0.091      0.561            1/13"
+#~ " class_name2:      0.369      0.824            "
+#~ "6/15"
+#~ msgstr ""
+
+#~ msgid "mAP / mean IoU    0.317      0.698          266/686"
+#~ msgstr ""
+
+#~ msgid "[class_id(int), class_id(int), ...]"
+#~ msgstr ""
+
+#~ msgid "F1 score for classification"
+#~ msgstr "分類タスク用のデータビルダー"
+
+#~ msgid "{class_id: f1_score(float), ..} mean_f1_score(float):"
+#~ msgstr ""
+
+#~ msgid "precision_recall_score(y_pred, y_true)"
+#~ msgstr ""
+
+#~ msgid "Recall score for classification"
+#~ msgstr "分類タスク用のデータビルダー"
+
+#~ msgid "precision(float), recall(float)"
+#~ msgstr ""
+
+#~ msgid "Precision score for classification"
+#~ msgstr "分類タスク用のデータビルダー"
+
+#~ msgid "{class_id: precision(float), ..} mean_precision(float):"
+#~ msgstr ""
+
+#~ msgid "{class_id: recall(float), ..} mean_recall(float):"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Dictionary of precision for each class"
+#~ " returned by get_prec_and_rec method"
+#~ msgstr ""
+
+#~ msgid "Dictionary of recall for each class returned by get_prec_and_rec method"
+#~ msgstr ""
+
+#~ msgid "dictionary of AP for each class mAP(float): mean Average Precision"
+#~ msgstr ""
+
+#~ msgid ":param .. code-block :: python:"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This represents the ratio of overlapped"
+#~ " area between two boxes. Defaults to"
+#~ " 0.5"
+#~ msgstr "デフォルト値は0.5です。これはボックス間の重なりの割合を表します。"
+
+#~ msgid "Mean IoU for each class mean_iou: Average mean IoU in all classes"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This function calculates precision and "
+#~ "recall value of provided ground truth"
+#~ " box list(gt_list) and predicted box "
+#~ "list(pred_list)."
+#~ msgstr ""
+
+#~ msgid "# TODO: write reference"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "A list of predicted bounding boxes.  "
+#~ ".. code-block :: python      ["
+#~ "         [ # Objects of 1st image."
+#~ "             {'box': [x(float), y, w, h],"
+#~ " 'class': class_id(int), 'score': score},"
+#~ "             {'box': [x(float), y, w, h],"
+#~ " 'class': class_id(int), 'score': score},"
+#~ "             ...         ],         [ # "
+#~ "Objects of 2nd image.             {'box': "
+#~ "[x(float), y, w, h], 'class': "
+#~ "class_id(int), 'score': score},             {'box':"
+#~ " [x(float), y, w, h], 'class': "
+#~ "class_id(int), 'score': score},             ..."
+#~ "         ]     ]"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Dictionary of precision for each class"
+#~ " recalls(dict): Dictionary of recall for"
+#~ " each class n_pred: The number of "
+#~ "predicted objects for each class "
+#~ "n_pos_list: The number of positive "
+#~ "objects for each class"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Dictionary of precision for each class"
+#~ " recalls(dict): Dictionary of recall for"
+#~ " each class mean_iou_per_cls(dict): Mean "
+#~ "IoU for each class mean_iou: Average "
+#~ "mean IoU in all classes"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "{'box': [x(float), y, w, h], 'name': "
+#~ "class name(string), 'score': score(float)}, "
+#~ "{'box': [x(float), y, w, h], 'name': "
+#~ "class name(string), 'score': score(float)}, "
+#~ "..."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The values of `box` is a "
+#~ "relational coordinate so their values "
+#~ "are in [0.0 ~ 1.0]."
+#~ msgstr ""
+
+#~ msgid "Download method with progress bar."
+#~ msgstr ""
+
+#~ msgid "Download url."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If not passed, the url's base name"
+#~ " will be used and it'll be "
+#~ "saved to current directory."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "AP for each class. The format is"
+#~ " as follows  .. code-block :: "
+#~ "python      {         class_id1(int): AP1 "
+#~ "(float),         class_id2(int): AP2 (float),"
+#~ "         class_id3(int): AP3 (float),     }"
+#~ msgstr ""
+#~ "各クラスのAP。フォーマットは以下のとおりです。.. code-block :: "
+#~ "python      {         class_id1(int): AP1 "
+#~ "(float),         class_id2(int): AP2 (float),"
+#~ "         class_id3(int): AP3 (float),     }"
+
+#~ msgid "Args:"
+#~ msgstr "引数:"
+
+#~ msgid ""
+#~ "x (list of str): List of path "
+#~ "of images. y (list of annotation): "
+#~ "list of annotation for x. It is"
+#~ " only used when prediction."
+#~ msgstr ""
+#~ "x (list of str): 画像のパスのリスト。y(list of "
+#~ "annotation): xのアノテーションのリスト。予測時のみ利用されます。"
+
+#~ msgid "Returns:"
+#~ msgstr "戻り値:"
+
+#~ msgid "tupple: list of transformed images and list of annotation for x."
+#~ msgstr "タプル: 変換された画像のリストとxのアノテーションのリスト"
+
