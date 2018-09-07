@@ -177,8 +177,8 @@ class Darknet19(rm.Model):
         self._base = Darknet19Base()
         self._last = rm.Conv2d(num_class, filter=1)
         self._last.params = {
-            "w": rm.Variable(self._conv._initializer((num_class, 1024, filter, filter)), auto_update=True),
-            "b": rm.Variable(self._conv._initializer((1, num_class, 1, 1)), auto_update=False),
+            "w": rm.Variable(self._last._initializer((num_class, 1024, 1, 1)), auto_update=True),
+            "b": rm.Variable(self._last._initializer((1, num_class, 1, 1)), auto_update=False),
         }
 
     def forward(self, x):
