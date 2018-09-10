@@ -119,9 +119,9 @@ class PredictionThread(object):
                 height = img.size[1]
                 width = img.size[0]
                 predict_list.append({
-                    "path":img_path, 
-                    "height":height,
-                    "width":width,
+                    "path": img_path,
+                    "height": height,
+                    "width": width,
                 })
 
             self.predict_results = {

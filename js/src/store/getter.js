@@ -160,7 +160,7 @@ export default {
             'predicted_bboxes': boxes
           })
         } else if (state.predict_page < page_count) {
-          // break
+          break
         }
       }
     }
