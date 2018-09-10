@@ -53,7 +53,7 @@ export default {
   prediction page
   */
   // predicted result
-  predict_results: {'bbox_list': [], 'bbox_path_list': []},
+  predict_results: {'bbox_list': [], 'prediction_file_list': []},
   // predicted csv file name
   csv: '',
 

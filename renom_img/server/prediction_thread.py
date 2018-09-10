@@ -113,8 +113,19 @@ class PredictionThread(object):
                 result.extend(batch_result)
 
             # Set result.
+            predict_list = []
+            for img_path in self.predict_files:
+                img = Image.open(img_path)
+                height = img.size[1]
+                width = img.size[0]
+                predict_list.append({
+                    "path":img_path, 
+                    "height":height,
+                    "width":width,
+                })
+
             self.predict_results = {
-                "bbox_path_list": self.predict_files,
+                "prediction_file_list": predict_list,
                 "bbox_list": result
             }
 
@@ -158,9 +169,9 @@ class PredictionThread(object):
             filepath = os.path.join(CSV_DIR, self.csv_filename)
             with open(filepath, 'w') as f:
                 writer = csv.writer(f, lineterminator="\n")
-                for i in range(len(self.predict_results["bbox_path_list"])):
+                for i in range(len(self.predict_results["prediction_file_list"])):
                     row = []
-                    row.append(self.predict_results["bbox_path_list"][i])
+                    row.append(self.predict_results["prediction_file_list"][i]["path"])
                     if isinstance(self.predict_results, list) and len(self.predict_results["bbox_list"]) != 0:
                         for j in range(len(self.predict_results["bbox_list"][i])):
                             b = self.predict_results["bbox_list"][i][j]
@@ -177,8 +188,8 @@ class PredictionThread(object):
 
     def save_predict_result_to_xml(self):
         try:
-            for i in range(len(self.predict_results["bbox_path_list"])):
-                img_path = self.predict_results["bbox_path_list"][i]
+            for i in range(len(self.predict_results["prediction_file_list"])):
+                img_path = self.predict_results["prediction_file_list"][i]["path"]
                 filename = img_path.split("/")[-1]
                 xml_filename = '{}.xml'.format(filename.split(".")[0])
                 filepath = os.path.join(DATASRC_PREDICTION_OUT_XML, xml_filename)

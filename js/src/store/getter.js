@@ -121,51 +121,74 @@ export default {
     return ret
   },
   getPredictResults (state, getters) {
-    let result = state.predict_results
-    let image_path = result.bbox_path_list
-    let label_list = result.bbox_list
-    let ret = []
+    var ret = []
+    const IMG_ROW_WIDTH = 862 // width
+    const IMG_HEIGHT = 180
+    const IMG_MARGIN = 6 * 2
 
-    // const IMG_ROW_HEIGHT = 160
-    //
-    // const IMG_ROW_WIDTH = (1280 - // width
-    //                        12 -
-    //                        4 * 2 -
-    //                        1280 * 0.3 -
-    //                        4 * 2 -
-    //                        35 * 2 -
-    //                        4
-    // )
-    //
-    // const IMG_MARGIN = 4
+    var page_count = 0
+    if (state.predict_results.prediction_file_list) {
+      var counter = 0
+      var summed_width = 0
+      for (let i = 0; i < state.predict_results.prediction_file_list.length; i++) {
+        let img = state.predict_results.prediction_file_list[i]
+        let label = state.predict_results.bbox_list[i]
 
-    const i_start = state.predict_page * state.predict_page_image_count
-    let i_end = i_start + state.predict_page_image_count
-    if (Array.isArray(image_path) && i_end > image_path.length) {
-      i_end = image_path.length
-    }
+        let img_width = IMG_HEIGHT / img.height * img.width + IMG_MARGIN
 
-    for (let i = i_start; i < i_end; i++) {
-      let bboxes = []
-      if (label_list && Array.isArray(label_list) && Array.isArray(label_list[0]) && label_list.length > 0) {
-        if (Array.isArray(label_list[i])) {
-          for (let j = 0; j < label_list[i].length; j++) {
-            let class_label = label_list[i][j].class
-            let box = label_list[i][j].box
-            bboxes.push(getters.getBBoxCoordinate(class_label, box))
+        if (summed_width + img_width < IMG_ROW_WIDTH) {
+          summed_width += img_width
+        } else {
+          summed_width = img_width
+          counter += 1
+          if (counter === 3) {
+            counter = 0
+            page_count += 1
           }
         }
-        ret.push({
-          'path': image_path[i],
-          'predicted_bboxes': bboxes
-        })
+
+        if (state.predict_page === page_count) {
+          let boxes = []
+          for (let j = 0; j < label.length; j++) {
+            boxes.push(getters.getBBoxCoordinate(
+              label[j].class,
+              label[j].box
+            ))
+          }
+          ret.push({
+            'path': img.path,
+            'predicted_bboxes': boxes
+          })
+        } else if (state.predict_page < page_count) {
+          // break
+        }
       }
     }
     return ret
   },
   getPageMax (state) {
-    if (state.predict_results) {
-      return Math.floor(state.predict_results.bbox_path_list.length / state.predict_page_image_count)
+    const IMG_ROW_WIDTH = 862 // width
+    const IMG_HEIGHT = 180
+    const IMG_MARGIN = 6 * 2
+
+    var page_count = 0
+    if (state.predict_results.prediction_file_list) {
+      var counter = 0
+      var summed_width = 0
+      for (let img of state.predict_results.prediction_file_list) {
+        let img_width = IMG_HEIGHT / img.height * img.width + IMG_MARGIN
+        if (summed_width + img_width < IMG_ROW_WIDTH) {
+          summed_width += img_width
+        } else {
+          summed_width = img_width
+          counter += 1
+          if (counter === 3) {
+            counter = 0
+            page_count += 1
+          }
+        }
+      }
     }
+    return page_count
   }
 }

@@ -12,7 +12,6 @@
           </div>
         </div>
         <div v-if="getPredictResults.length > 0" class="content">
-
           <div class="img">
               <sample-image
                 v-for="(item, index) in getPredictResults"
@@ -32,9 +31,6 @@
         </div>
       </div>
     </div>
-
-
-
 
     <div id='loading' v-if='$store.state.predict_running_flag'>
       <div class="loading">
