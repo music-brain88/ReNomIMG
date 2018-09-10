@@ -23,7 +23,6 @@ from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
 from renom.cuda import release_mem_pool
-
 from renom_img.server import create_dirs
 create_dirs()
 
@@ -398,7 +397,6 @@ def get_datasets():
                     im = PIL.Image.open(img_name)
                     width, height = im.size
                 except Exception:
-                    import traceback
                     traceback.print_exc()
                     width = height = 50
                 valid_imgs.append(dict(filename=img_name, width=width, height=height))
@@ -433,11 +431,11 @@ def load_dataset_split_detail():
 
         imgdir = (datasrc / imgdirname)
         xmldir = (datasrc / xmldirname)
-
-        name = request.params.name
+        
+        name = urllib.parse.unquote(request.params.name, encoding='utf-8')
         ratio = float(request.params.ratio)
         client_id = request.params.u_id
-        description = request.params.description
+        description = urllib.parse.unquote(request.params.description, encoding='utf-8')
 
         # if 2nd time delete confirmdataset id
         if request.params.delete_id:
@@ -567,10 +565,13 @@ def create_dataset_def():
     try:
         # register dataset
         client_id = request.params.u_id
+        name = urllib.parse.unquote(request.params.name, encoding='utf-8')
+        description = urllib.parse.unquote(request.params.description, encoding='utf-8')
+
         id = storage.register_dataset_def(
-            confirm_dataset[client_id].get('name'),
+            name,
             confirm_dataset[client_id].get('ratio'),
-            confirm_dataset[client_id].get('description'),
+            description,
             confirm_dataset[client_id].get('train_imgs'),
             confirm_dataset[client_id].get('valid_imgs'),
             confirm_dataset[client_id].get('class_maps'),
@@ -697,7 +698,7 @@ def pull_deployed_model(project_id):
         path = DB_DIR_TRAINED_WEIGHT
         return static_file(file_name, root=path, download='deployed_model.h5')
     except Exception as e:
-        print(e)
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -717,6 +718,7 @@ def get_deployed_model_info(project_id):
         ret = create_response(body)
         return ret
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret

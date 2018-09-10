@@ -32,6 +32,7 @@ class Storage:
                                   check_same_thread=False,
                                   detect_types=sqlite3.PARSE_DECLTYPES,
                                   isolation_level=None)
+        
         self.db.execute('PRAGMA journal_mode = WAL')
         self.db.execute('PRAGMA foreign_keys = ON')
         self._init_db()
@@ -569,6 +570,8 @@ class Storage:
             return ret
 
     def register_dataset_def(self, name, ratio, description, train_imgs, valid_imgs, class_map, class_tag_list):
+
+        print(name)
 
         train_imgs = json.dumps(train_imgs)
         valid_imgs = json.dumps(valid_imgs)

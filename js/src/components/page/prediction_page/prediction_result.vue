@@ -134,7 +134,7 @@ export default {
 
   }
   .none-image{
-    text-align: center;
+    text-align:left;
     margin-left: auto;
   }
 

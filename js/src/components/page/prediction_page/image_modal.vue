@@ -119,8 +119,6 @@ export default {
 
 <style lang="scss" scoped>
 #image-modal {
-  $header-height: 35px;
-
   $modal-color: #000000;
   $modal-opacity: 0.7;
 
@@ -140,8 +138,8 @@ export default {
 
   position: fixed;
   width: 100%;
-  height: calc(100vh - #{$header-height});
-  top: $header-height;
+  height: calc(100vh - #{$application-header-hight});
+  top: $application-header-hight;
   left: 0;
 
   .modal-background {
@@ -153,7 +151,7 @@ export default {
 
   .modal-content {
     position: absolute;
-    top: 50%;
+    top: calc(100vh - #{$application-header-hight}/2 - #{$footer-height}/2 - 55%);
     left: 50%;
     -webkit-transform: translateY(-50%) translateX(-50%);
     transform: translateY(-50%) translateX(-50%);
