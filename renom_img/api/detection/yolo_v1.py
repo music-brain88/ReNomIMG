@@ -382,8 +382,8 @@ class Yolov1(rm.Model):
                 img_array = load_img(img_list, self.imsize)[None]
                 img_array = self.preprocess(img_array)
                 return self.get_bbox(self(img_array).as_ndarray(),
-                                               score_threshold,
-                                               nms_threshold)[0]
+                                     score_threshold,
+                                     nms_threshold)[0]
         else:
             img_array = img_list
         return self.get_bbox(self(img_array).as_ndarray(),
