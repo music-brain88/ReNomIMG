@@ -437,7 +437,7 @@ export default {
         context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
       } else {
         context.commit('setDatasetInfov0', {
-          'dataset_defs': response.data.class_map
+          'class_names': response.data.class_map
         })
       }
     })
