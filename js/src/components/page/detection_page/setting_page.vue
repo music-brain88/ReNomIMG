@@ -56,24 +56,19 @@ export default {
 <style lang="scss" scoped>
 @import '@/../node_modules/bootstrap/scss/bootstrap.scss';
 #add-model-modal {
-  $header-height: 35px;
-
   $modal-color: #000000;
   $modal-opacity: 0.7;
 
-
   $modal-content-bg-color: #FFFFFF;
   $modal-content-padding: 32px;
-
-
 
   $content-margin: 8px;
 
   position: fixed;
   left: 0;
-  top: $header-height;
+  top: $application-header-hight;
   width: 100vw;
-  height: calc(100vh - #{$header-height});
+  height: calc(100vh - #{$application-header-hight});
   z-index: 3;
 
   a{

@@ -16,7 +16,6 @@ export default {
 
 <style lang="scss" scoped>
 #dataset-creating-modal {
-  $header-height: 35px;
 
   $modal-color: #000000;
   $modal-opacity: 0.5;
@@ -24,7 +23,7 @@ export default {
   position: fixed;
   width: 100vw;
   height: 100vh;
-  top: $header-height;
+  top: $application-header-hight;
   left: 0;
 
   .modal-background {

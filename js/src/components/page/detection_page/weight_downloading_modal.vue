@@ -16,15 +16,13 @@ export default {
 
 <style lang="scss" scoped>
 #weight-downloading-modal {
-  $header-height: 35px;
-
   $modal-color: #000000;
   $modal-opacity: 0.5;
 
   position: fixed;
   width: 100vw;
-  height: calc(100vh - #{$header-height});
-  top: $header-height;
+  height: calc(100vh - #{$application-header-hight});
+  top: $application-header-hight;
   left: 0;
 
   .modal-background {
