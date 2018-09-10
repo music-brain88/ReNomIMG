@@ -188,7 +188,6 @@ export default {
       this.$store.commit('setChangeModalTabShowFlag', {'modal_tab_show_flag': changeflag})
     },
     register: function () {
-      console.log('register')
       const name = this.name.trim()
       if (!name) {
         return
