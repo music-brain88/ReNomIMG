@@ -400,11 +400,11 @@ export default {
         context.commit('setAlertModalFlag', {'flag': true})
         context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
         context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
-      } else {
-        context.dispatch('loadDatasetDef').then(() => {
-          context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
-        })
       }
+    })
+
+    await context.dispatch('loadDatasetDef').then(() => {
+      context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
     })
   },
 
