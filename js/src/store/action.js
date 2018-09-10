@@ -423,5 +423,23 @@ export default {
         })
       }
     })
+  },
+
+  /**
+   * This function loads class map.
+   *
+   */
+  async loadClassMap (context, payload) {
+    let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/class_map'
+    return axios.get(url).then(function (response) {
+      if (response.data.error_msg) {
+        context.commit('setAlertModalFlag', {'flag': true})
+        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
+      } else {
+        context.commit('setDatasetInfov0', {
+          'dataset_defs': response.data.class_map
+        })
+      }
+    })
   }
 }
