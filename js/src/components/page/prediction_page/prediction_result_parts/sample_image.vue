@@ -40,9 +40,6 @@
         return color_list[index % 4]
       },
       getTagName: function (index) {
-        if (!this.$store.getters.getSelectedModel) {
-          return
-        }
         return this.$store.state.class_names[index]
       },
       showImageModal: function () {

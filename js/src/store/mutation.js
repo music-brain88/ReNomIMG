@@ -264,7 +264,11 @@ export default {
    *
    */
   setDatasetInfov0 (state, payload) {
-    state.class_names = payload.class_names
+    let ret = {}
+    for (let i = 0; i < payload.class_names.length; i++) {
+      ret[i] = payload.class_names[i]
+    }
+    state.class_names = ret
   },
 
   /**
