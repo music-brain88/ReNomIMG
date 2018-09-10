@@ -19,6 +19,7 @@ export default {
   methods: {
     hideAddModelModal: function () {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
+      this.$store.commit('initializeDatasetDetail')
     }
   }
 }

@@ -45,6 +45,7 @@ export default {
   methods: {
     hideAddModelModal: function () {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
+      this.$store.commit('initializeDatasetDetail')
     },
     changeTab: function (changeflag) {
       this.$store.commit('setChangeModalTabShowFlag', {'modal_tab_show_flag': changeflag})

@@ -497,5 +497,8 @@ export default {
   },
   setMaxDataDetailValue (state, payload) {
     state.dataset_detail_max_value = payload
+  },
+  initializeDatasetDetail (state) {
+    state.dataset_detail = []
   }
 }

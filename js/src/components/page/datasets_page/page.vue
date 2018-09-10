@@ -87,6 +87,7 @@
 
                 <div v-if=" index !=='' " class="row col-md-12">
                   <div class="col-md-6">
+
                     All {{dataset_defs[index].train_imgs + dataset_defs[index].valid_imgs.length}}
                   </div>
                   <div class="col-md-6">
@@ -126,30 +127,7 @@
               <div v-if=" index===''" class="row">
                 <div class="col-md-12 col-form-label">
                   <span>Please click table row.<br />After click you can see detail here</span>
-                </div>
-                
-                <!-- <div v-for="i in test" class="row col-md-12">
-                 
-                  
-                  <div class="col-md-6 col-form-label">
-                    <span>{{i}}</span>
-                  </div>
-                  <div class="col-md-6 figure" @mouseenter="show_tag_data" @mouseleave="hidden_tag_data">
-                    <div v-bind:class="{ 'tag-visible': show_tag_data_flg==true, 'tag-hidden': show_tag_data_flg==false }">{{300}}・{{400}}</div>
-                    <div class="progress figure tag-progress">
-                      <div class="progress-bar train-color"
-                        role="progressbar" :style="'width:' + calc_percentage(i*20, 100)+'%;'"
-                        aria-valuemin="0"
-                        aria-valuemax="100">
-                      </div>
-                      <div class="progress-bar validation-color"
-                        role="progressbar" :style="'width:' + calc_percentage(i*30, 100)+'%;'"
-                        aria-valuemin="0"
-                        aria-valuemax="100">
-                      </div>
-                    </div>
-                  </div>
-                </div> -->
+                </div> 
 
               </div>
              
@@ -272,7 +250,6 @@ export default {
       let max_value = 0
       for (let i in taglist) {
         let conpare = taglist[i].valid + taglist[i].train
-        console.log(conpare)
         if (max_value < conpare) {
           max_value = conpare
         }

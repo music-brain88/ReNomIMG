@@ -406,7 +406,7 @@ def get_datasets():
                             name=name,
                             ratio=ratio,
                             description=description,
-                            # train_imgs=len(train_imgs),
+                            train_imgs=len(train_imgs),
                             valid_imgs=valid_imgs,
                             class_map=class_map,
                             class_tag_list=class_tag_list,

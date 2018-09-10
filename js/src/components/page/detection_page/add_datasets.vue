@@ -40,41 +40,9 @@
             <h5>Detail</h5>
             <div class="container">
               <div class="row space-top">
-                <div class="col-md-12">
-                  <div v-if='dataset_detail.length===0'>
-
-                    <div class="row">
-                      <div class="col-md-6">
-                        Number of Images
-                      </div>
-                      <div class="col-md-3 figure">
-                        Train
-                      </div>
-                      <div class="col-md-3 figure">
-                        Valid
-                      </div>
-                    </div>
-                    <div class="row space-top">
-                      <div class="col-md-6">
-                        All
-                      </div>
-                      <div class="col-md-6">
-                        <div class="progress figure total-progress">
-                          <div class="progress-bar" role="progressbar" style="width:0%;" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-2 offset-5">
-                        <div class="loading-space">
-                          <div v-if='loading_flg' class="spinner-donut primary"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                  <div v-else>
-
+                <div class="col-md-12"> 
+                  <!-- has  detail-->
+                  <div v-if="load_dataset_detail === 8">
                     <div class="row">
                       <div class="col-md-6 col-form-label">
                         Number of Images
@@ -90,7 +58,7 @@
                     <div class="row space-top">
                       <div class="row col-md-12">
                         <div class="col-md-6 col-form-label">
-                          All {{dataset_detail.total}}
+                          All
                         </div>
                         <div class="col-md-6 col-form-label">
                           <div class="progress total-progress sort-line">
@@ -139,6 +107,42 @@
                     <!-- tag preview -->
  
                   </div>
+                  <!-- has detail -->
+                  
+                  <!-- detail is 0 -->
+                  <div v-else>
+                    <div class="row">
+                      <div class="col-md-6">
+                        Number of Images
+                      </div>
+                      <div class="col-md-3 figure">
+                        Train
+                      </div>
+                      <div class="col-md-3 figure">
+                        Valid
+                      </div>
+                    </div>
+                    <div class="row space-top">
+                      <div class="col-md-6">
+                        All
+                      </div>
+                      <div class="col-md-6">
+                        <div class="progress figure total-progress">
+                          <div class="progress-bar" role="progressbar" style="width:0%;" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-2 offset-5">
+                        <div class="loading-space">
+                          <div v-if='loading_flg' class="spinner-donut primary"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                  <!-- detail is 0 -->
+
                 </div>
               </div>
 
@@ -153,7 +157,7 @@
         <button class="button" @click="hideAddModelModal">Cancel</button>
         <button class="submit"  @click="register">Save</button>
       </div>
-
+      {{load_dataset_detail}}
   </div>
 </template>
 
@@ -174,7 +178,7 @@ export default {
   computed: {
     ...mapState(['dataset_detail', 'loading_flg']),
     load_dataset_detail: function () {
-      return this.$store.state.dataset_detail
+      return Object.keys(this.$store.state.dataset_detail).length
     },
     currentPage () {
       return this.$store.state.page_name
@@ -183,6 +187,7 @@ export default {
   methods: {
     hideAddModelModal: function () {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
+      this.$store.commit('initializeDatasetDetail')
     },
     changeTab: function (changeflag) {
       this.$store.commit('setChangeModalTabShowFlag', {'modal_tab_show_flag': changeflag})
