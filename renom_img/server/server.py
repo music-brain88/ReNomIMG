@@ -23,7 +23,6 @@ from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
 from renom.cuda import release_mem_pool
-
 from renom_img.server import create_dirs
 create_dirs()
 
@@ -398,7 +397,6 @@ def get_datasets():
                     im = PIL.Image.open(img_name)
                     width, height = im.size
                 except Exception:
-                    
                     traceback.print_exc()
                     width = height = 50
                 valid_imgs.append(dict(filename=img_name, width=width, height=height))
@@ -515,10 +513,6 @@ def load_dataset_split_detail():
             "class_maps": train_class_map,
             "class_tag_list": class_tag_list
         }
-
-        print(description)
-
-        print(confirm_dataset)
 
         body = json.dumps(
             {"total": n_imgs,
@@ -707,7 +701,7 @@ def pull_deployed_model(project_id):
         path = DB_DIR_TRAINED_WEIGHT
         return static_file(file_name, root=path, download='deployed_model.h5')
     except Exception as e:
-        print(e)
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret
@@ -727,6 +721,7 @@ def get_deployed_model_info(project_id):
         ret = create_response(body)
         return ret
     except Exception as e:
+        traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
         ret = create_response(body)
         return ret

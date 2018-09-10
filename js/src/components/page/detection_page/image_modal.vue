@@ -98,6 +98,7 @@ export default {
 
       const [orgHeight, orgWidth] = [img.naturalHeight, img.naturalWidth]
       const rc = imgdiv.parentNode.getBoundingClientRect()
+      rc.height = rc.height - 153 // "153" is footer height defined as $footer-height.
 
       const IMG_RATIO = 0.8
       let imgHeight, imgWidth
@@ -136,17 +137,14 @@ export default {
 
 <style lang="scss" scoped>
 #image-modal {
-  $header-height: 35px;
-
   $modal-color: rgba(0,0,0,0.7);
-
   $modal-content-bg-color: #fefefe;
   $image-border-width: 16px;
 
   position: fixed;
   width: 100%;
-  height: calc(100vh - #{$header-height});
-  top: $header-height;
+  height: calc(100vh - #{$application-header-hight});
+  top: $application-header-hight;
   left: 0;
 
   .modal-background {
