@@ -266,7 +266,6 @@ export default {
   setDatasetInfov0 (state, payload) {
     let ret = {}
     for (let i = 0; i < payload.class_names.length; i++) {
-      console.log(payload.class_names[i])
       ret[i] = payload.class_names[i]
     }
     state.class_names = ret
