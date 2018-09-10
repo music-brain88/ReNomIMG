@@ -388,9 +388,9 @@ export default {
     // add fd model data
     let fd = new FormData()
     fd.append('ratio', payload.ratio)
-    fd.append('name', payload.name)
+    fd.append('name', encodeURIComponent(payload.name))
     fd.append('u_id', payload.u_id)
-    fd.append('description', payload.description)
+    fd.append('description', encodeURIComponent(payload.description))
     let url = '/api/renom_img/v1/dataset_defs/'
 
     context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
@@ -436,9 +436,9 @@ export default {
 
     let fd = new FormData()
     fd.append('ratio', payload.ratio)
-    fd.append('name', payload.name)
+    fd.append('name', encodeURIComponent(payload.name))
     fd.append('u_id', payload.u_id)
-    fd.append('description', payload.description)
+    fd.append('description', encodeURIComponent(payload.description))
 
     if (payload.delete_id) {
       fd.append('delete_id', payload.delete_id)
