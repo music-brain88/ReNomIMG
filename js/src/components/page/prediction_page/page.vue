@@ -25,8 +25,6 @@ export default {
   },
   created: function () {
     this.$store.dispatch('initData', {'project_id': 1})
-    this.$store.dispatch('loadDatasetInfov0')
-    this.$store.dispatch('loadClassMap')
   }
 }
 </script>
