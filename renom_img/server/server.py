@@ -18,6 +18,7 @@ import xmltodict
 import PIL
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor as Executor
+from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import CancelledError
 from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
 from bottle import HTTPResponse, default_app, route, static_file, request, error
@@ -405,7 +406,7 @@ def get_datasets():
                             name=name,
                             ratio=ratio,
                             description=description,
-                            train_imgs=len(train_imgs),
+                            # train_imgs=len(train_imgs),
                             valid_imgs=valid_imgs,
                             class_map=class_map,
                             class_tag_list=class_tag_list,
@@ -424,18 +425,23 @@ def get_datasets():
 
 @route("/api/renom_img/v1/load_dataset_split_detail", method=['POST', 'GET'])
 def load_dataset_split_detail():
+    import time
     try:
+        start_t = time.time()
         datasrc = pathlib.Path(DATASRC_DIR)
         imgdirname = pathlib.Path("img")
         xmldirname = pathlib.Path("label")
 
         imgdir = (datasrc / imgdirname)
         xmldir = (datasrc / xmldirname)
-        
+
         name = urllib.parse.unquote(request.params.name, encoding='utf-8')
         ratio = float(request.params.ratio)
         client_id = request.params.u_id
         description = urllib.parse.unquote(request.params.description, encoding='utf-8')
+
+        print("1: {}".format(time.time() - start_t))
+        start_t = time.time()
 
         # if 2nd time delete confirmdataset id
         if request.params.delete_id:
@@ -454,6 +460,8 @@ def load_dataset_split_detail():
         trains = set(random.sample(imgs, int(ratio * n_imgs)))
         valids = imgs - trains
 
+        print("2: {}".format(time.time() - start_t))
+        start_t = time.time()
         # build filename of images and labels
         train_imgs = [str(img) for img in trains]
         valid_imgs = [str(img) for img in valids]
@@ -468,11 +476,17 @@ def load_dataset_split_detail():
         parsed_train_img_names = [str(imgs[perm]).split('.')[0] for perm in perm_train]
         parsed_valid_img_names = [str(imgs[perm]).split('.')[0] for perm in perm_valid]
 
-        parsed_train, train_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
-            path).split('/')[-1].split('.')[0] in parsed_train_img_names])
-        parsed_valid, valid_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
-            path).split('/')[-1].split('.')[0] in parsed_valid_img_names])
+        print("3: {}".format(time.time() - start_t))
+        start_t = time.time()
 
+        parsed_train, train_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
+            path).split('/')[-1].split('.')[0] in parsed_train_img_names], num_thread=8)
+
+        parsed_valid, valid_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
+            path).split('/')[-1].split('.')[0] in parsed_valid_img_names], num_thread=8)
+
+        print("4: {}".format(time.time() - start_t))
+        start_t = time.time()
         # Insert detailed informations
         train_num = len(train_imgs)
         valid_num = len(valid_imgs)

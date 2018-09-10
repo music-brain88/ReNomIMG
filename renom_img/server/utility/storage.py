@@ -32,7 +32,7 @@ class Storage:
                                   check_same_thread=False,
                                   detect_types=sqlite3.PARSE_DECLTYPES,
                                   isolation_level=None)
-        
+
         self.db.execute('PRAGMA journal_mode = WAL')
         self.db.execute('PRAGMA foreign_keys = ON')
         self._init_db()
