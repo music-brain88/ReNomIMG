@@ -150,14 +150,13 @@
           </form>
         </div>
       </div>
-      <div class="modal-button-area-confirm">
-        <button @click="confirm" class="submit">Confirm</button>
-      </div>
-      <div v-if='dataset_detail.length!==0' class="modal-button-area">
-        <button class="button" @click="hideAddModelModal">Cancel</button>
-        <button class="submit"  @click="register">Save</button>
-      </div>
-      {{load_dataset_detail}}
+    <div class="modal-button-area-confirm">
+      <button @click="confirm" class="submit">Confirm</button>
+    </div>
+    <div v-if='dataset_detail.length!==0' class="modal-button-area">
+      <button class="button" @click="hideAddModelModal">Cancel</button>
+      <button class="submit"  @click="register">Save</button>
+    </div>
   </div>
 </template>
 

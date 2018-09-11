@@ -1,6 +1,5 @@
 <template>
   <div id="learning-curve">
-
     <div class="curve-legend">
       <div class="row">
         <div class="col-md-8">
@@ -201,8 +200,8 @@ export default {
             .style('cursor', 'default')
             .style('left', (d3.select(this).attr('cx') - 30) + 'px')
             .style('top', (d3.select(this).attr('cy') - height) + 'px')
-            .style('color', d3.rgb(255, 255, 255, 0.8))
-            .style('background', d3.rgb(0, 0, 0, 0.8))
+            .style('color', d3.rgb(255, 255, 255, 1))
+            .style('background', d3.rgb(2, 41, 76, 1))
             .style('padding', 2 + '%')
             .style('border-radius', 0 + 'px')
             .style('z-index', 10000)
@@ -236,8 +235,8 @@ export default {
             .style('cursor', 'default')
             .style('left', (d3.select(this).attr('cx') - 30) + 'px')
             .style('top', (d3.select(this).attr('cy') - height) + 'px')
-            .style('color', d3.rgb(255, 255, 255, 0.8))
-            .style('background', d3.rgb(0, 0, 0, 0.8))
+            .style('color', d3.rgb(255, 255, 255, 1))
+            .style('background', d3.rgb(2, 41, 76, 1))
             .style('padding', 2 + '%')
             .style('border-radius', 0 + 'px')
             .style('z-index', 10000)

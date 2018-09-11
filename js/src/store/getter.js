@@ -22,6 +22,9 @@ export default {
   getSelectedModel (state, getters) {
     return getters.getModelFromId(state.selected_model_id)
   },
+  getSelectedModelId (state, getters) {
+    return state.selected_model_id
+  },
   /*
   dashboard
   */

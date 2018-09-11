@@ -174,12 +174,18 @@ export default {
    */
   deleteModel (context, payload) {
     let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id
+    console.log('deletemodel first point:', context.state.selected_model_id)
     return axios.delete(url)
       .then(function (response) {
         if (response.data.error_msg) {
           context.commit('setAlertModalFlag', {'flag': true})
           context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
         }
+        if (payload.is_selected_model) {
+          console.log('delete in selected:', context.state.selected_model_id)
+          context.commit('setSelectedModel', {'model_id': undefined})
+        }
+        console.log('deletemodel after response:', context.state.selected_model_id)
         context.dispatch('updateModelsState')
       })
   },
@@ -211,10 +217,12 @@ export default {
    */
   updateModelsState (context, payload) {
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/update/state'
+    console.log('updatemodel_state:', context.state.selected_model_id)
     return axios.get(url, {
       timeout: 10000
     }).then(function (response) {
       context.commit('updateModelsState', response.data)
+      console.log('updatemodel after commit:', context.state.selected_model_id)
     })
   },
 
