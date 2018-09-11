@@ -631,6 +631,17 @@ class Storage:
                 return (id, name, ratio, train_imgs, valid_imgs, class_map, created, updated)
             return None
 
+    def fetch_class_map(self):
+        with self.db:
+            c = self.cursor()
+            c.execute("""
+                SELECT class_map FROM dataset_def
+                LIMIT 1""")
+            for rec in c:
+                class_map = json.loads(rec[0])
+                return {"class_map": class_map}
+            return None
+
 
 global storage
 storage = Storage()

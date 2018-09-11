@@ -734,6 +734,20 @@ def get_deployed_model_info(project_id):
         return ret
 
 
+@route("/api/renom_img/v1/projects/<project_id:int>/class_map", method="GET")
+def get_class_map(project_id):
+    try:
+        print("Called")
+        ret = storage.fetch_class_map()
+        body = json.dumps(ret)
+        ret = create_response(body)
+        return ret
+    except Exception as e:
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
 def main():
     # Creates directory only if server starts.
     create_dirs()

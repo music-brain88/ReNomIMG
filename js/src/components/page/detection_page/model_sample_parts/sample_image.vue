@@ -11,7 +11,7 @@
 </template>
 
 <script>
-  import { mapMutations } from 'vuex'
+  import { mapMutations, mapGetters } from 'vuex'
 
   export default {
     name: 'SampleImage',
@@ -24,6 +24,9 @@
       image_idx: undefined
     },
     computed: {
+      ...mapGetters([
+        'getTagName'
+      ]),
       resized_height: function () {
         return 160
       },
@@ -38,21 +41,6 @@
       getColor: function (index) {
         let color_list = ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
         return color_list[index % 4]
-      },
-      getTagName: function (index) {
-        if (!this.$store.getters.getSelectedModel) {
-          return
-        }
-        let dataset_def_id = this.$store.getters.getSelectedModel.dataset_def_id
-        let dataset_def = this.$store.state.dataset_defs
-        let label_dict
-        for (let i = 0; i < Object.keys(this.$store.state.dataset_defs).length; i++) {
-          if (dataset_def[i].id === dataset_def_id) {
-            label_dict = this.$store.state.dataset_defs[i].class_map
-            break
-          }
-        }
-        return label_dict[index]
       },
       onClick () {
         this.setShowModalImageSample({modal: true, img_idx: this.image_idx})

@@ -12,6 +12,9 @@
 </template>
 
 <script>
+
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'ImageModal',
   data: function () {
@@ -20,6 +23,9 @@ export default {
     }
   },
   computed: {
+    ...mapGetters([
+      'getTagName'
+    ]),
     getPredictResults: function () {
       return this.$store.getters.getPredictResults
     },
@@ -57,21 +63,6 @@ export default {
     getColor: function (index) {
       let color_list = ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
       return color_list[index % 4]
-    },
-    getTagName: function (index) {
-      if (!this.$store.getters.getSelectedModel) {
-        return
-      }
-      let dataset_def_id = this.$store.getters.getSelectedModel.dataset_def_id
-      let dataset_def = this.$store.state.dataset_defs
-      let label_dict
-      for (let i in Object.keys(this.$store.state.dataset_defs).length) {
-        if (dataset_def[i].id === dataset_def_id) {
-          label_dict = this.$store.state.dataset_defs[i].class_map
-          break
-        }
-      }
-      return label_dict[index]
     },
     hideModal: function () {
       this.$store.commit('setImageModalShowFlag', {

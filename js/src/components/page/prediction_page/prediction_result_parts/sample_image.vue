@@ -43,11 +43,7 @@
         if (!this.$store.getters.getSelectedModel) {
           return
         }
-        // let dataset_def_id = this.$store.getters.getSelectedModel.dataset_def_id
-        let dataset_def = this.$store.state.dataset_defs
-        if (dataset_def.length > 0) {
-          return dataset_def[0].class_map[index]
-        }
+        return this.$store.state.class_names[index]
       },
       showImageModal: function () {
         this.$store.commit('setImageIndexOnModal', {'index': this.index})

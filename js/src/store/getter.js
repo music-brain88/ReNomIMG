@@ -190,5 +190,13 @@ export default {
       }
     }
     return page_count
+  },
+  getTagName (state) {
+    return function (index) {
+      if (!state.class_names) {
+        return false
+      }
+      return state.class_names[index]
+    }
   }
 }

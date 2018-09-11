@@ -9,7 +9,7 @@
         </div>
         <div v-if="selected_model_id" class="content">
           <!-- tag-item -->
-          <div class='tag-item' v-for="(name, id) in selectedModelTags">
+          <div class='tag-item' v-for="(name, id) in class_names">
             <div class="item-name">
                 <span> &nbsp;{{ name }} </span>
             </div>
@@ -32,7 +32,7 @@
 
 <script>
 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 export default {
   name: 'TagList',
   data: function () {
@@ -50,23 +50,12 @@ export default {
   computed: {
     ...mapState([
       'dataset_defs',
-      'selected_model_id'
+      'selected_model_id',
+      'class_names'
     ]),
-    selectedModelTags () {
-      if (this.selected_model_id === undefined) {
-        return
-      }
-      let model = this.$store.getters.getSelectedModel
-      let dataset_def_id = model.dataset_def_id
-      let selected_dataset_index = 0
-      for (let index in this.dataset_defs) {
-        if (this.dataset_defs[index].id === dataset_def_id) {
-          selected_dataset_index = index
-          break
-        }
-      }
-      return this.dataset_defs[selected_dataset_index].class_map
-    }
+    ...mapGetters([
+      'getTagName'
+    ])
   }
 }
 </script>
