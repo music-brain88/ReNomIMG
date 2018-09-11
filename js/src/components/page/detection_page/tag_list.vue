@@ -53,19 +53,20 @@ export default {
       'selected_model_id'
     ]),
     selectedModelTags () {
-      if (this.selected_model_id === undefined) {
-        return
-      }
-      let model = this.$store.getters.getSelectedModel
-      let dataset_def_id = model.dataset_def_id
-      let selected_dataset_index = 0
-      for (let index in this.dataset_defs) {
-        if (this.dataset_defs[index].id === dataset_def_id) {
-          selected_dataset_index = index
-          break
-        }
-      }
-      return this.dataset_defs[selected_dataset_index].class_map
+      // if (this.selected_model_id === undefined) {
+      //   return
+      // }
+      // let model = this.$store.getters.getSelectedModel
+      // let dataset_def_id = model.dataset_def_id
+      // let selected_dataset_index = 0
+      // for (let index in this.dataset_defs) {
+      //   if (this.dataset_defs[index].id === dataset_def_id) {
+      //     selected_dataset_index = index
+      //     break
+      //   }
+      // }
+      // return this.dataset_defs[selected_dataset_index].class_map
+      return this.$store.state.class_names
     }
   }
 }
