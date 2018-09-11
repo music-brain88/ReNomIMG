@@ -50,8 +50,7 @@
     deployed
     </div>
 
-    <div v-if="!isPredict" class="delete-button" @click.stop="show_delete_dialog=true">
-      <!-- <i class="fa fa-times-circle-o" aria-hidden="true"></i> -->
+    <div v-if="!isPredict" class="delete-button" @click.stop.prevent="show_delete_dialog=true">
       &times;
     </div>
 
@@ -114,10 +113,13 @@ export default {
         })
       }
       if (this.selected) {
-        this.$store.commit('setSelectedModel', {'model_id': undefined})
+        console.log('selected', this.selected)
+        // this.$store.commit('setSelectedModel', {'model_id': undefined})
+        console.log('afterdelete:', this.$store.state.selected_model_id)
       }
       this.$store.dispatch('deleteModel', {
-        'model_id': this.model.model_id
+        'model_id': this.model.model_id,
+        'is_selected_model': this.selected
       })
       this.show_delete_dialog = false
     },
