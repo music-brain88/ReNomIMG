@@ -571,8 +571,6 @@ class Storage:
 
     def register_dataset_def(self, name, ratio, description, train_imgs, valid_imgs, class_map, class_tag_list):
 
-        print(name)
-
         train_imgs = json.dumps(train_imgs)
         valid_imgs = json.dumps(valid_imgs)
         class_map = json.dumps(class_map)

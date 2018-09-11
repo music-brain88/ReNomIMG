@@ -210,7 +210,6 @@ def run_model(project_id, model_id):
 
         try:
             # This will wait for end of thread.
-            print("Return of thread", ft.result())
             ft.cancel()
         except CancelledError as ce:
             # If the model is deleted or stopped,
@@ -737,7 +736,6 @@ def get_deployed_model_info(project_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/class_map", method="GET")
 def get_class_map(project_id):
     try:
-        print("Called")
         ret = storage.fetch_class_map()
         body = json.dumps(ret)
         ret = create_response(body)
