@@ -42,7 +42,7 @@ export default {
   },
   data: function () {
     return {
-      additional_param_components: ['yolov1-params', 'yolov2_params']
+      additional_param_components: ['yolov1-params', 'yolov2-params']
     }
   },
   computed: {
