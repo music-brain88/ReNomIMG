@@ -199,7 +199,7 @@ export default {
       dataset_def_id: 1,
       algorithm: 0,
       yolo1_train_whole_flag: 0,
-      yolo2_train_whole_flag: 1,
+      yolo2_train_whole_flag: 0,
       train_whole_flag: 0,
       total_epoch: 100,
       seed: 0,

@@ -680,7 +680,7 @@ class Yolov2(rm.Model):
 
         diff = (x - target)
         N = np.sum(y[:, 0] > 0)
-        mask *= mask
+        mask = np.abs(mask)
         return rm.sum(diff * diff * mask) / (N * 2)
 
     def fit(self, train_img_path_list, train_annotation_list,

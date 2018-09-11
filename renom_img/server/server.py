@@ -211,6 +211,7 @@ def run_model(project_id, model_id):
 
         try:
             # This will wait for end of thread.
+            ft.result()
             ft.cancel()
         except CancelledError as ce:
             # If the model is deleted or stopped,
@@ -252,7 +253,7 @@ def progress_model(project_id, model_id):
             req_last_epoch = int(req_last_epoch) if req_last_epoch is not None else 0
             req_running_state = request.params.get("running_state", None)
             req_running_state = int(req_running_state) if req_running_state is not None else 0
-        except:
+        except Exception as e:
             req_last_batch = 0
             req_last_epoch = 0
             req_running_state = 0
