@@ -362,7 +362,7 @@ export default {
    *
    */
   setPredictPage (state, payload) {
-    const max_chunk = Math.floor(state.predict_results.bbox_path_list.length / state.predict_page_image_count)
+    const max_chunk = Math.floor(state.predict_results.prediction_file_list.length / state.predict_page_image_count)
     if (payload.page > max_chunk) {
       state.predict_page = max_chunk
     } else if (payload.page < 0) {
@@ -387,7 +387,7 @@ export default {
    *
    */
   resetPredictResult (state, payload) {
-    state.predict_results = {'bbox_list': [], 'bbox_path_list': []}
+    state.predict_results = {'bbox_list': [], 'prediction_file_list': []}
   },
 
   /**

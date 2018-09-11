@@ -440,7 +440,6 @@ def load_dataset_split_detail():
         client_id = request.params.u_id
         description = urllib.parse.unquote(request.params.description, encoding='utf-8')
 
-        print("1: {}".format(time.time() - start_t))
         start_t = time.time()
 
         # if 2nd time delete confirmdataset id
@@ -460,7 +459,6 @@ def load_dataset_split_detail():
         trains = set(random.sample(imgs, int(ratio * n_imgs)))
         valids = imgs - trains
 
-        print("2: {}".format(time.time() - start_t))
         start_t = time.time()
         # build filename of images and labels
         train_imgs = [str(img) for img in trains]
@@ -476,7 +474,6 @@ def load_dataset_split_detail():
         parsed_train_img_names = [str(imgs[perm]).split('.')[0] for perm in perm_train]
         parsed_valid_img_names = [str(imgs[perm]).split('.')[0] for perm in perm_valid]
 
-        print("3: {}".format(time.time() - start_t))
         start_t = time.time()
 
         parsed_train, train_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
@@ -485,7 +482,6 @@ def load_dataset_split_detail():
         parsed_valid, valid_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
             path).split('/')[-1].split('.')[0] in parsed_valid_img_names], num_thread=8)
 
-        print("4: {}".format(time.time() - start_t))
         start_t = time.time()
         # Insert detailed informations
         train_num = len(train_imgs)
