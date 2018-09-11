@@ -13,6 +13,7 @@ import posixpath
 import traceback
 import pathlib
 import random
+from collections import OrderedDict
 import xmltodict
 
 import PIL
@@ -45,7 +46,7 @@ executor = Executor(max_workers=MAX_THREAD_NUM)
 train_thread_pool = {}
 prediction_thread_pool = {}
 
-confirm_dataset = {}
+confirm_dataset = OrderedDict()
 
 
 def get_train_thread_count():
@@ -444,7 +445,11 @@ def load_dataset_split_detail():
         # if 2nd time delete confirmdataset id
         if request.params.delete_id:
             del confirm_dataset[request.params.delete_id]
-
+        
+        # old cofirm_dataset delete
+        if len(confirm_dataset) > 100:
+            confirm_dataset.popitem(False)
+                    
         # search image files
         imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
 
