@@ -219,7 +219,7 @@ export default {
   updateModelsState (context, payload) {
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/update/state'
     return axios.get(url, {
-      timeout: 10000
+      timeout: 120 * 1000
     }).then(function (response) {
       context.commit('updateModelsState', response.data)
     })
