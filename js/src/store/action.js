@@ -187,6 +187,7 @@ export default {
         }
         console.log('deletemodel after response:', context.state.selected_model_id)
         context.dispatch('updateModelsState')
+        context.dispatch('loadModels')
       })
   },
 
@@ -217,12 +218,10 @@ export default {
    */
   updateModelsState (context, payload) {
     const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/update/state'
-    console.log('updatemodel_state:', context.state.selected_model_id)
     return axios.get(url, {
       timeout: 10000
     }).then(function (response) {
       context.commit('updateModelsState', response.data)
-      console.log('updatemodel after commit:', context.state.selected_model_id)
     })
   },
 

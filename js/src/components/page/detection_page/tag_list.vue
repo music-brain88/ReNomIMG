@@ -57,6 +57,9 @@ export default {
         return
       }
       let model = this.$store.getters.getSelectedModel
+      if (model === undefined) {
+        return
+      }
       let dataset_def_id = model.dataset_def_id
       let selected_dataset_index = 0
       for (let index in this.dataset_defs) {
