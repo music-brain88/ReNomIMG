@@ -364,17 +364,30 @@ def delete_model(project_id, model_id):
 @route("/api/renom_img/v1/projects/<project_id:int>/models/update/state", method="GET")
 def update_models_state(project_id):
     try:
-        models = storage.fetch_models(project_id)
         # set running model information for polling
-        body = {}
-        for k in list(models.keys()):
-            model_id = models[k]["model_id"]
-            running_state = models[k]["running_state"]
-            state = models[k]['state']
-            body[model_id] = {
-                'running_state': running_state,
-                'state': state
-            }
+        for _ in range(60):
+            body = {}
+            models = storage.fetch_models(project_id)
+            reserved_count = 0
+            running_count = 0
+            for k in list(models.keys()):
+                model_id = models[k]["model_id"]
+                running_state = models[k]["running_state"]
+                state = models[k]['state']
+                body[model_id] = {
+                    'running_state': running_state,
+                    'state': state
+                }
+                if state == STATE_RESERVED:
+                    reserved_count += 1
+                if state == STATE_RUNNING:
+                    running_count += 1
+
+            if reserved_count > 0 and running_count < MAX_THREAD_NUM:
+                time.sleep(2)
+            else:
+                break
+
         body = json.dumps(body)
         ret = create_response(body)
         return ret
@@ -446,11 +459,11 @@ def load_dataset_split_detail():
         # if 2nd time delete confirmdataset id
         if request.params.delete_id:
             del confirm_dataset[request.params.delete_id]
-        
+
         # old cofirm_dataset delete
         if len(confirm_dataset) > 100:
             confirm_dataset.popitem(False)
-                    
+
         # search image files
         imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
 
