@@ -117,18 +117,36 @@ that is in the ``datasrc`` directory.
 According to the above figure, you can create ``dataset`` from datasrc.
 Once a dataset is created its content will never be change.
 
-For creating a ``dataset``, please move to dataset page. Following figures
+For creating a ``dataset``, please move to dataset setting modal. Following figures
 guide you to the dataset page.
 
-.. image:: /_static/image/how_to_use_gui_dataset_create_button1.png
+.. image:: /_static/image/how_to_use_gui_dataset_create_button01.png
 
 Then following page will be appeared.
 
-.. image:: /_static/image/how_to_use_gui_dataset_create_button2.png
+.. image:: /_static/image/how_to_use_gui_dataset_create_button02.png
 
-As you can see, you can specify the ``dataset name`` and ``ratio of training data``.
-In the above figure, 2 dataset are already created and each has 80% of dataset for training and 
-20% for validation.
+As you can see, you can specify the ``dataset name``, ''description'' and ``ratio of training data``.
+
+After filling all forms, please push the ``confirm`` button to confirm the content that 
+the dataset includes.
+
+.. image:: /_static/image/how_to_use_gui_dataset_create_button03.png
+
+Then following graph will be appeared. You can confirm what classes are included 
+in the dataset and how many tags are they.
+
+At last, for saving the dataset, please push the ``save`` button.
+
+You can confirm created datasets in the dataset page.
+For going to the dataset page, please follow the figure below.
+
+.. image:: /_static/image/how_to_use_gui_dataset_create_button04.png
+
+.. image:: /_static/image/how_to_use_gui_dataset_create_button05.png
+
+In the above figure, 2 datasets are already created. 
+
 
 Hyper parameter setting
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -136,11 +154,11 @@ Hyper parameter setting
 So far you got all the materials, let's build a model and run training.
 For creating a model please push the button ``Add New Model``.
 
-.. image:: /_static/image/how_to_use_gui_dataset_create_button3.png
+.. image:: /_static/image/how_to_use_gui_model_create01.png
 
 Then you can see a hyper parameter setting modal like following figure.
 
-.. image:: /_static/image/how_to_use_gui_dataset_create_button4.png
+.. image:: /_static/image/how_to_use_gui_model_create02.png
 
 As you can see in above figure, you can specify following parameters.
 
@@ -161,7 +179,7 @@ Finishing hyper parameter settings, then **push run button to start training!**
 
 If the training starts, model will be appeared in model list and progress bar will be shown.
 
-.. image:: /_static/image/how_to_use_gui_dataset_create_button5.png
+.. image:: /_static/image/how_to_use_gui_model_create03.png
 
 
 Uninstall ReNomIMG

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-31 20:48+0900\n"
+"POT-Creation-Date: 2018-09-12 10:26+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -243,7 +243,11 @@ msgstr "XMLのフォーマットはPascal VOCフォーマットである必要�
 msgid "List of xml-file's path."
 msgstr "xmlファイルのパスのリスト"
 
-#: of renom_img.api.utility.load.parse_xml_detection:6
+#: of renom_img.api.utility.load.parse_xml_detection:5
+msgid "Number of thread for parsing xml files."
+msgstr ""
+
+#: of renom_img.api.utility.load.parse_xml_detection:8
 msgid ""
 "This returns list of annotations. Each annotation has a list of "
 "dictionary which includes keys 'box' and 'name'. The structure is bellow."

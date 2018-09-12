@@ -41,11 +41,5 @@ msgstr " # ユーティリティーAPI "
 
 #: ../../rsts/renom_img.rst:23
 msgid "**# Use models which trained on ReNomIMG GUI tool**"
-msgstr ""
-
-#~ msgid "renom\\_img"
-#~ msgstr ""
-
-#~ msgid "**# Use models which trained on ReNomIMG GUI tool**"
-#~ msgstr "**# ReNomIMG GUIツールで学習したモデルの利用**"
+msgstr "**# ReNomIMG GUIツールで学習したモデルの利用**"
 
