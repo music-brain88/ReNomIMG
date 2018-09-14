@@ -252,7 +252,9 @@ class CNN_VGG19(rm.Model):
         self.block4 = layer_factory(channel=512, conv_layer_num=4)
         self.block5 = layer_factory(channel=512, conv_layer_num=4)
         self.fc1 = rm.Dense(4096)
+        self.dropout1 = rm.Dropout(dropout_ratio=0.5)
         self.fc2 = rm.Dense(4096)
+        self.dropout2 = rm.Dropout(dropout_ratio=0.5)
         self.fc3 = rm.Dense(num_class)
 
     def forward(self, x):
@@ -263,9 +265,9 @@ class CNN_VGG19(rm.Model):
         t = self.block5(t)
         t = rm.flatten(t)
         t = rm.relu(self.fc1(t))
-        t = rm.dropout(t, 0.5)
+        t = self.dropout1(t)
         t = rm.relu(self.fc2(t))
-        t = rm.dropout(t, 0.5)
+        t = self.dropout2(t)
         t = self.fc3(t)
         return t
 
@@ -279,7 +281,9 @@ class CNN_VGG16(rm.Model):
         self.block4 = layer_factory(channel=512, conv_layer_num=3)
         self.block5 = layer_factory(channel=512, conv_layer_num=3)
         self.fc1 = rm.Dense(4096)
+        self.dropout1 = rm.Dropout(dropout_ratio=0.5)
         self.fc2 = rm.Dense(4096)
+        self.dropout2 = rm.Dropout(dropout_ratio=0.5)
         self.fc3 = rm.Dense(num_class)
 
     def forward(self, x):
@@ -290,9 +294,9 @@ class CNN_VGG16(rm.Model):
         t = self.block5(t)
         t = rm.flatten(t)
         t = rm.relu(self.fc1(t))
-        t = rm.dropout(t, 0.5)
+        t = self.dropout1(t)
         t = rm.relu(self.fc2(t))
-        t = rm.dropout(t, 0.5)
+        t = self.dropout2(t)
         t = self.fc3(t)
         return t
 
@@ -306,7 +310,9 @@ class CNN_VGG11(rm.Model):
         self.block4 = layer_factory(channel=512, conv_layer_num=2)
         self.block5 = layer_factory(channel=512, conv_layer_num=2)
         self.fc1 = rm.Dense(4096)
+        self.dropout1 = rm.Dropout(dropout_ratio=0.5)
         self.fc2 = rm.Dense(4096)
+        self.dropout2 = rm.Dropout(dropout_ratio=0.5)
         self.fc3 = rm.Dense(num_class)
 
     def forward(self, x):
@@ -317,8 +323,8 @@ class CNN_VGG11(rm.Model):
         t = self.block5(t)
         t = rm.flatten(t)
         t = rm.relu(self.fc1(t))
-        t = rm.dropout(t, 0.5)
+        t = self.dropout1(t)
         t = rm.relu(self.fc2(t))
-        t = rm.dropout(t, 0.5)
+        t = self.dropout2(t)
         t = self.fc3(t)
         return t
