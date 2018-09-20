@@ -5,6 +5,7 @@ from tqdm import tqdm
 from PIL import Image
 
 from renom_img.api import Base, adddoc
+from renom_img.api import Detection
 from renom_img.api.classification.darknet import Darknet
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
@@ -43,7 +44,7 @@ def calc_iou(box1, box2):
     return intersect / union
 
 
-class Yolov1(rm.Model):
+class Yolov1(Detection):
     """ Yolo object detection algorithm.
 
     Args:
