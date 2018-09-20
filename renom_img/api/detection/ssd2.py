@@ -9,6 +9,7 @@ import renom as rm
 from renom_img.api.classification.vgg import VGG16
 from renom_img.api.utility.load import prepare_detection_data
 from renom_img.api.utility.box import transform2xy12, calc_iou_xywh
+from renom_img.api.utility.load import parse_xml_detection, load_img
 
 
 def calc_iou(prior, box):
@@ -183,9 +184,9 @@ class DetectorNetwork(rm.Model):
         conv4_norm = self.norm(t)
 
         conv4_norm_loc = self.conv4_3_mbox_loc(conv4_norm)
-        conv4_norm_loc_flat = rm.flatten(conv4_norm_loc)
+        conv4_norm_loc_flat = rm.flatten(conv4_norm_loc.transpose(0, 2, 3, 1))
         conv4_norm_conf = self.conv4_3_mbox_conf(conv4_norm)
-        conv4_norm_conf_flat = rm.flatten(conv4_norm_conf)
+        conv4_norm_conf_flat = rm.flatten(conv4_norm_conf.transpose(0, 2, 3, 1))
 
         # print("Norm4", conv4_norm_conf.shape, conv4_norm_loc.shape)
 
@@ -204,10 +205,10 @@ class DetectorNetwork(rm.Model):
 
         # Normalize and compute location, confidence and priorbox aspect ratio
         fc7_mbox_loc = self.fc7_mbox_loc(t)
-        fc7_mbox_loc_flat = rm.flatten(fc7_mbox_loc)
+        fc7_mbox_loc_flat = rm.flatten(fc7_mbox_loc.transpose(0, 2, 3, 1))
 
         fc7_mbox_conf = self.fc7_mbox_conf(t)
-        fc7_mbox_conf_flat = rm.flatten(fc7_mbox_conf)
+        fc7_mbox_conf_flat = rm.flatten(fc7_mbox_conf.transpose(0, 2, 3, 1))
 
         # print("FC7", fc7_mbox_conf.shape, fc7_mbox_loc.shape)
 
@@ -215,10 +216,10 @@ class DetectorNetwork(rm.Model):
         t = rm.relu(self.conv8_2(t))
         # Normalize and compute location, confidence and priorbox aspect ratio
         conv8_mbox_loc = self.conv8_2_mbox_loc(t)
-        conv8_mbox_loc_flat = rm.flatten(conv8_mbox_loc)
+        conv8_mbox_loc_flat = rm.flatten(conv8_mbox_loc.transpose(0, 2, 3, 1))
 
         conv8_mbox_conf = self.conv8_2_mbox_conf(t)
-        conv8_mbox_conf_flat = rm.flatten(conv8_mbox_conf)
+        conv8_mbox_conf_flat = rm.flatten(conv8_mbox_conf.transpose(0, 2, 3, 1))
 
         # print("Conv8", conv8_mbox_conf.shape, conv8_mbox_loc.shape)
 
@@ -226,10 +227,10 @@ class DetectorNetwork(rm.Model):
         t = rm.relu(self.conv9_2(t))
         # Normalize and compute location, confidence and priorbox aspect ratio
         conv9_mbox_loc = self.conv9_2_mbox_loc(t)
-        conv9_mbox_loc_flat = rm.flatten(conv9_mbox_loc)
+        conv9_mbox_loc_flat = rm.flatten(conv9_mbox_loc.transpose(0, 2, 3, 1))
 
         conv9_mbox_conf = self.conv9_2_mbox_conf(t)
-        conv9_mbox_conf_flat = rm.flatten(conv9_mbox_conf)
+        conv9_mbox_conf_flat = rm.flatten(conv9_mbox_conf.transpose(0, 2, 3, 1))
 
         # print("Conv9", conv9_mbox_conf.shape, conv9_mbox_loc.shape)
 
@@ -237,10 +238,10 @@ class DetectorNetwork(rm.Model):
         t = rm.relu(self.conv10_2(t))
 
         conv10_mbox_loc = self.conv10_2_mbox_loc(t)
-        conv10_mbox_loc_flat = rm.flatten(conv10_mbox_loc)
+        conv10_mbox_loc_flat = rm.flatten(conv10_mbox_loc.transpose(0, 2, 3, 1))
 
         conv10_mbox_conf = self.conv10_2_mbox_conf(t)
-        conv10_mbox_conf_flat = rm.flatten(conv10_mbox_conf)
+        conv10_mbox_conf_flat = rm.flatten(conv10_mbox_conf.transpose(0, 2, 3, 1))
 
         # print("Conv10", conv10_mbox_conf.shape, conv10_mbox_loc.shape)
 
@@ -248,10 +249,10 @@ class DetectorNetwork(rm.Model):
         t = rm.relu(self.conv10_2(t))
 
         conv11_mbox_loc = self.conv11_2_mbox_loc(t)
-        conv11_mbox_loc_flat = rm.flatten(conv11_mbox_loc)
+        conv11_mbox_loc_flat = rm.flatten(conv11_mbox_loc.transpose(0, 2, 3, 1))
 
         conv11_mbox_conf = self.conv11_2_mbox_conf(t)
-        conv11_mbox_conf_flat = rm.flatten(conv11_mbox_conf)
+        conv11_mbox_conf_flat = rm.flatten(conv11_mbox_conf.transpose(0, 2, 3, 1))
 
         # print("Conv11", conv11_mbox_conf.shape, conv11_mbox_loc.shape)
 
@@ -269,9 +270,8 @@ class DetectorNetwork(rm.Model):
                                conv10_mbox_conf_flat,
                                conv11_mbox_conf_flat])
 
-        num_boxes = mbox_loc.shape[-1] // 4
-        mbox_loc = mbox_loc.reshape((n, num_boxes, 4))
-        mbox_conf = mbox_conf.reshape((n, num_boxes, self.num_class))
+        mbox_loc = mbox_loc.reshape((n, -1, 4))
+        mbox_conf = mbox_conf.reshape((n, -1, self.num_class))
 
         # print(mbox_conf.shape, mbox_loc.shape)
         predictions = rm.concat([
@@ -460,7 +460,7 @@ class SSD(rm.Model):
 
         # Encode wh
         encoded_box[:, 2:4][assign_mask] = np.log(box_wh / assigned_priors_wh)/self.prior.variance[1]
-        return encoded_box.ravel()
+        return encoded_box.flatten()
 
 
     def decode_box(self, loc):
@@ -481,70 +481,175 @@ class SSD(rm.Model):
         return self._network(self._freezed_network(x))
 
 
-    def loss(self, x, y, neg_pos_ratio=3.0, negatives_for_hard=100.0):
-        pos_samples = (y[:, :, 0] > 0).astype(np.float32)[..., None]
+    def loss(self, x, y, img_path, neg_pos_ratio=3.0):
+        pos_samples = (y[:, :, 5] == 0)[..., None]
         N = np.sum(pos_samples)
         pos_Ns = np.sum(pos_samples, axis=1)
         neg_Ns = np.clip(neg_pos_ratio*pos_Ns, 0, y.shape[1])
 
         # Loc loss
-        loc_loss = rm.sum(rm.smoothed_l1(x[..., :4]*pos_samples, y[..., 1:5]*pos_samples, reduce_sum=False))
+        loc_loss = rm.sum(rm.smoothed_l1(x[..., :4], y[..., 1:5], reduce_sum=False)*pos_samples)
 
         # this is for hard negative mining.
-        loss_c = np.max(x[..., 4:].as_ndarray(), axis=2)
+        np_x = x[..., 4:].as_ndarray()
+        max_np_x = np.max(np_x)
+        loss_c = np.log(np.sum(np.exp(np_x.reshape(-1, self.num_class) - max_np_x), axis=1, keepdims=True)) + max_np_x
+        loss_c -= np_x[..., 0].reshape(-1, 1)
+        loss_c = loss_c.reshape(len(x), -1)
         loss_c[pos_samples.astype(np.bool)[..., 0]] = 0
+
         sorted_index = np.argsort(loss_c, axis=1)[:, ::-1]
         index_rank = np.argsort(sorted_index, axis=1)
         neg_samples = index_rank < neg_Ns
         samples = (neg_samples[..., None] + pos_samples).astype(np.bool)
-        conf_loss = rm.sum(rm.softmax_cross_entropy((x[..., 4:]*samples).transpose(0, 2, 1), 
-                        (y[..., 5:]*samples).transpose(0, 2, 1), reduce_sum=False))
+        conf_loss = rm.sum(rm.softmax_cross_entropy(x[..., 4:].transpose(0, 2, 1), 
+                        y[..., 5:].transpose(0, 2, 1), reduce_sum=False).transpose(0, 2, 1)*samples)
+
+        ### DEBUG
+        if False:
+            print(neg_samples.shape, pos_samples.shape)
+            print(np.sum(y[neg_samples, 5:] > 0, axis=0), np.sum(y[neg_samples, 5:] > 0))
+            print(np.sum(y[pos_samples[..., 0] > 0, 5:], axis=0), np.sum(y[pos_samples[..., 0] > 0, 5:]))
+            for k, (target, pt) in enumerate(zip(y, img_path)):
+                img = Image.open(pt).resize((300, 300))
+                draw = ImageDraw.Draw(img)
+                plt.clf()
+                # use = samples[k] > 0
+                use = pos_samples[k] > 0
+                print(use.shape)
+                decoded = self.decode_box(target[:, :4])
+                print(np.sum(target[use[:, 0], 5:], axis=0), target.shape)
+                for d in decoded[use[:, 0]]:
+                    draw.rectangle(tuple(int(b*300) for b in d), outline=(255, 255, 255))
+                plt.imshow(img)
+                plt.show()
+        ###
 
         loss = conf_loss + loc_loss
-        return loss/N
+        return loss/(N/len(x))
 
 
-    def predict(self, img):
-        z = self(img).as_ndarray()
-        return self.get_bbox(z)
+    def predict(self, img_list, score_threshold=0.3, nms_threshold=0.4):
+        """
+        This method accepts either ndarray and list of image path.
+
+        Example:
+            >>>
+            >>> model.predict(['img01.jpg'], [img02.jpg]])
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0}]]
+
+        Args:
+            img_list (string, list, ndarray):
+            score_threshold (float): The threshold for confidence score.
+                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
+                                     Defaults to 0.3
+            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
+
+        Return:
+            (list): List of predicted bbox, score and class of each image.
+                The format of return value is bellow. Box coordinates and size will be returned as
+                ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+
+            [
+                [ # Prediction of first image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    ...
+                ],
+                [ # Prediction of second image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    ...
+                ],
+                ...
+            ]
+
+        Note:
+            Box coordinate and size will be returned as ratio to the original image size.
+            Therefore the range of 'box' is [0 ~ 1].
+
+        """
+        batch_size = 8
+        self.set_models(inference=True)
+        # If the argument is path or path list.
+        if isinstance(img_list, (list, str)):
+            if isinstance(img_list, (tuple, list)):
+                # If the argument is path list.
+                if len(img_list) >= batch_size:
+                    test_dist = ImageDistributor(img_list)
+                    results = []
+                    bar = tqdm()
+                    bar.total = int(np.ceil(len(test_dist) / batch_size))
+                    for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
+                        img_array = np.vstack([load_img(path, self.imsize)[None]
+                                               for path in x_img_list])
+                        img_array = self.preprocess(img_array)
+                        results.extend(self.get_bbox(self(img_array).as_ndarray(),
+                                                     score_threshold,
+                                                     nms_threshold))
+                        bar.update(1)
+                    return results
+                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+                img_array = self.preprocess(img_array)
+            else:
+                # If the argument is path.
+                img_array = load_img(img_list, self.imsize)[None]
+                img_array = self.preprocess(img_array)
+                return self.get_bbox(self(img_array).as_ndarray(),
+                                     score_threshold,
+                                     nms_threshold)[0]
+        else:
+            # If the argument is ndarray.
+            img_array = img_list
+        return self.get_bbox(self(img_array).as_ndarray(),
+                             score_threshold,
+                             nms_threshold)
 
 
-    def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
+    def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.4):
         loc, conf = np.split(z, [4], axis=2)
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
-
         result_bbox = []
         for n, (l, c) in enumerate(zip(loc, conf)):
+            result = []
             decoded = self.decode_box(l)
-            keep_flag = (np.min(c, axis=1) > score_threshold) * (np.argmax(c, axis=1) > 0)
-            class_score_list = c[keep_flag]
-            loc_candidate_list = decoded[keep_flag]
-            # To center form
-            loc_candidate_list[:, 2:] = loc_candidate_list[:, 2:] - loc_candidate_list[:, :2]
-            loc_candidate_list[:, :2] = loc_candidate_list[:, 2:]/2.
-            class_score_list = [(np.max(cl), np.argmax(cl)) for cl in class_score_list]
+            for cls in range(self.num_class):
+                if cls == 0: continue
+                srt_ind = np.argsort([cl for cl in c[:, cls]])[::-1][:200]
+                class_score_list = c[srt_ind, cls]
+                loc_candidate_list = decoded[srt_ind]
 
-            # NMS 
-            sorted_ind = np.argsort([s[0] for s in class_score_list])[::-1]
-            keep = np.ones((len(class_score_list),), dtype=np.bool)
-            for i, ind1 in enumerate(sorted_ind):
-                if not keep[ind1]:
-                    continue
-                box1 = loc_candidate_list[ind1]
-                for j, ind2 in enumerate(sorted_ind[i + 1:], i + 1):
-                    box2 = loc_candidate_list[ind2]
-                    if keep[ind2] and class_score_list[ind1][1] == class_score_list[ind2][1]:
-                        keep[ind2] = calc_iou_xywh(box1, box2) < nms_threshold
+                keep_index = (class_score_list > score_threshold).flatten()
+                class_score_list = class_score_list[keep_index]
+                loc_candidate_list = loc_candidate_list[keep_index]
 
-            result_bbox.append([{
-                "box": loc_candidate_list[i].tolist(),
-                "name": self.class_map[class_score_list[i][1] - 1].decode('utf-8'),
-                "score": class_score_list[i][0],
-                "class": class_score_list[i][1],
-            } for i, k in enumerate(keep) if k])
-            print(result_bbox[-1])
+                # To center form
+                loc_candidate_list = np.clip(loc_candidate_list, 0, 1)
+                loc_candidate_list[:, 2:] = loc_candidate_list[:, 2:] - loc_candidate_list[:, :2]
+                loc_candidate_list[:, :2] += loc_candidate_list[:, 2:]/2.
+                class_score_list = [(cl, cls) for cl in class_score_list]
+
+                # NMS 
+                sorted_ind = np.argsort([s[0] for s in class_score_list])[::-1]
+                keep = np.ones((len(class_score_list),), dtype=np.bool)
+                for i, ind1 in enumerate(sorted_ind):
+                    if not keep[ind1]:
+                        continue
+                    box1 = loc_candidate_list[ind1]
+                    for j, ind2 in enumerate(sorted_ind[i + 1:], i + 1):
+                        box2 = loc_candidate_list[ind2]
+                        if keep[ind2]:
+                            keep[ind2] = calc_iou_xywh(box1, box2) < nms_threshold
+                result += [{
+                    "box": loc_candidate_list[i].tolist(),
+                    "name": self.class_map[class_score_list[i][1] - 1].decode('utf-8'),
+                    "score": class_score_list[i][0],
+                    "class": class_score_list[i][1],
+                } for i, k in enumerate(keep) if k]
+            result_bbox.append(result)
+        print(result_bbox[-1])
         return result_bbox
-
 
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
@@ -556,7 +661,11 @@ class SSD(rm.Model):
             current_batch:
             total_epoch:
         """
-        if current_epoch == 60:
+        if current_epoch < 5:
+            self._opt._lr = 1e-4
+        elif current_epoch < 60:
+            self._opt._lr = 1e-3
+        elif current_epoch == 60:
             self._opt._lr = 1e-4
         elif current_epoch == 100:
             self._opt._lr = 1e-5
@@ -566,27 +675,35 @@ class SSD(rm.Model):
 
 if __name__ == "__main__":
     import os
+    import random
     from renom.cuda import set_cuda_active
-    from renom_img.api.utility.load import parse_xml_detection
+    from renom_img.api.utility.load import parse_xml_detection, load_img
     from renom_img.api.utility.misc.display import draw_box
+    from renom_img.api.utility.distributor.distributor import ImageDistributor
 
     set_cuda_active(True)
     img_path = "../../../example/VOCdevkit/VOC2007/JPEGImages/"
     label_path = "../../../example/VOCdevkit/VOC2007/Annotations/"
-    img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[:10]]
-    lbl_list = [os.path.join(label_path, p) for p in sorted(os.listdir(label_path))[:10]]
+    img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[:8*3]]
+    lbl_list = [os.path.join(label_path, p) for p in sorted(os.listdir(label_path))[:8*3]]
     annotation_list, class_map = parse_xml_detection(lbl_list)
 
-    ssd = SSD(class_map, load_pretrained_weight=True)
+    ssd = SSD(class_map, load_pretrained_weight=True, train_whole_network=True)
     builder = ssd.build_data()
-    img, lbl = builder(img_list, annotation_list)
+    dist = ImageDistributor(img_list, annotation_list, target_builder=ssd.build_data(), num_worker=2)
+
     for i in range(1000):
         ssd.set_models(inference=False)
-        with ssd.train():
-            loss = ssd.loss(ssd(img), lbl)
-        loss.grad().update(ssd.get_optimizer())
-        print(i, loss.as_ndarray())
-        if i < 990: continue
-        ssd.set_models(inference=True)
-        plt.imshow(draw_box(img_list[0], ssd.predict(img)[0]))
-        plt.show()
+        loss = 0
+        for j, (x, y) in enumerate(dist.batch(8)):
+            with ssd.train():
+                l = ssd.loss(ssd(x), y, img_list)
+                reg_loss = l# + ssd.regularize()
+            reg_loss.grad().update(ssd.get_optimizer(current_epoch=int(i//5)))
+            loss += l.as_ndarray()
+        print(i, loss/(j+1))
+        if i % 10 == 0 and i:
+            ssd.set_models(inference=True)
+            path = random.choice(img_list)
+            plt.imshow(draw_box(path, ssd.predict(path)))
+            plt.show()
