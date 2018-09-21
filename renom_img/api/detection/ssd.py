@@ -65,8 +65,6 @@ class PriorBox(object):
                     mean_boxes.append([cx, cy, s_k / np.sqrt(ar), s_k * np.sqrt(ar)])
                     count += 1
                     count += 1
-            print(count/f/f, f, f)
-
 
         output = np.array(mean_boxes)
         if self.clip:
@@ -177,8 +175,6 @@ class DetectorNetwork(rm.Model):
         conv4_norm_conf = self.conv4_3_mbox_conf(conv4_norm)
         conv4_norm_conf_flat = rm.flatten(conv4_norm_conf.transpose(0, 2, 3, 1))
 
-        # print("Norm4", conv4_norm_conf.shape, conv4_norm_loc.shape)
-
         t = self.pool4(t)
 
         # Vgg 5th Block
@@ -199,8 +195,6 @@ class DetectorNetwork(rm.Model):
         fc7_mbox_conf = self.fc7_mbox_conf(t)
         fc7_mbox_conf_flat = rm.flatten(fc7_mbox_conf.transpose(0, 2, 3, 1))
 
-        # print("FC7", fc7_mbox_conf.shape, fc7_mbox_loc.shape)
-
         t = rm.relu(self.conv8_1(t))
         t = rm.relu(self.conv8_2(t))
         # Normalize and compute location, confidence and priorbox aspect ratio
@@ -209,8 +203,6 @@ class DetectorNetwork(rm.Model):
 
         conv8_mbox_conf = self.conv8_2_mbox_conf(t)
         conv8_mbox_conf_flat = rm.flatten(conv8_mbox_conf.transpose(0, 2, 3, 1))
-
-        # print("Conv8", conv8_mbox_conf.shape, conv8_mbox_loc.shape)
 
         t = rm.relu(self.conv9_1(t))
         t = rm.relu(self.conv9_2(t))
@@ -221,8 +213,6 @@ class DetectorNetwork(rm.Model):
         conv9_mbox_conf = self.conv9_2_mbox_conf(t)
         conv9_mbox_conf_flat = rm.flatten(conv9_mbox_conf.transpose(0, 2, 3, 1))
 
-        # print("Conv9", conv9_mbox_conf.shape, conv9_mbox_loc.shape)
-
         t = rm.relu(self.conv10_1(t))
         t = rm.relu(self.conv10_2(t))
 
@@ -232,8 +222,6 @@ class DetectorNetwork(rm.Model):
         conv10_mbox_conf = self.conv10_2_mbox_conf(t)
         conv10_mbox_conf_flat = rm.flatten(conv10_mbox_conf.transpose(0, 2, 3, 1))
 
-        # print("Conv10", conv10_mbox_conf.shape, conv10_mbox_loc.shape)
-
         t = rm.relu(self.conv10_1(t))
         t = rm.relu(self.conv10_2(t))
 
@@ -242,8 +230,6 @@ class DetectorNetwork(rm.Model):
 
         conv11_mbox_conf = self.conv11_2_mbox_conf(t)
         conv11_mbox_conf_flat = rm.flatten(conv11_mbox_conf.transpose(0, 2, 3, 1))
-
-        # print("Conv11", conv11_mbox_conf.shape, conv11_mbox_loc.shape)
 
         mbox_loc = rm.concat([conv4_norm_loc_flat,
                               fc7_mbox_loc_flat,
@@ -262,7 +248,6 @@ class DetectorNetwork(rm.Model):
         mbox_loc = mbox_loc.reshape((n, -1, 4))
         mbox_conf = mbox_conf.reshape((n, -1, self.num_class))
 
-        # print(mbox_conf.shape, mbox_loc.shape)
         predictions = rm.concat([
             mbox_loc, mbox_conf
         ], axis=2)
