@@ -1,11 +1,13 @@
 import time
-from PIL import Image, ImageDraw
-import matplotlib.pyplot as plt
-
 from itertools import product as product
-import numpy as np
-import renom as rm
 
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw
+
+import renom as rm
+from renom_img.api import Base, adddoc
+from renom_img.api.detection import Detection
 from renom_img.api.classification.vgg import VGG16
 from renom_img.api.utility.load import prepare_detection_data
 from renom_img.api.utility.box import transform2xy12, calc_iou_xywh
@@ -13,6 +15,9 @@ from renom_img.api.utility.load import parse_xml_detection, load_img
 
 
 def calc_iou(prior, box):
+    """
+    Ensure both arguments are point formed boxes.
+    """
     upleft = np.maximum(prior[:, :2], box[:2])
     bottom_right = np.minimum(prior[:, 2:4], box[2:])
     wh = bottom_right - upleft
@@ -92,6 +97,7 @@ class PriorBox(object):
 
 
 class DetectorNetwork(rm.Model):
+
 
     def __init__(self, num_class, vgg):
         self.num_class = num_class
@@ -280,7 +286,7 @@ class DetectorNetwork(rm.Model):
         return predictions
 
 
-class SSD(rm.Model):
+class SSD(Detection):
 
     def __init__(self, class_map=[], imsize=(300, 300),
                  overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
@@ -326,7 +332,7 @@ class SSD(rm.Model):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.00004 * reg / 2
+        return (0.00004/2.) * reg
 
 
     def preprocess(self, x):
@@ -385,7 +391,7 @@ class SSD(rm.Model):
     def assign_boxes(self, boxes):
         # background is already included in self.num_class.
         assignment = np.zeros((self.num_prior, 5 + self.num_class))
-        assignment[:, 4] = 1.0  # background(This means id=0 is background)
+        # assignment[:, 4] = 1.0  # background(This means id=0 is background)
         if len(boxes) == 0:
             return assignment
         encoded_boxes = np.apply_along_axis(self.encode_box, 1, boxes[:, :4])
@@ -481,7 +487,7 @@ class SSD(rm.Model):
         return self._network(self._freezed_network(x))
 
 
-    def loss(self, x, y, img_path, neg_pos_ratio=3.0):
+    def loss(self, x, y, img_path=None, neg_pos_ratio=3.0):
         pos_samples = (y[:, :, 5] == 0)[..., None]
         N = np.sum(pos_samples)
         pos_Ns = np.sum(pos_samples, axis=1)
@@ -493,7 +499,7 @@ class SSD(rm.Model):
         # this is for hard negative mining.
         np_x = x[..., 4:].as_ndarray()
         max_np_x = np.max(np_x)
-        loss_c = np.log(np.sum(np.exp(np_x.reshape(-1, self.num_class) - max_np_x), axis=1, keepdims=True)) + max_np_x
+        loss_c = np.log(np.sum(np.exp(np_x.reshape(-1, self.num_class) - max_np_x), axis=1, keepdims=True) + 1e-8) + max_np_x
         loss_c -= np_x[..., 0].reshape(-1, 1)
         loss_c = loss_c.reshape(len(x), -1)
         loss_c[pos_samples.astype(np.bool)[..., 0]] = 0
@@ -507,9 +513,11 @@ class SSD(rm.Model):
 
         ### DEBUG
         if False:
-            print(neg_samples.shape, pos_samples.shape)
-            print(np.sum(y[neg_samples, 5:] > 0, axis=0), np.sum(y[neg_samples, 5:] > 0))
-            print(np.sum(y[pos_samples[..., 0] > 0, 5:], axis=0), np.sum(y[pos_samples[..., 0] > 0, 5:]))
+            # print(neg_samples.shape, pos_samples.shape)
+            # print(np.sum(y[neg_samples, 5:] > 0, axis=0), np.sum(y[neg_samples, 5:] > 0))
+            # print(np.sum(y[pos_samples[..., 0] > 0, 5:], axis=0), np.sum(y[pos_samples[..., 0] > 0, 5:]))
+
+            print(self.class_map)
             for k, (target, pt) in enumerate(zip(y, img_path)):
                 img = Image.open(pt).resize((300, 300))
                 draw = ImageDraw.Draw(img)
@@ -529,7 +537,7 @@ class SSD(rm.Model):
         return loss/(N/len(x))
 
 
-    def predict(self, img_list, score_threshold=0.3, nms_threshold=0.4):
+    def predict(self, img_list, score_threshold=0.6, nms_threshold=0.45):
         """
         This method accepts either ndarray and list of image path.
 
@@ -607,7 +615,7 @@ class SSD(rm.Model):
                              nms_threshold)
 
 
-    def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.4):
+    def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
         loc, conf = np.split(z, [4], axis=2)
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
         result_bbox = []
@@ -648,7 +656,6 @@ class SSD(rm.Model):
                     "class": class_score_list[i][1],
                 } for i, k in enumerate(keep) if k]
             result_bbox.append(result)
-        print(result_bbox[-1])
         return result_bbox
 
 
@@ -661,16 +668,15 @@ class SSD(rm.Model):
             current_batch:
             total_epoch:
         """
-        if current_epoch < 5:
-            self._opt._lr = 1e-4
+        if current_epoch < 1:
+            self._opt._lr = (1e-3 - 1e-5)/total_batch*current_batch + 1e-5
         elif current_epoch < 60:
             self._opt._lr = 1e-3
-        elif current_epoch == 60:
+        elif current_epoch < 100:
             self._opt._lr = 1e-4
-        elif current_epoch == 100:
+        else:
             self._opt._lr = 1e-5
         return self._opt
-
 
 
 if __name__ == "__main__":
@@ -684,13 +690,24 @@ if __name__ == "__main__":
     set_cuda_active(True)
     img_path = "../../../example/VOCdevkit/VOC2007/JPEGImages/"
     label_path = "../../../example/VOCdevkit/VOC2007/Annotations/"
-    img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[:8*3]]
-    lbl_list = [os.path.join(label_path, p) for p in sorted(os.listdir(label_path))[:8*3]]
-    annotation_list, class_map = parse_xml_detection(lbl_list)
 
-    ssd = SSD(class_map, load_pretrained_weight=True, train_whole_network=True)
+    img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[:8*300]]
+    lbl_list = [os.path.join(label_path, p) for p in sorted(os.listdir(label_path))[:8*300]]
+    valid_img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[8*300:10*300]]
+    valid_lbl_list = [os.path.join(label_path, p) for p in sorted(os.listdir(label_path))[8*300:10*300]]
+
+    annotation_list, class_map = parse_xml_detection(lbl_list)
+    valid_annotation_list, _ = parse_xml_detection(valid_lbl_list)
+
+    ssd = SSD(class_map, load_pretrained_weight=True, train_whole_network=False)
     builder = ssd.build_data()
-    dist = ImageDistributor(img_list, annotation_list, target_builder=ssd.build_data(), num_worker=2)
+    dist = ImageDistributor(img_list, annotation_list, target_builder=ssd.build_data(), num_worker=1)
+
+    # x, y = builder(img_list[:4], annotation_list[:4])
+    # ssd.loss(ssd(x), y, img_list[:4])
+
+    ssd.fit(img_list, annotation_list, valid_img_list, valid_annotation_list, batch_size=16)
+
 
     for i in range(1000):
         ssd.set_models(inference=False)
@@ -698,12 +715,16 @@ if __name__ == "__main__":
         for j, (x, y) in enumerate(dist.batch(8)):
             with ssd.train():
                 l = ssd.loss(ssd(x), y, img_list)
-                reg_loss = l# + ssd.regularize()
+                reg_loss = l + ssd.regularize()
             reg_loss.grad().update(ssd.get_optimizer(current_epoch=int(i//5)))
             loss += l.as_ndarray()
         print(i, loss/(j+1))
-        if i % 10 == 0 and i:
+        if i % 10 == 0 and i > 100:
             ssd.set_models(inference=True)
-            path = random.choice(img_list)
-            plt.imshow(draw_box(path, ssd.predict(path)))
+            path1 = random.choice(img_list)
+            path2 = random.choice(valid_img_list)
+            plt.subplot("211")
+            plt.imshow(draw_box(path1, ssd.predict(path1)))
+            plt.subplot("212")
+            plt.imshow(draw_box(path2, ssd.predict(path2)))
             plt.show()
