@@ -413,7 +413,7 @@ class SSD(Detection):
         encoded_box[:, :2][assign_mask] /= (assigned_priors_wh*self.prior.variance[0])
 
         # Encode wh
-        encoded_box[:, 2:4][assign_mask] = np.log(box_wh / assigned_priors_wh)/self.prior.variance[1]
+        encoded_box[:, 2:4][assign_mask] = np.log(box_wh / assigned_priors_wh + 1e-8)/self.prior.variance[1]
         return encoded_box.flatten()
 
 
@@ -597,9 +597,9 @@ class SSD(Detection):
         """
         if current_epoch < 1:
             self._opt._lr = (1e-3 - 1e-5)/total_batch*current_batch + 1e-5
-        elif current_epoch < 60:
+        elif current_epoch < 60/160. * total_epoch:
             self._opt._lr = 1e-3
-        elif current_epoch < 100:
+        elif current_epoch < 100/160. * total_epoch:
             self._opt._lr = 1e-4
         else:
             self._opt._lr = 1e-5
