@@ -99,7 +99,6 @@ class Detection(Base):
     def network(self):
         return self._network
 
-
     def loss(self, x, y):
         """
         Loss function of ${class} algorithm.

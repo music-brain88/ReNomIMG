@@ -79,7 +79,6 @@ class PriorBox(object):
 
 class DetectorNetwork(rm.Model):
 
-
     def __init__(self, num_class, vgg):
         self.num_class = num_class
         block3 = vgg._model.block3
@@ -102,7 +101,7 @@ class DetectorNetwork(rm.Model):
         self.conv5_3 = block5._layers[4]
         self.pool5 = rm.MaxPool2d(filter=3, stride=1, padding=1)
 
-        #=================================================
+        # =================================================
         # THOSE ARE USED AFTER OUTPUS ARE NORMALIZED
         self.fc6 = rm.Conv2d(channel=1024, filter=3, padding=6, dilation=6)  # relu
         self.fc7 = rm.Conv2d(channel=1024, filter=1, padding=0)
@@ -122,36 +121,35 @@ class DetectorNetwork(rm.Model):
         num_priors = 4
         self.conv4_3_mbox_loc = rm.Conv2d(num_priors * 4, padding=1, filter=3)
         self.conv4_3_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        #=================================================
+        # =================================================
 
-        #=================================================
+        # =================================================
         num_priors = 6
         self.fc7_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
         self.fc7_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        #=================================================
+        # =================================================
 
-        #=================================================
+        # =================================================
         self.conv8_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1, filter=3)
         self.conv8_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        #=================================================
+        # =================================================
 
-        #=================================================
+        # =================================================
         self.conv9_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
         self.conv9_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        #=================================================
+        # =================================================
 
-        #=================================================
+        # =================================================
         num_priors = 4
         self.conv10_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
         self.conv10_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        #=================================================
+        # =================================================
 
-        #=================================================
+        # =================================================
         num_priors = 4
         self.conv11_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
         self.conv11_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        #=================================================
-
+        # =================================================
 
     def forward(self, x):
         n = x.shape[0]
@@ -256,7 +254,6 @@ class DetectorNetwork(rm.Model):
 
 class SSD(Detection):
 
-
     def __init__(self, class_map=[], imsize=(300, 300),
                  overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
 
@@ -278,7 +275,6 @@ class SSD(Detection):
                                                vgg._model.block2])
         self._network = DetectorNetwork(self.num_class, vgg)
         self._opt = rm.Sgd(1e-3, 0.9)
-
 
     def regularize(self):
         """Regularize term. You can use this function to add regularize term to
@@ -302,7 +298,6 @@ class SSD(Detection):
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return (0.00004/2.) * reg
-
 
     def preprocess(self, x, reverse=False):
         """Image preprocess for SSD.
@@ -371,9 +366,9 @@ class SSD(Detection):
         encoded_boxes = np.apply_along_axis(self.encode_box, 1, boxes[:, :4])
 
         # (box_num, prior_num, (xmin ymin xmax ymax iou))
-        encoded_boxes = encoded_boxes.reshape(-1, self.num_prior, 5)  
+        encoded_boxes = encoded_boxes.reshape(-1, self.num_prior, 5)
 
-        best_iou = encoded_boxes[:, :, -1].max(axis=0) # get the best fit target for each prior.
+        best_iou = encoded_boxes[:, :, -1].max(axis=0)  # get the best fit target for each prior.
         best_iou_idx = encoded_boxes[:, :, -1].argmax(axis=0)
 
         # Cut background
@@ -385,7 +380,7 @@ class SSD(Detection):
         # Assign loc
         assignment[:, 1:5][best_iou_mask] = encoded_boxes[best_iou_idx, best_iou_mask, :4]
         # Assign class
-        assignment[:, 5][~best_iou_mask] = 1 # Background.
+        assignment[:, 5][~best_iou_mask] = 1  # Background.
         assignment[:, 6:][best_iou_mask] = boxes[best_iou_idx, 4:]
         return assignment
 
@@ -413,9 +408,9 @@ class SSD(Detection):
         encoded_box[:, :2][assign_mask] /= (assigned_priors_wh*self.prior.variance[0])
 
         # Encode wh
-        encoded_box[:, 2:4][assign_mask] = np.log(box_wh / assigned_priors_wh + 1e-8)/self.prior.variance[1]
+        encoded_box[:, 2:4][assign_mask] = np.log(
+            box_wh / assigned_priors_wh + 1e-8)/self.prior.variance[1]
         return encoded_box.flatten()
-
 
     def decode_box(self, loc):
         prior = self.prior_box
@@ -429,11 +424,9 @@ class SSD(Detection):
         boxes[:, 2:] += boxes[:, :2]
         return boxes
 
-
     def forward(self, x):
         self.freezed_network.set_auto_update(self._train_whole_network)
         return self.network(self.freezed_network(x))
-
 
     def loss(self, x, y, neg_pos_ratio=3.0):
         pos_samples = (y[:, :, 5] == 0)[..., None]
@@ -448,7 +441,7 @@ class SSD(Detection):
         np_x = x[..., 4:].as_ndarray()
         max_np_x = np.max(np_x)
         loss_c = np.log(np.sum(np.exp(np_x.reshape(-1, self.num_class) - max_np_x),
-             axis=1, keepdims=True) + 1e-8) + max_np_x
+                               axis=1, keepdims=True) + 1e-8) + max_np_x
         loss_c -= np_x[..., 0].reshape(-1, 1)
         loss_c = loss_c.reshape(len(x), -1)
         loss_c[pos_samples.astype(np.bool)[..., 0]] = 0
@@ -457,12 +450,11 @@ class SSD(Detection):
         index_rank = np.argsort(sorted_index, axis=1)
         neg_samples = index_rank < neg_Ns
         samples = (neg_samples[..., None] + pos_samples).astype(np.bool)
-        conf_loss = rm.sum(rm.softmax_cross_entropy(x[..., 4:].transpose(0, 2, 1), 
-            y[..., 5:].transpose(0, 2, 1), reduce_sum=False).transpose(0, 2, 1)*samples)
+        conf_loss = rm.sum(rm.softmax_cross_entropy(x[..., 4:].transpose(0, 2, 1),
+                                                    y[..., 5:].transpose(0, 2, 1), reduce_sum=False).transpose(0, 2, 1)*samples)
 
         loss = conf_loss + loc_loss
         return loss/(N/len(x))
-
 
     def predict(self, img_list, score_threshold=0.6, nms_threshold=0.45):
         """
@@ -541,7 +533,6 @@ class SSD(Detection):
                              score_threshold,
                              nms_threshold)
 
-
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
         loc, conf = np.split(z, [4], axis=2)
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
@@ -550,7 +541,8 @@ class SSD(Detection):
             result = []
             decoded = self.decode_box(l)
             for cls in range(self.num_class):
-                if cls == 0: continue
+                if cls == 0:
+                    continue
                 srt_ind = np.argsort([cl for cl in c[:, cls]])[::-1][:200]
                 class_score_list = c[srt_ind, cls]
                 loc_candidate_list = decoded[srt_ind]
@@ -565,7 +557,7 @@ class SSD(Detection):
                 loc_candidate_list[:, :2] += loc_candidate_list[:, 2:]/2.
                 class_score_list = [(cl, cls) for cl in class_score_list]
 
-                # NMS 
+                # NMS
                 sorted_ind = np.argsort([s[0] for s in class_score_list])[::-1]
                 keep = np.ones((len(class_score_list),), dtype=np.bool)
                 for i, ind1 in enumerate(sorted_ind):
@@ -584,7 +576,6 @@ class SSD(Detection):
                 } for i, k in enumerate(keep) if k]
             result_bbox.append(result)
         return result_bbox
-
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimiser for training SSD algorithm.
@@ -621,7 +612,8 @@ if __name__ == "__main__":
     img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[:8*100]]
     lbl_list = [os.path.join(label_path, p) for p in sorted(os.listdir(label_path))[:8*100]]
     valid_img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[8*300:10*300]]
-    valid_lbl_list = [os.path.join(label_path, p) for p in sorted(os.listdir(label_path))[8*300:10*300]]
+    valid_lbl_list = [os.path.join(label_path, p)
+                      for p in sorted(os.listdir(label_path))[8*300:10*300]]
 
     annotation_list, class_map = parse_xml_detection(lbl_list)
     valid_annotation_list, _ = parse_xml_detection(valid_lbl_list)
@@ -631,9 +623,8 @@ if __name__ == "__main__":
         path = random.choice(valid_img_list)
         plt.imshow(draw_box(path, model.predict(path)))
         plt.tight_layout()
-        plt.savefig("img%04d.png"%(epoch))
+        plt.savefig("img%04d.png" % (epoch))
 
     ssd = SSD(class_map, load_pretrained_weight=True, train_whole_network=False)
-    ssd.fit(img_list, annotation_list, valid_img_list, valid_annotation_list, 
-        batch_size=16, callback_end_epoch=callback)
-
+    ssd.fit(img_list, annotation_list, valid_img_list, valid_annotation_list,
+            batch_size=16, callback_end_epoch=callback)
