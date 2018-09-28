@@ -260,6 +260,9 @@ class SSD(Detection):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
+        assert imsize == (300, 300), \
+        "SSD of ReNomIMG v1.1 only accepts image size of (300, 300)."
+
         self.num_class = len(class_map) + 1
         self.class_map = [c.encode("ascii", "ignore") for c in class_map]
 
