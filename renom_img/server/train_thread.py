@@ -9,6 +9,8 @@ from renom.cuda import set_cuda_active, release_mem_pool, use_device
 
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
+from renom_img.api.detection.ssd import SSD
+from renom_img.api.classification.vgg import VGG16
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise, ContrastNorm
@@ -16,7 +18,7 @@ from renom_img.api.utility.augmentation import Augmentation
 
 from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
 
-from renom_img.server import ALG_YOLOV1, ALG_YOLOV2
+from renom_img.server import ALG_YOLOV1, ALG_YOLOV2, ALG_SSD
 from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 from renom_img.server import DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT
 from renom_img.server import DATASRC_IMG, DATASRC_LABEL
@@ -138,6 +140,11 @@ class TrainThread(object):
                                     imsize=self.imsize, load_pretrained_weight=path, train_whole_network=self.train_whole_network)
                 train_target_builder = self.model.build_data(
                     imsize_list=[(i * 32, i * 32) for i in range(9, 20)])
+                valid_target_builder = self.model.build_data()
+            elif self.algorithm == ALG_SSD:
+                path = self.download_weight(VGG16.WEIGHT_URL, VGG16.__name__ + '.h5')
+                self.model = SSD(self.class_map, imsize=self.imsize, load_pretrained_weight=path, train_whole_network=self.train_whole_network)
+                train_target_builder = self.model.build_data()
                 valid_target_builder = self.model.build_data()
             else:
                 self.error_msg = "{} is not supported algorithm id.".format(self.algorithm)
