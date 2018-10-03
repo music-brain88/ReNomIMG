@@ -71,8 +71,8 @@ class PriorBox(object):
             output = np.clip(output, 0, 1)
 
         # Change output to enter offset format.
-        min_xy = output[:, :2] - output[:, 2:]/2.
-        max_xy = output[:, :2] + output[:, 2:]/2.
+        min_xy = output[:, :2] - output[:, 2:] / 2.
+        max_xy = output[:, :2] + output[:, 2:] / 2.
         output = np.concatenate([min_xy, max_xy], axis=1)
         return output
 
@@ -261,7 +261,7 @@ class SSD(Detection):
             imsize = (imsize, imsize)
 
         assert imsize == (300, 300), \
-        "SSD of ReNomIMG v1.1 only accepts image size of (300, 300)."
+            "SSD of ReNomIMG v1.1 only accepts image size of (300, 300)."
 
         self.num_class = len(class_map) + 1
         self.class_map = [c.encode("ascii", "ignore") for c in class_map]
@@ -300,7 +300,7 @@ class SSD(Detection):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.00004/2.) * reg
+        return (0.00004 / 2.) * reg
 
     def preprocess(self, x, reverse=False):
         """Image preprocess for SSD.
@@ -408,20 +408,20 @@ class SSD(Detection):
 
         # Encode xy
         encoded_box[:, :2][assign_mask] = box_center - assigned_priors_center
-        encoded_box[:, :2][assign_mask] /= (assigned_priors_wh*self.prior.variance[0])
+        encoded_box[:, :2][assign_mask] /= (assigned_priors_wh * self.prior.variance[0])
 
         # Encode wh
         encoded_box[:, 2:4][assign_mask] = np.log(
-            box_wh / assigned_priors_wh + 1e-8)/self.prior.variance[1]
+            box_wh / assigned_priors_wh + 1e-8) / self.prior.variance[1]
         return encoded_box.flatten()
 
     def decode_box(self, loc):
         prior = self.prior_box
         prior_wh = prior[:, 2:] - prior[:, :2]
-        prior_xy = prior[:, :2] + prior_wh/2.
+        prior_xy = prior[:, :2] + prior_wh / 2.
         boxes = np.concatenate([
-            prior_xy + loc[:, :2]*self.prior.variance[0] * prior_wh,
-            prior_wh * np.exp(loc[:, 2:]*self.prior.variance[1]),
+            prior_xy + loc[:, :2] * self.prior.variance[0] * prior_wh,
+            prior_wh * np.exp(loc[:, 2:] * self.prior.variance[1]),
         ], axis=1)
         boxes[:, :2] -= boxes[:, 2:] / 2.
         boxes[:, 2:] += boxes[:, :2]
@@ -435,10 +435,10 @@ class SSD(Detection):
         pos_samples = (y[:, :, 5] == 0)[..., None]
         N = np.sum(pos_samples)
         pos_Ns = np.sum(pos_samples, axis=1)
-        neg_Ns = np.clip(neg_pos_ratio*pos_Ns, 0, y.shape[1])
+        neg_Ns = np.clip(neg_pos_ratio * pos_Ns, 0, y.shape[1])
 
         # Loc loss
-        loc_loss = rm.sum(rm.smoothed_l1(x[..., :4], y[..., 1:5], reduce_sum=False)*pos_samples)
+        loc_loss = rm.sum(rm.smoothed_l1(x[..., :4], y[..., 1:5], reduce_sum=False) * pos_samples)
 
         # this is for hard negative mining.
         np_x = x[..., 4:].as_ndarray()
@@ -454,10 +454,10 @@ class SSD(Detection):
         neg_samples = index_rank < neg_Ns
         samples = (neg_samples[..., None] + pos_samples).astype(np.bool)
         conf_loss = rm.sum(rm.softmax_cross_entropy(x[..., 4:].transpose(0, 2, 1),
-                                                    y[..., 5:].transpose(0, 2, 1), reduce_sum=False).transpose(0, 2, 1)*samples)
+                                                    y[..., 5:].transpose(0, 2, 1), reduce_sum=False).transpose(0, 2, 1) * samples)
 
         loss = conf_loss + loc_loss
-        return loss/(N/len(x))
+        return loss / (N / len(x))
 
     def predict(self, img_list, score_threshold=0.6, nms_threshold=0.45):
         """
@@ -557,7 +557,7 @@ class SSD(Detection):
                 # To center form
                 loc_candidate_list = np.clip(loc_candidate_list, 0, 1)
                 loc_candidate_list[:, 2:] = loc_candidate_list[:, 2:] - loc_candidate_list[:, :2]
-                loc_candidate_list[:, :2] += loc_candidate_list[:, 2:]/2.
+                loc_candidate_list[:, :2] += loc_candidate_list[:, 2:] / 2.
                 class_score_list = [(cl, cls) for cl in class_score_list]
 
                 # NMS
@@ -590,10 +590,10 @@ class SSD(Detection):
             total_epoch:
         """
         if current_epoch < 1:
-            self._opt._lr = (1e-3 - 1e-5)/total_batch*current_batch + 1e-5
-        elif current_epoch < 60/160. * total_epoch:
+            self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
+        elif current_epoch < 60 / 160. * total_epoch:
             self._opt._lr = 1e-3
-        elif current_epoch < 100/160. * total_epoch:
+        elif current_epoch < 100 / 160. * total_epoch:
             self._opt._lr = 1e-4
         else:
             self._opt._lr = 1e-5
@@ -612,11 +612,12 @@ if __name__ == "__main__":
     img_path = "../../../example/VOCdevkit/VOC2007/JPEGImages/"
     label_path = "../../../example/VOCdevkit/VOC2007/Annotations/"
 
-    img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[:8*100]]
-    lbl_list = [os.path.join(label_path, p) for p in sorted(os.listdir(label_path))[:8*100]]
-    valid_img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[8*300:10*300]]
+    img_list = [os.path.join(img_path, p) for p in sorted(os.listdir(img_path))[:8 * 100]]
+    lbl_list = [os.path.join(label_path, p) for p in sorted(os.listdir(label_path))[:8 * 100]]
+    valid_img_list = [os.path.join(img_path, p)
+                      for p in sorted(os.listdir(img_path))[8 * 300:10 * 300]]
     valid_lbl_list = [os.path.join(label_path, p)
-                      for p in sorted(os.listdir(label_path))[8*300:10*300]]
+                      for p in sorted(os.listdir(label_path))[8 * 300:10 * 300]]
 
     annotation_list, class_map = parse_xml_detection(lbl_list)
     valid_annotation_list, _ = parse_xml_detection(valid_lbl_list)
