@@ -143,7 +143,8 @@ class TrainThread(object):
                 valid_target_builder = self.model.build_data()
             elif self.algorithm == ALG_SSD:
                 path = self.download_weight(VGG16.WEIGHT_URL, VGG16.__name__ + '.h5')
-                self.model = SSD(self.class_map, imsize=self.imsize, load_pretrained_weight=path, train_whole_network=self.train_whole_network)
+                self.model = SSD(self.class_map, imsize=self.imsize,
+                                 load_pretrained_weight=path, train_whole_network=self.train_whole_network)
                 train_target_builder = self.model.build_data()
                 valid_target_builder = self.model.build_data()
             else:
