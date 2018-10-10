@@ -267,8 +267,8 @@ def progress_model(project_id, model_id):
                 th = th[1]
                 # If thread status updated, return response.
                 if isinstance(th, TrainThread) and th.nth_epoch != req_last_epoch and th.valid_loss_list:
-                    best_epoch = int(np.argmin(th.valid_loss_list))
                     try:
+                        best_epoch = int(np.argmax(th.valid_map_list))
                         body = json.dumps({
                             "total_batch": th.total_batch,
                             "last_batch": th.nth_batch,
