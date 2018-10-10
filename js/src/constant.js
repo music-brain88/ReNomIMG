@@ -1,19 +1,24 @@
 export const ALGORITHM_ID = {
   'YOLO': 0,
-  'YOLO2': 1
+  'YOLO2': 1,
+  'SSD': 2
 }
 
 export const ALGORITHM_NAME = {
   0: 'YOLO',
-  1: 'YOLO2'
+  1: 'YOLO2',
+  2: 'SSD'
 }
 
 export const ALGORITHM_COLOR = {
-  0: '#000068', // YOLO
-  'YOLO': '#000068',
+  0: '#423885', // YOLO
+  'YOLO': '#423885',
 
-  1: '#3a8ca9', // YOLO2
-  'YOLO2': '#3a8ca9'
+  1: '#136eab', // YOLO2
+  'YOLO2': '#136eab',
+
+  2: '#009453', // SSD
+  'SSD': '#009453'
 }
 
 export const STATE_ID = {

@@ -13,53 +13,54 @@ from renom_img.api.utility.target import DataBuilderClassification
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
 
-def layer_block(channel, filter):
-    layers = []
-    if filter != (1, 1):
-        layers.append(rm.Conv2d(filter=filter, channel=channel, padding=1))
-    else:
-        layers.append(rm.Conv2d(filter=filter, channel=channel))
-    layers.append(rm.BatchNormalize(epsilon=0.001, mode='feature'))
-    layers.append(rm.Relu())
-    return layers
+class Basic(rm.Model):
+    expansion = 1
+    def __init__(self, in_planes, planes, stride=1):
+        super(Basic, self).__init__()
+        self.conv1 = rm.Conv2d(planes, filter=3,stride=stride,padding=1)
+        self.bn1 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.conv2 = rm.Conv2d(planes, filter=3, stride=1, padding=1)
+        self.bn2 = rm.BatchNormalize(epsilon=0.001, mode='feature')
 
+        self.shortcut = rm.Sequential([])
+        if stride != 1 or in_planes != self.expansion*planes:
+            self.shortcut = rm.Sequential([
+                rm.Conv2d(self.expansion*planes, filter=1, stride=stride),
+                rm.BatchNormalize(epsilon=0.001, mode='feature')
+            ])
 
-def downsample_block(channel, filter):
-    return [
-        rm.Conv2d(filter=filter, channel=channel, padding=1, stride=2),
-        rm.BatchNormalize(epsilon=0.001, mode='feature'),
-        rm.Relu(),
-    ]
+    def forward(self, x):
+        out = rm.relu(self.bn1(self.conv1(x)))
+        out = rm.relu(self.bn2(self.conv2(out)))
+        out += self.shortcut(x)
+        out = rm.relu(out)
+        return out
 
+class Bottleneck(rm.Model):
+    expansion = 4
+    def __init__(self, in_planes, planes, stride=1):
+        super(Bottleneck, self).__init__()
+        self.conv1 = rm.Conv2d(planes, filter=1)
+        self.bn1 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.conv2 = rm.Conv2d(planes, filter=3, stride=stride, padding=1)
+        self.bn2 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.conv3 = rm.Conv2d(self.expansion*planes, filter=1)
+        self.bn3 = rm.BatchNormalize(epsilon=0.001, mode='feature')
 
-def build_block(channels):
-    """
-    A block without down-sampling (stride == 1)
-    """
-    layers = []
-    if type(channels) == int:
-        layers.extend(layer_block(channels, (3, 3)))
-        layers.extend(layer_block(channels, (3, 3)))
-    else:
-        layers.extend(layer_block(channels[0], (1, 1)))
-        layers.extend(layer_block(channels[1], (3, 3)))
-        layers.extend(layer_block(channels[2], (1, 1)))
-    return rm.Sequential(layers)
+        self.shortcut = rm.Sequential([])
+        if stride != 1 or in_planes != self.expansion*planes:
+            self.shortcut = rm.Sequential([
+                rm.Conv2d(self.expansion*planes, filter=1, stride=stride),
+                rm.BatchNormalize(epsilon=0.001, mode='feature')
+            ])
 
-
-def build_downsample_block(channels):
-    """
-    A block including down-sample process
-    """
-    layers = []
-    if type(channels) == int:
-        layers.extend(downsample_block(channels, (3, 3)))
-        layers.extend(layer_block(channels, (3, 3)))
-    else:
-        layers.extend(downsample_block(channels[0], (1, 1)))
-        layers.extend(layer_block(channels[1], (3, 3)))
-        layers.extend(layer_block(channels[2], (1, 1)))
-    return rm.Sequential(layers)
+    def forward(self, x):
+        out = rm.relu(self.bn1(self.conv1(x)))
+        out = rm.relu(self.bn2(self.conv2(out)))
+        out = self.bn3(self.conv3(out))
+        out += self.shortcut(x)
+        out = rm.relu(out)
+        return out
 
 
 class ResNetBase(Classification):
@@ -75,75 +76,80 @@ class ResNetBase(Classification):
         """
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
-        else:
+        elif self.plateau:
             avg_valid_loss_list = kwargs['avg_valid_loss_list']
-            if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2]:
-                self._opt._lr /= 10.
+            if len(avg_valid_loss_list) >= 2 and current_batch==0:
+                if avg_valid_loss_list[-1] > min(avg_valid_loss_list):
+                    self._counter += 1
+                    new_lr = self._opt._lr * self._factor
+                    if self._counter > self._patience and new_lr > self._min_lr:
+                        self._opt._lr = new_lr
+                        self._counter = 0
+                else:
+                    self._counter = 0
+
+            return self._opt
+        else:
             return self._opt
 
+    def preprocess(self, x):
+        # normalization
+        x /= 255
+        # mean=0.4914, 0.4822, 0.4465 and std=0.2023, 0.1994, 0.2010
+        x[:, 0, :, :] -= 0.4914
+        x[:, 1, :, :] -= 0.4822
+        x[:, 2, :, :] -= 0.4465
+
+        x[:, 0, :, :] /= 0.2023
+        x[:, 1, :, :] /= 0.1994
+        x[:, 2, :, :] /= 0.2010
+
+        return x
+
+
     def _freeze(self):
-        self._model.base.set_auto_update(self._train_whole_network)
+        if not self._train_whole_network:
+            self._model.set_auto_update(self._train_whole_network)
+            self._model.dnse.set_auto_update(True)
+        else:
+            self._model.set_auto_update(self._train_whole_network)
 
 
-class CNN_ResNet(rm.Model):
-    def __init__(self, num_class, channels, num_layers):
-        if type(num_layers) == int:
-            num_layers = [num_layers] * len(channels)
+class ResNet(rm.Model):
+    def __init__(self, num_classes, block, num_blocks):
+        self.in_planes = 64
 
-        self.channels = channels
-        self.num_layers = num_layers
+        self.conv1 = rm.Conv2d(64, filter=3, stride=1, padding=1)
+        self.bn1 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
+        self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
+        self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
+        self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
+        self.flat = rm.Flatten()
+        self.dnse = rm.Dense(num_classes)
+
+    def _make_layer(self, block, planes, num_blocks, stride):
+        strides = [stride] + [1]*(num_blocks-1)
         layers = []
-        layers.append(rm.Conv2d(channel=16, padding=1))
-        layers.append(rm.BatchNormalize(epsilon=0.001, mode='feature'))
-
-        # First block which doesn't have down-sampling
-        for _ in range(num_layers[0]):
-            layers.append(build_block(channels[0]))
-
-        # The rest of blocks which has down-sampling layer
-        for i, num in enumerate(num_layers[1:]):
-            for j in range(num):
-                if j == 0:
-                    layers.append(build_downsample_block(channels[i + 1]))
-                else:
-                    layers.append(build_block(channels[i + 1]))
-
-        self.base = rm.Sequential(layers)
-        self.fc = rm.Dense(num_class)
+        for stride in strides:
+            layers.append(block(self.in_planes, planes, stride))
+            self.in_planes = planes * block.expansion
+        return rm.Sequential(layers)
 
     def forward(self, x):
-
-        index = 0
-        t = self.base[index](x)
-        index += 1
-        t = rm.relu(self.base[index](t))  # Batch normalization
-        index += 1
-
-        # First block
-        for _ in range(self.num_layers[0]):
-            tmp = t
-            t = self.base[index](t)
-            index += 1
-            t = rm.concat([t, tmp])
-
-        # the rest of block
-        for num in self.num_layers[1:]:
-            for i in range(num):
-                if i == 0:
-                    t = self.base[index](t)
-                    index += 1
-                else:
-                    tmp = t
-                    t = self.base[index](t)
-                    index += 1
-                    t = rm.concat([t, tmp])
-        t = rm.flatten(rm.average_pool2d(t))
-        t = self.fc(t)
-        return t
+        out = rm.relu(self.bn1(self.conv1(x)))
+        out = self.layer1(out)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+        out = rm.average_pool2d(out,filter=(out.shape[2],out.shape[3]))
+        out = self.flat(out)
+        out = self.dnse(out)
+        return out
 
 
-class ResNet32(ResNetBase):
-    """ResNet32 model.
+class ResNet18(ResNetBase):
+    """ResNet18 model.
 
     If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
@@ -152,60 +158,7 @@ class ResNet32(ResNetBase):
         load_pretrained_weight(bool):
         class_map: Array of class names
         imsize(int or tuple): Input image size.
-        train_whole_network(bool): True if the overal model is trained.
-
-    Note:
-        6n + 2(The first conv and the last dense) = 32
-        → n = 5
-        5 sets of a layer block in each block
-
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
-
-    References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Deep Residual Learning for Image Recognition
-        https://arxiv.org/abs/1512.03385
-    """
-
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
-
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        num_layers = 5
-        CHANNELS = [16, 32, 64]
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-
-        self._model = CNN_ResNet(self.num_class, CHANNELS, num_layers)
-        self._opt = rm.Sgd(0.1, 0.9)
-        self.decay_rate = 0.0001
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
-
-
-class ResNet44(ResNetBase):
-    """ResNet44 model.
-
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
-
-    Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
+        plateau: True if error plateau should be used
         train_whole_network(bool): True if the overal model is trained.
 
     Note:
@@ -219,21 +172,27 @@ class ResNet44(ResNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/ResNet18.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        num_layers = 7
-        CHANNELS = [16, 32, 64]
+    def __init__(self, class_map=[], imsize=(224, 224), plateau= False, load_pretrained_weight=False, train_whole_network=False):
+
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.num_class = len(class_map)
         self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
         self._train_whole_network = train_whole_network
-
-        self._model = CNN_ResNet(self.num_class, CHANNELS, num_layers)
-        self._opt = rm.Sgd(0.1, 0.9)
         self.decay_rate = 0.0001
+
+        self._model = ResNet(self.num_class, Basic, [2, 2, 2, 2])
+        self._opt = rm.Sgd(0.1, 0.9)
+
+        # for error plateau
+        self.plateau = plateau
+        self._patience = 15
+        self._counter = 0
+        self._min_lr = 1e-6
+        self._factor = np.sqrt(0.1)
 
         if load_pretrained_weight:
             if isinstance(load_pretrained_weight, bool):
@@ -245,155 +204,6 @@ class ResNet44(ResNetBase):
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
 
-
-class ResNet56(ResNetBase):
-    """ResNet56 model.
-
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
-
-    Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        train_whole_network(bool): True if the overal model is trained.
-
-    Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
-
-    References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Deep Residual Learning for Image Recognition
-        https://arxiv.org/abs/1512.03385
-    """
-
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
-
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        num_layers = 9
-        CHANNELS = [16, 32, 64]
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-
-        self._model = CNN_ResNet(self.num_class, CHANNELS, num_layers)
-        self._opt = rm.Sgd(0.1, 0.9)
-        self.decay_rate = 0.0001
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
-
-
-class ResNet110(ResNetBase):
-    """ResNet110 model.
-
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
-
-    Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        train_whole_network(bool): True if the overal model is trained.
-
-    Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
-
-    References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Deep Residual Learning for Image Recognition
-        https://arxiv.org/abs/1512.03385
-    """
-
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
-
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        num_layers = 18
-        CHANNELS = [16, 32, 64]
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-
-        self._model = CNN_ResNet(self.num_class, CHANNELS, num_layers)
-        self._opt = rm.Sgd(0.1, 0.9)
-        self.decay_rate = 0.0001
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
-
-
-class ResNet34(ResNetBase):
-    """ResNet34 model.
-
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
-
-    Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        train_whole_network(bool): True if the overal model is trained.
-
-    Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
-
-    References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Deep Residual Learning for Image Recognition
-        https://arxiv.org/abs/1512.03385
-    """
-
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
-
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        num_layers = [3, 4, 6, 3]
-        CHANNELS = [64, 128, 256, 512]
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
-
-        self._model = CNN_ResNet(self.num_class, CHANNELS, num_layers)
-        self._opt = rm.Sgd(0.1, 0.9)
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
 
 
 class ResNet50(ResNetBase):
@@ -406,6 +216,7 @@ class ResNet50(ResNetBase):
         load_pretrained_weight(bool):
         class_map: Array of class names
         imsize(int or tuple): Input image size.
+        plateau: True if error plateau should be used
         train_whole_network(bool): True if the overal model is trained.
 
     Note:
@@ -414,16 +225,14 @@ class ResNet50(ResNetBase):
 
     References:
         Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Deep Residual Learning for Image Recognition
-        https://arxiv.org/abs/1512.03385
+        Identity Mappings in Deep Residual Networks
+        https://arxiv.org/abs/1603.05027
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/ResNet50.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        num_layers = [3, 4, 6, 3]
-        CHANNELS = [64, 128, 256, 512]
+    def __init__(self, class_map=[], imsize=(224, 224), plateau= False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -433,58 +242,15 @@ class ResNet50(ResNetBase):
         self._train_whole_network = train_whole_network
         self.decay_rate = 0.0001
 
-        self._model = CNN_ResNet(self.num_class, CHANNELS, num_layers)
+        self._model = ResNet(self.num_class, Bottleneck, [3, 4, 6, 3])
         self._opt = rm.Sgd(0.1, 0.9)
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
-
-
-class ResNet101(ResNetBase):
-    """ResNet101 model.
-
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
-
-    Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        train_whole_network(bool): True if the overal model is trained.
-
-    Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
-
-    References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Deep Residual Learning for Image Recognition
-        https://arxiv.org/abs/1512.03385
-    """
-
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/o81vwdp4qsm88zt93jvpskqfzobhfx6s.h5"
-
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        num_layers = [3, 4, 23, 3]
-        CHANNELS = [[64, 64, 256], [128, 128, 512], [256, 256, 1024], [512, 512, 2048]]
-
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
-        self._model = CNN_ResNet(self.num_class, CHANNELS, num_layers)
-        self._opt = rm.Sgd(0.1, 0.9)
+        # for error plateau
+        self.plateau = plateau
+        self._patience = 15
+        self._counter = 0
+        self._min_lr = 1e-6
+        self._factor = np.sqrt(0.1)
 
         if load_pretrained_weight:
             if isinstance(load_pretrained_weight, bool):

@@ -254,6 +254,8 @@ class DetectorNetwork(rm.Model):
 
 class SSD(Detection):
 
+    SERIALIZED = ("imsize", "class_map", "num_class")
+
     def __init__(self, class_map=[], imsize=(300, 300),
                  overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
 

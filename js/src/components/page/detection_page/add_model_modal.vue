@@ -44,6 +44,7 @@
                 <select class="form-control sort-line" v-model="algorithm">
                   <option value="0">YOLOv1</option>
                   <option value="1">YOLOv2</option>
+                  <option value="2">SSD</option>
                 </select>
               </div>
             </div>
@@ -54,11 +55,7 @@
                 Train Whole Network
               </label>
               <div class="col-sm-6">
-                <select class="algorithm-select-box form-control sort-line" v-model="yolo1_train_whole_flag" v-if="algorithm == 0">
-                  <option value="0">False</option>
-                  <option value="1">True</option>
-                </select>
-                <select class="algorithm-select-box form-control sort-line" v-model="yolo2_train_whole_flag" v-if="algorithm == 1">
+                <select class="algorithm-select-box form-control sort-line" v-model="train_whole_flag">
                   <option value="0">False</option>
                   <option value="1">True</option>
                 </select>
@@ -66,7 +63,6 @@
             </div>
 
             <div v-if="algorithm == 0" class="form-row justify-content-center space-top">
-
               <label class="col-sm-6 label col-form-label">
                 Cells
               </label>
@@ -78,7 +74,6 @@
             </div>
 
             <div v-if="algorithm == 0" class="form-row justify-content-center space-top">
-
               <label class="col-sm-6 label col-form-label">
                 Bounding Box
               </label>
@@ -90,7 +85,6 @@
             </div>
 
             <div v-if="algorithm == 1" class="form-row justify-content-center space-top">
-
               <label class="col-sm-6 label col-form-label">
                 Anchors
               </label>
@@ -121,6 +115,9 @@
               <div v-if="algorithm == 1" class="col-sm-6">
                 <input type="text" class="form-control sort-line"  v-model="image_width" maxlength="4" readonly="readonly">
               </div>
+              <div v-if="algorithm == 2" class="col-sm-6">
+                <input type="text" class="form-control sort-line"  v-model="image_width" maxlength="4" readonly="readonly">
+              </div>
             </div>
           
 
@@ -134,6 +131,9 @@
                 <div class="input-alert" v-if="image_height > 1024">Image Height must lower than 1024</div>
               </div>
               <div v-if="algorithm == 1" class="col-sm-6">
+                <input type="text" class="form-control"  v-model="image_height" maxlength="4" readonly="readonly">
+              </div>
+              <div v-if="algorithm == 2" class="col-sm-6">
                 <input type="text" class="form-control"  v-model="image_height" maxlength="4" readonly="readonly">
               </div>
             </div>
@@ -155,6 +155,9 @@
               <div v-if="algorithm == 1" class="col-sm-6">
                 <input type="text" class="form-control sort-line"  v-model="total_epoch" maxlength="4">
               </div>
+              <div v-if="algorithm == 2" class="col-sm-6">
+                <input type="text" class="form-control sort-line"  v-model="total_epoch" maxlength="4">
+              </div>
             </div>
             
             <div class="row justify-content-center space-top">
@@ -162,10 +165,9 @@
                 Batch Size
               </label>
               <div class="col-sm-6">
-                <input type="text" class="form-control sort-line" v-bind:class="{'is-invalid': yolo1_batch_size < 1 || yolo1_batch_size > 512 }" v-model="yolo1_batch_size" maxlength="5" v-if="algorithm == 0">
-                <input type="text" class="form-control sort-line" v-model="yolo2_batch_size" maxlength="5" v-if="algorithm == 1" readonly="readonly">
-                <div class="input-alert text-danger" v-if="yolo1_batch_size < 1">Batch Size must greater than 1</div>
-                <div class="input-alert text-danger" v-if="yolo1_batch_size > 512">Batch Size must lower than 512</div>
+                <input type="text" class="form-control sort-line" v-bind:class="{'is-invalid': batch_size < 1 || batch_size > 512 }" v-model="batch_size" maxlength="5">
+                <div class="input-alert text-danger" v-if="batch_size < 1">Batch Size must greater than 1</div>
+                <div class="input-alert text-danger" v-if="batch_size > 512">Batch Size must lower than 512</div>
               </div>
             </div>
 
@@ -198,19 +200,13 @@ export default {
     return {
       dataset_def_id: 1,
       algorithm: 0,
-      yolo1_train_whole_flag: 0,
-      yolo2_train_whole_flag: 0,
       train_whole_flag: 0,
       total_epoch: 100,
       seed: 0,
 
       image_width: 448,
       image_height: 448,
-      previous_image_width: 448,
-      previous_image_height: 448,
-      yolo1_batch_size: 64,
-      yolo2_batch_size: 16,
-      batch_size: 64,
+      batch_size: 16,
 
       // YOLO params
       cells: 7,
@@ -245,13 +241,11 @@ export default {
   watch: {
     algorithm (value) {
       if (parseInt(value) === 1) {
-        this.previous_image_height = this.image_height
-        this.previous_image_width = this.image_width
         this.image_height = 320
         this.image_width = 320
-      } else {
-        this.image_height = this.previous_image_height
-        this.image_width = this.previous_image_width
+      } else if (parseInt(value) === 2) {
+        this.image_height = 300
+        this.image_width = 300
       }
     }
   },
@@ -260,14 +254,6 @@ export default {
       this.$store.commit('setAddModelModalShowFlag', {'add_model_modal_show_flag': false})
     },
     runModel: function () {
-      if (this.algorithm === 0) {
-        this.batch_size = this.yolo1_batch_size
-        this.train_whole_flag = this.yolo1_train_whole_flag
-      } else {
-        this.batch_size = this.yolo1_batch_size
-        this.train_whole_flag = this.yolo1_train_whole_flag
-      }
-
       const hyper_parameters = {
         'total_epoch': parseInt(this.total_epoch),
         'batch_size': parseInt(this.batch_size),

@@ -22,7 +22,7 @@
     </div>
     <div class="col-md-5">
 
-      <div class="additional_param">
+      <div class="additional_param" v-if="additional_param_components[model.algorithm]">
         <component :is="additional_param_components[model.algorithm]" :params="model.algorithm_params"></component>
       </div>
 
