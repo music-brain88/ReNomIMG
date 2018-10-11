@@ -269,7 +269,7 @@ def progress_model(project_id, model_id):
                 if isinstance(th, TrainThread) and th.nth_epoch != req_last_epoch and th.valid_loss_list:
                     try:
                         best_epoch = int(np.argmax(th.valid_map_list))
-                        body = json.dumps({
+                        body = {
                             "total_batch": th.total_batch,
                             "last_batch": th.nth_batch,
                             "last_epoch": th.nth_epoch,
@@ -282,7 +282,8 @@ def progress_model(project_id, model_id):
                             "best_epoch_iou": th.valid_iou_list[best_epoch],
                             "best_epoch_map": th.valid_map_list[best_epoch],
                             "best_epoch_validation_result": th.valid_predict_box[best_epoch]
-                        })
+                        }
+                        body = json.dumps(body)
                         ret = create_response(body)
                         return ret
                     except Exception as e:
@@ -293,7 +294,7 @@ def progress_model(project_id, model_id):
                 elif isinstance(th, TrainThread) and (th.nth_batch != req_last_batch or
                                                       th.running_state != req_running_state or
                                                       th.weight_existance == WEIGHT_DOWNLOADING):
-                    body = json.dumps({
+                    body = {
                         "total_batch": th.total_batch,
                         "last_batch": th.nth_batch,
                         "last_epoch": th.nth_epoch,
@@ -306,7 +307,15 @@ def progress_model(project_id, model_id):
                         "best_epoch_iou": 0,
                         "best_epoch_map": 0,
                         "best_epoch_validation_result": []
-                    })
+                    }
+                    for k, v in body.items():
+                        try:
+                            _ = iter(v)
+                            assert not any(np.isnan(v)), "Nan has occured."
+                        except TypeError as te:
+                            assert not np.isnan(v), "Nan has occured."
+
+                    body = json.dumps(body)
                     ret = create_response(body)
                     return ret
 

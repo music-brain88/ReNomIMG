@@ -46,32 +46,25 @@ def nms(preds, threshold=0.5):
         ]
 
     """
+    cdef int index;
+    cdef int last;
     cdef float iou;
     result = []
     for pred in preds:
-        boxes = [obj['box'] for obj in pred]
         scores = [obj['score'] for obj in pred]
-        class_id = [obj['class'] for obj in pred]
         index = np.argsort(scores).tolist()
         tmp = []
         while len(index) > 0:
-            last = len(index) - 1
-            i = index[last]
-            box1 = boxes[i]
-            score = scores[i]
-            class_id[i]
-
-            tmp.append({
-                    'box': box1,
-                    'score': score,
-                    'class': class_id
-                })
-            index.pop(last)
+            last = index.pop()
+            box1 = preds[last]
+            class_id1 = box1["class"]
+            tmp.append(box1)
 
             for j in index:
-                box2 = boxes[j]
-                iou = calc_iou_xyxy(box1, box2)
-                if iou > threshold:
+                box2 = preds[j]
+                class_id2 = box2["class"]
+                iou = calc_iou_xyxy(box1["box"], box2["box"])
+                if class_id1 == class_id2 and iou > threshold:
                     index.remove(j)
         result.append(tmp)
     return result
