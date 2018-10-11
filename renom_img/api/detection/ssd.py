@@ -12,6 +12,7 @@ from renom_img.api.classification.vgg import VGG16
 from renom_img.api.utility.load import prepare_detection_data
 from renom_img.api.utility.box import transform2xy12, calc_iou_xywh
 from renom_img.api.utility.load import parse_xml_detection, load_img
+from renom_img.api.utility.nms import nms
 
 
 def calc_iou(prior, box):
@@ -539,48 +540,30 @@ class SSD(Detection):
                              nms_threshold)
 
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
+        start_t = time.time()
         loc, conf = np.split(z, [4], axis=2)
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
         result_bbox = []
-        for n, (l, c) in enumerate(zip(loc, conf)):
-            result = []
-            decoded = self.decode_box(l)
-            for cls in range(self.num_class):
-                if cls == 0:
-                    continue
-                srt_ind = np.argsort([cl for cl in c[:, cls]])[::-1][:200]
-                class_score_list = c[srt_ind, cls]
-                loc_candidate_list = decoded[srt_ind]
-
-                keep_index = (class_score_list > score_threshold).flatten()
-                class_score_list = class_score_list[keep_index]
-                loc_candidate_list = loc_candidate_list[keep_index]
-
-                # To center form
-                loc_candidate_list = np.clip(loc_candidate_list, 0, 1)
-                loc_candidate_list[:, 2:] = loc_candidate_list[:, 2:] - loc_candidate_list[:, :2]
-                loc_candidate_list[:, :2] += loc_candidate_list[:, 2:] / 2.
-                class_score_list = [(cl, cls) for cl in class_score_list]
-
-                # NMS
-                sorted_ind = np.argsort([s[0] for s in class_score_list])[::-1]
-                keep = np.ones((len(class_score_list),), dtype=np.bool)
-                for i, ind1 in enumerate(sorted_ind):
-                    if not keep[ind1]:
-                        continue
-                    box1 = loc_candidate_list[ind1]
-                    for j, ind2 in enumerate(sorted_ind[i + 1:], i + 1):
-                        box2 = loc_candidate_list[ind2]
-                        if keep[ind2]:
-                            keep[ind2] = calc_iou_xywh(box1, box2) < nms_threshold
-                result += [{
-                    "box": loc_candidate_list[i].tolist(),
-                    "name": self.class_map[class_score_list[i][1] - 1].decode('utf-8'),
-                    "score": class_score_list[i][0],
-                    "class": class_score_list[i][1],
-                } for i, k in enumerate(keep) if k]
-            result_bbox.append(result)
-        return result_bbox
+        loc = np.clip(loc, 0, 1)
+        loc[:, :, 2:] = loc[:, :, 2:] - loc[:, :, :2]
+        loc[:, :, :2] += loc[:, :, 2:] / 2.
+        conf = conf[:, :, 1:] # Remove bkg class.
+        
+        for n, (nth_loc, nth_conf) in enumerate(zip(loc, conf)):
+            nth_result = []
+            for l, class_scores in zip(nth_loc, nth_conf):
+                nth_result.extend([
+                    {
+                      "box": l,
+                      "name": self.class_map[i],
+                      "class": i,
+                      "score": cs
+                 } for i, cs in enumerate(class_scores) if cs >= score_threshold])
+            result_bbox.append(nth_result)
+        ret = nms(result_bbox, nms_threshold)
+        print("time:{}".format(time.time() - start_t))
+        return ret
+        
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimiser for training SSD algorithm.

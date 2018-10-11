@@ -46,7 +46,6 @@ def nms(preds, threshold=0.5):
         ]
 
     """
-    cdef int index;
     cdef int last;
     cdef float iou;
     result = []
@@ -56,16 +55,16 @@ def nms(preds, threshold=0.5):
         tmp = []
         while len(index) > 0:
             last = index.pop()
-            box1 = preds[last]
+            box1 = pred[last]
             class_id1 = box1["class"]
             tmp.append(box1)
-
-            for j in index:
-                box2 = preds[j]
+            for j in index[:]:
+                box2 = pred[j]
                 class_id2 = box2["class"]
                 iou = calc_iou_xyxy(box1["box"], box2["box"])
                 if class_id1 == class_id2 and iou > threshold:
                     index.remove(j)
+
         result.append(tmp)
     return result
 
