@@ -283,6 +283,7 @@ class SSD(Detection):
                                                vgg._model.block2])
         self._network = DetectorNetwork(self.num_class, vgg)
         self._opt = rm.Sgd(1e-3, 0.9)
+        self._lr_list = []
 
     def regularize(self):
         """Regularize term. You can use this function to add regularize term to
@@ -454,7 +455,7 @@ class SSD(Detection):
         loss_c = loss_c.reshape(len(x), -1)
         loss_c[pos_samples.astype(np.bool)[..., 0]] = 0
 
-        sorted_index = np.argsort(loss_c, axis=1)[:, ::-1]
+        sorted_index = np.argsort(-1*loss_c, axis=1) # Arg sort by dicending order.
         index_rank = np.argsort(sorted_index, axis=1)
         neg_samples = index_rank < neg_Ns
         samples = (neg_samples[..., None] + pos_samples).astype(np.bool)
@@ -542,16 +543,22 @@ class SSD(Detection):
                              score_threshold,
                              nms_threshold)
 
+
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
+
         loc, conf = np.split(z, [4], axis=2)
         loc = np.concatenate([self.decode_box(loc[n])[None] for n in range(len(z))], axis=0)
+        loc = np.clip(loc, 0, 1)
+        loc[:, :, 2:] = loc[:, :, 2:] - loc[:, :, :2]
+        loc[:, :, :2] += loc[:, :, 2:] / 2.
+
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
         result_bbox = []
         conf = conf[:, :, 1:]
 
-        sorted_conf_index = np.argsort(conf, axis=1)[:, ::-1, :]
+        sorted_conf_index = np.argsort(-conf, axis=1) # Arg sort by dicending order.
         keep_index = np.argsort(sorted_conf_index, axis=1) < 100
         conf = conf[keep_index].reshape(len(z), -1, len(self.class_map))
         loc = np.concatenate([
@@ -576,7 +583,7 @@ class SSD(Detection):
         return nms(result_bbox, nms_threshold)
         
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, loss=None):
         """Returns an instance of Optimiser for training SSD algorithm.
 
         Args:
@@ -585,6 +592,7 @@ class SSD(Detection):
             current_batch:
             total_epoch:
         """
+
         if current_epoch < 1:
             self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
         elif current_epoch < 60 / 160. * total_epoch:
@@ -593,6 +601,11 @@ class SSD(Detection):
             self._opt._lr = 1e-4
         else:
             self._opt._lr = 1e-5
+
+        if loss is not None and loss > 50:
+            print(loss)
+            self._opt._lr *= 0.1
+
         return self._opt
 
 

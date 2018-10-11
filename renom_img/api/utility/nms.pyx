@@ -1,5 +1,5 @@
 import numpy as np
-from renom_img.api.utility.box import calc_iou_xyxy
+from renom_img.api.utility.box import calc_iou_xyxy, calc_iou_xywh
 
 def nms(preds, threshold=0.5):
     """ Non-Maximum Suppression
@@ -61,7 +61,7 @@ def nms(preds, threshold=0.5):
             for j in index[:]:
                 box2 = pred[j]
                 class_id2 = box2["class"]
-                iou = calc_iou_xyxy(box1["box"], box2["box"])
+                iou = calc_iou_xywh(box1["box"], box2["box"])
                 if class_id1 == class_id2 and iou > threshold:
                     index.remove(j)
 
