@@ -132,11 +132,7 @@ def soft_nms(preds, threshold=0.5):
             box1 = boxes[i]
             score = scores[i]
 
-            tmp.append({
-                    'box': box1,
-                    'score': score,
-                    'class': class_id
-                })
+            tmp.append(pred[i])
 
             index.pop(last)
             boxes.pop(i)

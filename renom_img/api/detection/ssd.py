@@ -1,6 +1,7 @@
 import time
 from itertools import product as product
 
+from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
@@ -13,6 +14,7 @@ from renom_img.api.utility.load import prepare_detection_data
 from renom_img.api.utility.box import transform2xy12, calc_iou_xywh
 from renom_img.api.utility.load import parse_xml_detection, load_img
 from renom_img.api.utility.nms import nms
+from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 
 def calc_iou(prior, box):
@@ -303,7 +305,7 @@ class SSD(Detection):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.00004 / 2.) * reg
+        return (0.00005 / 2.) * reg
 
     def preprocess(self, x, reverse=False):
         """Image preprocess for SSD.
@@ -503,7 +505,7 @@ class SSD(Detection):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
-        batch_size = 8
+        batch_size = 16
         self.set_models(inference=True)
         # If the argument is path or path list.
         if isinstance(img_list, (list, str)):
@@ -522,6 +524,7 @@ class SSD(Detection):
                                                      score_threshold,
                                                      nms_threshold))
                         bar.update(1)
+                    bar.close()
                     return results
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
                 img_array = self.preprocess(img_array)
@@ -540,29 +543,37 @@ class SSD(Detection):
                              nms_threshold)
 
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
-        start_t = time.time()
+        if hasattr(z, 'as_ndarray'):
+            z = z.as_ndarray()
         loc, conf = np.split(z, [4], axis=2)
+        loc = np.concatenate([self.decode_box(loc[n])[None] for n in range(len(z))], axis=0)
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
         result_bbox = []
-        loc = np.clip(loc, 0, 1)
-        loc[:, :, 2:] = loc[:, :, 2:] - loc[:, :, :2]
-        loc[:, :, :2] += loc[:, :, 2:] / 2.
-        conf = conf[:, :, 1:] # Remove bkg class.
-        
-        for n, (nth_loc, nth_conf) in enumerate(zip(loc, conf)):
+        conf = conf[:, :, 1:]
+
+        sorted_conf_index = np.argsort(conf, axis=1)[:, ::-1, :]
+        keep_index = np.argsort(sorted_conf_index, axis=1) < 100
+        conf = conf[keep_index].reshape(len(z), -1, len(self.class_map))
+        loc = np.concatenate([
+            loc[(keep_index[..., c][..., None]*np.ones_like(loc)).astype(np.bool)]\
+            .reshape(len(z), -1, 1, 4)
+                for c in range(len(self.class_map))], axis=2)
+
+        for n in range(len(z)):
             nth_result = []
-            for l, class_scores in zip(nth_loc, nth_conf):
-                nth_result.extend([
-                    {
-                      "box": l,
-                      "name": self.class_map[i],
-                      "class": i,
-                      "score": cs
-                 } for i, cs in enumerate(class_scores) if cs >= score_threshold])
+            nth_loc = loc[n]
+            for ndind in np.ndindex(*conf.shape[1:]):
+                if conf[n, ndind[0], ndind[1]] < score_threshold:
+                    continue
+                nth_result.append({
+                  "box": nth_loc[ndind[0], ndind[1]],
+                  "name": self.class_map[ndind[1]].decode('utf-8'),
+                  "class": ndind[1],
+                  "score": conf[n, ndind[0], ndind[1]]
+                }) 
             result_bbox.append(nth_result)
-        ret = nms(result_bbox, nms_threshold)
-        print("time:{}".format(time.time() - start_t))
-        return ret
+
+        return nms(result_bbox, nms_threshold)
         
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
