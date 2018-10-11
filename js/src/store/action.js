@@ -460,10 +460,8 @@ export default {
         context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
         context.commit('setLoadingflg', false)
       } else {
-        // let max_value = Math.max.apply(null, response.data.map(function (o) { return o.class_maps }))
         context.commit('setLoadingflg', false)
         context.commit('setDataSplitDetail', response.data)
-        // context.commit('setMaxDataDetailValue', max_value)
       }
     })
   },
