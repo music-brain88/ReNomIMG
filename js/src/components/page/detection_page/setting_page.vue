@@ -11,11 +11,11 @@
           </nav>
 
           <div class="tab-content" id="nav-tabContent">
-            <transition name="slide-fade">
-              <div v-if="tab_show_flag">
+            <transition name="slide-fade" mode="out-in">
+              <div key=1 v-if="tab_show_flag">
                 <add-model-modal></add-model-modal>
               </div>
-              <div v-else>
+              <div key=2 v-else>
                 <add-detasets></add-detasets>
               </div>
             </transition>
@@ -154,14 +154,12 @@ export default {
   }
 }
 .slide-fade-enter-active {
-  transition: all .3s ease;
+  transition: all .5s ease;
 }
 .slide-fade-leave-active {
-  transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  transition: all .5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
-.slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active below version 2.1.8 */ {
-  transform: translateX(10px);
+.slide-fade-enter, .slide-fade-leave-to {
   opacity: 0;
 }
 </style>
