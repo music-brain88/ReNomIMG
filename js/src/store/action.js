@@ -413,6 +413,7 @@ export default {
 
     await context.dispatch('loadDatasetDef').then(() => {
       context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
+      context.commit('setDataSplitDetail', [])
     })
   },
 

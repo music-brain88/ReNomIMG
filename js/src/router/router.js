@@ -5,7 +5,6 @@ import PredictionPage from '../components/page/prediction_page/page.vue'
 import DatasetsPage from '../components/page/datasets_page/page.vue'
 
 Vue.use(Router)
-
 const router = new Router({
   routes: [
     { path: '/', name: 'Training', component: DetectionPage },
