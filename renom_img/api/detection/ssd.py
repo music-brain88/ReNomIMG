@@ -610,7 +610,6 @@ class SSD(Detection):
             self._opt._lr = 1e-5
 
         if loss is not None and loss > 50:
-            print(loss)
             self._opt._lr *= 0.1
 
         return self._opt
