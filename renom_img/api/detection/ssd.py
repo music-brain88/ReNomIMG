@@ -580,10 +580,10 @@ class SSD(Detection):
                 if conf[n, ndind[0], ndind[1]] < score_threshold:
                     continue
                 nth_result.append({
-                    "box": nth_loc[ndind[0], ndind[1]],
+                    "box": nth_loc[ndind[0], ndind[1]].tolist(),
                     "name": self.class_map[ndind[0]].decode('utf-8'),
-                    "class": ndind[0],
-                    "score": conf[n, ndind[0], ndind[1]]
+                    "class": int(ndind[0]),
+                    "score": float(conf[n, ndind[0], ndind[1]])
                 })
             result_bbox.append(nth_result)
         return nms(result_bbox, nms_threshold)
