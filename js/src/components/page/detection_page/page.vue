@@ -11,13 +11,15 @@
         <model-list></model-list>	
       </div>
     </div>
-    <transition name="popup">
-      <image-modal v-if='show_modal_image_sample'/>
+    
+    <transition name="fade">
+      <image-modal v-if='show_modal_image_sample'></image-modal>
     </transition>
-    <!-- <add-model-modal v-if="$store.state.add_model_modal_show_flag"></add-model-modal> -->
-    <transition name="popup">
+    
+    <transition name="fade">
       <setting-page v-if="$store.state.add_model_modal_show_flag"></setting-page>
     </transition>
+    
     <weight-downloading-modal v-if="$store.state.weight_downloading_modal"></weight-downloading-modal>
   </div>
 </template>
@@ -69,22 +71,12 @@ export default {
 
  }
 
-.popup-enter-active {
-  animation: pop-up .5s;
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
 }
-.popup-leave-active {
-  animation: pop-up .5s reverse;
-}
-@keyframes pop-up {
-  0% {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 
 </style>

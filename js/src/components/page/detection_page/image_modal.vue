@@ -144,15 +144,6 @@ export default {
     #imagediv {
       position: fixed;
       border: solid $image-border-width $modal-content-bg-color;
-      -webkit-transform: translateY(-40%) translateX(-50%);
-      transform: translateY(-40%) translateX(-50%);
-      padding-left: $content-horizontal-padding;
-      padding-right: $content-horizontal-padding;
-      padding-top: $content-top-padding;
-      padding-bottom: $content-bottom-padding;
-      background-color: $content-bg-color;
-      opacity: 1;
-      border-radius: 0;
     }
 
     #image {
