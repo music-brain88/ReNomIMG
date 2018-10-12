@@ -368,7 +368,6 @@ export default {
             context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
             return
           }
-
           context.commit('setPredictInfo', {
             'predict_total_batch': response.data.predict_total_batch,
             'predict_last_batch': response.data.predict_last_batch
@@ -400,7 +399,6 @@ export default {
     fd.append('description', encodeURIComponent(payload.description))
     let url = '/api/renom_img/v1/dataset_defs/'
 
-    //context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
     context.commit('setDatasetSavingFlag', true)
 
     await axios.post(url, fd).then(function (response) {

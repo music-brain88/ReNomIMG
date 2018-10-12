@@ -11,10 +11,13 @@
         <model-list></model-list>	
       </div>
     </div>
-    <image-modal v-if='show_modal_image_sample'/>
-
-    <!-- <add-model-modal v-if="$store.state.add_model_modal_show_flag"></add-model-modal> --> 
-    <setting-page v-if="$store.state.add_model_modal_show_flag"></setting-page>
+    <transition name="popup">
+      <image-modal v-if='show_modal_image_sample'/>
+    </transition>
+    <!-- <add-model-modal v-if="$store.state.add_model_modal_show_flag"></add-model-modal> -->
+    <transition name="popup">
+      <setting-page v-if="$store.state.add_model_modal_show_flag"></setting-page>
+    </transition>
     <weight-downloading-modal v-if="$store.state.weight_downloading_modal"></weight-downloading-modal>
   </div>
 </template>
@@ -65,5 +68,23 @@ export default {
   width: 100%;
 
  }
+
+.popup-enter-active {
+  animation: pop-up .5s;
+}
+.popup-leave-active {
+  animation: pop-up .5s reverse;
+}
+@keyframes pop-up {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 
 </style>

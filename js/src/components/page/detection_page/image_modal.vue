@@ -134,7 +134,7 @@ export default {
   height: calc(100vh - #{$application-header-hight});
   top: $application-header-hight;
   left: 0;
-
+  z-index: 3;
   .modal-background {
     position: fixed;
     width: 100%;
@@ -144,10 +144,18 @@ export default {
     #imagediv {
       position: fixed;
       border: solid $image-border-width $modal-content-bg-color;
+      -webkit-transform: translateY(-40%) translateX(-50%);
+      transform: translateY(-40%) translateX(-50%);
+      padding-left: $content-horizontal-padding;
+      padding-right: $content-horizontal-padding;
+      padding-top: $content-top-padding;
+      padding-bottom: $content-bottom-padding;
+      background-color: $content-bg-color;
+      opacity: 1;
+      border-radius: 0;
     }
 
     #image {
-      left:0;
       width: 100%;
       height: 100%;
     }
@@ -163,7 +171,6 @@ export default {
         margin-left: -2px;
         padding-left: 4px;
         padding-right: 4px;
-
         font-size: 1.4rem;
       }
     }

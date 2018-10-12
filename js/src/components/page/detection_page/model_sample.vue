@@ -12,8 +12,8 @@
           </div>
         </div>
         <div class="content">
-          <sample-image
-            v-for="(item, index) in getValidationResult"
+           
+          <sample-image v-for="(item, index) in getValidationResult" 
             :key="item.path"
             :image_idx="index + topImageIndex"
             :image_path="item.path"
@@ -142,7 +142,6 @@ export default {
     margin-top: $content-top-margin;
     width: 100%;
     height:$content-prediction-height;
-    //min-height: calc(170px * 3);
     border: 1px solid $content-border-color;
     padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
 
