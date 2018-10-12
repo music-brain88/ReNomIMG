@@ -400,7 +400,8 @@ export default {
     fd.append('description', encodeURIComponent(payload.description))
     let url = '/api/renom_img/v1/dataset_defs/'
 
-    context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
+    //context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
+    context.commit('setDatasetSavingFlag', true)
 
     await axios.post(url, fd).then(function (response) {
       if (response.data.error_msg) {
@@ -429,6 +430,7 @@ export default {
         context.commit('setDatasetDefs', {
           'dataset_defs': response.data.dataset_defs
         })
+        context.commit('setDatasetSavingFlag', false)
       }
     })
   },

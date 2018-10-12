@@ -89,8 +89,11 @@ export default {
   // show dataset creating modal
   dataset_creating_modal: false,
 
-  // loading flag
+  // dataset splitting loading flag
   loading_flg: false,
+
+  // dataset saving flag
+  dataset_saving_flg: false,
 
   // dataset detail info
   dataset_detail: [],

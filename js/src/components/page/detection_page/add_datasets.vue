@@ -37,7 +37,7 @@
         </div>
         <div class="col-md-6 col-padding-clear">
           <form  v-on:submit.prevent="register">
-            <h5>Detail</h5>{{dataset_detail.length}}
+            <h5>Detail</h5>{{isSaving}}
             <div class="container">
               <div class="row space-top">
                 <div class="col-md-12">
@@ -157,9 +157,10 @@
     <div class="modal-button-area-confirm">
       <button @click="confirm" class="submit">Confirm</button>
     </div>
-    <div v-if='dataset_detail.length!==0' class="modal-button-area">
+    <div v-if='dataset_detail.length !== 0' class="modal-button-area">
       <button class="button" @click="hideAddModelModal">Cancel</button>
       <button class="submit"  @click="register">Save</button>
+      <div v-if='isSaving === false' class="spinner-donut primary"></div>
     </div>
   </div>
 </template>
@@ -188,6 +189,9 @@ export default {
     },
     isLoading () {
       return this.$store.state.loading_flg
+    },
+    isSaving () {
+      return this.$store.state.dataset_saving_flg
     }
   },
   methods: {
