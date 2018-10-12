@@ -545,11 +545,14 @@ class SSD(Detection):
 
 
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
+        N = len(z)
+        class_num = len(self.class_map)
+        top_k = 100
         if hasattr(z, 'as_ndarray'):
             z = z.as_ndarray()
 
         loc, conf = np.split(z, [4], axis=2)
-        loc = np.concatenate([self.decode_box(loc[n])[None] for n in range(len(z))], axis=0)
+        loc = np.concatenate([self.decode_box(loc[n])[None] for n in range(N)], axis=0)
         loc = np.clip(loc, 0, 1)
         loc[:, :, 2:] = loc[:, :, 2:] - loc[:, :, :2]
         loc[:, :, :2] += loc[:, :, 2:] / 2.
@@ -558,15 +561,20 @@ class SSD(Detection):
         result_bbox = []
         conf = conf[:, :, 1:]
 
+        # Transpose are required for manipulate tensors as `class major` order.
+        # (N, box, class) => (N, class, box)
         sorted_conf_index = np.argsort(-conf, axis=1) # Arg sort by dicending order.
-        keep_index = np.argsort(sorted_conf_index, axis=1) < 100
-        conf = conf[keep_index].reshape(len(z), -1, len(self.class_map))
-        loc = np.concatenate([
-            loc[(keep_index[..., c][..., None]*np.ones_like(loc)).astype(np.bool)]\
-            .reshape(len(z), -1, 1, 4)
-                for c in range(len(self.class_map))], axis=2)
+        keep_index = (np.argsort(sorted_conf_index, axis=1) < top_k).transpose(0, 2, 1)
+        
+        conf = conf.transpose(0, 2, 1)
+        conf = conf[keep_index].reshape(N, class_num, -1)
 
-        for n in range(len(z)):
+        loc = np.concatenate([
+            loc[(keep_index[:, c, :].reshape(N, -1, 1)*np.ones_like(loc)).astype(np.bool)]\
+            .reshape(N, 1, -1, 4)
+                for c in range(class_num)], axis=1)
+
+        for n in range(N):
             nth_result = []
             nth_loc = loc[n]
             for ndind in np.ndindex(*conf.shape[1:]):
@@ -574,12 +582,11 @@ class SSD(Detection):
                     continue
                 nth_result.append({
                   "box": nth_loc[ndind[0], ndind[1]],
-                  "name": self.class_map[ndind[1]].decode('utf-8'),
-                  "class": ndind[1],
+                  "name": self.class_map[ndind[0]].decode('utf-8'),
+                  "class": ndind[0],
                   "score": conf[n, ndind[0], ndind[1]]
                 }) 
             result_bbox.append(nth_result)
-
         return nms(result_bbox, nms_threshold)
         
 
