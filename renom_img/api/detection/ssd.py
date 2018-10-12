@@ -306,7 +306,7 @@ class SSD(Detection):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.00005 / 2.) * reg
+        return (0.00004 / 2.) * reg
 
     def preprocess(self, x, reverse=False):
         """Image preprocess for SSD.
@@ -455,7 +455,7 @@ class SSD(Detection):
         loss_c = loss_c.reshape(len(x), -1)
         loss_c[pos_samples.astype(np.bool)[..., 0]] = 0
 
-        sorted_index = np.argsort(-1*loss_c, axis=1) # Arg sort by dicending order.
+        sorted_index = np.argsort(-1*loss_c, axis=1)  # Arg sort by dicending order.
         index_rank = np.argsort(sorted_index, axis=1)
         neg_samples = index_rank < neg_Ns
         samples = (neg_samples[..., None] + pos_samples).astype(np.bool)
@@ -543,7 +543,6 @@ class SSD(Detection):
                              score_threshold,
                              nms_threshold)
 
-
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
         N = len(z)
         class_num = len(self.class_map)
@@ -563,16 +562,16 @@ class SSD(Detection):
 
         # Transpose are required for manipulate tensors as `class major` order.
         # (N, box, class) => (N, class, box)
-        sorted_conf_index = np.argsort(-conf, axis=1) # Arg sort by dicending order.
+        sorted_conf_index = np.argsort(-conf, axis=1)  # Arg sort by dicending order.
         keep_index = (np.argsort(sorted_conf_index, axis=1) < top_k).transpose(0, 2, 1)
-        
+
         conf = conf.transpose(0, 2, 1)
         conf = conf[keep_index].reshape(N, class_num, -1)
 
         loc = np.concatenate([
-            loc[(keep_index[:, c, :].reshape(N, -1, 1)*np.ones_like(loc)).astype(np.bool)]\
+            loc[(keep_index[:, c, :].reshape(N, -1, 1)*np.ones_like(loc)).astype(np.bool)]
             .reshape(N, 1, -1, 4)
-                for c in range(class_num)], axis=1)
+            for c in range(class_num)], axis=1)
 
         for n in range(N):
             nth_result = []
@@ -581,14 +580,13 @@ class SSD(Detection):
                 if conf[n, ndind[0], ndind[1]] < score_threshold:
                     continue
                 nth_result.append({
-                  "box": nth_loc[ndind[0], ndind[1]],
-                  "name": self.class_map[ndind[0]].decode('utf-8'),
-                  "class": ndind[0],
-                  "score": conf[n, ndind[0], ndind[1]]
-                }) 
+                    "box": nth_loc[ndind[0], ndind[1]],
+                    "name": self.class_map[ndind[0]].decode('utf-8'),
+                    "class": ndind[0],
+                    "score": conf[n, ndind[0], ndind[1]]
+                })
             result_bbox.append(nth_result)
         return nms(result_bbox, nms_threshold)
-        
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, loss=None):
         """Returns an instance of Optimiser for training SSD algorithm.
