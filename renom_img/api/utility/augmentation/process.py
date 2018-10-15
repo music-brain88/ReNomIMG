@@ -154,9 +154,10 @@ def flip(x, y=None, mode="classification"):
     """
     return Flip()(x, y, mode=mode)
 
+
 class RandomCrop(ProcessBase):
 
-    def __init__(self,size,padding=None):
+    def __init__(self, size, padding=None):
         super(RandomCrop, self).__init__()
         # check for tuple or integer
         if isinstance(size, numbers.Number):
@@ -170,17 +171,18 @@ class RandomCrop(ProcessBase):
         new_x = np.empty_like(x)
 
         if self.padding is not None:
-            p = int(self.padding/2) # pad length of each side
-            x = np.pad(x,pad_width=((0,0),(0,0),(p,p),(p,p)),mode='constant', constant_values=0)
+            p = int(self.padding/2)  # pad length of each side
+            x = np.pad(x, pad_width=((0, 0), (0, 0), (p, p), (p, p)),
+                       mode='constant', constant_values=0)
 
-        _h = x.shape[2] # changed height
-        _w = x.shape[3] # changed width
-        n = x.shape[0] # number of batch images
+        _h = x.shape[2]  # changed height
+        _w = x.shape[3]  # changed width
+        n = x.shape[0]  # number of batch images
 
-        rand_top = np.random.randint(0,_h - self.size[0],size=(n, ))
-        rand_left = np.random.randint(0,_w - self.size[1],size=(n, ))
+        rand_top = np.random.randint(0, _h - self.size[0], size=(n, ))
+        rand_left = np.random.randint(0, _w - self.size[1], size=(n, ))
 
-        for i,(top,left) in enumerate(zip(rand_top,rand_left)):
+        for i, (top, left) in enumerate(zip(rand_top, rand_left)):
             new_x[i, :, :, :] = x[i, :, top:top+self.size[0], left:left+self.size[1]]
 
         return new_x, y
@@ -193,7 +195,8 @@ class RandomCrop(ProcessBase):
         """Yet to be implemented"""
         raise NotImplemented
 
-def random_crop(x, size, padding=None, y=None,mode="classification"):
+
+def random_crop(x, size, padding=None, y=None, mode="classification"):
     """crop image randomly.
 
     Args:

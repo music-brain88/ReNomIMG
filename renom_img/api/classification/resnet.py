@@ -47,9 +47,9 @@ class BasicBlock(rm.Model):
 
         return out
 
+
 class Bottleneck(rm.Model):
     expansion = 4
-
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
         self.conv1 = rm.Conv2d(planes, filter=1,ignore_bias=True)
@@ -100,7 +100,7 @@ class ResNetBase(Classification):
             return self._opt
         elif self.plateau:
             avg_valid_loss_list = kwargs['avg_valid_loss_list']
-            if len(avg_valid_loss_list) >= 2 and current_batch==0:
+            if len(avg_valid_loss_list) >= 2 and current_batch == 0:
                 if avg_valid_loss_list[-1] > min(avg_valid_loss_list):
                     self._counter += 1
                     new_lr = self._opt._lr * self._factor
@@ -127,7 +127,6 @@ class ResNetBase(Classification):
         x[:, 2, :, :] /= 0.2010
 
         return x
-
 
     def _freeze(self):
         self._model.conv1.set_auto_update(self._train_whole_network)
@@ -214,7 +213,7 @@ class ResNet18(ResNetBase):
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet18.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau= False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -303,7 +302,6 @@ class ResNet34(ResNetBase):
             self._model.fc.params = {}
 
 
-
 class ResNet50(ResNetBase):
     """ResNet50 model.
 
@@ -330,7 +328,7 @@ class ResNet50(ResNetBase):
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet50.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau= False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
