@@ -453,7 +453,7 @@ class SSD(Detection):
                                axis=1, keepdims=True) + 1e-8) + max_np_x
         loss_c -= np_x[..., 0].reshape(-1, 1)
         loss_c = loss_c.reshape(len(x), -1)
-        loss_c[pos_samples.astype(np.bool)[..., 0]] = 0
+        loss_c[pos_samples.astype(np.bool)[..., 0]] = np.Inf # Cut positive samples.
 
         sorted_index = np.argsort(-1*loss_c, axis=1)  # Arg sort by dicending order.
         index_rank = np.argsort(sorted_index, axis=1)
@@ -506,7 +506,7 @@ class SSD(Detection):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
-        batch_size = 16
+        batch_size = 64
         self.set_models(inference=True)
         # If the argument is path or path list.
         if isinstance(img_list, (list, str)):
@@ -521,7 +521,8 @@ class SSD(Detection):
                         img_array = np.vstack([load_img(path, self.imsize)[None]
                                                for path in x_img_list])
                         img_array = self.preprocess(img_array)
-                        results.extend(self.get_bbox(self(img_array).as_ndarray(),
+                        z = self(img_array).as_ndarray()
+                        results.extend(self.get_bbox(z,
                                                      score_threshold,
                                                      nms_threshold))
                         bar.update(1)
@@ -559,6 +560,7 @@ class SSD(Detection):
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
         result_bbox = []
         conf = conf[:, :, 1:]
+        conf[conf < score_threshold] = 0
 
         # Transpose are required for manipulate tensors as `class major` order.
         # (N, box, class) => (N, class, box)
@@ -586,7 +588,8 @@ class SSD(Detection):
                     "score": float(conf[n, ndind[0], ndind[1]])
                 })
             result_bbox.append(nth_result)
-        return nms(result_bbox, nms_threshold)
+        ret = nms(result_bbox, nms_threshold)
+        return ret
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, loss=None):
         """Returns an instance of Optimiser for training SSD algorithm.
