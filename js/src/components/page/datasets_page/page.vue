@@ -167,8 +167,9 @@
     </div>
 
 
-    <!-- <dataset-creating-modal v-if="modal_show_flag"></dataset-creating-modal> -->
-    <add-datasets-modal v-if="$store.state.add_model_modal_show_flag"></add-datasets-modal>
+    <transition name="fade">
+      <add-datasets-modal v-if="$store.state.add_model_modal_show_flag"></add-datasets-modal>
+    </transition>
   </div>
 
 </template>
@@ -520,5 +521,13 @@ export default {
   }
 
   
+}
+
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .2s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 </style>
