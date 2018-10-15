@@ -11,12 +11,14 @@
           </nav>
 
           <div class="tab-content" id="nav-tabContent">
-            <div v-if="tab_show_flag">
-              <add-model-modal></add-model-modal>
-            </div>
-            <div v-else>
-              <add-detasets></add-detasets>
-            </div>
+            <transition name="slide-fade" mode="out-in">
+              <div key=1 v-if="tab_show_flag">
+                <add-model-modal></add-model-modal>
+              </div>
+              <div key=2 v-else>
+                <add-detasets></add-detasets>
+              </div>
+            </transition>
           </div>
         </div>
       </div>
@@ -150,5 +152,14 @@ export default {
     background-color:$content-bg-color;
     padding: 0;
   }
+}
+.slide-fade-enter-active {
+  transition: all .1s ease;
+}
+.slide-fade-leave-active {
+  transition: all .1s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter, .slide-fade-leave-to {
+  opacity: 0;
 }
 </style>

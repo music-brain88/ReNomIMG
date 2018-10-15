@@ -40,9 +40,45 @@
             <h5>Detail</h5>
             <div class="container">
               <div class="row space-top">
-                <div class="col-md-12"> 
+                <div class="col-md-12">
+
+                  <!-- detail is 0 -->
+                  <div v-if="isLoading">
+                    <div class="row">
+                      <div class="col-md-6">
+                        Number of Images
+                      </div>
+                      <div class="col-md-3 figure">
+                        Train
+                      </div>
+                      <div class="col-md-3 figure">
+                        Valid
+                      </div>
+                    </div>
+                    <div class="row space-top">
+                      <div class="col-md-6">
+                        All
+                      </div>
+                      <div class="col-md-6">
+                        <div class="progress figure total-progress">
+                          <div class="progress-bar" role="progressbar" style="width:0%;" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-2 offset-5">
+                        <div class="loading-space">
+                          <div v-if='loading_flg' class="spinner-donut primary"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                  <!-- detail is 0 -->
+
+
                   <!-- has  detail-->
-                  <div v-if="load_dataset_detail === 8">
+                  <div v-else-if="isLoading === false && dataset_detail.length !== 0">
                     <div class="row">
                       <div class="col-md-6 col-form-label">
                         Number of Images
@@ -109,39 +145,7 @@
                   </div>
                   <!-- has detail -->
                   
-                  <!-- detail is 0 -->
-                  <div v-else>
-                    <div class="row">
-                      <div class="col-md-6">
-                        Number of Images
-                      </div>
-                      <div class="col-md-3 figure">
-                        Train
-                      </div>
-                      <div class="col-md-3 figure">
-                        Valid
-                      </div>
-                    </div>
-                    <div class="row space-top">
-                      <div class="col-md-6">
-                        All
-                      </div>
-                      <div class="col-md-6">
-                        <div class="progress figure total-progress">
-                          <div class="progress-bar" role="progressbar" style="width:0%;" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-2 offset-5">
-                        <div class="loading-space">
-                          <div v-if='loading_flg' class="spinner-donut primary"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                  <!-- detail is 0 -->
+                  
 
                 </div>
               </div>
@@ -151,11 +155,18 @@
         </div>
       </div>
     <div class="modal-button-area-confirm">
-      <button @click="confirm" class="submit">Confirm</button>
+      <button  @click="confirm" class="submit">Confirm</button>
     </div>
-    <div v-if='dataset_detail.length!==0' class="modal-button-area">
+    <div v-if='dataset_detail.length !== 0 && isSaving ===false' class="modal-button-area">
       <button class="button" @click="hideAddModelModal">Cancel</button>
-      <button class="submit"  @click="register">Save</button>
+      <button class="submit"  @click="register">Save</button> 
+    </div>
+    <div v-if="isSaving" class="modal-button-area">
+      <div class="row">
+        <div class="progress save-progress">
+          <div class="progress-bar saving" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><span class="title">Saving</span></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -181,6 +192,12 @@ export default {
     },
     currentPage () {
       return this.$store.state.page_name
+    },
+    isLoading () {
+      return this.$store.state.loading_flg
+    },
+    isSaving () {
+      return this.$store.state.dataset_saving_flg
     }
   },
   methods: {
@@ -376,6 +393,12 @@ export default {
     height:6px;
   }
 
+  .save-progress {
+    height:$push-button-size;
+    width: 222px;
+    background-color: $table-hover-color; 
+  }
+
 
   .train-color{
     background-color: $train-color;
@@ -406,6 +429,17 @@ export default {
       border: 1px solid $push-cancel;
       line-height: calc(#{$push-button-size}*0.4);
       margin-left:11px;
+    }
+    .saving {
+      font-size: $push-button-font-size;
+      width: 80%;      
+      line-height: calc(#{$push-button-size});
+      background:$panel-bg-color;
+      animation: progress 1.5s ease-in-out infinite;
+      .title {
+        opacity: 0;
+        animation: show 1.5s ease-in-out infinite;
+      }
     }
   }
 
@@ -453,5 +487,21 @@ export default {
     height:calc(35px * 4);
   }
 
+@keyframes progress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+} 
+@keyframes show  {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 }
 </style>

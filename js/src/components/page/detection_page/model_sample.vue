@@ -7,13 +7,13 @@
             Prediction Sample
           </div>
           <div>
-            <span @click='prevPage' v-bind:class='{inactive: !hasPrevPage}'><img class="left_arrow" :src="left_arrow"></span>
-            <span @click='nextPage' v-bind:class='{inactive: !hasNextPage}'><img class="right_arrow" :src="right_arrow"></span>
+            <span v-if="hasPrevPage"  @click='prevPage' v-bind:class='{inactive: hasPrevPage}'><img class="left_arrow" :src="left_arrow"></span>
+            <span v-if="hasNextPage" @click='nextPage' v-bind:class='{inactive: hasNextPage}'><img class="right_arrow" :src="right_arrow"></span>
           </div>
         </div>
         <div class="content">
-          <sample-image
-            v-for="(item, index) in getValidationResult"
+           
+          <sample-image v-for="(item, index) in getValidationResult" 
             :key="item.path"
             :image_idx="index + topImageIndex"
             :image_path="item.path"
@@ -135,6 +135,7 @@ export default {
     }
     .inactive {
       color: #929293;
+      cursor: pointer;
     }
   }
 
@@ -142,7 +143,6 @@ export default {
     margin-top: $content-top-margin;
     width: 100%;
     height:$content-prediction-height;
-    //min-height: calc(170px * 3);
     border: 1px solid $content-border-color;
     padding: $content-top-padding $content-horizontal-padding $content-bottom-padding;
 

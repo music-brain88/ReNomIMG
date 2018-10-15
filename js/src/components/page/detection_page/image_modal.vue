@@ -134,7 +134,7 @@ export default {
   height: calc(100vh - #{$application-header-hight});
   top: $application-header-hight;
   left: 0;
-
+  z-index: 3;
   .modal-background {
     position: fixed;
     width: 100%;
@@ -147,7 +147,6 @@ export default {
     }
 
     #image {
-      left:0;
       width: 100%;
       height: 100%;
     }
@@ -163,7 +162,6 @@ export default {
         margin-left: -2px;
         padding-left: 4px;
         padding-right: 4px;
-
         font-size: 1.4rem;
       }
     }

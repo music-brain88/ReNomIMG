@@ -368,7 +368,6 @@ export default {
             context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
             return
           }
-
           context.commit('setPredictInfo', {
             'predict_total_batch': response.data.predict_total_batch,
             'predict_last_batch': response.data.predict_last_batch
@@ -400,7 +399,7 @@ export default {
     fd.append('description', encodeURIComponent(payload.description))
     let url = '/api/renom_img/v1/dataset_defs/'
 
-    context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
+    context.commit('setDatasetSavingFlag', true)
 
     await axios.post(url, fd).then(function (response) {
       if (response.data.error_msg) {
@@ -412,6 +411,7 @@ export default {
 
     await context.dispatch('loadDatasetDef').then(() => {
       context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
+      context.commit('setDataSplitDetail', [])
     })
   },
 
@@ -429,6 +429,7 @@ export default {
         context.commit('setDatasetDefs', {
           'dataset_defs': response.data.dataset_defs
         })
+        context.commit('setDatasetSavingFlag', false)
       }
     })
   },
@@ -460,10 +461,8 @@ export default {
         context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
         context.commit('setLoadingflg', false)
       } else {
-        // let max_value = Math.max.apply(null, response.data.map(function (o) { return o.class_maps }))
         context.commit('setLoadingflg', false)
         context.commit('setDataSplitDetail', response.data)
-        // context.commit('setMaxDataDetailValue', max_value)
       }
     })
   },

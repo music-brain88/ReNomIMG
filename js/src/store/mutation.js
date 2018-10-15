@@ -441,15 +441,6 @@ export default {
                            4
     )
 
-    // const IMG_ROW_WIDTH = (1280 - // width
-    //                        60 - // padding of container
-    //                        35 * 2 - // margin of detection-page
-    //                        216 - // width of tag-list
-    //                        24 - // margin of tag-list
-    //                        4 - // margin
-    //                        4 // image imargin
-    // )
-
     const IMG_MARGIN = 4
     for (const dataset of state.dataset_defs) {
       dataset.pages = []
@@ -491,7 +482,9 @@ export default {
   setLoadingflg (state, payload) {
     state.loading_flg = payload
   },
-
+  setDatasetSavingFlag (state, payload) {
+    state.dataset_saving_flg = payload
+  },
   setDataSplitDetail (state, payload) {
     state.dataset_detail = payload
   },
