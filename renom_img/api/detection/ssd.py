@@ -1,6 +1,7 @@
 import time
 from itertools import product as product
 
+from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
@@ -12,6 +13,8 @@ from renom_img.api.classification.vgg import VGG16
 from renom_img.api.utility.load import prepare_detection_data
 from renom_img.api.utility.box import transform2xy12, calc_iou_xywh
 from renom_img.api.utility.load import parse_xml_detection, load_img
+from renom_img.api.utility.nms import nms
+from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 
 def calc_iou(prior, box):
@@ -280,6 +283,7 @@ class SSD(Detection):
                                                vgg._model.block2])
         self._network = DetectorNetwork(self.num_class, vgg)
         self._opt = rm.Sgd(1e-3, 0.9)
+        self._lr_list = []
 
     def regularize(self):
         """Regularize term. You can use this function to add regularize term to
@@ -451,7 +455,7 @@ class SSD(Detection):
         loss_c = loss_c.reshape(len(x), -1)
         loss_c[pos_samples.astype(np.bool)[..., 0]] = 0
 
-        sorted_index = np.argsort(loss_c, axis=1)[:, ::-1]
+        sorted_index = np.argsort(-1*loss_c, axis=1)  # Arg sort by dicending order.
         index_rank = np.argsort(sorted_index, axis=1)
         neg_samples = index_rank < neg_Ns
         samples = (neg_samples[..., None] + pos_samples).astype(np.bool)
@@ -502,7 +506,7 @@ class SSD(Detection):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
-        batch_size = 8
+        batch_size = 16
         self.set_models(inference=True)
         # If the argument is path or path list.
         if isinstance(img_list, (list, str)):
@@ -521,6 +525,7 @@ class SSD(Detection):
                                                      score_threshold,
                                                      nms_threshold))
                         bar.update(1)
+                    bar.close()
                     return results
                 img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
                 img_array = self.preprocess(img_array)
@@ -539,50 +544,51 @@ class SSD(Detection):
                              nms_threshold)
 
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
+        N = len(z)
+        class_num = len(self.class_map)
+        top_k = 100
+        if hasattr(z, 'as_ndarray'):
+            z = z.as_ndarray()
+
         loc, conf = np.split(z, [4], axis=2)
+        loc = np.concatenate([self.decode_box(loc[n])[None] for n in range(N)], axis=0)
+        loc = np.clip(loc, 0, 1)
+        loc[:, :, 2:] = loc[:, :, 2:] - loc[:, :, :2]
+        loc[:, :, :2] += loc[:, :, 2:] / 2.
+
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
         result_bbox = []
-        for n, (l, c) in enumerate(zip(loc, conf)):
-            result = []
-            decoded = self.decode_box(l)
-            for cls in range(self.num_class):
-                if cls == 0:
+        conf = conf[:, :, 1:]
+
+        # Transpose are required for manipulate tensors as `class major` order.
+        # (N, box, class) => (N, class, box)
+        sorted_conf_index = np.argsort(-conf, axis=1)  # Arg sort by dicending order.
+        keep_index = (np.argsort(sorted_conf_index, axis=1) < top_k).transpose(0, 2, 1)
+
+        conf = conf.transpose(0, 2, 1)
+        conf = conf[keep_index].reshape(N, class_num, -1)
+
+        loc = np.concatenate([
+            loc[(keep_index[:, c, :].reshape(N, -1, 1)*np.ones_like(loc)).astype(np.bool)]
+            .reshape(N, 1, -1, 4)
+            for c in range(class_num)], axis=1)
+
+        for n in range(N):
+            nth_result = []
+            nth_loc = loc[n]
+            for ndind in np.ndindex(*conf.shape[1:]):
+                if conf[n, ndind[0], ndind[1]] < score_threshold:
                     continue
-                srt_ind = np.argsort([cl for cl in c[:, cls]])[::-1][:200]
-                class_score_list = c[srt_ind, cls]
-                loc_candidate_list = decoded[srt_ind]
+                nth_result.append({
+                    "box": nth_loc[ndind[0], ndind[1]].tolist(),
+                    "name": self.class_map[ndind[0]].decode('utf-8'),
+                    "class": int(ndind[0]),
+                    "score": float(conf[n, ndind[0], ndind[1]])
+                })
+            result_bbox.append(nth_result)
+        return nms(result_bbox, nms_threshold)
 
-                keep_index = (class_score_list > score_threshold).flatten()
-                class_score_list = class_score_list[keep_index]
-                loc_candidate_list = loc_candidate_list[keep_index]
-
-                # To center form
-                loc_candidate_list = np.clip(loc_candidate_list, 0, 1)
-                loc_candidate_list[:, 2:] = loc_candidate_list[:, 2:] - loc_candidate_list[:, :2]
-                loc_candidate_list[:, :2] += loc_candidate_list[:, 2:] / 2.
-                class_score_list = [(cl, cls) for cl in class_score_list]
-
-                # NMS
-                sorted_ind = np.argsort([s[0] for s in class_score_list])[::-1]
-                keep = np.ones((len(class_score_list),), dtype=np.bool)
-                for i, ind1 in enumerate(sorted_ind):
-                    if not keep[ind1]:
-                        continue
-                    box1 = loc_candidate_list[ind1]
-                    for j, ind2 in enumerate(sorted_ind[i + 1:], i + 1):
-                        box2 = loc_candidate_list[ind2]
-                        if keep[ind2]:
-                            keep[ind2] = calc_iou_xywh(box1, box2) < nms_threshold
-                result += [{
-                    "box": loc_candidate_list[i].tolist(),
-                    "name": self.class_map[class_score_list[i][1] - 1].decode('utf-8'),
-                    "score": class_score_list[i][0],
-                    "class": class_score_list[i][1],
-                } for i, k in enumerate(keep) if k]
-            result_bbox.append(result)
-        return result_bbox
-
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, loss=None):
         """Returns an instance of Optimiser for training SSD algorithm.
 
         Args:
@@ -591,6 +597,7 @@ class SSD(Detection):
             current_batch:
             total_epoch:
         """
+
         if current_epoch < 1:
             self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
         elif current_epoch < 60 / 160. * total_epoch:
@@ -599,6 +606,10 @@ class SSD(Detection):
             self._opt._lr = 1e-4
         else:
             self._opt._lr = 1e-5
+
+        if loss is not None and loss > 50:
+            self._opt._lr *= 0.1
+
         return self._opt
 
 
