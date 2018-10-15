@@ -455,7 +455,7 @@ class SSD(Detection):
         loss_c = loss_c.reshape(len(x), -1)
         loss_c[pos_samples.astype(np.bool)[..., 0]] = 0
 
-        sorted_index = np.argsort(-1*loss_c, axis=1)  # Arg sort by dicending order.
+        sorted_index = np.argsort(-1 * loss_c, axis=1)  # Arg sort by dicending order.
         index_rank = np.argsort(sorted_index, axis=1)
         neg_samples = index_rank < neg_Ns
         samples = (neg_samples[..., None] + pos_samples).astype(np.bool)
@@ -569,7 +569,7 @@ class SSD(Detection):
         conf = conf[keep_index].reshape(N, class_num, -1)
 
         loc = np.concatenate([
-            loc[(keep_index[:, c, :].reshape(N, -1, 1)*np.ones_like(loc)).astype(np.bool)]
+            loc[(keep_index[:, c, :].reshape(N, -1, 1) * np.ones_like(loc)).astype(np.bool)]
             .reshape(N, 1, -1, 4)
             for c in range(class_num)], axis=1)
 

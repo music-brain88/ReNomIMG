@@ -12,9 +12,11 @@ from renom_img.api.utility.target import DataBuilderClassification
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
+
 def conv3x3(out_planes, stride=1):
     """3x3 convolution with padding"""
-    return rm.Conv2d(out_planes, filter=3, stride=stride,padding=1,ignore_bias=True)
+    return rm.Conv2d(out_planes, filter=3, stride=stride, padding=1, ignore_bias=True)
+
 
 class BasicBlock(rm.Model):
     expansion = 1
@@ -50,13 +52,14 @@ class BasicBlock(rm.Model):
 
 class Bottleneck(rm.Model):
     expansion = 4
+
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
-        self.conv1 = rm.Conv2d(planes, filter=1,ignore_bias=True)
+        self.conv1 = rm.Conv2d(planes, filter=1, ignore_bias=True)
         self.bn1 = rm.BatchNormalize(epsilon=0.001, mode='feature')
-        self.conv2 = rm.Conv2d(planes, filter=3, stride=stride,padding=1,ignore_bias=True)
+        self.conv2 = rm.Conv2d(planes, filter=3, stride=stride, padding=1, ignore_bias=True)
         self.bn2 = rm.BatchNormalize(epsilon=0.001, mode='feature')
-        self.conv3 = rm.Conv2d(planes * self.expansion, filter=1,ignore_bias=True)
+        self.conv3 = rm.Conv2d(planes * self.expansion, filter=1, ignore_bias=True)
         self.bn3 = rm.BatchNormalize(epsilon=0.001, mode='feature')
         self.relu = rm.Relu()
         self.downsample = downsample
@@ -139,10 +142,10 @@ class ResNetBase(Classification):
 
 class ResNet(rm.Model):
 
-    def __init__(self,num_classes, block, layers):
+    def __init__(self, num_classes, block, layers):
         self.inplanes = 64
         super(ResNet, self).__init__()
-        self.conv1 = rm.Conv2d(64, filter=7, stride=2, padding=3,ignore_bias=True)
+        self.conv1 = rm.Conv2d(64, filter=7, stride=2, padding=3, ignore_bias=True)
         self.bn1 = rm.BatchNormalize(epsilon=0.001, mode='feature')
         self.relu = rm.Relu()
         self.maxpool = rm.MaxPool2d(filter=3, stride=2, padding=1)
@@ -157,7 +160,7 @@ class ResNet(rm.Model):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = rm.Sequential([
-                rm.Conv2d(planes * block.expansion, filter=1, stride=stride,ignore_bias=True),
+                rm.Conv2d(planes * block.expansion, filter=1, stride=stride, ignore_bias=True),
                 rm.BatchNormalize(epsilon=0.001, mode='feature')
             ])
 
@@ -180,7 +183,7 @@ class ResNet(rm.Model):
         x = self.layer3(x)
         x = self.layer4(x)
 
-        x = rm.average_pool2d(x,filter=(x.shape[2],x.shape[3]))
+        x = rm.average_pool2d(x, filter=(x.shape[2], x.shape[3]))
         x = self.flat(x)
         x = self.fc(x)
 
@@ -244,7 +247,6 @@ class ResNet18(ResNetBase):
             self._model.fc.params = {}
 
 
-
 class ResNet34(ResNetBase):
     """ResNet34 model.
 
@@ -271,7 +273,7 @@ class ResNet34(ResNetBase):
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet34.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau= False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -359,7 +361,6 @@ class ResNet50(ResNetBase):
             self._model.fc.params = {}
 
 
-
 class ResNet101(ResNetBase):
     """ResNet101 model.
 
@@ -386,7 +387,7 @@ class ResNet101(ResNetBase):
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet101.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau= False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -416,6 +417,7 @@ class ResNet101(ResNetBase):
             self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
 
+
 class ResNet152(ResNetBase):
     """ResNet152 model.
 
@@ -442,7 +444,7 @@ class ResNet152(ResNetBase):
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet152.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau= False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
