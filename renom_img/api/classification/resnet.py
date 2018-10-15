@@ -15,9 +15,10 @@ DIR = os.path.split(os.path.abspath(__file__))[0]
 
 class Basic(rm.Model):
     expansion = 1
+
     def __init__(self, in_planes, planes, stride=1):
         super(Basic, self).__init__()
-        self.conv1 = rm.Conv2d(planes, filter=3,stride=stride,padding=1)
+        self.conv1 = rm.Conv2d(planes, filter=3, stride=stride, padding=1)
         self.bn1 = rm.BatchNormalize(epsilon=0.001, mode='feature')
         self.conv2 = rm.Conv2d(planes, filter=3, stride=1, padding=1)
         self.bn2 = rm.BatchNormalize(epsilon=0.001, mode='feature')
@@ -36,8 +37,10 @@ class Basic(rm.Model):
         out = rm.relu(out)
         return out
 
+
 class Bottleneck(rm.Model):
     expansion = 4
+
     def __init__(self, in_planes, planes, stride=1):
         super(Bottleneck, self).__init__()
         self.conv1 = rm.Conv2d(planes, filter=1)
@@ -78,7 +81,7 @@ class ResNetBase(Classification):
             return self._opt
         elif self.plateau:
             avg_valid_loss_list = kwargs['avg_valid_loss_list']
-            if len(avg_valid_loss_list) >= 2 and current_batch==0:
+            if len(avg_valid_loss_list) >= 2 and current_batch == 0:
                 if avg_valid_loss_list[-1] > min(avg_valid_loss_list):
                     self._counter += 1
                     new_lr = self._opt._lr * self._factor
@@ -105,7 +108,6 @@ class ResNetBase(Classification):
         x[:, 2, :, :] /= 0.2010
 
         return x
-
 
     def _freeze(self):
         if not self._train_whole_network:
@@ -142,7 +144,7 @@ class ResNet(rm.Model):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
-        out = rm.average_pool2d(out,filter=(out.shape[2],out.shape[3]))
+        out = rm.average_pool2d(out, filter=(out.shape[2], out.shape[3]))
         out = self.flat(out)
         out = self.dnse(out)
         return out
@@ -174,7 +176,7 @@ class ResNet18(ResNetBase):
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/ResNet18.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau= False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
@@ -205,7 +207,6 @@ class ResNet18(ResNetBase):
             self._model.fc.params = {}
 
 
-
 class ResNet50(ResNetBase):
     """ResNet50 model.
 
@@ -232,7 +233,7 @@ class ResNet50(ResNetBase):
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/ResNet50.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau= False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
