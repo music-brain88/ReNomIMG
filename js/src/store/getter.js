@@ -94,7 +94,7 @@ export default {
     const result = model.best_epoch_validation_result
     const dataset_def_id = model.dataset_def_id
     let dataset = null
-
+    console.log('model best:', model.best_epoch_validation_result)
     for (let index in state.dataset_defs) {
       if (state.dataset_defs[index].id === dataset_def_id) {
         dataset = state.dataset_defs[index]
@@ -111,7 +111,8 @@ export default {
         for (let j = 0; j < label_list[i].length; j++) {
           const class_label = label_list[i][j].class
           const box = label_list[i][j].box
-          bboxes.push(getters.getBBoxCoordinate(class_label, box))
+          const score = label_list[i][j].score
+          bboxes.push(getters.getBBoxCoordinate(class_label, box, score))
         }
       }
       ret.push({

@@ -4,49 +4,60 @@
     <div v-if="bboxes.length !==0">
       <div id='box'
         v-for="(item, index) in bboxes" :key="index" :style="{top: item[2]+'%', left: item[1]+'%', width: item[3]+'%', height: item[4]+'%', border:'2px solid '+getColor(item[0])}">
-        <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
+        <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}:{{round(getMaxScore(item), 1000).toFixed(2)}}</div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import { mapMutations, mapGetters } from 'vuex'
+import * as utils from '@/utils'
+import { mapMutations, mapGetters } from 'vuex'
 
-  export default {
-    name: 'SampleImage',
+export default {
+  name: 'SampleImage',
 
-    props: {
-      image_path: undefined,
-      image_width: undefined,
-      image_height: undefined,
-      bboxes: undefined,
-      image_idx: undefined
+  props: {
+    image_path: undefined,
+    image_width: undefined,
+    image_height: undefined,
+    bboxes: undefined,
+    image_idx: undefined
+  },
+  computed: {
+    ...mapGetters([
+      'getTagName'
+    ]),
+    resized_height: function () {
+      return 160
     },
-    computed: {
-      ...mapGetters([
-        'getTagName'
-      ]),
-      resized_height: function () {
-        return 160
-      },
-      resized_width: function () {
-        return this.image_width * (this.resized_height / this.image_height)
-      }
+    resized_width: function () {
+      return this.image_width * (this.resized_height / this.image_height)
+    }
+  },
+  methods: {
+    ...mapMutations([
+      'setShowModalImageSample'
+    ]),
+    getColor: function (index) {
+      let color_list = ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
+      return color_list[index % 4]
     },
-    methods: {
-      ...mapMutations([
-        'setShowModalImageSample'
-      ]),
-      getColor: function (index) {
-        let color_list = ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
-        return color_list[index % 4]
-      },
-      onClick () {
-        this.setShowModalImageSample({modal: true, img_idx: this.image_idx})
+    onClick () {
+      this.setShowModalImageSample({modal: true, img_idx: this.image_idx})
+    },
+    getMaxScore: function (item) {
+      let max = 0
+      for (let i = 1; i < item.length; i++) {
+        max = max < item[i] ? item[i] : max
       }
+      return max
+    },
+    round: function (v, round_off) {
+      return utils.round(v, round_off)
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>
