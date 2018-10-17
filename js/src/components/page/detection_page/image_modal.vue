@@ -54,7 +54,18 @@ export default {
     },
 
     getColor: function (index) {
-      let color_list = ['#f19f36', '#53b05f', '#536cff', '#f86c8e']
+      let color_list = [
+        '#E7009A',
+        '#0A20C4',
+        '#3E9AAF',
+        '#FFCC33',
+        '#EF8200',
+        '#9F14C1',
+        '#582396',
+        '#8BAA1A',
+        '#13894B',
+        '#E94C33'
+      ]
       return color_list[index % 4]
     },
     hideModal: function () {
@@ -122,6 +133,7 @@ export default {
     getMaxScore: function (item) {
       let max = 0
       for (let i = 1; i < item.length; i++) {
+        console.log('log', item[i])
         max = max < item[i] ? item[i] : max
       }
       return max

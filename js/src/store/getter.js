@@ -94,7 +94,6 @@ export default {
     const result = model.best_epoch_validation_result
     const dataset_def_id = model.dataset_def_id
     let dataset = null
-    console.log('model best:', model.best_epoch_validation_result)
     for (let index in state.dataset_defs) {
       if (state.dataset_defs[index].id === dataset_def_id) {
         dataset = state.dataset_defs[index]

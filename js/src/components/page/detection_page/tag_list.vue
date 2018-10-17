@@ -37,14 +37,18 @@ export default {
   name: 'TagList',
   data: function () {
     return {
-      color_list: ['#E7009A', '#0A20C4', '#3E9AAF',
-        '#FFCC33', '#EF8200', '#9F14C1', '#582396',
-        '#8BAA1A', '#13894B', '#E94C33'
+      color_list: [
+        '#E7009A',
+        '#0A20C4',
+        '#3E9AAF',
+        '#FFCC33',
+        '#EF8200',
+        '#9F14C1',
+        '#582396',
+        '#8BAA1A',
+        '#13894B',
+        '#E94C33'
       ]
-      // color_list: ['#E94C33', '#E7009A', '#0A20C4', '#3E9AAF',
-      //   '#FFCC33', '#EF8200', '#9F14C1', '#582396',
-      //   '#8BAA1A', '#13894B'
-      // ]
     }
   },
   computed: {
