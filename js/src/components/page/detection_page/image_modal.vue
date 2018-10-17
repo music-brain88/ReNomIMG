@@ -5,7 +5,7 @@
         <img id='image' :src="getImage(idx_active_image_sample).path" ref="image" @load='onResize'/>
         <div class='bbox'
           v-for="(item, index) in getImage(idx_active_image_sample).predicted_bboxes" :key="index" ref='box' :style="{border:'5px solid '+getColor(item[0])}">
-          <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}</div>
+          <div id='tag-name' v-bind:style="{backgroundColor: getColor(item[0])}">{{ getTagName(item[0]) }}:{{round(getMaxScore(item), 1000).toFixed(2)}}</div>
         </div>
       </div>
     </div>
@@ -13,7 +13,7 @@
 </template>
 
 <script>
-
+import * as utils from '@/utils'
 import { mapState, mapMutations, mapGetters } from 'vuex'
 
 export default {
@@ -118,7 +118,18 @@ export default {
         div.style.width = bbox[3] + '%'
         div.style.height = bbox[4] + '%'
       }
+    },
+    getMaxScore: function (item) {
+      let max = 0
+      for (let i = 1; i < item.length; i++) {
+        max = max < item[i] ? item[i] : max
+      }
+      return max
+    },
+    round: function (v, round_off) {
+      return utils.round(v, round_off)
     }
+
   }
 }
 </script>
