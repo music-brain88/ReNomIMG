@@ -268,7 +268,9 @@ def progress_model(project_id, model_id):
                 # If thread status updated, return response.
                 if isinstance(th, TrainThread) and th.nth_epoch != req_last_epoch and th.valid_loss_list:
                     try:
-                        best_epoch = int(np.argmax(th.valid_map_list))
+                        map_list = np.array(th.valid_map_list)
+                        occurences = np.where(map_list == map_list.max())[0]
+                        best_epoch = int(occurences[-1])
                         body = {
                             "total_batch": th.total_batch,
                             "last_batch": th.nth_batch,
@@ -308,13 +310,6 @@ def progress_model(project_id, model_id):
                         "best_epoch_map": 0,
                         "best_epoch_validation_result": []
                     }
-                    for k, v in body.items():
-                        try:
-                            _ = iter(v)
-                            assert not any(np.isnan(v)), "Nan has occured."
-                        except TypeError as te:
-                            assert not np.isnan(v), "Nan has occured."
-
                     body = json.dumps(body)
                     ret = create_response(body)
                     return ret
