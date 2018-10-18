@@ -52,7 +52,7 @@ export default {
         '#13894B',
         '#E94C33'
       ]
-      return color_list[index % 4]
+      return color_list[index % 10]
     },
     onClick () {
       this.setShowModalImageSample({modal: true, img_idx: this.image_idx})

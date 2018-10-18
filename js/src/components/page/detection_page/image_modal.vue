@@ -66,7 +66,7 @@ export default {
         '#13894B',
         '#E94C33'
       ]
-      return color_list[index % 4]
+      return color_list[index % 10]
     },
     hideModal: function () {
       this.setShowModalImageSample({modal: false})
