@@ -211,7 +211,7 @@ class Yolov2(rm.Model):
             else:
                 lr = lr_list[current_epoch]
 
-            if loss > 50:
+            if loss is not None and loss > 50:
                 lr *= 0.1
 
             self._opt._lr = lr

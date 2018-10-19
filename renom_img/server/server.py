@@ -260,7 +260,7 @@ def progress_model(project_id, model_id):
             req_running_state = 0
 
         thread_id = "{}_{}".format(project_id, model_id)
-        for j in range(60):
+        for j in range(180):
             time.sleep(0.75)
             th = train_thread_pool.get(thread_id, None)
             model_state = storage.fetch_model(project_id, model_id, fields="state")["state"]
