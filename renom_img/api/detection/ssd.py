@@ -453,7 +453,7 @@ class SSD(Detection):
                                axis=1, keepdims=True) + 1e-8) + max_np_x
         loss_c -= np_x[..., 0].reshape(-1, 1)
         loss_c = loss_c.reshape(len(x), -1)
-        loss_c[pos_samples.astype(np.bool)[..., 0]] = np.Inf # Cut positive samples.
+        loss_c[pos_samples.astype(np.bool)[..., 0]] = np.Inf  # Cut positive samples.
 
         sorted_index = np.argsort(-1 * loss_c, axis=1)  # Arg sort by dicending order.
         index_rank = np.argsort(sorted_index, axis=1)

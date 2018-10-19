@@ -184,7 +184,7 @@ class TrainThread(object):
                         loss = self.model.loss(self.model(train_x), train_y)
                         reg_loss = loss + self.model.regularize()
                     reg_loss.grad().update(self.model.get_optimizer(e, epoch,
-                            i, self.total_batch, loss.as_ndarray()))
+                                                                    i, self.total_batch, loss.as_ndarray()))
                     try:
                         loss = loss.as_ndarray()[0]
                     except:

@@ -203,7 +203,7 @@ class Yolov2(rm.Model):
             ind1 = int(total_epoch * 5 / 16.)
             ind2 = int(total_epoch * 3 / 16.)
             ind3 = total_epoch - ind1 - ind2
-            lr_list = [0] + [0.01]*ind0 + [0.001] * ind1 + [0.0001] * ind2 + [0.00001] * ind3
+            lr_list = [0] + [0.01] * ind0 + [0.001] * ind1 + [0.0001] * ind2 + [0.00001] * ind3
 
             if current_epoch == 0:
                 lr = 0.0001 + (0.001 - 0.0001) / float(total_batch) * current_batch
@@ -265,7 +265,7 @@ class Yolov2(rm.Model):
         h, f = self.freezed_network(x)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,
-            rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
+                                  rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
         out = self._last(h)
 
         # Create yolo format.
@@ -631,7 +631,7 @@ class Yolov2(rm.Model):
                 if max_iou <= low_thresh:
                     # mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
                     mask[n, ind[0] * offset, ind[1], ind[2]] = nd_x[n,
-                                          ind[0] * offset, ind[1], ind[2]] * 1
+                                                                    ind[0] * offset, ind[1], ind[2]] * 1
 
             # Create target and mask for cell that contains obj.
             for h, w in zip(*gt_index):
