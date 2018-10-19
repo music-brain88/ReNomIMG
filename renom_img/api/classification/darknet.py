@@ -107,7 +107,7 @@ class DarknetConv2dBN(rm.Model):
             self._conv = rm.Conv2d(channel=channel, filter=filter, padding=pad)
             self._conv.params = {
                 "w": rm.Variable(self._conv._initializer((channel, prev_ch, filter, filter)), auto_update=True),
-                "b": rm.Variable(self._conv._initializer((1, channel, 1, 1)), auto_update=False),
+                "b": rm.Variable(np.zeros((1, channel, 1, 1), dtype=np.float32), auto_update=False),
             }
             self._bn = rm.BatchNormalize(mode='feature', momentum=0.01)
         else:

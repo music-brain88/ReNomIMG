@@ -199,14 +199,20 @@ class Yolov2(rm.Model):
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            ind1 = int(total_epoch * 6 / 16.)
+            ind0 = int(total_epoch * 1 / 16.)
+            ind1 = int(total_epoch * 5 / 16.)
             ind2 = int(total_epoch * 3 / 16.)
             ind3 = total_epoch - ind1 - ind2
-            lr_list = [0] + [0.001] * ind1 + [0.0001] * ind2 + [0.00001] * ind3
+            lr_list = [0] + [0.01] * ind0 + [0.001] * ind1 + [0.0001] * ind2 + [0.00001] * ind3
+
             if current_epoch == 0:
                 lr = 0.0001 + (0.001 - 0.0001) / float(total_batch) * current_batch
             else:
                 lr = lr_list[current_epoch]
+
+            if loss > 50:
+                lr *= 0.1
+
             self._opt._lr = lr
             return self._opt
 
@@ -264,6 +270,7 @@ class Yolov2(rm.Model):
 
         # Create yolo format.
         N, C, H, W = h.shape
+
         reshaped = out.reshape(N, self.num_anchor, -1, W * H)
         conf = rm.sigmoid(reshaped[:, :, 0:1]).transpose(0, 2, 1, 3)
         px = rm.sigmoid(reshaped[:, :, 1:2]).transpose(0, 2, 1, 3)
@@ -290,7 +297,6 @@ class Yolov2(rm.Model):
         """
         reg = 0
         for layer in self.iter_models():
-
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return (0.0005 / 2.) * reg
@@ -530,7 +536,9 @@ class Yolov2(rm.Model):
             channel = num_class + 5
             offset = channel
 
-            size_index = perm[int(int(nth / 10) % size_N)]
+            if nth % 10 == 0:
+                perm[:] = np.random.permutation(size_N)
+            size_index = perm[0]
 
             label = np.zeros(
                 (N, channel, imsize_list[size_index][1] // 32, imsize_list[size_index][0] // 32))
@@ -604,7 +612,7 @@ class Yolov2(rm.Model):
             gt_index = np.where(y[n, 0] > 0)
 
             # Create mask for prediction that
-            for k, ind in enumerate(np.ndindex((num_anchor, H, W))):
+            for ind in np.ndindex((num_anchor, H, W)):
                 max_iou = -1
                 px = (nd_x[n, 1 + ind[0] * offset, ind[1], ind[2]] + ind[2]) * im_w / W
                 py = (nd_x[n, 2 + ind[0] * offset, ind[1], ind[2]] + ind[1]) * im_h / H
@@ -678,10 +686,10 @@ class Yolov2(rm.Model):
                 # scale of class
                 mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
 
-        diff = (x - target)
+        diff = x - target
         N = np.sum(y[:, 0] > 0)
         mask = np.abs(mask)
-        return rm.sum(diff * diff * mask) / (N * 2)
+        return rm.sum(mask * diff * diff) / N
 
     def fit(self, train_img_path_list, train_annotation_list,
             valid_img_path_list=None, valid_annotation_list=None,
@@ -757,7 +765,8 @@ class Yolov2(rm.Model):
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
-                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop))
+                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop, loss.as_ndarray()))
+
                 try:
                     loss = float(loss.as_ndarray()[0])
                 except:

@@ -139,7 +139,7 @@ class TrainThread(object):
                 self.model = Yolov2(self.class_map, create_anchor(annotations, anchor, base_size=self.imsize),
                                     imsize=self.imsize, load_pretrained_weight=path, train_whole_network=self.train_whole_network)
                 train_target_builder = self.model.build_data(
-                    imsize_list=[(i * 32, i * 32) for i in range(9, 20)])
+                    imsize_list=[(i * 32, i * 32) for i in range(9, 14)])
                 valid_target_builder = self.model.build_data()
             elif self.algorithm == ALG_SSD:
                 path = self.download_weight(VGG16.WEIGHT_URL, VGG16.__name__ + '.h5')
@@ -184,7 +184,7 @@ class TrainThread(object):
                         loss = self.model.loss(self.model(train_x), train_y)
                         reg_loss = loss + self.model.regularize()
                     reg_loss.grad().update(self.model.get_optimizer(e, epoch,
-                                                                    i, self.total_batch))
+                                                                    i, self.total_batch, loss.as_ndarray()))
                     try:
                         loss = loss.as_ndarray()[0]
                     except:

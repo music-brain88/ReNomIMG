@@ -241,8 +241,8 @@ export default {
   watch: {
     algorithm (value) {
       if (parseInt(value) === 1) {
-        this.image_height = 320
-        this.image_width = 320
+        this.image_height = 448
+        this.image_width = 448
       } else if (parseInt(value) === 2) {
         this.image_height = 300
         this.image_width = 300
