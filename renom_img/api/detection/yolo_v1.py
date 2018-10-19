@@ -119,11 +119,10 @@ class Yolov1(Detection):
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            ind0 = int(total_epoch * 0.1)
             ind1 = int(total_epoch * 0.5)
             ind2 = int(total_epoch * 0.3)
             ind3 = total_epoch - (ind1 + ind2 + 1)
-            lr_list = [0] + [0.1] * ind0 + [0.01] * ind1 + [0.001] * ind2 + [0.0001] * ind3
+            lr_list = [0] + [0.01] * ind1 + [0.001] * ind2 + [0.0001] * ind3
             if current_epoch == 0:
                 lr = 0.0001 + (0.01 - 0.0001) / float(total_batch) * current_batch
             else:
