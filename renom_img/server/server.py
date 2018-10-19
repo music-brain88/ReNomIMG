@@ -176,7 +176,8 @@ def create_model(project_id):
             dataset_def_id=json.loads(request.params.dataset_def_id),
             hyper_parameters=json.loads(request.params.hyper_parameters),
             algorithm=request.params.algorithm,
-            algorithm_params=json.loads(request.params.algorithm_params))
+            algorithm_params=json.loads(request.params.algorithm_params)
+        )
 
         if get_train_thread_count() >= MAX_THREAD_NUM:
             storage.update_model_state(model_id, STATE_RESERVED)

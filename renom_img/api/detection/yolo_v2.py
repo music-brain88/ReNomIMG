@@ -12,6 +12,7 @@ from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
+from renom_img.api.utility.nms import nms
 
 
 class AnchorYolov2(object):
@@ -352,17 +353,13 @@ class Yolov2(rm.Model):
         N, C, H, W = z.shape
         offset = self.num_class + 5
         FW, FH = imsize[0] // 32, imsize[1] // 32
-        box_list = [[] for n in range(N)]
-        score_list = [[] for n in range(N)]
+        result_bbox = [[] for n in range(N)]
 
         for ind_a, anc in enumerate(anchor):
             a_pred = z[:, ind_a * offset:(ind_a + 1) * offset]
             score = a_pred[:, 0].reshape(N, 1, H, W)
             cls_score = a_pred[:, 5:]
             score = score * cls_score
-            max_index = np.argmax(score, axis=1)
-            max_conf = np.max(score, axis=1)
-            max_conf[max_conf < 0.05] = 0
             a_box = a_pred[:, 1:5]
             a_box[:, 0] += np.arange(FW).reshape(1, 1, FW)
             a_box[:, 1] += np.arange(FH).reshape(1, FH, 1)
@@ -386,35 +383,21 @@ class Yolov2(rm.Model):
             a_box[:, 0] = x1 + a_box[:, 2] / 2.
             a_box[:, 1] = y1 + a_box[:, 3] / 2.
 
-            keep = np.where(max_conf > score_threshold)
-            for i, (b, s, c) in enumerate(zip(a_box[keep[0], :, keep[1], keep[2]],
-                                              max_conf[keep[0], keep[1], keep[2]],
-                                              score[keep[0], :, keep[1], keep[2]])):
-                b = b if isinstance(b, list) else b.tolist()
-                box_list[keep[0][i]].append(b)
-                score_list[keep[0][i]].append((float(s), int(np.argmax(c))))
-
-        # NMS
-        for n in range(N):
-            sorted_ind = np.argsort([s[0] for s in score_list[n]])[::-1]
-            keep = np.ones((len(score_list[n]),), dtype=np.bool)
-            for i, ind1 in enumerate(sorted_ind):
-                if not keep[ind1]:
-                    continue
-                box1 = box_list[n][ind1]
-                for j, ind2 in enumerate(sorted_ind[i + 1:], i + 1):
-                    box2 = box_list[n][ind2]
-                    if keep[ind2] and score_list[n][ind1][1] == score_list[n][ind2][1]:
-                        keep[ind2] = calc_iou_xywh(box1, box2) < nms_threshold
-
-            box_list[n] = [{
-                "box": box_list[n][i],
-                "name": self.class_map[score_list[n][i][1]].decode('utf-8'),
-                "score": score_list[n][i][0],
-                "class": score_list[n][i][1],
-            } for i, k in enumerate(keep) if k]
-
-        return box_list
+            max_score = np.max(score, axis=1)
+            keep = np.where(max_score >= score_threshold)
+            for i, (b, c) in enumerate(zip(a_box[keep[0], :, keep[1], keep[2]],
+                                           score[keep[0], :, keep[1], keep[2]])):
+                for ind_c, class_score in enumerate(c):
+                    if class_score < score_threshold:
+                        continue
+                    b = b if isinstance(b, list) else b.tolist()
+                    result_bbox[keep[0][i]].append({
+                        "box": b,
+                        "name": self.class_map[int(ind_c)].decode('utf-8'),
+                        "class": int(ind_c),
+                        "score": float(float(class_score))
+                    })
+        return nms(result_bbox, nms_threshold)
 
     def predict(self, img_list, score_threshold=0.3, nms_threshold=0.4):
         """
