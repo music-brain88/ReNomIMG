@@ -144,6 +144,9 @@ def draw_segment(img, prediction, color_list=None, show_background=True):
         img = Image.open(img).convert("RGBA")
     elif isinstance(img, np.ndarray):
         img = Image.fromarray(img.transpose(1, 2, 0).astype(np.uint8)).convert("RGBA")
+    if len(prediction.shape) > 2:
+         assert prediction.shape[0] == 1
+         prediction = prediction.reshape(prediction.shape[1], prediction.shape[2])
     h, w = prediction.shape
     canvas = Image.new("RGBA", (w, h), "#00000000")
 
