@@ -3,7 +3,7 @@
     <div v-if="predictModel" class="model-content">
       <value-item :label="'Selected Model ID'" :val="predictModel.model_id"></value-item>
 
-      <value-item :label="'Dataset'" :val="predictModel.model_id"></value-item>
+      <value-item :label="'Dataset'" :val="predictModel.dataset_def_id"></value-item>
 
       <value-item :label="'Algorithm'" :val="getAlgorithmName(predictModel.algorithm)"></value-item>
 
@@ -15,7 +15,7 @@
 
       <value-item :label="'Image Height'" :val="predictModel.hyper_parameters['image_width']"></value-item>
 
-      <component :is="additional_param_components[predictModel.algorithm_params]" :params="predictModel.algorithm_params"></component>
+      <component :is="additional_param_components[predictModel.algorithm]" :params="predictModel.algorithm_params"></component>
 
       <value-item :label="'IoU'" :val="round(predictModel.best_epoch_iou, 100)*100 + '%'"></value-item>
 
