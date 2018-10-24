@@ -15,7 +15,7 @@
 
       <value-item :label="'Image Height'" :val="predictModel.hyper_parameters['image_width']"></value-item>
 
-      <component :is="additional_param_components[predictModel.algorithm]" :params="predictModel.algorithm_params"></component>
+      <component class="font" :is="additional_param_components[predictModel.algorithm]" :params="predictModel.algorithm_params"></component>
 
       <value-item :label="'IoU'" :val="round(predictModel.best_epoch_iou, 100)*100 + '%'"></value-item>
 
@@ -30,8 +30,8 @@
 import * as utils from '@/utils'
 import * as constant from '@/constant'
 import ValueItem from './value_item.vue'
-import Yolov1Params from '../../detection_page/model_detail_parts/yolov1_params.vue'
-import Yolov2Params from '../../detection_page/model_detail_parts/yolov2_params.vue'
+import Yolov1Params from '../model_detail_parts/yolov1_params.vue'
+import Yolov2Params from '../model_detail_parts/yolov2_params.vue'
 
 export default {
   name: 'ModelDetailText',
@@ -48,6 +48,9 @@ export default {
   computed: {
     predictModel () {
       return this.$store.getters.getPredictModel
+    },
+    currentPage () {
+      return this.$store.state.page_name
     }
   },
   methods: {
