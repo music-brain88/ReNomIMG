@@ -170,7 +170,7 @@ class VGG16(VGGBase):
 
         self.imsize = imsize
         self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
+        self.class_map = [str(c).encode("ascii", "ignore") for c in class_map]
         self._model = CNN_VGG16(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
@@ -187,6 +187,30 @@ class VGG16(VGGBase):
             self._model.fc2.params = {}
             self._model.fc3.params = {}
 
+class VGG16_NODENSE(VGGBase):
+
+    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+
+        self.imsize = imsize
+        self.num_class = len(class_map)
+        self.class_map = [str(c).encode("ascii", "ignore") for c in class_map]
+        self._model = CNN_VGG16_NODENSE(self.num_class)
+        self._train_whole_network = train_whole_network
+        self._opt = rm.Sgd(0.001, 0.9)
+        self.decay_rate = 0.0005
+
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self._model.load(load_pretrained_weight)
+            self._model.fc1.params = {}
+            self._model.fc2.params = {}
+            self._model.fc3.params = {}
 
 @adddoc
 class VGG19(VGGBase):
@@ -300,6 +324,48 @@ class CNN_VGG16(rm.Model):
         t = self.fc3(t)
         return t
 
+class CNN_VGG16_NODENSE(rm.Model):
+
+    def __init__(self, num_class):
+        self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
+        self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
+        self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
+        self.conv2_2 = rm.Conv2d(128, padding=1, filter=3)
+        self.conv3_1 = rm.Conv2d(256, padding=1, filter=3)
+        self.conv3_2 = rm.Conv2d(256, padding=1, filter=3)
+        self.conv3_3 = rm.Conv2d(256, padding=1, filter=3)
+        self.conv4_1 = rm.Conv2d(512, padding=1, filter=3)
+        self.conv4_2 = rm.Conv2d(512, padding=1, filter=3)
+        self.conv4_3 = rm.Conv2d(512, padding=1, filter=3)
+        self.conv5_1 = rm.Conv2d(512, padding=1, filter=3)
+        self.conv5_2 = rm.Conv2d(512, padding=1, filter=3)
+        self.conv5_3 = rm.Conv2d(512, padding=1, filter=3)
+
+    def forward(self, x):
+        t = rm.relu(self.conv1_1(x))
+        t = rm.relu(self.conv1_2(t))
+        t = rm.max_pool2d(t, filter=2, stride=2)
+
+        t = rm.relu(self.conv2_1(t))
+        t = rm.relu(self.conv2_2(t))
+        t = rm.max_pool2d(t, filter=2, stride=2)
+
+        t = rm.relu(self.conv3_1(t))
+        t = rm.relu(self.conv3_2(t))
+        t = rm.relu(self.conv3_3(t))
+        t = rm.max_pool2d(t, filter=2, stride=2)
+
+        t = rm.relu(self.conv4_1(t))
+        t = rm.relu(self.conv4_2(t))
+        t = rm.relu(self.conv4_3(t))
+        t = rm.max_pool2d(t, filter=2, stride=2)
+
+        t = rm.relu(self.conv5_1(t))
+        t = rm.relu(self.conv5_2(t))
+        t = rm.relu(self.conv5_3(t))
+        t = rm.max_pool2d(t, filter=2, stride=2)
+
+        return t
 
 class CNN_VGG11(rm.Model):
 

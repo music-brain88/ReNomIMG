@@ -3,6 +3,7 @@ from .detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
 from .classification import precision_score, recall_score, f1_score, accuracy_score
 from .segmentation import segmentation_iou, segmentation_precision, segmentation_recall, segmentation_f1, get_segmentation_metrics
 from collections import defaultdict
+from sklearn.utils.multiclass import unique_labels
 
 
 class EvaluatorBase(object):
@@ -521,3 +522,98 @@ class EvaluatorSegmentation(EvaluatorBase):
                                    last_line_heading, row_fmt, last_row, round_off)
         report += '\n'
         return report
+
+
+class Fast_Segmentation_Evaluator(object):
+    def __init__(self, preds, trues, class_map):
+        self.preds = preds
+        self.trues = trues
+        self.class_map = [str(c) for c in class_map]
+        self.n_class = len(class_map)
+
+    def _fast_hist(self, label_true, label_pred, n_class):
+        mask = (label_true >= 0) & (label_true < n_class)
+        hist = np.bincount(
+            n_class * label_true[mask].astype(int) + 
+            label_pred[mask], minlength=n_class**2).reshape(n_class, n_class)
+        return hist
+    
+    def evaluate(self):
+        hist = np.zeros((self.n_class, self.n_class))
+        for lt, lp in zip(self.trues, self.preds):
+            hist += self._fast_hist(lt.flatten(), lp.flatten(), self.n_class)
+        acc = np.diag(hist).sum() / hist.sum()
+        with np.errstate(divide="ignore", invalid="ignore"):
+            acc_cls = np.diag(hist) / hist.sum(axis=1)
+        acc_cls = np.nanmean(acc_cls)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            iou = np.diag(hist) / (\
+                hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
+        mean_iou = np.nanmean(iou)
+        freq = hist.sum(axis=1) / hist.sum()
+        fwavacc = (freq[freq > 0] * iou[freq>0]).sum()
+        return acc, acc_cls, mean_iou, fwavacc
+
+    def confusion_matrix(self):
+        hist = np.zeros((self.n_class, self.n_class))
+        for lt, lp in zip(self.trues, self.preds):
+            hist += self._fast_hist(lt.flatten(), lp.flatten(), self.n_class)
+        return hist.astype(int)
+
+    def classification_report(self):
+        labels = list(range(self.n_class))
+        last_line_heading = "avg / total"
+        name_width = max(len(cn) for cn in self.class_map)
+        width = max(name_width, len(last_line_heading))
+        headers = ["accuracy", "recall", "f1-score", "iou"]
+        fmt = "%% %ds" % width
+        fmt += "  "
+        fmt += " ".join(["% 9s" for _ in headers])
+        fmt += "\n"
+
+        headers = [""] + headers
+        report = fmt % tuple(headers)
+        report += "\n"
+        acc, rec, f1, iou = self.metrics()
+        for i, label in enumerate(labels):
+            values = [self.class_map[i]]
+            for v in (acc[i], rec[i], f1[i], iou[i]):
+                values += ["{0:0.{1}f}".format(v, 3)]
+            report += fmt % tuple(values)
+        report += "\n"
+
+        values = [last_line_heading]
+        for v in (np.average(acc),
+                  np.average(rec),
+                  np.average(f1),
+                  np.average(iou)):
+            values += ["{0:0.{1}f}".format(v, 3)]
+        report += fmt % tuple(values)
+        return report
+
+    def metrics(self):
+        # confusion matrix
+        hist = np.zeros((self.n_class, self.n_class))
+        for lt, lp in zip(self.trues, self.preds):
+            hist += self._fast_hist(lt.flatten(), lp.flatten(), self.n_class)
+        # accuracy
+        with np.errstate(divide="ignore", invalid="ignore"):
+            acc_cls = np.diag(hist) / hist.sum(axis=1)
+        acc_cls[np.isnan(acc_cls)] = 0
+        # recall
+        with np.errstate(divide="ignore", invalid="ignore"):
+            rec_cls = np.diag(hist) / hist.sum(axis=0)
+        rec_cls[np.isnan(rec_cls)] = 0
+        # f1score
+        beta = 1.0
+        beta2 = beta ** 2
+        with np.errstate(divide="ignore", invalid="ignore"):
+            f_score = ((1 + beta2) * acc_cls * rec_cls / \
+                (beta2 * acc_cls + rec_cls))
+        f_score[np.isnan(f_score)] = 0
+        # iou
+        with np.errstate(divide="ignore", invalid="ignore"):
+            iou = np.diag(hist) / (\
+                hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
+        iou[np.isnan(iou)] = 0
+        return acc_cls, rec_cls, f_score, iou

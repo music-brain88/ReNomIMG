@@ -1,4 +1,5 @@
 import numpy as np
+import tqdm
 from collections import defaultdict
 
 cpdef get_segmentation_metrics(pred_list, gt_list, n_class=None, round_off=3, ignore_class=0):
@@ -6,13 +7,17 @@ cpdef get_segmentation_metrics(pred_list, gt_list, n_class=None, round_off=3, ig
     """
     if isinstance(ignore_class, int):
         ignore_class = [ignore_class]
-    class_num = np.max([pred_list, gt_list])
+    assert len(pred_list)==len(gt_list)
+    class_num = len(pred_list)
 
     tp = defaultdict(int)
     true_sum = defaultdict(int)
     pred_sum = defaultdict(int)
 
-    for pred, gt in zip(pred_list, gt_list):
+    #for pred, gt in zip(pred_list, gt_list):
+    for i in tqdm.trange(len(pred_list)):
+        pred = pred_list[i]
+        gt = gt_list[i]
         for c in range(class_num+1):
             if c in ignore_class:
                 continue
