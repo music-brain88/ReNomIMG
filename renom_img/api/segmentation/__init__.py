@@ -109,7 +109,7 @@ class SemanticSegmentation(Base):
             mask = np.array(class_weight)[y.astype(np.int)]
             loss = rm.softmax_cross_entropy(x, y, reduce_sum=False)
             loss *= mask
-            loss = rm.sum(loss) / (self.imsize[0] * self.imsize[1]) * 10
+            loss = rm.sum(loss) / (self.imsize[0] * self.imsize[1])
         else:
             loss = rm.softmax_cross_entropy(x, y)
         return loss / (self.imsize[0] * self.imsize[1])
