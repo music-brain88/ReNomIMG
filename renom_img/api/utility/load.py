@@ -67,13 +67,16 @@ def parse_xml_detection(xml_path_list, num_thread=8):
         return local_annotation_list
 
     N = len(xml_path_list)
-    batch = int(N / num_thread)
-    with Executor(max_workers=num_thread + int(N % num_thread > 0)) as exc:
-        ret = exc.map(load_thread, [xml_path_list[batch * i:batch * (i + 1)]
-                                    for i in range(num_thread + int(N % num_thread > 0))])
+    if N > num_thread:
+        batch = int(N / num_thread)
+        with Executor(max_workers=num_thread + int(N % num_thread > 0)) as exc:
+            ret = exc.map(load_thread, [xml_path_list[batch * i:batch * (i + 1)]
+                                        for i in range(num_thread + int(N % num_thread > 0))])
 
-    for r in ret:
-        annotation_list += r
+        for r in ret:
+            annotation_list += r
+    else:
+        annotation_list += load_thread(xml_path_list)
 
     class_map = [k for i, k in enumerate(sorted(class_map.keys()))]
     for annotation in annotation_list:

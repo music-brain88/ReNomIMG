@@ -203,7 +203,7 @@ class Yolov2(Detection):
                 [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            if loss is not None and loss > 50:
+            if current_loss is not None and current_loss > 50:
                 self._opt._lr *= 0.1
                 return self._opt
 
@@ -675,7 +675,7 @@ class Yolov2(Detection):
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
-                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop, loss.as_ndarray()))
+                reg_loss.grad().update(self.get_optimizer(loss.as_ndarray(), e, epoch, i, batch_loop))
 
                 try:
                     loss = float(loss.as_ndarray()[0])

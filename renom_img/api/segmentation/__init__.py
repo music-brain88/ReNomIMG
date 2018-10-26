@@ -15,13 +15,14 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 # LSVRC2012 used by VGG16
 MEAN_BGR = np.array([104.00698793, 116.66876762, 122.67891434])
 
+
 class SemanticSegmentation(Base):
 
     def get_preprocessed_data(self, img_list, index):
         img_file = img_list[index]
         img = Image.open(img_file)
         img = np.array(img, dtype=np.uint8)
-        img = img[:, :, ::-1].astype(np.float32) # RGB -> BGR
+        img = img[:, :, ::-1].astype(np.float32)  # RGB -> BGR
         img -= MEAN_BGR
         img = img.transpose(2, 0, 1)
         return img
@@ -30,7 +31,7 @@ class SemanticSegmentation(Base):
         lbl_file = img_list[index]
         lbl = Image.open(lbl_file)
         lbl = np.array(lbl, dtype=np.int32)
-        lbl[lbl==255] = -1
+        lbl[lbl == 255] = -1
         return lbl
 
     def get_unique_label(self, lbl_list):

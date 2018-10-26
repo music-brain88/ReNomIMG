@@ -557,7 +557,7 @@ class SSD(Detection):
         ret = nms(result_bbox, nms_threshold)
         return ret
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, loss=None):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimiser for training SSD algorithm.
 
         Args:
@@ -566,18 +566,22 @@ class SSD(Detection):
             current_batch:
             total_epoch:
         """
-
-        if current_epoch < 1:
-            self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
-        elif current_epoch < 60 / 160. * total_epoch:
-            self._opt._lr = 1e-3
-        elif current_epoch < 100 / 160. * total_epoch:
-            self._opt._lr = 1e-4
+        if any([num is None for num in
+                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
+            return self._opt
         else:
-            self._opt._lr = 1e-5
+            if current_loss is not None and current_loss > 50:
+                self._opt._lr *= 0.1
+                return self._opt
 
-        if loss is not None and loss > 50:
-            self._opt._lr *= 0.1
+            if current_epoch < 1:
+                self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
+            elif current_epoch < 60 / 160. * total_epoch:
+                self._opt._lr = 1e-3
+            elif current_epoch < 100 / 160. * total_epoch:
+                self._opt._lr = 1e-4
+            else:
+                self._opt._lr = 1e-5
 
         return self._opt
 

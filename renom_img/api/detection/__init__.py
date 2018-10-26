@@ -193,7 +193,7 @@ class Detection(Base):
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
-                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop, loss.as_ndarray()))
+                reg_loss.grad().update(self.get_optimizer(loss.as_ndarray(), e, epoch, i, batch_loop))
                 try:
                     loss = loss.as_ndarray()[0]
                 except:

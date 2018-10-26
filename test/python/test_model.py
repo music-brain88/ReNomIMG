@@ -4,7 +4,7 @@ import pytest
 import types
 
 from renom_img.api.detection.yolo_v1 import Yolov1
-from renom_img.api.detection.yolo_v2 import Yolov2
+from renom_img.api.detection.yolo_v2 import Yolov2, AnchorYolov2
 from renom_img.api.detection.ssd import SSD
 
 from renom_img.api.classification.vgg import VGG16, VGG19
@@ -12,6 +12,7 @@ from renom_img.api.classification.resnet import ResNet34, ResNet50, ResNet101
 from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
 from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
 from renom_img.api.utility.augmentation import Augmentation
+from renom_img.api.utility.load import parse_xml_detection
 
 
 @pytest.mark.parametrize("algo", [
@@ -98,6 +99,26 @@ def test_detection_model_implementation(algo):
     ]
     for s in serializables:
         assert s in algo.SERIALIZED
+
+    # 4. Check fit function. 
+    test_imgs = [
+                "voc.jpg",
+                "voc.jpg",
+            ]
+    test_xmls = [
+                "voc.xml",
+                "voc.xml"
+            ]
+    test_annotation, class_map = parse_xml_detection(test_xmls)
+    if algo is Yolov2:
+        # Yolo needs anchor.
+        model = algo(class_map, anchor=AnchorYolov2([[0.2, 0.3]], (224, 224)))
+    else:
+        model = algo(class_map)
+    model.fit(test_imgs, test_annotation, test_imgs, test_annotation, batch_size=2, epoch=2)
+
+    # Predict
+    model.predict(test_imgs)
 
 
 @pytest.mark.parametrize("algo", [
