@@ -15,13 +15,14 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 # LSVRC2012 used by VGG16
 MEAN_BGR = np.array([104.00698793, 116.66876762, 122.67891434])
 
+
 class SemanticSegmentation(Base):
 
     def get_preprocessed_data(self, img_list, index):
         img_file = img_list[index]
         img = Image.open(img_file)
         img = np.array(img, dtype=np.uint8)
-        img = img[:, :, ::-1].astype(np.float32) # RGB -> BGR
+        img = img[:, :, ::-1].astype(np.float32)  # RGB -> BGR
         img -= MEAN_BGR
         img = img.transpose(2, 0, 1)
         return img
@@ -30,7 +31,7 @@ class SemanticSegmentation(Base):
         lbl_file = img_list[index]
         lbl = Image.open(lbl_file)
         lbl = np.array(lbl, dtype=np.int32)
-        lbl[lbl==255] = -1
+        lbl[lbl == 255] = -1
         return lbl
 
     def get_unique_label(self, lbl_list):
@@ -43,18 +44,17 @@ class SemanticSegmentation(Base):
                     uniq_label.append(l)
         return uniq_label
 
-    def predict(self, img_list):
+    def predict(self, img_list, batch_size=1):
         """
         Returns:
             (Numpy.array or list): If only an image or a path is given, an array whose shape is **(width, height)** is returned.
             If multiple images or paths are given, then a list in which there are arrays whose shape is **(width, height)** is returned.
         """
 
-        batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                if len(img_list) >= 32:
+                if len(img_list) > batch_size:
                     test_dist = ImageDistributor(img_list)
                     results = []
                     bar = tqdm()
@@ -78,10 +78,7 @@ class SemanticSegmentation(Base):
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
-            epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None, class_weight=False):
-
-        if class_weight:
-            self.train_class_weight = self.build_class_weight(train_annotation_list)
+            epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None, class_weight=None):
 
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation)
@@ -97,7 +94,7 @@ class SemanticSegmentation(Base):
                 self.set_models(inference=False)
                 train_x = self.preprocess(train_x)
                 with self.train():
-                    loss = self.loss(self(train_x), train_y)
+                    loss = self.loss(self(train_x), train_y, class_weight=class_weight)
                     reg_loss = loss + self.regularize()
                 reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop, avg_valid_loss_list=avg_valid_loss_list))
                 try:
@@ -117,7 +114,7 @@ class SemanticSegmentation(Base):
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)
                     valid_x = self.preprocess(valid_x)
-                    loss = self.loss(self(valid_x), valid_y)
+                    loss = self.loss(self(valid_x), valid_y, class_weight=class_weight)
                     try:
                         loss = loss.as_ndarray()[0]
                     except:
@@ -136,11 +133,12 @@ class SemanticSegmentation(Base):
                 callback_end_epoch(e, self, avg_train_loss_list, avg_valid_loss_list)
         return avg_train_loss_list, avg_valid_loss_list
 
-    def loss(self, x, y):
-        if hasattr(self, 'train_class_weight'):
-            loss = rm.softmax_cross_entropy(x, y, reduce_sum=False) * \
-                np.broadcast_to(class_weight.reshape(1, -1, 1, 1), x.shape)
-            loss = rm.sum(loss)
+    def loss(self, x, y, class_weight=None):
+        if class_weight is not None:
+            mask = np.array(class_weight)[y.astype(np.int)]
+            loss = rm.softmax_cross_entropy(x, y, reduce_sum=False)
+            loss *= mask
+            loss = rm.sum(loss) / (self.imsize[0] * self.imsize[1])
         else:
             loss = rm.softmax_cross_entropy(x, y)
         return loss / (self.imsize[0] * self.imsize[1])
@@ -150,6 +148,8 @@ class SemanticSegmentation(Base):
 
     def build_class_weight(self, annotation_path_list):
         counter = defaultdict(int)
+        N = len(annotation_path_list)
+        bar = tqdm(range(N))
         for annot_path in annotation_path_list:
             annot = Image.open(annot_path)
             annot.load()
@@ -161,11 +161,13 @@ class SemanticSegmentation(Base):
                         counter[0] += 1
                     else:
                         counter[int(annot[i, j])] += 1
+            bar.update(1)
+        bar.close()
 
-        total = np.sum(sorted(counter.values()))
+        total = np.sum(list(counter.values()))
 
         class_weight = {}
         for key in counter.keys():
-            class_weight[key] = float(total) / (self.num_class * float(counter[key]))
-        class_weight = np.array(list(class_weight.values()))
+            class_weight[key] = float(total) / (self.num_class * counter[key])
+        class_weight = [v for k, v in sorted(class_weight.items(), key=lambda x: x[0])]
         return class_weight

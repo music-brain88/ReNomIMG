@@ -534,10 +534,10 @@ class Fast_Segmentation_Evaluator(object):
     def _fast_hist(self, label_true, label_pred, n_class):
         mask = (label_true >= 0) & (label_true < n_class)
         hist = np.bincount(
-            n_class * label_true[mask].astype(int) + 
+            n_class * label_true[mask].astype(int) +
             label_pred[mask], minlength=n_class**2).reshape(n_class, n_class)
         return hist
-    
+
     def evaluate(self):
         hist = np.zeros((self.n_class, self.n_class))
         for lt, lp in zip(self.trues, self.preds):
@@ -547,11 +547,11 @@ class Fast_Segmentation_Evaluator(object):
             acc_cls = np.diag(hist) / hist.sum(axis=1)
         acc_cls = np.nanmean(acc_cls)
         with np.errstate(divide="ignore", invalid="ignore"):
-            iou = np.diag(hist) / (\
+            iou = np.diag(hist) / (
                 hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
         mean_iou = np.nanmean(iou)
         freq = hist.sum(axis=1) / hist.sum()
-        fwavacc = (freq[freq > 0] * iou[freq>0]).sum()
+        fwavacc = (freq[freq > 0] * iou[freq > 0]).sum()
         return acc, acc_cls, mean_iou, fwavacc
 
     def confusion_matrix(self):
@@ -608,12 +608,12 @@ class Fast_Segmentation_Evaluator(object):
         beta = 1.0
         beta2 = beta ** 2
         with np.errstate(divide="ignore", invalid="ignore"):
-            f_score = ((1 + beta2) * acc_cls * rec_cls / \
-                (beta2 * acc_cls + rec_cls))
+            f_score = ((1 + beta2) * acc_cls * rec_cls /
+                       (beta2 * acc_cls + rec_cls))
         f_score[np.isnan(f_score)] = 0
         # iou
         with np.errstate(divide="ignore", invalid="ignore"):
-            iou = np.diag(hist) / (\
+            iou = np.diag(hist) / (
                 hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
         iou[np.isnan(iou)] = 0
         return acc_cls, rec_cls, f_score, iou

@@ -82,6 +82,8 @@ class PriorBox(object):
 
 class DetectorNetwork(rm.Model):
 
+    SERIALIZED = ("num_class")
+
     def __init__(self, num_class, vgg):
         self.num_class = num_class
         block3 = vgg._model.block3
@@ -465,7 +467,7 @@ class SSD(Detection):
         loss = conf_loss + loc_loss
         return loss / (N / len(x))
 
-    def predict(self, img_list, score_threshold=0.6, nms_threshold=0.45):
+    def predict(self, img_list, batch_size=1, score_threshold=0.6, nms_threshold=0.45):
         """
         This method accepts either ndarray and list of image path.
 
@@ -506,43 +508,7 @@ class SSD(Detection):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
-        batch_size = 64
-        self.set_models(inference=True)
-        # If the argument is path or path list.
-        if isinstance(img_list, (list, str)):
-            if isinstance(img_list, (tuple, list)):
-                # If the argument is path list.
-                if len(img_list) >= batch_size:
-                    test_dist = ImageDistributor(img_list)
-                    results = []
-                    bar = tqdm()
-                    bar.total = int(np.ceil(len(test_dist) / batch_size))
-                    for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
-                        img_array = np.vstack([load_img(path, self.imsize)[None]
-                                               for path in x_img_list])
-                        img_array = self.preprocess(img_array)
-                        z = self(img_array).as_ndarray()
-                        results.extend(self.get_bbox(z,
-                                                     score_threshold,
-                                                     nms_threshold))
-                        bar.update(1)
-                    bar.close()
-                    return results
-                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-                img_array = self.preprocess(img_array)
-            else:
-                # If the argument is path.
-                img_array = load_img(img_list, self.imsize)[None]
-                img_array = self.preprocess(img_array)
-                return self.get_bbox(self(img_array).as_ndarray(),
-                                     score_threshold,
-                                     nms_threshold)[0]
-        else:
-            # If the argument is ndarray.
-            img_array = img_list
-        return self.get_bbox(self(img_array).as_ndarray(),
-                             score_threshold,
-                             nms_threshold)
+        return super(SSD, self).predict(img_list, batch_size, score_threshold, nms_threshold)
 
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
         N = len(z)
@@ -591,7 +557,7 @@ class SSD(Detection):
         ret = nms(result_bbox, nms_threshold)
         return ret
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, loss=None):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimiser for training SSD algorithm.
 
         Args:
@@ -600,18 +566,22 @@ class SSD(Detection):
             current_batch:
             total_epoch:
         """
-
-        if current_epoch < 1:
-            self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
-        elif current_epoch < 60 / 160. * total_epoch:
-            self._opt._lr = 1e-3
-        elif current_epoch < 100 / 160. * total_epoch:
-            self._opt._lr = 1e-4
+        if any([num is None for num in
+                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
+            return self._opt
         else:
-            self._opt._lr = 1e-5
+            if current_loss is not None and current_loss > 50:
+                self._opt._lr *= 0.1
+                return self._opt
 
-        if loss is not None and loss > 50:
-            self._opt._lr *= 0.1
+            if current_epoch < 1:
+                self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
+            elif current_epoch < 60 / 160. * total_epoch:
+                self._opt._lr = 1e-3
+            elif current_epoch < 100 / 160. * total_epoch:
+                self._opt._lr = 1e-4
+            else:
+                self._opt._lr = 1e-5
 
         return self._opt
 

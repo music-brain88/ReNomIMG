@@ -158,7 +158,7 @@ class TrainThread(object):
 
             epoch = self.total_epoch
             batch_size = self.batch_size
-            best_valid_loss = np.Inf
+            best_valid_map = -np.Inf
             valid_annotation_list = self.valid_dist.get_resized_annotation_list(self.imsize)
             storage.update_model_state(self.model_id, STATE_RUNNING)
             for e in range(epoch):
@@ -183,8 +183,8 @@ class TrainThread(object):
                     with self.model.train():
                         loss = self.model.loss(self.model(train_x), train_y)
                         reg_loss = loss + self.model.regularize()
-                    reg_loss.grad().update(self.model.get_optimizer(e, epoch,
-                                                                    i, self.total_batch, loss.as_ndarray()))
+                    reg_loss.grad().update(self.model.get_optimizer(loss.as_ndarray(), e, epoch,
+                                                                    i, self.total_batch))
                     try:
                         loss = loss.as_ndarray()[0]
                     except:
@@ -241,8 +241,9 @@ class TrainThread(object):
                     train_loss_list=self.train_loss_list,
                     validation_loss_list=self.valid_loss_list,
                 )
-                if best_valid_loss > avg_valid_loss:
+                if best_valid_map <= mAP:
                     # modelのweightを保存する
+                    best_valid_map = mAP
                     self.model.save(os.path.join(DB_DIR_TRAINED_WEIGHT, filename))
                     storage.update_model_best_epoch(self.model_id, e, iou,
                                                     mAP, filename, valid_predict_box)

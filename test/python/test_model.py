@@ -4,17 +4,21 @@ import pytest
 import types
 
 from renom_img.api.detection.yolo_v1 import Yolov1
-from renom_img.api.detection.yolo_v2 import Yolov2
+from renom_img.api.detection.yolo_v2 import Yolov2, AnchorYolov2
+from renom_img.api.detection.ssd import SSD
+
 from renom_img.api.classification.vgg import VGG16, VGG19
-from renom_img.api.classification.resnet import ResNet32, ResNet44, ResNet56, ResNet110, ResNet34, ResNet50, ResNet101
+from renom_img.api.classification.resnet import ResNet34, ResNet50, ResNet101
 from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
 from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
 from renom_img.api.utility.augmentation import Augmentation
+from renom_img.api.utility.load import parse_xml_detection
 
 
 @pytest.mark.parametrize("algo", [
     Yolov1,
     Yolov2,
+    SSD
 ])
 def test_detection_model_implementation(algo):
     # 1. Check if the model can be instantiate only giving nothing.
@@ -46,9 +50,13 @@ def test_detection_model_implementation(algo):
                 ],
         "get_bbox": ["z"],
         "predict": [
-            "img_list"
+            "img_list",
+            "batch_size",
+            "score_threshold",
+            "nms_threshold"
         ],
         "get_optimizer": [
+            ["current_loss", type(None)],
             ["current_epoch", type(None)],
             ["total_epoch", type(None)],
             ["current_batch", type(None)],
@@ -80,7 +88,7 @@ def test_detection_model_implementation(algo):
                     raise ValueError("Argument '{}' is not implemented.".format(a))
 
             assert index > last_checked_index, \
-                "The order of arguments are not correct."
+                "The order of arguments are not correct in {}.".format(k)
             last_checked_index = index
 
     # 3. Check serializable attributes.
@@ -92,14 +100,30 @@ def test_detection_model_implementation(algo):
     for s in serializables:
         assert s in algo.SERIALIZED
 
+    # 4. Check fit function. 
+    test_imgs = [
+                "voc.jpg",
+                "voc.jpg",
+            ]
+    test_xmls = [
+                "voc.xml",
+                "voc.xml"
+            ]
+    test_annotation, class_map = parse_xml_detection(test_xmls)
+    if algo is Yolov2:
+        # Yolo needs anchor.
+        model = algo(class_map, anchor=AnchorYolov2([[0.2, 0.3]], (224, 224)))
+    else:
+        model = algo(class_map)
+    model.fit(test_imgs, test_annotation, test_imgs, test_annotation, batch_size=2, epoch=2)
+
+    # Predict
+    model.predict(test_imgs)
+
 
 @pytest.mark.parametrize("algo", [
     VGG16,
     VGG19,
-    ResNet32,
-    ResNet44,
-    ResNet56,
-    ResNet110,
     ResNet34,
     ResNet50,
     ResNet101,

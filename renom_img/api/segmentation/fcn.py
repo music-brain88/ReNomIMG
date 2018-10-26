@@ -19,7 +19,9 @@ def layer_factory(channel=32, conv_layer_num=2):
     layers.append(rm.MaxPool2d(filter=2, stride=2))
     return rm.Sequential(layers)
 
+
 from renom.utility.initializer import Initializer
+
 
 class DeconvInitializer(Initializer):
     def __init__(self):
@@ -36,8 +38,9 @@ class DeconvInitializer(Initializer):
             center = factor - 0.5
         og = np.ogrid[:size, :size]
         filter[range(shape[0]), range(shape[0]), :, :] = (1 - abs(og[0] - center) / factor) * \
-        (1 - abs(og[1] - center) / factor)
+            (1 - abs(og[1] - center) / factor)
         return filter.astype(precision)
+
 
 @adddoc
 class FCN_Base(SemanticSegmentation):
@@ -64,7 +67,6 @@ class FCN_Base(SemanticSegmentation):
         x[:, 1, :, :] -= 116.779  # G
         x[:, 2, :, :] -= 103.939  # B
         return x
-
 
 
 class FCN32s(FCN_Base):
@@ -167,6 +169,7 @@ class FCN16s(FCN_Base):
         self._train_whole_network = train_whole_network
         self.decay_rate = 2e-4
         self._opt = rm.Sgd(0.001, 0.9)
+        self.decay_rate = 2e-4
 
         if load_pretrained_weight:
             vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
@@ -226,6 +229,7 @@ class FCN8s(FCN_Base):
         self._train_whole_network = train_whole_network
         self.decay_rate = 2e-4
         self._opt = rm.Sgd(0.001, 0.9)
+        self.decay_rate = 2e-4
 
         if load_pretrained_weight:
             vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
@@ -257,35 +261,35 @@ class CNN_FCN8s(rm.Model):
 
         self.conv1_1 = rm.Conv2d(64, filter=3, stride=1, padding=100)
         self.conv1_2 = rm.Conv2d(64, filter=3, stride=1, padding=1)
-    
+
         self.conv2_1 = rm.Conv2d(128, filter=3, stride=1, padding=1)
         self.conv2_2 = rm.Conv2d(128, filter=3, stride=1, padding=1)
-    
+
         self.conv3_1 = rm.Conv2d(256, filter=3, stride=1, padding=1)
         self.conv3_2 = rm.Conv2d(256, filter=3, stride=1, padding=1)
         self.conv3_3 = rm.Conv2d(256, filter=3, stride=1, padding=1)
-    
+
         self.conv4_1 = rm.Conv2d(512, filter=3, stride=1, padding=1)
         self.conv4_2 = rm.Conv2d(512, filter=3, stride=1, padding=1)
         self.conv4_3 = rm.Conv2d(512, filter=3, stride=1, padding=1)
-    
+
         self.conv5_1 = rm.Conv2d(512, filter=3, stride=1, padding=1)
         self.conv5_2 = rm.Conv2d(512, filter=3, stride=1, padding=1)
         self.conv5_3 = rm.Conv2d(512, filter=3, stride=1, padding=1)
-    
+
         self.fc6 = rm.Conv2d(4096, filter=7, stride=1, padding=0)
         self.dr1 = rm.Dropout(dropout_ratio=0.5)
         self.fc7 = rm.Conv2d(4096, filter=1, stride=1, padding=0)
         self.dr2 = rm.Dropout(dropout_ratio=0.5)
-    
+
         self.score_fr = rm.Conv2d(num_class, filter=1, stride=1, padding=0)
-    
+
         self.upscore2 = rm.Deconv2d(
             num_class, filter=4, stride=2, padding=0, ignore_bias=True)
 
         self.upscore8 = rm.Deconv2d(
             num_class, filter=16, stride=8, padding=0, ignore_bias=True)
-    
+
         self.score_pool3 = rm.Conv2d(num_class, filter=1, stride=1, padding=0)
         self.score_pool4 = rm.Conv2d(num_class, filter=1, stride=1, padding=0)
 
@@ -299,14 +303,14 @@ class CNN_FCN8s(rm.Model):
         t = rm.relu(t)
         t = self.conv1_2(t)
         t = rm.relu(t)
-        t = rm.max_pool2d(t,filter=2, stride=2)
+        t = rm.max_pool2d(t, filter=2, stride=2)
         pool1 = t
 
         t = self.conv2_1(t)
         t = rm.relu(t)
         t = self.conv2_2(t)
         t = rm.relu(t)
-        t = rm.max_pool2d(t,filter=2, stride=2)
+        t = rm.max_pool2d(t, filter=2, stride=2)
         pool2 = t
 
         t = self.conv3_1(t)
@@ -315,7 +319,7 @@ class CNN_FCN8s(rm.Model):
         t = rm.relu(t)
         t = self.conv3_3(t)
         t = rm.relu(t)
-        t = rm.max_pool2d(t,filter=2, stride=2)
+        t = rm.max_pool2d(t, filter=2, stride=2)
         pool3 = t
 
         t = self.conv4_1(t)
@@ -324,7 +328,7 @@ class CNN_FCN8s(rm.Model):
         t = rm.relu(t)
         t = self.conv4_3(t)
         t = rm.relu(t)
-        t = rm.max_pool2d(t,filter=2, stride=2)
+        t = rm.max_pool2d(t, filter=2, stride=2)
         pool4 = t
 
         t = self.conv5_1(t)
@@ -333,7 +337,7 @@ class CNN_FCN8s(rm.Model):
         t = rm.relu(t)
         t = self.conv5_3(t)
         t = rm.relu(t)
-        t = rm.max_pool2d(t,filter=2, stride=2)
+        t = rm.max_pool2d(t, filter=2, stride=2)
         pool5 = t
 
         t = rm.relu(self.fc6(t))
@@ -356,8 +360,8 @@ class CNN_FCN8s(rm.Model):
         t = self.upscore2(score_fr)
         upscore2 = t
 
-        t = score_pool4[:,:,5:5+upscore2.shape[2],\
-            5:5+upscore2.shape[3]]
+        t = score_pool4[:, :, 5:5 + upscore2.shape[2],
+                        5:5 + upscore2.shape[3]]
         score_pool4c = t
 
         t = upscore2 + score_pool4c
@@ -366,8 +370,8 @@ class CNN_FCN8s(rm.Model):
         t = self.upscore_pool4(fuse_pool4)
         upscore_pool4 = t
 
-        t = score_pool3[:,:,9:9+upscore_pool4.shape[2],\
-            9:9+upscore_pool4.shape[3]]
+        t = score_pool3[:, :, 9:9 + upscore_pool4.shape[2],
+                        9:9 + upscore_pool4.shape[3]]
         score_pool3c = t
 
         t = upscore_pool4 + score_pool3c
@@ -376,8 +380,8 @@ class CNN_FCN8s(rm.Model):
         t = self.upscore8(fuse_pool3)
         upscore8 = t
 
-        t = upscore8[:,:,31:31+x.shape[2],\
-            31:31+x.shape[3]]
+        t = upscore8[:, :, 31:31 + x.shape[2],
+                     31:31 + x.shape[3]]
         score = t
 
         return t

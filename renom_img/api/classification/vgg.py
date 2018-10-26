@@ -187,6 +187,7 @@ class VGG16(VGGBase):
             self._model.fc2.params = {}
             self._model.fc3.params = {}
 
+
 class VGG16_NODENSE(VGGBase):
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
@@ -211,6 +212,7 @@ class VGG16_NODENSE(VGGBase):
             self._model.fc1.params = {}
             self._model.fc2.params = {}
             self._model.fc3.params = {}
+
 
 @adddoc
 class VGG19(VGGBase):
@@ -324,6 +326,7 @@ class CNN_VGG16(rm.Model):
         t = self.fc3(t)
         return t
 
+
 class CNN_VGG16_NODENSE(rm.Model):
 
     def __init__(self, num_class):
@@ -366,6 +369,7 @@ class CNN_VGG16_NODENSE(rm.Model):
         t = rm.max_pool2d(t, filter=2, stride=2)
 
         return t
+
 
 class CNN_VGG11(rm.Model):
 

@@ -144,8 +144,8 @@ export default {
   updated: function () {
     // This is for reserved model progress.
     if (!this.model.has_executed_progress_api) {
-      this.$store.dispatch('updateProgress', {'model_id': this.model.model_id})
       this.model.has_executed_progress_api = true
+      this.$store.dispatch('updateProgress', {'model_id': this.model.model_id})
     }
     this.updateProgressBar()
   },

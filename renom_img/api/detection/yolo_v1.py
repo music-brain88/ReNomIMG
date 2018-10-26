@@ -100,7 +100,7 @@ class Yolov1(Detection):
             for layer in self._network.iter_models():
                 layer.params = {}
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, loss=None):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimizer for training Yolov1 algorithm.
 
         If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
@@ -116,9 +116,14 @@ class Yolov1(Detection):
         Returns:
             (Optimizer): Optimizer object.
         """
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+        if any([num is None for num in
+                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
+            if current_loss is not None and current_loss > 50:
+                self._opt._lr *= 0.1
+                return self._opt
+
             ind1 = int(total_epoch * 0.5)
             ind2 = int(total_epoch * 0.3)
             ind3 = total_epoch - (ind1 + ind2 + 1)
@@ -127,9 +132,6 @@ class Yolov1(Detection):
                 lr = 0.0001 + (0.01 - 0.0001) / float(total_batch) * current_batch
             else:
                 lr = lr_list[current_epoch]
-
-            if loss is not None and loss > 50:
-                lr *= 0.1
 
             self._opt._lr = lr
             return self._opt
@@ -198,7 +200,7 @@ class Yolov1(Detection):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return 0.0005 * reg / 2.
+        return (0.0005 / 2.) * reg
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
@@ -399,4 +401,4 @@ class Yolov1(Detection):
             mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 5
 
         diff = (x - y)
-        return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
+        return rm.sum(diff * diff * mask.reshape(N, -1)) / N

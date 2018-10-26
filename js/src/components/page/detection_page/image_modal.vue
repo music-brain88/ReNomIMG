@@ -121,19 +121,20 @@ export default {
       imgdiv.style.width = imgWidth + 'px'
 
       const bboxes = this.getImage(this.idx_active_image_sample).predicted_bboxes
-      for (let i = 0; i < this.$refs['box'].length; i++) {
-        let bbox = bboxes[i]
-        let div = this.$refs['box'][i]
-        div.style.top = bbox[2] + '%'
-        div.style.left = bbox[1] + '%'
-        div.style.width = bbox[3] + '%'
-        div.style.height = bbox[4] + '%'
+      if (this.$refs['box']) {
+        for (let i = 0; i < this.$refs['box'].length; i++) {
+          let bbox = bboxes[i]
+          let div = this.$refs['box'][i]
+          div.style.top = bbox[2] + '%'
+          div.style.left = bbox[1] + '%'
+          div.style.width = bbox[3] + '%'
+          div.style.height = bbox[4] + '%'
+        }
       }
     },
     getMaxScore: function (item) {
       let max = 0
       for (let i = 1; i < item.length; i++) {
-        console.log('log', item[i])
         max = max < item[i] ? item[i] : max
       }
       return max

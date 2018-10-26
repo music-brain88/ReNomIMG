@@ -15,7 +15,7 @@ class Detection(Base):
     def preprocess(self, x):
         return x / 255.
 
-    def predict(self, img_list, score_threshold=0.3, nms_threshold=0.4):
+    def predict(self, img_list, batch_size=1, score_threshold=0.3, nms_threshold=0.4):
         """
         This method accepts either ndarray and list of image path.
 
@@ -59,11 +59,10 @@ class Detection(Base):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
-        batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                if len(img_list) >= 32:
+                if len(img_list) > batch_size:
                     test_dist = ImageDistributor(img_list)
                     results = []
                     bar = tqdm()
@@ -194,7 +193,7 @@ class Detection(Base):
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
-                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop, loss.as_ndarray()))
+                reg_loss.grad().update(self.get_optimizer(loss.as_ndarray(), e, epoch, i, batch_loop))
                 try:
                     loss = loss.as_ndarray()[0]
                 except:

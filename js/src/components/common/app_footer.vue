@@ -32,7 +32,7 @@
 export default {
   data () {
     return {
-      version: 'ver 1.0.2',
+      version: 'ver 1.0.3',
       url: require('../../../static/img/renomlogo.png')
     }
   }
