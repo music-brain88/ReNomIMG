@@ -113,9 +113,7 @@ export default {
         })
       }
       if (this.selected) {
-        console.log('selected', this.selected)
         // this.$store.commit('setSelectedModel', {'model_id': undefined})
-        console.log('afterdelete:', this.$store.state.selected_model_id)
       }
       this.$store.dispatch('deleteModel', {
         'model_id': this.model.model_id,

@@ -46,6 +46,10 @@ export default {
     for (let index in payload.models) {
       // 'Deleted model'(=3) is removed.
       if (payload.models[index].state !== 3) {
+        if (payload.models[index].has_executed_progress_api) {
+        } else {
+          payload.models[index].has_executed_progress_api = false
+        }
         state.models.push(payload.models[index])
       }
     }
