@@ -7,8 +7,8 @@
             Prediction Sample
           </div>
           <div>
-            <span v-if="hasPrevPage"  @click='prevPage' v-bind:class='{inactive: hasPrevPage}'><img class="left_arrow" :src="left_arrow"></span>
-            <span v-if="hasNextPage" @click='nextPage' v-bind:class='{inactive: hasNextPage}'><img class="right_arrow" :src="right_arrow"></span>
+            <span @click='prevPage' v-bind:class='{inactive: hasPrevPage}'><img class="left_arrow" :src="left_arrow"></span>
+            <span @click='nextPage' v-bind:class='{inactive: hasNextPage}'><img class="right_arrow" :src="right_arrow"></span>
           </div>
         </div>
         <div class="content">
@@ -131,6 +131,7 @@ export default {
       }
       span:hover:not(.inactive) {
         color: #004cc9;
+        cursor: not-allowed;
       }
     }
     .inactive {
