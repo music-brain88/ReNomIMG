@@ -422,6 +422,7 @@ def get_datasets():
         recs = storage.fetch_dataset_defs()
         ret = []
         for rec in recs:
+            missing_image_path = ""
             id, name, ratio, description, train_imgs, valid_imgs, class_map, class_tag_list, created, updated = rec
             valid_img_names = [os.path.join("datasrc/img/", path) for path in valid_imgs]
             valid_imgs = []
@@ -430,9 +431,22 @@ def get_datasets():
                     im = PIL.Image.open(img_name)
                     width, height = im.size
                 except Exception:
+                    missing_image_path = img_name
                     traceback.print_exc()
                     width = height = 50
+                    break
                 valid_imgs.append(dict(filename=img_name, width=width, height=height))
+
+            if not missing_image_path:
+                for img_name in train_imgs:
+                    path = os.path.join("datasrc/img/", img_name)
+                    if not os.path.exists(path):
+                        missing_image_path = path
+                        break
+
+            if missing_image_path:
+                raise Exception("Image '{}' included in the dataset '{}' does not exist.".format(
+                    missing_image_path, name))
 
             ret.append(dict(id=id,
                             name=name,
