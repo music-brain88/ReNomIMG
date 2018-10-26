@@ -145,6 +145,7 @@ class FCN16s(FCN_Base):
         self._model = CNN_FCN16s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
+        self.decay_rate = 2e-4
 
         if load_pretrained_weight:
             vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
@@ -203,6 +204,7 @@ class FCN8s(FCN_Base):
         self._model = CNN_FCN8s(self.num_class)
         self._train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
+        self.decay_rate = 2e-4
 
         if load_pretrained_weight:
             vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,

@@ -7,6 +7,8 @@ from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
 from PIL import Image, ImageDraw
 
+from renom_img.api import Base, adddoc
+from renom_img.api.detection import Detection
 from renom_img.api.classification.darknet import Darknet19, DarknetConv2dBN
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
@@ -93,7 +95,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
     return AnchorYolov2([[cnt[2], cnt[3]] for cnt in new_centroids], base_size)
 
 
-class Yolov2(rm.Model):
+class Yolov2(Detection):
     """
     Yolov2 object detection algorithm.
 
@@ -132,7 +134,7 @@ class Yolov2(rm.Model):
         num_class = len(class_map)
         self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self.imsize = imsize
-        self.freezed_network = Darknet19()
+        self._freezed_network = Darknet19()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
@@ -178,9 +180,9 @@ class Yolov2(rm.Model):
                             "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
                             "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=True),
                         }
-        self.freezed_network = self.freezed_network._base
+        self._freezed_network = self.freezed_network._base
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, loss=None):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimizer for training Yolov2 algorithm.
 
         If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
@@ -197,9 +199,14 @@ class Yolov2(rm.Model):
             (Optimizer): Optimizer object.
         """
 
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+        if any([num is None for num in
+                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
+            if loss is not None and loss > 50:
+                self._opt._lr *= 0.1
+                return self._opt
+
             ind0 = int(total_epoch * 1 / 16.)
             ind1 = int(total_epoch * 5 / 16.)
             ind2 = int(total_epoch * 3 / 16.)
@@ -210,9 +217,6 @@ class Yolov2(rm.Model):
                 lr = 0.0001 + (0.001 - 0.0001) / float(total_batch) * current_batch
             else:
                 lr = lr_list[current_epoch]
-
-            if loss is not None and loss > 50:
-                lr *= 0.1
 
             self._opt._lr = lr
             return self._opt
@@ -398,83 +402,6 @@ class Yolov2(rm.Model):
                         "score": float(float(class_score))
                     })
         return nms(result_bbox, nms_threshold)
-
-    def predict(self, img_list, score_threshold=0.3, nms_threshold=0.4):
-        """
-        This method accepts either ndarray and list of image path.
-
-        Example:
-            >>> 
-            >>> model.predict(['img01.jpg', 'img02.jpg']])
-            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
-             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
-
-        Args:
-            img_list (string, list, ndarray): Path to an image, list of path or ndarray.
-            score_threshold (float): The threshold for confidence score.
-                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
-                                     Defaults to 0.3
-            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
-
-
-        Return:
-            (list): List of predicted bbox, score and class of each image.
-            The format of return value is bellow. Box coordinates and size will be returned as
-            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
-
-        .. code-block :: python
-
-            # An example of return value.
-            [
-                [ # Prediction of first image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
-                    ...
-                ],
-                [ # Prediction of second image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
-                    ...
-                ],
-                ...
-            ]
-
-        Note:
-            Box coordinate and size will be returned as ratio to the original image size.
-            Therefore the range of 'box' is [0 ~ 1].
-
-        """
-        batch_size = 32
-        self.set_models(inference=True)
-        if isinstance(img_list, (list, str)):
-            if isinstance(img_list, (tuple, list)):
-                if len(img_list) >= 32:
-                    test_dist = ImageDistributor(img_list)
-                    results = []
-                    bar = tqdm()
-                    bar.total = int(np.ceil(len(test_dist) / batch_size))
-                    for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
-                        img_array = np.vstack([load_img(path, self.imsize)[None]
-                                               for path in x_img_list])
-                        img_array = self.preprocess(img_array)
-                        results.extend(self.get_bbox(self(img_array).as_ndarray(),
-                                                     score_threshold,
-                                                     nms_threshold))
-                        bar.update(1)
-                    return results
-                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-                img_array = self.preprocess(img_array)
-            else:
-                img_array = load_img(img_list, self.imsize)[None]
-                img_array = self.preprocess(img_array)
-                return self.get_bbox(self(img_array),
-                                     score_threshold,
-                                     nms_threshold)[0]
-        else:
-            img_array = img_list
-        return self.get_bbox(self(img_array),
-                             score_threshold,
-                             nms_threshold)
 
     def build_data(self, imsize_list=None):
         """

@@ -155,6 +155,19 @@ def get_model(project_id, model_id):
 
 @route("/api/renom_img/v1/projects/<project_id:int>/models", method="GET")
 def get_models(project_id):
+    """
+
+    Args:
+
+    Return:
+        Success:
+            Json string
+            {
+              :
+
+            }
+    """
+
     try:
         data = storage.fetch_models(project_id)
         body = json.dumps(data)

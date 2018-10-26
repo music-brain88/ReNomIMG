@@ -7,6 +7,7 @@ from renom_img.server import ALG_YOLOV1, ALG_YOLOV2, ALG_SSD
 from renom_img.api.utility.misc.download import download
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2
+from renom_img.api.detection.ssd import SSD
 
 
 class Detector(object):
@@ -48,21 +49,30 @@ class Detector(object):
         ret = requests.get(download_param_api).json()
         filename = ret["filename"]
 
+        if not os.path.exists(filename):
+            download(download_weight_api, filename)
+
         if ret["algorithm"] == ALG_YOLOV1:
             self._alg_name = "Yolov1"
             img_w = ret["hyper_parameters"]["image_width"]
             img_h = ret["hyper_parameters"]["image_height"]
             self._model = Yolov1(imsize=(img_h, img_w))
+            self._model.load(filename)
 
         elif ret["algorithm"] == ALG_YOLOV2:
             self._alg_name = "Yolov2"
             img_w = ret["hyper_parameters"]["image_width"]
             img_h = ret["hyper_parameters"]["image_height"]
             self._model = Yolov2(imsize=(img_h, img_w))
+            self._model.load(filename)
 
-        if not os.path.exists(filename):
-            download(download_weight_api, filename)
-        self._model.load(filename)
+        elif ret["algorithm"] == ALG_SSD:
+            self._alg_name = "SSD"
+            img_w = ret["hyper_parameters"]["image_width"]
+            img_h = ret["hyper_parameters"]["image_height"]
+            self._model = SSD(imsize=(img_h, img_w))
+            self._model.load(filename)
+            self._model._network.num_class = self._model.num_class
 
         self._model_info = {
             "Algorithm": self._alg_name,

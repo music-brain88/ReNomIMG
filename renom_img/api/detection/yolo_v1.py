@@ -116,9 +116,14 @@ class Yolov1(Detection):
         Returns:
             (Optimizer): Optimizer object.
         """
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+        if any([num is None for num in
+                [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
+            if loss is not None and loss > 50:
+                self._opt._lr *= 0.1
+                return self._opt
+
             ind1 = int(total_epoch * 0.5)
             ind2 = int(total_epoch * 0.3)
             ind3 = total_epoch - (ind1 + ind2 + 1)
@@ -127,9 +132,6 @@ class Yolov1(Detection):
                 lr = 0.0001 + (0.01 - 0.0001) / float(total_batch) * current_batch
             else:
                 lr = lr_list[current_epoch]
-
-            if loss is not None and loss > 50:
-                lr *= 0.1
 
             self._opt._lr = lr
             return self._opt

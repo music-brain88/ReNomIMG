@@ -180,7 +180,6 @@ class DataBuilderSegmentation(DataBuilderBase):
         img = Image.open(path)
         img.load()
         w, h = img.size
-        img = self.crop_to_square(img)
         img = img.resize(self.imsize, RESIZE_METHOD)
         return np.array(img), self.imsize[0] / float(w), self.imsize[1] / h
 
@@ -189,7 +188,6 @@ class DataBuilderSegmentation(DataBuilderBase):
         img.load()
         w, h = img.size
         img = img.convert('RGB')
-        img = self.crop_to_square(img)
         img = img.resize(self.imsize, RESIZE_METHOD)
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, self.imsize[0] / float(w), self.imsize[1] / h
