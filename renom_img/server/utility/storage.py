@@ -27,7 +27,7 @@ def pickle_load(pickled_obj):
 
 class Storage:
     def __init__(self):
-        dbname = os.path.join(DB_DIR, 'test_storage.db')
+        dbname = os.path.join(DB_DIR, 'ReNomIMG_storage.db')
         self.db = sqlite3.connect(dbname,
                                   check_same_thread=False,
                                   detect_types=sqlite3.PARSE_DECLTYPES,
