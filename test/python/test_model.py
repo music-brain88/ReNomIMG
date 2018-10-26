@@ -100,15 +100,15 @@ def test_detection_model_implementation(algo):
     for s in serializables:
         assert s in algo.SERIALIZED
 
-    # 4. Check fit function. 
+    # 4. Check fit function.
     test_imgs = [
-                "voc.jpg",
-                "voc.jpg",
-            ]
+        "voc.jpg",
+        "voc.jpg",
+    ]
     test_xmls = [
-                "voc.xml",
-                "voc.xml"
-            ]
+        "voc.xml",
+        "voc.xml"
+    ]
     test_annotation, class_map = parse_xml_detection(test_xmls)
     if algo is Yolov2:
         # Yolo needs anchor.
