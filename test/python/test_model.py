@@ -51,7 +51,7 @@ def test_detection_model_implementation(algo):
         "get_bbox": ["z"],
         "predict": [
             "img_list",
-            "batch_size",
+            ["batch_size", type(1)],
             "score_threshold",
             "nms_threshold"
         ],
@@ -209,3 +209,19 @@ def test_classification_model_implementation(algo):
     ]
     for s in serializables:
         assert s in algo.SERIALIZED
+
+    # 4. Check fit function.
+    test_imgs = [
+        "voc.jpg",
+        "voc.jpg",
+    ]
+    test_annotation = [
+        0, 0
+    ]
+
+    class_map = ["car"]
+    model = algo(class_map)
+    model.fit(test_imgs, test_annotation, test_imgs, test_annotation, batch_size=2, epoch=2)
+
+    # Predict
+    model.predict(test_imgs)

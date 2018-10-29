@@ -6,6 +6,7 @@ from tqdm import tqdm
 from renom_img.api import adddoc
 from renom_img.api.segmentation import SemanticSegmentation
 from renom_img.api.classification.vgg import VGG16
+from renom.utility.initializer import Initializer
 from renom.config import precision
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
@@ -18,9 +19,6 @@ def layer_factory(channel=32, conv_layer_num=2):
         layers.append(rm.Relu())
     layers.append(rm.MaxPool2d(filter=2, stride=2))
     return rm.Sequential(layers)
-
-
-from renom.utility.initializer import Initializer
 
 
 class DeconvInitializer(Initializer):
@@ -44,6 +42,7 @@ class DeconvInitializer(Initializer):
 
 @adddoc
 class FCN_Base(SemanticSegmentation):
+
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         if current_epoch == 100:
             self._opt._lr = 1e-4

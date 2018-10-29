@@ -401,4 +401,4 @@ class Yolov1(Detection):
             mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 5
 
         diff = (x - y)
-        return rm.sum(diff * diff * mask.reshape(N, -1)) / (N/64)
+        return rm.sum(diff * diff * mask.reshape(N, -1)) / (N / 64)

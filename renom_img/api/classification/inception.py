@@ -1,5 +1,6 @@
 import os
 import sys
+sys.setrecursionlimit(3000)
 import renom as rm
 import numpy as np
 from tqdm import tqdm
@@ -169,7 +170,7 @@ class InceptionV1(Classification):
         else:
             if current_epoch % 8 == 0:
                 lr = self._opt._lr * 0.94
-            self._opt._lr = lr
+                self._opt._lr = lr
             return self._opt
 
 
@@ -601,7 +602,7 @@ class InceptionV2(Classification):
         else:
             if current_epoch % 2 == 0:
                 lr = self._opt._lr * 0.94
-            self._opt._lr = lr
+                self._opt._lr = lr
             return self._opt
 
     def predict(self, img_list):
@@ -968,5 +969,5 @@ class InceptionV4(Classification):
         else:
             if current_epoch % 8 == 0:
                 lr = self._opt._lr * 0.94
-            self._opt._lr = lr
+                self._opt._lr = lr
             return self._opt
