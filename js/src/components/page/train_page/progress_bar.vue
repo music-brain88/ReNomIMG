@@ -66,10 +66,10 @@ export default {
       }
     }
   },
-  created: function() {
+  created: function () {
   },
   methods: {
-  },
+  }
 }
 </script>
 

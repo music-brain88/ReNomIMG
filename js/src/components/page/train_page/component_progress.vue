@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex';
+import {mapGetters} from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ProgressBar from '@/components/page/train_page/progress_bar.vue'
 
@@ -26,12 +26,12 @@ export default {
   computed: {
     ...mapGetters(['getRunningModelList'])
   },
-  created: function() {
+  created: function () {
 
   },
   methods: {
 
-  },
+  }
 }
 </script>
 

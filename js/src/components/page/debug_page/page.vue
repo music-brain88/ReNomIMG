@@ -25,9 +25,9 @@ export default {
     'component-frame': ComponentFrame,
     'component-progress': ComponentProgress,
     'component-scatter': ComponentScatter,
-    'component-model-detail': ComponentModelDetail,
+    'component-model-detail': ComponentModelDetail
   },
-  created: function() {
+  created: function () {
 
   }
 }

@@ -17,7 +17,7 @@ export default {
   name: 'ComponentFrame',
   props: {
     widthWeight: Number, // (Max 5, Min 1)
-    heightWeight: Number, // (Max 5, Min 1)
+    heightWeight: Number // (Max 5, Min 1)
   },
   computed: {
     styles () {
@@ -27,12 +27,12 @@ export default {
       }
     }
   },
-  created: function() {
+  created: function () {
 
   },
   methods: {
 
-  },
+  }
 }
 </script>
 

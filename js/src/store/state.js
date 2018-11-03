@@ -16,5 +16,5 @@ export default {
   alert_modal_flag: false,
 
   // error msg from server
-  error_msg: '',
+  error_msg: ''
 }

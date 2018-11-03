@@ -4,7 +4,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex';
+import {mapGetters} from 'vuex'
 
 export default {
   name: 'ImageModal',
@@ -12,12 +12,12 @@ export default {
   },
   computed: {
   },
-  created: function() {
+  created: function () {
 
   },
   methods: {
 
-  },
+  }
 }
 </script>
 

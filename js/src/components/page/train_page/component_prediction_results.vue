@@ -21,38 +21,38 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex';
+import {mapGetters} from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
   name: 'ComponentModelDetail',
   components: {
-    'component-frame': ComponentFrame,
+    'component-frame': ComponentFrame
   },
   props: {
     model: Object
   },
   computed: {
-    model_params_col1: function() {
+    model_params_col1: function () {
       if (this.model === undefined) {
         return [
-          {"title": "Model ID", "content": "-"},
-          {"title": "Algorithm", "content": "-"},
+          {'title': 'Model ID', 'content': '-'},
+          {'title': 'Algorithm', 'content': '-'}
         ]
       } else {
         // TODO: Return reformatted data.
         return this.model.id
       }
     },
-    model_params_col2: function() {
+    model_params_col2: function () {
       if (this.model === undefined) {
         return [
-          {"title": "Image Size", "content": "- x -"},
-          {"title": "Batch Size", "content": "-"},
-          {"title": "Total Epoch", "content": "-"},
-          {"title": "Best Epoch", "content": "-"},
-          {"title": "Best mAP", "content": "-"},
-          {"title": "Best IOU", "content": "-"},
+          {'title': 'Image Size', 'content': '- x -'},
+          {'title': 'Batch Size', 'content': '-'},
+          {'title': 'Total Epoch', 'content': '-'},
+          {'title': 'Best Epoch', 'content': '-'},
+          {'title': 'Best mAP', 'content': '-'},
+          {'title': 'Best IOU', 'content': '-'}
         ]
       } else {
         // TODO: Return reformatted data.
@@ -60,12 +60,12 @@ export default {
       }
     }
   },
-  created: function() {
+  created: function () {
 
   },
   methods: {
 
-  },
+  }
 }
 </script>
 
