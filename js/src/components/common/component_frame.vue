@@ -27,7 +27,7 @@ export default {
       }
     }
   },
-  created: {
+  created: function() {
 
   },
   methods: {
@@ -41,14 +41,20 @@ export default {
 #component-frame {
   --width-weight: 1;
   --height-weight: 1;
-  width: calc(var(--width-weight) * #{$component-block-width});
-  height: calc(var(--height-weight) * #{$component-block-height} + #{$component-header-height});
+  width: calc(var(--width-weight) * #{$component-block-width}
+    - #{$component-block-margin}*2);
+  height: calc(var(--height-weight) * #{$component-block-height}
+    - #{$component-block-margin}*2
+    + #{$component-block-margin}
+    + #{$component-header-height});
   margin: $component-block-margin;
 
   #component-header { 
     height: $component-header-height;
     margin-bottom: $component-header-margin-bottom;
     background-color: $component-header-background-color;
+    color: $component-header-font-color;
+    font-family: $component-header-font-family;
   }
 
   #frame-content{

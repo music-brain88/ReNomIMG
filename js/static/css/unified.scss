@@ -13,7 +13,7 @@ $header-title-margin-left: 15pt;
 $header-font-color: #ffffff;
 
 //// App Page Container Settings.
-$app-container-padding: 10px;
+$app-container-padding-top: 10px;
 
 //// Component Frame Settings
 $component-header-height: calc(#{$header-height}*0.8);
@@ -21,8 +21,21 @@ $component-header-min-height: 20px;
 $component-header-margin-bottom: 10px;
 $component-header-background-color: #063662;
 $component-header-font-family: Open Sans Regular;
+$component-header-font-color: #ffffff;
 $component-font-family: Open Sans Lite;
 $component-block-margin: 10px;
-$component-block-width: calc(#{$app-window-width} / 12 - #{$component-block-margin}*2);
+$component-block-width: calc(#{$app-window-width} / 12);
 $component-block-height: $component-block-width;
 $component-background-color: #ffffff;
+
+// Component Progress Bar Settings.
+$progress-bar-margin: 20px;
+$progress-bar-height: 25px;
+$bar-margin: 5px;
+
+// Component Scatter model plot Settings.
+$scatter-padding: 20px;
+$scatter-grid-color: #ddd;
+$scatter-circle-radius: 10;
+
+

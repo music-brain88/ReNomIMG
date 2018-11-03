@@ -4,6 +4,9 @@ export default {
   task_title: 'Classification',
   page_title: 'Train',
 
+  // Models
+  models: [],
+
   /*
   alert modal
   */

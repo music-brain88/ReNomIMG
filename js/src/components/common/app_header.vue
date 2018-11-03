@@ -20,7 +20,7 @@ export default {
       'page_title'
     ])
   },
-  created: {
+  created: function () {
 
   },
   methods: {
