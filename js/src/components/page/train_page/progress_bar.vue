@@ -27,42 +27,42 @@ export default {
       if (this.model === undefined) {
         return '-'
       } else {
-        return model.id
+        return this.model.id
       }
     },
     current_epoch: function () {
       if (this.model === undefined) {
         return '-'
       } else {
-        return model.last_epoch
+        return this.model.last_epoch
       }
     },
     current_batch: function () {
       if (this.model === undefined) {
         return '-'
       } else {
-        return model.last_batch
+        return this.model.last_batch
       }
     },
     total_epoch: function () {
       if (this.model === undefined) {
         return '-'
       } else {
-        return model.total_epoch
+        return this.model.total_epoch
       }
     },
     total_batch: function () {
       if (this.model === undefined) {
         return '-'
       } else {
-        return model.total_batch
+        return this.model.total_batch
       }
     },
     loss: function () {
       if (this.model === undefined) {
         return '-'
       } else {
-        return model.train_loss[-1]
+        return this.model.train_loss[-1]
       }
     }
   },

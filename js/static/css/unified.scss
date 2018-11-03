@@ -18,7 +18,7 @@ $app-container-padding-top: 10px;
 //// Component Frame Settings
 $component-header-height: calc(#{$header-height}*0.8);
 $component-header-min-height: 20px;
-$component-header-margin-bottom: 10px;
+$component-header-margin-bottom: 12px;
 $component-header-background-color: #063662;
 $component-header-font-family: Open Sans Regular;
 $component-header-font-color: #ffffff;
@@ -38,4 +38,10 @@ $scatter-padding: 20px;
 $scatter-grid-color: #ddd;
 $scatter-circle-radius: 10;
 
+// Component Model Detail
+$model-detail-margin: 25px;
+$model-detail-item-margin-bottom: 17px;
+$model-detail-item-title-font-color: rgb(80, 80, 80);
 
+//// Modal Settings.
+$modal-mask-color: rgba(0, 0, 0, 0.6);

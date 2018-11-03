@@ -4,6 +4,8 @@ export default {
   task_title: 'Classification',
   page_title: 'Train',
 
+  current_task: 'Detection',
+
   // Models
   models: [],
 

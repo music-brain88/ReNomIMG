@@ -45,7 +45,7 @@ export default {
     - #{$component-block-margin}*2);
   height: calc(var(--height-weight) * #{$component-block-height}
     - #{$component-block-margin}*2
-    + #{$component-block-margin}
+    + #{$component-header-margin-bottom}
     + #{$component-header-height});
   margin: $component-block-margin;
 
