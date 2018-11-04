@@ -7,7 +7,7 @@ class ThreadingWSGIServer(ThreadingMixIn, WSGIServer):
 
 
 class Server:
-    def __init__(self, wsgi_app, host='0.0.0.0', port=8070):
+    def __init__(self, wsgi_app, host='0.0.0.0', port=8080):
         self.wsgi_app = wsgi_app
         self.host = host
         self.port = port

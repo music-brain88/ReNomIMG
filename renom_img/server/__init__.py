@@ -51,7 +51,6 @@ DB_DIR = "storage"
 DB_DIR_TRAINED_WEIGHT = os.path.join(DB_DIR, "trained_weight")
 DB_DIR_PRETRAINED_WEIGHT = os.path.join(DB_DIR, "pretrained_weight")
 
-
 def create_dirs():
     # Create directories
     for path in [DATASRC_IMG, DATASRC_LABEL,
@@ -60,3 +59,5 @@ def create_dirs():
         if not os.path.exists(path):
             os.makedirs(path)
             print("Directory %s is newly created." % (path))
+
+create_dirs()

@@ -1,4 +1,4 @@
-import Project from './classes/project'
+import Model from './classes/model'
 import {TASK, ALG} from '../const.js'
 
 export default {

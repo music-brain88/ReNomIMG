@@ -81,7 +81,7 @@ export default {
       display: flex;
       margin-bottom: $model-detail-item-margin-bottom;
       .item-title {
-        width: 45%;
+        width: 70%;
         color: $model-detail-item-title-font-color;
       }
       .item-content {
