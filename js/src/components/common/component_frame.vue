@@ -41,6 +41,7 @@ export default {
 #component-frame {
   --width-weight: 1;
   --height-weight: 1;
+
   width: calc(var(--width-weight) * #{$component-block-width}
     - #{$component-block-margin}*2);
   height: calc(var(--height-weight) * #{$component-block-height}

@@ -1,7 +1,7 @@
 <template>
-  <component-frame :width-weight="10" :height-weight="2">
+  <component-frame :width-weight="2" :height-weight="1.5">
     <template slot="header-slot">
-      Tag List
+      Model Filter
     </template>
   </component-frame>
 </template>
@@ -11,12 +11,12 @@ import {mapGetters} from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
-  name: 'ComponentTagList',
+  name: 'ComponentModelFilter',
   components: {
     'component-frame': ComponentFrame
   },
   computed: {
-    ...mapGetters(['getTagList']),
+
   },
   created: function () {
 

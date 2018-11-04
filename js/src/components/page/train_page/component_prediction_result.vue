@@ -1,5 +1,5 @@
 <template>
-  <component-frame :width-weight="12" :height-weight="4">
+  <component-frame :width-weight="10" :height-weight="6">
     <template slot="header-slot">
       Prediction Result
     </template>

@@ -1,29 +1,24 @@
 <template>
-  <component-frame :width-weight="6" :height-weight="4">
+  <component-frame :width-weight="2" :height-weight="9">
     <template slot="header-slot">
-      Train Progress
+      Model List
     </template>
-    <div id="alg-list">
-    </div>
-    <div id="component-progress">
-      <progress-bar/>
-    </div>
   </component-frame>
 </template>
 
 <script>
 import {mapGetters} from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
-import ProgressBar from '@/components/page/train_page/progress_bar.vue'
+import ModelItem from '@/components/page/train_page/model_item.vue'
 
 export default {
-  name: 'ComponentProgress',
+  name: 'ComponentModelList',
   components: {
     'component-frame': ComponentFrame,
-    'progress-bar': ProgressBar
+    'model-item': ModelItem
   },
   computed: {
-    ...mapGetters(['getRunningModelList'])
+
   },
   created: function () {
 

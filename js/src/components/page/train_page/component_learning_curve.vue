@@ -1,7 +1,7 @@
 <template>
-  <component-frame :width-weight="10" :height-weight="2">
+  <component-frame :width-weight="5" :height-weight="4">
     <template slot="header-slot">
-      Tag List
+      Learning Curve
     </template>
   </component-frame>
 </template>
@@ -11,12 +11,12 @@ import {mapGetters} from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
-  name: 'ComponentTagList',
+  name: 'ComponentLearningCurve',
   components: {
     'component-frame': ComponentFrame
   },
   computed: {
-    ...mapGetters(['getTagList']),
+
   },
   created: function () {
 

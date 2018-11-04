@@ -1,5 +1,6 @@
 // App window size settings.
 $app-window-width: 1280px;
+$app-window-height: 100vh;
 
 //// App header Settings.
 $header-height: calc(100vh * 0.04);
@@ -25,7 +26,7 @@ $component-header-font-color: #ffffff;
 $component-font-family: Open Sans Lite;
 $component-block-margin: 10px;
 $component-block-width: calc(#{$app-window-width} / 12);
-$component-block-height: $component-block-width;
+$component-block-height: calc(#{$app-window-height} / 12);
 $component-background-color: #ffffff;
 
 // Component Progress Bar Settings.
