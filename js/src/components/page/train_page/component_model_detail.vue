@@ -37,7 +37,7 @@ export default {
       if (this.model === undefined) {
         return [
           {'title': 'Model ID', 'content': '-'},
-          {'title': 'Algorithm', 'content': '-'}
+          {'title': 'Algorithm', 'content': '-'},
         ]
       } else {
         // TODO: Return reformatted data.
@@ -52,7 +52,7 @@ export default {
           {'title': 'Total Epoch', 'content': '-'},
           {'title': 'Best Epoch', 'content': '-'},
           {'title': 'Best mAP', 'content': '-'},
-          {'title': 'Best IOU', 'content': '-'}
+          {'title': 'Best IOU', 'content': '-'},
         ]
       } else {
         // TODO: Return reformatted data.
