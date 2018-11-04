@@ -16,7 +16,7 @@ export default {
     'component-frame': ComponentFrame
   },
   computed: {
-
+    ...mapGetters(['getTagList']),
   },
   created: function () {
 

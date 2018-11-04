@@ -9,6 +9,8 @@
       This is size(6, 4)
     </component-frame>
     <component-model-detail/>
+    <component-prediction-result/>
+    <component-tag-list/>
   </div>
 </template>
 
@@ -17,7 +19,9 @@
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ComponentProgress from '@/components/page/train_page/component_progress.vue'
 import ComponentScatter from '@/components/page/train_page/component_scatter.vue'
-import ComponentModelDetail from '@/components/page/train_page/component_prediction_results.vue'
+import ComponentModelDetail from '@/components/page/train_page/component_model_detail.vue'
+import ComponentTagList from '@/components/page/train_page/component_tag_list.vue'
+import ComponentPredictionResult from '@/components/page/train_page/component_prediction_result.vue'
 
 export default {
   name: 'DebugPage',
@@ -25,7 +29,9 @@ export default {
     'component-frame': ComponentFrame,
     'component-progress': ComponentProgress,
     'component-scatter': ComponentScatter,
-    'component-model-detail': ComponentModelDetail
+    'component-tag-list': ComponentTagList,
+    'component-model-detail': ComponentModelDetail,
+    'component-prediction-result': ComponentPredictionResult,
   },
   created: function () {
 
