@@ -134,6 +134,16 @@ def model_create():
 def model_load(id):
     return {"id": id}
 
+@route("/api/renom_img/v2/load_all_models", method="GET")
+@json_handler
+def load_all_models():
+    models = storage.fetch_models() 
+    
+    ret = {}
+    for model in models:
+        print(model)
+    
+
 @route("/api/renom_img/v2/model/remove/<id:int>", method="GET")
 @json_handler
 def model_remove(id):

@@ -39,7 +39,7 @@ class Task(Base):
         )
 
 
-class Test_dataset(Base):
+class Test_Dataset(Base):
     __tablename__ = 'test_dataset'
 
     test_dataset_id = Column(Integer, primary_key=True, autoincrement=True)
