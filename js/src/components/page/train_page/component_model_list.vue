@@ -3,6 +3,13 @@
     <template slot="header-slot">
       Model List
     </template>
+    <div id="model-list">
+      <model-item/>
+      <model-item/>
+      <model-item/>
+      <model-item/>
+      <model-item/>
+    </div>
   </component-frame>
 </template>
 
@@ -30,4 +37,11 @@ export default {
 </script>
 
 <style lang='scss'>
+#model-list {
+  display: flex; 
+  width: 100%;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  padding: $model-list-margin;
+}
 </style>

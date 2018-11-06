@@ -55,6 +55,7 @@ export default {
     width: $app-window-width;
     margin: 0 auto;
     padding-top: $app-container-padding-top;
+    padding-bottom: $app-container-padding-bottom;
   }
 }
 </style>

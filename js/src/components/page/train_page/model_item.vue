@@ -9,6 +9,10 @@ import {mapGetters} from 'vuex'
 export default {
   name: 'ModelItem',
   components: {
+
+  },
+  props: {
+
   },
   computed: {
 
@@ -24,7 +28,11 @@ export default {
 
 <style lang='scss'>
 #model-item {
-  width: 100%;
+  width: calc(100% - #{$model-item-margin}*2);
+  height: $model-item-height;
+  min-height: $model-item-height-min;
+  margin: $model-item-margin;
+  background-color: red;
 }
 
 </style>

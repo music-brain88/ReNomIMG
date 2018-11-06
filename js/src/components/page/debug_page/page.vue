@@ -11,7 +11,7 @@
       <component-prediction-result/>
       <component-tag-list/>
     </div>
-    <div id="model-list">
+    <div id="vertical-component">
       <component-model-filter/>
       <component-model-list/>
     </div>
@@ -60,7 +60,7 @@ export default {
     flex-wrap: wrap;
     width: calc(10*#{$component-block-width});
   }  
-  #model-list {
+  #vertical-component {
     display: flex;
     align-content: flex-start;
     flex-wrap: wrap;

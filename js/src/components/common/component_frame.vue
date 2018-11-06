@@ -48,10 +48,16 @@ export default {
     - #{$component-block-margin}*2
     + #{$component-header-margin-bottom}
     + #{$component-header-height});
+  min-height: calc(var(--height-weight) * #{$component-block-height-min}
+    - #{$component-block-margin}*2
+    + #{$component-header-margin-bottom}
+    + #{$component-header-height});
+
   margin: $component-block-margin;
 
   #component-header { 
     height: $component-header-height;
+    min-height: $component-header-min-height;
     margin-bottom: $component-header-margin-bottom;
     background-color: $component-header-background-color;
     color: $component-header-font-color;
@@ -61,6 +67,7 @@ export default {
   #frame-content{
     background-color: $component-background-color; 
     height: calc(100% - #{$component-header-margin-bottom} - #{$component-header-height});
+    width: 100%;
   }
 }
 </style>

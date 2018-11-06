@@ -1,5 +1,6 @@
 // App window size settings.
-$app-window-width: 1280px;
+// $app-window-width: 1280px;
+$app-window-width: calc(100vw - 20px);
 $app-window-height: 100vh;
 
 //// App header Settings.
@@ -15,10 +16,13 @@ $header-font-color: #ffffff;
 
 //// App Page Container Settings.
 $app-container-padding-top: 10px;
+$app-container-padding-bottom: 10px;
+$app-container-padding-left: 10px;
+$app-container-padding-right: 10px;
 
 //// Component Frame Settings
 $component-header-height: calc(#{$header-height}*0.8);
-$component-header-min-height: 20px;
+$component-header-min-height: 25px;
 $component-header-margin-bottom: 12px;
 $component-header-background-color: #063662;
 $component-header-font-family: Open Sans Regular;
@@ -27,6 +31,7 @@ $component-font-family: Open Sans Lite;
 $component-block-margin: 10px;
 $component-block-width: calc(#{$app-window-width} / 12);
 $component-block-height: calc(#{$app-window-height} / 12);
+$component-block-height-min: 80px;
 $component-background-color: #ffffff;
 
 // Component Progress Bar Settings.
@@ -46,3 +51,16 @@ $model-detail-item-title-font-color: rgb(80, 80, 80);
 
 //// Modal Settings.
 $modal-mask-color: rgba(0, 0, 0, 0.6);
+
+// Model Filter Item Settings.
+$model-filter-margin: 5px;
+
+
+// Model Llist Settings.
+$model-list-margin: 5px;
+
+// Model Item Settings.
+$model-item-height: $component-block-height;
+$model-item-height-min: $component-block-height-min;
+$model-item-margin: 5px;
+

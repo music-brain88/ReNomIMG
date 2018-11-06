@@ -1,5 +1,5 @@
 <template>
-  <component-frame :width-weight="4" :height-weight="4">
+  <component-frame :width-weight="3.99999" :height-weight="4">
     <template slot="header-slot">
       Model Distribution
     </template>
