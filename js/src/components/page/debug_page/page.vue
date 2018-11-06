@@ -44,7 +44,14 @@ export default {
     'component-prediction-result': ComponentPredictionResult,
   },
   created: function () {
-
+  },
+  mounted: function () {
+    this.$store.dispatch('createModel', {
+      'hyper_params': {'asd': 1},
+      'dataset_id': 2,
+      'parents': [],
+      'task': 1,
+    })
   }
 }
 </script>

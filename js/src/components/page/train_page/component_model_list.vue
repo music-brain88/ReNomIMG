@@ -4,11 +4,8 @@
       Model List
     </template>
     <div id="model-list">
-      <model-item/>
-      <model-item/>
-      <model-item/>
-      <model-item/>
-      <model-item/>
+      <model-item v-for="model in getFilteredModelList" :model="model">
+      </model-item>
     </div>
   </component-frame>
 </template>
@@ -25,7 +22,7 @@ export default {
     'model-item': ModelItem
   },
   computed: {
-
+    ...mapGetters(['getFilteredModelList']),
   },
   created: function () {
 

@@ -1,3 +1,5 @@
+import C from '@/const.js'
+
 export default {
   /**
    *
@@ -11,4 +13,21 @@ export default {
   getFilterList (state, getters) {
     return [1, 2, 3]
   },
+  getFilteredModelList (state, getters) {
+    return state.models
+  },
+  getCurrentTask (state, getters) {
+    return state.current_task
+  },
+  getModelResultTitle (state, getters) {
+    if (getters.getCurrentTask === C.TASK.CLASSIFICATION) {
+      return ['Precision', 'Recall', 'F1']
+    } else if (getters.getCurrentTask === C.TASK.DETECTION) {
+      return ['mAP', 'IOU']
+    } else if (getters.getCurrentTask === C.TASK.SEGMENTATION) {
+      return ['Precision', 'Recall', 'F1']
+    } else {
+      throw new Error('Not supported task.')
+    }
+  }
 }

@@ -1,10 +1,12 @@
 <template>
   <div id="model-item">
+    <div id="model-id"></div>
   </div>
 </template>
 
 <script>
 import {mapGetters} from 'vuex'
+import C from '@/const.js'
 
 export default {
   name: 'ModelItem',
@@ -12,10 +14,10 @@ export default {
 
   },
   props: {
-
+    model: Object,
   },
   computed: {
-
+    ...mapGetters(['getCurrentTask', 'getModelResultTitle']),
   },
   created: function () {
 

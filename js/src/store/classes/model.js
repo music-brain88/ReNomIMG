@@ -1,7 +1,14 @@
+import C from '../../const.js'
+
 export default class Model {
-  constructor (id, task, hyper_parameters, dataset_id, children, parents) {
+  constructor (id, task, hyper_parameters, dataset_id, parents) {
     // (Integer) ID of Model. This will defined by database.
     this.id = id
+    this.dataset_id = dataset_id
+
+    // States.
+    this.state = C.STATE.CREATED
+    this.running_state = C.STATE.STARTING
 
     this.total_epoch = 0
     this.last_epoch = 0
@@ -18,14 +25,10 @@ export default class Model {
     this.best_valid_result = {}
 
     this.model_list = {
-      'child': children,
       'parent': parents
     }
   }
-  get child () {
-    return this.model_list.child
-  }
-  get parent () {
+  get parents () {
     return this.model_list.parent
   }
 }

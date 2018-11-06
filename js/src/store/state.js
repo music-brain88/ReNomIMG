@@ -1,10 +1,12 @@
+import C from '@/const.js'
+
 export default {
 
   // Header States
   task_title: 'Classification',
   page_title: 'Train',
 
-  current_task: 'Detection',
+  current_task: C.TASK.DETECTION,
 
   // Models
   models: [],
@@ -13,7 +15,7 @@ export default {
   alert modal
   */
   // show alert message modal or not
-  alert_modal_flag: false,
+  show_alert_modal: false,
 
   // error msg from server
   error_msg: ''

@@ -121,13 +121,16 @@ def datasrc(folder_name, file_name):
 
 
 ####### WEB APIs
-
-@route("/api/renom_img/v2/model/create", method="GET")
+@route("/api/renom_img/v2/model/create", method="POST")
 @json_handler
 def model_create():
-    # TODO: Register model to DB.
     req_params = request.params
-    return {"id": np.nan}
+    hyper_params = json.loads(json.dumps(req_params.hyper_params))
+    parents = json.loads(json.dumps(req_params.parents))
+    dataset_id = req_params.dataset_id
+    task = req_params.task
+    model_id = 1
+    return {"id": model_id}
 
 @route("/api/renom_img/v2/model/load/<id:int>", method="GET")
 @json_handler
