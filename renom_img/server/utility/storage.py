@@ -93,8 +93,9 @@ class Storage:
 
     def fetch_model(self, model_id):
         with SessionContext() as session:
-            result = session.query(Model.model_id).all()
-            #dict_result = self.remove_instance_state_key(result)
+            result = session.query(Model).filter(Model.model_id == model_id)
+            for i in result:
+                print(i)
             return result
 
     def fetch_datasets(self):

@@ -133,7 +133,10 @@ def model_create():
 @json_handler
 def model_load(id):
     model = storage.fetch_model(id)
-    return {"model": model}
+    
+    print(model)
+
+    #return {"model": model}
 
 @route("/api/renom_img/v2/load_all_models", method="GET")
 @json_handler
@@ -141,10 +144,11 @@ def load_all_models():
     
     models = storage.fetch_models()
 
-    for model in models:
-        for col in model:
-            print(col)
-            
+    # for model in models:
+    #
+    #     print(model.keys())
+
+    #return model 
 
 
 @route("/api/renom_img/v2/model/remove/<id:int>", method="GET")

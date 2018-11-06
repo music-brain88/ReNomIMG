@@ -1,4 +1,6 @@
 # coding: utf-8
+import re
+from sqlalchemy.dialects.sqlite import DATETIME
 from sqlalchemy import Column, Integer, String, Float, DateTime
 from sqlalchemy import ForeignKey, BLOB, CLOB, TEXT, NUMERIC
 from sqlalchemy.orm import relationship
@@ -125,8 +127,14 @@ class Model(Base):
     last_train_loss = Column(NUMERIC)
     total_batch = Column(Integer)
     running_state = Column(Integer)
-    created = Column(DateTime, nullable=False)
-    updated = Column(DateTime, nullable=False)
+
+    dt = DATETIME(storage_format="%(year)04d/%(month)02d/%(day)02d "
+                             "%(hour)02d:%(min)02d:%(second)02d",
+              regexp=r"(\d+)/(\d+)/(\d+) (\d+)-(\d+)-(\d+)"
+                  )
+
+    created = Column(DATETIME, nullable=False)
+    updated = Column(DATETIME, nullable=False)
 
     def __repr__(self):
         return "<Model(model_id='%s', task_id='%s')>" % (
