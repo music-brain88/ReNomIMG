@@ -16,5 +16,8 @@ export default {
   },
   addModel (state, payload) {
     state.models = [payload, ...state.models]
+  },
+  showSlideMenu (state, payload) {
+    state.show_slide_menu = payload
   }
 }

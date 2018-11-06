@@ -18,5 +18,8 @@ export default {
   show_alert_modal: false,
 
   // error msg from server
-  error_msg: ''
+  error_msg: '',
+
+  // show slide menu.
+  show_slide_menu: true,
 }

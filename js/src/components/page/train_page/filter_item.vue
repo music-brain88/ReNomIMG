@@ -2,7 +2,7 @@
   <div id="filter-item">
     <div id="filter-add" class="item" v-if="isAddButton">
       <div id="add">
-        <i class="fas fa-plus"></i>
+        <i class="fa fa-plus" aria-hidden="true"></i>
       </div>
     </div>
     <div id="filter-content" class="item" v-else>
@@ -41,19 +41,23 @@ export default {
     width: calc(100%/3 - #{$model-filter-margin}*2);
     height: calc(100%/3.5 - #{$model-filter-margin}*2);
     margin: $model-filter-margin;
-    background-color: red;
     .item {
       width: 100%;
       height: 100%;
+      background-color: lightgray;
       #delete {
         width: 20%;
         height: 100%;
         background-color: black;
       }
       #add {
-        width: 20%;
+        border-style: dashed;
+        border-color: black;
+        border-width: 1.2px;
+        width: 100%;
         height: 100%;
         font-family: "FontAwesome";
+        text-align: center;
       }
     }
   }

@@ -19,6 +19,9 @@ export default {
   getCurrentTask (state, getters) {
     return state.current_task
   },
+  getShowSlideMenu (state, getters) {
+    return state.show_slide_menu
+  },
   getModelResultTitle (state, getters) {
     if (getters.getCurrentTask === C.TASK.CLASSIFICATION) {
       return ['Precision', 'Recall', 'F1']

@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <app-header></app-header>
+    <app-header/>
+    <slide-menu/>
     <div id="app-content">
       <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
       <div id="container">
@@ -14,11 +15,13 @@
 <script>
 import AlertModal from '@/components/common/alert_modal.vue'
 import AppHeader from '@/components/common/app_header.vue'
+import SlideMenu from '@/components/common/slide_menu.vue'
 
 export default {
   name: 'App',
   components: {
-    'app-header': AppHeader
+    'app-header': AppHeader,
+    'slide-menu': SlideMenu,
   },
   created: function () {
     this.$store.commit('setPageName', {

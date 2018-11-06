@@ -1,30 +1,37 @@
 <template>
   <div id="app-header">
+    <div id="header-menu">
+      <i class="fa fa-bars" aria-hidden="true" @click="showSlideMenu(!getShowSlideMenu)"></i>
+    </div>
     <div id="title">
-        <span id="product-title" class="header-title">ReNomIMG</span>
-        <span class="header-title"> > </span>
-        <span id="task-title" class="header-title"> {{ task_title }} </span>
-        <span class="header-title"> > </span>
-        <span id="page-title" class="header-title"> {{ page_title }} </span>
+      <span id="product-title" class="header-title">ReNomIMG</span>
+      <span class="header-title"> > </span>
+      <span id="task-title" class="header-title"> {{ task_title }} </span>
+      <span class="header-title"> > </span>
+      <span id="page-title" class="header-title"> {{ page_title }} </span>
     </div>
   </div>  
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters, mapMutations } from 'vuex'
+
 export default {
   name: 'AppHeader',
+  computed: {
+  },
   computed: {
     ...mapState([
       'task_title',
       'page_title'
-    ])
+    ]),
+    ...mapGetters(['getShowSlideMenu']),
   },
   created: function () {
 
   },
   methods: {
-
+    ...mapMutations(['showSlideMenu']),
   }
 }
 </script>
@@ -36,6 +43,17 @@ export default {
   min-height: $header-min-height;
   background-color: $header-background-color;
   color: $header-font-color;
+  display: flex;
+  flex-wrap: wrap;
+
+  #header-menu {
+    width: 20px;
+    height: 100%;
+    margin: 0 0 0 $header-title-margin-left;
+    display: inline-flex;
+    font-size: 150%;
+    align-items: center;
+  }
 
   #title {
     height: 100%;
