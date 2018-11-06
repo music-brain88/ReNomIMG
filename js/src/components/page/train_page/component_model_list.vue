@@ -5,8 +5,8 @@
         Model List
       </div>
       <div id="model-add-button">
-      <select class="sort-menu">
-        <option ></option>
+      <select class="sort-menu" v-on:change="setSortOrder">
+        <option v-for="item in getSortTitle" :value="item">{{item}}</option>
       </select>
       </div>
     </template>
@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapMutations} from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ModelItem from '@/components/page/train_page/model_item.vue'
 
@@ -29,13 +29,13 @@ export default {
     'model-item': ModelItem
   },
   computed: {
-    ...mapGetters(['getFilteredModelList']),
+    ...mapGetters(['getFilteredModelList', 'getSortTitle']),
   },
   created: function () {
 
   },
   methods: {
-
+    ...mapMutations(['setSortOrder'])
   }
 }
 </script>

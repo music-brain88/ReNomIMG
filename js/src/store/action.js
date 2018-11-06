@@ -1,6 +1,6 @@
 import Model from './classes/model'
 import axios from 'axios'
-import C from '../const.js'
+import { STATE } from '@/const.js'
 
 export default {
   /*****
@@ -47,7 +47,7 @@ export default {
         } else {
           let id = response.data.id
           model.id = id
-          model.state = C.STATE.CREATED
+          model.state = STATE.CREATED
         }
       })
   },

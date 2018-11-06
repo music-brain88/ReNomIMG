@@ -1,4 +1,4 @@
-import C from '../../const.js'
+import {STATE, RUNNING_STATE} from '@/const.js'
 
 export default class Model {
   constructor (id, task, hyper_parameters, dataset_id, parents) {
@@ -7,8 +7,8 @@ export default class Model {
     this.dataset_id = dataset_id
 
     // States.
-    this.state = C.STATE.CREATED
-    this.running_state = C.STATE.STARTING
+    this.state = STATE.CREATED
+    this.running_state = RUNNING_STATE.STARTING
 
     this.total_epoch = 0
     this.last_epoch = 0

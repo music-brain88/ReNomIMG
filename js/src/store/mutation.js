@@ -1,5 +1,5 @@
 import Model from './classes/model'
-import C from '../const.js'
+import {getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
 
 export default {
   setAlertModalFlag (state, payload) {
@@ -11,7 +11,7 @@ export default {
   },
   setCurrentTask (state, payload) {
     const task = payload
-    if (task in Object.keys(C.TASK)) {
+    if (task in Object.values(TASK_ID)) {
       state.current_task = task
     } else {
       throw new Error('Not supported task.')
@@ -22,5 +22,16 @@ export default {
   },
   showSlideMenu (state, payload) {
     state.show_slide_menu = payload
+  },
+  setSortOrder (state, payload) {
+    let task = state.current_task // Need access through getter.
+    if (task in Object.values(TASK_ID)) {
+      let value = payload.target.value
+      let task_key = getKeyByValue(TASK_ID, task)
+      let key = getKeyByValueIncludes(SORTBY[task_key], value)
+      state.sort_order = SORTBY[task_key][key].id
+    } else {
+      throw new Error('Not supported task.')
+    }
   }
 }

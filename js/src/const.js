@@ -1,89 +1,85 @@
-export default {
-  // Tasks
-  TASK: {
-    CLASSIFICATION: 0,
-    DETECTION: 1,
-    SEGMENTATION: 2,
-  },
+export const TASK_ID = {
+  CLASSIFICATION: 0,
+  DETECTION: 1,
+  SEGMENTATION: 2,
+}
 
-  // Algorithms
-  ALG: {
-    CLASSIFICATION: {
-      ResNet: 0,
-      DenseNet: 1,
-      Vgg16: 2,
-      Vgg19: 3,
-      Inception1: 4,
-      Inception2: 5,
-      Inception3: 6,
-      Inception4: 7,
+export const ALGORITHM_ID = {
+  CLASSIFICATION: {
+    ResNet: 1,
+    DenseNet: 2,
+    Vgg16: 3,
+    Vgg19: 4,
+    Inception1: 5,
+    Inception2: 6,
+    Inception3: 7,
+    Inception4: 8,
+  },
+  DETECTION: {
+    YOLOv1: 11,
+    YOLOv2: 12,
+    YOLOv3: 13,
+    SSD: 14,
+  },
+  SEGMENTATION: {
+    Unet: 21,
+    Fcn: 22,
+    TernousNet: 23,
+  }
+}
+
+export const SORTBY = {
+  CLASSIFICATION: {
+    MODEL_ID: {
+      id: 0,
+      key: 'model_id',
+      title: 'Model ID',
     },
-    DETECTION: {
-      YOLOv1: 0,
-      YOLOv2: 1,
-      YOLOv3: 2,
-      SSD: 3,
+    VALID_RECALL: {
+      id: 1,
+      key: 'valid_recall',
+      title: 'Valid Recall'
     },
-    SEGMENTATION: {
-      Unet: 0,
-      Fcn: 1,
-      TernousNet: 2,
+    VALID_PRECISION: {
+      id: 2,
+      key: 'valid_precision',
+      title: 'Valid Precision'
+    },
+    VALID_F1: {
+      id: 3,
+      key: 'valid_f1',
+      title: 'Valid F1'
+    },
+    VALID_LOSS: {
+      id: 4,
+      key: 'valid_loss',
+      title: 'Valid Loss'
     }
   },
-
-  // Model states.
-  STATE: {
-    CREATED: 0,
-    RESERVED: 1,
-    RUNNING: 2,
-    STOPPED: 3,
+  DETECTION: {
   },
-
-  // If the state is RUNNING, following are the more detailed states.
-  RUNNING_STATE: {
-    STARTING: 0,
-    TRAINING: 1,
-    VALIDATING: 2,
-    STOPPING: 3,
+  SEGMENTATION: {
   },
+}
 
-  SORTBY: {
-    CLASSIFICATION: {
-      VARID: {
-        RECALL: 0,
-        PRECISION: 1,
-        F1: 2,
-        LOSS: 3
-      },
-      TEST: {
-        RECALL: 4,
-        PRECISION: 5,
-        F1: 6,
-      }
-    },
-    DETECTION: {
-      VARID: {
-        MAP: 7,
-        IOU: 8,
-        LOSS: 9,
-      },
-      TEST: {
-        MAP: 10,
-        IOU: 11,
-      }
-    },
-    SEGMENTATION: {
-      VARID: {
-        RECALL: 0,
-        PRECISION: 1,
-        F1: 2,
-        LOSS: 3
-      },
-      TEST: {
-        RECALL: 4,
-        PRECISION: 5,
-        F1: 6,
-      }
-    },
-  }
+export const STATE = {
+  CREATED: 0,
+  RESERVED: 1,
+  RUNNING: 2,
+  STOPPED: 3,
+}
+
+export const RUNNING_STATE = {
+  STARTING: 0,
+  TRAINING: 1,
+  VALIDATING: 2,
+  STOPPING: 3,
+}
+
+export function getKeyByValue (object, value) {
+  return Object.keys(object).find(key => object[key] === value)
+}
+
+export function getKeyByValueIncludes (object, value) {
+  return Object.keys(object).find(key => (Object.values(object[key]).some(v => value === v)))
 }

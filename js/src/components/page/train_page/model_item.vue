@@ -6,7 +6,6 @@
 
 <script>
 import {mapGetters} from 'vuex'
-import C from '@/const.js'
 
 export default {
   name: 'ModelItem',

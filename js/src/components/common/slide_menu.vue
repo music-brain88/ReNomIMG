@@ -23,14 +23,14 @@
 
 <script>
 import {mapGetters, mapMutations} from 'vuex'
-import C from '@/const.js'
+import { TASK_ID } from '@/const.js'
 
 export default {
   name: 'SlideMenu',
   computed: {
     ...mapGetters(['getShowSlideMenu']),
     TASK: function () {
-      return C.TASK
+      return TASK_ID
     }
   },
   created: function () {

@@ -1,4 +1,4 @@
-import C from '@/const.js'
+import { SORTBY, TASK_ID, getKeyByValue } from '@/const.js'
 
 export default {
   /**
@@ -14,6 +14,7 @@ export default {
     return [1, 2, 3]
   },
   getFilteredModelList (state, getters) {
+    // TODO: Sort by state and task.
     return state.models
   },
   getCurrentTask (state, getters) {
@@ -22,27 +23,13 @@ export default {
   getShowSlideMenu (state, getters) {
     return state.show_slide_menu
   },
-  getModelResultTitle (state, getters) {
-    if (getters.getCurrentTask === C.TASK.CLASSIFICATION) {
-      return ['Precision', 'Recall', 'F1']
-    } else if (getters.getCurrentTask === C.TASK.DETECTION) {
-      return ['mAP', 'IOU']
-    } else if (getters.getCurrentTask === C.TASK.SEGMENTATION) {
-      return ['Precision', 'Recall', 'F1']
+  getSortTitle (state, getters) {
+    let task = getters.getCurrentTask
+    if (task in Object.values(TASK_ID)) {
+      let key = getKeyByValue(TASK_ID, task)
+      return Object.values(SORTBY[key]).map((item) => { return item.title })
     } else {
       throw new Error('Not supported task.')
     }
   },
-  getSortTitle (state, getters) {
-    if (getters.getCurrentTask === C.TASK.CLASSIFICATION) {
-      return ['Valid/Loss', 'Valid/Precision', 'Valid/Recall', 'Valid/F1']
-    } else if (getters.getCurrentTask === C.TASK.DETECTION) {
-      return ['Loss', 'IOU', 'mAP']
-    } else if (getters.getCurrentTask === C.TASK.SEGMENTATION) {
-      return ['Loss', 'Precision', 'Recall', 'F1']
-    } else {
-      throw new Error('Not supported task.')
-    }
-  }
-
 }

@@ -1,4 +1,4 @@
-import C from '@/const.js'
+import { SORTBY, TASK_ID, SORT_TITLES } from '@/const.js'
 
 export default {
 
@@ -6,7 +6,7 @@ export default {
   task_title: 'Classification',
   page_title: 'Train',
 
-  current_task: C.TASK.DETECTION,
+  current_task: TASK_ID.CLASSIFICATION,
 
   // Models
   models: [],
@@ -22,4 +22,7 @@ export default {
 
   // show slide menu.
   show_slide_menu: false,
+
+  // Sort order
+  sort_order: SORTBY.CLASSIFICATION.MODEL_ID.id
 }
