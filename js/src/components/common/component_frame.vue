@@ -56,12 +56,16 @@ export default {
   margin: $component-block-margin;
 
   #component-header { 
+    width: 100%;
     height: $component-header-height;
     min-height: $component-header-min-height;
     margin-bottom: $component-header-margin-bottom;
     background-color: $component-header-background-color;
     color: $component-header-font-color;
     font-family: $component-header-font-family;
+    * {
+      font-family: $component-header-font-family;
+    }
   }
 
   #frame-content{

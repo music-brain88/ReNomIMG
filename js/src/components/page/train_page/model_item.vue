@@ -17,7 +17,10 @@ export default {
     model: Object,
   },
   computed: {
-    ...mapGetters(['getCurrentTask', 'getModelResultTitle']),
+    ...mapGetters([
+      'getCurrentTask',
+      'getModelResultTitle',
+    ]),
   },
   created: function () {
 

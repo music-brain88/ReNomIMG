@@ -32,5 +32,17 @@ export default {
     } else {
       throw new Error('Not supported task.')
     }
+  },
+  getSortTitle (state, getters) {
+    if (getters.getCurrentTask === C.TASK.CLASSIFICATION) {
+      return ['Valid/Loss', 'Valid/Precision', 'Valid/Recall', 'Valid/F1']
+    } else if (getters.getCurrentTask === C.TASK.DETECTION) {
+      return ['Loss', 'IOU', 'mAP']
+    } else if (getters.getCurrentTask === C.TASK.SEGMENTATION) {
+      return ['Loss', 'Precision', 'Recall', 'F1']
+    } else {
+      throw new Error('Not supported task.')
+    }
   }
+
 }

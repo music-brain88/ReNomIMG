@@ -21,5 +21,5 @@ export default {
   error_msg: '',
 
   // show slide menu.
-  show_slide_menu: true,
+  show_slide_menu: false,
 }

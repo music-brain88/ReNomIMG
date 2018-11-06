@@ -16,6 +16,8 @@ $header-font-color: #ffffff;
 
 //// Slide window Settings.
 $slide-window-mask-color: rgba(0, 0, 0, 0.6);
+$slide-window-background-color: #063662;
+$slide-window-width-min: 150px;
 
 //// App Page Container Settings.
 $app-container-padding-top: 10px;
@@ -26,7 +28,7 @@ $app-container-padding-right: 10px;
 //// Component Frame Settings
 $component-header-height: calc(#{$header-height}*0.8);
 $component-header-min-height: 25px;
-$component-header-margin-bottom: 12px;
+$component-header-margin-bottom: 10px;
 $component-header-background-color: #063662;
 $component-header-font-family: Open Sans Regular;
 $component-header-font-color: #ffffff;
@@ -58,12 +60,23 @@ $modal-mask-color: rgba(0, 0, 0, 0.6);
 // Model Filter Item Settings.
 $model-filter-margin: 5px;
 
-
 // Model Llist Settings.
 $model-list-margin: 5px;
+$model-list-add-button-background-color: #3498DB;
 
 // Model Item Settings.
 $model-item-height: $component-block-height;
 $model-item-height-min: $component-block-height-min;
 $model-item-margin: 5px;
+
+
+//// Animation Settings
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
 

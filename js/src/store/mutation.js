@@ -10,9 +10,12 @@ export default {
     state.show_alert_modal = payload.msg
   },
   setCurrentTask (state, payload) {
-    const task = payload.task
-    assert(task in Object.values(C.TASK))
-    state.current_task = task
+    const task = payload
+    if (task in Object.keys(C.TASK)) {
+      state.current_task = task
+    } else {
+      throw new Error('Not supported task.')
+    }
   },
   addModel (state, payload) {
     state.models = [payload, ...state.models]

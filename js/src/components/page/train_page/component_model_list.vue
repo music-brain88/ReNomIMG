@@ -1,7 +1,14 @@
 <template>
   <component-frame :width-weight="2" :height-weight="9">
     <template slot="header-slot">
-      Model List
+      <div id="model-list-title">
+        Model List
+      </div>
+      <div id="model-add-button">
+      <select class="sort-menu">
+        <option ></option>
+      </select>
+      </div>
     </template>
     <div id="model-list">
       <model-item v-for="model in getFilteredModelList" :model="model">
@@ -40,5 +47,17 @@ export default {
   align-content: flex-start;
   flex-wrap: wrap;
   padding: $model-list-margin;
+}
+#component-header {
+  #model-list-title {
+    display: inline-block;
+    width: 49%;
+    height: 100%;
+  }
+  #model-add-button {
+    display: inline-block;
+    width: 49%;
+    height: 100%;
+  }
 }
 </style>
