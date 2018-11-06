@@ -15,8 +15,8 @@ class Algorithm(Base):
     relationship("Model")
 
     def __repr__(self):
-        return "<Algorithm(Algorithm_id='%s', name='%s')>" % (
-            self.Algorithm_id,
+        return "<Algorithm(algorithm_id='%s', name='%s')>" % (
+            self.algorithm_id,
             self.name
         )
 

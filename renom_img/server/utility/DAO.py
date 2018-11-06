@@ -9,7 +9,7 @@ DATABASE = os.path.join('sqlite:///', DB_DIR, 'new_storage.db')
 engine = create_engine(
     DATABASE,
     encoding="utf-8",
-    echo=True  # Trueだと実行のたびにSQLが出力される
+    echo=False  # Trueだと実行のたびにSQLが出力される
 )
 
 # Session = sessionmaker(

@@ -87,29 +87,60 @@ class Storage:
 
     def fetch_models(self):
         with SessionContext() as session:
-            result = session.query(Model)
+            result = session.query(Model).all()
+            dict_result = self.remove_instance_state_key(result)
+            return result
+
+    def fetch_model(self, model_id):
+        with SessionContext() as session:
+            result = session.query(Model.model_id).all()
+            #dict_result = self.remove_instance_state_key(result)
             return result
 
     def fetch_datasets(self):
         with SessionContext() as session:
-            result = session.query(Dataset)
+            result = session.query(Dataset).all()
+            dict_result = self.remove_instance_state_key(result)
             return result
     
     def fetch_test_datasets(self):
         with SessionContext() as session:
-            result = session.query(Test_Dataset)
+            result = session.query(Test_Dataset).all()
+            dict_result = self.remove_instance_state_key(result)
             return result
     
     def fetch_algorithms(self):
         with SessionContext() as session:
-            result = session.query(Algorithm)
-            return result
+            result = session.query(Algorithm).all()
+            dict_result = self.remove_instance_state_key(result)
+            return dict_result
     
-    def fetch_Task(self):
+    def fetch_task(self): 
         with SessionContext() as session:
-            result = session.query(Task)
-            return result
-    
+            result = session.query(Task).all()
+            dict_result = self.remove_instance_state_key(result)
+            return dict_result
+
+    def remove_instance_state_key(self, result):
+        dict_result = list()
+        # for res in result:
+        #     res_dict = res.__dict__
+        #     res_dict.pop('_sa_instance_state')
+        #
+        #     print(res_dict)
+        #     dict_result.append(res_dict)
+        #
+        # print("return")
+        #
+        for res in result:
+            res_dict = {}
+            for key,value in res.__dict__.items():
+                if not key == '_sa_instance_state':
+                    res_dict[key] = value
+
+            dict_result.append(res_dict)
+
+        return dict_result
 
 global storage
 storage = Storage()
