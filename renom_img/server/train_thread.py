@@ -81,8 +81,8 @@ class TrainThread(object):
         required_params = [*self.common_params, 'cell', 'box']
         assert all([k in self.hyper_parameters.keys() for k in required_params]
         assert self.task_id == 1
-        self.model=Yolov1(**self.hyper_parameters)
-        aug=Augmentation([
+        self.model = Yolov1(**self.hyper_parameters)
+        aug = Augmentation([
           Shift(10, 10)
         ])
         self.train_dist=ImageDistributor(

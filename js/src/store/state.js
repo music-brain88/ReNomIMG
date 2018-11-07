@@ -1,11 +1,6 @@
 import { SORTBY, TASK_ID } from '@/const.js'
 
 export default {
-
-  // Header States
-  task_title: 'Classification',
-  page_title: 'Train',
-
   current_task: TASK_ID.CLASSIFICATION,
 
   // Models
@@ -24,5 +19,12 @@ export default {
   show_slide_menu: false,
 
   // Sort order
-  sort_order: SORTBY.CLASSIFICATION.MODEL_ID.id
+  sort_order: SORTBY.CLASSIFICATION.MODEL_ID.id,
+
+  // Modal
+  show_modal: {
+    add_model: false,
+    add_dataset: false,
+    add_both: false,
+  }
 }

@@ -6,9 +6,9 @@
     <div id="title">
       <span id="product-title" class="header-title">ReNomIMG</span>
       <span class="header-title"> > </span>
-      <span id="task-title" class="header-title"> {{ task_title }} </span>
+      <span id="task-title" class="header-title"> {{ getCurrentTaskTitle }} </span>
       <span class="header-title"> > </span>
-      <span id="page-title" class="header-title"> {{ page_title }} </span>
+      <span id="page-title" class="header-title"> {{ getCurrentPageTitle }} </span>
     </div>
   </div>  
 </template>
@@ -21,11 +21,10 @@ export default {
   computed: {
   },
   computed: {
-    ...mapState([
-      'task_title',
-      'page_title'
-    ]),
-    ...mapGetters(['getShowSlideMenu']),
+    ...mapGetters([
+      'getShowSlideMenu',
+      'getCurrentTaskTitle',
+      'getCurrentPageTitle']),
   },
   created: function () {
 

@@ -4,9 +4,11 @@ export const TASK_ID = {
   SEGMENTATION: 2,
 }
 
-export const ALGORITHM_ID = {
+export const ALGORITHM = {
   CLASSIFICATION: {
-    ResNet: 1,
+    ResNet: {
+      key: 'resnet'
+    },
     DenseNet: 2,
     Vgg16: 3,
     Vgg19: 4,
@@ -16,10 +18,118 @@ export const ALGORITHM_ID = {
     Inception4: 8,
   },
   DETECTION: {
-    YOLOv1: 11,
-    YOLOv2: 12,
-    YOLOv3: 13,
-    SSD: 14,
+    YOLOv1: {
+      key: 'yolov1',
+      title: 'Yolo v1',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole',
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          type: 'number',
+          default: 448,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          type: 'number',
+          default: 448,
+          min: 64,
+          max: 512,
+        },
+      }
+    },
+    YOLOv2: {
+      key: 'yolov2',
+      title: 'Yolo v2',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole',
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 32,
+          min: 4,
+          max: 128,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          type: 'number',
+          default: 448,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          type: 'number',
+          default: 448,
+          min: 64,
+          max: 512,
+        },
+      }
+    },
+    SSD: {
+      key: 'ssd',
+      title: 'SSD',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole',
+          disabled: false,
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          disabled: false,
+          type: 'number',
+          default: 32,
+          min: 4,
+          max: 128,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          disabled: true,
+          type: 'number',
+          default: 300,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          disabled: true,
+          type: 'number',
+          default: 300,
+          min: 64,
+          max: 512,
+        },
+      }
+    },
   },
   SEGMENTATION: {
     Unet: 21,

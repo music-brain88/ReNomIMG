@@ -11,8 +11,8 @@
       </div>
     </template>
     <div id="model-list">
-      <model-item v-for="model in getFilteredModelList" :model="model">
-      </model-item>
+      <model-item :is-add-button="true"/>
+      <model-item v-for="model in getFilteredModelList" :model="model"/>
     </div>
   </component-frame>
 </template>

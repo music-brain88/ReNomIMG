@@ -23,6 +23,16 @@ export default {
   showSlideMenu (state, payload) {
     state.show_slide_menu = payload
   },
+  showModal (state, payload) {
+    let key = Object.keys(payload)[0]
+    for (let k in state.show_modal) {
+      if (k === key) {
+        state.show_modal[k] = payload[key]
+      } else {
+        state.show_modal[k] = false
+      }
+    }
+  },
   setSortOrder (state, payload) {
     let task = state.current_task // Need access through getter.
     if (task in Object.values(TASK_ID)) {

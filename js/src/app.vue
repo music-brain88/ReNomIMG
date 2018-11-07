@@ -2,8 +2,9 @@
   <div id="app">
     <app-header/>
     <slide-menu/>
+    <modal/>
+    <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
     <div id="app-content">
-      <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
       <div id="container">
         <router-view></router-view> 
       </div>
@@ -16,12 +17,14 @@
 import AlertModal from '@/components/common/alert_modal.vue'
 import AppHeader from '@/components/common/app_header.vue'
 import SlideMenu from '@/components/common/slide_menu.vue'
+import Modal from '@/components/common/modalbox.vue'
 
 export default {
   name: 'App',
   components: {
     'app-header': AppHeader,
     'slide-menu': SlideMenu,
+    'modal': Modal,
   },
   created: function () {
     this.$store.commit('setPageName', {

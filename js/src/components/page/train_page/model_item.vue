@@ -1,13 +1,16 @@
 <template>
   <div id="model-item">
-    <div id="model-id">
+    <div id="model-add-button" v-if="isAddButton" @click="showModal({add_both: true})">
+      ADD
+    </div>
+    <div id="model-id" v-else>
       ID: {{ model.id }}
     </div>
   </div>
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'ModelItem',
@@ -16,6 +19,10 @@ export default {
   },
   props: {
     model: Object,
+    isAddButton: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     ...mapGetters([
@@ -27,7 +34,7 @@ export default {
 
   },
   methods: {
-
+    ...mapMutations(['showModal'])
   }
 }
 </script>
@@ -39,6 +46,10 @@ export default {
   min-height: $model-item-height-min;
   margin: $model-item-margin;
   background-color: red;
+
+  #model-add-button {
+
+  }
 }
 
 </style>
