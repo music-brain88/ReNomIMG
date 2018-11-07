@@ -135,13 +135,50 @@ def model_create():
 @route("/api/renom_img/v2/model/load/<id:int>", method="GET")
 @json_handler
 def model_load(id):
-    return {"id": id}
+    model = storage.fetch_model(id)
+    
+    print(model)
+
+    #return {"model": model}
+
+@route("/api/renom_img/v2/load_all_models", method="GET")
+@json_handler
+def load_all_models():
+    
+    models = storage.fetch_models()
+
+    # for model in models:
+    #
+    #     print(model.keys())
+
+    #return model 
+
 
 @route("/api/renom_img/v2/model/remove/<id:int>", method="GET")
 @json_handler
 def model_remove(id):
     return
 
+
+@route("/api/renom_img/v2/load_all_algorithms", method="GET")
+@json_handler
+def load_all_algorithms():
+    
+    algos = storage.fetch_algorithms()
+    json = {"algo": algos}
+    return  json
+
+    
+
+@route("/api/renom_img/v2/load_deployed_models", method="GET")
+@json_handler
+def load_deployed_models():
+    
+    dep_models = storage.fetch_task()
+
+    json = { "models": dep_models }
+    return  json
+ 
 
 def main():
     # Parser settings.
