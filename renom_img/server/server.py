@@ -36,13 +36,16 @@ from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 train_thread_pool = {}
 prediction_thread_pool = {}
 
+
 def get_train_thread_count():
     return len([th for th in train_thread_pool.values() if th[0].running()])
+
 
 def create_response(body):
     r = HTTPResponse(status=200, body=body)
     r.set_header('Content-Type', 'application/json')
     return r
+
 
 def strip_path(filename):
     if os.path.isabs(filename):
@@ -68,14 +71,15 @@ def _get_resource(path, filename):
         headers['encoding'] = encoding
     return HTTPResponse(body, **headers)
 
+
 def json_handler(func):
     def wrapped(*args, **kwargs):
         try:
             ret = func(*args, **kwargs)
             if ret is None:
-              ret = {}
+                ret = {}
             assert isinstance(ret, dict),\
-              "The returned object of the API '{}' is not a dictionary.".format(func.__name__)
+                "The returned object of the API '{}' is not a dictionary.".format(func.__name__)
             body = json.dumps(ret, ignore_nan=True)
             return create_response(body)
         except Exception as e:
@@ -85,6 +89,7 @@ def json_handler(func):
             ret = create_response(body)
             return ret
     return wrapped
+
 
 @route("/")
 def index():
@@ -120,7 +125,7 @@ def datasrc(folder_name, file_name):
     return static_file(file_name, root=file_dir, mimetype='image/*')
 
 
-####### WEB APIs
+# WEB APIs
 @route("/api/renom_img/v2/model/create", method="POST")
 @json_handler
 def model_create():
@@ -129,29 +134,28 @@ def model_create():
     parents = json.loads(json.dumps(req_params.parents))
     dataset_id = req_params.dataset_id
     task = req_params.task
-    model_id = 1
-    return {"id": model_id}
+    new_id = storage.register_model(int(task), int(dataset_id), 1, {"a": "f"})
+    return {"id": new_id}
+
 
 @route("/api/renom_img/v2/model/load/<id:int>", method="GET")
 @json_handler
 def model_load(id):
     model = storage.fetch_model(id)
-    
-    print(model)
+    return {"model": model}
 
-    #return {"model": model}
 
-@route("/api/renom_img/v2/load_all_models", method="GET")
+@route("/api/renom_img/v2/model/load/task/<task_id:int>", method="GET")
 @json_handler
-def load_all_models():
-    
+def models_load_related_task(task_id):
     models = storage.fetch_models()
+    return model
 
-    # for model in models:
-    #
-    #     print(model.keys())
 
-    #return model 
+@route("/api/renom_img/v2/model/run/<id:int>", method="GET")
+@json_handler
+def model_run(id):
+    return
 
 
 @route("/api/renom_img/v2/model/remove/<id:int>", method="GET")
@@ -163,22 +167,42 @@ def model_remove(id):
 @route("/api/renom_img/v2/load_all_algorithms", method="GET")
 @json_handler
 def load_all_algorithms():
-    
     algos = storage.fetch_algorithms()
     json = {"algo": algos}
-    return  json
+    return json
 
-    
 
 @route("/api/renom_img/v2/load_deployed_models", method="GET")
 @json_handler
 def load_deployed_models():
-    
     dep_models = storage.fetch_task()
+    json = {"models": dep_models}
+    return json
 
-    json = { "models": dep_models }
-    return  json
- 
+
+@route("/api/renom_img/v2/polling/progress/model/<id:int>", method="GET")
+@json_handler
+def polling_progress(id):
+    return
+
+
+@route("/api/renom_img/v2/polling/validation/model/<id:int>", method="GET")
+@json_handler
+def polling_validation(id):
+    return
+
+
+@route("/api/renom_img/v2/polling/weight/download", method="GET")
+@json_handler
+def polling_weight_download():
+    return
+
+
+@route("/api/renom_img/v2/polling/prediction", method="GET")
+@json_handler
+def polling_prediction():
+    return
+
 
 def main():
     # Parser settings.
@@ -189,6 +213,7 @@ def main():
     wsgiapp = default_app()
     httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
     httpd.serve_forever()
+
 
 if __name__ == "__main__":
     main()

@@ -12,6 +12,17 @@ export default {
   /*****
    *
    */
+  async loadModelsOfCurrentTask (context, payload) {
+    const url = '/api/renom_img/v1/projects/' + payload.project_id
+    return axios.get(url)
+      .then(function (response) {
+
+      })
+  },
+
+  /*****
+   *
+   */
   async loadDataset (context, payload) {
     const url = '/api/renom_img/v1/projects/' + payload.project_id
     return axios.get(url)
@@ -30,7 +41,7 @@ export default {
     const parents = payload.parents
     const task = payload.task
     const param = new FormData()
-    const model = new Model(undefined, task, hyper_params, dataset_id, parents)
+    const model = new Model(task, hyper_params, dataset_id, parents)
     context.commit('addModel', model)
 
     // Append params.

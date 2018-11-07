@@ -1,4 +1,4 @@
-import { SORTBY, TASK_ID, SORT_TITLES } from '@/const.js'
+import { SORTBY, TASK_ID } from '@/const.js'
 
 export default {
 

@@ -1,6 +1,8 @@
 <template>
   <div id="model-item">
-    <div id="model-id"></div>
+    <div id="model-id">
+      ID: {{ model.id }}
+    </div>
   </div>
 </template>
 
