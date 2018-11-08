@@ -1,7 +1,7 @@
 import { SORTBY, TASK_ID } from '@/const.js'
 
 export default {
-  current_task: TASK_ID.CLASSIFICATION,
+  current_task: TASK_ID.DETECTION,
 
   // Models
   models: [],

@@ -5,7 +5,7 @@
     </div>
     <div id="model-id" v-else>
       ID: {{ model.id }}
-      SSD: {{ model }}
+      ALGO: {{ getAlgorithmTitleFromId(model.algorithm_id) }}
     </div>
   </div>
 </template>
@@ -29,6 +29,7 @@ export default {
     ...mapGetters([
       'getCurrentTask',
       'getModelResultTitle',
+      'getAlgorithmTitleFromId',
     ]),
   },
   created: function () {

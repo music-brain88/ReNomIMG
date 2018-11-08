@@ -139,6 +139,7 @@ class Model(Base):
 
     def __init__(self, *arg, **kwargs):
         # Register path.
+        super(Model, self).__init__(*arg, **kwargs)
         last_weight_name = "last_model_{}.h5".format(11)
         self.last_weight = last_weight_name
         best_weight_name = "best_model_{}.h5".format(11)

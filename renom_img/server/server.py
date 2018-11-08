@@ -11,6 +11,7 @@ import posixpath
 import traceback
 import pathlib
 import random
+from datetime import datetime
 from collections import OrderedDict
 import xmltodict
 import simplejson as json
@@ -72,6 +73,11 @@ def _get_resource(path, filename):
     return HTTPResponse(body, **headers)
 
 
+def json_encoder(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+
+
 def json_handler(func):
     def wrapped(*args, **kwargs):
         try:
@@ -80,7 +86,7 @@ def json_handler(func):
                 ret = {}
             assert isinstance(ret, dict),\
                 "The returned object of the API '{}' is not a dictionary.".format(func.__name__)
-            body = json.dumps(ret, ignore_nan=True)
+            body = json.dumps(ret, ignore_nan=True, default=json_encoder)
             return create_response(body)
         except Exception as e:
             release_mem_pool()
@@ -131,10 +137,12 @@ def datasrc(folder_name, file_name):
 def model_create():
     req_params = request.params
     hyper_params = json.loads(json.dumps(req_params.hyper_params))
+    algorithm_id = json.loads(json.dumps(req_params.algorithm_id))
     parents = json.loads(json.dumps(req_params.parents))
     dataset_id = req_params.dataset_id
-    task = req_params.task
-    new_id = storage.register_model(int(task), int(dataset_id), 1, {"a": "f"})
+    task_id = req_params.task_id
+    new_id = storage.register_model(
+        int(task_id), int(dataset_id), int(algorithm_id), hyper_params)
     return {"id": new_id}
 
 
@@ -147,9 +155,10 @@ def model_load(id):
 
 @route("/api/renom_img/v2/model/load/task/<task_id:int>", method="GET")
 @json_handler
-def models_load_related_task(task_id):
-    models = storage.fetch_models()
-    return model
+def models_load_of_task(task_id):
+    models = storage.fetch_models_of_task(task_id)
+    print(models)
+    return {'model_list': models}
 
 
 @route("/api/renom_img/v2/model/run/<id:int>", method="GET")

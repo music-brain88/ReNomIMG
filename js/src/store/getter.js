@@ -15,7 +15,7 @@ export default {
   },
   getFilteredModelList (state, getters) {
     // TODO: Sort by state and task.
-    return state.models
+    return state.models.filter(m => m.task_id == getters.getCurrentTask)
   },
   getCurrentTask (state, getters) {
     return state.current_task
@@ -53,12 +53,26 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+
   getAlgorithmIdFromTitle (state, getters) {
     return function (algorithm_title) {
       let task = getters.getCurrentTask
       if (task in Object.values(TASK_ID)) {
         let task_key = getKeyByValue(TASK_ID, task)
-        let key = getKeyByValueIncludes(ALGORITHM[key], algorithm_title)
+        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_title)
+        return ALGORITHM[task_key][key].id
+      } else {
+        throw new Error('Not supported task.')
+      }
+    }
+  },
+  getAlgorithmTitleFromId (state, getters) {
+    return function (algorithm_id) {
+      let task = getters.getCurrentTask
+      if (task in Object.values(TASK_ID)) {
+        let task_key = getKeyByValue(TASK_ID, task)
+        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_id)
+        return ALGORITHM[task_key][key].title
       } else {
         throw new Error('Not supported task.')
       }

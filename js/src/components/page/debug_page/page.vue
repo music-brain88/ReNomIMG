@@ -44,6 +44,7 @@ export default {
     'component-prediction-result': ComponentPredictionResult,
   },
   created: function () {
+    this.$store.dispatch('loadModelsOfCurrentTask')
   },
   mounted: function () {
   }

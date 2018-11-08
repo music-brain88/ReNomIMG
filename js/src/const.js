@@ -7,7 +7,17 @@ export const TASK_ID = {
 export const ALGORITHM = {
   CLASSIFICATION: {
     ResNet: {
-      key: 'resnet'
+      id: 0,
+      key: 'resnet',
+      title: 'ResNet',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+      }
     },
     DenseNet: 2,
     Vgg16: 3,
@@ -19,13 +29,13 @@ export const ALGORITHM = {
   },
   DETECTION: {
     YOLOv1: {
-      id: 1, 
-      key: 'yolov1',
+      id: 10, // Must be same as back-end.
+      key: 'yolov1', // Must be same as back-end.
       title: 'Yolo v1',
       params: {
         TRAIN_WHOLE: {
           title: 'Train Whole Network',
-          key: 'train_whole',
+          key: 'train_whole', // Must be same as back-end.
           type: 'checkbox',
           default: false,
         },
@@ -56,6 +66,7 @@ export const ALGORITHM = {
       }
     },
     YOLOv2: {
+      id: 11,
       key: 'yolov2',
       title: 'Yolo v2',
       params: {
@@ -92,6 +103,7 @@ export const ALGORITHM = {
       }
     },
     SSD: {
+      id: 12,
       key: 'ssd',
       title: 'SSD',
       params: {
@@ -133,7 +145,9 @@ export const ALGORITHM = {
     },
   },
   SEGMENTATION: {
-    Unet: 21,
+    Unet: {
+      key: 'unet',
+    },
     Fcn: 22,
     TernousNet: 23,
   }

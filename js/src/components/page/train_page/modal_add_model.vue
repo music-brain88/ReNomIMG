@@ -10,7 +10,7 @@
       <div>{{ item.title }} 
         <input :type="item.type"
           :placeholder="item.default"
-          v-model="parameters[item.title]"
+          v-model="parameters[item.key]"
           :disabled="item.disabled">
       </div>
     </div>
@@ -30,7 +30,8 @@ export default {
     ...mapGetters([
       'getCurrentTask',
       'getAlgorithmList',
-      'getAlgorithmParamList'
+      'getAlgorithmParamList',
+      'getAlgorithmIdFromTitle'
     ]),
   },
   data: function () {
@@ -55,10 +56,10 @@ export default {
       console.log(this.parameters)
       this.createModel({
         hyper_params: this.parameters,
-        algorithm_id: this.selectedAlgorithm,
+        algorithm_id: this.getAlgorithmIdFromTitle(this.selectedAlgorithm),
         dataset_id: 1,
         parents: [],
-        task: this.getCurrentTask
+        task_id: this.getCurrentTask
       })
     }
   }

@@ -90,6 +90,12 @@ class Storage:
             session.commit()
             return new_model.id
 
+    def fetch_models_of_task(self, task_id):
+        with SessionContext() as session:
+            result = session.query(Model).filter(Model.task_id == task_id)
+            dict_result = self.remove_instance_state_key(result)
+            return dict_result
+
     def fetch_models(self):
         with SessionContext() as session:
             result = session.query(Model).all()
@@ -100,14 +106,6 @@ class Storage:
         with SessionContext() as session:
             result = session.query(Model).filter(Model.id == id)
             return result
-
-    def fetch_model_train_params(self, id):
-        with SessionContext() as session:
-            # TODO: Assert data is not None.
-            model = session.query(Model).filter(Model.id == id)
-            return [
-                model.task_id, model.dataset_id, model.algorithm_id, model.hyper_parameters
-            ]
 
     def fetch_datasets(self):
         with SessionContext() as session:
@@ -155,7 +153,10 @@ class Storage:
             res_dict = {}
             for key, value in res.__dict__.items():
                 if not key == '_sa_instance_state':
-                    res_dict[key] = value
+                    if isinstance(value, bytes):
+                        res_dict[key] = pickle.loads(value)
+                    else:
+                        res_dict[key] = value
             dict_result.append(res_dict)
         return dict_result
 

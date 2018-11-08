@@ -60,7 +60,8 @@ class TrainThread(object):
     def run(self):
         self.state = STATE_RUNNING
         self.running_state = RUN_STATE_STARTING
-        if self.stop_event: return
+        if self.stop_event:
+            return
 
     def stop(self):
         self.stop_event.set()
@@ -83,12 +84,12 @@ class TrainThread(object):
         assert self.task_id == 1, self.task_id
         self.model = Yolov1(**self.hyper_parameters)
         aug = Augmentation([
-          Shift(10, 10)
+            Shift(10, 10)
         ])
-        self.train_dist=ImageDistributor(
+        self.train_dist = ImageDistributor(
             self.train_data['img'], self.train_data['annotation'], augmentation=aug
         )
-        self.valid_dist=ImageDistributor(self.valid_data['img'], self.valid_data['annotation'])
+        self.valid_dist = ImageDistributor(self.valid_data['img'], self.valid_data['annotation'])
 
     def _setting_yolov2(self):
         pass

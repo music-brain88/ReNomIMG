@@ -27,9 +27,6 @@ export default {
     'modal': Modal,
   },
   created: function () {
-    this.$store.commit('setPageName', {
-      'page_name': this.$router.currentRoute.name
-    })
   }
 }
 </script>
