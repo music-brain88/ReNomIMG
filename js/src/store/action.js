@@ -37,11 +37,12 @@ export default {
   async createModel (context, payload) {
     const url = '/api/renom_img/v2/model/create'
     const hyper_params = payload.hyper_params
+    const algorithm_id = payload.algorithm_id
     const dataset_id = payload.dataset_id
     const parents = payload.parents
     const task = payload.task
     const param = new FormData()
-    const model = new Model(task, hyper_params, dataset_id, parents)
+    const model = new Model(algorithm_id, task, hyper_params, dataset_id, parents)
     context.commit('addModel', model)
 
     // Append params.

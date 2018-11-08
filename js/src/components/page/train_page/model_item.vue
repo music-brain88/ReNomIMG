@@ -5,6 +5,7 @@
     </div>
     <div id="model-id" v-else>
       ID: {{ model.id }}
+      SSD: {{ model }}
     </div>
   </div>
 </template>

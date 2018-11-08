@@ -79,8 +79,8 @@ class TrainThread(object):
 
     def _setting_yolov1(self):
         required_params = [*self.common_params, 'cell', 'box']
-        assert all([k in self.hyper_parameters.keys() for k in required_params]
-        assert self.task_id == 1
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == 1, self.task_id
         self.model = Yolov1(**self.hyper_parameters)
         aug = Augmentation([
           Shift(10, 10)

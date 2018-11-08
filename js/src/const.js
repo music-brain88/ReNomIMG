@@ -19,6 +19,7 @@ export const ALGORITHM = {
   },
   DETECTION: {
     YOLOv1: {
+      id: 1, 
       key: 'yolov1',
       title: 'Yolo v1',
       params: {

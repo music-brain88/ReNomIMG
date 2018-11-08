@@ -46,24 +46,6 @@ export default {
   created: function () {
   },
   mounted: function () {
-    this.$store.dispatch('createModel', {
-      'hyper_params': {'asd': 1},
-      'dataset_id': 2,
-      'parents': [],
-      'task': 1,
-    })
-    this.$store.dispatch('createModel', {
-      'hyper_params': {'asd': 1},
-      'dataset_id': 2,
-      'parents': [],
-      'task': 1,
-    })
-    this.$store.dispatch('createModel', {
-      'hyper_params': {'asd': 1},
-      'dataset_id': 2,
-      'parents': [],
-      'task': 1,
-    })
   }
 }
 </script>

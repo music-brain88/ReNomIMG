@@ -1,10 +1,11 @@
 import {STATE, RUNNING_STATE} from '@/const.js'
 
 export default class Model {
-  constructor (task, hyper_parameters, dataset_id, parents) {
+  constructor (algorithm_id, task, hyper_parameters, dataset_id, parents) {
     // (Integer) ID of Model. This will defined by database.
     this.id = 0
     this.dataset_id = dataset_id
+    this.algorithm_id = algorithm_id
 
     // States.
     this.state = STATE.CREATED

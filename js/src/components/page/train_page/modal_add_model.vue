@@ -14,11 +14,12 @@
           :disabled="item.disabled">
       </div>
     </div>
+    <button @click="onCreateModel">create</button>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from 'vuex'
+import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 
 export default {
   name: 'ModalAddModel',
@@ -26,7 +27,11 @@ export default {
   },
   computed: {
     ...mapState(['show_modal']),
-    ...mapGetters(['getAlgorithmList', 'getAlgorithmParamList']),
+    ...mapGetters([
+      'getCurrentTask',
+      'getAlgorithmList',
+      'getAlgorithmParamList'
+    ]),
   },
   data: function () {
     return {
@@ -35,14 +40,26 @@ export default {
     }
   },
   created: function () {
+
   },
   methods: {
+    ...mapActions(['createModel']),
     ...mapMutations(['showModal']),
     setDefaultValue: function (params) {
       // Reset if selected algorithm is changed.
       this.parameters =
         Object.keys(params).reduce((obj, x) =>
           Object.assign(obj, {[params[x].key]: params[x].default}), {})
+    },
+    onCreateModel: function () {
+      console.log(this.parameters)
+      this.createModel({
+        hyper_params: this.parameters,
+        algorithm_id: this.selectedAlgorithm,
+        dataset_id: 1,
+        parents: [],
+        task: this.getCurrentTask
+      })
     }
   }
 }

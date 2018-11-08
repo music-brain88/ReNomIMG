@@ -113,7 +113,7 @@ class Model(Base):
     # Must be given
     id = Column(Integer, primary_key=True, autoincrement=True)
     task_id = Column(Integer, ForeignKey('task.task_id'))
-    dataset_id = Column(Integer, ForeignKey('dataset.dataset_id'))
+    dataset_id = Column(Integer, ForeignKey('dataset.id'))
     algorithm_id = Column(Integer,  ForeignKey('algorithm.algorithm_id'))
     hyper_parameters = Column(BLOB)
 

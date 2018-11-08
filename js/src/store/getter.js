@@ -53,6 +53,18 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+  getAlgorithmIdFromTitle (state, getters) {
+    return function (algorithm_title) {
+      let task = getters.getCurrentTask
+      if (task in Object.values(TASK_ID)) {
+        let task_key = getKeyByValue(TASK_ID, task)
+        let key = getKeyByValueIncludes(ALGORITHM[key], algorithm_title)
+      } else {
+        throw new Error('Not supported task.')
+      }
+    }
+  },
+
   getAlgorithmParamList (state, getters) {
     return function (algotirhm_title) {
       let task = getters.getCurrentTask
