@@ -63,6 +63,27 @@ export const ALGORITHM = {
           min: 64,
           max: 512,
         },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        CELL: {
+          title: 'Num Cell',
+          key: 'cell',
+          disabled: false,
+          type: 'number',
+          default: 7,
+        },
+        BOX: {
+          title: 'Num Box',
+          key: 'box',
+          disabled: false,
+          type: 'number',
+          default: 2,
+        },
       }
     },
     YOLOv2: {
@@ -70,6 +91,12 @@ export const ALGORITHM = {
       key: 'yolov2',
       title: 'Yolo v2',
       params: {
+        ANCHOR: {
+          title: 'Anchor',
+          key: 'anchor',
+          type: 'number',
+          default: 5,
+        },
         TRAIN_WHOLE: {
           title: 'Train Whole Network',
           key: 'train_whole',
@@ -141,6 +168,14 @@ export const ALGORITHM = {
           min: 64,
           max: 512,
         },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+
       }
     },
   },
@@ -182,6 +217,27 @@ export const SORTBY = {
     }
   },
   DETECTION: {
+    MODEL_ID: {
+      id: 10,
+      key: 'model_id',
+      title: 'Model ID',
+    },
+    VALID_MAP: {
+      id: 11,
+      key: 'valid_mAP',
+      title: 'Valid mAP'
+    },
+    VALID_IOU: {
+      id: 12,
+      key: 'valid_iou',
+      title: 'Valid IOU'
+    },
+    VALID_LOSS: {
+      id: 13,
+      key: 'valid_loss',
+      title: 'Valid Loss'
+    }
+
   },
   SEGMENTATION: {
   },
@@ -199,6 +255,44 @@ export const RUNNING_STATE = {
   TRAINING: 1,
   VALIDATING: 2,
   STOPPING: 3,
+}
+
+export const FILTER = {
+  CLASSIFICATION: {
+    VALID_RECALL: {
+      key: 'valid_recall',
+      title: 'Valid Recall',
+      type: 'condition'
+    },
+    VALID_PRECISION: {
+      key: 'valid_precision',
+      title: 'Valid Precision',
+      type: 'condition'
+    },
+    VALID_F1: {
+      key: 'valid_precision',
+      title: 'Valid Precision',
+      type: 'condition'
+    },
+    VALID_LOSS: {
+      key: 'valid_precision',
+      title: 'Valid Precision',
+      type: 'CONDITION'
+    },
+    ALGORITHM_NAME: {
+      key: 'algorithm',
+      title: 'Algorithm',
+      type: 'SELECT_ALGORITHM'
+    }
+  },
+}
+
+export const FILTER_CONDITION = {
+  CONDITION: {
+    LESS_THAN: 0,
+    EQUAL: 1,
+    GRATER_THAN: 2,
+  },
 }
 
 export function getKeyByValue (object, value) {

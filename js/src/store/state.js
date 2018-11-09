@@ -26,5 +26,6 @@ export default {
     add_model: false,
     add_dataset: false,
     add_both: false,
+    add_filter: false,
   }
 }

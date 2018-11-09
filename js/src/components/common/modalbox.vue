@@ -6,6 +6,7 @@
       <div id="modal-content">
         <add-both v-if="show_modal.add_both"/>
         <add-dataset v-if="show_modal.add_dataset"/>
+        <add-filter v-if="show_modal.add_filter"/>
       </div>
     </div>
   </transition>
@@ -15,12 +16,14 @@
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import ModalAddBoth from '@/components/page/train_page/modal_add_both.vue'
 import ModalAddDataset from '@/components/page/train_page/modal_add_dataset.vue'
+import ModalAddFilter from '@/components/page/train_page/modal_add_filter.vue'
 
 export default {
   name: 'Modal',
   components: {
     'add-both': ModalAddBoth,
-    'add-dataset': ModalAddDataset
+    'add-dataset': ModalAddDataset,
+    'add-filter': ModalAddFilter
   },
   computed: {
     ...mapState(['show_modal']),

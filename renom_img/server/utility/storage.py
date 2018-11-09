@@ -75,16 +75,16 @@ class Storage:
 
         if len(task) < TOTAL_TASK:
             with SessionContext() as session:
-                session.add(Task(task_id=None, name='Detection'))
-                session.add(Task(task_id=None, name='Classification'))
-                session.add(Task(task_id=None, name='Segmentation'))
+                session.add(Task(id=None, name='Detection'))
+                session.add(Task(id=None, name='Classification'))
+                session.add(Task(id=None, name='Segmentation'))
 
     def register_model(self, task_id,
                        dataset_id, algorithm_id, hyper_parameters):
         with SessionContext() as session:
             new_model = Model(
                 task_id=task_id, dataset_id=dataset_id,
-                algorithm_id=algorithm_id, hyper_parameters=pickle.dumps(hyper_parameters)
+                algorithm_id=algorithm_id, hyper_parameters=pickle_dump(hyper_parameters)
             )
             session.add(new_model)
             session.commit()
@@ -100,40 +100,62 @@ class Storage:
         with SessionContext() as session:
             result = session.query(Model).all()
             dict_result = self.remove_instance_state_key(result)
-            return result
+            return dict_result
 
     def fetch_model(self, id):
         with SessionContext() as session:
             result = session.query(Model).filter(Model.id == id)
-            return result
+            dict_result = self.remove_instance_state_key(result)
+            assert dict_result, "No model registered as the model id {}".format(id)
+            return dict_result[0]
 
     def fetch_datasets(self):
         with SessionContext() as session:
             result = session.query(Dataset).all()
             dict_result = self.remove_instance_state_key(result)
-            return result
+            return dict_result
 
-    def fetch_dataset(self, dataset_id):
+    def fetch_dataset(self, id):
         with SessionContext() as session:
-            result = session.query(Dataset).filter(Dataset.dataset_id == dataset_id)
+            result = session.query(Dataset).filter(Dataset.id == id)
             dict_result = self.remove_instance_state_key(result)
-            return result
+            assert dict_result
+            return dict_result[0]
 
-    def fetch_train_dataset(self, dataset_id):
+    def register_dataset(self, task_id, name, description, ratio,
+                         train_data, valid_data, class_map, class_tag_list, test_dataset_id):
         with SessionContext() as session:
-            # TODO: Assert data is not None.
-            dataset = session.query(Dataset).filter(Dataset.dataset_id == dataset_id)
-            return [
-                dataset.class_map,
-                pickle.load(dataset.train_data),
-                pickle.load(dataset.valid_data)
-            ]
+            new_dataset = Dataset(
+                task_id=task_id, name=name, description=description, ratio=ratio,
+                train_data=pickle_dump(train_data), valid_data=pickle_dump(valid_data),
+                class_map=pickle_dump(class_map), class_tag_list=pickle_dump(class_tag_list),
+                test_dataset_id=test_dataset_id
+            )
+            session.add(new_dataset)
+            session.commit()
+            return new_dataset.id
+
+    def register_test_dataset(self, task_id, name, description, data):
+        with SessionContext() as session:
+            new_test_dataset = TestDataset(
+                task_id=task_id, name=name, description=description, data=pickle_dump(data)
+            )
+            session.add(new_test_dataset)
+            session.commit()
+            return new_test_dataset.id
 
     def fetch_test_datasets(self):
         with SessionContext() as session:
-            result = session.query(Test_Dataset).all()
+            result = session.query(TestDataset).all()
             dict_result = self.remove_instance_state_key(result)
-            return result
+            return dict_result
+
+    def fetch_test_dataset(self, id):
+        with SessionContext() as session:
+            result = session.query(TestDataset).filter(TestDataset.id == id)
+            dict_result = self.remove_instance_state_key(result)
+            assert dict_result
+            return dict_result[0]
 
     def fetch_algorithms(self):
         with SessionContext() as session:
@@ -154,7 +176,7 @@ class Storage:
             for key, value in res.__dict__.items():
                 if not key == '_sa_instance_state':
                     if isinstance(value, bytes):
-                        res_dict[key] = pickle.loads(value)
+                        res_dict[key] = pickle_load(value)
                     else:
                         res_dict[key] = value
             dict_result.append(res_dict)

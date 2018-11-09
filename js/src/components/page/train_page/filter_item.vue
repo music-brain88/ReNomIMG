@@ -1,6 +1,6 @@
 <template>
   <div id="filter-item">
-    <div id="filter-add" class="item" v-if="isAddButton">
+    <div id="filter-add" class="item" v-if="isAddButton" @click="showModal({add_filter: true})">
       <div id="add">
         <i class="fa fa-plus" aria-hidden="true"></i>
       </div>
@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'FilterItem',
@@ -31,7 +31,7 @@ export default {
 
   },
   methods: {
-
+    ...mapMutations(['showModal'])
   }
 }
 </script>

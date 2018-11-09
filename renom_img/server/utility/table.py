@@ -28,35 +28,36 @@ class Task(Base):
 
     __tablename__ = 'task'
 
-    task_id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     deployed_model_id = Column(Integer)
-
     relationship("Model")
 
     def __repr__(self):
-        return "<Task(task_id='%s', name='%s', deployed_model_id='%s')>" % (
-            self.task_id,
+        return "<Task(id='%s', name='%s', deployed_model_id='%s')>" % (
+            self.id,
             self.name,
             self.deployed_model_id
         )
 
 
-class Test_Dataset(Base):
+class TestDataset(Base):
     __tablename__ = 'test_dataset'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255))
     description = Column(TEXT)
-    test_imgs = Column(CLOB)
+    task_id = Column(Integer)
+    data = Column(CLOB)
     created = Column(DateTime)
 
     relationship("Dataset")
 
     def __repr__(self):
-        return "<Test_Dataset(test_dataset_id='%s', name='%s')>" % (
-            self.test_dataset_id,
-            self.name
+        return "<TestDataset(id='%s', name='%s', task_id='%s')>" % (
+            self.id,
+            self.name,
+            self.task_id,
         )
 
 
@@ -67,6 +68,7 @@ class Dataset(Base):
     name = Column(String(255))
     ratio = Column(Float, nullable=False)
     description = Column(TEXT)
+    task_id = Column(Integer)
     train_data = Column(BLOB)
     valid_data = Column(BLOB)
     class_map = Column(BLOB)
@@ -112,7 +114,7 @@ class Model(Base):
 
     # Must be given
     id = Column(Integer, primary_key=True, autoincrement=True)
-    task_id = Column(Integer, ForeignKey('task.task_id'))
+    task_id = Column(Integer, ForeignKey('task.id'))
     dataset_id = Column(Integer, ForeignKey('dataset.id'))
     algorithm_id = Column(Integer,  ForeignKey('algorithm.algorithm_id'))
     hyper_parameters = Column(BLOB)

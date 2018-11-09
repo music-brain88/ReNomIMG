@@ -46,7 +46,9 @@ export default {
     const url = '/api/renom_img/v1/projects/' + payload.project_id
     return axios.get(url)
       .then(function (response) {
-      })
+
+      }
+      )
   },
 
   /*****
@@ -62,6 +64,7 @@ export default {
     const param = new FormData()
     const model = new Model(algorithm_id, task_id, hyper_params, dataset_id, parents)
     context.commit('addModel', model)
+    model.state = STATE.CREATED
 
     // Append params.
     param.append('hyper_params', JSON.stringify(hyper_params))
@@ -78,7 +81,25 @@ export default {
         } else {
           let id = response.data.id
           model.id = id
-          model.state = STATE.CREATED
+          model.state = STATE.RESERVED
+        }
+      })
+  },
+
+  /*****
+   *
+   */
+  async runModel (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/run/' + model_id
+
+    return axios.post(url, param)
+      .then(function (response) {
+        let error_msg = response.data.error_msg
+        if (error_msg) {
+          context.commit('showAlert', {'show': true, 'msg': error_msg})
+        } else {
+
         }
       })
   },

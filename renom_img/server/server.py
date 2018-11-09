@@ -26,12 +26,8 @@ from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread
 from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.utility.storage import storage
+from renom_img.server import State, RunningState
 
-# Constants
-from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT, GPU_NUM
-from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR, DATASRC_PREDICTION_OUT
-from renom_img.server import STATE_FINISHED, STATE_RUNNING, STATE_DELETED, STATE_RESERVED
-from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
 train_thread_pool = {}
@@ -42,8 +38,8 @@ def get_train_thread_count():
     return len([th for th in train_thread_pool.values() if th[0].running()])
 
 
-def create_response(body):
-    r = HTTPResponse(status=200, body=body)
+def create_response(body, status=200):
+    r = HTTPResponse(status=status, body=body)
     r.set_header('Content-Type', 'application/json')
     return r
 
@@ -92,7 +88,7 @@ def json_handler(func):
             release_mem_pool()
             traceback.print_exc()
             body = json.dumps({"error_msg": str(e)})
-            ret = create_response(body)
+            ret = create_response(body, 500)
             return ret
     return wrapped
 
@@ -119,9 +115,8 @@ def font(file_name):
 
 @error(404)
 def error404(error):
-    print(error)
     body = json.dumps({"error_msg": "Page Not Found"})
-    ret = create_response(body)
+    ret = create_response(body, status=404)
     return ret
 
 
@@ -136,9 +131,9 @@ def datasrc(folder_name, file_name):
 @json_handler
 def model_create():
     req_params = request.params
-    hyper_params = json.loads(json.dumps(req_params.hyper_params))
-    algorithm_id = json.loads(json.dumps(req_params.algorithm_id))
-    parents = json.loads(json.dumps(req_params.parents))
+    hyper_params = json.loads(req_params.hyper_params)
+    algorithm_id = json.loads(req_params.algorithm_id)
+    parents = json.loads(req_params.parents)
     dataset_id = req_params.dataset_id
     task_id = req_params.task_id
     new_id = storage.register_model(
@@ -164,6 +159,8 @@ def models_load_of_task(task_id):
 @route("/api/renom_img/v2/model/run/<id:int>", method="GET")
 @json_handler
 def model_run(id):
+    thread = TrainThread(id)
+    thread.run()
     return
 
 
@@ -173,20 +170,108 @@ def model_remove(id):
     return
 
 
-@route("/api/renom_img/v2/load_all_algorithms", method="GET")
-@json_handler
-def load_all_algorithms():
-    algos = storage.fetch_algorithms()
-    json = {"algo": algos}
-    return json
-
-
 @route("/api/renom_img/v2/load_deployed_models", method="GET")
 @json_handler
-def load_deployed_models():
+def models_load_deployed():
     dep_models = storage.fetch_task()
     json = {"models": dep_models}
     return json
+
+
+@route("/api/renom_img/v2/dataset/create", method="POST")
+@json_handler
+def dataset_create():
+    # req_params = request.params
+    # Receive params here.
+    ratio = 0.8
+    dataset_name = "test"
+    test_dataset_id = 1
+    task_id = 1
+    description = "This is test."
+    ##
+
+    root = pathlib.Path('datasrc')
+    img_dir = root / 'img'
+    label_dir = root / 'label' / 'detection'
+
+    assert img_dir.exists(), \
+        "The directory 'datasrc/img' is not found in current working directory."
+    assert label_dir.exists(), \
+        "The directory 'datasrc/label/detection' is not found in current working directory."
+
+    file_names = set([name.relative_to(img_dir) for name in img_dir.iterdir()
+                      if name.is_file() and (label_dir / name.relative_to(img_dir)).with_suffix('.xml').is_file()])
+
+    test_dataset = storage.fetch_test_dataset(test_dataset_id)
+    test_dataset = set([pathlib.Path(test_path).relative_to(img_dir)
+                        for test_path in test_dataset['data']['img']])
+
+    # Remove test files.
+    file_names = file_names - test_dataset
+
+    # Parse
+    img_files = [str(img_dir / name) for name in file_names]
+    xml_files = [str(label_dir / name.with_suffix('.xml')) for name in file_names]
+    parsed_xml, class_map = parse_xml_detection(xml_files, num_thread=8)
+
+    # Split into train and valid.
+    n_imgs = len(file_names)
+    perm = np.random.permutation(n_imgs)
+
+    train_img, valid_img = np.split(np.array([img_files[index] for index in perm]),
+                                    [int(ratio * n_imgs)])
+    train_img = train_img.tolist()
+    valid_img = valid_img.tolist()
+
+    train_xml, valid_xml = np.split(np.array([parsed_xml[index] for index in perm]),
+                                    [int(ratio * n_imgs)])
+    train_xml = train_xml.tolist()
+    valid_xml = valid_xml.tolist()
+
+    # Register
+    dataset_id = storage.register_dataset(task_id, dataset_name, description, ratio,
+                                          {'img': train_img, 'target': train_xml}, {
+                                              'img': valid_img, 'target': valid_xml},
+                                          class_map, {}, test_dataset_id
+                                          )
+    return {'id': dataset_id}
+
+
+@route("/api/renom_img/v2/test_dataset/create", method="POST")
+@json_handler
+def test_dataset_create():
+    # req_params = request.params
+    # Receive params here.
+    ratio = 0.1
+    dataset_name = "test"
+    task_id = 1
+    description = "This is test."
+    ##
+    root = pathlib.Path('datasrc')
+    img_dir = root / 'img'
+    label_dir = root / 'label' / 'detection'
+
+    assert img_dir.exists(), \
+        "The directory 'datasrc/img' is not found in current working directory."
+    assert label_dir.exists(), \
+        "The directory 'datasrc/label/detection' is not found in current working directory."
+
+    file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
+                  if name.is_file() and (label_dir / name.relative_to(img_dir)).with_suffix('.xml').is_file()]
+
+    n_imgs = len(file_names)
+    perm = np.random.permutation(n_imgs)
+    file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]
+
+    img_files = [str(img_dir / name) for name in file_names]
+    xml_files = [str(label_dir / name.with_suffix('.xml')) for name in file_names]
+    parsed_xml, class_map = parse_xml_detection(xml_files, num_thread=8)
+
+    test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, {
+        "img": img_files,
+        "target": parsed_xml
+    })
+    return {"id": test_dataset_id}
 
 
 @route("/api/renom_img/v2/polling/progress/model/<id:int>", method="GET")

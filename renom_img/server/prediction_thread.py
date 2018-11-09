@@ -15,14 +15,6 @@ from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.augmentation.process import Shift
 
-from renom_img.server import ALG_YOLOV1, ALG_YOLOV2, ALG_SSD
-from renom_img.server import DB_DIR_TRAINED_WEIGHT
-from renom_img.server import DATASRC_PREDICTION_IMG, DATASRC_PREDICTION_OUT, \
-    DATASRC_PREDICTION_OUT_CSV, DATASRC_PREDICTION_OUT_XML
-from renom_img.server import STATE_RUNNING
-from renom_img.server import RUN_STATE_TRAINING, RUN_STATE_VALIDATING, \
-    RUN_STATE_PREDICTING, RUN_STATE_STARTING, RUN_STATE_STOPPING
-
 from renom_img.server.utility.storage import storage
 
 

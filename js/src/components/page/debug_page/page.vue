@@ -4,6 +4,7 @@
 <template>
   <div id="debug-page">
     <div id="components">
+      <component-dataset/>
       <component-progress/>
       <component-scatter/>
       <component-model-detail/>
@@ -29,6 +30,7 @@ import ComponentModelDetail from '@/components/page/train_page/component_model_d
 import ComponentTagList from '@/components/page/train_page/component_tag_list.vue'
 import ComponentLearningCurve from '@/components/page/train_page/component_learning_curve.vue'
 import ComponentPredictionResult from '@/components/page/train_page/component_prediction_result.vue'
+import ComponentDataset from '@/components/page/dataset_page/component_dataset.vue'
 
 export default {
   name: 'DebugPage',
@@ -42,6 +44,7 @@ export default {
     'component-model-filter': ComponentModelFilter,
     'component-learning-curve': ComponentLearningCurve,
     'component-prediction-result': ComponentPredictionResult,
+    'component-dataset': ComponentDataset,
   },
   created: function () {
     this.$store.dispatch('loadModelsOfCurrentTask')
