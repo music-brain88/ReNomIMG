@@ -3,10 +3,17 @@ import enum
 import weakref
 
 
+class Task(enum.Enum):
+    CLASSIFICATION = 0
+    DETECTION = 1
+    SEGMENTATION = 2
+
+
 class State(enum.Enum):
     CREATED = 0
     RESERVED = 1
     STARTED = 2
+    STOPPED = 3
 
 
 class RunningState(enum.Enum):
@@ -18,7 +25,7 @@ class RunningState(enum.Enum):
     STOPPING = 5
 
 
-class ALgorithm(enum.Enum):
+class Algorithm(enum.Enum):
     YOLOV1 = 10
     YOLOV2 = 11
     SSD = 12
@@ -27,3 +34,5 @@ class ALgorithm(enum.Enum):
 DB_DIR = "storage"
 DB_DIR_TRAINED_WEIGHT = os.path.join(DB_DIR, "trained_weight")
 DB_DIR_PRETRAINED_WEIGHT = os.path.join(DB_DIR, "pretrained_weight")
+
+MAX_THREAD_NUM = 1

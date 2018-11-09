@@ -17,7 +17,9 @@ import xmltodict
 import simplejson as json
 
 import numpy as np
-from threading import Thread
+from threading import Thread, Semaphore
+from concurrent.futures import ThreadPoolExecutor as Executor
+from concurrent.futures import ProcessPoolExecutor
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
 from renom.cuda import release_mem_pool
@@ -30,6 +32,7 @@ from renom_img.server import State, RunningState
 
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
+executor = Executor()
 train_thread_pool = {}
 prediction_thread_pool = {}
 
@@ -160,8 +163,9 @@ def models_load_of_task(task_id):
 @json_handler
 def model_run(id):
     thread = TrainThread(id)
-    thread.run()
-    return
+    th = executor.submit(thread)
+    th.result()
+    return {"status": "ok"}
 
 
 @route("/api/renom_img/v2/model/remove/<id:int>", method="GET")
