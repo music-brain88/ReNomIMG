@@ -162,9 +162,19 @@ def models_load_of_task(task_id):
 @route("/api/renom_img/v2/model/run/<id:int>", method="GET")
 @json_handler
 def model_run(id):
-    thread = TrainThread(id)
-    th = executor.submit(thread)
+    for i in range(5):
+        thread = TrainThread(id)
+        th = executor.submit(thread)
     th.result()
+    return {"status": "ok"}
+
+
+@route("/api/renom_img/v2/model/stop/<id:int>", method="GET")
+@json_handler
+def model_stop(id):
+    thread = TrainThread.jobs.get(id, None)
+    if thread is not None:
+        thread.stop()
     return {"status": "ok"}
 
 
