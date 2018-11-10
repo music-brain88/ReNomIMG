@@ -155,16 +155,14 @@ def model_load(id):
 @json_handler
 def models_load_of_task(task_id):
     models = storage.fetch_models_of_task(task_id)
-    print(models)
     return {'model_list': models}
 
 
 @route("/api/renom_img/v2/model/run/<id:int>", method="GET")
 @json_handler
 def model_run(id):
-    for i in range(5):
-        thread = TrainThread(id)
-        th = executor.submit(thread)
+    thread = TrainThread(id)
+    th = executor.submit(thread)
     th.result()
     return {"status": "ok"}
 

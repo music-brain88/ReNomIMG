@@ -1,15 +1,14 @@
 <template>
   <div id="app">
     <app-header/>
-    <slide-menu/>
-    <modal/>
-    <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
     <div id="app-content">
       <div id="container">
         <router-view></router-view> 
       </div>
     </div>
-
+    <slide-menu/>
+    <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
+    <modal/>
   </div>
 </template>
 

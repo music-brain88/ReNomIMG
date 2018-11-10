@@ -47,8 +47,7 @@ export default {
     return axios.get(url)
       .then(function (response) {
 
-      }
-      )
+    })
   },
 
   /*****

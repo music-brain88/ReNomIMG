@@ -4,7 +4,6 @@
 <template>
   <div id="debug-page">
     <div id="components">
-      <component-dataset/>
       <component-progress/>
       <component-scatter/>
       <component-model-detail/>
@@ -14,7 +13,7 @@
     </div>
     <div id="vertical-component">
       <component-model-filter/>
-      <component-model-list/>
+      <component-model-list style="position: sticky; top: 20px;"/>
     </div>
   </div>
 </template>

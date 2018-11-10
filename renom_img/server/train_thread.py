@@ -63,7 +63,7 @@ class TrainThread(object):
         model = self.model
         self.state = State.STARTED
         self.running_state = RunningState.TRAINING
-
+        valid_target = self.valid_dist.get_resized_annotation_list(self.imsize)
         if self.stop_event.is_set():
             # Watch stop event
             return
@@ -101,8 +101,7 @@ class TrainThread(object):
                     total_batch=self.total_batch))
 
             valid_prediction = []
-            valid_target = []
-            for b, (valid_x, valid_y) in enumerate(self.valid_dist.batch(self.batch_size)):
+            for b, (valid_x, valid_y) in enumerate(self.valid_dist.batch(self.batch_size, shuffle=False)):
 
                 if self.stop_event.is_set():
                     # Watch stop event
@@ -111,7 +110,6 @@ class TrainThread(object):
                 valid_prediction_in_batch = model(train_x)
                 loss = model.loss(valid_prediction_in_batch, train_y)
                 valid_prediction.append(valid_prediction_in_batch)
-                valid_target.append(valid_y)
                 try:
                     loss = loss.as_ndarray()[0]
                 except:
@@ -120,11 +118,17 @@ class TrainThread(object):
             if self.stop_event.is_set():
                 # Watch stop event
                 return
-
+            valid_prediction = np.concatenate(valid_prediction, axis=0)
+            n_valid = min(len(valid_prediction), len(valid_target))
             if False:
                 pass
             elif self.task_id == Task.DETECTION.value:
-                pass
+                prec, rec, _, iou = get_prec_rec_iou(
+                    model.get_bbox(valid_prediction[:n_valid]),
+                    valid_target[:n_valid]
+                )
+                _, mAP = get_ap_and_map(prec, rec)
+                print(mAP, iou)
 
     def stop(self):
         self.stop_event.set()
@@ -166,6 +170,7 @@ class TrainThread(object):
         assert all([k in self.hyper_parameters.keys() for k in self.common_params])
 
         # Training States
+        self.imsize = (self.hyper_parameters["imsize_w"], self.hyper_parameters["imsize_h"])
         self.batch_size = self.hyper_parameters["batch_size"]
         self.total_epoch = self.hyper_parameters["total_epoch"]
         self.nth_epoch = 0
@@ -193,7 +198,7 @@ class TrainThread(object):
         assert self.task_id == Task.DETECTION.value, self.task_id
         self.model = Yolov1(
             class_map=self.class_map,
-            imsize=(self.hyper_parameters["imsize_w"], self.hyper_parameters["imsize_h"]),
+            imsize=self.imsize,
             train_whole_network=self.hyper_parameters["train_whole"],
             load_pretrained_weight=True)
         aug = Augmentation([
