@@ -31,6 +31,9 @@ class TrainThread(object):
         cls.jobs[model_id] = ret
         return ret
 
+    def set_future(self, future_obj):
+        self.future = future_obj
+
     def __init__(self, model_id):
         # Thread attrs.
         set_cuda_active(True)
@@ -39,6 +42,9 @@ class TrainThread(object):
         self.model_id = model_id
         self.state = State.CREATED
         self.running_state = RunningState.PREPARING
+
+        # If any value (train_loss or ...) is changed, this will be True.
+        self.updated = False
 
     def __call__(self):
         try:
@@ -59,6 +65,9 @@ class TrainThread(object):
             self.semaphore.release()
             self.state = State.STOPPED
 
+    def returned2client(self):
+        self.updated = False
+
     def run(self):
         model = self.model
         self.state = State.STARTED
@@ -69,13 +78,13 @@ class TrainThread(object):
             return
 
         for e in range(self.total_epoch):
-
+            self.nth_epoch = e
             if self.stop_event.is_set():
                 # Watch stop event
                 return
 
             for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size)):
-
+                self.nth_batch = b
                 if self.stop_event.is_set():
                     # Watch stop event
                     return
@@ -89,6 +98,8 @@ class TrainThread(object):
                 except:
                     loss = loss.as_ndarray()
 
+                self.last_batch_loss = float(loss)
+
                 if self.stop_event.is_set():
                     # Watch stop event
                     return
@@ -99,6 +110,9 @@ class TrainThread(object):
                     total_epoch=self.total_epoch,
                     current_batch=b,
                     total_batch=self.total_batch))
+
+                # Thread value changed.
+                self.updated = True
 
             valid_prediction = []
             for b, (valid_x, valid_y) in enumerate(self.valid_dist.batch(self.batch_size, shuffle=False)):
@@ -130,6 +144,10 @@ class TrainThread(object):
                 _, mAP = get_ap_and_map(prec, rec)
                 print(mAP, iou)
 
+            # Thread value changed.
+            self.updated = True
+            break
+
     def stop(self):
         self.stop_event.set()
         self.running_state = RunningState.STOPPING
@@ -141,9 +159,9 @@ class TrainThread(object):
 
     def _prepare_params(self):
         params = storage.fetch_model(self.model_id)
-        self.task_id = params["task_id"]
-        self.dataset_id = params["dataset_id"]
-        self.algorithm_id = params["algorithm_id"]
+        self.task_id = int(params["task_id"])
+        self.dataset_id = int(params["dataset_id"])
+        self.algorithm_id = int(params["algorithm_id"])
         self.hyper_parameters = params["hyper_parameters"]
 
         dataset = storage.fetch_dataset(self.dataset_id)
@@ -170,9 +188,11 @@ class TrainThread(object):
         assert all([k in self.hyper_parameters.keys() for k in self.common_params])
 
         # Training States
-        self.imsize = (self.hyper_parameters["imsize_w"], self.hyper_parameters["imsize_h"])
-        self.batch_size = self.hyper_parameters["batch_size"]
-        self.total_epoch = self.hyper_parameters["total_epoch"]
+        # TODO: Need getter for json decoding.
+        self.imsize = (int(self.hyper_parameters["imsize_w"]),
+                       int(self.hyper_parameters["imsize_h"]))
+        self.batch_size = int(self.hyper_parameters["batch_size"])
+        self.total_epoch = int(self.hyper_parameters["total_epoch"])
         self.nth_epoch = 0
         self.total_batch = int(np.ceil(n_data / self.batch_size))
         self.nth_batch = 0

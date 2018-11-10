@@ -12,7 +12,7 @@
     </template>
     <div id="model-list">
       <model-item :is-add-button="true"/>
-      <model-item v-for="model in getFilteredModelList" :model="model"/>
+      <model-item v-for="(model, index) in getFilteredModelList" :model="model"/>
     </div>
   </component-frame>
 </template>

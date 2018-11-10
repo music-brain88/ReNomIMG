@@ -20,6 +20,16 @@ export default {
   addModel (state, payload) {
     state.models = [payload, ...state.models]
   },
+  addPollingJob (state, payload) {
+    let key = Object.keys(payload)[0]
+    let model_id = payload[key]
+    state.polling_request_jobs[key] = [...state.polling_request_jobs[key], model_id]
+  },
+  rmPollingJob (state, payload) {
+    let key = Object.keys(payload)[0]
+    let model_id = payload[key]
+    state.polling_request_jobs[key] = state.polling_request_jobs[key].filter(n => n !== model_id)
+  },
   showSlideMenu (state, payload) {
     state.show_slide_menu = payload
   },

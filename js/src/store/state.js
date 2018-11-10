@@ -1,6 +1,13 @@
 import { SORTBY, TASK_ID } from '@/const.js'
 
 export default {
+
+  polling_request_jobs: { // axios obj here.
+    weight_download: [],
+    train: [],
+    validation: []
+  },
+
   current_task: TASK_ID.DETECTION,
 
   // Models

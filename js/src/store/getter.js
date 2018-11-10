@@ -17,6 +17,12 @@ export default {
     // TODO: Sort by state and task.
     return state.models.filter(m => m.task_id == getters.getCurrentTask)
   },
+  getModelById (state, getters) {
+    return function (id) {
+      let model = state.models.find(m => m.id == id)
+      return model
+    }
+  },
   getCurrentTask (state, getters) {
     return state.current_task
   },

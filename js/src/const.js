@@ -246,7 +246,7 @@ export const SORTBY = {
 export const STATE = {
   CREATED: 0,
   RESERVED: 1,
-  RUNNING: 2,
+  STARTED: 2,
   STOPPED: 3,
 }
 

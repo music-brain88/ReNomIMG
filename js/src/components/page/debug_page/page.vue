@@ -46,7 +46,7 @@ export default {
     'component-dataset': ComponentDataset,
   },
   created: function () {
-    this.$store.dispatch('loadModelsOfCurrentTask')
+    this.$store.dispatch('init')
   },
   mounted: function () {
   }

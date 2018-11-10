@@ -13,10 +13,11 @@ export default class Model {
     this.running_state = RUNNING_STATE.STARTING
 
     this.total_epoch = 0
-    this.last_epoch = 0
+    this.nth_epoch = 0
 
     this.total_batch = 0
-    this.last_batch = 0
+    this.nth_batch = 0
+    this.last_batch_loss = 0
 
     this.loss_list = {
       'train': [],

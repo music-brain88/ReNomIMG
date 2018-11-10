@@ -1,11 +1,14 @@
 <template>
-  <div id="model-item">
+  <div id="model-item" @click="testRun">
     <div id="model-add-button" v-if="isAddButton" @click="showModal({add_both: true})">
       ADD
     </div>
     <div id="model-id" v-else>
       ID: {{ model.id }}
       ALGO: {{ getAlgorithmTitleFromId(model.algorithm_id) }}
+      Loss: {{ model.last_batch_loss.toFixed(3) }}
+      Batch: {{ model.nth_batch }}
+      State: {{ model.state }}
     </div>
   </div>
 </template>
@@ -19,7 +22,10 @@ export default {
 
   },
   props: {
-    model: Object,
+    model: {
+      type: Object,
+      require: true
+    },
     isAddButton: {
       type: Boolean,
       default: false
@@ -36,7 +42,10 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['showModal'])
+    ...mapMutations(['showModal']),
+    testRun: function () {
+      this.$store.dispatch('runTrainThread', this.model.id)
+    }
   }
 }
 </script>

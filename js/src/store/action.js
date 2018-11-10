@@ -7,7 +7,8 @@ export default {
    *
    */
   async init (context, payload) {
-    context.dispatch('loadModelsOfCurrentTask')
+    await context.dispatch('loadModelsOfCurrentTask')
+    context.dispatch('startAllPolling')
   },
 
   /*****
@@ -47,7 +48,7 @@ export default {
     return axios.get(url)
       .then(function (response) {
 
-    })
+      })
   },
 
   /*****
@@ -88,19 +89,102 @@ export default {
   /*****
    *
    */
-  async runModel (context, payload) {
+  async runTrainThread (context, payload) {
     const model_id = payload
-    const url = '/api/renom_img/v2/model/run/' + model_id
+    const url = '/api/renom_img/v2/model/thread/run/' + model_id
+    return axios.get(url)
+      .then(function (response) {
+        let model = context.getters.getModelById(model_id)
+        model.state = STATE.CREATED // TODO: Remove this line.
+        let error_msg = response.data.error_msg
+        if (error_msg) {
+          context.commit('showAlert', {'show': true, 'msg': error_msg})
+        }
+        context.dispatch('startAllPolling')
+        context.dispatch('superviseTrainThread', model_id)
+      })
+  },
+  /*****
+   *
+   */
+  async superviseTrainThread (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/thread/supervise/' + model_id
 
-    return axios.post(url, param)
+    context.dispatch('startAllPolling')
+    return axios.get(url)
       .then(function (response) {
         let error_msg = response.data.error_msg
         if (error_msg) {
           context.commit('showAlert', {'show': true, 'msg': error_msg})
-        } else {
-
         }
       })
+  },
+
+  /*****
+   *
+   */
+  async pollingTrain (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/polling/train/model/' + model_id
+    const request_source = {'train': model_id}
+    const current_requests = context.state.polling_request_jobs.train
+
+    // If polling for the model is already performed, do nothing.
+    if (current_requests.indexOf(model_id) >= 0) {
+      return
+    }
+
+    // Register request.
+    context.commit('addPollingJob', request_source)
+    return axios.get(url).then(function (response) {
+      // Check and run other model's polling.
+      context.dispatch('startAllPolling', payload)
+
+      // Remove finished request.
+      context.commit('rmPollingJob', request_source)
+      let error_msg = response.data.error_msg
+      if (error_msg) {
+        context.commit('showAlert', {'show': true, 'msg': error_msg})
+        return
+      }
+      let state = response.data.state
+      const model = context.getters.getModelById(model_id)
+      let r = response.data
+      model.state = r.state
+      model.running_state = r.running_state
+      model.total_epoch = r.total_epoch
+      model.nth_epoch = r.nth_epoch
+      model.total_batch = r.total_batch
+      model.nth_batch = r.nth_batch
+      model.last_batch_loss = r.last_batch_loss
+
+      if (state === STATE.STOPPED) {
+
+      } else {
+        context.dispatch('pollingTrain', payload)
+      }
+    })
+  },
+  /*****
+   *
+   */
+  async startAllPolling (context, payload) {
+    const model_list = context.state.models
+    const current_requests = context.state.polling_request_jobs.train
+    for (let m of model_list) {
+      if (m.state !== STATE.STOPPED) {
+        let need_run_request = true
+        for (let model_id in current_requests) {
+          if (model_id === m.id) {
+            need_run_request = false
+          }
+        }
+        if (need_run_request) {
+          context.dispatch('pollingTrain', m.id)
+        }
+      }
+    }
   },
 
   /*****
