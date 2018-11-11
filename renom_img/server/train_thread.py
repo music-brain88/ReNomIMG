@@ -45,10 +45,14 @@ class TrainThread(object):
 
         # If any value (train_loss or ...) is changed, this will be True.
         self.updated = False
+        # This will be changed from web API.
+        self.best_valid_changed = False
+        self.error_msg = None
 
     def __call__(self):
         try:
             self.state = State.RESERVED
+            self.sync_state()
             self.semaphore.acquire()
             self._prepare_params()
             self._prepare_model()
@@ -56,17 +60,28 @@ class TrainThread(object):
             self.state = State.STARTED
             self.running_state = RunningState.STARTING
             assert self.model is not None
+            self.sync_state()
             self.run()
         except Exception as e:
             traceback.print_exc()
-            raise e
+            self.error_msg = e
         finally:
             release_mem_pool()
             self.semaphore.release()
             self.state = State.STOPPED
+            self.sync_state()
 
     def returned2client(self):
         self.updated = False
+
+    def returned_best_result2client(self):
+        self.best_valid_changed = False
+
+    def consume_error(self):
+        if self.error_msg is not None:
+            e = self.error_msg
+            self.error_msg = None
+            raise e
 
     def run(self):
         model = self.model
@@ -83,11 +98,13 @@ class TrainThread(object):
                 # Watch stop event
                 return
 
+            temp_train_batch_loss_list = []
             for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size)):
                 self.nth_batch = b
                 if self.stop_event.is_set():
                     # Watch stop event
                     return
+                self.sync_count()
 
                 with model.train():
                     loss = model.loss(model(train_x), train_y)
@@ -97,8 +114,11 @@ class TrainThread(object):
                     loss = loss.as_ndarray()[0]
                 except:
                     loss = loss.as_ndarray()
+                loss = float(loss)
 
-                self.last_batch_loss = float(loss)
+                temp_train_batch_loss_list.append(loss)
+                self.last_batch_loss = loss
+                self.sync_batch_result()
 
                 if self.stop_event.is_set():
                     # Watch stop event
@@ -114,7 +134,13 @@ class TrainThread(object):
                 # Thread value changed.
                 self.updated = True
 
+            self.train_loss_list.append(np.mean(temp_train_batch_loss_list))
+            self.sync_train_loss()
+
+            self.updated = True
+
             valid_prediction = []
+            temp_valid_batch_loss_list = []
             for b, (valid_x, valid_y) in enumerate(self.valid_dist.batch(self.batch_size, shuffle=False)):
 
                 if self.stop_event.is_set():
@@ -128,6 +154,10 @@ class TrainThread(object):
                     loss = loss.as_ndarray()[0]
                 except:
                     loss = loss.as_ndarray()
+                loss = float(loss)
+                temp_valid_batch_loss_list.append(loss)
+            self.valid_loss_list.append(np.mean(temp_valid_batch_loss_list))
+            self.sync_valid_loss()
 
             if self.stop_event.is_set():
                 # Watch stop event
@@ -137,12 +167,34 @@ class TrainThread(object):
             if False:
                 pass
             elif self.task_id == Task.DETECTION.value:
+                prediction_box = model.get_bbox(valid_prediction[:n_valid])
                 prec, rec, _, iou = get_prec_rec_iou(
-                    model.get_bbox(valid_prediction[:n_valid]),
+                    prediction_box,
                     valid_target[:n_valid]
                 )
                 _, mAP = get_ap_and_map(prec, rec)
-                print(mAP, iou)
+                if self.best_epoch_valid_result:
+                    if self.best_epoch_valid_result["mAP"] < mAP:
+                        self.best_valid_changed = True
+                        self.best_epoch_valid_result = {
+                            "nth_epoch": e,
+                            "prediction_box": prediction_box,
+                            "target_box": valid_target,
+                            "mAP": float(mAP),
+                            "IOU": float(iou),
+                            "loss": float(loss)
+                        }
+                else:
+                    self.best_valid_changed = True
+                    self.best_epoch_valid_result = {
+                        "nth_epoch": e,
+                        "prediction_box": prediction_box,
+                        "target_box": valid_target,
+                        "mAP": float(mAP),
+                        "IOU": float(iou),
+                        "loss": float(loss)
+                    }
+                self.sync_best_valid_result()
 
             # Thread value changed.
             self.updated = True
@@ -156,6 +208,29 @@ class TrainThread(object):
         # Perform this in polling progress.
         if not os.path.exists(path):
             pass
+
+    def sync_state(self):
+        storage.update_model(self.model_id, state=self.state.value,
+                             running_state=self.running_state.value)
+
+    def sync_count(self):
+        storage.update_model(self.model_id,
+                             total_epoch=self.total_epoch, nth_epoch=self.nth_epoch,
+                             total_batch=self.total_batch, nth_batch=self.nth_batch)
+
+    def sync_batch_result(self):
+        storage.update_model(self.model_id,
+                             last_batch_loss=self.last_batch_loss)
+
+    def sync_train_loss(self):
+        storage.update_model(self.model_id, train_loss_list=self.train_loss_list)
+
+    def sync_valid_loss(self):
+        storage.update_model(self.model_id, valid_loss_list=self.valid_loss_list)
+
+    def sync_best_valid_result(self):
+        storage.update_model(self.model_id,
+                             best_epoch_valid_result=self.best_epoch_valid_result)
 
     def _prepare_params(self):
         params = storage.fetch_model(self.model_id)
@@ -198,7 +273,7 @@ class TrainThread(object):
         self.nth_batch = 0
         self.last_batch_loss = 0
         self.train_loss_list = []
-        self.valid_result_list = []
+        self.valid_loss_list = []
         self.best_epoch_valid_result = {}
 
     def _prepare_model(self):

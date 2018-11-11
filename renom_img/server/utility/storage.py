@@ -5,6 +5,7 @@ import os
 import sys
 import sqlite3
 import json
+import inspect
 import _pickle as pickle
 from renom_img.server import DB_DIR
 from renom_img.server.utility.DAO import Session
@@ -114,6 +115,36 @@ class Storage:
             result = session.query(Dataset).all()
             dict_result = self.remove_instance_state_key(result)
             return dict_result
+
+    def update_model(self,
+                     id, state=None, running_state=None, total_epoch=None, nth_epoch=None,
+                     total_batch=None, nth_batch=None, last_batch_loss=None,
+                     train_loss_list=None, valid_loss_list=None, best_epoch_valid_result=None
+                     ):
+        with SessionContext() as session:
+            model = session.query(Model).filter(Model.id == id).first()
+            if model:
+                if state is not None:
+                    model.state = state
+                if running_state is not None:
+                    model.running_state = running_state
+                if total_epoch is not None:
+                    model.total_epoch = total_epoch
+                if nth_epoch is not None:
+                    model.nth_epoch = nth_epoch
+                if total_batch is not None:
+                    model.total_batch = total_batch
+                if nth_batch is not None:
+                    model.nth_batch = nth_batch
+                if last_batch_loss is not None:
+                    model.last_batch_loss = last_batch_loss
+                if train_loss_list is not None:
+                    model.train_loss_list = pickle_dump(train_loss_list)
+                if valid_loss_list is not None:
+                    model.valid_loss_list = pickle_dump(valid_loss_list)
+                if best_epoch_valid_result is not None:
+                    model.best_epoch_valid_result = pickle_dump(best_epoch_valid_result)
+            session.commit()
 
     def fetch_dataset(self, id):
         with SessionContext() as session:

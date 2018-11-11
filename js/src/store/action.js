@@ -101,23 +101,6 @@ export default {
           context.commit('showAlert', {'show': true, 'msg': error_msg})
         }
         context.dispatch('startAllPolling')
-        context.dispatch('superviseTrainThread', model_id)
-      })
-  },
-  /*****
-   *
-   */
-  async superviseTrainThread (context, payload) {
-    const model_id = payload
-    const url = '/api/renom_img/v2/model/thread/supervise/' + model_id
-
-    context.dispatch('startAllPolling')
-    return axios.get(url)
-      .then(function (response) {
-        let error_msg = response.data.error_msg
-        if (error_msg) {
-          context.commit('showAlert', {'show': true, 'msg': error_msg})
-        }
       })
   },
 
@@ -151,6 +134,7 @@ export default {
       let state = response.data.state
       const model = context.getters.getModelById(model_id)
       let r = response.data
+      let load_best = response.data.best_result_changed
       model.state = r.state
       model.running_state = r.running_state
       model.total_epoch = r.total_epoch
@@ -162,10 +146,20 @@ export default {
       if (state === STATE.STOPPED) {
 
       } else {
-        context.dispatch('pollingTrain', payload)
+        context.dispatch('pollingTrain', model_id)
+      }
+      if (load_best) {
+        context.dispatch('loadBestValidResult', model_id)
       }
     })
   },
+  /*****
+   *
+   */
+  async loadBestValidResult (context, payload) {
+
+  },
+
   /*****
    *
    */

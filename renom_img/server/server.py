@@ -168,18 +168,6 @@ def model_thread_run(id):
     return {"status": "ok"}
 
 
-@route("/api/renom_img/v2/model/thread/supervise/<id:int>", method="GET")
-@json_handler
-def model_supervise(id):
-    active_thread = TrainThread.jobs.get(id, None)
-    if active_thread is None:
-        raise Exception("Thread not found.")
-    else:
-        th = active_thread.future
-        th.result()
-        return {"status": "ok"}
-
-
 @route("/api/renom_img/v2/model/stop/<id:int>", method="GET")
 @json_handler
 def model_stop(id):
@@ -201,6 +189,17 @@ def models_load_deployed():
     dep_models = storage.fetch_task()
     json = {"models": dep_models}
     return json
+
+
+@route("/api/renom_img/v2/model/load/best/result/<id:int>", method="GET")
+@json_handler
+def model_load_best_result(id):
+    thread = TrainThread.jobs.get(id, None)
+    if thread is None:
+        pass
+    else:
+        thread.returned_best_result2client()
+        return {"best_result": thread.best_epoch_valid_result}
 
 
 @route("/api/renom_img/v2/dataset/create", method="POST")
@@ -310,15 +309,19 @@ def polling_train(id):
         return {
             "state": State.STOPPED.value,
             "running_state": RunningState.STOPPING.value,
-            "total_epoch": 0,
-            "nth_epoch": 0,
-            "total_batch": 0,
-            "nth_batch": 0,
-            "last_batch_loss": 0
+            "total_epoch": saved_model["total_epoch"],
+            "nth_epoch": saved_model["nth_epoch"],
+            "total_batch": saved_model["total_batch"],
+            "nth_batch": saved_model["nth_batch"],
+            "last_batch_loss": saved_model["last_batch_loss"],
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": False
         }
     elif active_train_thread.state == State.RESERVED or \
             active_train_thread.state == State.CREATED:
         time.sleep(5)  # Avoid many request.
+        active_train_thread.consume_error()
         return {
             "state": active_train_thread.state.value,
             "running_state": active_train_thread.running_state.value,
@@ -326,13 +329,17 @@ def polling_train(id):
             "nth_epoch": 0,
             "total_batch": 0,
             "nth_batch": 0,
-            "last_batch_loss": 0
+            "last_batch_loss": 0,
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": False
         }
     else:
         for _ in range(10):
             time.sleep(0.5)  # Avoid many request.
             if active_train_thread.updated:
                 break
+            active_train_thread.consume_error()
         active_train_thread.returned2client()
         return {
             "state": active_train_thread.state.value,
@@ -341,14 +348,11 @@ def polling_train(id):
             "nth_epoch": active_train_thread.nth_epoch,
             "total_batch": active_train_thread.total_batch,
             "nth_batch": active_train_thread.nth_batch,
-            "last_batch_loss": active_train_thread.last_batch_loss
+            "last_batch_loss": active_train_thread.last_batch_loss,
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": active_train_thread.best_valid_changed
         }
-
-
-@route("/api/renom_img/v2/polling/validation/model", method="GET")
-@json_handler
-def polling_validation(id):
-    return
 
 
 @route("/api/renom_img/v2/polling/weight/download", method="GET")

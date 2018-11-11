@@ -121,19 +121,22 @@ class Model(Base):
 
     # Modified during training.
     state = Column(Integer, server_default=text('0'))
-    train_loss_list = Column(BLOB, nullable=True)
-    validation_loss_list = Column(BLOB, nullable=True)
-    best_epoch = Column(Integer, server_default=text('0'))
-    best_epoch_iou = Column(NUMERIC, server_default=text('0'))
-    best_epoch_map = Column(NUMERIC, server_default=text('0'))
-    best_epoch_validation_reuslt = Column(BLOB, nullable=True)
-    best_epoch_weight = Column(TEXT)
-    last_epoch = Column(Integer, server_default=text('0'))
-    last_weight = Column(TEXT)
-    last_batch = Column(Integer, server_default=text('0'))
-    last_train_loss = Column(NUMERIC, server_default=text('0'))
-    total_batch = Column(Integer, server_default=text('0'))
     running_state = Column(Integer, server_default=text('0'))
+
+    train_loss_list = Column(BLOB, nullable=True)
+    valid_loss_list = Column(BLOB, nullable=True)
+
+    best_epoch_valid_reuslt = Column(BLOB, nullable=True)
+    best_epoch_weight = Column(TEXT)
+
+    total_epoch = Column(Integer, server_default=text('0'))
+    nth_epoch = Column(Integer, server_default=text('0'))
+
+    total_batch = Column(Integer, server_default=text('0'))
+    nth_batch = Column(Integer, server_default=text('0'))
+
+    last_weight = Column(TEXT)
+    last_batch_loss = Column(NUMERIC, server_default=text('0'))
 
     # Dates
     created = Column(DateTime(timezone=True), server_default=func.now())
