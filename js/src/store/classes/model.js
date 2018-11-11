@@ -19,13 +19,10 @@ export default class Model {
     this.nth_batch = 0
     this.last_batch_loss = 0
 
-    this.loss_list = {
-      'train': [],
-      'valid': [],
-    }
+    this.train_loss_list = []
+    this.valid_loss_list = []
 
-    this.best_epoch = 0
-    this.best_valid_result = {}
+    this.best_epoch_valid_result = {}
 
     this.model_list = {
       'parent': parents

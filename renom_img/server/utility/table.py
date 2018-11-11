@@ -126,7 +126,7 @@ class Model(Base):
     train_loss_list = Column(BLOB, nullable=True)
     valid_loss_list = Column(BLOB, nullable=True)
 
-    best_epoch_valid_reuslt = Column(BLOB, nullable=True)
+    best_epoch_valid_result = Column(BLOB, nullable=True)
     best_epoch_weight = Column(TEXT)
 
     total_epoch = Column(Integer, server_default=text('0'))

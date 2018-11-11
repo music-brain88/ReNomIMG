@@ -33,7 +33,17 @@ export default {
             let parents = []
             let dataset_id = m.dataset_id
             let model = new Model(algorithm_id, task_id, hyper_params, dataset_id, parents)
+
             model.id = id
+            model.total_epoch = m.total_epoch
+            model.nth_epoch = m.nth_epoch
+            model.total_batch = m.total_batch
+            model.nth_batch = m.nth_batch
+            model.train_loss_list = m.train_loss_list
+            model.valid_loss_list = m.valid_loss_list
+            model.best_epoch_valid_result = m.best_epoch_valid_result
+            model.last_batch_loss = m.last_batch_loss
+
             context.commit('addModel', model)
           }
         }
@@ -131,10 +141,13 @@ export default {
         context.commit('showAlert', {'show': true, 'msg': error_msg})
         return
       }
-      let state = response.data.state
+
       const model = context.getters.getModelById(model_id)
       let r = response.data
+      let state = r.state
       let load_best = response.data.best_result_changed
+
+      // Update model.
       model.state = r.state
       model.running_state = r.running_state
       model.total_epoch = r.total_epoch

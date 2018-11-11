@@ -174,7 +174,7 @@ class TrainThread(object):
                 )
                 _, mAP = get_ap_and_map(prec, rec)
                 if self.best_epoch_valid_result:
-                    if self.best_epoch_valid_result["mAP"] < mAP:
+                    if self.best_epoch_valid_result["mAP"] <= mAP:
                         self.best_valid_changed = True
                         self.best_epoch_valid_result = {
                             "nth_epoch": e,
