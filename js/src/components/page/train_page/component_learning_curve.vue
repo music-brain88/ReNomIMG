@@ -1,5 +1,5 @@
 <template>
-  <component-frame :width-weight="5" :height-weight="4">
+  <component-frame :width-weight="4" :height-weight="3">
     <template slot="header-slot">
       Learning Curve
     </template>

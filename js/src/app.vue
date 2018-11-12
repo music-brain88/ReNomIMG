@@ -64,6 +64,7 @@ export default {
       } else {
         console.log(page_name + 'is not supported page name.')
       }
+      this.$forceUpdate()
     }
   }
 }
@@ -99,8 +100,9 @@ export default {
     #page-tab {
       height: $tab-content-height;
       min-height: $header-min-height;
-      width: 100%;
+      width: calc(100% - #{$component-block-margin}*2);
       letter-spacing: -0.4em; // For removing gap between divs.
+      margin: $component-block-margin;
       .page-tab {
         letter-spacing: 0em; // Remove letter-spacing
         display: inline-block;
@@ -118,6 +120,9 @@ export default {
       }
       #dataset-tab {
         background-color: yellow;
+      }
+      #debug-tab {
+        background-color: white;
       }
     }
   }

@@ -1,12 +1,13 @@
 <template>
-  <component-frame :width-weight="6" :height-weight="4">
+  <component-frame :width-weight="4" :height-weight="3">
     <template slot="header-slot">
       Train Progress
     </template>
     <div id="alg-list">
     </div>
     <div id="component-progress">
-      <progress-bar/>
+      <progress-bar :isTitle="true"/>
+      <progress-bar :isTitle="false"/>
     </div>
   </component-frame>
 </template>

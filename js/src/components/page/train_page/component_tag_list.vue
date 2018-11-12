@@ -1,5 +1,5 @@
 <template>
-  <component-frame :width-weight="10" :height-weight="2">
+  <component-frame :width-weight="12" :height-weight="2">
     <template slot="header-slot">
       Tag List
     </template>

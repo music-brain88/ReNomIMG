@@ -1,11 +1,24 @@
 <template>
   <div id="progress-bar">
-    <div id="model-id-area">{{ this.model_id }}</div>
-    <div id="epoch-area">{{ this.current_epoch }} / {{ this.total_epoch }}</div>
-    <div id="batch-area">{{ this.current_batch }} / {{ this.total_batch }}</div>
-    <div id="loss-area">{{ this.loss }}</div>
+    <div id="model-id-area">
+      <span v-if="isTitle">Model</span>
+      <span v-else>{{ this.model_id }}</span>
+    </div>
+    <div id="epoch-area">
+      <span v-if="isTitle">Epoch</span>
+      <span v-else>{{ this.current_epoch }} / {{ this.total_epoch }}</span>
+    </div>
+    <div id="batch-area">
+      <span v-if="isTitle">Batch</span>
+      <span v-else>{{ this.current_batch }} / {{ this.total_batch }}</span>
+    </div>
+    <div id="loss-area">
+      <span v-if="isTitle">Loss</span>
+      <span v-else>{{ this.loss }}</span>
+    </div>
     <div id="bar-area">
-      <div id="bar-background">
+      <span v-if="isTitle">Progress</span>
+      <div id="bar-background" v-else>
       </div>
     </div>
     <div id="button-stop-area"></div>
@@ -16,7 +29,11 @@
 export default {
   name: 'ProgressBar',
   props: {
-    model: Object
+    model: Object,
+    isTitle: {
+      type: Boolean,
+      default: false
+    }
   },
   data: function () {
     return {
@@ -82,7 +99,6 @@ export default {
   padding-left: $progress-bar-margin;
   padding-right: $progress-bar-margin;
   text-align: center;
-  align: center;
 
   #model-id-area {
     width: 12.5%;

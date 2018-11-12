@@ -27,7 +27,9 @@ export default {
   },
 
   addModel (state, payload) {
-    state.models = [payload, ...state.models]
+    if (state.models.find(n => n.id === payload.id) === undefined) {
+      state.models = [payload, ...state.models]
+    }
   },
   addPollingJob (state, payload) {
     let key = Object.keys(payload)[0]

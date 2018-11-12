@@ -1,5 +1,5 @@
 <template>
-  <component-frame :width-weight="3.99999" :height-weight="4">
+  <component-frame :width-weight="3" :height-weight="3">
     <template slot="header-slot">
       Model Distribution
     </template>
@@ -20,12 +20,23 @@ export default {
   components: {
     'component-frame': ComponentFrame
   },
+  data: function () {
+    return {
+      componentWidth: window.innerWidth,
+      componentHeight: window.innerHeight,
+    }
+  },
   created: function () {
-
+    // Register function to window size listener
+    // TODO: Need to use lodash here.
+    window.addEventListener('resize', this.draw, false)
   },
   mounted: function () {
-    // Temtitively
     this.draw()
+  },
+  beforeDestroy: function () {
+    // Remove it.
+    window.removeEventListener('resize', this.draw, false)
   },
   updated: function () {
     this.draw()
