@@ -35,7 +35,7 @@ import AlertModal from '@/components/common/alert_modal.vue'
 import AppHeader from '@/components/common/app_header.vue'
 import SlideMenu from '@/components/common/slide_menu.vue'
 import Modal from '@/components/common/modalbox.vue'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapActions } from 'vuex'
 
 export default {
   name: 'App',
@@ -48,6 +48,7 @@ export default {
   },
   methods: {
     ...mapMutations(['setCurrentPage']),
+    ...mapActions(['init']),
     onTabClick: function (page_name) {
       if (page_name === 'train') {
         this.$router.push({path: '/'})
@@ -64,6 +65,7 @@ export default {
       } else {
         console.log(page_name + 'is not supported page name.')
       }
+      this.init()
       this.$forceUpdate()
     }
   }

@@ -44,7 +44,9 @@ export default {
   methods: {
     ...mapMutations(['showModal']),
     testRun: function () {
-      this.$store.dispatch('runTrainThread', this.model.id)
+      if (!this.isAddButton) {
+        this.$store.dispatch('runTrainThread', this.model.id)
+      }
     }
   }
 }

@@ -116,6 +116,12 @@ class Storage:
             dict_result = self.remove_instance_state_key(result)
             return dict_result
 
+    def fetch_datasets_of_task(self, id):
+        with SessionContext() as session:
+            result = session.query(Dataset).filter(Dataset.task_id == id)
+            dict_result = self.remove_instance_state_key(result)
+            return dict_result
+
     def update_model(self,
                      id, state=None, running_state=None, total_epoch=None, nth_epoch=None,
                      total_batch=None, nth_batch=None, last_batch_loss=None,
@@ -187,6 +193,12 @@ class Storage:
             dict_result = self.remove_instance_state_key(result)
             assert dict_result
             return dict_result[0]
+
+    def fetch_test_datasets_of_task(self, id):
+        with SessionContext() as session:
+            result = session.query(TestDataset).filter(TestDataset.task_id == id)
+            dict_result = self.remove_instance_state_key(result)
+            return dict_result
 
     def fetch_algorithms(self):
         with SessionContext() as session:

@@ -14,6 +14,12 @@ export default {
   // Models
   models: [],
 
+  // Datasets
+  datasets: [],
+
+  // TestDatasets
+  test_datasets: [],
+
   /*
   alert modal
   */

@@ -1,12 +1,14 @@
 import Model from './classes/model'
 import axios from 'axios'
 import { STATE } from '@/const.js'
+import { Dataset, TestDataset } from './classes/dataset'
 
 export default {
   /*****
    *
    */
   async init (context, payload) {
+    context.dispatch('loadDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask')
     context.dispatch('startAllPolling')
   },
@@ -19,6 +21,7 @@ export default {
     const url = '/api/renom_img/v2/model/load/task/' + task
     return axios.get(url)
       .then(function (response) {
+        if (response.status === 204) return
         let error_msg = response.data.error_msg
         if (error_msg) {
           context.commit('showAlert', {'show': true, 'msg': error_msg})
@@ -53,11 +56,32 @@ export default {
   /*****
    *
    */
-  async loadDataset (context, payload) {
-    const url = '/api/renom_img/v1/projects/' + payload.project_id
+  async loadDatasetsOfCurrentTask (context) {
+    const task_id = context.getters.getCurrentTask
+    const url = '/api/renom_img/v2/dataset/load/task/' + task_id
     return axios.get(url)
       .then(function (response) {
-
+        if (response.status === 204) return
+        let error_msg = response.data.error_msg
+        if (error_msg) {
+          context.commit('showAlert', {'show': true, 'msg': error_msg})
+          return
+        }
+        for (let ds of response.data.dataset_list) {
+          const id = ds.id
+          const class_map = ds.class_map
+          const valid_data = ds.valid_data
+          const task = ds.task_id
+          const name = ds.name
+          const ratio = ds.ratio
+          const description = ds.description
+          const test_dataset_id = ds.test_dataset_id
+          const loaded_dataset = new Dataset(task, name, ratio, description, test_dataset_id)
+          loaded_dataset.id = id
+          loaded_dataset.class_map = class_map
+          loaded_dataset.valid_data = valid_data
+          context.commit('addDataset', loaded_dataset)
+        }
       })
   },
 
@@ -85,6 +109,7 @@ export default {
 
     return axios.post(url, param)
       .then(function (response) {
+        if (response.status === 204) return
         let error_msg = response.data.error_msg
         if (error_msg) {
           context.commit('showAlert', {'show': true, 'msg': error_msg})
@@ -212,8 +237,37 @@ export default {
    *
    */
   async createDataset (context, payload) {
+    const url = '/api/renom_img/v2/dataset/create'
     const param = new FormData()
-    param.append('dataset_def_id', payload.dataset_def_id)
-    return axios.post(url, param)
+    const name = payload.name
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = 'test'
+    const test_dataset_id = payload.test_dataset_id
+
+    param.append('name', name)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+    param.append('test_dataset_id', test_dataset_id)
+
+    const dataset = new Dataset(task_id, name, ratio, description, test_dataset_id)
+
+    context.commit('addDataset', dataset)
+
+    return axios.post(url, param).then(function (response) {
+      if (response.status === 204) return
+      let error_msg = response.data.error_msg
+      if (error_msg) {
+        context.commit('showAlert', {'show': true, 'msg': error_msg})
+        return
+      }
+      const id = response.data.id
+      const class_map = response.data.class_map
+      const valid_data = response.data.valid_data
+      dataset.id = id
+      dataset.class_map = class_map
+      dataset.valid_data = valid_data
+    })
   },
 }

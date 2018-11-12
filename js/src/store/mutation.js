@@ -25,7 +25,16 @@ export default {
       throw new Error('Not supported task.')
     }
   },
-
+  addDataset (state, payload) {
+    if (state.datasets.find(n => n.id === payload.id) === undefined) {
+      state.datasets = [payload, ...state.datasets]
+    }
+  },
+  addTestDataset (state, payload) {
+    if (state.test_datasets.find(n => n.id === payload.id) === undefined) {
+      state.test_datasets = [payload, ...state.test_datasets]
+    }
+  },
   addModel (state, payload) {
     if (state.models.find(n => n.id === payload.id) === undefined) {
       state.models = [payload, ...state.models]

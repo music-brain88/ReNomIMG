@@ -1,23 +1,40 @@
 <template>
   <div id="modal-add-dataset">
-    Dataset
+    Name: <input type="text" v-model="name" placeholder="dataset"/>
+    Ratio: <input type="number" v-model="ratio" placeholder="0.8"/>
+    <input type="button" value="Confirm" @click="onAddDataset">
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from 'vuex'
+import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 
 export default {
   name: 'ModalAddDataset',
   components: {
   },
+  data: function () {
+    return {
+      name: '',
+      ratio: 0.8,
+    }
+  },
   computed: {
+
   },
   created: function () {
 
   },
   methods: {
-
+    ...mapActions(['createDataset']),
+    onAddDataset: function () {
+      this.createDataset({
+        'name': this.name,
+        'ratio': this.ratio,
+        'description': ' ',
+        'test_dataset_id': 1,
+      })
+    }
   }
 }
 </script>
