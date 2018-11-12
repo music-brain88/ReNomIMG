@@ -20,7 +20,6 @@ export class TestDataset {
     this.task_id = task_id
     this.name = name
     this.description = description
-    this.test_dataset_id = test_dataset_id
 
     // Followings will be loaded from server.
     this.test_data = {}

@@ -86,7 +86,7 @@ def json_handler(func):
             if ret is None:
                 ret = {}
 
-            if respopnse_cache.get(func.__name__, None) == ret:
+            if respopnse_cache.get(func.__name__, None) == ret and False:
                 # If server will return same value as last response, return 204.
                 body = json.dumps({}, ignore_nan=True, default=json_encoder)
                 return create_response(body, 204)
@@ -215,13 +215,13 @@ def model_load_best_result(id):
 @route("/api/renom_img/v2/dataset/create", method="POST")
 @json_handler
 def dataset_create():
-    # req_params = request.params
+    req_params = request.params
     # Receive params here.
-    ratio = 0.8
-    dataset_name = "test"
-    test_dataset_id = 1
-    task_id = 1
-    description = "This is test."
+    ratio = float(req_params.ratio)
+    dataset_name = str(req_params.name)
+    test_dataset_id = int(req_params.test_dataset_id)
+    task_id = int(req_params.task_id)
+    description = str(req_params.description)
     ##
 
     root = pathlib.Path('datasrc')
@@ -295,12 +295,12 @@ def dataset_load_of_task(id):
 @route("/api/renom_img/v2/test_dataset/create", method="POST")
 @json_handler
 def test_dataset_create():
-    # req_params = request.params
+    req_params = request.params
     # Receive params here.
-    ratio = 0.1
-    dataset_name = "test"
-    task_id = 1
-    description = "This is test."
+    ratio = float(req_params.ratio)
+    dataset_name = str(req_params.name)
+    task_id = int(req_params.task_id)
+    description = str(req_params.description)
     ##
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
@@ -322,11 +322,16 @@ def test_dataset_create():
     xml_files = [str(label_dir / name.with_suffix('.xml')) for name in file_names]
     parsed_xml, class_map = parse_xml_detection(xml_files, num_thread=8)
 
-    test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, {
+    test_data = {
         "img": img_files,
         "target": parsed_xml
-    })
-    return {"id": test_dataset_id}
+    }
+    test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, test_data)
+    return {
+        'id': test_dataset_id,
+        'test_data': test_data,
+        'class_map': class_map,
+    }
 
 
 @route("/api/renom_img/v2/polling/train/model/<id:int>", method="GET")

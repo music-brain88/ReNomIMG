@@ -9,6 +9,7 @@ export default {
    */
   async init (context, payload) {
     context.dispatch('loadDatasetsOfCurrentTask')
+    context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask')
     context.dispatch('startAllPolling')
   },
@@ -81,6 +82,37 @@ export default {
           loaded_dataset.class_map = class_map
           loaded_dataset.valid_data = valid_data
           context.commit('addDataset', loaded_dataset)
+        }
+      })
+  },
+
+  /*****
+   *
+   */
+  async loadTestDatasetsOfCurrentTask (context) {
+    const task_id = context.getters.getCurrentTask
+    const url = '/api/renom_img/v2/test_dataset/load/task/' + task_id
+    return axios.get(url)
+      .then(function (response) {
+        if (response.status === 204) return
+        let error_msg = response.data.error_msg
+        if (error_msg) {
+          context.commit('showAlert', {'show': true, 'msg': error_msg})
+          return
+        }
+        for (let ds of response.data.test_dataset_list) {
+          const id = ds.id
+          const class_map = ds.class_map
+          const test_data = ds.test_data
+          const task = ds.task_id
+          const name = ds.name
+          const ratio = ds.ratio
+          const description = ds.description
+          const loaded_dataset = new TestDataset(task, name, ratio, description)
+          loaded_dataset.id = id
+          loaded_dataset.class_map = class_map
+          loaded_dataset.test_data = test_data
+          context.commit('addTestDataset', loaded_dataset)
         }
       })
   },
@@ -270,4 +302,41 @@ export default {
       dataset.valid_data = valid_data
     })
   },
+
+  /*****
+   *
+   */
+  async createTestDataset (context, payload) {
+    const url = '/api/renom_img/v2/test_dataset/create'
+    const param = new FormData()
+    const name = payload.name
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = 'test'
+
+    param.append('name', name)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+
+    const test_dataset = new TestDataset(task_id, name, ratio, description)
+
+    context.commit('addTestDataset', test_dataset)
+
+    return axios.post(url, param).then(function (response) {
+      if (response.status === 204) return
+      let error_msg = response.data.error_msg
+      if (error_msg) {
+        context.commit('showAlert', {'show': true, 'msg': error_msg})
+        return
+      }
+      const id = response.data.id
+      const class_map = response.data.class_map
+      const test_data = response.data.test_data
+      test_dataset.id = id
+      test_dataset.class_map = class_map
+      test_dataset.test_data = test_data
+    })
+  },
+
 }

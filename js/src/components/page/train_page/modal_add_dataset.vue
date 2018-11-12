@@ -2,6 +2,7 @@
   <div id="modal-add-dataset">
     Name: <input type="text" v-model="name" placeholder="dataset"/>
     Ratio: <input type="number" v-model="ratio" placeholder="0.8"/>
+    Test Dataset: <input type="checkbox" value="false" v-model="isTestDataset" placeholder="false">
     <input type="button" value="Confirm" @click="onAddDataset">
   </div>
 </template>
@@ -17,6 +18,7 @@ export default {
     return {
       name: '',
       ratio: 0.8,
+      isTestDataset: false,
     }
   },
   computed: {
@@ -26,14 +28,22 @@ export default {
 
   },
   methods: {
-    ...mapActions(['createDataset']),
+    ...mapActions(['createDataset', 'createTestDataset']),
     onAddDataset: function () {
-      this.createDataset({
-        'name': this.name,
-        'ratio': this.ratio,
-        'description': ' ',
-        'test_dataset_id': 1,
-      })
+      if (this.isTestDataset) {
+        this.createTestDataset({
+          'name': this.name,
+          'ratio': this.ratio,
+          'description': ' ',
+        })
+      } else {
+        this.createDataset({
+          'name': this.name,
+          'ratio': this.ratio,
+          'description': ' ',
+          'test_dataset_id': 1,
+        })
+      }
     }
   }
 }
