@@ -176,6 +176,20 @@ export default {
   /*****
    *
    */
+  async startWeightDownload (context, payload) {
+    const algorithm_id = payload
+  },
+
+  /*****
+   *
+   */
+  async pollingWeightDownload (context, payload) {
+
+  },
+
+  /*****
+   *
+   */
   async startAllPolling (context, payload) {
     const model_list = context.state.models
     const current_requests = context.state.polling_request_jobs.train

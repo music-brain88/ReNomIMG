@@ -4,6 +4,13 @@ export const TASK_ID = {
   SEGMENTATION: 2,
 }
 
+export const PAGE_ID = {
+  DEBUG: -1,
+  TRAIN: 0,
+  PREDICT: 1,
+  DATASET: 2,
+}
+
 export const ALGORITHM = {
   CLASSIFICATION: {
     ResNet: {

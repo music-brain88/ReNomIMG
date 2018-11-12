@@ -1,5 +1,5 @@
 import Model from './classes/model'
-import {getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
+import {PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
 
 export default {
   setAlertModalFlag (state, payload) {
@@ -17,6 +17,15 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+  setCurrentPage (state, payload) {
+    const page = payload
+    if (Object.values(PAGE_ID).find(n => n === page) !== undefined) {
+      state.current_page = page
+    } else {
+      throw new Error('Not supported task.')
+    }
+  },
+
   addModel (state, payload) {
     state.models = [payload, ...state.models]
   },

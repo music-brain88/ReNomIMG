@@ -7,6 +7,7 @@ export default class Model {
     this.dataset_id = dataset_id
     this.task_id = task_id
     this.algorithm_id = algorithm_id
+    this.hyper_parameters = hyper_parameters
 
     // States.
     this.state = STATE.CREATED

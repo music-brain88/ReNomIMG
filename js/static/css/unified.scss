@@ -19,6 +19,11 @@ $slide-window-mask-color: rgba(0, 0, 0, 0.6);
 $slide-window-background-color: #063662;
 $slide-window-width-min: 150px;
 
+//// Page Tab Settings.
+$tab-content-height: $header-height;
+$tab-content-min-height: $header-min-height;
+$tab-content-width: calc(#{$app-window-width}/4.5);
+
 //// App Page Container Settings.
 $app-container-padding-top: 10px;
 $app-container-padding-bottom: 10px;
@@ -73,7 +78,7 @@ $model-item-margin: 5px;
 
 //// Animation Settings
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+  transition: opacity .2s;
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
