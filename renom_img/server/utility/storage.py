@@ -162,7 +162,8 @@ class Storage:
                 class_map=pickle_dump(class_map), class_tag_list=pickle_dump(class_tag_list),
                 test_dataset_id=test_dataset_id
             )
-            session.add(new_dataset)
+            a = session.add(new_dataset)
+            print(a)
             session.commit()
             return new_dataset.id
 

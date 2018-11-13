@@ -17,9 +17,515 @@ export const ALGORITHM = {
           type: 'checkbox',
           default: false,
         },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          type: 'number',
+          disabled: false,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          type: 'number',
+          disabled: false,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
       }
     },
-    DenseNet: 2,
+    ResNet18: {
+      id: 1,
+      key: 'resnet18',
+      title: 'ResNet18',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        PLATEAU: {
+          title: 'Plateau',
+          key: 'plateau',
+          type: 'checkbox',
+          default: false
+        }
+      }
+    },
+    ResNet34: {
+      id: 2,
+      key: 'resnet34',
+      title: 'ResNet34',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        PLATEAU: {
+          title: 'Plateau',
+          key: 'plateau',
+          type: 'checkbox',
+          default: false
+        }
+      }
+    },
+    ResNet50: {
+      id: 3,
+      key: 'resnet',
+      title: 'ResNet50',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        PLATEAU: {
+          title: 'Plateau',
+          key: 'plateau',
+          type: 'checkbox',
+          default: false
+        }
+      }
+    },
+    ResNet101: {
+      id: 4,
+      key: 'resnet',
+      title: 'ResNet101',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        PLATEAU: {
+          title: 'Plateau',
+          key: 'plateau',
+          type: 'checkbox',
+          default: false
+        }
+      }
+    },
+    ResNet152: {
+      id: 5,
+      key: 'resnet',
+      title: 'ResNet152',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          type: 'number',
+          disabled: true,
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        LOAD_PRETRAINED_WEIGHT: {
+          title: 'Load pretrain weight',
+          key: 'load_pretrained_weight',
+          disabled: false,
+          type: 'checkbox'
+        },
+        PLATEAU: {
+          title: 'Plateau',
+          key: 'plateau',
+          type: 'checkbox',
+          default: false
+        }
+      }
+    },
+    DenseNet121: {
+      id: 6,
+      key: 'densenet121',
+      title: 'DenseNet121',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          disabled: true,
+          type: 'number',
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          disabled: true,
+          type: 'number',
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        LOAD_PRETRAINED_WEIGHT: {
+          title: 'Load pretrain weight',
+          key: 'load_pretrained_weight',
+          disabled: false,
+          type: 'checkbox'
+        }
+      }
+    },
+    DenseNet169: {
+      id: 7,
+      key: 'densenet169',
+      title: 'DenseNet169',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          disabled: true,
+          type: 'number',
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          disabled: true,
+          type: 'number',
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        LOAD_PRETRAINED_WEIGHT: {
+          title: 'Load pretrain weight',
+          key: 'load_pretrained_weight',
+          disabled: false,
+          type: 'checkbox'
+        }
+      }
+    },
+    DenseNet201: {
+      id: 8,
+      key: 'densenet121',
+      title: 'DenseNet121',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          disabled: true,
+          type: 'number',
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          disabled: true,
+          type: 'number',
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        LOAD_PRETRAINED_WEIGHT: {
+          title: 'Load pretrain weight',
+          key: 'load_pretrained_weight',
+          disabled: false,
+          type: 'checkbox'
+        }
+      }
+    },
+    VGG11: {
+      id: 9,
+      key: 'Vgg11',
+      title: 'VGG11',
+      params: {
+        TRAIN_WHOLE: {
+          title: 'Train Whole Network',
+          key: 'train_whole', // Must be same as back-end.
+          type: 'checkbox',
+          default: false,
+        },
+        BATCH_SIZE: {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 64,
+          min: 4,
+          max: 128,
+        },
+        TOTAL_EPOCH: {
+          title: 'Total Epoch',
+          key: 'total_epoch',
+          disabled: false,
+          type: 'number',
+          default: 160,
+        },
+        IMAGE_WIDTH: {
+          title: 'Image Width',
+          key: 'imsize_w',
+          disabled: false,
+          type: 'number',
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        IMAGE_HEIGHT: {
+          title: 'Image Height',
+          key: 'imsize_h',
+          disabled: false,
+          type: 'number',
+          default: 224,
+          min: 64,
+          max: 512,
+        },
+        LOAD_PRETRAINED_WEIGHT: {
+          title: 'Load pretrain weight',
+          key: 'load_pretrained_weight',
+          disabled: false,
+          type: 'checkbox'
+        }
+      }
+    },
     Vgg16: 3,
     Vgg19: 4,
     Inception1: 5,

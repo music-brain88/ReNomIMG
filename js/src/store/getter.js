@@ -15,11 +15,11 @@ export default {
   },
   getFilteredModelList (state, getters) {
     // TODO: Sort by state and task.
-    return state.models.filter(m => m.task_id == getters.getCurrentTask)
+    return state.models.filter(m => m.task_id === getters.getCurrentTask)
   },
   getModelById (state, getters) {
     return function (id) {
-      let model = state.models.find(m => m.id == id)
+      let model = state.models.find(m => m.id === id)
       return model
     }
   },
@@ -27,11 +27,11 @@ export default {
     return state.current_task
   },
   getCurrentTaskTitle (state, getters) {
-    if (state.current_task == TASK_ID.CLASSIFICATION) {
+    if (state.current_task === TASK_ID.CLASSIFICATION) {
       return 'Classification'
-    } else if (state.current_task == TASK_ID.DETECTION) {
+    } else if (state.current_task === TASK_ID.DETECTION) {
       return 'Detection'
-    } else if (state.current_task == TASK_ID.SEGMENTATION) {
+    } else if (state.current_task === TASK_ID.SEGMENTATION) {
       return 'Segmentation'
     }
   },
