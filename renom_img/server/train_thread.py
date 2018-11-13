@@ -286,9 +286,12 @@ class TrainThread(object):
             self._setting_ssd()
         else:
             assert False
+    
 
+    # Detection Algorithm
     def _setting_yolov1(self):
         required_params = ['cell', 'box']
+        # check hyper parameters value are set
         assert all([k in self.hyper_parameters.keys() for k in required_params])
         assert self.task_id == Task.DETECTION.value, self.task_id
         self.model = Yolov1(
@@ -310,10 +313,447 @@ class TrainThread(object):
             target_builder=self.model.build_data())
 
     def _setting_yolov2(self):
-        pass
+        required_params = ['anchor']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == Task.DETECTION.value, self.task_id 
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+        self.model = Yolov2(
+            class_map=self.class_map
+            anchor=create_anchor(self.train_dist.annotation_list, required_params, base_size=self.imsize)
+            imsize=self.imsize
+            train_whole_network=self.hyper_parameters["train_whole"]
+            load_pretrained_weight=True)
+        )
 
     def _setting_ssd(self):
-        pass
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.DETECTION.value, self.task_id
+        self.model = SSD(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["train_whole"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
 
-    def _setting_resnet(self):
-        pass
+    # Classification Algorithm
+    def _setting_resnet18(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = ResNet18(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["train_whole"]
+            plateau=self.hyper_parameters["plateau"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+    def _setting_resnet34(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = ResNet34(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["train_whole"]
+            plateau=self.hyper_parameters["plateau"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+    def _setting_resnet50(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = ResNet50(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["train_whole"]
+            plateau=self.hyper_parameters["plateau"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+    
+    def _setting_resnet101(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = ResNet101(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["train_whole"]
+            plateau=self.hyper_parameters["plateau"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+    
+    def _setting_resnet152(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = ResNet152(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["train_whole"]
+            plateau=self.hyper_parameters["plateau"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+    def _setting_densenet121(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = DenseNet121(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+    
+    def _setting_densenet169(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = DenseNet169(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+
+    def _setting_densenet201(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = DenseNet169(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+    
+    def _setting_vgg11(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = VGG11(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+
+    def _setting_vgg16(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = VGG16(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+    
+    def _setting_vgg16_no_dense(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = VGG16_NODENSE(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+    def _setting_vgg19(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = VGG16(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+    def _inseption_v1(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = InceptionV1(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+    
+    def _insception_v2(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = InceptionV2(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+    def _insception_v3(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = InceptionV3(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+    
+    def _insception_v4(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        self.model = InceptionV4(
+            class_map=self.class_map
+            imsize=self.imsize
+            load_pretrained_weight=True
+            train_whole_network=self.hyper_parameters["hyper_parameters"]
+        )
+        aug = Augmentation([
+            Shift(10, 10)
+        ])
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target
+            augmentation=aug
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.vaild_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+    def _unet(self):
+        assert all([k in self.hyper_parameters.keys()])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
