@@ -756,4 +756,5 @@ class TrainThread(object):
 
     def _unet(self):
         assert all([k in self.hyper_parameters.keys()])
-        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        assert self.task_id == Task.SEGEMENTATION.value, self.task_id
+
