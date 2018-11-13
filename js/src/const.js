@@ -320,10 +320,61 @@ export const ALGORITHM = {
   },
   SEGMENTATION: {
     Unet: {
+      id: 20,
       key: 'unet',
+      title: 'U-Net',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          disabled: false,
+          default: 512,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          disabled: false,
+          default: 512,
+        })
+      }
     },
-    Fcn: 22,
-    TernousNet: 23,
+    Fcn8s: {
+      id: 21,
+      key: 'fcn8s',
+      title: 'FCN 8s',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Fcn16s: {
+      id: 22,
+      key: 'fcn16s',
+      title: 'FCN 16s',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Fcn32: {
+      id: 23,
+      key: 'fcn32',
+      title: 'FCN 32',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    TernousNet: {
+      id: 24,
+      key: 'fcn32',
+      title: 'FCN 32',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          disabled: false,
+          default: 512,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          disabled: false,
+          default: 512,
+        })
+      }
+    },
   }
 }
 
