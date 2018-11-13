@@ -175,12 +175,80 @@ export const ALGORITHM = {
         ...COMMON_PARAMS,
       }
     },
-    Vgg16: 3,
-    Vgg19: 4,
-    Inception1: 5,
-    Inception2: 6,
-    Inception3: 7,
-    Inception4: 8,
+    Vgg16: {
+      id: 13,
+      key: 'Vgg16',
+      title: 'VGG16',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Vgg16_NODENSE: {
+      id: 14,
+      key: 'Vgg16_NODENSE',
+      title: 'VGG16 No Dense',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Vgg19: {
+      id: 15,
+      key: 'Vgg19',
+      title: 'VGG19',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Inception1: {
+      id: 16,
+      key: 'Inseption1',
+      title: 'Inseption V1',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Inception2: {
+      id: 17,
+      key: 'Inseption2',
+      title: 'Inseption V2',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          default: 299,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          default: 299,
+        }),
+      }
+    },
+    Inception3: {
+      id: 18,
+      key: 'Inseption3',
+      title: 'Inseption V3',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          default: 299,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          default: 299,
+        }),
+      }
+    },
+    Inception4: {
+      id: 19,
+      key: 'Inseption4',
+      title: 'Inseption V4',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          default: 299,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          default: 299,
+        }),
+      }
+    },
   },
   DETECTION: {
     YOLOv1: {
