@@ -4,8 +4,8 @@ $app-window-width: calc(100vw - 20px);
 $app-window-height: 100vh;
 
 //// App header Settings.
-$header-height: calc(100vh * 0.04);
-$header-min-height: 30px;
+$header-height: calc(100vh * 0.03);
+$header-min-height: 20px;
 $header-background-color: #063662;
 $header-product-name-font-family: Open Sans Regular;
 $header-product-name-font-size: 15pt;
@@ -18,6 +18,11 @@ $header-font-color: #ffffff;
 $slide-window-mask-color: rgba(0, 0, 0, 0.6);
 $slide-window-background-color: #063662;
 $slide-window-width-min: 150px;
+
+//// Page Tab Settings.
+$tab-content-height: $header-height;
+$tab-content-min-height: $header-min-height;
+$tab-content-width: calc(#{$app-window-width}/4.5);
 
 //// App Page Container Settings.
 $app-container-padding-top: 10px;
@@ -34,9 +39,14 @@ $component-header-font-family: Open Sans Regular;
 $component-header-font-color: #ffffff;
 $component-font-family: Open Sans Lite;
 $component-block-margin: 10px;
+$component-block-padding-left: 5px;
+$component-block-padding-right: 5px;
 $component-block-width: calc(#{$app-window-width} / 12);
-$component-block-height: calc(#{$app-window-height} / 12);
-$component-block-height-min: 80px;
+$component-block-height: calc(
+  (#{$app-window-height}
+   - #{$header-height}
+   - #{$tab-content-height}) / 12);
+$component-block-height-min: 70px;
 $component-background-color: #ffffff;
 
 // Component Progress Bar Settings.
@@ -50,8 +60,8 @@ $scatter-grid-color: #ddd;
 $scatter-circle-radius: 10;
 
 // Component Model Detail
-$model-detail-margin: 25px;
-$model-detail-item-margin-bottom: 17px;
+$model-detail-margin: 15px;
+$model-detail-item-margin-bottom: 12px;
 $model-detail-item-title-font-color: rgb(80, 80, 80);
 
 //// Modal Settings.
@@ -70,10 +80,16 @@ $model-item-height: $component-block-height;
 $model-item-height-min: $component-block-height-min;
 $model-item-margin: 5px;
 
+//// Dataset page Setting.
+$dataset-table-padding: 10px;
+$dataset-table-id-width: 10%;
+$dataset-table-name-width: 20%;
+$dataset-table-item-height: 25px;
+
 
 //// Animation Settings
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+  transition: opacity .2s;
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
@@ -87,3 +103,20 @@ $model-item-margin: 5px;
   opacity: 0;
 }
 
+//// Scroll bar setting
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-track {
+  border-radius: 5px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, .1);
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(70, 70, 70, .5);
+  border-radius: 5px;
+  box-shadow:0 0 0 1px rgba(255, 255, 255, .3);
+}
+.scrollbar-container{
+  width: 100%;
+  overflow: auto;
+}

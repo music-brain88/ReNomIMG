@@ -1,4 +1,4 @@
-import { ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes} from '@/const.js'
+import { PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes} from '@/const.js'
 
 export default {
   /**
@@ -17,6 +17,11 @@ export default {
     // TODO: Sort by state and task.
     return state.models.filter(m => m.task_id === getters.getCurrentTask)
   },
+  getFilteredDatasetList (state, getters) {
+    // TODO: Sort by task.
+    return state.datasets.filter(d => d.task_id === getters.getCurrentTask)
+  },
+
   getModelById (state, getters) {
     return function (id) {
       let model = state.models.find(m => m.id === id)
@@ -36,7 +41,15 @@ export default {
     }
   },
   getCurrentPageTitle (state, getters) {
-    return 'Train'
+    if (state.current_page === PAGE_ID.TRAIN) {
+      return 'Train'
+    } else if (state.current_page === PAGE_ID.PREDICT) {
+      return 'Predict'
+    } else if (state.current_page === PAGE_ID.DATASET) {
+      return 'Dataset'
+    } else if (state.current_page === PAGE_ID.DEBUG) {
+      return 'Debug'
+    }
   },
   getShowSlideMenu (state, getters) {
     return state.show_slide_menu

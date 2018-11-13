@@ -1,5 +1,5 @@
 import Model from './classes/model'
-import {getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
+import {PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
 
 export default {
   setAlertModalFlag (state, payload) {
@@ -17,8 +17,28 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+  setCurrentPage (state, payload) {
+    const page = payload
+    if (Object.values(PAGE_ID).find(n => n === page) !== undefined) {
+      state.current_page = page
+    } else {
+      throw new Error('Not supported task.')
+    }
+  },
+  addDataset (state, payload) {
+    if (state.datasets.find(n => n.id === payload.id) === undefined) {
+      state.datasets = [payload, ...state.datasets]
+    }
+  },
+  addTestDataset (state, payload) {
+    if (state.test_datasets.find(n => n.id === payload.id) === undefined) {
+      state.test_datasets = [payload, ...state.test_datasets]
+    }
+  },
   addModel (state, payload) {
-    state.models = [payload, ...state.models]
+    if (state.models.find(n => n.id === payload.id) === undefined) {
+      state.models = [payload, ...state.models]
+    }
   },
   addPollingJob (state, payload) {
     let key = Object.keys(payload)[0]

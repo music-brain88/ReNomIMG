@@ -60,8 +60,11 @@ export default {
     height: $component-header-height;
     min-height: $component-header-min-height;
     margin-bottom: $component-header-margin-bottom;
+    padding-left: $component-block-padding-left;
+    padding-right: $component-block-padding-right;
     background-color: $component-header-background-color;
     color: $component-header-font-color;
+    line-height: normal;
     font-family: $component-header-font-family;
     * {
       font-family: $component-header-font-family;

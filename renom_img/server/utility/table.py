@@ -8,22 +8,6 @@ from sqlalchemy.orm import relationship
 from renom_img.server.utility.DAO import Base
 
 
-class Algorithm(Base):
-
-    __tablename__ = 'algorithm'
-
-    algorithm_id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), nullable=False)
-
-    relationship("Model")
-
-    def __repr__(self):
-        return "<Algorithm(algorithm_id='%s', name='%s')>" % (
-            self.algorithm_id,
-            self.name
-        )
-
-
 class Task(Base):
 
     __tablename__ = 'task'
@@ -116,7 +100,7 @@ class Model(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     task_id = Column(Integer, ForeignKey('task.id'))
     dataset_id = Column(Integer, ForeignKey('dataset.id'))
-    algorithm_id = Column(Integer,  ForeignKey('algorithm.algorithm_id'))
+    algorithm_id = Column(Integer)
     hyper_parameters = Column(BLOB)
 
     # Modified during training.

@@ -53,6 +53,7 @@ export default {
           Object.assign(obj, {[params[x].key]: params[x].default}), {})
     },
     onCreateModel: function () {
+      // Perform action 'createModel' with specified params.
       console.log(this.parameters)
       this.createModel({
         hyper_params: this.parameters,

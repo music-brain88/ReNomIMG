@@ -1,4 +1,4 @@
-import { SORTBY, TASK_ID } from '@/const.js'
+import { SORTBY, TASK_ID, PAGE_ID } from '@/const.js'
 
 export default {
 
@@ -9,9 +9,19 @@ export default {
   },
 
   current_task: TASK_ID.DETECTION,
+  current_page: PAGE_ID.TRAIN,
 
   // Models
   models: [],
+
+  // Datasets
+  datasets: [],
+
+  // TestDatasets
+  test_datasets: [],
+
+  // Filter List
+  filters: [],
 
   /*
   alert modal

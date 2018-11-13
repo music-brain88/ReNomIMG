@@ -6,10 +6,13 @@
     <div id="model-id" v-else>
       ID: {{ model.id }}
       ALGO: {{ getAlgorithmTitleFromId(model.algorithm_id) }}
-      Loss: {{ model.last_batch_loss.toFixed(3) }}
-      Batch: {{ model.nth_batch }}
-      State: {{ model.state }}
+      LOSS: {{ getLastBatchLoss }}
+      STATE: {{ model.state }}
+      mAP: {{ getMetric1 }}
+      IOU: {{ getMetric2 }}
+      LOSS: {{ getMetric3 }}
     </div>
+    <model-item v-for="item in getChildModelList" :model="item" :hierarchy="hierarchy+1"/>
   </div>
 </template>
 
@@ -28,8 +31,13 @@ export default {
     },
     isAddButton: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+    isOpenChildModelList: {
+      type: Boolean,
+      type: false,
+    },
+    hierarchy: 0,
   },
   computed: {
     ...mapGetters([
@@ -37,6 +45,43 @@ export default {
       'getModelResultTitle',
       'getAlgorithmTitleFromId',
     ]),
+    getChildModelList: function () {
+      if (this.isAddButton || this.hierarchy > 0) {
+        return []
+      } else {
+        return this.model.model_list
+      }
+    },
+    getLastBatchLoss () {
+      if (this.model.last_batch_loss) {
+        const loss = this.model.last_batch_loss
+        return loss.toFixed(3)
+      } else {
+        return '-'
+      }
+    },
+
+    getMetric1 () {
+      if (this.model.best_epoch_valid_result) {
+        return this.model.best_epoch_valid_result.mAP
+      } else {
+        return '-'
+      }
+    },
+    getMetric2 () {
+      if (this.model.best_epoch_valid_result) {
+        return this.model.best_epoch_valid_result.IOU
+      } else {
+        return '-'
+      }
+    },
+    getMetric3 () {
+      if (this.model.best_epoch_valid_result) {
+        return this.model.best_epoch_valid_result.loss.toFixed(3)
+      } else {
+        return '-'
+      }
+    }
   },
   created: function () {
 
@@ -44,7 +89,9 @@ export default {
   methods: {
     ...mapMutations(['showModal']),
     testRun: function () {
-      this.$store.dispatch('runTrainThread', this.model.id)
+      if (!this.isAddButton) {
+        this.$store.dispatch('runTrainThread', this.model.id)
+      }
     }
   }
 }

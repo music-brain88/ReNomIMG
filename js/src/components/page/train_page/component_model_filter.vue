@@ -3,7 +3,7 @@
     <template slot="header-slot">
       Model Filter
     </template>
-    <div id="filter-container">
+    <div id="filter-container" class="scrollbar-container">
       <filter-item v-for="item in getFilterList"/>
       <filter-item :is-add-button="true"/>
     </div>
@@ -41,5 +41,6 @@ export default {
     padding: $model-filter-margin;
     align-content: flex-start;
     flex-wrap: wrap;
+    overflow: visible scroll;
   }
 </style>

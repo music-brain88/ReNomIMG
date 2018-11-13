@@ -35,6 +35,7 @@ from renom_img.server import State, RunningState
 executor = Executor()
 train_thread_pool = {}
 prediction_thread_pool = {}
+respopnse_cache = {}
 
 
 def get_train_thread_count():
@@ -79,14 +80,23 @@ def json_encoder(obj):
 
 def json_handler(func):
     def wrapped(*args, **kwargs):
+        global respopnse_cache
         try:
             ret = func(*args, **kwargs)
             if ret is None:
                 ret = {}
-            assert isinstance(ret, dict),\
-                "The returned object of the API '{}' is not a dictionary.".format(func.__name__)
-            body = json.dumps(ret, ignore_nan=True, default=json_encoder)
-            return create_response(body)
+
+            if respopnse_cache.get(func.__name__, None) == ret and False:
+                # If server will return same value as last response, return 204.
+                body = json.dumps({}, ignore_nan=True, default=json_encoder)
+                return create_response(body, 204)
+            else:
+                assert isinstance(ret, dict),\
+                    "The returned object of the API '{}' is not a dictionary.".format(func.__name__)
+                respopnse_cache[func.__name__] = ret
+                body = json.dumps(ret, ignore_nan=True, default=json_encoder)
+                return create_response(body)
+
         except Exception as e:
             release_mem_pool()
             traceback.print_exc()
@@ -205,13 +215,13 @@ def model_load_best_result(id):
 @route("/api/renom_img/v2/dataset/create", method="POST")
 @json_handler
 def dataset_create():
-    # req_params = request.params
+    req_params = request.params
     # Receive params here.
-    ratio = 0.8
-    dataset_name = "test"
-    test_dataset_id = 1
-    task_id = 1
-    description = "This is test."
+    ratio = float(req_params.ratio)
+    dataset_name = str(req_params.name)
+    test_dataset_id = int(req_params.test_dataset_id)
+    task_id = int(req_params.task_id)
+    description = str(req_params.description)
     ##
 
     root = pathlib.Path('datasrc')
@@ -253,23 +263,44 @@ def dataset_create():
     valid_xml = valid_xml.tolist()
 
     # Register
+    train_data = {
+        'img': train_img,
+        'target': train_xml
+    }
+    valid_data = {
+        'img': valid_img,
+        'target': valid_xml
+    }
     dataset_id = storage.register_dataset(task_id, dataset_name, description, ratio,
-                                          {'img': train_img, 'target': train_xml}, {
-                                              'img': valid_img, 'target': valid_xml},
+                                          train_data, valid_data,
                                           class_map, {}, test_dataset_id
                                           )
-    return {'id': dataset_id}
+    return {
+        'id': dataset_id,
+        'valid_data': valid_data,
+        'class_map': class_map,
+    }
+
+
+@route("/api/renom_img/v2/dataset/load/task/<id:int>", method="GET")
+@json_handler
+def dataset_load_of_task(id):
+    # TODO: Remember last sent value and cache it.
+    datasets = storage.fetch_datasets_of_task(id)
+    return {
+        "dataset_list": datasets
+    }
 
 
 @route("/api/renom_img/v2/test_dataset/create", method="POST")
 @json_handler
 def test_dataset_create():
-    # req_params = request.params
+    req_params = request.params
     # Receive params here.
-    ratio = 0.1
-    dataset_name = "test"
-    task_id = 1
-    description = "This is test."
+    ratio = float(req_params.ratio)
+    dataset_name = str(req_params.name)
+    task_id = int(req_params.task_id)
+    description = str(req_params.description)
     ##
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
@@ -291,11 +322,16 @@ def test_dataset_create():
     xml_files = [str(label_dir / name.with_suffix('.xml')) for name in file_names]
     parsed_xml, class_map = parse_xml_detection(xml_files, num_thread=8)
 
-    test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, {
+    test_data = {
         "img": img_files,
         "target": parsed_xml
-    })
-    return {"id": test_dataset_id}
+    }
+    test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, test_data)
+    return {
+        'id': test_dataset_id,
+        'test_data': test_data,
+        'class_map': class_map,
+    }
 
 
 @route("/api/renom_img/v2/polling/train/model/<id:int>", method="GET")
@@ -353,6 +389,16 @@ def polling_train(id):
             "nth_valid_batch": 0,
             "best_result_changed": active_train_thread.best_valid_changed
         }
+
+
+@route("/api/renom_img/v2/test_dataset/load/task/<id:int>", method="GET")
+@json_handler
+def test_dataset_load_of_task(id):
+    # TODO: Remember last sent value and cache it.
+    datasets = storage.fetch_test_datasets_of_task(id)
+    return {
+        "test_dataset_list": datasets
+    }
 
 
 @route("/api/renom_img/v2/polling/weight/download", method="GET")
