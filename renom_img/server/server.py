@@ -32,7 +32,7 @@ from renom_img.server import State, RunningState
 
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
-executor = Executor()
+executor = Executor(max_workers=2)
 train_thread_pool = {}
 prediction_thread_pool = {}
 respopnse_cache = {}
@@ -86,7 +86,7 @@ def json_handler(func):
             if ret is None:
                 ret = {}
 
-            if respopnse_cache.get(func.__name__, None) == ret and False:
+            if respopnse_cache.get(func.__name__, None) == ret:
                 # If server will return same value as last response, return 204.
                 body = json.dumps({}, ignore_nan=True, default=json_encoder)
                 return create_response(body, 204)
