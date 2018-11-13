@@ -20,6 +20,9 @@ export default {
   // TestDatasets
   test_datasets: [],
 
+  // Filter List
+  filters: [],
+
   /*
   alert modal
   */

@@ -53,26 +53,13 @@ class Storage:
         Base.metadata.create_all(bind=engine)
         self.init_table_info()
 
-    def is_Algorithm_exists(self):
-        with SessionContext() as session:
-            result = session.query(Algorithm).all()
-            return result
-
     def is_Task_exists(self):
         with SessionContext() as session:
             result = session.query(Task).all()
             return result
 
     def init_table_info(self):
-        algo = self.is_Algorithm_exists()
         task = self.is_Task_exists()
-
-        if len(algo) < TOTAL_ALOGORITHM_NUMBER:
-            with SessionContext() as session:
-                session.add(Algorithm(algorithm_id=None, name='Yolov1'))
-                session.add(Algorithm(algorithm_id=None, name='Yolov2'))
-                session.add(Algorithm(algorithm_id=None, name='Yolov3'))
-                session.add(Algorithm(algorithm_id=None, name='SSD'))
 
         if len(task) < TOTAL_TASK:
             with SessionContext() as session:
@@ -197,12 +184,6 @@ class Storage:
     def fetch_test_datasets_of_task(self, id):
         with SessionContext() as session:
             result = session.query(TestDataset).filter(TestDataset.task_id == id)
-            dict_result = self.remove_instance_state_key(result)
-            return dict_result
-
-    def fetch_algorithms(self):
-        with SessionContext() as session:
-            result = session.query(Algorithm).all()
             dict_result = self.remove_instance_state_key(result)
             return dict_result
 
