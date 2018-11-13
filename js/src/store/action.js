@@ -247,6 +247,20 @@ export default {
   /*****
    *
    */
+  async stopModelTrain (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/stop/' + payload
+    return axios.get(url).then(function (response) {
+      let error_msg = response.data.error_msg
+      if (error_msg) {
+        context.commit('showAlert', {'show': true, 'msg': error_msg})
+      }
+    })
+  },
+
+  /*****
+   *
+   */
   async startAllPolling (context, payload) {
     const model_list = context.state.models
     const current_requests = context.state.polling_request_jobs.train

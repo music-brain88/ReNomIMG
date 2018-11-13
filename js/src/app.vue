@@ -106,6 +106,7 @@ export default {
       letter-spacing: -0.4em; // For removing gap between divs.
       margin: $component-block-margin;
       .page-tab {
+        line-height: normal;
         letter-spacing: 0em; // Remove letter-spacing
         display: inline-block;
         height: 100%;

@@ -47,10 +47,11 @@ export default {
   methods: {
     draw: function () {
       d3.select('svg').remove() // Remove SVG if it has been created.
-      const margin = {top: 20, left: 45, right: 20, bottom: 30}
+      const margin = {top: 15, left: 45, right: 20, bottom: 20}
       const canvas = document.getElementById('scatter-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
+      const circle_radius = Math.min(canvas_width * 0.02, canvas_height * 0.02)
       const model_list = this.getFilteredAndGroupedModelList
       const svg = d3.select('#scatter-canvas').append('svg')
 
@@ -113,12 +114,11 @@ export default {
       // Plot Models.
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'model-circle')
         .selectAll('circle')
         .data(model_list)
         .enter()
         .append('circle')
-        .attr('r', 6)
+        .attr('r', circle_radius)
         .attr('fill', (d) => {
           return 'black'
         })
@@ -152,9 +152,6 @@ export default {
     height: 100%;
     .grid-line line {
       stroke: $scatter-grid-color;
-    }
-    .model-circle circle {
-      r: $scatter-circle-radius;
     }
   }
 }

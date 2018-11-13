@@ -25,11 +25,6 @@ export default class Model {
 
     this.best_epoch_valid_result = {}
 
-    this.model_list = {
-      'parent': parents
-    }
-  }
-  get parents () {
-    return this.model_list.parent
+    this.model_list = []
   }
 }

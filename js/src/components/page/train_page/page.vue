@@ -1,12 +1,16 @@
 <template>
   <div id="train-page">
     <div id="components">
-      <component-scatter/>
       <component-progress/>
-      <component-model-detail/>
+      <component-scatter/>
       <component-learning-curve/>
       <component-prediction-result/>
       <component-tag-list/>
+      <component-model-detail/>
+    </div>
+    <div id="vertical-component">
+      <component-model-filter/>
+      <component-model-list/>
     </div>
   </div>
 </template>
@@ -58,7 +62,13 @@ export default {
     display: flex;
     align-content: flex-start;
     flex-wrap: wrap;
-    width: calc(12*#{$component-block-width});
+    width: calc(10*#{$component-block-width});
   }  
+  #vertical-component {
+    display: flex;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    width: calc(2*#{$component-block-width});
+  }
 }
 </style>
