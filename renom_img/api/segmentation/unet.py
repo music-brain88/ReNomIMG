@@ -66,8 +66,9 @@ class UNet(SemanticSegmentation):
         """
         return x / 255.
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+        if any([num is None for num in
+                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
             ind1 = int(total_epoch * 0.5)
