@@ -11,6 +11,58 @@ export const PAGE_ID = {
   DATASET: 2,
 }
 
+const COMMON_PARAMS = {
+  TRAIN_WHOLE: {
+    title: 'Train Whole Network',
+    key: 'train_whole', // Must be same as back-end.
+    type: 'checkbox',
+    default: false,
+  },
+  BATCH_SIZE: {
+    title: 'Batch Size',
+    key: 'batch_size',
+    type: 'number',
+    default: 16,
+    min: 4,
+    max: 128,
+  },
+  TOTAL_EPOCH: {
+    title: 'Total Epoch',
+    key: 'total_epoch',
+    disabled: false,
+    type: 'number',
+    default: 160,
+  },
+  IMAGE_WIDTH: {
+    title: 'Image Width',
+    key: 'imsize_w',
+    type: 'number',
+    disabled: false,
+    default: 224,
+    min: 64,
+    max: 512,
+  },
+  IMAGE_HEIGHT: {
+    title: 'Image Height',
+    key: 'imsize_h',
+    type: 'number',
+    disabled: false,
+    default: 224,
+    min: 64,
+    max: 512,
+  },
+  LOAD_PRETRAINED_WEIGHT: {
+    title: 'Load pretrain weight',
+    key: 'load_pretrained_weight',
+    disabled: false,
+    type: 'checkbox'
+  }
+}
+
+function override (key, params) {
+  return {[key]: {...Object.assign({...COMMON_PARAMS[key]}, params)}}
+}
+
 export const ALGORITHM = {
   CLASSIFICATION: {
     ResNet: {
@@ -18,45 +70,7 @@ export const ALGORITHM = {
       key: 'resnet',
       title: 'ResNet',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          type: 'number',
-          disabled: false,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          type: 'number',
-          disabled: false,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
+        ...COMMON_PARAMS
       }
     },
     ResNet18: {
@@ -64,45 +78,7 @@ export const ALGORITHM = {
       key: 'resnet18',
       title: 'ResNet18',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
+        ...COMMON_PARAMS,
         PLATEAU: {
           title: 'Plateau',
           key: 'plateau',
@@ -116,45 +92,7 @@ export const ALGORITHM = {
       key: 'resnet34',
       title: 'ResNet34',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
+        ...COMMON_PARAMS,
         PLATEAU: {
           title: 'Plateau',
           key: 'plateau',
@@ -168,45 +106,7 @@ export const ALGORITHM = {
       key: 'resnet',
       title: 'ResNet50',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
+        ...COMMON_PARAMS,
         PLATEAU: {
           title: 'Plateau',
           key: 'plateau',
@@ -220,45 +120,7 @@ export const ALGORITHM = {
       key: 'resnet',
       title: 'ResNet101',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
+        ...COMMON_PARAMS,
         PLATEAU: {
           title: 'Plateau',
           key: 'plateau',
@@ -272,51 +134,7 @@ export const ALGORITHM = {
       key: 'resnet',
       title: 'ResNet152',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          type: 'number',
-          disabled: true,
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        LOAD_PRETRAINED_WEIGHT: {
-          title: 'Load pretrain weight',
-          key: 'load_pretrained_weight',
-          disabled: false,
-          type: 'checkbox'
-        },
+        ...COMMON_PARAMS,
         PLATEAU: {
           title: 'Plateau',
           key: 'plateau',
@@ -330,51 +148,7 @@ export const ALGORITHM = {
       key: 'densenet121',
       title: 'DenseNet121',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          disabled: true,
-          type: 'number',
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          disabled: true,
-          type: 'number',
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        LOAD_PRETRAINED_WEIGHT: {
-          title: 'Load pretrain weight',
-          key: 'load_pretrained_weight',
-          disabled: false,
-          type: 'checkbox'
-        }
+        ...COMMON_PARAMS,
       }
     },
     DenseNet169: {
@@ -382,51 +156,7 @@ export const ALGORITHM = {
       key: 'densenet169',
       title: 'DenseNet169',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          disabled: true,
-          type: 'number',
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          disabled: true,
-          type: 'number',
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        LOAD_PRETRAINED_WEIGHT: {
-          title: 'Load pretrain weight',
-          key: 'load_pretrained_weight',
-          disabled: false,
-          type: 'checkbox'
-        }
+        ...COMMON_PARAMS,
       }
     },
     DenseNet201: {
@@ -434,51 +164,7 @@ export const ALGORITHM = {
       key: 'densenet121',
       title: 'DenseNet121',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          disabled: true,
-          type: 'number',
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          disabled: true,
-          type: 'number',
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        LOAD_PRETRAINED_WEIGHT: {
-          title: 'Load pretrain weight',
-          key: 'load_pretrained_weight',
-          disabled: false,
-          type: 'checkbox'
-        }
+        ...COMMON_PARAMS,
       }
     },
     VGG11: {
@@ -486,51 +172,7 @@ export const ALGORITHM = {
       key: 'Vgg11',
       title: 'VGG11',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          disabled: false,
-          type: 'number',
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          disabled: false,
-          type: 'number',
-          default: 224,
-          min: 64,
-          max: 512,
-        },
-        LOAD_PRETRAINED_WEIGHT: {
-          title: 'Load pretrain weight',
-          key: 'load_pretrained_weight',
-          disabled: false,
-          type: 'checkbox'
-        }
+        ...COMMON_PARAMS,
       }
     },
     Vgg16: 3,
@@ -546,43 +188,13 @@ export const ALGORITHM = {
       key: 'yolov1', // Must be same as back-end.
       title: 'Yolo v1',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole', // Must be same as back-end.
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 64,
-          min: 4,
-          max: 128,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          type: 'number',
-          default: 448,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          type: 'number',
-          default: 448,
-          min: 64,
-          max: 512,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          default: 224,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          default: 224,
+        }),
         CELL: {
           title: 'Num Cell',
           key: 'cell',
@@ -604,41 +216,20 @@ export const ALGORITHM = {
       key: 'yolov2',
       title: 'Yolo v2',
       params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          disabled: true,
+          default: 320,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          disabled: true,
+          default: 320,
+        }),
         ANCHOR: {
           title: 'Anchor',
           key: 'anchor',
           type: 'number',
           default: 5,
-        },
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole',
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 32,
-          min: 4,
-          max: 128,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
-          type: 'number',
-          default: 448,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
-          type: 'number',
-          default: 448,
-          min: 64,
-          max: 512,
         },
       }
     },
@@ -647,48 +238,15 @@ export const ALGORITHM = {
       key: 'ssd',
       title: 'SSD',
       params: {
-        TRAIN_WHOLE: {
-          title: 'Train Whole Network',
-          key: 'train_whole',
-          disabled: false,
-          type: 'checkbox',
-          default: false,
-        },
-        BATCH_SIZE: {
-          title: 'Batch Size',
-          key: 'batch_size',
-          disabled: false,
-          type: 'number',
-          default: 32,
-          min: 4,
-          max: 128,
-        },
-        IMAGE_WIDTH: {
-          title: 'Image Width',
-          key: 'imsize_w',
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
           disabled: true,
-          type: 'number',
           default: 300,
-          min: 64,
-          max: 512,
-        },
-        IMAGE_HEIGHT: {
-          title: 'Image Height',
-          key: 'imsize_h',
+        }),
+        ...override('IMAGE_HEIGHT', {
           disabled: true,
-          type: 'number',
           default: 300,
-          min: 64,
-          max: 512,
-        },
-        TOTAL_EPOCH: {
-          title: 'Total Epoch',
-          key: 'total_epoch',
-          disabled: false,
-          type: 'number',
-          default: 160,
-        },
-
+        })
       }
     },
   },
