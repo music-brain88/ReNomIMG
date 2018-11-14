@@ -13,6 +13,7 @@ export default {
 
   // Models
   models: [],
+  selected_model: {},
 
   // Datasets
   datasets: [],
@@ -44,5 +45,9 @@ export default {
     add_dataset: false,
     add_both: false,
     add_filter: false,
-  }
+  },
+
+  // Variable of image list pager.
+  nth_image_page: 0,
+  total_image_page: 0,
 }

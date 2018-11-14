@@ -11,7 +11,9 @@
         <input :type="item.type"
           :placeholder="item.default"
           v-model="parameters[item.key]"
-          :disabled="item.disabled">
+          :disabled="item.disabled"
+          :min="item.min"
+          :max="item.max">
       </div>
     </div>
     <button @click="onCreateModel">create</button>
@@ -54,7 +56,6 @@ export default {
     },
     onCreateModel: function () {
       // Perform action 'createModel' with specified params.
-      console.log(this.parameters)
       this.createModel({
         hyper_params: this.parameters,
         algorithm_id: this.getAlgorithmIdFromTitle(this.selectedAlgorithm),

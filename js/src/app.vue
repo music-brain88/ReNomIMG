@@ -84,6 +84,7 @@ export default {
 }
 
 * {
+  user-select: none;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -o-box-sizing: border-box;
@@ -96,7 +97,7 @@ export default {
   #app-content {
     width: $app-window-width;
     margin: 0 auto;
-    padding-top: $app-container-padding-top;
+    // padding-top: $app-container-padding-top;
     padding-bottom: $app-container-padding-bottom;
 
     #page-tab {
@@ -104,7 +105,8 @@ export default {
       min-height: $header-min-height;
       width: calc(100% - #{$component-block-margin}*2);
       letter-spacing: -0.4em; // For removing gap between divs.
-      margin: $component-block-margin;
+      // margin: $component-block-margin;
+      margin-bottom: $component-block-margin;
       .page-tab {
         line-height: normal;
         letter-spacing: 0em; // Remove letter-spacing
