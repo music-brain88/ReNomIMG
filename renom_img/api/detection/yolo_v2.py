@@ -50,7 +50,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
         base_size(int, list):
 
     Returns:
-        (AnchorYolov2): Anchor list. 
+        (AnchorYolov2): Anchor list.
     """
     convergence = 0.005
     box_list = [(0, 0, an['box'][2] * base_size[0] / an['size'][0],
@@ -101,10 +101,10 @@ class Yolov2(Detection):
 
     Args:
         class_map(list): List of class name.
-        anchor(AnchorYolov2): Anchors. 
+        anchor(AnchorYolov2): Anchors.
         imsize(list): Image size.
-            This can be both image size ex):(320, 320) and list of image size 
-            ex):[(288, 288), (320, 320)]. If list of image size is given, 
+            This can be both image size ex):(320, 320) and list of image size
+            ex):[(288, 288), (320, 320)]. If list of image size is given,
             the prediction method uses the last image size of the list for prediction.
         load_pretrained_weight(bool, string):
         train_whole_network(bool):
@@ -113,7 +113,7 @@ class Yolov2(Detection):
         | Joseph Redmon, Ali Farhadi
         | **YOLO9000: Better, Faster, Stronger**
         | https://arxiv.org/abs/1612.08242
-        | 
+        |
 
     Note:
         If you save this model using 'save' method, anchor information(anchor list and base size of them) will be
@@ -144,7 +144,8 @@ class Yolov2(Detection):
             DarknetConv2dBN(channel=1024, prev_ch=1024),
             DarknetConv2dBN(channel=1024, prev_ch=1024),
         ])
-        self._conv2 = DarknetConv2dBN(channel=1024, prev_ch=1024 * 3)
+        self._conv21 = DarknetConv2dBN(channel= 64, prev_ch= 512, filter=1)
+        self._conv2 = DarknetConv2dBN(channel=1024, prev_ch=1024 + 256)
         self._last = rm.Conv2d(channel=last_channel, filter=1)
         self._last.params = {
             "w": rm.Variable(self._last._initializer((last_channel, 1024, 1, 1)), auto_update=True),
@@ -186,7 +187,7 @@ class Yolov2(Detection):
         """Returns an instance of Optimizer for training Yolov2 algorithm.
 
         If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
-        an optimizer object which whose learning rate is modified according to the 
+        an optimizer object which whose learning rate is modified according to the
         number of training iteration. Otherwise, constant learning rate is set.
 
         Args:
@@ -255,7 +256,7 @@ class Yolov2(Detection):
             >>> model = Yolov2(class_map)
             >>> y = model.forward(x) # Forward propagation.
             >>> y = model(x)  # Same as above result.
-            >>> 
+            >>>
             >>> bbox = model.get_bbox(y) # The output can be reformed using get_bbox method.
 
         """
@@ -268,6 +269,7 @@ class Yolov2(Detection):
             not self._train_whole_network or getattr(self, 'inference', False)))
 
         h, f = self.freezed_network(x)
+        f = self._conv21(f)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,
                                   rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
@@ -286,7 +288,7 @@ class Yolov2(Detection):
         return rm.concat(conf, px, py, pw, ph, cl).transpose(0, 2, 1, 3).reshape(N, -1, H, W)
 
     def regularize(self):
-        """Regularize term. You can use this function to add regularize term to 
+        """Regularize term. You can use this function to add regularize term to
         loss function.
 
         In Yolo v2, weight decay of 0.0005 will be added.
@@ -315,7 +317,7 @@ class Yolov2(Detection):
              [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
-            z (ndarray): Output array of neural network. The shape of array 
+            z (ndarray): Output array of neural network. The shape of array
 
         Return:
             (list) : List of predicted bbox, score and class of each image.
@@ -607,7 +609,7 @@ class Yolov2(Detection):
         """
         This function performs training with given data and hyper parameters.
         Yolov2 is trained using multiple scale images. Therefore, this function
-        requires list of image size. If it is not given, the model will be trained 
+        requires list of image size. If it is not given, the model will be trained
         using fixed image size.
 
         Args:
@@ -637,7 +639,7 @@ class Yolov2(Detection):
             ...     valid_annot_list,
             ...     epoch=8,
             ...     batch_size=8)
-            >>> 
+            >>>
 
         Following arguments will be given to the function ``callback_end_epoch``.
 

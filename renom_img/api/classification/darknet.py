@@ -109,10 +109,10 @@ class DarknetConv2dBN(rm.Model):
                 "w": rm.Variable(self._conv._initializer((channel, prev_ch, filter, filter)), auto_update=True),
                 "b": rm.Variable(np.zeros((1, channel, 1, 1), dtype=np.float32), auto_update=False),
             }
-            self._bn = rm.BatchNormalize(mode='feature', momentum=0.01)
+            self._bn = rm.BatchNormalize(mode='feature', momentum=0.99, epsilon=0.001)
         else:
             self._conv = rm.Conv2d(channel=channel, filter=filter, padding=pad)
-            self._bn = rm.BatchNormalize(mode='feature', momentum=0.01)
+            self._bn = rm.BatchNormalize(mode='feature', momentum=0.99, epsilon=0.001)
 
     def forward(self, x):
         return rm.leaky_relu(self._bn(self._conv(x)), 0.1)
