@@ -144,7 +144,7 @@ class Yolov2(Detection):
             DarknetConv2dBN(channel=1024, prev_ch=1024),
             DarknetConv2dBN(channel=1024, prev_ch=1024),
         ])
-        self._conv21 = DarknetConv2dBN(channel= 64, prev_ch= 512, filter=1)
+        self._conv21 = DarknetConv2dBN(channel=64, prev_ch=512, filter=1)
         self._conv2 = DarknetConv2dBN(channel=1024, prev_ch=1024 + 256)
         self._last = rm.Conv2d(channel=last_channel, filter=1)
         self._last.params = {
