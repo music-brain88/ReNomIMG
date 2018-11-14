@@ -788,7 +788,7 @@ def get_deployed_model_info(project_id):
 def get_class_map(project_id):
     try:
         ret = storage.fetch_class_map()
-        body = json.dumps(ret)
+        body = json.dumps({"class_map": ret["class_map"]})
         ret = create_response(body)
         return ret
     except Exception as e:

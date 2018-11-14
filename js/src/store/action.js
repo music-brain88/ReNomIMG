@@ -476,9 +476,10 @@ export default {
     }
     let url = '/api/renom_img/v1/projects/' + id + '/class_map'
     return axios.get(url).then(function (response) {
-      if (response.data.error_msg) {
+      const error_msg = response.data.error_msg
+      if (error_msg) {
         context.commit('setAlertModalFlag', {'flag': true})
-        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
+        context.commit('setErrorMsg', {'error_msg': error_msg})
       } else {
         context.commit('setDatasetInfov0', {
           'class_names': response.data.class_map
