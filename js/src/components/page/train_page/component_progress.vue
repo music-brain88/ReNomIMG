@@ -5,9 +5,9 @@
     </template>
     <div id="alg-list">
     </div>
-    <div id="component-progress">
+    <div id="component-progress" class="scrollbar-container">
       <progress-bar :isTitle="true"/>
-      <progress-bar :isTitle="false"/>
+      <progress-bar v-for="item in getRunningModelList" :model="item"/>
     </div>
   </component-frame>
 </template>
@@ -36,4 +36,8 @@ export default {
 </script>
 
 <style lang='scss'>
+  #component-progress {
+    height: 100%;
+    overflow: auto;
+  }
 </style>

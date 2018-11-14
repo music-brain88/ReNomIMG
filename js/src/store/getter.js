@@ -1,11 +1,11 @@
-import { PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes} from '@/const.js'
+import { STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes} from '@/const.js'
 
 export default {
   /**
    *
    */
   getRunningModelList (state, getters) {
-    return []
+    return getters.getFilteredModelList.filter(m => m.state !== STATE.STOPPED)
   },
   getFilteredAndGroupedModelList (state, getters) {
     return [[0.60, 0.30], [0.29, 0.3]]

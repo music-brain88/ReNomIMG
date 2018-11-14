@@ -21,11 +21,14 @@
       <div id="bar-background" v-else>
       </div>
     </div>
-    <div id="button-stop-area"></div>
+    <div id="button-stop-area" v-if="!isTitle">
+      <i class="fa fa-stop-circle-o" aria-hidden="true" @click="onStop"></i>
+    </div>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 export default {
   name: 'ProgressBar',
   props: {
@@ -51,14 +54,14 @@ export default {
       if (this.model === undefined) {
         return '-'
       } else {
-        return this.model.last_epoch
+        return this.model.nth_epoch
       }
     },
     current_batch: function () {
       if (this.model === undefined) {
         return '-'
       } else {
-        return this.model.last_batch
+        return this.model.nth_batch
       }
     },
     total_epoch: function () {
@@ -79,13 +82,19 @@ export default {
       if (this.model === undefined) {
         return '-'
       } else {
-        return this.model.train_loss[-1]
+        return this.model.last_batch_loss.toFixed(3)
       }
     }
   },
   created: function () {
   },
   methods: {
+    ...mapActions(['stopModelTrain']),
+    onStop: function () {
+      if (this.model) {
+        this.stopModelTrain(this.model.id)
+      }
+    }
   }
 }
 </script>
@@ -99,6 +108,7 @@ export default {
   padding-left: $progress-bar-margin;
   padding-right: $progress-bar-margin;
   text-align: center;
+  font-size: 80%;
 
   #model-id-area {
     width: 12.5%;
@@ -117,19 +127,21 @@ export default {
     height: 100%;
   }
   #bar-area {
-    width: 37.5%;
+    width: 35.5%;
     height: 100%;
     padding-top: $bar-margin;
     padding-bottom: $bar-margin;
     #bar-background {
       width: 100%;
       height: calc(100% - #{$bar-margin});
-      background-color: red; 
+      background-color: gray; 
     }
   }
   #button-stop-area {
-    width: 5%;
+    width: 7%;
     height: 100%;
+    text-align: center;
+    color: gray;
   }
 }
 </style>
