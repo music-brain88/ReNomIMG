@@ -354,15 +354,15 @@ export const ALGORITHM = {
     Fcn32: {
       id: 23,
       key: 'fcn32',
-      title: 'FCN 32',
+      title: 'FCN 32s',
       params: {
         ...COMMON_PARAMS,
       }
     },
     TernousNet: {
       id: 24,
-      key: 'fcn32',
-      title: 'FCN 32',
+      key: 'ternousnet',
+      title: 'TernousNet',
       params: {
         ...COMMON_PARAMS,
         ...override('IMAGE_WIDTH', {
