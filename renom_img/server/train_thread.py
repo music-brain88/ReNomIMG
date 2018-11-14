@@ -280,7 +280,7 @@ class TrainThread(object):
         self.best_epoch_valid_result = {}
 
     def _prepare_model(self):
-        print(self.algorithm_id, Algorithm.YOLOV1)
+        print(self.algorithm_id, Algorithm.YOLOV2)
         if self.algorithm_id == Algorithm.YOLOV1.value:
             self._setting_yolov1()
         elif self.algorithm_id == Algorithm.YOLOV2.value:
@@ -319,6 +319,14 @@ class TrainThread(object):
         required_params = ['anchor']
         assert all([k in self.hyper_parameters.keys() for k in required_params])
         assert self.task_id == Task.DETECTION.value, self.task_id 
+        
+        self.model = Yolov2(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            anchor=create_anchor(self.valid_target, int(self.hyper_parameters.get('anchor')), base_size=self.imsize),
+            train_whole_network=self.hyper_parameters["train_whole"],
+            load_pretrained_weight=True
+        )
         aug = Augmentation([
             Shift(10, 10)
         ])
@@ -326,23 +334,16 @@ class TrainThread(object):
             self.train_img,
             self.train_target,
             augmentation=aug,
-            target_builder=self.model.build_data()
-        )
+            target_builder=self.model.build_data())
         self.valid_dist = ImageDistributor(
-            self.vaild_img,
+            self.valid_img,
             self.valid_target,
-            target_builder=self.model.build_data()
-        )
-        self.model = Yolov2(
-            class_map=self.class_map,
-            anchor=create_anchor(self.train_dist.annotation_list, required_params, base_size=self.imsize),
-            imsize=self.imsize,
-            train_whole_network=self.hyper_parameters["train_whole"],
-            load_pretrained_weight=True
-        )
+            target_builder=self.model.build_data())
+
+        
 
     def _setting_ssd(self):
-        assert all([k in self.hyper_parameters.keys()])
+        assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.DETECTION.value, self.task_id
         self.model = SSD(
             class_map=self.class_map,
@@ -360,7 +361,7 @@ class TrainThread(object):
             target_builder=self.model.build_data()
         )
         self.valid_dist = ImageDistributor(
-            self.vaild_img,
+            self.valid_img,
             self.valid_target,
             target_builder=self.model.build_data()
         )
