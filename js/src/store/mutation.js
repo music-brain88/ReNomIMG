@@ -2,6 +2,11 @@ import Model from './classes/model'
 import {PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
 
 export default {
+  resetState (state, payload) {
+    state.datasets = []
+    state.test_datasets = []
+    state.models = []
+  },
   setAlertModalFlag (state, payload) {
     state.show_alert_modal = payload
   },
@@ -16,6 +21,10 @@ export default {
     } else {
       throw new Error('Not supported task.')
     }
+  },
+  setSelectedModel (state, payload) {
+    const task_id = state.current_task
+    state.selected_model[task_id] = payload
   },
   setCurrentPage (state, payload) {
     const page = payload

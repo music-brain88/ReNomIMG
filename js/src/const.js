@@ -32,6 +32,8 @@ const COMMON_PARAMS = {
     disabled: false,
     type: 'number',
     default: 160,
+    min: 1,
+    max: 1000,
   },
   IMAGE_WIDTH: {
     title: 'Image Width',

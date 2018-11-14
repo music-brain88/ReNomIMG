@@ -69,6 +69,7 @@ class TrainThread(object):
             release_mem_pool()
             self.semaphore.release()
             self.state = State.STOPPED
+            self.running_state = RunningState.STOPPING
             self.sync_state()
 
     def returned2client(self):
@@ -139,6 +140,8 @@ class TrainThread(object):
 
             self.updated = True
 
+            self.running_state = RunningState.VALIDATING
+            self.sync_state()
             valid_prediction = []
             temp_valid_batch_loss_list = []
             for b, (valid_x, valid_y) in enumerate(self.valid_dist.batch(self.batch_size, shuffle=False)):

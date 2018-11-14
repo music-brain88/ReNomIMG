@@ -8,6 +8,7 @@ export default {
    *
    */
   async init (context, payload) {
+    // context.commit('resetState')
     context.dispatch('loadDatasetsOfCurrentTask')
     context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask')
@@ -149,6 +150,7 @@ export default {
           let id = response.data.id
           model.id = id
           model.state = STATE.RESERVED
+          context.dispatch('runTrainThread', id)
         }
       })
   },
