@@ -3,13 +3,15 @@ import axios from 'axios'
 import { STATE } from '@/const.js'
 import { Dataset, TestDataset } from './classes/dataset'
 
-function error_handler_creator (context) {
+function error_handler_creator (context, callback = undefined) {
   return function (error) {
     const status = error.response.status
-    const status_message = error.response.statusMessage
     if (status === 500) {
       const message = error.response.data.error_msg
-      context.commit('showAlert', {'show': true, 'msg': message})
+      context.commit('showAlert', message)
+    }
+    if (callback) {
+      callback()
     }
   }
 }
@@ -47,6 +49,7 @@ export default {
           let model = new Model(algorithm_id, task_id, hyper_params, dataset_id, parents)
 
           model.id = id
+          model.state = state
           model.total_epoch = m.total_epoch
           model.nth_epoch = m.nth_epoch
           model.total_batch = m.total_batch
@@ -168,10 +171,6 @@ export default {
       .then(function (response) {
         let model = context.getters.getModelById(model_id)
         model.state = STATE.CREATED // TODO: Remove this line.
-        let error_msg = response.data.error_msg
-        if (error_msg) {
-          context.commit('showAlert', {'show': true, 'msg': error_msg})
-        }
         context.dispatch('startAllPolling')
       }, error_handler_creator(context))
   },
@@ -226,7 +225,9 @@ export default {
           context.dispatch('loadBestValidResult', model_id)
         }
       }
-    }, error_handler_creator(context))
+    }, error_handler_creator(context, function () {
+      // Need to reload Model State.
+    }))
   },
   /*****
    *
@@ -239,7 +240,7 @@ export default {
    *
    */
   async startWeightDownload (context, payload) {
-    const algorithm_id = payload
+
   },
 
   /*****
@@ -254,12 +255,8 @@ export default {
    */
   async stopModelTrain (context, payload) {
     const model_id = payload
-    const url = '/api/renom_img/v2/model/stop/' + payload
+    const url = '/api/renom_img/v2/model/stop/' + model_id
     return axios.get(url).then(function (response) {
-      let error_msg = response.data.error_msg
-      if (error_msg) {
-        context.commit('showAlert', {'show': true, 'msg': error_msg})
-      }
     }, error_handler_creator(context))
   },
 
@@ -308,11 +305,6 @@ export default {
 
     return axios.post(url, param).then(function (response) {
       if (response.status === 204) return
-      let error_msg = response.data.error_msg
-      if (error_msg) {
-        context.commit('showAlert', {'show': true, 'msg': error_msg})
-        return
-      }
       const id = response.data.id
       const class_map = response.data.class_map
       const valid_data = response.data.valid_data

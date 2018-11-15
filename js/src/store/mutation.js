@@ -1,4 +1,3 @@
-import Model from './classes/model'
 import {PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
 
 export default {
@@ -7,12 +6,13 @@ export default {
     state.test_datasets = []
     state.models = []
   },
-  setAlertModalFlag (state, payload) {
-    state.show_alert_modal = payload
-  },
   showAlert (state, payload) {
-    state.show_alert_modal = payload.show
-    state.error_msg = payload.msg
+    state.show_alert_modal = true
+    state.error_msg = payload
+  },
+  hideAlert (state, payload) {
+    state.show_alert_modal = false
+    state.error_msg = ''
   },
   setCurrentTask (state, payload) {
     const task = payload

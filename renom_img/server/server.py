@@ -355,7 +355,6 @@ def polling_train(id):
     """
     threads = TrainThread.jobs
     active_train_thread = threads.get(id, None)
-    print(active_train_thread)
     if active_train_thread is None:
         saved_model = storage.fetch_model(id)
         if saved_model is None:

@@ -1,4 +1,4 @@
-import { STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes} from '@/const.js'
+import { STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
 
 export default {
   /**
@@ -21,7 +21,6 @@ export default {
     // TODO: Sort by task.
     return state.datasets.filter(d => d.task_id === getters.getCurrentTask)
   },
-
   getModelById (state, getters) {
     return function (id) {
       let model = state.models.find(m => m.id === id)
@@ -84,7 +83,7 @@ export default {
         let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_title)
         return ALGORITHM[task_key][key].id
       } else {
-        throw new Error('Not supported task.')
+        throw new Error(algorithm_title + ' is not supported task.')
       }
     }
   },
@@ -96,17 +95,16 @@ export default {
         let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_id)
         return ALGORITHM[task_key][key].title
       } else {
-        throw new Error('Not supported task.')
+        throw new Error(algorithm_id + 'is not supported id.')
       }
     }
   },
-
   getAlgorithmParamList (state, getters) {
-    return function (algotirhm_title) {
+    return function (algorithm_title) {
       let task = getters.getCurrentTask
       if (task in Object.values(TASK_ID)) {
         let task_key = getKeyByValue(TASK_ID, task)
-        let key = getKeyByValueIncludes(ALGORITHM[task_key], algotirhm_title)
+        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_title)
         let alg = ALGORITHM[task_key][key]
         if (alg && alg.params) {
           return alg.params
@@ -114,7 +112,7 @@ export default {
           return []
         }
       } else {
-        throw new Error('Not supported task.')
+        throw new Error(algorithm_title + 'is not supported title.')
       }
     }
   }

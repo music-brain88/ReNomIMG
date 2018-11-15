@@ -1,4 +1,4 @@
-import {STATE, RUNNING_STATE} from '@/const.js'
+import { STATE, RUNNING_STATE } from '@/const.js'
 
 export default class Filter {
   constructor (item, condition = null, threshold = null) {
