@@ -67,14 +67,6 @@ function override (key, params) {
 
 export const ALGORITHM = {
   CLASSIFICATION: {
-    ResNet: {
-      id: 0,
-      key: 'resnet',
-      title: 'ResNet',
-      params: {
-        ...COMMON_PARAMS
-      }
-    },
     ResNet18: {
       id: 1,
       key: 'resnet18',
