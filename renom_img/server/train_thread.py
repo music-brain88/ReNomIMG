@@ -12,6 +12,7 @@ from renom_img.api.classification.resnet import ResNet18
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.detection.ssd import SSD
+from renom_img.api.segmentation.unet import UNet
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
 from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise, ContrastNorm
@@ -766,7 +767,7 @@ class TrainThread(object):
         self.model = UNet(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=True
+            load_pretrained_weight=True,
             train_whole_network=self.hyper_parameters["train_whole"]
         )
 
