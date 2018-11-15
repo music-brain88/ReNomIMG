@@ -186,7 +186,7 @@ class ResNeXt50(ResNeXtBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNeXt/resnext50_32x4d_imagenet.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNeXt/ResNeXt50.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -216,7 +216,7 @@ class ResNeXt50(ResNeXtBase):
             if not os.path.exists(load_pretrained_weight):
                 download(self.WEIGHT_URL, load_pretrained_weight)
 
-            self.load(load_pretrained_weight)
+            self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
 
 
@@ -245,7 +245,7 @@ class ResNeXt101(ResNeXtBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNeXt/resnext101_32x4d_imagenet.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNeXt/ResNeXt101.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -275,5 +275,5 @@ class ResNeXt101(ResNeXtBase):
             if not os.path.exists(load_pretrained_weight):
                 download(self.WEIGHT_URL, load_pretrained_weight)
 
-            self.load(load_pretrained_weight)
+            self._model.load(load_pretrained_weight)
             self._model.fc.params = {}
