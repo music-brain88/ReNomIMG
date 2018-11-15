@@ -289,7 +289,7 @@ class TrainThread(object):
         elif self.algorithm_id == Algorithm.SSD.value:
             self._setting_ssd()
         elif self.algorithm_id == Algorithm.RESNET18.value:
-            self._setting_resnet18()
+            pass
         else:
             assert False
     
