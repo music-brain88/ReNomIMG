@@ -11,8 +11,8 @@ export default {
     state.show_alert_modal = payload
   },
   showAlert (state, payload) {
-    state.error_msg = payload.show
-    state.show_alert_modal = payload.msg
+    state.show_alert_modal = payload.show
+    state.error_msg = payload.msg
   },
   setCurrentTask (state, payload) {
     const task = payload
@@ -24,7 +24,7 @@ export default {
   },
   setSelectedModel (state, payload) {
     const task_id = state.current_task
-    state.selected_model[task_id] = payload
+    state.selected_model = Object.assign(...state.selected_model, {[task_id]: payload})
   },
   setCurrentPage (state, payload) {
     const page = payload
@@ -49,6 +49,12 @@ export default {
       state.models = [payload, ...state.models]
     }
   },
+  rmModel (state, payload) {
+    if (state.models.find(n => n.id === payload.id) === undefined) {
+      state.models = state.models.filter(m => m.id !== payload)
+    }
+  },
+
   addPollingJob (state, payload) {
     let key = Object.keys(payload)[0]
     let model_id = payload[key]

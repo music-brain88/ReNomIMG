@@ -5,7 +5,7 @@ export default {
    *
    */
   getRunningModelList (state, getters) {
-    return getters.getFilteredModelList.filter(m => m.state !== STATE.STOPPED)
+    return getters.getFilteredModelList.filter(m => m.state === STATE.STARTED)
   },
   getFilteredAndGroupedModelList (state, getters) {
     return [[0.60, 0.30], [0.29, 0.3]]
@@ -32,7 +32,7 @@ export default {
     return state.current_task
   },
   getSelectedModel (state, getters) {
-    return state.selected_model[getCurrentTask]
+    return state.selected_model[getters.getCurrentTask]
   },
   getCurrentTaskTitle (state, getters) {
     if (state.current_task === TASK_ID.CLASSIFICATION) {

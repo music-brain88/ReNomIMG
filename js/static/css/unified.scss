@@ -20,7 +20,7 @@ $slide-window-background-color: #063662;
 $slide-window-width-min: 150px;
 
 //// Page Tab Settings.
-$tab-content-height: $header-height;
+$tab-content-height: calc(#{$header-height} * 1.2);
 $tab-content-min-height: $header-min-height;
 $tab-content-width: calc(#{$app-window-width}/4.5);
 

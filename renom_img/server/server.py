@@ -101,7 +101,7 @@ def json_handler(func):
         except Exception as e:
             release_mem_pool()
             traceback.print_exc()
-            body = json.dumps({"error_msg": str(e)})
+            body = json.dumps({"error_msg": "{}: {}".format(type(e).__name__, str(e))})
             ret = create_response(body, 500)
             return ret
     return wrapped
@@ -191,6 +191,12 @@ def model_stop(id):
 @route("/api/renom_img/v2/model/remove/<id:int>", method="GET")
 @json_handler
 def model_remove(id):
+    threads = TrainThread.jobs
+    active_train_thread = threads.get(id, None)
+    if active_train_thread is not None:
+        active_train_thread.stop()
+        active_train_thread.future.result()
+    storage.remove_model(id)
     return
 
 
@@ -342,10 +348,19 @@ def test_dataset_create():
 @route("/api/renom_img/v2/polling/train/model/<id:int>", method="GET")
 @json_handler
 def polling_train(id):
+    """
+
+    Cations: 
+        This function is possible to return empty dictionary.
+    """
     threads = TrainThread.jobs
     active_train_thread = threads.get(id, None)
+    print(active_train_thread)
     if active_train_thread is None:
         saved_model = storage.fetch_model(id)
+        if saved_model is None:
+            return
+
         # If the state == STOPPED, client will never throw request.
         if saved_model["state"] != State.STOPPED.value:
             storage.update_model(id, state=State.STOPPED.value,
@@ -366,7 +381,18 @@ def polling_train(id):
         }
     elif active_train_thread.state == State.RESERVED or \
             active_train_thread.state == State.CREATED:
-        time.sleep(5)  # Avoid many request.
+
+        for _ in range(60):
+            if active_train_thread.state == State.RESERVED or \
+                    active_train_thread.state == State.CREATED:
+                time.sleep(1)
+                if active_train_thread.updated:
+                    active_train_thread.returned2client()
+                    break
+            else:
+                time.sleep(1)
+                break
+
         active_train_thread.consume_error()
         return {
             "state": active_train_thread.state.value,

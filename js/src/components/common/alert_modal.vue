@@ -29,7 +29,7 @@ export default {
   name: 'AlertModal',
   methods: {
     hide: function () {
-      this.$store.commit('setAlertModalFlag', {'flag': false})
+      this.$store.commit('showAlert', {show: false, msg: ''})
     }
   }
 }

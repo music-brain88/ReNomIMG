@@ -3,7 +3,7 @@ import {STATE, RUNNING_STATE} from '@/const.js'
 export default class Model {
   constructor (algorithm_id, task_id, hyper_parameters, dataset_id, parents) {
     // (Integer) ID of Model. This will defined by database.
-    this.id = 0
+    this.id = -1
     this.dataset_id = dataset_id
     this.task_id = task_id
     this.algorithm_id = algorithm_id

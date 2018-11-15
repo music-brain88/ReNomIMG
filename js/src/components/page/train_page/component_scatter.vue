@@ -51,7 +51,7 @@ export default {
       const canvas = document.getElementById('scatter-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
-      const circle_radius = Math.min(canvas_width * 0.02, canvas_height * 0.02)
+      const circle_radius = Math.min(canvas_width * 0.03, canvas_height * 0.03)
       const model_list = this.getFilteredAndGroupedModelList
       const svg = d3.select('#scatter-canvas').append('svg')
 

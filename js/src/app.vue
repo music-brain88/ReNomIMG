@@ -24,7 +24,7 @@
       </div>
     </div>
     <slide-menu/>
-    <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
+    <alert-modal v-if="$store.state.show_alert_modal"></alert-modal>
     <modal/>
   </div>
 </template>
@@ -43,6 +43,7 @@ export default {
     'app-header': AppHeader,
     'slide-menu': SlideMenu,
     'modal': Modal,
+    'alert-modal': AlertModal
   },
   created: function () {
   },
