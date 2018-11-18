@@ -1,13 +1,8 @@
 <template>
-  <component-frame :width-weight="2" :height-weight="1.5">
-    <template slot="header-slot">
-      Model Filter
-    </template>
     <div id="filter-container" class="scrollbar-container">
       <filter-item v-for="item in getFilterList"/>
       <filter-item :is-add-button="true"/>
     </div>
-  </component-frame>
 </template>
 
 <script>

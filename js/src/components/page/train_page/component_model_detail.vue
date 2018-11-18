@@ -1,5 +1,5 @@
 <template>
-  <component-frame :width-weight="4" :height-weight="2.6">
+  <component-frame :width-weight="6" :height-weight="4">
     <template slot="header-slot">
       Model Detail
     </template>

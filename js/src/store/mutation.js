@@ -54,7 +54,6 @@ export default {
       state.models = state.models.filter(m => m.id !== payload)
     }
   },
-
   addPollingJob (state, payload) {
     let key = Object.keys(payload)[0]
     let model_id = payload[key]
@@ -88,5 +87,8 @@ export default {
     } else {
       throw new Error('Not supported task.')
     }
+  },
+  setImagePageOfPredictionSample (state, payload) {
+
   }
 }

@@ -3,14 +3,12 @@
     <div id="components">
       <component-progress/>
       <component-scatter/>
-      <component-learning-curve/>
+      <component-model-detail/>
       <component-learning-curve/>
       <component-prediction-result/>
-      <component-model-detail/>
       <component-tag-list/>
     </div>
     <div id="vertical-component">
-      <component-model-filter/>
       <component-model-list/>
     </div>
   </div>

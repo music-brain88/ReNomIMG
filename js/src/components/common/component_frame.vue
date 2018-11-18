@@ -55,7 +55,7 @@ export default {
     min-height: $component-header-min-height;
     margin-bottom: $component-header-margin-bottom;
     padding-left: $component-block-padding-left;
-    padding-right: $component-block-padding-right;
+    // padding-right: $component-block-padding-right;
     background-color: $component-header-background-color;
     color: $component-header-font-color;
     line-height: normal;

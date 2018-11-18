@@ -74,7 +74,6 @@ export default {
       throw new Error('Not supported task.')
     }
   },
-
   getAlgorithmIdFromTitle (state, getters) {
     return function (algorithm_title) {
       let task = getters.getCurrentTask
@@ -99,6 +98,19 @@ export default {
       }
     }
   },
+  getAlgorithmClassFromId (state, getters) {
+    return function (algorithm_id) {
+      let task = getters.getCurrentTask
+      if (task in Object.values(TASK_ID)) {
+        let task_key = getKeyByValue(TASK_ID, task)
+        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_id)
+        return ALGORITHM[task_key][key].key
+      } else {
+        throw new Error(algorithm_id + 'is not supported id.')
+      }
+    }
+  },
+
   getAlgorithmParamList (state, getters) {
     return function (algorithm_title) {
       let task = getters.getCurrentTask
@@ -115,5 +127,9 @@ export default {
         throw new Error(algorithm_title + 'is not supported title.')
       }
     }
+  },
+  getOptimizedValidImagesInCurrentPage (state, getters) {
+    const model = getSelectedModel()
+    const dataset = state.dataset.filter(d => d.id === model.dataset_id)
   }
 }

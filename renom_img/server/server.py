@@ -263,12 +263,64 @@ def dataset_create():
                                     [int(ratio * n_imgs)])
     train_img = train_img.tolist()
     valid_img = valid_img.tolist()
-    valid_img_size = [Image.open(i).size for i in valid_img]
+    valid_img_size = [list(Image.open(i).size) for i in valid_img]
 
     train_xml, valid_xml = np.split(np.array([parsed_xml[index] for index in perm]),
                                     [int(ratio * n_imgs)])
     train_xml = train_xml.tolist()
     valid_xml = valid_xml.tolist()
+
+    # Perform Image Alignment Optimization.
+    """
+    index = []
+    inserted = np.ones((len(train_img)), dtype=np.bool)
+    line_stack = 0
+    pad = 0.05
+    for i, size_i in enumerate(valid_img_size):
+        if not inserted[i]: continue
+        line_stack = 0
+        img_size_list = []
+        num_img = 0
+        min_ratio = 10
+        min_j = -1
+        min_size = None
+        ratio_i = size_i[0]/size_i[1]
+        line_stack += ratio_i
+        num_img += 1
+        img_size_list.append(size_i)
+        inserted[i] = False
+        index.append(i)
+        for j, size_j in enumerate(valid_img_size[i:], i):
+            if not inserted[j]: continue
+            ratio_j = size_j[0]/size_j[1]
+            if line_stack + ratio_j <= 1.2:
+                line_stack += ratio_j + pad
+                num_img += 1
+                img_size_list.append(size_i)
+                inserted[j] = False
+                index.append(j)
+            else:
+               candidate = ratio_j + line_stack + pad
+               if candidate < min_ratio:
+                  min_ratio = candidate
+                  min_j = j
+                  min_size = size_j
+
+        if min_ratio < 1.2:
+            num_img += 1
+            inserted[min_j] = False
+            img_size_list.append(min_size)
+            index.append(min_j)
+            modify_ratio = 1/min_ratio
+            for s in img_size_list:
+                s[0] *= modify_ratio
+            print(min_ratio)
+        else:
+            modify_ratio = 1/line_stack
+            for s in img_size_list:
+                s[0] *= modify_ratio
+            print(line_stack)
+    """
 
     # Register
     train_data = {
@@ -278,7 +330,7 @@ def dataset_create():
     valid_data = {
         'img': valid_img,
         'target': valid_xml,
-        'size': valid_img_size
+        'size': valid_img_size,
     }
     dataset_id = storage.register_dataset(task_id, dataset_name, description, ratio,
                                           train_data, valid_data,

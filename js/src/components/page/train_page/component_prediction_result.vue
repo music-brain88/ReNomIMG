@@ -1,5 +1,5 @@
 <template>
-  <component-frame :width-weight="7" :height-weight="3.5">
+  <component-frame :width-weight="8" :height-weight="7">
     <template slot="header-slot">
       Prediction Result
     </template>
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {

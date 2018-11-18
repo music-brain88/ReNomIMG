@@ -1,10 +1,10 @@
 // App window size settings.
-// $app-window-width: 1280px;
-$app-window-width: calc(100vw - 20px);
+$app-window-width: 1280px;
+// $app-window-width: calc(100vw - 20px);
 $app-window-height: 100vh;
 
 //// App header Settings.
-$header-height: calc(100vh * 0.03);
+$header-height: calc(100vh * 0.04);
 $header-min-height: 20px;
 $header-background-color: #063662;
 $header-product-name-font-family: Open Sans Regular;
@@ -20,7 +20,7 @@ $slide-window-background-color: #063662;
 $slide-window-width-min: 150px;
 
 //// Page Tab Settings.
-$tab-content-height: calc(#{$header-height} * 1.2);
+$tab-content-height: calc(#{$header-height} * 1);
 $tab-content-min-height: $header-min-height;
 $tab-content-width: calc(#{$app-window-width}/4.5);
 
@@ -31,14 +31,14 @@ $app-container-padding-left: 10px;
 $app-container-padding-right: 10px;
 
 //// Component Frame Settings
-$component-header-height: calc(#{$header-height}*0.8);
+$component-header-height: calc(#{$header-height}*0.9);
 $component-header-min-height: 25px;
 $component-header-margin-bottom: 10px;
 $component-header-background-color: #063662;
 $component-header-font-family: Open Sans Regular;
 $component-header-font-color: #ffffff;
 $component-font-family: Open Sans Lite;
-$component-block-margin: 10px;
+$component-block-margin: 5px;
 $component-block-padding-left: 5px;
 $component-block-padding-right: 5px;
 $component-block-width: calc(#{$app-window-width} / 12);
@@ -76,8 +76,8 @@ $model-list-margin: 5px;
 $model-list-add-button-background-color: #3498DB;
 
 // Model Item Settings.
-$model-item-height: $component-block-height;
-$model-item-height-min: $component-block-height-min;
+$model-item-height: calc(#{$component-block-height} * 0.65);
+$model-item-height-min: calc(#{$component-block-height-min} * 0.65);
 $model-item-margin: 5px;
 
 //// Dataset page Setting.
@@ -86,6 +86,14 @@ $dataset-table-id-width: 10%;
 $dataset-table-name-width: 20%;
 $dataset-table-item-height: 25px;
 
+// Class Colors
+.yolov1 {
+  background-color: #443355;
+}
+
+.yolov2 {
+  background-color: #443311;
+}
 
 //// Animation Settings
 .fade-enter-active, .fade-leave-active {

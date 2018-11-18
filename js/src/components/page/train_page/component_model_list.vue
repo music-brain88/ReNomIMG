@@ -1,15 +1,15 @@
 <template>
-  <component-frame :width-weight="2" :height-weight="8">
+  <component-frame :width-weight="2" :height-weight="10"
+    :style="{position: 'sticky', top: 10 + 'px'}" class="model-list">
     <template slot="header-slot">
       <div id="model-list-title">
         Model List
       </div>
-      <select class="sort-menu" v-on:change="setSortOrder">
-        <option v-for="item in getSortTitle" :value="item">{{item}}</option>
-      </select>
+      <div id="add-button" @click="showModal({add_both: true})">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </div>
     </template>
     <div id="model-list" class="scrollbar-container">
-      <model-item :is-add-button="true"/>
       <model-item v-for="(model, index) in getFilteredModelList" :model="model"/>
     </div>
   </component-frame>
@@ -33,12 +33,21 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['setSortOrder'])
+    ...mapMutations(['setSortOrder', 'showModal']),
+    addModel: function () {
+
+    }
   }
 }
 </script>
 
 <style lang='scss'>
+#add-button {
+  height: 100%;
+  text-align: center;
+  width: 30%;
+  background-color: cyan;
+}
 #model-list {
   display: flex; 
   width: 100%;
@@ -48,15 +57,23 @@ export default {
   padding: $model-list-margin;
   overflow: visible scroll;
 }
-#component-header {
-  display: flex; 
-  justify-content:space-between;
-  #model-list-title {
-    display: inline-block;
-    height: 100%;
+
+.model-list {
+  #component-header {
+    display: flex; 
+    justify-content:space-between;
+    #model-list-title {
+      display: inline-block;
+      height: 100%;
+    }
+    select {
+      margin-left: auto;
+    }
   }
-  select {
-    margin-left: auto;
+}
+.model-list#component-frame {
+  #frame-content {
+    background-color: transparent;
   }
 }
 </style>
