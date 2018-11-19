@@ -48,7 +48,9 @@
     </div>
 
     <div id="model-list" class="scrollbar-container">
-      <model-item v-for="(model, index) in getFilteredModelList" :model="model"/>
+      <model-item :model="getDeployedModel"/>
+      <model-item v-for="(model, index) in getFilteredModelList" :model="model"
+         v-if="model!==getDeployedModel"/>
     </div>
 
   </component-frame>

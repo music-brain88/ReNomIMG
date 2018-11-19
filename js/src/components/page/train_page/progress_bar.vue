@@ -160,6 +160,12 @@ export default {
     height: 100%;
     text-align: center;
     color: gray;
+    i {
+      cursor: pointer;
+    }
+    i:hover {
+      color: lightgray;
+    }
   }
 }
 </style>

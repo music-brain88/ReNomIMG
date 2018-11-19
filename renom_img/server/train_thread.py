@@ -77,6 +77,7 @@ class TrainThread(object):
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e
+            self.model = None
         finally:
             release_mem_pool()
             TrainThread.semaphore.release()

@@ -21,6 +21,12 @@ export default {
     // TODO: Sort by task.
     return state.datasets.filter(d => d.task_id === getters.getCurrentTask)
   },
+  getDatasetFromId (state, getters) {
+    // TODO: Sort by task.
+    return function (id) {
+      return state.datasets.find(d => d.id === id)
+    }
+  },
   getModelById (state, getters) {
     return function (id) {
       let model = state.models.find(m => m.id === id)
@@ -134,5 +140,5 @@ export default {
   getOptimizedValidImagesInCurrentPage (state, getters) {
     const model = getSelectedModel()
     const dataset = state.dataset.filter(d => d.id === model.dataset_id)
-  }
+  },
 }

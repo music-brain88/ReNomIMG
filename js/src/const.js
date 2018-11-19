@@ -57,6 +57,7 @@ const COMMON_PARAMS = {
     title: 'Load pretrain weight',
     key: 'load_pretrained_weight',
     disabled: false,
+    default: true,
     type: 'checkbox'
   }
 }

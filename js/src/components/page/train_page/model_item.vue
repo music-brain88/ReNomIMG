@@ -24,7 +24,7 @@
     </div>
     <div id="model-buttons">
       <i class="fa fa-cog" aria-hidden="true"></i>
-      <i class="fa fa-times" aria-hidden="true"></i>
+      <i class="fa fa-times" aria-hidden="true" @click='removeModel(model.id)'></i>
     </div>
     <model-item v-for="item in getChildModelList" :model="item" :hierarchy="hierarchy+1"/>
   </div>
