@@ -615,18 +615,18 @@ class Storage:
                 ])
             return ret
 
-    def fetch_dataset_def(self, id):
+    def fetch_dataset_def(self, dataset_id):
         with self.db:
             c = self.cursor()
             c.execute(
-                """SELECT id, name, ratio, train_imgs, valid_imgs, class_map, created, updated FROM dataset_def""")
+                """SELECT id, name, ratio, train_imgs, valid_imgs, class_map, created, updated FROM dataset_def WHERE id=?""", (dataset_id,))
 
             for rec in c:
-                id, name, ratio, train_imgs, valid_imgs, class_map, created, updated = rec
+                dataset_id, name, ratio, train_imgs, valid_imgs, class_map, created, updated = rec
                 train_imgs = json.loads(train_imgs)
                 valid_imgs = json.loads(valid_imgs)
                 class_map = json.loads(class_map)
-                return (id, name, ratio, train_imgs, valid_imgs, class_map, created, updated)
+                return (dataset_id, name, ratio, train_imgs, valid_imgs, class_map, created, updated)
             return None
 
     def fetch_class_map(self):
