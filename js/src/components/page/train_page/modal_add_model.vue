@@ -1,22 +1,41 @@
 <template>
   <div id="modal-add-model">
-
-    <select v-model="selectedAlgorithm"
-      v-on:change="setDefaultValue(getAlgorithmParamList(selectedAlgorithm))">
-      <option v-for="item in getAlgorithmList">{{ item }}</option>
-    </select>
-
-    <div v-for="item in getAlgorithmParamList(selectedAlgorithm)">
-      <div>{{ item.title }} 
-        <input :type="item.type"
-          :placeholder="item.default"
-          v-model="parameters[item.key]"
-          :disabled="item.disabled"
-          :min="item.min"
-          :max="item.max">
+    <div id="generals">
+      <div id="dataset-select">
+        <div class="title">Dataset</div>
+        <div class="subtitle">Dataset Name
+          <select v-model="selectedDatasetId">
+            <option disabled value="" selected>Select Dataset</option>
+            <option v-for="item in getFilteredDatasetList" :value=item.id> {{ item.name }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="title">Algorithm</div>
+      <div class="subtitle">{{ getCurrentTaskTitle }} Algorithm
+        <select v-model="selectedAlgorithm"
+          v-on:change="setDefaultValue(getAlgorithmParamList(selectedAlgorithm))">
+          <option disabled value="" selected>Select Algorithm</option>
+          <option v-for="(item, index) in getAlgorithmList">{{ item }}</option>
+        </select>
       </div>
     </div>
-    <button @click="onCreateModel">create</button>
+
+    <div id="params">
+      <div class="title">Hyper parameters</div>
+      <div v-for="item in getAlgorithmParamList(selectedAlgorithm)">
+        <div class="hyper-param">{{ item.title }} 
+          <input :type="item.type"
+            :placeholder="item.default"
+            v-model="parameters[item.key]"
+            :disabled="item.disabled"
+            :min="item.min"
+            :max="item.max">
+        </div>
+      </div>
+    </div>
+    <div id="button-area">
+      <button @click="onCreateModel" :disabled="isRunnable">create</button>
+    </div>
   </div>
 </template>
 
@@ -31,14 +50,25 @@ export default {
     ...mapState(['show_modal']),
     ...mapGetters([
       'getCurrentTask',
+      'getCurrentTaskTitle',
       'getAlgorithmList',
       'getAlgorithmParamList',
-      'getAlgorithmIdFromTitle'
+      'getAlgorithmIdFromTitle',
+      'getFilteredDatasetList'
     ]),
+    isRunnable () {
+      console.log(this.selectedDatasetId, this.selectedAlgorithm)
+      if (this.selectedDatasetId !== '' && this.selectedAlgorithm !== '') {
+        return false
+      } else {
+        return true
+      }
+    }
   },
   data: function () {
     return {
-      selectedAlgorithm: '-',
+      selectedAlgorithm: '',
+      selectedDatasetId: '',
       parameters: {},
     }
   },
@@ -61,11 +91,11 @@ export default {
       this.createModel({
         hyper_params: this.parameters,
         algorithm_id: this.getAlgorithmIdFromTitle(this.selectedAlgorithm),
-        dataset_id: 1,
+        dataset_id: this.selectedDatasetId,
         parents: [],
         task_id: this.getCurrentTask
       })
-    }
+    },
   }
 }
 </script>
@@ -74,5 +104,50 @@ export default {
 #modal-add-model {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px;
+  font-size: 90%;
+
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: gray;
+  }
+
+  #generals {
+    width: 50%;
+    height: calc(100% - 10px);
+    .subtitle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 4%;
+    }
+    select {
+      background-color: white;
+      width: 55%;
+    }
+  }
+
+  #params {
+    width: 50%;
+    height: calc(100% - 10px);
+    .hyper-param {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 4%;
+      input {
+        width: 55%;
+      }
+    }
+  }
+  #button-area {
+    display: flex;
+    flex-direction: row-reverse;
+    width: 100%;
+  }
 }
 </style>

@@ -47,10 +47,10 @@
       </span>
     </div>
 
-    <model-item v-if="getSelectedModel" :model="getDeployedModel"/>
     <div id="model-list" class="scrollbar-container">
       <model-item v-for="(model, index) in getFilteredModelList" :model="model"/>
     </div>
+
   </component-frame>
 </template>
 
@@ -97,6 +97,7 @@ export default {
   justify-content: space-between;
 
   height: calc(#{$model-filter-height}*0.6);
+  min-height: calc(#{$model-filter-min-height}*0.6);
   width: 100%;
 
   padding: $model-list-margin;
@@ -123,6 +124,7 @@ export default {
   color: gray;
   display: block;
   height: calc(#{$model-filter-height}*0.8);
+  min-height: calc(#{$model-filter-min-height}*0.8);
 
   .selected {
     color:  $component-header-sub-color;

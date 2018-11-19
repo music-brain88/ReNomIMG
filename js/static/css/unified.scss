@@ -72,6 +72,7 @@ $modal-content-padding: 10px;
 // Model Filter Item Settings.
 $model-filter-margin: 5px;
 $model-filter-height: calc(#{$component-block-height}*0.65);
+$model-filter-min-height: calc(#{$component-block-height-min}*0.65);
 
 // Model Llist Settings.
 $model-list-margin: 5px;
@@ -87,6 +88,9 @@ $model-item-remove-button-color: #BF360C;
 
 // Model Item Reaction colors.
 $model-item-hover-color: #E5E7E9;
+
+// Both Modal Settings.
+$modal-tab-color-not-selected: #063662;
 
 
 //// Dataset page Setting.
