@@ -3,7 +3,8 @@
     <div id="model-add-button" v-if="isAddButton" @click="showModal({add_both: true})">
       ADD
     </div>
-    <div id="model-id" v-else>
+    <!-- <div id="model-id"  @click='setSelectedModel(model)' v-else> -->
+    <div id="model-id"  @click='removeModel(model.id)' v-else>
       ID: {{ model.id }}
       ALGO: {{ getAlgorithmTitleFromId(model.algorithm_id) }}
       LOSS: {{ getLastBatchLoss }}
@@ -18,7 +19,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 
 export default {
   name: 'ModelItem',
@@ -89,7 +90,8 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['showModal']),
+    ...mapMutations(['showModal', 'setSelectedModel']),
+    ...mapActions(['removeModel']),
   }
 }
 </script>

@@ -15,7 +15,6 @@
         <div id="debug-tab" class="page-tab" @click="onTabClick('debug')">
           DEBUG
         </div>
-
       </div>
       <div id="container">
         <transition name="fade">
@@ -24,7 +23,7 @@
       </div>
     </div>
     <slide-menu/>
-    <alert-modal v-if="$store.state.alert_modal_flag"></alert-modal>
+    <alert-modal v-if="$store.state.show_alert_modal"></alert-modal>
     <modal/>
   </div>
 </template>
@@ -40,16 +39,19 @@ import { mapMutations, mapActions } from 'vuex'
 export default {
   name: 'App',
   components: {
+    'modal': Modal,
     'app-header': AppHeader,
     'slide-menu': SlideMenu,
-    'modal': Modal,
+    'alert-modal': AlertModal
   },
   created: function () {
+    this.init()
   },
   methods: {
-    ...mapMutations(['setCurrentPage']),
     ...mapActions(['init']),
+    ...mapMutations(['setCurrentPage']),
     onTabClick: function (page_name) {
+      this.init()
       if (page_name === 'train') {
         this.$router.push({path: '/'})
         this.setCurrentPage(PAGE_ID.TRAIN)
@@ -65,8 +67,6 @@ export default {
       } else {
         console.log(page_name + 'is not supported page name.')
       }
-      this.init()
-      this.$forceUpdate()
     }
   }
 }
@@ -99,7 +99,6 @@ export default {
     margin: 0 auto;
     // padding-top: $app-container-padding-top;
     padding-bottom: $app-container-padding-bottom;
-
     #page-tab {
       height: $tab-content-height;
       min-height: $header-min-height;

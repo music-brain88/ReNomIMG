@@ -4,9 +4,10 @@
       <component-progress/>
       <component-scatter/>
       <component-learning-curve/>
+      <component-learning-curve/>
       <component-prediction-result/>
-      <component-tag-list/>
       <component-model-detail/>
+      <component-tag-list/>
     </div>
     <div id="vertical-component">
       <component-model-filter/>

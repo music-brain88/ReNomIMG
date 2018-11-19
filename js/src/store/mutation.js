@@ -1,4 +1,3 @@
-import Model from './classes/model'
 import {PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
 
 export default {
@@ -7,12 +6,13 @@ export default {
     state.test_datasets = []
     state.models = []
   },
-  setAlertModalFlag (state, payload) {
-    state.show_alert_modal = payload
-  },
   showAlert (state, payload) {
-    state.error_msg = payload.show
-    state.show_alert_modal = payload.msg
+    state.show_alert_modal = true
+    state.error_msg = payload
+  },
+  hideAlert (state, payload) {
+    state.show_alert_modal = false
+    state.error_msg = ''
   },
   setCurrentTask (state, payload) {
     const task = payload
@@ -24,7 +24,7 @@ export default {
   },
   setSelectedModel (state, payload) {
     const task_id = state.current_task
-    state.selected_model[task_id] = payload
+    state.selected_model = Object.assign(...state.selected_model, {[task_id]: payload})
   },
   setCurrentPage (state, payload) {
     const page = payload
@@ -49,6 +49,12 @@ export default {
       state.models = [payload, ...state.models]
     }
   },
+  rmModel (state, payload) {
+    if (state.models.find(n => n.id === payload.id) === undefined) {
+      state.models = state.models.filter(m => m.id !== payload)
+    }
+  },
+
   addPollingJob (state, payload) {
     let key = Object.keys(payload)[0]
     let model_id = payload[key]
