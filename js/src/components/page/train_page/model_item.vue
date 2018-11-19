@@ -129,15 +129,14 @@ export default {
     width: 10%;
     height: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
     i {
-      height: 50%;
       color: lightgray;
     }
-    i:after {
-      top: 50%;
+    i:hover {
+      color: black;
     }
   }
 }

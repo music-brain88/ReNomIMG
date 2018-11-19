@@ -20,7 +20,7 @@ $slide-window-background-color: #063662;
 $slide-window-width-min: 150px;
 
 //// Page Tab Settings.
-$tab-content-height: calc(#{$header-height} * 1);
+$tab-content-height: calc(#{$header-height} * 0.7);
 $tab-content-min-height: $header-min-height;
 $tab-content-width: calc(#{$app-window-width}/4.5);
 
@@ -37,6 +37,7 @@ $component-header-margin-bottom: 10px;
 $component-header-background-color: #063662;
 $component-header-font-family: Open Sans Regular;
 $component-header-font-color: #ffffff;
+$component-header-sub-color: #026699;
 $component-font-family: Open Sans Lite;
 $component-block-margin: 5px;
 $component-block-padding-left: 5px;
@@ -70,6 +71,7 @@ $modal-content-padding: 10px;
 
 // Model Filter Item Settings.
 $model-filter-margin: 5px;
+$model-filter-height: calc(#{$component-block-height}*0.65);
 
 // Model Llist Settings.
 $model-list-margin: 5px;
@@ -79,6 +81,7 @@ $model-list-add-button-background-color: #3498DB;
 $model-item-height: calc(#{$component-block-height} * 0.65);
 $model-item-height-min: calc(#{$component-block-height-min} * 0.65);
 $model-item-margin: 5px;
+
 
 //// Dataset page Setting.
 $dataset-table-padding: 10px;
