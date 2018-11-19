@@ -137,8 +137,4 @@ export default {
       }
     }
   },
-  getOptimizedValidImagesInCurrentPage (state, getters) {
-    const model = getSelectedModel()
-    const dataset = state.dataset.filter(d => d.id === model.dataset_id)
-  },
 }
