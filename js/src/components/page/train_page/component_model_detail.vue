@@ -2,6 +2,9 @@
   <component-frame :width-weight="6" :height-weight="4">
     <template slot="header-slot">
       Model Detail
+      <div id="deploy-button">
+        <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Deploy
+      </div>
     </template>
     <div id="model-detail">
       <div class="col">
@@ -70,6 +73,17 @@ export default {
 </script>
 
 <style lang='scss'>
+
+#deploy-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 25%;
+  background-color: $component-header-sub-color;
+  cursor: pointer;
+}
+
 #model-detail {
   width: 100%;
   padding: $model-detail-margin;

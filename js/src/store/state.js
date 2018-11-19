@@ -14,6 +14,7 @@ export default {
   // Models
   models: [],
   selected_model: {},
+  deployed_model: {},
 
   // Datasets
   datasets: [],

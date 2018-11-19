@@ -47,6 +47,7 @@
       </span>
     </div>
 
+    <model-item v-if="getSelectedModel" :model="getDeployedModel"/>
     <div id="model-list" class="scrollbar-container">
       <model-item v-for="(model, index) in getFilteredModelList" :model="model"/>
     </div>
@@ -65,7 +66,7 @@ export default {
     'model-item': ModelItem,
   },
   computed: {
-    ...mapGetters(['getFilteredModelList', 'getSortTitle']),
+    ...mapGetters(['getFilteredModelList', 'getSortTitle', 'getDeployedModel']),
   },
   created: function () {
 
@@ -85,20 +86,23 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100%;
-  width: 33%;
+  width: 35%;
   background-color: $component-header-sub-color;
+  cursor: pointer;
 }
 
 #model-filter,#model-groupby,#model-titles {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: calc(#{$model-filter-height}*0.8);
+
+  height: calc(#{$model-filter-height}*0.6);
   width: 100%;
+
   padding: $model-list-margin;
   margin-bottom: $model-list-margin;
-  color: gray;
   font-size: 90%;
+  color: gray;
   background-color: white;
 }
 
@@ -110,6 +114,7 @@ export default {
     height: 100%;
     appearance: none;
     line-height: 120%;
+    cursor: pointer;
   }
 }
 
@@ -117,6 +122,7 @@ export default {
   font-size: 50%;
   color: gray;
   display: block;
+  height: calc(#{$model-filter-height}*0.8);
 
   .selected {
     color:  $component-header-sub-color;
@@ -134,6 +140,10 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+  }
+  .title:hover {
+    color: lightgray;
   }
   i {
     font-size: 150%;

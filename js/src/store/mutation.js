@@ -26,6 +26,10 @@ export default {
     const task_id = state.current_task
     state.selected_model = Object.assign(...state.selected_model, {[task_id]: payload})
   },
+  setDeployedModel (state, payload) {
+    const task_id = state.current_task
+    state.deployed_model = Object.assign(...state.deployed_model, {[task_id]: payload})
+  },
   setCurrentPage (state, payload) {
     const page = payload
     if (Object.values(PAGE_ID).find(n => n === page) !== undefined) {

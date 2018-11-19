@@ -89,7 +89,11 @@ export default {
 
 <style lang='scss'>
 .isSelected#model-item {
-  border: solid 1px;
+  border: solid 1px $component-header-sub-color;
+}
+
+#model-item:hover {
+  background-color: $model-item-hover-color;
 }
 
 #model-item {
@@ -99,6 +103,7 @@ export default {
   margin-bottom: $model-item-margin;
   display: flex;
   background-color: white;
+  cursor: pointer;
   #model-color {
     width: 3%;
     height: 100%;
@@ -135,8 +140,16 @@ export default {
     i {
       color: lightgray;
     }
-    i:hover {
+    .fa-cog:hover {
       color: black;
+      cursor: pointer;
+    }
+    .fa-times:hover {
+      color: $model-item-remove-button-color;
+      cursor: pointer;
+    }
+    .fa:active {
+      color: gray;
     }
   }
 }

@@ -33,6 +33,9 @@ export default {
   getSelectedModel (state, getters) {
     return state.selected_model[getters.getCurrentTask]
   },
+  getDeployedModel (state, getters) {
+    return state.deployed_model[getters.getCurrentTask]
+  },
   getCurrentTaskTitle (state, getters) {
     if (state.current_task === TASK_ID.CLASSIFICATION) {
       return 'Classification'

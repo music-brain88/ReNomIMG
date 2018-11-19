@@ -64,6 +64,7 @@ export default {
     }
     display: flex;
     align-items: center; /* 縦方向中央揃え */
+    justify-content: space-between;
   }
 
   #frame-content{
