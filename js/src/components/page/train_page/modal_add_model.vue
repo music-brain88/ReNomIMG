@@ -57,7 +57,6 @@ export default {
       'getFilteredDatasetList'
     ]),
     isRunnable () {
-      console.log(this.selectedDatasetId, this.selectedAlgorithm)
       if (this.selectedDatasetId !== '' && this.selectedAlgorithm !== '') {
         return false
       } else {

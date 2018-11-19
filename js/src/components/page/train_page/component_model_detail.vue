@@ -56,7 +56,6 @@ export default {
     },
     getDatasetName: function () {
       const dataset = this.getDatasetFromId(this.model.dataset_id)
-      console.log(this.model.hyper_parameters)
       if (dataset) {
         return dataset.name
       } else {
