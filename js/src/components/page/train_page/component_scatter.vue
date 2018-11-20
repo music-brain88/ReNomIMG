@@ -42,16 +42,23 @@ export default {
     this.draw()
   },
   computed: {
-    ...mapGetters(['getFilteredAndGroupedModelList'])
+    ...mapGetters(['getFilteredAndGroupedModelList', 'getAlgorithmClassFromId'])
+  },
+  watch: {
+    getFilteredAndGroupedModelList: function () {
+      this.draw()
+    }
   },
   methods: {
     draw: function () {
-      d3.select('svg').remove() // Remove SVG if it has been created.
+      if (!this.getFilteredAndGroupedModelList) return
+      d3.select('#scatter-canvas').select('svg').remove() // Remove SVG if it has been created.
+
       const margin = {top: 15, left: 45, right: 20, bottom: 20}
       const canvas = document.getElementById('scatter-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
-      const circle_radius = Math.min(canvas_width * 0.03, canvas_height * 0.03)
+      const circle_radius = Math.min(canvas_width * 0.02, canvas_height * 0.02)
       const model_list = this.getFilteredAndGroupedModelList
       const svg = d3.select('#scatter-canvas').append('svg')
 
@@ -119,19 +126,20 @@ export default {
         .enter()
         .append('circle')
         .attr('r', circle_radius)
-        .attr('fill', (d) => {
-          return 'black'
-        })
-        .attr('cx', (d) => {
+        .attr('class', (m) => { return this.getAlgorithmClassFromId(m.algorithm_id) })
+        .attr('cx', (m) => {
           // TODO: Modify data distribution
+          const metric = m.getResultOfMetric1()
+          console.log(metric)
           const total_width = canvas_width - margin.left - margin.right
-          const rescaled_point_x = d[0] * total_width
+          const rescaled_point_x = metric.value * total_width
           return rescaled_point_x
         })
-        .attr('cy', (d) => {
+        .attr('cy', (m) => {
           // TODO: Modify data distribution
+          const metric = m.getResultOfMetric2()
           const total_height = canvas_height - margin.top - margin.bottom
-          const rescaled_point_y = (1 - d[1]) * total_height
+          const rescaled_point_y = (1 - metric.value) * total_height
           return rescaled_point_y
         })
         .on('mouseover', (d) => {

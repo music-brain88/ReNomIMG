@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     draw: function () {
-      d3.select('svg').remove() // Remove SVG if it has been created.
+      d3.select('#alg-list').select('svg').remove() // Remove SVG if it has been created.
       const margin = { top: 15, left: 45, right: 20, bottom: 20 }
       const canvas = document.getElementById('alg-list')
       const canvas_width = canvas.clientWidth

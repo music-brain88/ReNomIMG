@@ -1,16 +1,34 @@
 <template>
   <div id="modal-add-dataset">
     <div id="dataset-setting">
-      <div class='item'>
-        Name: <input type="text" v-model="name" placeholder="dataset"/>
+      <div id="title" v-if="isTestDataset"> Test Dataset Setting
+      </div>
+      <div id="title" v-else> Dataset Setting
       </div>
       <div class='item'>
-        Ratio: <input type="number" v-model="ratio" placeholder="0.8"/>
+        Create as Test Dataset
+        <input type="checkbox" value="false" v-model="isTestDataset" placeholder="false">
       </div>
       <div class='item'>
-        Test Dataset: <input type="checkbox" value="false" v-model="isTestDataset" placeholder="false">
+        Name<input type="text" v-model="name" placeholder="dataset"/>
       </div>
-      <input type="button" value="Confirm" @click="onAddDataset">
+      <div class='item'>
+        Test Dataset
+        <select v-model="test_dataset_id" :disabled="isTestDataset">
+          <option disabled value="" selected>Select Test Dataset</option>
+          <option value="">--none--</option>
+          <option v-for="item in getFilteredTestDatasetList">{{item.name}}</option>
+        </select>
+      </div>
+      <div class='item'>
+        Description<textarea type="text" v-model="description" placeholder="description"/>
+      </div>
+      <div class='item'>
+        Ratio<input type="number" v-model="ratio" placeholder="0.8"/>
+      </div>
+      <input type="button" value="Confirm" @click="onAddDataset" :disabled="isComfirmable">
+    </div>
+    <div id="dataset-confirm">
     </div>
   </div>
 </template>
@@ -25,12 +43,20 @@ export default {
   data: function () {
     return {
       name: '',
+      description: '',
       ratio: 0.8,
       isTestDataset: false,
+      test_dataset_id: ''
     }
   },
   computed: {
-
+    ...mapGetters(['getFilteredTestDatasetList']),
+    isComfirmable: function () {
+      if (this.name && this.ratio > 0 && this.ratio < 1) {
+        return false
+      }
+      return true
+    }
   },
   created: function () {
 
@@ -42,14 +68,14 @@ export default {
         this.createTestDataset({
           'name': this.name,
           'ratio': this.ratio,
-          'description': ' ',
+          'description': this.description,
         })
       } else {
         this.createDataset({
           'name': this.name,
           'ratio': this.ratio,
-          'description': ' ',
-          'test_dataset_id': 1,
+          'description': this.description,
+          'test_dataset_id': this.test_dataset_id,
         })
       }
     }
@@ -65,13 +91,20 @@ export default {
   padding: 10px;
   #dataset-setting {
     height: 100%;
-    width: 100%;
+    width: 50%;
+    font-size: 90%;
+    #title {
+      color: gray;
+    }
     .item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: 50%;
+      width: calc(100% - 8%);
       margin: 4%;
+      input, textarea {
+        width: 50%;
+      }
     }
   }
 }

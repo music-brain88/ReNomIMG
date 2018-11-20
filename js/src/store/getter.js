@@ -8,7 +8,7 @@ export default {
     return getters.getFilteredModelList.filter(m => m.state === STATE.STARTED)
   },
   getFilteredAndGroupedModelList (state, getters) {
-    return [[0.60, 0.30], [0.29, 0.3]]
+    return getters.getFilteredModelList
   },
   getFilterList (state, getters) {
     return [1, 2, 3]
@@ -20,6 +20,11 @@ export default {
   getFilteredDatasetList (state, getters) {
     // TODO: Sort by task.
     return state.datasets.filter(d => d.task_id === getters.getCurrentTask)
+  },
+  getFilteredTestDatasetList (state, getters) {
+    // TODO: Sort by task.
+    console.log(state.test_datasets)
+    return state.test_datasets.filter(d => d.task_id === getters.getCurrentTask)
   },
   getDatasetFromId (state, getters) {
     // TODO: Sort by task.
