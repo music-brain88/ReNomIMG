@@ -49,5 +49,6 @@ export default {
   width: 100%;
   height: 100%;
   overflow: visible scroll;
+  padding: 5px;
 }
 </style>
