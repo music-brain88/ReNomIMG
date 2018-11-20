@@ -106,7 +106,7 @@ export default {
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: $progress-bar-height;
+  height: calc(#{$progress-bar-height}*0.8);
   padding-left: $progress-bar-margin;
   padding-right: $progress-bar-margin;
   font-size: 80%;

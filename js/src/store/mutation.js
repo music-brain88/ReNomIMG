@@ -1,4 +1,4 @@
-import {PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
+import { GROUPBY, PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes } from '@/const.js'
 
 export default {
   resetState (state, payload) {
@@ -22,6 +22,10 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+  setGoupBy (state, payload) {
+    let key = payload
+    state.group_by = key
+  },
   setSelectedModel (state, payload) {
     const task_id = state.current_task
     state.selected_model = Object.assign(...state.selected_model, {[task_id]: payload})
@@ -34,7 +38,9 @@ export default {
     const task_id = state.current_task
     state.deployed_model = Object.assign(...state.deployed_model, {[task_id]: undefined})
   },
-
+  forceUpdateModelList (state, payload) {
+    state.models = [...state.models]
+  },
   setCurrentPage (state, payload) {
     const page = payload
     if (Object.values(PAGE_ID).find(n => n === page) !== undefined) {

@@ -146,8 +146,8 @@ def datasrc(folder_name, file_name):
 def model_create():
     req_params = request.params
     hyper_params = json.loads(req_params.hyper_params)
+    hyper_params = json.loads(req_params.hyper_params)
     algorithm_id = json.loads(req_params.algorithm_id)
-    parents = json.loads(req_params.parents)
     dataset_id = req_params.dataset_id
     task_id = req_params.task_id
     new_id = storage.register_model(
@@ -213,7 +213,15 @@ def models_load_deployed():
 def model_load_best_result(id):
     thread = TrainThread.jobs.get(id, None)
     if thread is None:
-        pass
+        saved_model = storage.fetch_model(id)
+        if saved_model is None:
+            return
+        # If the state == STOPPED, client will never throw request.
+        if saved_model["state"] != State.STOPPED.value:
+            storage.update_model(id, state=State.STOPPED.value,
+                                 running_state=RunningState.STOPPING.value)
+            saved_model = storage.fetch_model(id)
+        return {"best_result": saved_model['best_epoch_valid_result']}
     else:
         thread.returned_best_result2client()
         return {"best_result": thread.best_epoch_valid_result}

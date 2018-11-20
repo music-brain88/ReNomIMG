@@ -3,6 +3,8 @@
     <template slot="header-slot">
       Prediction Result
     </template>
+    <div id="pager">
+    </div>
     <div id="img-container">
       <transition-group name="fade">
         <img v-for="item in getValidImages" :src="item" :key="item"/>
@@ -28,7 +30,7 @@ export default {
       if (model) {
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
         const valid_data = dataset.valid_data
-        return valid_data.img.slice(0, 9)
+        return valid_data.img.slice(0, 4)
       }
       return []
     }
@@ -44,12 +46,17 @@ export default {
 <style lang='scss'>
 #img-container{
   width: 100%;
-  height: 100%;
+  height: 95%;
   display: flex;
   img {
     width: 10%;
     height: 20%;
     flex-flow:row-reverse wrap;
   }
+}
+#pager {
+  width: 100%;
+  height: 5%;
+  background-color: black;
 }
 </style>

@@ -1,4 +1,4 @@
-import { SORTBY, TASK_ID, PAGE_ID } from '@/const.js'
+import { GROUPBY, SORTBY, TASK_ID, PAGE_ID } from '@/const.js'
 
 export default {
 
@@ -51,4 +51,7 @@ export default {
   // Variable of image list pager.
   nth_image_page: 0,
   total_image_page: 0,
+
+  // Grouping. // Not use in version 2.0
+  group_by: GROUPBY.NONE.key
 }

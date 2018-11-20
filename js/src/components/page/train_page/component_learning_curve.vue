@@ -3,11 +3,18 @@
     <template slot="header-slot">
       Learning Curve
     </template>
+
+    <div id="learning-curve">
+      <div id="learning-curve-canvas">
+      </div>
+    </div>
+
   </component-frame>
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import * as d3 from 'd3'
+import { mapGetters } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
@@ -16,16 +23,107 @@ export default {
     'component-frame': ComponentFrame
   },
   computed: {
-
+    ...mapGetters(['getSelectedModel']),
   },
   created: function () {
-
+    window.addEventListener('resize', this.draw, false)
+  },
+  mounted: function () {
+    this.draw()
+  },
+  watch: {
+    getSelectedModel: function () {
+    }
+  },
+  beforeDestroy: function () {
+    // Remove it.
+    window.removeEventListener('resize', this.draw, false)
   },
   methods: {
+    draw: function () {
+      console.log('test')
+      d3.select('#learning-curve-canvas').select('svg').remove() // Remove SVG if it has been created.
 
+      const margin = {top: 15, left: 45, right: 20, bottom: 20}
+      const canvas = document.getElementById('learning-curve-canvas')
+      const canvas_width = canvas.clientWidth
+      const canvas_height = canvas.clientHeight
+      const svg = d3.select('#learning-curve-canvas').append('svg')
+
+      // Set size.
+      svg
+        .attr('width', canvas_width)
+        .attr('height', canvas_height)
+
+      // Axis Settings
+      const scaleX = d3.scaleLinear().domain([0, 100])
+        .range([0, canvas_width - margin.left - margin.right])
+      const scaleY = d3.scaleLinear().domain([0, 100])
+        .range([canvas_height - margin.bottom - margin.top, 0])
+      const axX = d3.axisBottom(scaleX).ticks(5)
+        .tickFormat((d, i) => {
+          if (d === 100) {
+            return d + ' [%]'
+          } else {
+            return d
+          }
+        })
+
+      const axY = d3.axisLeft(scaleY).ticks(5)
+        .tickFormat((d, i) => {
+          if (d === 100) {
+            return d + ' [%]'
+          } else {
+            return d
+          }
+        })
+      svg.append('g')
+        .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
+        .call(axX)
+      svg.append('g')
+        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        .call(axY)
+
+      // Sublines.
+      // Horizontal
+      svg.append('g')
+        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        .attr('class', 'grid-line')
+        .call(
+          d3.axisRight()
+            .tickSize(canvas_width - margin.left - margin.right)
+            .tickFormat('')
+            .scale(scaleY)
+        )
+      // Vertical
+      svg.append('g')
+        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        .attr('class', 'grid-line')
+        .call(
+          d3.axisTop()
+            .tickSize(-canvas_height + margin.top + margin.bottom)
+            .tickFormat('')
+            .scale(scaleX)
+        )
+
+      if (!this.getSelectedModel) return
+      const model_list = this.getFilteredAndGroupedModelList
+    }
   }
 }
 </script>
 
 <style lang='scss'>
+#learning-curve {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  #learning-curve-canvas {
+    width: 100%;
+    height: 100%;
+    .grid-line line {
+      stroke: $scatter-grid-color;
+    }
+  }
+}
 </style>

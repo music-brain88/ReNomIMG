@@ -6,7 +6,7 @@
         <div class="subtitle">Dataset Name
           <select v-model="selectedDatasetId">
             <option disabled value="" selected>Select Dataset</option>
-            <option v-for="item in getFilteredDatasetList" :value=item.id> {{ item.name }}</option>
+            <option v-for="item in getFilteredDatasetList" :value=item.id> {{ item.name }} </option>
           </select>
         </div>
       </div>
@@ -87,11 +87,11 @@ export default {
       this.showModal({'all': false})
 
       // Perform action 'createModel' with specified params.
+      console.log('Create ', this.selectedDatasetId)
       this.createModel({
         hyper_params: this.parameters,
         algorithm_id: this.getAlgorithmIdFromTitle(this.selectedAlgorithm),
         dataset_id: this.selectedDatasetId,
-        parents: [],
         task_id: this.getCurrentTask
       })
     },

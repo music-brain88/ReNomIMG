@@ -18,15 +18,15 @@
         <span>{{ model.getResultOfMetric1().value }}</span>
         <span class="info-title">/</span>
         <span>{{ model.getResultOfMetric2().value }}</span>
-        <span class="info-title">/</span>
-        <span>{{ model.getResultOfMetric3().value }}</span>
       </div>
     </div>
     <div id="model-buttons">
       <i class="fa fa-cog" aria-hidden="true"></i>
       <i class="fa fa-times" aria-hidden="true" @click='removeModel(model.id)'></i>
     </div>
-    <model-item v-for="item in getChildModelList" :model="item" :hierarchy="hierarchy+1"/>
+    <div id="child-model">
+      <model-item v-for="item in getChildModelList" :model="item" :hierarchy="hierarchy+1"/>
+    </div>
   </div>
 </template>
 
@@ -102,6 +102,7 @@ export default {
   min-height: $model-item-height-min;
   margin-bottom: $model-item-margin;
   display: flex;
+  flex-wrap: wrap;
   background-color: white;
   cursor: pointer;
   #model-color {
@@ -109,9 +110,10 @@ export default {
     height: 100%;
   }
   #model-id {
-    width: 87%;
+    width: calc(87% - 5px);
     height: 100%;
     margin-left: 5px;
+    padding-left: 5px;
     .info-row {
       height: 50%;
       display: flex;
@@ -150,6 +152,16 @@ export default {
     }
     .fa:active {
       color: gray;
+    }
+  }
+  #child-model {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: $model-item-margin;
+    width: 100%;
+    font-size: 85%;
+    #model-item {
+      width: 90%;
     }
   }
 }

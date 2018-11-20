@@ -44,9 +44,8 @@ export default {
           let state = m.state
           let id = m.id
           let hyper_params = m.hyper_parameters
-          let parents = []
           let dataset_id = m.dataset_id
-          let model = new Model(algorithm_id, task_id, hyper_params, dataset_id, parents)
+          let model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
 
           model.id = id
           model.state = state
@@ -125,16 +124,14 @@ export default {
     const hyper_params = payload.hyper_params
     const algorithm_id = payload.algorithm_id
     const dataset_id = payload.dataset_id
-    const parents = payload.parents
     const task_id = payload.task_id
     const param = new FormData()
-    const model = new Model(algorithm_id, task_id, hyper_params, dataset_id, parents)
+    const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
     context.commit('addModel', model)
     model.state = STATE.CREATED
 
     // Append params.
     param.append('hyper_params', JSON.stringify(hyper_params))
-    param.append('parents', JSON.stringify(parents))
     param.append('dataset_id', dataset_id)
     param.append('task_id', task_id)
     param.append('algorithm_id', algorithm_id)
@@ -233,7 +230,17 @@ export default {
    *
    */
   async loadBestValidResult (context, payload) {
-
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/load/best/result/' + model_id
+    return axios.get(url).then(function (response) {
+      const model = context.getters.getModelById(model_id)
+      if (model) {
+        const r = response.data
+        const best_result = r.best_result
+        model.best_epoch_valid_result = best_result
+        context.commit('forceUpdateModelList')
+      }
+    }, error_handler_creator(context))
   },
 
   /*****

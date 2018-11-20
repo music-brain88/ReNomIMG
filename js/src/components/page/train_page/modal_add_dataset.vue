@@ -14,17 +14,17 @@
       </div>
       <div class='item'>
         Test Dataset
-        <select v-model="test_dataset_id" :disabled="isTestDataset">
+        <select v-model="test_dataset" :disabled="isTestDataset">
           <option disabled value="" selected>Select Test Dataset</option>
-          <option value="">--none--</option>
-          <option v-for="item in getFilteredTestDatasetList">{{item.name}}</option>
+          <option value="none">--none--</option>
+          <option :value="item" v-for="item in getFilteredTestDatasetList">{{item.name}}</option>
         </select>
       </div>
       <div class='item'>
         Description<textarea type="text" v-model="description" placeholder="description"/>
       </div>
       <div class='item'>
-        Ratio<input type="number" v-model="ratio" placeholder="0.8"/>
+        Ratio<input type="number" v-model="ratio" placeholder="0.8" step="0.1" min="0" max="1"/>
       </div>
       <input type="button" value="Confirm" @click="onAddDataset" :disabled="isComfirmable">
     </div>
@@ -46,7 +46,7 @@ export default {
       description: '',
       ratio: 0.8,
       isTestDataset: false,
-      test_dataset_id: ''
+      test_dataset: ''
     }
   },
   computed: {
@@ -71,11 +71,12 @@ export default {
           'description': this.description,
         })
       } else {
+        const test_dataset_id = this.test_dataset.id
         this.createDataset({
           'name': this.name,
           'ratio': this.ratio,
           'description': this.description,
-          'test_dataset_id': this.test_dataset_id,
+          'test_dataset_id': test_dataset_id,
         })
       }
     }
@@ -104,6 +105,9 @@ export default {
       margin: 4%;
       input, textarea {
         width: 50%;
+      }
+      select {
+        background-color: white;
       }
     }
   }

@@ -130,7 +130,7 @@ export default {
         .attr('cx', (m) => {
           // TODO: Modify data distribution
           const metric = m.getResultOfMetric1()
-          console.log(metric)
+          if (metric.value === '-') metric.value = 0
           const total_width = canvas_width - margin.left - margin.right
           const rescaled_point_x = metric.value * total_width
           return rescaled_point_x
@@ -138,6 +138,7 @@ export default {
         .attr('cy', (m) => {
           // TODO: Modify data distribution
           const metric = m.getResultOfMetric2()
+          if (metric.value === '-') metric.value = 0
           const total_height = canvas_height - margin.top - margin.bottom
           const rescaled_point_y = (1 - metric.value) * total_height
           return rescaled_point_y

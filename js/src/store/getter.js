@@ -1,4 +1,5 @@
-import { STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
+import { GROUPBY, STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
+import Model from './classes/model'
 
 export default {
   /**
@@ -8,7 +9,38 @@ export default {
     return getters.getFilteredModelList.filter(m => m.state === STATE.STARTED)
   },
   getFilteredAndGroupedModelList (state, getters) {
-    return getters.getFilteredModelList
+    let array = []
+    // Task
+    const task = getters.getCurrentTask
+    // Filtering
+    const filtered_list = getters.getFilteredModelList
+    // Grouping
+    if (state.group_by === GROUPBY.NONE.key) {
+      array = filtered_list
+    }
+    /*
+    else if (state.group_by === GROUPBY.ALGORITHM.key) {
+      array = filtered_list.reduce((grouped, m) => {
+        let exists = false
+        for (let g of grouped) {
+          console.log(g, m)
+          if (g.algorithm_id === m.algorithm_id) {
+            g.model_list.push(m)
+            exists = true
+            break
+          }
+        }
+        if(!exists) {
+          let new_m = new Model(m.algorithm_id, task, {}, -1)
+          new_m.model_list.push(m)
+          grouped.push(new_m)
+        }
+        return grouped
+      }, [])
+    } else if (state.group_by === GROUPBY.DATASET.key) {
+    }
+    */
+    return array
   },
   getFilterList (state, getters) {
     return [1, 2, 3]
@@ -154,5 +186,8 @@ export default {
       if (n % 10 === 8) return '#EF8200'
       if (n % 10 === 9) return '#E94C33'
     }
+  },
+  getGroupTitles (state, getters) {
+    return Object.values(GROUPBY)
   }
 }

@@ -361,6 +361,21 @@ export const FILTER = {
   },
 }
 
+export const GROUPBY = {
+  NONE: {
+    key: 'NONE',
+    title: '-'
+  },
+  ALGORITHM: {
+    key: 'ALGORITHM',
+    title: 'Algorithm'
+  },
+  DATASET: {
+    key: 'DATASET',
+    title: 'Dataset',
+  },
+}
+
 export const FILTER_CONDITION = {
   CONDITION: {
     LESS_THAN: 0,

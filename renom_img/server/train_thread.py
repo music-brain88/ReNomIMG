@@ -64,6 +64,7 @@ class TrainThread(object):
             TrainThread.semaphore.acquire(self.stop_event)
             if self.stop_event.is_set():
                 # Watch stop event
+                self.updated = True
                 return
 
             self.state = State.STARTED
@@ -104,19 +105,22 @@ class TrainThread(object):
         valid_target = self.valid_dist.get_resized_annotation_list(self.imsize)
         if self.stop_event.is_set():
             # Watch stop event
+            self.updated = True
             return
 
         for e in range(self.total_epoch):
             self.nth_epoch = e
             if self.stop_event.is_set():
                 # Watch stop event
+                self.updated = True
                 return
 
             temp_train_batch_loss_list = []
-            for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size)):
+            for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size), 1):
                 self.nth_batch = b
                 if self.stop_event.is_set():
                     # Watch stop event
+                    self.updated = True
                     return
                 self.sync_count()
 
@@ -136,6 +140,7 @@ class TrainThread(object):
 
                 if self.stop_event.is_set():
                     # Watch stop event
+                    self.updated = True
                     return
 
                 reg_loss.grad().update(model.get_optimizer(
@@ -161,6 +166,7 @@ class TrainThread(object):
 
                 if self.stop_event.is_set():
                     # Watch stop event
+                    self.updated = True
                     return
 
                 valid_prediction_in_batch = model(train_x)
@@ -177,6 +183,7 @@ class TrainThread(object):
 
             if self.stop_event.is_set():
                 # Watch stop event
+                self.updated = True
                 return
             valid_prediction = np.concatenate(valid_prediction, axis=0)
             n_valid = min(len(valid_prediction), len(valid_target))
@@ -214,7 +221,6 @@ class TrainThread(object):
 
             # Thread value changed.
             self.updated = True
-            break
 
     def stop(self):
         self.stop_event.set()

@@ -10,22 +10,24 @@
 
     <div id="model-filter">
       Model Filter
-      <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+      <i id="add-filter" class="fa fa-ellipsis-h"
+        aria-hidden="true" @click="showModal({add_filter: true})"></i>
     </div>
 
+    <!--
     <div id="model-groupby">
       Group by
-      <select>
-        <option value="none">-</option>
-        <option value="dataset">Dataset</option>
-        <option value="algorithm">Algorithm</option>
+      <select v-on:change="setGoupingCategory" v-model="groupby">
+        <option :value="item.key" v-for='item of getGroupTitles'>{{item.title}}</option>
       </select>
     </div>
+    -->
 
     <div id="model-titles">
       <span class="title-row">
         <div class="title selected">ID
-          <i class="fa fa-sort-desc" aria-hidden="true"></i>&nbsp;&nbsp;
+          <i class="fa fa-sort-desc" aria-hidden="true"></i>
+          &nbsp;&nbsp;&nbsp;
         </div>
         <div class="title">Alg
           <i class="fa fa-sort-desc" aria-hidden="true"></i>
@@ -35,13 +37,10 @@
         <div class="title">Loss
           <i class="fa fa-sort-desc" aria-hidden="true"></i>
         </div>
-        <div class="title">/ Recall
+        <div class="title">/ mAP
           <i class="fa fa-sort-desc" aria-hidden="true"></i>
         </div>
-        <div class="title">/ Precision
-          <i class="fa fa-sort-desc" aria-hidden="true"></i>
-        </div>
-        <div class="title">/ F1
+        <div class="title">/ IOU
           <i class="fa fa-sort-desc" aria-hidden="true"></i>
         </div>
       </span>
@@ -49,8 +48,8 @@
 
     <div id="model-list" class="scrollbar-container">
       <model-item :model="getDeployedModel"/>
-      <model-item v-for="(model, index) in getFilteredModelList" :model="model"
-         v-if="model!==getDeployedModel"/>
+      <model-item v-for="(model, index) in getFilteredAndGroupedModelList" :model="model"
+         v-if="model !== getDeployedModel"/>
     </div>
 
   </component-frame>
@@ -58,6 +57,7 @@
 
 <script>
 import { mapGetters, mapMutations} from 'vuex'
+import { GROUPBY } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ModelItem from '@/components/page/train_page/model_item.vue'
 
@@ -67,15 +67,23 @@ export default {
     'component-frame': ComponentFrame,
     'model-item': ModelItem,
   },
+  data: function () {
+    return {
+      groupby: '-'
+    }
+  },
   computed: {
-    ...mapGetters(['getFilteredModelList', 'getSortTitle', 'getDeployedModel']),
+    ...mapGetters(['getFilteredModelList', 'getFilteredAndGroupedModelList',
+      'getSortTitle', 'getDeployedModel',
+      'getGroupTitles']),
   },
   created: function () {
 
   },
   methods: {
-    ...mapMutations(['setSortOrder', 'showModal']),
-    addModel: function () {
+    ...mapMutations(['setSortOrder', 'showModal', 'setGoupBy']),
+    setGoupingCategory: function () {
+      this.setGoupBy(this.groupby)
     }
   }
 }
@@ -107,6 +115,15 @@ export default {
   font-size: 90%;
   color: gray;
   background-color: white;
+
+  #add-filter {
+    width: 20%;
+    font-size: 110%;
+    cursor: pointer;
+  }
+  #add-filter:hover {
+    color: lightgray;
+  }
 }
 
 #model-groupby {
@@ -122,7 +139,7 @@ export default {
 }
 
 #model-titles {
-  font-size: 50%;
+  font-size: 70%;
   color: gray;
   display: block;
   height: calc(#{$model-filter-height}*0.8);
@@ -134,6 +151,7 @@ export default {
   }
 
   .title-row {
+    padding-left: 5px;
     display: flex;
     width: 100%;
     height: 50%;
@@ -153,7 +171,7 @@ export default {
     font-size: 150%;
     text-align: center;
     position: relative;
-    top: -1.5px;
+    top: -3px;
     margin-left: 3px;
   }
 }
