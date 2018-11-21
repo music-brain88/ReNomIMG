@@ -26,6 +26,7 @@ from bottle import HTTPResponse, default_app, route, static_file, request, error
 from renom.cuda import release_mem_pool
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.load import parse_txt_classification
+from renom_img.api.utility.load import parse_segmentation_data
 from renom_img.server import wsgi_server
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread
@@ -324,7 +325,6 @@ def test_dataset_create():
 
     file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
                   if name.is_file() and (label_dir / name.relative_to(img_dir)).with_suffix('.xml').is_file()]
-
     n_imgs = len(file_names)
     perm = np.random.permutation(n_imgs)
     file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]
@@ -333,6 +333,9 @@ def test_dataset_create():
     img_file_sizes = [Image.open(i).size for i in img_files]
     xml_files = [str(label_dir / name.with_suffix('.xml')) for name in file_names]
     parsed_xml, class_map = parse_xml_detection(xml_files, num_thread=8)
+
+    print(parsed_xml[0])
+    
 
     test_data = {
         "img": img_files,
@@ -449,16 +452,59 @@ def polling_weight_download():
 def polling_prediction():
     return
 
+
+#test code
 @route("/api/renom_img/v2/classification_parase_test", method="POST")
 @json_handler
 def class_parse_tset():
     
     root = pathlib.Path('datasrc')
-    img_dir = root / 'img'
-    label_dir = root / 'label' / 'detection'
+    label_dir = root / 'label' / 'classification'
     
-    parse_txt_classification()
-    pass
+    file = label_dir / "classes.txt"
+
+    class_map = parse_txt_classification(file)
+
+    return {"class_map":class_map}
+
+#test code
+@route("/api/renom_img/v2/seg_parase_test", method="POST")
+@json_handler
+def seg_parse_tset():
+    
+    root = pathlib.Path('datasrc')
+    label_dir = root / 'label' / 'segmentation'
+    img_dir =  root / 'img'
+    class_map_dir = label_dir / "class_map"
+
+    class_map_file = class_map_dir / "classes2.txt"
+
+    assert img_dir.exists(), \
+        "The directory 'datasrc/img' is not found in current working directory."
+    assert label_dir.exists(), \
+        "The directory 'datasrc/label/segmentation' is not found in current working directory."
+    assert class_map_dir.exists(), \
+        "The directory 'datasrc/label/segmentation/class_map' is not found in current working directory."
+
+    img_path_list = set([name for name in img_dir.iterdir()])
+
+    file_names = set([name.relative_to(label_dir) for name in label_dir.iterdir()
+                  if name.is_file() and (img_dir / name.relative_to(label_dir)).with_suffix('.png')])
+    
+    segmentation_files = [str(label_dir / name.with_suffix('.png')) for name in file_names]
+    
+    img_files = [str(img_dir / name.with_suffix('.jpg')) for name in file_names]
+
+
+    assert len(segmentation_files) == len(img_files), \
+        "some files is missing."
+
+    np_array_segmentation_list, class_map= parse_segmentation_data(segmentation_files, class_map_file)
+
+    print(len(np_array_segmentation_list))
+    print(len(class_map))
+    print(class_map)
+    return {"test": "aaa"}
 
 def main():
     # Parser settings.

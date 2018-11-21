@@ -3,7 +3,7 @@ import numpy as np
 from xml.etree import ElementTree
 from concurrent.futures import ThreadPoolExecutor as Executor
 from PIL import Image
-
+from renom_img.api.utility.misc.display import draw_segment
 
 def parse_xml_detection(xml_path_list, num_thread=8):
     """XML format must be Pascal VOC format.
@@ -65,7 +65,6 @@ def parse_xml_detection(xml_path_list, num_thread=8):
                     {'box': bounding_box, 'name': class_name, 'size': (width, height)})
             local_annotation_list.append(image_data)
         return local_annotation_list
-
     N = len(xml_path_list)
     if N > num_thread:
         batch = int(N / num_thread)
@@ -113,10 +112,44 @@ def load_img(img_path, imsize=None):
     return np.asarray(img).transpose(2, 0, 1).astype(np.float32)
 
 
-def parse_txt_classification():
-    print("aaa")
+def parse_txt_classification(file_path):
+    class_map = list()
+    with open(str(file_path)) as file:
+        for (index, value) in enumerate(file.readlines()):
+            class_map.append({"id":index , "class": value.strip()})
+    return class_map
 
 
+def parse_segmentation_data(segmented_image_list, class_map_file):
+    """extract txt must be Pascal VOC format.
 
-def parse_segmentation_data():
-    pass
+    Args: 
+        file_path (poxis path): txt-file path.
+
+    Returns:
+        (list): This returns list of segmentation class list.
+        Each segmentation has a list of dictionary which includes keys 'id' and 'value'.
+
+    .. code-block :: python
+
+        # An example of returned list.
+        [
+            [ # Objects of 1st line.
+                {'id': index(int), 'value': class_name(string)}
+            ],
+            [ # Objects of 2nd line.
+                {'id': index(int), 'value': class_name(string)}
+            ]
+        ]
+
+    """
+    void_id = 255
+    class_map = list()
+    with open(str(class_map_file)) as file:
+        for (index, value)  in enumerate(file.readlines()):
+            class_map.append({"id":index , "class": value.strip()})
+        
+        class_map.append({"id": void_id, "class": "void"})
+    # segmented image list
+    target_list = [np.asarray(Image.open(image)) for image in segmented_image_list]
+    return target_list, class_map
