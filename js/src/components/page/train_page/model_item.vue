@@ -1,5 +1,5 @@
 <template>
-  <div id="model-item" @click="testRun">
+  <div id="model-item">
     <div id="model-add-button" v-if="isAddButton" @click="showModal({add_both: true})">
       ADD
     </div>
@@ -8,6 +8,7 @@
       ALGO: {{ getAlgorithmTitleFromId(model.algorithm_id) }}
       LOSS: {{ getLastBatchLoss }}
       STATE: {{ model.state }}
+      RUN_STATE: {{ model.running_state }}
       mAP: {{ getMetric1 }}
       IOU: {{ getMetric2 }}
       LOSS: {{ getMetric3 }}
@@ -77,10 +78,11 @@ export default {
     },
     getMetric3 () {
       if (this.model.best_epoch_valid_result) {
-        return this.model.best_epoch_valid_result.loss.toFixed(3)
-      } else {
-        return '-'
+        if (this.model.best_epoch_valid_result.loss) {
+          return this.model.best_epoch_valid_result.loss.toFixed(3)
+        }
       }
+      return '-'
     }
   },
   created: function () {
@@ -88,11 +90,6 @@ export default {
   },
   methods: {
     ...mapMutations(['showModal']),
-    testRun: function () {
-      if (!this.isAddButton) {
-        this.$store.dispatch('runTrainThread', this.model.id)
-      }
-    }
   }
 }
 </script>

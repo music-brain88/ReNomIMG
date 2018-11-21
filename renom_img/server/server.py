@@ -15,6 +15,7 @@ from datetime import datetime
 from collections import OrderedDict
 import xmltodict
 import simplejson as json
+from PIL import Image
 
 import numpy as np
 from threading import Thread, Semaphore
@@ -86,7 +87,7 @@ def json_handler(func):
             if ret is None:
                 ret = {}
 
-            if respopnse_cache.get(func.__name__, None) == ret:
+            if respopnse_cache.get(func.__name__, None) == ret and False:
                 # If server will return same value as last response, return 204.
                 body = json.dumps({}, ignore_nan=True, default=json_encoder)
                 return create_response(body, 204)
@@ -256,6 +257,7 @@ def dataset_create():
                                     [int(ratio * n_imgs)])
     train_img = train_img.tolist()
     valid_img = valid_img.tolist()
+    valid_img_size = [Image.open(i).size for i in valid_img]
 
     train_xml, valid_xml = np.split(np.array([parsed_xml[index] for index in perm]),
                                     [int(ratio * n_imgs)])
@@ -269,7 +271,8 @@ def dataset_create():
     }
     valid_data = {
         'img': valid_img,
-        'target': valid_xml
+        'target': valid_xml,
+        'size': valid_img_size
     }
     dataset_id = storage.register_dataset(task_id, dataset_name, description, ratio,
                                           train_data, valid_data,
@@ -319,12 +322,14 @@ def test_dataset_create():
     file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]
 
     img_files = [str(img_dir / name) for name in file_names]
+    img_file_sizes = [Image.open(i).size for i in img_files]
     xml_files = [str(label_dir / name.with_suffix('.xml')) for name in file_names]
     parsed_xml, class_map = parse_xml_detection(xml_files, num_thread=8)
 
     test_data = {
         "img": img_files,
-        "target": parsed_xml
+        "target": parsed_xml,
+        "size": img_file_sizes
     }
     test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, test_data)
     return {
@@ -342,9 +347,14 @@ def polling_train(id):
     if active_train_thread is None:
         saved_model = storage.fetch_model(id)
         # If the state == STOPPED, client will never throw request.
+        if saved_model["state"] != State.STOPPED.value:
+            storage.update_model(id, state=State.STOPPED.value,
+                                 running_state=RunningState.STOPPING.value)
+            saved_model = storage.fetch_model(id)
+
         return {
-            "state": State.STOPPED.value,
-            "running_state": RunningState.STOPPING.value,
+            "state": saved_model["state"],
+            "running_state": saved_model["running_state"],
             "total_epoch": saved_model["total_epoch"],
             "nth_epoch": saved_model["nth_epoch"],
             "total_batch": saved_model["total_batch"],

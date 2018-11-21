@@ -32,6 +32,8 @@ const COMMON_PARAMS = {
     disabled: false,
     type: 'number',
     default: 160,
+    min: 1,
+    max: 1000,
   },
   IMAGE_WIDTH: {
     title: 'Image Width',
@@ -65,14 +67,6 @@ function override (key, params) {
 
 export const ALGORITHM = {
   CLASSIFICATION: {
-    ResNet: {
-      id: 0,
-      key: 'resnet',
-      title: 'ResNet',
-      params: {
-        ...COMMON_PARAMS
-      }
-    },
     ResNet18: {
       id: 1,
       key: 'resnet18',
@@ -354,15 +348,15 @@ export const ALGORITHM = {
     Fcn32: {
       id: 23,
       key: 'fcn32',
-      title: 'FCN 32',
+      title: 'FCN 32s',
       params: {
         ...COMMON_PARAMS,
       }
     },
     TernousNet: {
       id: 24,
-      key: 'fcn32',
-      title: 'FCN 32',
+      key: 'ternousnet',
+      title: 'TernousNet',
       params: {
         ...COMMON_PARAMS,
         ...override('IMAGE_WIDTH', {
