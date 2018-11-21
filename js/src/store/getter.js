@@ -1,14 +1,46 @@
-import { STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes} from '@/const.js'
+import { GROUPBY, STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
+import Model from './classes/model'
 
 export default {
   /**
    *
    */
   getRunningModelList (state, getters) {
-    return getters.getFilteredModelList.filter(m => m.state !== STATE.STOPPED)
+    return getters.getFilteredModelList.filter(m => m.state === STATE.STARTED)
   },
   getFilteredAndGroupedModelList (state, getters) {
-    return [[0.60, 0.30], [0.29, 0.3]]
+    let array = []
+    // Task
+    const task = getters.getCurrentTask
+    // Filtering
+    const filtered_list = getters.getFilteredModelList
+    // Grouping
+    if (state.group_by === GROUPBY.NONE.key) {
+      array = filtered_list
+    }
+    /*
+    else if (state.group_by === GROUPBY.ALGORITHM.key) {
+      array = filtered_list.reduce((grouped, m) => {
+        let exists = false
+        for (let g of grouped) {
+          console.log(g, m)
+          if (g.algorithm_id === m.algorithm_id) {
+            g.model_list.push(m)
+            exists = true
+            break
+          }
+        }
+        if(!exists) {
+          let new_m = new Model(m.algorithm_id, task, {}, -1)
+          new_m.model_list.push(m)
+          grouped.push(new_m)
+        }
+        return grouped
+      }, [])
+    } else if (state.group_by === GROUPBY.DATASET.key) {
+    }
+    */
+    return array
   },
   getFilterList (state, getters) {
     return [1, 2, 3]
@@ -21,7 +53,17 @@ export default {
     // TODO: Sort by task.
     return state.datasets.filter(d => d.task_id === getters.getCurrentTask)
   },
-
+  getFilteredTestDatasetList (state, getters) {
+    // TODO: Sort by task.
+    console.log(state.test_datasets)
+    return state.test_datasets.filter(d => d.task_id === getters.getCurrentTask)
+  },
+  getDatasetFromId (state, getters) {
+    // TODO: Sort by task.
+    return function (id) {
+      return state.datasets.find(d => d.id === id)
+    }
+  },
   getModelById (state, getters) {
     return function (id) {
       let model = state.models.find(m => m.id === id)
@@ -32,7 +74,10 @@ export default {
     return state.current_task
   },
   getSelectedModel (state, getters) {
-    return state.selected_model[getCurrentTask]
+    return state.selected_model[getters.getCurrentTask]
+  },
+  getDeployedModel (state, getters) {
+    return state.deployed_model[getters.getCurrentTask]
   },
   getCurrentTaskTitle (state, getters) {
     if (state.current_task === TASK_ID.CLASSIFICATION) {
@@ -75,7 +120,6 @@ export default {
       throw new Error('Not supported task.')
     }
   },
-
   getAlgorithmIdFromTitle (state, getters) {
     return function (algorithm_title) {
       let task = getters.getCurrentTask
@@ -84,7 +128,7 @@ export default {
         let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_title)
         return ALGORITHM[task_key][key].id
       } else {
-        throw new Error('Not supported task.')
+        throw new Error(algorithm_title + ' is not supported task.')
       }
     }
   },
@@ -96,17 +140,28 @@ export default {
         let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_id)
         return ALGORITHM[task_key][key].title
       } else {
-        throw new Error('Not supported task.')
+        throw new Error(algorithm_id + 'is not supported id.')
       }
     }
   },
-
-  getAlgorithmParamList (state, getters) {
-    return function (algotirhm_title) {
+  getAlgorithmClassFromId (state, getters) {
+    return function (algorithm_id) {
       let task = getters.getCurrentTask
       if (task in Object.values(TASK_ID)) {
         let task_key = getKeyByValue(TASK_ID, task)
-        let key = getKeyByValueIncludes(ALGORITHM[task_key], algotirhm_title)
+        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_id)
+        return ALGORITHM[task_key][key].key
+      } else {
+        throw new Error(algorithm_id + 'is not supported id.')
+      }
+    }
+  },
+  getAlgorithmParamList (state, getters) {
+    return function (algorithm_title) {
+      let task = getters.getCurrentTask
+      if (task in Object.values(TASK_ID)) {
+        let task_key = getKeyByValue(TASK_ID, task)
+        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_title)
         let alg = ALGORITHM[task_key][key]
         if (alg && alg.params) {
           return alg.params
@@ -114,8 +169,25 @@ export default {
           return []
         }
       } else {
-        throw new Error('Not supported task.')
+        throw new Error(algorithm_title + 'is not supported title.')
       }
     }
+  },
+  getTagColor (state, getters) {
+    return function (n) {
+      if (n % 10 === 0) return '#E7009A'
+      if (n % 10 === 1) return '#9F13C1'
+      if (n % 10 === 2) return '#582396'
+      if (n % 10 === 3) return '#0B20C4'
+      if (n % 10 === 4) return '#3F9AAF'
+      if (n % 10 === 5) return '#14884B'
+      if (n % 10 === 6) return '#BBAA19'
+      if (n % 10 === 7) return '#FFCC33'
+      if (n % 10 === 8) return '#EF8200'
+      if (n % 10 === 9) return '#E94C33'
+    }
+  },
+  getGroupTitles (state, getters) {
+    return Object.values(GROUPBY)
   }
 }

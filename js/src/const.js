@@ -1,3 +1,4 @@
+
 export const TASK_ID = {
   CLASSIFICATION: 0,
   DETECTION: 1,
@@ -57,6 +58,7 @@ const COMMON_PARAMS = {
     title: 'Load pretrain weight',
     key: 'load_pretrained_weight',
     disabled: false,
+    default: true,
     type: 'checkbox'
   }
 }
@@ -468,6 +470,21 @@ export const FILTER = {
       title: 'Algorithm',
       type: 'SELECT_ALGORITHM'
     }
+  },
+}
+
+export const GROUPBY = {
+  NONE: {
+    key: 'NONE',
+    title: '-'
+  },
+  ALGORITHM: {
+    key: 'ALGORITHM',
+    title: 'Algorithm'
+  },
+  DATASET: {
+    key: 'DATASET',
+    title: 'Dataset',
   },
 }
 

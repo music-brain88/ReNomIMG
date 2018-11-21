@@ -1,5 +1,4 @@
-import Model from './classes/model'
-import {PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
+import { GROUPBY, PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes } from '@/const.js'
 
 export default {
   resetState (state, payload) {
@@ -7,12 +6,13 @@ export default {
     state.test_datasets = []
     state.models = []
   },
-  setAlertModalFlag (state, payload) {
-    state.show_alert_modal = payload
-  },
   showAlert (state, payload) {
-    state.error_msg = payload.show
-    state.show_alert_modal = payload.msg
+    state.show_alert_modal = true
+    state.error_msg = payload
+  },
+  hideAlert (state, payload) {
+    state.show_alert_modal = false
+    state.error_msg = ''
   },
   setCurrentTask (state, payload) {
     const task = payload
@@ -22,9 +22,24 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+  setGoupBy (state, payload) {
+    let key = payload
+    state.group_by = key
+  },
   setSelectedModel (state, payload) {
     const task_id = state.current_task
-    state.selected_model[task_id] = payload
+    state.selected_model = Object.assign(...state.selected_model, {[task_id]: payload})
+  },
+  setDeployedModel (state, payload) {
+    const task_id = state.current_task
+    state.deployed_model = Object.assign(...state.deployed_model, {[task_id]: payload})
+  },
+  unDeployModel (state, payload) {
+    const task_id = state.current_task
+    state.deployed_model = Object.assign(...state.deployed_model, {[task_id]: undefined})
+  },
+  forceUpdateModelList (state, payload) {
+    state.models = [...state.models]
   },
   setCurrentPage (state, payload) {
     const page = payload
@@ -47,6 +62,16 @@ export default {
   addModel (state, payload) {
     if (state.models.find(n => n.id === payload.id) === undefined) {
       state.models = [payload, ...state.models]
+    }
+  },
+  rmModel (state, payload) {
+    if (state.models.find(n => n.id === payload.id) === undefined) {
+      state.models = state.models.filter(m => m.id !== payload)
+    }
+  },
+  addFilter (state, payload) {
+    if (state.filters.find(f => f == payload) === undefined) {
+      state.filters = [...state.filters, payload]
     }
   },
   addPollingJob (state, payload) {
@@ -82,5 +107,8 @@ export default {
     } else {
       throw new Error('Not supported task.')
     }
+  },
+  setImagePageOfPredictionSample (state, payload) {
+
   }
 }

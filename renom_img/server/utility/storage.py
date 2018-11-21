@@ -94,8 +94,17 @@ class Storage:
         with SessionContext() as session:
             result = session.query(Model).filter(Model.id == id)
             dict_result = self.remove_instance_state_key(result)
-            assert dict_result, "No model registered as the model id {}".format(id)
+        if dict_result:
             return dict_result[0]
+        else:
+            return
+
+    def remove_model(self, id):
+        with SessionContext() as session:
+            result = session.query(Model).filter(Model.id == id).first()
+            if result:
+                session.delete(result)
+        return
 
     def fetch_datasets(self):
         with SessionContext() as session:

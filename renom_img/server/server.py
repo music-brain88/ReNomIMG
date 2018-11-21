@@ -101,7 +101,7 @@ def json_handler(func):
         except Exception as e:
             release_mem_pool()
             traceback.print_exc()
-            body = json.dumps({"error_msg": str(e)})
+            body = json.dumps({"error_msg": "{}: {}".format(type(e).__name__, str(e))})
             ret = create_response(body, 500)
             return ret
     return wrapped
@@ -146,8 +146,8 @@ def datasrc(folder_name, file_name):
 def model_create():
     req_params = request.params
     hyper_params = json.loads(req_params.hyper_params)
+    hyper_params = json.loads(req_params.hyper_params)
     algorithm_id = json.loads(req_params.algorithm_id)
-    parents = json.loads(req_params.parents)
     dataset_id = req_params.dataset_id
     task_id = req_params.task_id
     new_id = storage.register_model(
@@ -191,6 +191,12 @@ def model_stop(id):
 @route("/api/renom_img/v2/model/remove/<id:int>", method="GET")
 @json_handler
 def model_remove(id):
+    threads = TrainThread.jobs
+    active_train_thread = threads.get(id, None)
+    if active_train_thread is not None:
+        active_train_thread.stop()
+        active_train_thread.future.result()
+    storage.remove_model(id)
     return
 
 
@@ -207,7 +213,15 @@ def models_load_deployed():
 def model_load_best_result(id):
     thread = TrainThread.jobs.get(id, None)
     if thread is None:
-        pass
+        saved_model = storage.fetch_model(id)
+        if saved_model is None:
+            return
+        # If the state == STOPPED, client will never throw request.
+        if saved_model["state"] != State.STOPPED.value:
+            storage.update_model(id, state=State.STOPPED.value,
+                                 running_state=RunningState.STOPPING.value)
+            saved_model = storage.fetch_model(id)
+        return {"best_result": saved_model['best_epoch_valid_result']}
     else:
         thread.returned_best_result2client()
         return {"best_result": thread.best_epoch_valid_result}
@@ -257,12 +271,64 @@ def dataset_create():
                                     [int(ratio * n_imgs)])
     train_img = train_img.tolist()
     valid_img = valid_img.tolist()
-    valid_img_size = [Image.open(i).size for i in valid_img]
+    valid_img_size = [list(Image.open(i).size) for i in valid_img]
 
     train_xml, valid_xml = np.split(np.array([parsed_xml[index] for index in perm]),
                                     [int(ratio * n_imgs)])
     train_xml = train_xml.tolist()
     valid_xml = valid_xml.tolist()
+
+    # Perform Image Alignment Optimization.
+    """
+    index = []
+    inserted = np.ones((len(train_img)), dtype=np.bool)
+    line_stack = 0
+    pad = 0.05
+    for i, size_i in enumerate(valid_img_size):
+        if not inserted[i]: continue
+        line_stack = 0
+        img_size_list = []
+        num_img = 0
+        min_ratio = 10
+        min_j = -1
+        min_size = None
+        ratio_i = size_i[0]/size_i[1]
+        line_stack += ratio_i
+        num_img += 1
+        img_size_list.append(size_i)
+        inserted[i] = False
+        index.append(i)
+        for j, size_j in enumerate(valid_img_size[i:], i):
+            if not inserted[j]: continue
+            ratio_j = size_j[0]/size_j[1]
+            if line_stack + ratio_j <= 1.2:
+                line_stack += ratio_j + pad
+                num_img += 1
+                img_size_list.append(size_i)
+                inserted[j] = False
+                index.append(j)
+            else:
+               candidate = ratio_j + line_stack + pad
+               if candidate < min_ratio:
+                  min_ratio = candidate
+                  min_j = j
+                  min_size = size_j
+
+        if min_ratio < 1.2:
+            num_img += 1
+            inserted[min_j] = False
+            img_size_list.append(min_size)
+            index.append(min_j)
+            modify_ratio = 1/min_ratio
+            for s in img_size_list:
+                s[0] *= modify_ratio
+            print(min_ratio)
+        else:
+            modify_ratio = 1/line_stack
+            for s in img_size_list:
+                s[0] *= modify_ratio
+            print(line_stack)
+    """
 
     # Register
     train_data = {
@@ -272,7 +338,7 @@ def dataset_create():
     valid_data = {
         'img': valid_img,
         'target': valid_xml,
-        'size': valid_img_size
+        'size': valid_img_size,
     }
     dataset_id = storage.register_dataset(task_id, dataset_name, description, ratio,
                                           train_data, valid_data,
@@ -342,10 +408,18 @@ def test_dataset_create():
 @route("/api/renom_img/v2/polling/train/model/<id:int>", method="GET")
 @json_handler
 def polling_train(id):
+    """
+
+    Cations: 
+        This function is possible to return empty dictionary.
+    """
     threads = TrainThread.jobs
     active_train_thread = threads.get(id, None)
     if active_train_thread is None:
         saved_model = storage.fetch_model(id)
+        if saved_model is None:
+            return
+
         # If the state == STOPPED, client will never throw request.
         if saved_model["state"] != State.STOPPED.value:
             storage.update_model(id, state=State.STOPPED.value,
@@ -362,11 +436,24 @@ def polling_train(id):
             "last_batch_loss": saved_model["last_batch_loss"],
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
-            "best_result_changed": False
+            "best_result_changed": False,
+            "train_loss_list": saved_model["train_loss_list"],
+            "valid_loss_list": saved_model["valid_loss_list"],
         }
     elif active_train_thread.state == State.RESERVED or \
             active_train_thread.state == State.CREATED:
-        time.sleep(5)  # Avoid many request.
+
+        for _ in range(60):
+            if active_train_thread.state == State.RESERVED or \
+                    active_train_thread.state == State.CREATED:
+                time.sleep(1)
+                if active_train_thread.updated:
+                    active_train_thread.returned2client()
+                    break
+            else:
+                time.sleep(1)
+                break
+
         active_train_thread.consume_error()
         return {
             "state": active_train_thread.state.value,
@@ -378,7 +465,9 @@ def polling_train(id):
             "last_batch_loss": 0,
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
-            "best_result_changed": False
+            "best_result_changed": False,
+            "train_loss_list": [],
+            "valid_loss_list": [],
         }
     else:
         for _ in range(10):
@@ -397,7 +486,9 @@ def polling_train(id):
             "last_batch_loss": active_train_thread.last_batch_loss,
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
-            "best_result_changed": active_train_thread.best_valid_changed
+            "best_result_changed": active_train_thread.best_valid_changed,
+            "train_loss_list": active_train_thread.train_loss_list,
+            "valid_loss_list": active_train_thread.valid_loss_list,
         }
 
 

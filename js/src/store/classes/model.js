@@ -1,9 +1,9 @@
-import {STATE, RUNNING_STATE} from '@/const.js'
+import { TASK_ID, STATE, RUNNING_STATE } from '@/const.js'
 
 export default class Model {
-  constructor (algorithm_id, task_id, hyper_parameters, dataset_id, parents) {
+  constructor (algorithm_id, task_id, hyper_parameters, dataset_id) {
     // (Integer) ID of Model. This will defined by database.
-    this.id = 0
+    this.id = -1
     this.dataset_id = dataset_id
     this.task_id = task_id
     this.algorithm_id = algorithm_id
@@ -26,5 +26,47 @@ export default class Model {
     this.best_epoch_valid_result = {}
 
     this.model_list = []
+  }
+  getResultOfMetric1 () {
+    let m1 = '-'
+    if (this.task_id === TASK_ID.DETECTION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.mAP !== undefined) {
+          m1 = this.best_epoch_valid_result.mAP.toFixed(2)
+        }
+      }
+      return {
+        metric: 'mAP',
+        value: m1
+      }
+    }
+  }
+  getResultOfMetric2 () {
+    let m2 = '-'
+    if (this.task_id === TASK_ID.DETECTION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.IOU !== undefined) {
+          m2 = this.best_epoch_valid_result.IOU.toFixed(2)
+        }
+      }
+      return {
+        metric: 'IOU',
+        value: m2
+      }
+    }
+  }
+  getResultOfMetric3 () {
+    let m3 = '-'
+    if (this.task_id === TASK_ID.DETECTION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.loss !== undefined) {
+          m3 = this.best_epoch_valid_result.loss.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Loss',
+        value: m3
+      }
+    }
   }
 }

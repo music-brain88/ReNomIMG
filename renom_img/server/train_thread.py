@@ -3,7 +3,7 @@ import time
 import json
 import weakref
 import traceback
-from threading import Event, Semaphore
+from threading import Event
 import numpy as np
 
 from renom.cuda import set_cuda_active, release_mem_pool, use_device
@@ -19,6 +19,7 @@ from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, Whit
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 
+from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
 from renom_img.server.utility.storage import storage
 from renom_img.server import State, RunningState, MAX_THREAD_NUM, Algorithm, Task
 
@@ -26,7 +27,8 @@ from renom_img.server import State, RunningState, MAX_THREAD_NUM, Algorithm, Tas
 class TrainThread(object):
 
     jobs = weakref.WeakValueDictionary()
-    semaphore = Semaphore(MAX_THREAD_NUM)
+    semaphore = EventSemaphore(MAX_THREAD_NUM)  # Cancellable semaphore.
+    # semaphore = Semaphore(MAX_THREAD_NUM)
 
     def __new__(cls, model_id):
         ret = super(TrainThread, cls).__new__(cls)
@@ -44,9 +46,11 @@ class TrainThread(object):
         self.model_id = model_id
         self.state = State.CREATED
         self.running_state = RunningState.PREPARING
+        self.sync_state()
 
         # If any value (train_loss or ...) is changed, this will be True.
-        self.updated = False
+        self.updated = True
+
         # This will be changed from web API.
         self.best_valid_changed = False
         self.error_msg = None
@@ -55,11 +59,20 @@ class TrainThread(object):
         try:
             self.state = State.RESERVED
             self.sync_state()
-            self.semaphore.acquire()
+
+            # This guarantees the state information returns immediately.
+            self.updated = True
+
+            TrainThread.semaphore.acquire(self.stop_event)
+            if self.stop_event.is_set():
+                # Watch stop event
+                self.updated = True
+                return
+
+            self.state = State.STARTED
             self._prepare_params()
             self._prepare_model()
             release_mem_pool()
-            self.state = State.STARTED
             self.running_state = RunningState.STARTING
             assert self.model is not None
             self.sync_state()
@@ -67,9 +80,10 @@ class TrainThread(object):
         except Exception as e:
             traceback.print_exc()
             self.error_msg = e
+            self.model = None
         finally:
             release_mem_pool()
-            self.semaphore.release()
+            TrainThread.semaphore.release()
             self.state = State.STOPPED
             self.running_state = RunningState.STOPPING
             self.sync_state()
@@ -93,19 +107,22 @@ class TrainThread(object):
         valid_target = self.valid_dist.get_resized_annotation_list(self.imsize)
         if self.stop_event.is_set():
             # Watch stop event
+            self.updated = True
             return
 
         for e in range(self.total_epoch):
             self.nth_epoch = e
             if self.stop_event.is_set():
                 # Watch stop event
+                self.updated = True
                 return
 
             temp_train_batch_loss_list = []
-            for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size)):
+            for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size), 1):
                 self.nth_batch = b
                 if self.stop_event.is_set():
                     # Watch stop event
+                    self.updated = True
                     return
                 self.sync_count()
 
@@ -125,6 +142,7 @@ class TrainThread(object):
 
                 if self.stop_event.is_set():
                     # Watch stop event
+                    self.updated = True
                     return
 
                 reg_loss.grad().update(model.get_optimizer(
@@ -150,6 +168,7 @@ class TrainThread(object):
 
                 if self.stop_event.is_set():
                     # Watch stop event
+                    self.updated = True
                     return
 
                 valid_prediction_in_batch = model(train_x)
@@ -166,6 +185,7 @@ class TrainThread(object):
 
             if self.stop_event.is_set():
                 # Watch stop event
+                self.updated = True
                 return
             valid_prediction = np.concatenate(valid_prediction, axis=0)
             n_valid = min(len(valid_prediction), len(valid_target))
@@ -203,7 +223,6 @@ class TrainThread(object):
 
             # Thread value changed.
             self.updated = True
-            break
 
     def stop(self):
         self.stop_event.set()
@@ -238,6 +257,10 @@ class TrainThread(object):
                              best_epoch_valid_result=self.best_epoch_valid_result)
 
     def _prepare_params(self):
+        if self.stop_event.is_set():
+            # Watch stop event
+            return
+
         params = storage.fetch_model(self.model_id)
         self.task_id = int(params["task_id"])
         self.dataset_id = int(params["dataset_id"])
@@ -250,6 +273,10 @@ class TrainThread(object):
         self.train_target = dataset["train_data"]["target"]
         self.valid_img = dataset["valid_data"]["img"]
         self.valid_target = dataset["valid_data"]["target"]
+
+        for path in self.train_img + self.valid_img:
+            if not os.path.exists(path):
+                raise FileNotFoundError("The image file {} is not found.".format(path))
 
         self.train_dist = None
         self.valid_dist = None
@@ -282,6 +309,9 @@ class TrainThread(object):
         self.best_epoch_valid_result = {}
 
     def _prepare_model(self):
+        if self.stop_event.is_set():
+            # Watch stop event
+            return
         if self.algorithm_id == Algorithm.YOLOV1.value:
             self._setting_yolov1()
         elif self.algorithm_id == Algorithm.YOLOV2.value:

@@ -19,8 +19,6 @@ import { mapState, mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'AppHeader',
   computed: {
-  },
-  computed: {
     ...mapGetters([
       'getShowSlideMenu',
       'getCurrentTaskTitle',

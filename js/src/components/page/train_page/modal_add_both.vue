@@ -1,11 +1,15 @@
 <template>
   <div id="modal-add-both">
     <div id="modal-tab">
-      <div id="add-model-tab" class="modal-tab" @click="showAddModel">
+      <div id="add-model-tab" class="modal-tab"
+        v-bind:class="{selected: isAddModelShown}" @click="showAddModel">
         Model
       </div>
-      <div id="add-dataset-tab" class="modal-tab" @click="showAddDataset">
+      <div id="add-dataset-tab" class="modal-tab"
+        v-bind:class="{selected: !isAddModelShown}" @click="showAddDataset">
         Dataset
+      </div>
+      <div id="space-tab">
       </div>
     </div>
     <div id="add-component">
@@ -28,7 +32,7 @@ export default {
   },
   data: function () {
     return {
-      isAddModelShown: true
+      isAddModelShown: true,
     }
   },
   computed: {
@@ -53,17 +57,36 @@ export default {
   width: 100%;
   height: 100%;
   #modal-tab {
-    height: 10%;
+    display: flex;
+    height: 8%;
     width: 100%;
     .modal-tab {
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       height: 100%;
-      width: 30%;
+      width: 25%;
+      background-color: $modal-tab-color-not-selected;
+      color: white;
+    }
+    .selected {
+      color: black;
+      background-color: white;
+      border-top: solid 1px lightgray;
+      border-left: solid 1px lightgray;
+      border-right: solid 1px lightgray;
+    }
+    #space-tab {
+      height: 100%;
+      width: 50%;
+      border-bottom: solid 1px lightgray;
     }
   }
+
   #add-component {
     height: 90%;
     width: 100%;
+    padding: 10px;
   }
 }
 </style>

@@ -3,13 +3,12 @@
     <div id="components">
       <component-progress/>
       <component-scatter/>
+      <component-model-detail/>
       <component-learning-curve/>
       <component-prediction-result/>
       <component-tag-list/>
-      <component-model-detail/>
     </div>
     <div id="vertical-component">
-      <component-model-filter/>
       <component-model-list/>
     </div>
   </div>
@@ -21,7 +20,6 @@ import ComponentFrame from '@/components/common/component_frame.vue'
 import ComponentProgress from '@/components/page/train_page/component_progress.vue'
 import ComponentScatter from '@/components/page/train_page/component_scatter.vue'
 import ComponentModelList from '@/components/page/train_page/component_model_list.vue'
-import ComponentModelFilter from '@/components/page/train_page/component_model_filter.vue'
 import ComponentModelDetail from '@/components/page/train_page/component_model_detail.vue'
 import ComponentTagList from '@/components/page/train_page/component_tag_list.vue'
 import ComponentLearningCurve from '@/components/page/train_page/component_learning_curve.vue'
@@ -36,7 +34,6 @@ export default {
     'component-tag-list': ComponentTagList,
     'component-model-detail': ComponentModelDetail,
     'component-model-list': ComponentModelList,
-    'component-model-filter': ComponentModelFilter,
     'component-learning-curve': ComponentLearningCurve,
     'component-prediction-result': ComponentPredictionResult,
     'component-dataset': ComponentDataset,
