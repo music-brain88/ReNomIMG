@@ -176,6 +176,8 @@ class TrainThread(object):
                 batch_gen = self.train_dist.batch(batch_size, target_builder=train_target_builder)
                 self.total_batch = int(np.ceil(len(self.train_dist) // batch_size))
                 for i, (train_x, train_y) in enumerate(batch_gen):
+                    if i % 10 == 0:
+                        release_mem_pool()
                     self.nth_batch = i
                     if self.is_stopped():
                         return
@@ -195,6 +197,7 @@ class TrainThread(object):
                 avg_train_loss = display_loss / (i + 1)
 
                 # Validation
+                release_mem_pool()
                 self.running_state = RUN_STATE_VALIDATING
                 if self.is_stopped():
                     return

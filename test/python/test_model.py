@@ -3,6 +3,8 @@ import inspect
 import pytest
 import types
 
+from renom.cuda import set_cuda_active, release_mem_pool
+
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2, AnchorYolov2
 from renom_img.api.detection.ssd import SSD
@@ -13,6 +15,9 @@ from renom_img.api.classification.inception import InceptionV1, InceptionV2, Inc
 from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.load import parse_xml_detection
+
+
+set_cuda_active(True)
 
 
 @pytest.mark.parametrize("algo", [
@@ -51,7 +56,7 @@ def test_detection_model_implementation(algo):
         "get_bbox": ["z"],
         "predict": [
             "img_list",
-            "batch_size",
+            ["batch_size", type(1)],
             "score_threshold",
             "nms_threshold"
         ],
@@ -136,6 +141,7 @@ def test_detection_model_implementation(algo):
     DenseNet201,
 ])
 def test_classification_model_implementation(algo):
+    release_mem_pool()
     # 1. Check if the model can be instantiate only giving nothing.
     try:
         model = algo()
@@ -209,3 +215,19 @@ def test_classification_model_implementation(algo):
     ]
     for s in serializables:
         assert s in algo.SERIALIZED
+
+    # 4. Check fit function.
+    test_imgs = [
+        "voc.jpg",
+        "voc.jpg",
+    ]
+    test_annotation = [
+        0, 0
+    ]
+
+    class_map = ["car"]
+    model = algo(class_map)
+    model.fit(test_imgs, test_annotation, test_imgs, test_annotation, batch_size=2, epoch=2)
+
+    # Predict
+    model.predict(test_imgs)

@@ -15,7 +15,7 @@ class Classification(Base):
     def preprocess(self, x):
         return x / 255.
 
-    def predict(self, img_list):
+    def predict(self, img_list, batch_size=1):
         """Perform prediction.
         Argument can be an image array, image path list or a image path.
 
@@ -26,11 +26,10 @@ class Classification(Base):
             (list): List of class of each image.
 
         """
-        batch_size = 32
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                if len(img_list) >= 32:
+                if len(img_list) > batch_size:
                     test_dist = ImageDistributor(img_list)
                     results = []
                     bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))

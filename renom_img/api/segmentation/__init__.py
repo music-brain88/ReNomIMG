@@ -96,11 +96,11 @@ class SemanticSegmentation(Base):
                 with self.train():
                     loss = self.loss(self(train_x), train_y, class_weight=class_weight)
                     reg_loss = loss + self.regularize()
-                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop, avg_valid_loss_list=avg_valid_loss_list))
                 try:
                     loss = loss.as_ndarray()[0]
                 except:
                     loss = loss.as_ndarray()
+                reg_loss.grad().update(self.get_optimizer(loss, e, epoch, i, batch_loop))
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
@@ -135,10 +135,11 @@ class SemanticSegmentation(Base):
 
     def loss(self, x, y, class_weight=None):
         if class_weight is not None:
-            mask = np.array(class_weight)[y.astype(np.int)]
+            mask = np.concatenate(
+                [np.ones((y.shape[0], 1, y.shape[2], y.shape[3])) * c for c in class_weight], axis=1)
             loss = rm.softmax_cross_entropy(x, y, reduce_sum=False)
-            loss *= mask
-            loss = rm.sum(loss) / (self.imsize[0] * self.imsize[1])
+            loss *= mask.astype(y.dtype)
+            loss = rm.sum(loss) / float(len(x))
         else:
             loss = rm.softmax_cross_entropy(x, y)
         return loss / (self.imsize[0] * self.imsize[1])
