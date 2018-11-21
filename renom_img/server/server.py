@@ -436,7 +436,9 @@ def polling_train(id):
             "last_batch_loss": saved_model["last_batch_loss"],
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
-            "best_result_changed": False
+            "best_result_changed": False,
+            "train_loss_list": saved_model["train_loss_list"],
+            "valid_loss_list": saved_model["valid_loss_list"],
         }
     elif active_train_thread.state == State.RESERVED or \
             active_train_thread.state == State.CREATED:
@@ -463,7 +465,9 @@ def polling_train(id):
             "last_batch_loss": 0,
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
-            "best_result_changed": False
+            "best_result_changed": False,
+            "train_loss_list": [],
+            "valid_loss_list": [],
         }
     else:
         for _ in range(10):
@@ -482,7 +486,9 @@ def polling_train(id):
             "last_batch_loss": active_train_thread.last_batch_loss,
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
-            "best_result_changed": active_train_thread.best_valid_changed
+            "best_result_changed": active_train_thread.best_valid_changed,
+            "train_loss_list": active_train_thread.train_loss_list,
+            "valid_loss_list": active_train_thread.valid_loss_list,
         }
 
 

@@ -69,6 +69,11 @@ export default {
       state.models = state.models.filter(m => m.id !== payload)
     }
   },
+  addFilter (state, payload) {
+    if (state.filters.find(f => f == payload) === undefined) {
+      state.filters = [...state.filters, payload]
+    }
+  },
   addPollingJob (state, payload) {
     let key = Object.keys(payload)[0]
     let model_id = payload[key]

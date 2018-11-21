@@ -212,6 +212,8 @@ export default {
         model.total_batch = r.total_batch
         model.nth_batch = r.nth_batch
         model.last_batch_loss = r.last_batch_loss
+        model.train_loss_list = r.train_loss_list
+        model.valid_loss_list = r.valid_loss_list
 
         if (state === STATE.STOPPED) {
 
