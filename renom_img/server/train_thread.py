@@ -4,6 +4,8 @@ import json
 import weakref
 import traceback
 from threading import Event
+from multiprocessing import Process, Pipe
+
 import numpy as np
 
 from renom.cuda import set_cuda_active, release_mem_pool, use_device
@@ -111,6 +113,7 @@ class TrainThread(object):
             return
 
         for e in range(self.total_epoch):
+            release_mem_pool()
             self.nth_epoch = e
             if self.stop_event.is_set():
                 # Watch stop event
@@ -119,6 +122,9 @@ class TrainThread(object):
 
             temp_train_batch_loss_list = []
             for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size), 1):
+                if isinstance(self.model, Yolov2) and (b - 1) % 10 == 0 and (b - 1):
+                    release_mem_pool()
+
                 self.nth_batch = b
                 if self.stop_event.is_set():
                     # Watch stop event
@@ -160,6 +166,7 @@ class TrainThread(object):
 
             self.updated = True
 
+            release_mem_pool()
             self.running_state = RunningState.VALIDATING
             self.sync_state()
             valid_prediction = []
@@ -171,9 +178,9 @@ class TrainThread(object):
                     self.updated = True
                     return
 
-                valid_prediction_in_batch = model(train_x)
-                loss = model.loss(valid_prediction_in_batch, train_y)
-                valid_prediction.append(valid_prediction_in_batch)
+                valid_prediction_in_batch = model(valid_x)
+                loss = model.loss(valid_prediction_in_batch, valid_y)
+                valid_prediction.append(valid_prediction_in_batch.as_ndarray())
                 try:
                     loss = loss.as_ndarray()[0]
                 except:
@@ -259,6 +266,7 @@ class TrainThread(object):
     def _prepare_params(self):
         if self.stop_event.is_set():
             # Watch stop event
+            self.updated = True
             return
 
         params = storage.fetch_model(self.model_id)
@@ -289,13 +297,15 @@ class TrainThread(object):
             'imsize_w',
             'imsize_h',
             'train_whole',
-            # 'load_pretrained_weight',
+            'load_pretrained_weight'
         ]
 
         assert all([k in self.hyper_parameters.keys() for k in self.common_params])
 
         # Training States
         # TODO: Need getter for json decoding.
+        self.load_pretrained_weight = bool(self.hyper_parameters["load_pretrained_weight"])
+        self.train_whole = bool(self.hyper_parameters["train_whole"])
         self.imsize = (int(self.hyper_parameters["imsize_w"]),
                        int(self.hyper_parameters["imsize_h"]))
         self.batch_size = int(self.hyper_parameters["batch_size"])
@@ -308,9 +318,18 @@ class TrainThread(object):
         self.valid_loss_list = []
         self.best_epoch_valid_result = {}
 
+        # Augmentation Setting.
+        self.augmentation = Augmentation([
+            Shift(10, 10),
+            Rotate(),
+            Flip(),
+            ContrastNorm(),
+        ])
+
     def _prepare_model(self):
         if self.stop_event.is_set():
             # Watch stop event
+            self.updated = True
             return
         if self.algorithm_id == Algorithm.YOLOV1.value:
             self._setting_yolov1()
@@ -322,7 +341,6 @@ class TrainThread(object):
             pass
         else:
             assert False
-    
 
     # Detection Algorithm
     def _setting_yolov1(self):
@@ -333,15 +351,12 @@ class TrainThread(object):
         self.model = Yolov1(
             class_map=self.class_map,
             imsize=self.imsize,
-            train_whole_network=self.hyper_parameters["train_whole"],
-            load_pretrained_weight=True)
-        aug = Augmentation([
-            Shift(10, 10)
-        ])
+            train_whole_network=self.train_whole,
+            load_pretrained_weight=self.loload_pretrained_weight)
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,
-            augmentation=aug,
+            augmentation=self.augmentation,
             target_builder=self.model.build_data())
         self.valid_dist = ImageDistributor(
             self.valid_img,
@@ -351,29 +366,25 @@ class TrainThread(object):
     def _setting_yolov2(self):
         required_params = ['anchor']
         assert all([k in self.hyper_parameters.keys() for k in required_params])
-        assert self.task_id == Task.DETECTION.value, self.task_id 
-        
+        assert self.task_id == Task.DETECTION.value, self.task_id
         self.model = Yolov2(
             class_map=self.class_map,
             imsize=self.imsize,
-            anchor=create_anchor(self.valid_target, int(self.hyper_parameters.get('anchor')), base_size=self.imsize),
-            train_whole_network=self.hyper_parameters["train_whole"],
-            load_pretrained_weight=True
+            anchor=create_anchor(self.train_target, int(
+                self.hyper_parameters.get('anchor')), base_size=self.imsize),
+            train_whole_network=self.train_whole,
+            load_pretrained_weight=self.load_pretrained_weight
         )
-        aug = Augmentation([
-            Shift(10, 10)
-        ])
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,
-            augmentation=aug,
-            target_builder=self.model.build_data())
+            augmentation=self.augmentation,
+            target_builder=self.model.build_data(
+                imsize_list=[(i * 32, i * 32) for i in range(9, 14)]))
         self.valid_dist = ImageDistributor(
             self.valid_img,
             self.valid_target,
             target_builder=self.model.build_data())
-
-        
 
     def _setting_ssd(self):
         assert all([self.hyper_parameters.keys()])
@@ -381,16 +392,13 @@ class TrainThread(object):
         self.model = SSD(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=True,
-            train_whole_network=self.hyper_parameters["train_whole"]
+            train_whole_network=self.train_whole,
+            load_pretrained_weight=self.load_pretrained_weight,
         )
-        aug = Augmentation([
-            Shift(10, 10)
-        ])
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,
-            augmentation=aug,
+            augmentation=self.augmentation,
             target_builder=self.model.build_data()
         )
         self.valid_dist = ImageDistributor(
@@ -410,13 +418,10 @@ class TrainThread(object):
             train_whole_network=self.hyper_parameters["train_whole"],
             plateau=self.hyper_parameters["plateau"]
         )
-        aug = Augmentation([
-            Shift(10, 10)
-        ])
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,
-            augmentation=aug,
+            augmentation=self.augmentation,
             target_builder=self.model.build_data()
         )
         self.valid_dist = ImageDistributor(
@@ -435,13 +440,10 @@ class TrainThread(object):
             train_whole_network=self.hyper_parameters["train_whole"],
             plateau=self.hyper_parameters["plateau"]
         )
-        aug = Augmentation([
-            Shift(10, 10)
-        ])
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,
-            augmentation=aug,
+            augmentation=self.augmentation,
             target_builder=self.model.build_data()
         )
         self.valid_dist = ImageDistributor(
@@ -474,7 +476,7 @@ class TrainThread(object):
             self.valid_target,
             target_builder=self.model.build_data()
         )
-    
+
     def _setting_resnet101(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -499,7 +501,7 @@ class TrainThread(object):
             self.valid_target,
             target_builder=self.model.build_data()
         )
-    
+
     def _setting_resnet152(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -548,7 +550,7 @@ class TrainThread(object):
             self.valid_target,
             target_builder=self.model.build_data()
         )
-    
+
     def _setting_densenet169(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -573,7 +575,6 @@ class TrainThread(object):
             target_builder=self.model.build_data()
         )
 
-
     def _setting_densenet201(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -597,7 +598,7 @@ class TrainThread(object):
             self.valid_target,
             target_builder=self.model.build_data()
         )
-    
+
     def _setting_vgg11(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -622,7 +623,6 @@ class TrainThread(object):
             target_builder=self.model.build_data()
         )
 
-
     def _setting_vgg16(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -646,7 +646,7 @@ class TrainThread(object):
             self.valid_target,
             target_builder=self.model.build_data()
         )
-    
+
     def _setting_vgg16_no_dense(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -718,7 +718,7 @@ class TrainThread(object):
             self.valid_target,
             target_builder=self.model.build_data()
         )
-    
+
     def _insception_v2(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -766,7 +766,7 @@ class TrainThread(object):
             self.valid_target,
             target_builder=self.model.build_data()
         )
-    
+
     def _insception_v4(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -800,4 +800,3 @@ class TrainThread(object):
             load_pretrained_weight=True,
             train_whole_network=self.hyper_parameters["train_whole"]
         )
-

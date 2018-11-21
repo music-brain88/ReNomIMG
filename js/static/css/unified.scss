@@ -100,12 +100,26 @@ $dataset-table-name-width: 20%;
 $dataset-table-item-height: 25px;
 
 // Class Colors
-.yolov1 {
-  background-color: #903f84;
+.color-created {
+  background-color: #B2BABB;
 }
 
-.yolov2 {
+.color-reserved {
+  background-color: #F1C40F;
+}
+
+// The color is specified by algorithm ID(0 ~ 9).
+.color-0 {
+  background-color: #903f84;
+}
+.color-1 {
   background-color: #433886;
+}
+.color-2 {
+  background-color: #27AE60;
+}
+.color-3 {
+  background-color: black;
 }
 
 //// Animation Settings

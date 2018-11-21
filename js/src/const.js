@@ -13,12 +13,6 @@ export const PAGE_ID = {
 }
 
 const COMMON_PARAMS = {
-  TRAIN_WHOLE: {
-    title: 'Train Whole Network',
-    key: 'train_whole', // Must be same as back-end.
-    type: 'checkbox',
-    default: false,
-  },
   BATCH_SIZE: {
     title: 'Batch Size',
     key: 'batch_size',
@@ -60,7 +54,13 @@ const COMMON_PARAMS = {
     disabled: false,
     default: true,
     type: 'checkbox'
-  }
+  },
+  TRAIN_WHOLE: {
+    title: 'Train Whole Network',
+    key: 'train_whole', // Must be same as back-end.
+    type: 'checkbox',
+    default: false,
+  },
 }
 
 function override (key, params) {

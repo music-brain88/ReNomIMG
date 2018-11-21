@@ -4,6 +4,12 @@
       Model Distribution
     </template>
     <div id="component-scatter">
+      <div id="title-metric1">
+        {{ getTitleMetric1 }}
+      </div>
+      <div id="title-metric2">
+        {{ getTitleMetric2 }}
+      </div>
       <div id="scatter-canvas">
       </div>
     </div>
@@ -42,7 +48,12 @@ export default {
     this.draw()
   },
   computed: {
-    ...mapGetters(['getFilteredAndGroupedModelList', 'getAlgorithmClassFromId'])
+    ...mapGetters([
+      'getFilteredAndGroupedModelList',
+      'getColorClass',
+      'getTitleMetric1',
+      'getTitleMetric2'
+    ])
   },
   watch: {
     getFilteredAndGroupedModelList: function () {
@@ -54,7 +65,7 @@ export default {
       if (!this.getFilteredAndGroupedModelList) return
       d3.select('#scatter-canvas').select('svg').remove() // Remove SVG if it has been created.
 
-      const margin = {top: 15, left: 45, right: 20, bottom: 20}
+      const margin = {top: 15, left: 40, right: 20, bottom: 20}
       const canvas = document.getElementById('scatter-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
@@ -72,23 +83,10 @@ export default {
         .range([0, canvas_width - margin.left - margin.right])
       const scaleY = d3.scaleLinear().domain([0, 100])
         .range([canvas_height - margin.bottom - margin.top, 0])
-      const axX = d3.axisBottom(scaleX).ticks(5)
-        .tickFormat((d, i) => {
-          if (d === 100) {
-            return d + ' [%]'
-          } else {
-            return d
-          }
-        })
 
+      const axX = d3.axisBottom(scaleX).ticks(5)
       const axY = d3.axisLeft(scaleY).ticks(5)
-        .tickFormat((d, i) => {
-          if (d === 100) {
-            return d + ' [%]'
-          } else {
-            return d
-          }
-        })
+
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
         .call(axX)
@@ -126,7 +124,7 @@ export default {
         .enter()
         .append('circle')
         .attr('r', circle_radius)
-        .attr('class', (m) => { return this.getAlgorithmClassFromId(m.algorithm_id) })
+        .attr('class', (m) => { return this.getColorClass(m) })
         .attr('cx', (m) => {
           // TODO: Modify data distribution
           const metric = m.getResultOfMetric1()
@@ -155,10 +153,34 @@ export default {
 <style lang='scss'>
 #component-scatter {
   height: 100%;
+  width: 100%;
   padding: $scatter-padding;
-  #scatter-canvas {
-    width: 100%;
+  position: relative;
+  #title-metric1 {
+    position: absolute;
+    top: calc(100% - #{$scatter-padding});
+    left: $scatter-padding;
+    width: calc(100% - #{$scatter-padding});
+    height: $scatter-padding;
+    text-align: center;
+    font-size: 70%;
+  }
+  #title-metric2 {
+    position: absolute;
+    top: 0;
+    left: calc(#{$scatter-padding}*0.7);
+    width: $scatter-padding;
     height: 100%;
+    writing-mode: vertical-rl;
+    text-align: center;
+    font-size: 70%;
+  }
+  #scatter-canvas {
+    position: absolute;
+    top: $scatter-padding;
+    left: $scatter-padding;
+    width: calc(100% - #{$scatter-padding}*2);
+    height: calc(100% - #{$scatter-padding}*2);
     .grid-line line {
       stroke: $scatter-grid-color;
     }
