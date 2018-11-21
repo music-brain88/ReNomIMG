@@ -43,12 +43,25 @@ class DeconvInitializer(Initializer):
 @adddoc
 class FCN_Base(SemanticSegmentation):
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        if current_epoch == 100:
-            self._opt._lr = 1e-4
-        elif current_epoch == 150:
-            self._opt._lr = 1e-5
-        return self._opt
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+
+        if any([num is None for num in
+                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
+            return self._opt
+        else:
+            if current_loss is not None and current_loss > 50:
+                self._opt._lr *= 0.1
+                return self._opt
+
+            if current_epoch < 1:
+                self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
+            elif current_epoch < 100:
+                self._opt._lr = 1e-3
+            elif current_epoch == 100:
+                self._opt._lr = 1e-4
+            elif current_epoch == 150:
+                self._opt._lr = 1e-5
+            return self._opt
 
     def preprocess(self, x):
         """
@@ -107,7 +120,7 @@ class FCN32s(FCN_Base):
         self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN32s(self.num_class)
         self._train_whole_network = train_whole_network
-        self.decay_rate = 2e-4
+        self.decay_rate = 1e-5
         self._opt = rm.Sgd(0.001, 0.9)
 
         if load_pretrained_weight:
@@ -166,9 +179,8 @@ class FCN16s(FCN_Base):
         self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN16s(self.num_class)
         self._train_whole_network = train_whole_network
-        self.decay_rate = 2e-4
         self._opt = rm.Sgd(0.001, 0.9)
-        self.decay_rate = 2e-4
+        self.decay_rate = 1e-5
 
         if load_pretrained_weight:
             vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
@@ -226,9 +238,8 @@ class FCN8s(FCN_Base):
         self.class_map = [str(c).encode("ascii", "ignore") for c in class_map]
         self._model = CNN_FCN8s(self.num_class)
         self._train_whole_network = train_whole_network
-        self.decay_rate = 2e-4
+        self.decay_rate = 1e-5
         self._opt = rm.Sgd(0.001, 0.9)
-        self.decay_rate = 2e-4
 
         if load_pretrained_weight:
             vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,

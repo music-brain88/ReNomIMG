@@ -24,10 +24,10 @@ class BasicBlock(rm.Model):
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(planes, stride)
-        self.bn1 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.bn1 = rm.BatchNormalize(mode='feature')
         self.relu = rm.Relu()
         self.conv2 = conv3x3(planes)
-        self.bn2 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.bn2 = rm.BatchNormalize(mode='feature')
         self.downsample = downsample
         self.stride = stride
 
@@ -56,11 +56,11 @@ class Bottleneck(rm.Model):
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
         self.conv1 = rm.Conv2d(planes, filter=1, ignore_bias=True)
-        self.bn1 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.bn1 = rm.BatchNormalize(mode='feature')
         self.conv2 = rm.Conv2d(planes, filter=3, stride=stride, padding=1, ignore_bias=True)
-        self.bn2 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.bn2 = rm.BatchNormalize(mode='feature')
         self.conv3 = rm.Conv2d(planes * self.expansion, filter=1, ignore_bias=True)
-        self.bn3 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.bn3 = rm.BatchNormalize(mode='feature')
         self.relu = rm.Relu()
         self.downsample = downsample
         self.stride = stride
@@ -146,7 +146,7 @@ class ResNet(rm.Model):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.conv1 = rm.Conv2d(64, filter=7, stride=2, padding=3, ignore_bias=True)
-        self.bn1 = rm.BatchNormalize(epsilon=0.001, mode='feature')
+        self.bn1 = rm.BatchNormalize(mode='feature')
         self.relu = rm.Relu()
         self.maxpool = rm.MaxPool2d(filter=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0])
@@ -161,7 +161,7 @@ class ResNet(rm.Model):
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = rm.Sequential([
                 rm.Conv2d(planes * block.expansion, filter=1, stride=stride, ignore_bias=True),
-                rm.BatchNormalize(epsilon=0.001, mode='feature')
+                rm.BatchNormalize(mode='feature')
             ])
 
         layers = []
@@ -214,7 +214,7 @@ class ResNet18(ResNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet18.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet18.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -271,7 +271,7 @@ class ResNet34(ResNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet34.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet34.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -328,7 +328,7 @@ class ResNet50(ResNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet50.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet50.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -385,7 +385,7 @@ class ResNet101(ResNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet101.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet101.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -442,7 +442,7 @@ class ResNet152(ResNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet152.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet152.h5"
 
     def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
