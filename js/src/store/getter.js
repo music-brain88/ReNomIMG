@@ -173,6 +173,31 @@ export default {
       }
     }
   },
+  getAlgorithmColor (state, getters) {
+    return function (n) {
+      let color
+      switch (n) {
+        // YOLOv1
+        case 10:
+          color = '#903f84'
+          break
+        // YOLOv2
+        case 11:
+          color = '#433886'
+          break
+        // SSD
+        case 12:
+          color = '#009453'
+          break
+        default:
+          color = 'black'
+          break
+      }
+      return color
+      // if (n === 10) return '#903f84'
+      // if (n === 11) return '#433886'
+    }
+  },
   getTagColor (state, getters) {
     return function (n) {
       if (n % 10 === 0) return '#E7009A'

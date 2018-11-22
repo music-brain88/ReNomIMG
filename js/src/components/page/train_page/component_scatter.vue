@@ -42,7 +42,7 @@ export default {
     this.draw()
   },
   computed: {
-    ...mapGetters(['getFilteredAndGroupedModelList', 'getAlgorithmClassFromId'])
+    ...mapGetters(['getFilteredAndGroupedModelList', 'getAlgorithmClassFromId', 'getAlgorithmColor'])
   },
   watch: {
     getFilteredAndGroupedModelList: function () {
@@ -118,6 +118,10 @@ export default {
             .scale(scaleX)
         )
 
+      let tooltip = d3.select('#scatter-canvas')
+        .append('div')
+        .style('display', 'none')
+
       // Plot Models.
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
@@ -143,9 +147,39 @@ export default {
           const rescaled_point_y = (1 - metric.value) * total_height
           return rescaled_point_y
         })
-        .on('mouseover', (d) => {
+        .attr('fill', (m) => {
+          return this.getAlgorithmColor(m.algorithm_id)
+        })
+        .on('mouseenter', (d, index) => {
           // TODO: Fix event handler.
-          d3.select(this).attr('fill')
+          tooltip.style('display', 'inline-block')
+          tooltip.transition()
+            .duration(200)
+            .style('opacity', 0.9)
+          tooltip.html(
+            'model_id:' + d.id + '<br />' +
+            'mAP:' + d.best_epoch_valid_result.mAP + '<br />' +
+            'IoU:' + d.best_epoch_valid_result.IOU + '<br />'
+          )
+            .style('position', 'absolute')
+            // .style('width', '100px')
+            // .style('height', '50px')
+            .style('top', (d3.event.pageY - 28) + 'px')
+            .style('left', (d3.event.pageX) + 'px')
+            .style('padding', '10px')
+            .style('background', this.getAlgorithmColor(d.algorithm_id))
+            .style('color', 'white')
+            .style('text-align', 'left')
+            .on('mouseenter', function () {
+              tooltip.style('display', 'inline-block')
+            })
+            .on('mouseleave', function () {
+              tooltip.style('display', 'none')
+            })
+        })
+        .on('mouseleave', function () {
+          tooltip.style('display', 'none')
+          tooltip.style('opacity', 0)
         })
     }
   }
@@ -162,6 +196,18 @@ export default {
     .grid-line line {
       stroke: $scatter-grid-color;
     }
+  }
+  div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 28px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
   }
 }
 </style>

@@ -56,6 +56,8 @@ export default {
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
       const svg = d3.select('#learning-curve-canvas').append('svg')
+      const train_color = '#0762ad'
+      const valid_color = '#ef8200'
       let train_loss_list = []
       let valid_loss_list = []
 
@@ -122,7 +124,7 @@ export default {
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(train_loss_list)
         .attr('fill', 'none')
-        .attr('stroke', 'blue')
+        .attr('stroke', train_color)
         .attr('stroke-width', 1.5)
         .attr('d', d3.line()
           .x(function (d, index) { return scaleX(index + 1) })
@@ -134,7 +136,7 @@ export default {
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(valid_loss_list)
         .attr('fill', 'none')
-        .attr('stroke', 'orange')
+        .attr('stroke', valid_color)
         .attr('stroke-width', 1.5)
         .attr('d', d3.line()
           .x(function (d, index) { return scaleX(index + 1) })
