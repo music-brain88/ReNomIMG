@@ -352,7 +352,7 @@ class TrainThread(object):
             class_map=self.class_map,
             imsize=self.imsize,
             train_whole_network=self.train_whole,
-            load_pretrained_weight=self.loload_pretrained_weight)
+            load_pretrained_weight=self.load_pretrained_weight)
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,

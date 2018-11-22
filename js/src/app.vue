@@ -2,20 +2,6 @@
   <div id="app">
     <app-header/>
     <div id="app-content">
-      <div id="page-tab">
-        <div id="train-tab" class="page-tab" @click="onTabClick('train')">
-          Train
-        </div>
-        <div id="predict-tab" class="page-tab" @click="onTabClick('predict')">
-          Predict
-        </div>
-        <div id="dataset-tab" class="page-tab" @click="onTabClick('dataset')">
-          Dataset
-        </div>
-        <div id="debug-tab" class="page-tab" @click="onTabClick('debug')">
-          DEBUG
-        </div>
-      </div>
       <div id="container">
         <transition name="fade">
           <router-view></router-view> 
@@ -50,24 +36,6 @@ export default {
   methods: {
     ...mapActions(['init']),
     ...mapMutations(['setCurrentPage']),
-    onTabClick: function (page_name) {
-      this.init()
-      if (page_name === 'train') {
-        this.$router.push({path: '/'})
-        this.setCurrentPage(PAGE_ID.TRAIN)
-      } else if (page_name === 'predict') {
-        this.$router.push({path: '/predict'})
-        this.setCurrentPage(PAGE_ID.PREDICT)
-      } else if (page_name === 'dataset') {
-        this.$router.push({path: '/dataset'})
-        this.setCurrentPage(PAGE_ID.DATASET)
-      } else if (page_name === 'debug') {
-        this.$router.push({path: '/debug'})
-        this.setCurrentPage(PAGE_ID.DEBUG)
-      } else {
-        console.log(page_name + 'is not supported page name.')
-      }
-    }
   }
 }
 </script>
@@ -97,38 +65,8 @@ export default {
   #app-content {
     width: $app-window-width;
     margin: 0 auto;
-    // padding-top: $app-container-padding-top;
+    padding-top: $app-container-padding-top;
     padding-bottom: $app-container-padding-bottom;
-    #page-tab {
-      height: $tab-content-height;
-      min-height: $header-min-height;
-      width: calc(100% - #{$component-block-margin}*2);
-      letter-spacing: -0.4em; // For removing gap between divs.
-      // margin: $component-block-margin;
-      margin-bottom: $component-block-margin;
-      .page-tab {
-        line-height: normal;
-        letter-spacing: 0em; // Remove letter-spacing
-        display: inline-block;
-        height: 100%;
-        width: $tab-content-width;
-        vertical-align: middle;
-        text-align: center;
-        font-size: 100%;
-      }
-      #train-tab {
-        background-color: red;
-      }
-      #predict-tab {
-        background-color: orange;
-      }
-      #dataset-tab {
-        background-color: yellow;
-      }
-      #debug-tab {
-        background-color: white;
-      }
-    }
   }
 }
 </style>
