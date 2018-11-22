@@ -89,13 +89,14 @@ export default {
       svg
         .attr('width', canvas_width)
         .attr('height', canvas_height)
-        .call(zoom)
+        .call(zoom) 
 
       // Axis Settings
       const scaleX = d3.scaleLinear().domain([minX, maxX])
         .range([0, canvas_width - margin.left - margin.right])
       const scaleY = d3.scaleLinear().domain([minY, maxY])
         .range([canvas_height - margin.bottom - margin.top, 0])
+
 
       // Sublines.
       // Horizontal
@@ -184,13 +185,24 @@ export default {
         .attr('fill', valid_color)
         .attr('r', 2)
 
+      d3.select('#learning-curve-canvas')
+        .on('contextmenu', resetZoom)
+
       function zoomed () {
         gX.call(axX.scale(d3.event.transform.rescaleX(scaleX)))
-        gY.call(axY.scale(d3.event.transform.rescaleX(scaleY)))
+        gY.call(axY.scale(d3.event.transform.rescaleY(scaleY)))
         TrainLine.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
         ValidLine.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
         TrainScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
         ValidScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
+      }
+      function resetZoom () {
+        svg.call(zoom.transform, d3.zoomIdentity)
+        TrainLine.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        ValidLine.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        TrainScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        ValidScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        d3.event.preventDefault()
       }
     }
   }
