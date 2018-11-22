@@ -76,10 +76,20 @@ export default {
       minY = Math.floor(minY)
       console.log(minX, maxX)
 
+      let tooltip = d3.select('#learning-curve-canvas')
+        .append('div')
+        .append('display', 'none')
+
+      const zoom = d3.zoom()
+        .scaleExtent([0, 10])
+        .translateExtent([0, 0])
+        .on('zoom', zoomed)
+
       // Set size.
       svg
         .attr('width', canvas_width)
         .attr('height', canvas_height)
+        .call(zoom)
 
       // Axis Settings
       const scaleX = d3.scaleLinear().domain([minX, maxX])
@@ -112,15 +122,15 @@ export default {
 
       const axX = d3.axisBottom(scaleX).ticks(5)
       const axY = d3.axisLeft(scaleY).ticks(5)
-      svg.append('g')
+      let gX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
         .call(axX)
-      svg.append('g')
+      let gY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .call(axY)
 
       // Line graph
-      svg.append('path')
+      let TrainLine = svg.append('path')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(train_loss_list)
         .attr('fill', 'none')
@@ -132,7 +142,7 @@ export default {
           .curve(d3.curveLinear)
         )
 
-      svg.append('path')
+      let ValidLine = svg.append('path')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(valid_loss_list)
         .attr('fill', 'none')
@@ -143,6 +153,45 @@ export default {
           .y(function (d) { return scaleY(d) })
           .curve(d3.curveLinear)
         )
+
+      let TrainScatter = svg.append('g')
+        .selectAll('circle')
+        .data(train_loss_list)
+        .enter()
+        .append('circle')
+        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        .attr('cx', function (d, index) {
+          return scaleX(index + 1)
+        })
+        .attr('cy', (d) => {
+          return scaleY(d)
+        })
+        .attr('fill', train_color)
+        .attr('r', 2)
+
+      let ValidScatter = svg.append('g')
+        .selectAll('circle')
+        .data(valid_loss_list)
+        .enter()
+        .append('circle')
+        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        .attr('cx', function (d, index) {
+          return scaleX(index + 1)
+        })
+        .attr('cy', (d) => {
+          return scaleY(d)
+        })
+        .attr('fill', valid_color)
+        .attr('r', 2)
+
+      function zoomed () {
+        gX.call(axX.scale(d3.event.transform.rescaleX(scaleX)))
+        gY.call(axY.scale(d3.event.transform.rescaleX(scaleY)))
+        TrainLine.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
+        ValidLine.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
+        TrainScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
+        ValidScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
+      }
     }
   }
 }
