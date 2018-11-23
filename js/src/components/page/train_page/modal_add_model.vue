@@ -87,7 +87,6 @@ export default {
       this.showModal({'all': false})
 
       // Perform action 'createModel' with specified params.
-      console.log('Create ', this.selectedDatasetId)
       this.createModel({
         hyper_params: this.parameters,
         algorithm_id: this.getAlgorithmIdFromTitle(this.selectedAlgorithm),

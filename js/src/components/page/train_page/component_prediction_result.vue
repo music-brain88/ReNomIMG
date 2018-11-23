@@ -4,13 +4,13 @@
       Prediction Result
     </template>
     <div id="pager">
-      <div class="pager-arrow" @click="()=>{count ++}">
+      <div class="pager-arrow" @click="prevPage">
         <i class="fa fa-caret-left" aria-hidden="true"></i>
       </div>
-      <div class="pager-number" v-for="item in [1, 2, 3]">
+      <div class="pager-number" v-for="item in pageList()">
         {{item}}
       </div>
-      <div class="pager-arrow">
+      <div class="pager-arrow" @click="nextPage">
         <i class="fa fa-caret-right" aria-hidden="true"></i>
       </div>
     </div>
@@ -18,6 +18,7 @@
       <!--<transition-group name="fade">-->
       <div v-for="item in getValidImages" :style="getImgSize(item)">
         <img :src="item.img"/>
+        <!--Change following div for each task-->
         <div id="box" v-if='isTaskDetection' :style="getBoxStyle(box)" v-for="box in getBoxList(item)">
         </div>
       </div>
@@ -28,7 +29,7 @@
 
 <script>
 import { TASK_ID } from '@/const.js'
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState, mapMutations } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
@@ -38,33 +39,85 @@ export default {
   },
   data: function () {
     return {
-      count: 0,
       show_target: false
     }
   },
   computed: {
     ...mapState(['datasets']),
-    ...mapGetters(['getSelectedModel', 'getCurrentTask', 'getTagColor']),
+    ...mapGetters(['getSelectedModel',
+      'getCurrentTask',
+      'getTagColor',
+      'getImagePageOfPredictionSample'
+    ]),
     getValidImages: function () {
       const model = this.getSelectedModel
       if (model) {
+        const current_page = this.getImagePageOfPredictionSample
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
-        if (dataset && dataset.page.length === 0) {
+        if (!dataset) return []
+
+        if (dataset.page.length === 0) {
           // Setup image page if it has not been set.
           this.setUpValidImages()
         }
-        return dataset.page[this.count]
+
+        // Clip page number.
+        const max_page_num = dataset.page.length - 1
+        const page_num = Math.max(Math.min(current_page, max_page_num), 0)
+        this.setImagePageOfPredictionSample(page_num)
+        return dataset.page[current_page]
       }
       return []
     },
+    isTaskClassification: function () {
+      return this.getCurrentTask === TASK_ID.CLASSIFICATION
+    },
     isTaskDetection: function () {
       return this.getCurrentTask === TASK_ID.DETECTION
+    },
+    isTaskSegmentation: function () {
+      return this.getCurrentTask === TASK_ID.SEGMENTATION
     }
   },
   created: function () {
 
   },
   methods: {
+    ...mapMutations(['setImagePageOfPredictionSample']),
+    nextPage: function () {
+      const model = this.getSelectedModel
+      if (!model) return
+
+      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      if (!dataset) return
+
+      const max_page_num = dataset.page.length - 1
+      const current_page = this.getImagePageOfPredictionSample
+      this.setImagePageOfPredictionSample(Math.min(current_page + 1, max_page_num))
+    },
+    prevPage: function () {
+      const model = this.getSelectedModel
+      if (!model) return
+
+      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      if (!dataset) return
+
+      const max_page_num = dataset.page.length - 1
+      const current_page = this.getImagePageOfPredictionSample
+      this.setImagePageOfPredictionSample(Math.max(current_page - 1, 0))
+    },
+    pageList: function () {
+      const model = this.getSelectedModel
+      if (!model) return []
+
+      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      if (!dataset) return []
+
+      const current_page = this.getImagePageOfPredictionSample
+      const max_page_num = dataset.page.length - 1
+      // TODO: Return page numbers.
+      return [0, 1, 2, '...', max_page_num]
+    },
     vh: function (v) {
       var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
       return (v * h) / 100
@@ -129,7 +182,6 @@ export default {
           }
           if (i === last_index) {
             // Add white image to empty space.
-            console.log(last_index, i, nth_line_in_page)
             one_page.push({index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1]})
             for (let j = nth_line_in_page; j < 2; j++) {
               one_page.push({index: -1, img: brank, size: [max_ratio, 1]})
