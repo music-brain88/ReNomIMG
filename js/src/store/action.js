@@ -353,4 +353,41 @@ export default {
     }, error_handler_creator(context))
   },
 
+  async setUpValidImagePager (context, payload) {
+    const dataset = payload.dataset
+    const parent_height = payload.height
+    const parent_width = payload.width
+    const cm = payload.margin
+    if (dataset) {
+      const valid_data = dataset.valid_data
+      let c = 0
+      let page = 0
+      let line_count = 0
+      let max_ratio = (parent_width / (parent_height / 3))
+      let arr = []
+      for (let i = 0; i < valid_data.size.length; i++) {
+        let size = valid_data.size[i]
+        let ratio = ((size[0] + 2 * cm) / (size[1] + 2 * cm))
+        c += ratio
+        if (c <= max_ratio) {
+          arr.push({img: valid_data.img[i], size: valid_data.size[i]})
+        } else {
+          if (line_count >= 2) {
+            dataset.page.push(arr)
+            page++
+            arr = [{img: valid_data.img[i], size: valid_data.size[i]}]
+            c = ratio
+            line_count = 0
+          } else {
+            arr.push({img: valid_data.img[i], size: valid_data.size[i]})
+            c = ratio
+            line_count++
+          }
+        }
+      }
+      if (dataset.page[dataset.page.length - 1] !== arr) {
+        dataset.page.push(arr)
+      }
+    }
+  }
 }

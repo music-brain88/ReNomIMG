@@ -10,6 +10,9 @@ export class Dataset {
     // Followings will be loaded from server.
     this.valid_data = {}
     this.class_map = []
+
+    // Cache page division.
+    this.page = []
   }
 }
 

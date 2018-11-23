@@ -283,11 +283,11 @@ export const ALGORITHM = {
         ...COMMON_PARAMS,
         ...override('IMAGE_WIDTH', {
           disabled: true,
-          default: 320,
+          default: 448,
         }),
         ...override('IMAGE_HEIGHT', {
           disabled: true,
-          default: 320,
+          default: 448,
         }),
         ANCHOR: {
           title: 'Anchor',
