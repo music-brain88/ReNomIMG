@@ -216,7 +216,9 @@ export default {
     getBoxList: function (item) {
       if (item.index < 0) return
       const model = this.getSelectedModel
-      if (!model) return
+      if (!model) return []
+      if (!model.best_epoch_valid_result) return []
+
       let box_list = []
       if (this.show_target) {
         box_list = model.best_epoch_valid_result.target_box[item.index]

@@ -23,7 +23,7 @@ export default class Model {
     this.train_loss_list = []
     this.valid_loss_list = []
 
-    this.best_epoch_valid_result = {}
+    this.best_epoch_valid_result = null
 
     this.model_list = []
   }
