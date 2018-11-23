@@ -120,6 +120,7 @@ class TrainThread(object):
                 self.updated = True
                 return
 
+            model.set_models(inference=False)
             temp_train_batch_loss_list = []
             for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size), 1):
                 if isinstance(self.model, Yolov2) and (b - 1) % 10 == 0 and (b - 1):
@@ -132,31 +133,32 @@ class TrainThread(object):
                     return
                 self.sync_count()
 
-                with model.train():
-                    loss = model.loss(model(train_x), train_y)
-                    reg_loss = loss + model.regularize()
+                if len(train_x) != 1:
+                    with model.train():
+                        loss = model.loss(model(train_x), train_y)
+                        reg_loss = loss + model.regularize()
 
-                try:
-                    loss = loss.as_ndarray()[0]
-                except:
-                    loss = loss.as_ndarray()
-                loss = float(loss)
+                    try:
+                        loss = loss.as_ndarray()[0]
+                    except:
+                        loss = loss.as_ndarray()
+                    loss = float(loss)
 
-                temp_train_batch_loss_list.append(loss)
-                self.last_batch_loss = loss
-                self.sync_batch_result()
+                    temp_train_batch_loss_list.append(loss)
+                    self.last_batch_loss = loss
+                    self.sync_batch_result()
 
-                if self.stop_event.is_set():
-                    # Watch stop event
-                    self.updated = True
-                    return
+                    if self.stop_event.is_set():
+                        # Watch stop event
+                        self.updated = True
+                        return
 
-                reg_loss.grad().update(model.get_optimizer(
-                    current_loss=loss,
-                    current_epoch=e,
-                    total_epoch=self.total_epoch,
-                    current_batch=b,
-                    total_batch=self.total_batch))
+                    reg_loss.grad().update(model.get_optimizer(
+                        current_loss=loss,
+                        current_epoch=e,
+                        total_epoch=self.total_epoch,
+                        current_batch=b,
+                        total_batch=self.total_batch))
 
                 # Thread value changed.
                 self.updated = True
@@ -171,6 +173,7 @@ class TrainThread(object):
             self.sync_state()
             valid_prediction = []
             temp_valid_batch_loss_list = []
+            model.set_models(inference=True)
             for b, (valid_x, valid_y) in enumerate(self.valid_dist.batch(self.batch_size, shuffle=False)):
 
                 if self.stop_event.is_set():
