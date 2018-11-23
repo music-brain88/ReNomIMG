@@ -3,7 +3,7 @@
     <template slot="header-slot">
       Prediction Result
     </template>
-    <div id="pager">
+    <div id="pager" v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
       <div class="pager-arrow" @click="prevPage">
         <i class="fa fa-caret-left" aria-hidden="true"></i>
       </div>
@@ -52,7 +52,7 @@ export default {
     getValidImages: function () {
       const model = this.getSelectedModel
       if (model) {
-        const current_page = this.getImagePageOfPredictionSample
+        let current_page = this.getImagePageOfPredictionSample
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
         if (!dataset) return []
 
@@ -65,6 +65,7 @@ export default {
         const max_page_num = dataset.page.length - 1
         const page_num = Math.max(Math.min(current_page, max_page_num), 0)
         this.setImagePageOfPredictionSample(page_num)
+        current_page = this.getImagePageOfPredictionSample
         return dataset.page[current_page]
       }
       return []
@@ -158,7 +159,7 @@ export default {
         const last_index = valid_data.img.length - 1
         let one_page = []
         let nth_page = 0
-        let nth_line_in_page = 0
+        let nth_line_in_page = 1
         let accumurated_ratio = 0
         let max_ratio = (parent_width / (parent_height / 3))
         for (let i = 0; i < valid_data.size.length; i++) {
@@ -168,12 +169,12 @@ export default {
           if (accumurated_ratio <= max_ratio) {
             one_page.push({index: i, img: valid_data.img[i], size: valid_data.size[i]})
           } else {
-            if (nth_line_in_page >= 2) {
+            if (nth_line_in_page >= 3) {
               pages.push(one_page)
               nth_page++
               one_page = [{index: i, img: valid_data.img[i], size: valid_data.size[i]}]
               accumurated_ratio = ratio
-              nth_line_in_page = 0
+              nth_line_in_page = 1
             } else {
               one_page.push({index: i, img: valid_data.img[i], size: valid_data.size[i]})
               accumurated_ratio = ratio
@@ -183,6 +184,7 @@ export default {
           if (i === last_index) {
             // Add white image to empty space.
             one_page.push({index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1]})
+            console.log(nth_line_in_page)
             for (let j = nth_line_in_page; j < 2; j++) {
               one_page.push({index: -1, img: brank, size: [max_ratio, 1]})
             }
