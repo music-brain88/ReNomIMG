@@ -18,6 +18,8 @@
       <!--<transition-group name="fade">-->
       <div v-for="item in getValidImages" :style="getImgSize(item)">
         <img :src="item.img"/>
+        <div id="box" v-if='isTaskDetection' :style="getBoxStyle(box)" v-for="box in getBoxList(item)">
+        </div>
       </div>
       <!--</transition-group>-->
     </div>
@@ -25,6 +27,7 @@
 </template>
 
 <script>
+import { TASK_ID } from '@/const.js'
 import { mapGetters, mapState } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -36,11 +39,12 @@ export default {
   data: function () {
     return {
       count: 0,
+      show_target: false
     }
   },
   computed: {
     ...mapState(['datasets']),
-    ...mapGetters(['getSelectedModel']),
+    ...mapGetters(['getSelectedModel', 'getCurrentTask', 'getTagColor']),
     getValidImages: function () {
       const model = this.getSelectedModel
       if (model) {
@@ -52,6 +56,9 @@ export default {
         return dataset.page[this.count]
       }
       return []
+    },
+    isTaskDetection: function () {
+      return this.getCurrentTask === TASK_ID.DETECTION
     }
   },
   created: function () {
@@ -92,8 +99,10 @@ export default {
       if (!dataset) return
 
       function setup (dataset, parent_width, parent_height, margin) {
+        const brank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
         const valid_data = dataset.valid_data
         const pages = []
+        const last_index = valid_data.img.length - 1
         let one_page = []
         let nth_page = 0
         let nth_line_in_page = 0
@@ -104,18 +113,26 @@ export default {
           let ratio = ((size[0] + 2 * margin) / (size[1] + 2 * margin))
           accumurated_ratio += ratio
           if (accumurated_ratio <= max_ratio) {
-            one_page.push({img: valid_data.img[i], size: valid_data.size[i]})
+            one_page.push({index: i, img: valid_data.img[i], size: valid_data.size[i]})
           } else {
             if (nth_line_in_page >= 2) {
               pages.push(one_page)
               nth_page++
-              one_page = [{img: valid_data.img[i], size: valid_data.size[i]}]
+              one_page = [{index: i, img: valid_data.img[i], size: valid_data.size[i]}]
               accumurated_ratio = ratio
               nth_line_in_page = 0
             } else {
-              one_page.push({img: valid_data.img[i], size: valid_data.size[i]})
+              one_page.push({index: i, img: valid_data.img[i], size: valid_data.size[i]})
               accumurated_ratio = ratio
               nth_line_in_page++
+            }
+          }
+          if (i === last_index) {
+            // Add white image to empty space.
+            console.log(last_index, i, nth_line_in_page)
+            one_page.push({index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1]})
+            for (let j = nth_line_in_page; j < 2; j++) {
+              one_page.push({index: -1, img: brank, size: [max_ratio, 1]})
             }
           }
         }
@@ -131,6 +148,30 @@ export default {
         .then((ret) => {
           dataset.page = ret
         })
+    },
+    getBoxStyle: function (box) {
+      const class_id = box.class
+      const x1 = (box.box[0] - box.box[2] / 2) * 100
+      const y1 = (box.box[1] - box.box[3] / 2) * 100
+      return {
+        top: y1 + '%',
+        left: x1 + '%',
+        width: box.box[2] * 100 + '%',
+        height: box.box[3] * 100 + '%',
+        border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
+      }
+    },
+    getBoxList: function (item) {
+      if (item.index < 0) return
+      const model = this.getSelectedModel
+      if (!model) return
+      let box_list = []
+      if (this.show_target) {
+        box_list = model.best_epoch_valid_result.target_box[item.index]
+      } else {
+        box_list = model.best_epoch_valid_result.prediction_box[item.index]
+      }
+      return box_list
     }
   }
 }
@@ -152,6 +193,11 @@ export default {
     img {
       width: 100%;
       height: 100%;
+    }
+    #box {
+      position: absolute;
+      height: 100%;
+      width: 100%;
     }
   }
 }
