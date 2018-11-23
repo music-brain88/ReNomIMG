@@ -40,6 +40,7 @@ export default {
   },
   data: function () {
     return {
+
     }
   },
   computed: {
@@ -87,6 +88,7 @@ export default {
     }
   },
   created: function () {
+
   },
   methods: {
     ...mapActions(['stopModelTrain']),
@@ -104,44 +106,66 @@ export default {
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: $progress-bar-height;
+  height: calc(#{$progress-bar-height}*0.8);
   padding-left: $progress-bar-margin;
   padding-right: $progress-bar-margin;
-  text-align: center;
   font-size: 80%;
+  text-align: center;
 
   #model-id-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 12.5%;
     height: 100%;
   }
   #epoch-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 12.5%;
     height: 100%;
   }
   #batch-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 12.5%;
     height: 100%;
   }
   #loss-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 20%;
     height: 100%;
   }
   #bar-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 35.5%;
     height: 100%;
-    padding-top: $bar-margin;
-    padding-bottom: $bar-margin;
     #bar-background {
       width: 100%;
-      height: calc(100% - #{$bar-margin});
+      height: calc(100% - #{$bar-margin}*2);
       background-color: gray; 
     }
   }
   #button-stop-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 7%;
     height: 100%;
     text-align: center;
     color: gray;
+    i {
+      cursor: pointer;
+    }
+    i:hover {
+      color: lightgray;
+    }
   }
 }
 </style>

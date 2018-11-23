@@ -155,6 +155,61 @@ def flip(x, y=None, mode="classification"):
     return Flip()(x, y, mode=mode)
 
 
+class HorizontalFlip(ProcessBase):
+
+    def __init__(self):
+        super(HorizontalFlip, self).__init__()
+
+    def _transform_classification(self, x, y):
+        assert len(x.shape) == 4
+        n = x.shape[0]
+        new_x = np.empty_like(x)
+        flip_flag = np.random.randint(2, size=(n, ))
+        for i, f in enumerate(flip_flag):
+            if f == 0:
+                new_x[i, :, :, :] = x[i, :, :, :]
+            elif f == 1:
+                new_x[i, :, :, :] = x[i, :, :, ::-1]
+        return new_x, y
+
+    def _transform_detection(self, x, y):
+        """Yet to be implemented"""
+        raise NotImplemented
+
+    def _transform_segmentation(self, x, y):
+        """Yet to be implemented"""
+        raise NotImplemented
+
+
+def horizontalflip(x, y=None, mode="classification"):
+    """Flip image randomly, only about vertical axis.
+
+    Args:
+        x (list of str): List of path of images.
+        y (list of annotation): list of annotation for x. It is only used when prediction.
+
+    Returns:
+        tupple: list of transformed images and list of annotation for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import HorizontalFlip
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> flipped_img = horizontalflip(img_list)
+    """
+    return HorizontalFlip()(x, y, mode=mode)
+
+
 class RandomCrop(ProcessBase):
 
     def __init__(self, size, padding=None):

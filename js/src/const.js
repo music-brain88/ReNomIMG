@@ -1,3 +1,4 @@
+
 export const TASK_ID = {
   CLASSIFICATION: 0,
   DETECTION: 1,
@@ -12,12 +13,6 @@ export const PAGE_ID = {
 }
 
 const COMMON_PARAMS = {
-  TRAIN_WHOLE: {
-    title: 'Train Whole Network',
-    key: 'train_whole', // Must be same as back-end.
-    type: 'checkbox',
-    default: false,
-  },
   BATCH_SIZE: {
     title: 'Batch Size',
     key: 'batch_size',
@@ -57,8 +52,15 @@ const COMMON_PARAMS = {
     title: 'Load pretrain weight',
     key: 'load_pretrained_weight',
     disabled: false,
+    default: true,
     type: 'checkbox'
-  }
+  },
+  TRAIN_WHOLE: {
+    title: 'Train Whole Network',
+    key: 'train_whole', // Must be same as back-end.
+    type: 'checkbox',
+    default: false,
+  },
 }
 
 function override (key, params) {
@@ -67,14 +69,6 @@ function override (key, params) {
 
 export const ALGORITHM = {
   CLASSIFICATION: {
-    ResNet: {
-      id: 0,
-      key: 'resnet',
-      title: 'ResNet',
-      params: {
-        ...COMMON_PARAMS
-      }
-    },
     ResNet18: {
       id: 1,
       key: 'resnet18',
@@ -177,12 +171,80 @@ export const ALGORITHM = {
         ...COMMON_PARAMS,
       }
     },
-    Vgg16: 3,
-    Vgg19: 4,
-    Inception1: 5,
-    Inception2: 6,
-    Inception3: 7,
-    Inception4: 8,
+    Vgg16: {
+      id: 13,
+      key: 'Vgg16',
+      title: 'VGG16',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Vgg16_NODENSE: {
+      id: 14,
+      key: 'Vgg16_NODENSE',
+      title: 'VGG16 No Dense',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Vgg19: {
+      id: 15,
+      key: 'Vgg19',
+      title: 'VGG19',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Inception1: {
+      id: 16,
+      key: 'Inseption1',
+      title: 'Inseption V1',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Inception2: {
+      id: 17,
+      key: 'Inseption2',
+      title: 'Inseption V2',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          default: 299,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          default: 299,
+        }),
+      }
+    },
+    Inception3: {
+      id: 18,
+      key: 'Inseption3',
+      title: 'Inseption V3',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          default: 299,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          default: 299,
+        }),
+      }
+    },
+    Inception4: {
+      id: 19,
+      key: 'Inseption4',
+      title: 'Inseption V4',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          default: 299,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          default: 299,
+        }),
+      }
+    },
   },
   DETECTION: {
     YOLOv1: {
@@ -221,11 +283,11 @@ export const ALGORITHM = {
         ...COMMON_PARAMS,
         ...override('IMAGE_WIDTH', {
           disabled: true,
-          default: 320,
+          default: 448,
         }),
         ...override('IMAGE_HEIGHT', {
           disabled: true,
-          default: 320,
+          default: 448,
         }),
         ANCHOR: {
           title: 'Anchor',
@@ -254,10 +316,61 @@ export const ALGORITHM = {
   },
   SEGMENTATION: {
     Unet: {
+      id: 20,
       key: 'unet',
+      title: 'U-Net',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          disabled: false,
+          default: 512,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          disabled: false,
+          default: 512,
+        })
+      }
     },
-    Fcn: 22,
-    TernousNet: 23,
+    Fcn8s: {
+      id: 21,
+      key: 'fcn8s',
+      title: 'FCN 8s',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Fcn16s: {
+      id: 22,
+      key: 'fcn16s',
+      title: 'FCN 16s',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    Fcn32: {
+      id: 23,
+      key: 'fcn32',
+      title: 'FCN 32s',
+      params: {
+        ...COMMON_PARAMS,
+      }
+    },
+    TernousNet: {
+      id: 24,
+      key: 'ternousnet',
+      title: 'TernousNet',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          disabled: false,
+          default: 512,
+        }),
+        ...override('IMAGE_HEIGHT', {
+          disabled: false,
+          default: 512,
+        })
+      }
+    },
   }
 }
 
@@ -357,6 +470,21 @@ export const FILTER = {
       title: 'Algorithm',
       type: 'SELECT_ALGORITHM'
     }
+  },
+}
+
+export const GROUPBY = {
+  NONE: {
+    key: 'NONE',
+    title: '-'
+  },
+  ALGORITHM: {
+    key: 'ALGORITHM',
+    title: 'Algorithm'
+  },
+  DATASET: {
+    key: 'DATASET',
+    title: 'Dataset',
   },
 }
 

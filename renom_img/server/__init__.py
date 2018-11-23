@@ -29,6 +29,7 @@ class Algorithm(enum.Enum):
     YOLOV1 = 10
     YOLOV2 = 11
     SSD = 12
+    RESNET18 = 1
 
 
 DB_DIR = "storage"

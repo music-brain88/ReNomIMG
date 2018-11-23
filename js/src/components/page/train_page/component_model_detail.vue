@@ -1,19 +1,30 @@
 <template>
-  <component-frame :width-weight="4" :height-weight="2.6">
+  <component-frame :width-weight="6" :height-weight="4">
     <template slot="header-slot">
       Model Detail
+      <div id="deploy-button" @click="setDeployedModel(model)">
+        <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Deploy
+      </div>
     </template>
     <div id="model-detail">
-      <div class="col">
-        <div class="item" v-for="param in model_params_col1">
-          <div class="item-title">{{ param.title }} :</div>
-          <div class="item-content">{{ param.content }}</div>
+      <div class="col" v-if="model">
+        <div class="item">
+          <div class="item-title">Model ID :</div>
+          <div class="item-content">{{ model.id }}</div>
+        </div>
+        <div class="item">
+          <div class="item-title">Algorithm :</div>
+          <div class="item-content">{{ getAlgorithmTitleFromId(model.algorithm_id) }}</div>
+        </div>
+        <div class="item">
+          <div class="item-title">Dataset :</div>
+          <div class="item-content">{{ getDatasetName }}</div>
         </div>
       </div>
-      <div class="col">
-        <div class="item" v-for="param in model_params_col2">
+      <div class="col" v-if="model">
+        <div class="item" v-for="param in getAlgorithmParamList(model.algorithm_id)">
           <div class="item-title">{{ param.title }} :</div>
-          <div class="item-content">{{ param.content }}</div>
+          <div class="item-content">{{ model.hyper_parameters[param.key] }}</div>
         </div>
       </div>
     </div>
@@ -21,7 +32,8 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
+import { ALGORITHM } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
@@ -29,34 +41,25 @@ export default {
   components: {
     'component-frame': ComponentFrame
   },
-  props: {
-    model: Object
-  },
   computed: {
-    model_params_col1: function () {
-      if (this.model === undefined) {
-        return [
-          {'title': 'Model ID', 'content': '-'},
-          {'title': 'Algorithm', 'content': '-'},
-        ]
+    ...mapGetters(['getSelectedModel',
+      'getAlgorithmTitleFromId',
+      'getDatasetFromId',
+      'getAlgorithmParamList']),
+    model: function () {
+      const model = this.getSelectedModel
+      if (model) {
+        return model
       } else {
-        // TODO: Return reformatted data.
-        return this.model.id
+        return undefined
       }
     },
-    model_params_col2: function () {
-      if (this.model === undefined) {
-        return [
-          {'title': 'Image Size', 'content': '- x -'},
-          {'title': 'Batch Size', 'content': '-'},
-          {'title': 'Total Epoch', 'content': '-'},
-          {'title': 'Best Epoch', 'content': '-'},
-          {'title': 'Best mAP', 'content': '-'},
-          {'title': 'Best IOU', 'content': '-'},
-        ]
+    getDatasetName: function () {
+      const dataset = this.getDatasetFromId(this.model.dataset_id)
+      if (dataset) {
+        return dataset.name
       } else {
-        // TODO: Return reformatted data.
-        return this.model.id
+        return ''
       }
     }
   },
@@ -64,28 +67,42 @@ export default {
 
   },
   methods: {
-
+    ...mapMutations(['setDeployedModel', 'unDeployModel'])
   }
 }
 </script>
 
 <style lang='scss'>
+
+#deploy-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 25%;
+  background-color: $component-header-sub-color;
+  cursor: pointer;
+}
+
 #model-detail {
   width: 100%;
   padding: $model-detail-margin;
   display: flex;
   .col {
     width: 50%;
+    font-size: 90%;
     .item {
-      width: 100%;
+      width: calc(100% - #{$model-detail-item-margin-bottom}*2);
       display: flex;
-      margin-bottom: $model-detail-item-margin-bottom;
+      margin: $model-detail-item-margin-bottom;
+      border-bottom: solid 1px lightgray;
       .item-title {
-        width: 70%;
+        width: 60%;
         color: $model-detail-item-title-font-color;
       }
       .item-content {
-        width: 70%;
+        width: 40%;
+        text-align: center;
       }
     }
   }

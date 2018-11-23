@@ -104,6 +104,22 @@ def prepare_detection_data(img_path_list, annotation_list, imsize):
     return np.asarray(img_list).transpose(0, 3, 1, 2).astype(np.float32), label_list
 
 
+def parse_txt_classification(path, separator=" "):
+    class_dict = {}
+    filename_list = []
+    annotation_list = []
+    with open("path", "r") as reader:
+        for line in reader.readlines():
+            filename, classname = line.split(separator)
+            class_dict[class_dict] = 1
+            filename_list.append(filename)
+            annotation_list.append(classname)
+
+    class_map = [k for k, v in sorted(class_dict.items, key=lambda x: x[0])]
+    annotation_list = [class_dict.index(a) for a in annotation_list]
+    return annotation_list, class_map
+
+
 def load_img(img_path, imsize=None):
     img = Image.open(img_path)
     img = img.convert('RGB')

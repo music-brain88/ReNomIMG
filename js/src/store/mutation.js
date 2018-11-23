@@ -1,4 +1,4 @@
-import {PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes} from '@/const.js'
+import { GROUPBY, PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes } from '@/const.js'
 
 export default {
   resetState (state, payload) {
@@ -22,9 +22,24 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+  setGoupBy (state, payload) {
+    let key = payload
+    state.group_by = key
+  },
   setSelectedModel (state, payload) {
     const task_id = state.current_task
     state.selected_model = Object.assign(...state.selected_model, {[task_id]: payload})
+  },
+  setDeployedModel (state, payload) {
+    const task_id = state.current_task
+    state.deployed_model = Object.assign(...state.deployed_model, {[task_id]: payload})
+  },
+  unDeployModel (state, payload) {
+    const task_id = state.current_task
+    state.deployed_model = Object.assign(...state.deployed_model, {[task_id]: undefined})
+  },
+  forceUpdateModelList (state, payload) {
+    state.models = [...state.models]
   },
   setCurrentPage (state, payload) {
     const page = payload
@@ -54,7 +69,11 @@ export default {
       state.models = state.models.filter(m => m.id !== payload)
     }
   },
-
+  addFilter (state, payload) {
+    if (state.filters.find(f => f == payload) === undefined) {
+      state.filters = [...state.filters, payload]
+    }
+  },
   addPollingJob (state, payload) {
     let key = Object.keys(payload)[0]
     let model_id = payload[key]
@@ -88,5 +107,9 @@ export default {
     } else {
       throw new Error('Not supported task.')
     }
+  },
+  setImagePageOfPredictionSample (state, payload) {
+    const task = state.current_task
+    state.nth_image_page[task] = payload
   }
 }

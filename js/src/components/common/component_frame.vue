@@ -55,14 +55,16 @@ export default {
     min-height: $component-header-min-height;
     margin-bottom: $component-header-margin-bottom;
     padding-left: $component-block-padding-left;
-    padding-right: $component-block-padding-right;
     background-color: $component-header-background-color;
     color: $component-header-font-color;
     line-height: normal;
     font-family: $component-header-font-family;
-    * {
+    div {
       font-family: $component-header-font-family;
     }
+    display: flex;
+    align-items: center; /* 縦方向中央揃え */
+    justify-content: space-between;
   }
 
   #frame-content{
