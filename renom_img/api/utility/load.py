@@ -128,15 +128,8 @@ def load_img(img_path, imsize=None):
     return np.asarray(img).transpose(2, 0, 1).astype(np.float32)
 
 
-def parse_txt_classification(file_path):
-    class_map = list()
-    with open(str(file_path)) as file:
-        for (index, value) in enumerate(file.readlines()):
-            class_map.append({"id":index , "class": value.strip()})
-    return class_map
 
-
-def parse_segmentation_data(segmented_image_list, class_map_file):
+def parse_classmap_file(class_map_file, separator=" "):
     """extract txt must be Pascal VOC format.
 
     Args: 
@@ -159,13 +152,10 @@ def parse_segmentation_data(segmented_image_list, class_map_file):
         ]
 
     """
-    void_id = 255
     class_map = list()
-    with open(str(class_map_file)) as file:
-        for (index, value)  in enumerate(file.readlines()):
-            class_map.append({"id":index , "class": value.strip()})
-        
-        class_map.append({"id": void_id, "class": "void"})
-    # segmented image list
-    target_list = [np.asarray(Image.open(image)) for image in segmented_image_list]
-    return target_list, class_map
+    with open(str(class_map_file)) as reader:
+        for line in reader.readlines():
+            class_name, id = line.split(separator)
+            class_name.append({id: class_name})
+    class_map = [c for k, c in sorted(class_map.items(), key=lambda x: x[0])]
+    return class_map
