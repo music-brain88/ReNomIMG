@@ -14,6 +14,7 @@ export default {
     const task = getters.getCurrentTask
     // Filtering
     const filtered_list = getters.getFilteredModelList
+    console.log(filtered_list)
     // Grouping
     if (state.group_by === GROUPBY.NONE.key) {
       array = filtered_list

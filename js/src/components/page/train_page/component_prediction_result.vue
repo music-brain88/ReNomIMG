@@ -19,7 +19,11 @@
       <div v-for="item in getValidImages" :style="getImgSize(item)">
         <img :src="item.img"/>
         <!--Change following div for each task-->
-        <div id="box" v-if='isTaskDetection' :style="getBoxStyle(box)" v-for="box in getBoxList(item)">
+        <div id="cls" v-if='isTaskClassification'
+          :style="getClassificationStyle(getClassificationList(item))">
+        </div>
+        <div id="box" v-else-if='isTaskDetection'
+          :style="getBoxStyle(box)" v-for="box in getBoxList(item)">
         </div>
       </div>
       <!--</transition-group>-->
@@ -39,7 +43,7 @@ export default {
   },
   data: function () {
     return {
-      show_target: true
+      show_target: false
     }
   },
   computed: {
@@ -214,6 +218,36 @@ export default {
         border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
       }
     },
+    getClassificationList: function (item) {
+      if (item.index < 0) return
+      const model = this.getSelectedModel
+      if (!model) return []
+      if (this.show_target) {
+        const dataset = this.datasets.find(d => d.id === model.dataset_id)
+        console.log(dataset.valid_data.target[item.index], item.index)
+        return dataset.valid_data.target[item.index]
+      } else {
+        if (!model.best_epoch_valid_result) return null
+        return model.best_epoch_valid_result.prediction[item.index]
+      }
+    },
+    getClassificationStyle: function (cls) {
+      console.log(cls)
+      if (cls === null) {
+        return {}
+      }
+      if (cls['score'] !== undefined && cls['class'] !== undefined) {
+        const class_id = cls['class']
+        return {
+          border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
+        }
+      } else {
+        const class_id = cls
+        return {
+          border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
+        }
+      }
+    },
     getBoxList: function (item) {
       if (item.index < 0) return
       const model = this.getSelectedModel
@@ -228,19 +262,19 @@ export default {
         box_list = box_list.map((b, index) => {
           const ow = size_list[0]
           const oh = size_list[1]
-          const x = b.box[0]/ow
-          const y = b.box[1]/oh
-          const w = b.box[2]/ow
-          const h = b.box[3]/oh
+          const x = b.box[0] / ow
+          const y = b.box[1] / oh
+          const w = b.box[2] / ow
+          const h = b.box[3] / oh
           return Object.assign({box: [
             x, y, w, h
           ]}, Object.keys(b).reduce((obj, k) => {
-              if (k === "box") {
-                return obj
-              } else {
-                return Object.assign(obj, {[k]: b[k]})
-              }
-            }, {}))
+            if (k === 'box') {
+              return obj
+            } else {
+              return Object.assign(obj, {[k]: b[k]})
+            }
+          }, {}))
         })
       } else {
         if (!model.best_epoch_valid_result) return []
@@ -273,6 +307,13 @@ export default {
       position: absolute;
       height: 100%;
       width: 100%;
+    }
+    #cls {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      top: -0.25vmin;
+      left: -0.25vmin;
     }
   }
 }

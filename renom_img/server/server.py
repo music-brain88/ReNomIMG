@@ -237,7 +237,8 @@ def dataset_create():
     # Receive params here.
     ratio = float(req_params.ratio)
     dataset_name = str(req_params.name)
-    test_dataset_id = int(req_params.test_dataset_id if req_params.test_dataset_id != "undefined" else -1)
+    test_dataset_id = int(
+        req_params.test_dataset_id if req_params.test_dataset_id != "undefined" else -1)
     task_id = int(req_params.task_id)
     description = str(req_params.description)
     ##
@@ -267,7 +268,7 @@ def dataset_create():
         target_file_list = list(target.keys())
 
         file_names = [p for p in file_names
-            if (img_dir / p).is_file() and (p.name in target_file_list)]
+                      if (img_dir / p).is_file() and (p.name in target_file_list)]
 
         img_files = [str(img_dir / name) for name in file_names]
         parsed_target = [target[name.name] for name in file_names]
@@ -275,7 +276,7 @@ def dataset_create():
     elif task_id == Task.DETECTION.value:
         detection_label_dir = label_dir / "detection"
         file_names = [p for p in file_names
-            if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
+                      if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         img_files = [str(img_dir / name) for name in file_names]
         xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
         parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
@@ -293,7 +294,7 @@ def dataset_create():
     valid_img_size = [list(Image.open(i).size) for i in valid_img]
 
     train_target, valid_target = np.split(np.array([parsed_target[index] for index in perm]),
-                                    [int(ratio * n_imgs)])
+                                          [int(ratio * n_imgs)])
     train_target = train_target.tolist()
     valid_target = valid_target.tolist()
 
@@ -349,7 +350,7 @@ def test_dataset_create():
         "The directory 'datasrc/label/detection' is not found in current working directory."
 
     file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
-                      if name.is_file()]
+                  if name.is_file()]
 
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
@@ -358,7 +359,7 @@ def test_dataset_create():
         target_file_list = list(target.keys())
 
         file_names = [p for p in file_names
-            if (img_dir / p).is_file() and (p.name in target_file_list)]
+                      if (img_dir / p).is_file() and (p.name in target_file_list)]
 
         n_imgs = len(file_names)
         perm = np.random.permutation(n_imgs)
@@ -370,7 +371,7 @@ def test_dataset_create():
     elif task_id == Task.DETECTION.value:
         detection_label_dir = label_dir / "detection"
         file_names = [p for p in file_names
-            if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
+                      if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         n_imgs = len(file_names)
         perm = np.random.permutation(n_imgs)
         file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]

@@ -17,6 +17,7 @@ from renom_img.api.detection.ssd import SSD
 from renom_img.api.segmentation.unet import UNet
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
+from renom_img.api.utility.evaluate.classification import precision_recall_f1_score
 from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise, ContrastNorm
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
@@ -212,8 +213,39 @@ class TrainThread(object):
             if self.task_id != Task.DETECTION.value:
                 valid_target = np.concatenate(valid_target, axis=0)
             n_valid = min(len(valid_prediction), len(valid_target))
-            if False:
-                pass
+            if self.task_id == Task.CLASSIFICATION.value:
+                pred = np.argmax(valid_prediction, axis=1)
+                targ = np.argmax(valid_target, axis=1)
+                _, pr, _, rc, _, f1 = precision_recall_f1_score(pred, targ)
+                prediction = [
+                    {
+                        "score": [float(vc) for vc in v],
+                        "class":float(p)
+                    }
+                    for v, p in zip(valid_prediction, pred)
+                ]
+                if self.best_epoch_valid_result:
+                    if self.best_epoch_valid_result["f1"] <= f1:
+                        self.best_valid_changed = True
+                        self.best_epoch_valid_result = {
+                            "nth_epoch": e,
+                            "prediction": prediction,
+                            "recall": float(rc),
+                            "precision": float(pr),
+                            "f1": float(f1),
+                            "loss": float(loss)
+                        }
+                else:
+                    self.best_valid_changed = True
+                    self.best_epoch_valid_result = {
+                        "nth_epoch": e,
+                        "prediction": prediction,
+                        "recall": float(rc),
+                        "precision": float(pr),
+                        "f1": float(f1),
+                        "loss": float(loss)
+                    }
+
             elif self.task_id == Task.DETECTION.value:
                 prediction_box = model.get_bbox(valid_prediction[:n_valid])
                 prec, rec, _, iou = get_prec_rec_iou(

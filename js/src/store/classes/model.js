@@ -29,7 +29,17 @@ export default class Model {
   }
   getResultOfMetric1 () {
     let m1 = '-'
-    if (this.task_id === TASK_ID.DETECTION) {
+    if (this.task_id === TASK_ID.CLASSIFICATION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.recall !== undefined) {
+          m1 = this.best_epoch_valid_result.recall.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Recall',
+        value: m1
+      }
+    } else if (this.task_id === TASK_ID.DETECTION) {
       if (this.best_epoch_valid_result) {
         if (this.best_epoch_valid_result.mAP !== undefined) {
           m1 = this.best_epoch_valid_result.mAP.toFixed(2)
@@ -43,7 +53,17 @@ export default class Model {
   }
   getResultOfMetric2 () {
     let m2 = '-'
-    if (this.task_id === TASK_ID.DETECTION) {
+    if (this.task_id === TASK_ID.CLASSIFICATION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.precision !== undefined) {
+          m2 = this.best_epoch_valid_result.precision.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Precision',
+        value: m2
+      }
+    } else if (this.task_id === TASK_ID.DETECTION) {
       if (this.best_epoch_valid_result) {
         if (this.best_epoch_valid_result.IOU !== undefined) {
           m2 = this.best_epoch_valid_result.IOU.toFixed(2)

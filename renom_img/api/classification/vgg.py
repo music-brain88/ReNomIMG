@@ -24,14 +24,11 @@ def layer_factory(channel=32, conv_layer_num=2):
 @adddoc
 class VGGBase(Classification):
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+        if any([num is None for num in [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            avg_valid_loss_list = kwargs['avg_valid_loss_list']
-            if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2] and current_batch == 0:
-                self._opt._lr = self._opt._lr / 10.
-            elif current_epoch == 0:
+            if current_epoch == 0:
                 self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch / total_batch
             return self._opt
 

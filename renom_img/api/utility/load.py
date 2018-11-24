@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor as Executor
 from PIL import Image
 from renom_img.api.utility.misc.display import draw_segment
 
+
 def parse_xml_detection(xml_path_list, num_thread=8):
     """XML format must be Pascal VOC format.
 
@@ -118,7 +119,7 @@ def parse_txt_classification(path, separator=" "):
             annotation_list.append(classname)
     class_map = [k for k, v in sorted(class_dict.items(), key=lambda x: x[0])]
     annotation = {f: class_map.index(a)
-        for a, f in zip(annotation_list, filename_list)}
+                  for a, f in zip(annotation_list, filename_list)}
     return annotation, class_map
 
 
