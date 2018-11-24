@@ -14,15 +14,15 @@
     </div>
     <div id="task-buttons">
       <div id="classification-button"
-          @click="setCurrentTask(TASK.CLASSIFICATION)">
+          @click="() => { setCurrentTask(TASK.CLASSIFICATION); init();}">
         Classification
       </div>  
       <div id="classification-button"
-          @click="setCurrentTask(TASK.DETECTION)">
+          @click="() => {setCurrentTask(TASK.DETECTION); init();}">
         Detection
       </div>  
       <div id="classification-button"
-          @click="setCurrentTask(TASK.SEGMENTATION)">
+          @click="() => {setCurrentTask(TASK.SEGMENTATION); init();}">
         Segmentation
       </div>  
     </div>  
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import { TASK_ID } from '@/const.js'
 
 export default {
@@ -48,6 +48,7 @@ export default {
 
   },
   methods: {
+    ...mapActions(['init']),
     ...mapMutations(['showSlideMenu', 'setCurrentTask']),
   }
 }

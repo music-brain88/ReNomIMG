@@ -108,16 +108,18 @@ def parse_txt_classification(path, separator=" "):
     class_dict = {}
     filename_list = []
     annotation_list = []
-    with open("path", "r") as reader:
-        for line in reader.readlines():
-            filename, classname = line.split(separator)
-            class_dict[class_dict] = 1
+    with open(path, "r") as reader:
+        for line in list(reader.readlines()):
+            filename, classname = line.split(separator)[:2]
+            filename = filename.strip()
+            classname = classname.strip()
+            class_dict[classname] = 1
             filename_list.append(filename)
             annotation_list.append(classname)
-
-    class_map = [k for k, v in sorted(class_dict.items, key=lambda x: x[0])]
-    annotation_list = [class_dict.index(a) for a in annotation_list]
-    return annotation_list, class_map
+    class_map = [k for k, v in sorted(class_dict.items(), key=lambda x: x[0])]
+    annotation = {f: class_map.index(a)
+        for a, f in zip(annotation_list, filename_list)}
+    return annotation, class_map
 
 
 def load_img(img_path, imsize=None):
@@ -126,7 +128,6 @@ def load_img(img_path, imsize=None):
     if imsize is not None:
         img = img.resize(imsize, Image.BILINEAR)
     return np.asarray(img).transpose(2, 0, 1).astype(np.float32)
-
 
 
 def parse_classmap_file(class_map_file, separator=" "):
@@ -155,7 +156,7 @@ def parse_classmap_file(class_map_file, separator=" "):
     class_map = list()
     with open(str(class_map_file)) as reader:
         for line in reader.readlines():
-            class_name, id = line.split(separator)
+            class_name, id = line.split(separator)[:2]
             class_name.append({id: class_name})
     class_map = [c for k, c in sorted(class_map.items(), key=lambda x: x[0])]
     return class_map

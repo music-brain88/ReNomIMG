@@ -106,7 +106,9 @@ class TrainThread(object):
         model = self.model
         self.state = State.STARTED
         self.running_state = RunningState.TRAINING
-        valid_target = self.valid_dist.get_resized_annotation_list(self.imsize)
+        if self.task_id == Task.DETECTION.value:
+            valid_target = self.valid_dist.get_resized_annotation_list(self.imsize)
+
         if self.stop_event.is_set():
             # Watch stop event
             self.updated = True
@@ -171,6 +173,9 @@ class TrainThread(object):
             release_mem_pool()
             self.running_state = RunningState.VALIDATING
             self.sync_state()
+
+            if self.task_id != Task.DETECTION.value:
+                valid_target = []
             valid_prediction = []
             temp_valid_batch_loss_list = []
             model.set_models(inference=True)
@@ -184,12 +189,17 @@ class TrainThread(object):
                 valid_prediction_in_batch = model(valid_x)
                 loss = model.loss(valid_prediction_in_batch, valid_y)
                 valid_prediction.append(valid_prediction_in_batch.as_ndarray())
+
+                if self.task_id != Task.DETECTION.value:
+                    valid_target.append(valid_y)
+
                 try:
                     loss = loss.as_ndarray()[0]
                 except:
                     loss = loss.as_ndarray()
                 loss = float(loss)
                 temp_valid_batch_loss_list.append(loss)
+
             self.valid_loss_list.append(np.mean(temp_valid_batch_loss_list))
             self.sync_valid_loss()
 
@@ -197,7 +207,10 @@ class TrainThread(object):
                 # Watch stop event
                 self.updated = True
                 return
+
             valid_prediction = np.concatenate(valid_prediction, axis=0)
+            if self.task_id != Task.DETECTION.value:
+                valid_target = np.concatenate(valid_target, axis=0)
             n_valid = min(len(valid_prediction), len(valid_target))
             if False:
                 pass
@@ -214,7 +227,6 @@ class TrainThread(object):
                         self.best_epoch_valid_result = {
                             "nth_epoch": e,
                             "prediction_box": prediction_box,
-                            "target_box": valid_target,
                             "mAP": float(mAP),
                             "IOU": float(iou),
                             "loss": float(loss)
@@ -224,7 +236,6 @@ class TrainThread(object):
                     self.best_epoch_valid_result = {
                         "nth_epoch": e,
                         "prediction_box": prediction_box,
-                        "target_box": valid_target,
                         "mAP": float(mAP),
                         "IOU": float(iou),
                         "loss": float(loss)
@@ -340,8 +351,8 @@ class TrainThread(object):
             self._setting_yolov2()
         elif self.algorithm_id == Algorithm.SSD.value:
             self._setting_ssd()
-        elif self.algorithm_id == Algorithm.RESNET18.value:
-            pass
+        elif self.algorithm_id == Algorithm.VGG16.value:
+            self._setting_vgg16()
         else:
             assert False
 
@@ -632,16 +643,13 @@ class TrainThread(object):
         self.model = VGG16(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=True,
-            train_whole_network=self.hyper_parameters["train_whole"]
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
         )
-        aug = Augmentation([
-            Shift(10, 10)
-        ])
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,
-            augmentation=aug,
+            augmentation=self.augmentation,
             target_builder=self.model.build_data()
         )
         self.valid_dist = ImageDistributor(

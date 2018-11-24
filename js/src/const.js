@@ -179,16 +179,8 @@ export const ALGORITHM = {
         ...COMMON_PARAMS,
       }
     },
-    Vgg16_NODENSE: {
-      id: 14,
-      key: 'Vgg16_NODENSE',
-      title: 'VGG16 No Dense',
-      params: {
-        ...COMMON_PARAMS,
-      }
-    },
     Vgg19: {
-      id: 15,
+      id: 14,
       key: 'Vgg19',
       title: 'VGG19',
       params: {
@@ -196,7 +188,7 @@ export const ALGORITHM = {
       }
     },
     Inception1: {
-      id: 16,
+      id: 15,
       key: 'Inseption1',
       title: 'Inseption V1',
       params: {
@@ -248,7 +240,7 @@ export const ALGORITHM = {
   },
   DETECTION: {
     YOLOv1: {
-      id: 10, // Must be same as back-end.
+      id: 30, // Must be same as back-end.
       key: 'yolov1', // Must be same as back-end.
       title: 'Yolo v1',
       params: {
@@ -276,7 +268,7 @@ export const ALGORITHM = {
       }
     },
     YOLOv2: {
-      id: 11,
+      id: 31,
       key: 'yolov2',
       title: 'Yolo v2',
       params: {
@@ -298,7 +290,7 @@ export const ALGORITHM = {
       }
     },
     SSD: {
-      id: 12,
+      id: 32,
       key: 'ssd',
       title: 'SSD',
       params: {
@@ -316,7 +308,7 @@ export const ALGORITHM = {
   },
   SEGMENTATION: {
     Unet: {
-      id: 20,
+      id: 60,
       key: 'unet',
       title: 'U-Net',
       params: {
@@ -332,7 +324,7 @@ export const ALGORITHM = {
       }
     },
     Fcn8s: {
-      id: 21,
+      id: 61,
       key: 'fcn8s',
       title: 'FCN 8s',
       params: {
@@ -340,7 +332,7 @@ export const ALGORITHM = {
       }
     },
     Fcn16s: {
-      id: 22,
+      id: 62,
       key: 'fcn16s',
       title: 'FCN 16s',
       params: {
@@ -348,7 +340,7 @@ export const ALGORITHM = {
       }
     },
     Fcn32: {
-      id: 23,
+      id: 63,
       key: 'fcn32',
       title: 'FCN 32s',
       params: {
@@ -356,7 +348,7 @@ export const ALGORITHM = {
       }
     },
     TernousNet: {
-      id: 24,
+      id: 64,
       key: 'ternousnet',
       title: 'TernousNet',
       params: {

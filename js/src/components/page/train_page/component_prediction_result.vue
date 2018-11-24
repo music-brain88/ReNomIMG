@@ -39,7 +39,7 @@ export default {
   },
   data: function () {
     return {
-      show_target: false
+      show_target: true
     }
   },
   computed: {
@@ -184,7 +184,6 @@ export default {
           if (i === last_index) {
             // Add white image to empty space.
             one_page.push({index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1]})
-            console.log(nth_line_in_page)
             for (let j = nth_line_in_page; j < 2; j++) {
               one_page.push({index: -1, img: brank, size: [max_ratio, 1]})
             }
@@ -219,12 +218,32 @@ export default {
       if (item.index < 0) return
       const model = this.getSelectedModel
       if (!model) return []
-      if (!model.best_epoch_valid_result) return []
 
       let box_list = []
       if (this.show_target) {
-        box_list = model.best_epoch_valid_result.target_box[item.index]
+        const dataset = this.datasets.find(d => d.id === model.dataset_id)
+        if (!dataset) return
+        const size_list = dataset.valid_data.size[item.index]
+        box_list = dataset.valid_data.target[item.index]
+        box_list = box_list.map((b, index) => {
+          const ow = size_list[0]
+          const oh = size_list[1]
+          const x = b.box[0]/ow
+          const y = b.box[1]/oh
+          const w = b.box[2]/ow
+          const h = b.box[3]/oh
+          return Object.assign({box: [
+            x, y, w, h
+          ]}, Object.keys(b).reduce((obj, k) => {
+              if (k === "box") {
+                return obj
+              } else {
+                return Object.assign(obj, {[k]: b[k]})
+              }
+            }, {}))
+        })
       } else {
+        if (!model.best_epoch_valid_result) return []
         box_list = model.best_epoch_valid_result.prediction_box[item.index]
       }
       return box_list
