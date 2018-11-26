@@ -191,15 +191,15 @@ export default {
       let color
       switch (n) {
         // YOLOv1
-        case 10:
+        case 30:
           color = '#903f84'
           break
         // YOLOv2
-        case 11:
+        case 31:
           color = '#433886'
           break
         // SSD
-        case 12:
+        case 32:
           color = '#009453'
           break
         default:

@@ -72,7 +72,7 @@ export default {
       const canvas_height = canvas.clientHeight
       const circle_radius = Math.min(canvas_width * 0.02, canvas_height * 0.02)
       const model_list = this.getFilteredAndGroupedModelList
-      const svg = d3.select('#scatter-canvas').append('svg')
+      const svg = d3.select('#scatter-canvas').append('svg').attr('id', 'model-scatter-graph')
 
       // Set size.
       svg
@@ -149,36 +149,31 @@ export default {
         .attr('fill', (m) => {
           return this.getAlgorithmColor(m.algorithm_id)
         })
-        .on('mouseenter', (d, index) => {
+        .on('mousemove', (m, index) => {
           // TODO: Fix event handler.
+          let x = d3.event.pageX - document.getElementById('model-scatter-graph')
+            .getBoundingClientRect().x - 10
+          let y = -(d3.event.pageY - document.getElementById('model-scatter-graph')
+            .getBoundingClientRect().y - 10)
           tooltip.style('display', 'inline-block')
           tooltip.transition()
             .duration(200)
             .style('opacity', 0.9)
           tooltip.html(
-            'model_id:' + d.id + '<br />' +
-            'mAP:' + d.best_epoch_valid_result.mAP + '<br />' +
-            'IoU:' + d.best_epoch_valid_result.IOU + '<br />'
+            'model_id:' + m.id + '<br />' +
+            'mAP:' + m.best_epoch_valid_result.mAP + '<br />' +
+            'IoU:' + m.best_epoch_valid_result.IOU
           )
             .style('position', 'absolute')
-            // .style('width', '100px')
-            // .style('height', '50px')
-            .style('top', (d3.event.pageY - 28) + 'px')
-            .style('left', (d3.event.pageX) + 'px')
+            .style('top', y + 'px')
+            .style('left', x + 'px')
             .style('padding', '10px')
-            .style('background', this.getAlgorithmColor(d.algorithm_id))
+            .style('background', this.getAlgorithmColor(m.algorithm_id))
             .style('color', 'white')
             .style('text-align', 'left')
-            .on('mouseenter', function () {
-              tooltip.style('display', 'inline-block')
-            })
-            .on('mouseleave', function () {
-              tooltip.style('display', 'none')
-            })
         })
-        .on('mouseleave', function () {
+        .on('mouseleave', () => {
           tooltip.style('display', 'none')
-          tooltip.style('opacity', 0)
         })
     }
   }

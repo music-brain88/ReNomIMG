@@ -18,6 +18,7 @@
 
 <script>
 import * as d3 from 'd3'
+import * as utils from '@/utils.js'
 import { mapGetters } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -56,12 +57,15 @@ export default {
   methods: {
     draw: function () {
       d3.select('#learning-curve-canvas').select('svg').remove() // Remove SVG if it has been created.
-
+      const zoom = d3.zoom()
+        .scaleExtent([0, 10])
+        .translateExtent([0, 0])
+        .on('zoom', zoomed)
       const margin = {top: 15, left: 40, right: 20, bottom: 20}
       const canvas = document.getElementById('learning-curve-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
-      const svg = d3.select('#learning-curve-canvas').append('svg')
+      const svg = d3.select('#learning-curve-canvas').append('svg').attr('id', 'learnning-graph')
       const train_color = '#0762ad'
       const valid_color = '#ef8200'
       let best_epoch = 0
@@ -89,14 +93,8 @@ export default {
         .append('div')
         .append('display', 'none')
 
-      const zoom = d3.zoom()
-        .scaleExtent([0, 10])
-        .translateExtent([0, 0])
-        .on('zoom', zoomed)
-
       // Set size.
-      svg
-        .attr('width', canvas_width)
+      svg.attr('width', canvas_width)
         .attr('height', canvas_height)
         .call(zoom)
 
@@ -146,7 +144,7 @@ export default {
         .attr('stroke', train_color)
         .attr('stroke-width', 1.5)
         .attr('d', d3.line()
-          .x(function (d, index) { return scaleX(index) })
+          .x(function (d, index) { return scaleX(index + 1) })
           .y(function (d) { return scaleY(d) })
           .curve(d3.curveLinear)
         )
@@ -158,7 +156,7 @@ export default {
         .attr('stroke', valid_color)
         .attr('stroke-width', 1.5)
         .attr('d', d3.line()
-          .x(function (d, index) { return scaleX(index) })
+          .x(function (d, index) { return scaleX(index + 1) })
           .y(function (d) { return scaleY(d) })
           .curve(d3.curveLinear)
         )
@@ -168,11 +166,12 @@ export default {
         .attr('fill', 'none')
         .attr('stroke', 'red')
         .attr('stroke-width', 1.5)
-        .attr('x1', scaleX(best_epoch))
+        .attr('x1', scaleX(best_epoch + 1))
         .attr('y1', scaleY(maxY))
-        .attr('x2', scaleX(best_epoch))
+        .attr('x2', scaleX(best_epoch + 1))
         .attr('y2', scaleY(minY))
 
+      // Scatter graph
       let TrainScatter = svg.append('g')
         .selectAll('circle')
         .data(train_loss_list)
@@ -180,13 +179,38 @@ export default {
         .append('circle')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('cx', function (d, index) {
-          return scaleX(index)
+          return scaleX(index + 1)
         })
         .attr('cy', (d) => {
           return scaleY(d)
         })
         .attr('fill', train_color)
         .attr('r', 2)
+        .on('mousemove', (d, index) => {
+          // find svg id and get mouse position
+          let x = d3.event.pageX - document.getElementById('learnning-graph')
+            .getBoundingClientRect().x + 10
+          let y = -(d3.event.pageY - document.getElementById('learnning-graph')
+            .getBoundingClientRect().y)
+          tooltip.style('display', 'inline-block')
+          tooltip.transition()
+            .duration(200)
+            .style('opacity', 0.9)
+          tooltip.html(
+            'Epoc:' + (index + 1) + '<br />' +
+            'Valid:' + utils.round(d, 1000) + '<br />' +
+            'Y:' + y + '<br />' +
+            'X:' + x + '<br />'
+          )
+
+            .style('position', 'absolute')
+            .style('background', train_color)
+            .style('top', y + 'px')
+            .style('left', x + 'px')
+        })
+        .on('mouseleave', () => {
+          tooltip.style('display', 'none')
+        })
 
       let ValidScatter = svg.append('g')
         .selectAll('circle')
@@ -195,25 +219,49 @@ export default {
         .append('circle')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('cx', function (d, index) {
-          return scaleX(index)
+          return scaleX(index + 1)
         })
         .attr('cy', (d) => {
           return scaleY(d)
         })
         .attr('fill', valid_color)
         .attr('r', 2)
+        .on('mousemove', (d, index) => {
+          let x = d3.event.pageX - document.getElementById('learnning-graph')
+            .getBoundingClientRect().x + 10
+          let y = -(d3.event.pageY - document.getElementById('learnning-graph')
+            .getBoundingClientRect().y + 10)
+          tooltip.style('display', 'inline-block')
+          tooltip.transition()
+            .duration(200)
+            .style('opacity', 0.9)
+          tooltip.html(
+            'Epoc:' + (index + 1) + '<br />' +
+            'Valid:' + utils.round(d, 1000) + '<br />' +
+            'Y:' + y + '<br />' +
+            'X:' + x + '<br />'
+          )
+
+            .style('position', 'relative')
+            .style('background', valid_color)
+            .style('top', y + 'px')
+            .style('left', x + 'px')
+        })
+        .on('mouseleave', () => {
+          tooltip.style('display', 'none')
+        })
 
       d3.select('#learning-curve-canvas')
         .on('contextmenu', resetZoom)
 
       function zoomed () {
-        gX.call(axX.scale(d3.event.transform.rescaleX(scaleX)))
-        gY.call(axY.scale(d3.event.transform.rescaleY(scaleY)))
         TrainLine.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
         ValidLine.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
         TrainScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
         ValidScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
         BestEpoc.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
+        gX.call(axX.scale(d3.event.transform.rescaleX(scaleX)))
+        gY.call(axY.scale(d3.event.transform.rescaleY(scaleY)))
       }
       function resetZoom () {
         svg.call(zoom.transform, d3.zoomIdentity)
