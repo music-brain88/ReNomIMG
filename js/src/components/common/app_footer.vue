@@ -30,6 +30,7 @@
 <script>
 
 export default {
+  name: 'AppFooter',
   data () {
     return {
       version: 'ver 1.0.4',
@@ -46,7 +47,7 @@ footer {
   width: 100%;
   height:$footer-height;
   padding: 0;
-  margin:0;
+  margin: 0;
   background: $footer-color;
   margin-top: $component-margin-top;
   z-index: 99999;

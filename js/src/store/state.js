@@ -49,8 +49,11 @@ export default {
   },
 
   // Variable of image list pager.
-  nth_image_page: 0,
-  total_image_page: 0,
+  nth_image_page: {
+    [TASK_ID.CLASSIFICATION]: 0,
+    [TASK_ID.DETECTION]: 0,
+    [TASK_ID.SEGMENTATION]: 0,
+  },
 
   // Grouping. // Not use in version 2.0
   group_by: GROUPBY.NONE.key

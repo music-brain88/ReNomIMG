@@ -26,10 +26,12 @@ class RunningState(enum.Enum):
 
 
 class Algorithm(enum.Enum):
-    YOLOV1 = 10
-    YOLOV2 = 11
-    SSD = 12
     RESNET18 = 1
+    VGG11 = 9
+    VGG16 = 13
+    YOLOV1 = 30
+    YOLOV2 = 31
+    SSD = 32
 
 
 DB_DIR = "storage"

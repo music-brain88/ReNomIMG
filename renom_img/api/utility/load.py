@@ -3,6 +3,7 @@ import numpy as np
 from xml.etree import ElementTree
 from concurrent.futures import ThreadPoolExecutor as Executor
 from PIL import Image
+from renom_img.api.utility.misc.display import draw_segment
 
 
 def parse_xml_detection(xml_path_list, num_thread=8):
@@ -65,7 +66,6 @@ def parse_xml_detection(xml_path_list, num_thread=8):
                     {'box': bounding_box, 'name': class_name, 'size': (width, height)})
             local_annotation_list.append(image_data)
         return local_annotation_list
-
     N = len(xml_path_list)
     if N > num_thread:
         batch = int(N / num_thread)
@@ -109,16 +109,18 @@ def parse_txt_classification(path, separator=" "):
     class_dict = {}
     filename_list = []
     annotation_list = []
-    with open("path", "r") as reader:
-        for line in reader.readlines():
-            filename, classname = line.split(separator)
-            class_dict[class_dict] = 1
+    with open(path, "r") as reader:
+        for line in list(reader.readlines()):
+            filename, classname = line.split(separator)[:2]
+            filename = filename.strip()
+            classname = classname.strip()
+            class_dict[classname] = 1
             filename_list.append(filename)
             annotation_list.append(classname)
-
-    class_map = [k for k, v in sorted(class_dict.items, key=lambda x: x[0])]
-    annotation_list = [class_dict.index(a) for a in annotation_list]
-    return annotation_list, class_map
+    class_map = [k for k, v in sorted(class_dict.items(), key=lambda x: x[0])]
+    annotation = {f: class_map.index(a)
+                  for a, f in zip(annotation_list, filename_list)}
+    return annotation, class_map
 
 
 def load_img(img_path, imsize=None):
@@ -127,3 +129,35 @@ def load_img(img_path, imsize=None):
     if imsize is not None:
         img = img.resize(imsize, Image.BILINEAR)
     return np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+
+
+def parse_classmap_file(class_map_file, separator=" "):
+    """extract txt must be Pascal VOC format.
+
+    Args: 
+        file_path (poxis path): txt-file path.
+
+    Returns:
+        (list): This returns list of segmentation class list.
+        Each segmentation has a list of dictionary which includes keys 'id' and 'value'.
+
+    .. code-block :: python
+
+        # An example of returned list.
+        [
+            [ # Objects of 1st line.
+                {'id': index(int), 'value': class_name(string)}
+            ],
+            [ # Objects of 2nd line.
+                {'id': index(int), 'value': class_name(string)}
+            ]
+        ]
+
+    """
+    class_map = list()
+    with open(str(class_map_file)) as reader:
+        for line in reader.readlines():
+            class_name, id = line.split(separator)[:2]
+            class_name.append({id: class_name})
+    class_map = [c for k, c in sorted(class_map.items(), key=lambda x: x[0])]
+    return class_map

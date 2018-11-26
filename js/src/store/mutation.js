@@ -109,6 +109,7 @@ export default {
     }
   },
   setImagePageOfPredictionSample (state, payload) {
-
+    const task = state.current_task
+    state.nth_image_page[task] = payload
   }
 }

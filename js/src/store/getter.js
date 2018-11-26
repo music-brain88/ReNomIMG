@@ -14,6 +14,7 @@ export default {
     const task = getters.getCurrentTask
     // Filtering
     const filtered_list = getters.getFilteredModelList
+    console.log(filtered_list)
     // Grouping
     if (state.group_by === GROUPBY.NONE.key) {
       array = filtered_list
@@ -23,7 +24,6 @@ export default {
       array = filtered_list.reduce((grouped, m) => {
         let exists = false
         for (let g of grouped) {
-          console.log(g, m)
           if (g.algorithm_id === m.algorithm_id) {
             g.model_list.push(m)
             exists = true
@@ -55,7 +55,6 @@ export default {
   },
   getFilteredTestDatasetList (state, getters) {
     // TODO: Sort by task.
-    console.log(state.test_datasets)
     return state.test_datasets.filter(d => d.task_id === getters.getCurrentTask)
   },
   getDatasetFromId (state, getters) {
@@ -243,4 +242,8 @@ export default {
       return 'IOU [%]'
     }
   },
+  getImagePageOfPredictionSample (state, getters) {
+    const task = getters.getCurrentTask
+    return state.nth_image_page[task]
+  }
 }
