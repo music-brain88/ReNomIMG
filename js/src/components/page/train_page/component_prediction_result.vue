@@ -16,7 +16,7 @@
     </div>
     <div id="img-container">
       <!--<transition-group name="fade">-->
-      <div v-for="item in getValidImages" :style="getImgSize(item)">
+      <div v-for="(item, index) in getValidImages" :style="getImgSize(item)">
         <img :src="item.img"/>
         <!--Change following div for each task-->
         <div id="cls" v-if='isTaskClassification'
@@ -24,6 +24,9 @@
         </div>
         <div id="box" v-else-if='isTaskDetection'
           :style="getBoxStyle(box)" v-for="box in getBoxList(item)">
+        </div>
+        <div id="seg" v-else-if='isTaskSegmentation'>
+          <canvas :id="'canvas-' + index"/>
         </div>
       </div>
       <!--</transition-group>-->
@@ -33,7 +36,7 @@
 
 <script>
 import { TASK_ID } from '@/const.js'
-import { mapGetters, mapState, mapMutations } from 'vuex'
+import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
@@ -84,11 +87,23 @@ export default {
       return this.getCurrentTask === TASK_ID.SEGMENTATION
     }
   },
+  updated: function () {
+    this.$nextTick(function () {
+      if (this.isTaskSegmentation) {
+        let index = 0
+        for (let item of this.getValidImages) {
+          this.getSegmentationStyle(this.getSegmentationList(item), index)
+          index += 1
+        }
+      }
+    })
+  },
   created: function () {
 
   },
   methods: {
     ...mapMutations(['setImagePageOfPredictionSample']),
+    ...mapActions(['loadSegmentationTargetArray']),
     nextPage: function () {
       const model = this.getSelectedModel
       if (!model) return
@@ -170,7 +185,7 @@ export default {
           let size = valid_data.size[i]
           let ratio = ((size[0] + 2 * margin) / (size[1] + 2 * margin))
           accumurated_ratio += ratio
-          if (accumurated_ratio <= max_ratio) {
+          if (accumurated_ratio <= max_ratio || one_page.length === 0) {
             one_page.push({index: i, img: valid_data.img[i], size: valid_data.size[i]})
           } else {
             if (nth_line_in_page >= 3) {
@@ -206,25 +221,12 @@ export default {
           dataset.page = ret
         })
     },
-    getBoxStyle: function (box) {
-      const class_id = box.class
-      const x1 = (box.box[0] - box.box[2] / 2) * 100
-      const y1 = (box.box[1] - box.box[3] / 2) * 100
-      return {
-        top: y1 + '%',
-        left: x1 + '%',
-        width: box.box[2] * 100 + '%',
-        height: box.box[3] * 100 + '%',
-        border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
-      }
-    },
     getClassificationList: function (item) {
       if (item.index < 0) return
       const model = this.getSelectedModel
       if (!model) return []
       if (this.show_target) {
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
-        console.log(dataset.valid_data.target[item.index], item.index)
         return dataset.valid_data.target[item.index]
       } else {
         if (!model.best_epoch_valid_result) return null
@@ -232,7 +234,6 @@ export default {
       }
     },
     getClassificationStyle: function (cls) {
-      console.log(cls)
       if (cls === null) {
         return {}
       }
@@ -246,6 +247,18 @@ export default {
         return {
           border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
         }
+      }
+    },
+    getBoxStyle: function (box) {
+      const class_id = box.class
+      const x1 = (box.box[0] - box.box[2] / 2) * 100
+      const y1 = (box.box[1] - box.box[3] / 2) * 100
+      return {
+        top: y1 + '%',
+        left: x1 + '%',
+        width: box.box[2] * 100 + '%',
+        height: box.box[3] * 100 + '%',
+        border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
       }
     },
     getBoxList: function (item) {
@@ -281,6 +294,50 @@ export default {
         box_list = model.best_epoch_valid_result.prediction_box[item.index]
       }
       return box_list
+    },
+    getSegmentationList: function (item) {
+      if (item.index < 0) return
+      const model = this.getSelectedModel
+      if (!model) return []
+      if (this.show_target) {
+        const dataset = this.datasets.find(d => d.id === model.dataset_id)
+        return dataset.valid_data.target[item.index]
+      } else {
+        if (!model.best_epoch_valid_result) return null
+        const pred = model.best_epoch_valid_result.prediction[item.index]
+        return pred
+      }
+    },
+    getSegmentationStyle: function (item, index) {
+      if (!item) {
+        var canvas = document.getElementById('canvas-' + String(index))
+        var cxt = canvas.getContext('2d')
+        cxt.clearRect(0, 0, canvas.width, canvas.height)
+        return
+      }
+      let indexRow = 0
+      let indexCol = 0
+      const height = item.class.length
+      const width = item.class[0].length
+      var canvas = document.getElementById('canvas-' + String(index))
+      if (!canvas) return
+      var cxt = canvas.getContext('2d')
+      canvas.height = height
+      canvas.width = width
+      cxt.clearRect(0, 0, width, height)
+      for (let row of item.class) {
+        indexCol = 0
+        for (let col of row) {
+          const color = this.getTagColor(col)
+          cxt.fillStyle = color
+          cxt.fillRect(indexCol, indexRow, 1, 1)
+          indexCol++
+        }
+        indexRow++
+      }
+    },
+    getSegmentationTargetArray: function (src) {
+      let arr = this.loadSegmentationTargetArray(src)
     }
   }
 }
@@ -314,6 +371,17 @@ export default {
       width: 100%;
       top: -0.25vmin;
       left: -0.25vmin;
+    }
+    #seg {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      top: -0.25vmin;
+      left: -0.25vmin;
+      canvas {
+        height: 100%;
+        width: 100%;
+      }
     }
   }
 }

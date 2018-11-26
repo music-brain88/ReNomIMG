@@ -49,6 +49,16 @@ export default class Model {
         metric: 'mAP',
         value: m1
       }
+    } else if (this.task_id === TASK_ID.SEGMENTATION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.recall !== undefined) {
+          m1 = this.best_epoch_valid_result.recall.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Recall',
+        value: m1
+      }
     }
   }
   getResultOfMetric2 () {
@@ -71,6 +81,16 @@ export default class Model {
       }
       return {
         metric: 'IOU',
+        value: m2
+      }
+    } else if (this.task_id === TASK_ID.SEGMENTATION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.precision !== undefined) {
+          m2 = this.best_epoch_valid_result.precision.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Precision',
         value: m2
       }
     }

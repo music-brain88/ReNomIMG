@@ -15,9 +15,11 @@ from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.detection.ssd import SSD
 from renom_img.api.segmentation.unet import UNet
+from renom_img.api.segmentation.fcn import FCN8s
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
 from renom_img.api.utility.evaluate.classification import precision_recall_f1_score
+from renom_img.api.utility.evaluate.segmentation import get_segmentation_metrics
 from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise, ContrastNorm
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
@@ -213,6 +215,8 @@ class TrainThread(object):
             if self.task_id != Task.DETECTION.value:
                 valid_target = np.concatenate(valid_target, axis=0)
             n_valid = min(len(valid_prediction), len(valid_target))
+
+            # Depends on each task.
             if self.task_id == Task.CLASSIFICATION.value:
                 pred = np.argmax(valid_prediction, axis=1)
                 targ = np.argmax(valid_target, axis=1)
@@ -245,6 +249,7 @@ class TrainThread(object):
                         "f1": float(f1),
                         "loss": float(loss)
                     }
+                self.sync_best_valid_result()
 
             elif self.task_id == Task.DETECTION.value:
                 prediction_box = model.get_bbox(valid_prediction[:n_valid])
@@ -270,6 +275,39 @@ class TrainThread(object):
                         "prediction_box": prediction_box,
                         "mAP": float(mAP),
                         "IOU": float(iou),
+                        "loss": float(loss)
+                    }
+                self.sync_best_valid_result()
+            elif self.task_id == Task.SEGMENTATION.value:
+                pred = np.argmax(valid_prediction, axis=1)
+                targ = np.argmax(valid_target, axis=1)
+                _, pr, _, rc, _, f1, _, _, _, _ = \
+                    get_segmentation_metrics(pred, targ, n_class=len(self.class_map))
+                prediction = [
+                    {
+                        "class": p.astype(np.int).tolist()
+                    }
+                    for p in pred
+                ]
+                if self.best_epoch_valid_result:
+                    if self.best_epoch_valid_result["f1"] <= f1:
+                        self.best_valid_changed = True
+                        self.best_epoch_valid_result = {
+                            "nth_epoch": e,
+                            "prediction": prediction,
+                            "recall": float(rc),
+                            "precision": float(pr),
+                            "f1": float(f1),
+                            "loss": float(loss)
+                        }
+                else:
+                    self.best_valid_changed = True
+                    self.best_epoch_valid_result = {
+                        "nth_epoch": e,
+                        "prediction": prediction,
+                        "recall": float(rc),
+                        "precision": float(pr),
+                        "f1": float(f1),
                         "loss": float(loss)
                     }
                 self.sync_best_valid_result()
@@ -385,6 +423,8 @@ class TrainThread(object):
             self._setting_ssd()
         elif self.algorithm_id == Algorithm.VGG16.value:
             self._setting_vgg16()
+        elif self.algorithm_id == Algorithm.FCN8.value:
+            self._setting_fcn8()
         else:
             assert False
 
@@ -690,30 +730,6 @@ class TrainThread(object):
             target_builder=self.model.build_data()
         )
 
-    def _setting_vgg16_no_dense(self):
-        assert all([self.hyper_parameters.keys()])
-        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
-        self.model = VGG16_NODENSE(
-            class_map=self.class_map,
-            imsize=self.imsize,
-            load_pretrained_weight=True,
-            train_whole_network=self.hyper_parameters["train_whole"]
-        )
-        aug = Augmentation([
-            Shift(10, 10)
-        ])
-        self.train_dist = ImageDistributor(
-            self.train_img,
-            self.train_target,
-            augmentation=aug,
-            target_builder=self.model.build_data()
-        )
-        self.valid_dist = ImageDistributor(
-            self.valid_img,
-            self.valid_target,
-            target_builder=self.model.build_data()
-        )
-
     def _setting_vgg19(self):
         assert all([self.hyper_parameters.keys()])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
@@ -834,12 +850,23 @@ class TrainThread(object):
             target_builder=self.model.build_data()
         )
 
-    def _unet(self):
+    def _setting_fcn8(self):
         assert all([self.hyper_parameters.keys()])
-        assert self.task_id == Task.SEGEMENTATION.value, self.task_id
-        self.model = UNet(
+        assert self.task_id == Task.SEGMENTATION.value, self.task_id
+        self.model = FCN8s(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=True,
-            train_whole_network=self.hyper_parameters["train_whole"]
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target,
+            augmentation=self.augmentation,
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.valid_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
         )
