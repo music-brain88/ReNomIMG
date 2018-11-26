@@ -27,6 +27,7 @@ export default class Model {
 
     this.model_list = []
   }
+
   getResultOfMetric1 () {
     let m1 = '-'
     if (this.task_id === TASK_ID.CLASSIFICATION) {
@@ -92,20 +93,6 @@ export default class Model {
       return {
         metric: 'Precision',
         value: m2
-      }
-    }
-  }
-  getResultOfMetric3 () {
-    let m3 = '-'
-    if (this.task_id === TASK_ID.DETECTION) {
-      if (this.best_epoch_valid_result) {
-        if (this.best_epoch_valid_result.loss !== undefined) {
-          m3 = this.best_epoch_valid_result.loss.toFixed(2)
-        }
-      }
-      return {
-        metric: 'Loss',
-        value: m3
       }
     }
   }

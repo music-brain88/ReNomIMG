@@ -27,6 +27,7 @@ class RunningState(enum.Enum):
 
 class Algorithm(enum.Enum):
     RESNET18 = 1
+    RESNET34 = 2
     VGG11 = 9
     VGG16 = 13
     YOLOV1 = 30

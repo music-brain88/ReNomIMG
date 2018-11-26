@@ -66,6 +66,7 @@ def test_detection_model_implementation(algo):
             ["total_epoch", type(None)],
             ["current_batch", type(None)],
             ["total_batch", type(None)],
+            ["avg_valid_loss_list", type(None)],
         ],
         "preprocess": [
             "x"
@@ -173,10 +174,12 @@ def test_classification_model_implementation(algo):
             "img_list"
         ],
         "get_optimizer": [
+            ["current_loss", type(None)],
             ["current_epoch", type(None)],
             ["total_epoch", type(None)],
             ["current_batch", type(None)],
             ["total_batch", type(None)],
+            ["avg_valid_loss_list", type(None)],
         ],
         "preprocess": [
             "x"

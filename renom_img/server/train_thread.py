@@ -162,8 +162,10 @@ class TrainThread(object):
                         current_loss=loss,
                         current_epoch=e,
                         total_epoch=self.total_epoch,
-                        current_batch=b,
-                        total_batch=self.total_batch))
+                        current_batch=b - 1,
+                        total_batch=self.total_batch,
+                        avg_valid_loss_list=self.valid_loss_list
+                    ))
 
                 # Thread value changed.
                 self.updated = True
@@ -415,7 +417,10 @@ class TrainThread(object):
             # Watch stop event
             self.updated = True
             return
-        if self.algorithm_id == Algorithm.YOLOV1.value:
+
+        if self.algorithm_id == Algorithm.RESNET18.value:
+            self._setting_resnet18()
+        elif self.algorithm_id == Algorithm.YOLOV1.value:
             self._setting_yolov1()
         elif self.algorithm_id == Algorithm.YOLOV2.value:
             self._setting_yolov2()
@@ -495,13 +500,14 @@ class TrainThread(object):
 
     # Classification Algorithm
     def _setting_resnet18(self):
-        assert all([self.hyper_parameters.keys()])
+        required_params = ['plateau']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
         self.model = ResNet18(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=True,
-            train_whole_network=self.hyper_parameters["train_whole"],
+            train_whole_network=self.train_whole,
+            load_pretrained_weight=self.load_pretrained_weight,
             plateau=self.hyper_parameters["plateau"]
         )
         self.train_dist = ImageDistributor(

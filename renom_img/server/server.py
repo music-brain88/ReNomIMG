@@ -337,10 +337,21 @@ def dataset_create():
 @json_handler
 def dataset_load_of_task(id):
     # TODO: Remember last sent value and cache it.
-    print(id)
     datasets = storage.fetch_datasets_of_task(id)
     return {
-        "dataset_list": datasets
+        "dataset_list": [
+            {
+                'id': d["id"],
+                'name': d["name"],
+                'class_map': d["class_map"],
+                'task_id': d["task_id"],
+                'valid_data': d["valid_data"],
+                'ratio': d["ratio"],
+                'description': d["description"],
+                'test_dataset_id': d["test_dataset_id"],
+            }
+            for d in datasets
+        ]
     }
 
 

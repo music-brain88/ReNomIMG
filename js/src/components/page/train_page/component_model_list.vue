@@ -46,7 +46,8 @@
       </span>
     </div>
 
-    <div id="model-list" class="scrollbar-container">
+    <div id="model-list" class="scrollbar-container"
+      v-on:keyup.right="selectNextModel" v-on:keyup.left="selectPrevModel" tabindex="0">
       <model-item :model="getDeployedModel"/>
       <model-item v-for="(model, index) in getFilteredAndGroupedModelList" :model="model"
          v-if="model !== getDeployedModel"/>
@@ -56,7 +57,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations} from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 import { GROUPBY } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ModelItem from '@/components/page/train_page/model_item.vue'
@@ -81,10 +82,10 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['setSortOrder', 'showModal', 'setGoupBy']),
+    ...mapMutations(['setSortOrder', 'showModal', 'setGoupBy', 'selectPrevModel', 'selectNextModel']),
     setGoupingCategory: function () {
       this.setGoupBy(this.groupby)
-    }
+    },
   }
 }
 </script>

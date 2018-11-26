@@ -79,7 +79,7 @@ export const ALGORITHM = {
           title: 'Plateau',
           key: 'plateau',
           type: 'checkbox',
-          default: false
+          default: true
         }
       }
     },
@@ -93,7 +93,7 @@ export const ALGORITHM = {
           title: 'Plateau',
           key: 'plateau',
           type: 'checkbox',
-          default: false
+          default: true
         }
       }
     },
@@ -107,7 +107,7 @@ export const ALGORITHM = {
           title: 'Plateau',
           key: 'plateau',
           type: 'checkbox',
-          default: false
+          default: true
         }
       }
     },
@@ -121,7 +121,7 @@ export const ALGORITHM = {
           title: 'Plateau',
           key: 'plateau',
           type: 'checkbox',
-          default: false
+          default: true
         }
       }
     },
@@ -135,7 +135,7 @@ export const ALGORITHM = {
           title: 'Plateau',
           key: 'plateau',
           type: 'checkbox',
-          default: false
+          default: true
         }
       }
     },

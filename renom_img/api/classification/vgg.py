@@ -24,7 +24,8 @@ def layer_factory(channel=32, conv_layer_num=2):
 @adddoc
 class VGGBase(Classification):
 
-    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def get_optimizer(self, current_loss=None, current_epoch=None,
+                      total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
         if any([num is None for num in [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
