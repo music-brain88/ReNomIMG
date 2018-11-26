@@ -4,6 +4,15 @@
       Prediction Result
     </template>
     <div id="pager">
+      <div class="pager-arrow">
+        <i class="fa fa-caret-left" aria-hidden="true"></i>
+      </div>
+      <div class="pager-number">
+        1
+      </div>
+      <div class="pager-arrow">
+        <i class="fa fa-caret-right" aria-hidden="true"></i>
+      </div>
     </div>
     <div id="img-container">
       <transition-group name="fade">
@@ -57,6 +66,16 @@ export default {
 #pager {
   width: 100%;
   height: 5%;
-  background-color: black;
+  display: flex;
+  align-content: center;
+  .pager-arrow {
+    height: 100%;
+    i {
+    }
+  }
+  .pager-number {
+    height: 100%;
+    border: solid 1px gray;
+  }
 }
 </style>

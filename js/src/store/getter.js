@@ -144,13 +144,27 @@ export default {
       }
     }
   },
-  getAlgorithmClassFromId (state, getters) {
-    return function (algorithm_id) {
+
+  /*
+   * For checking the color, see unified.css
+   *
+   */
+  getColorClass (state, getters) {
+    return function (model) {
       let task = getters.getCurrentTask
+      let state = model.state
+      let running_state = model.running_state
+
+      if (state === STATE.CREATED) {
+        return 'color-created'
+      } else if (state === STATE.RESERVED) {
+        return 'color-reserved'
+      }
+
       if (task in Object.values(TASK_ID)) {
         let task_key = getKeyByValue(TASK_ID, task)
-        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_id)
-        return ALGORITHM[task_key][key].key
+        let key = getKeyByValueIncludes(ALGORITHM[task_key], model.algorithm_id)
+        return 'color-' + Number(ALGORITHM[task_key][key].id) % 10
       } else {
         throw new Error(algorithm_id + 'is not supported id.')
       }
@@ -214,5 +228,19 @@ export default {
   },
   getGroupTitles (state, getters) {
     return Object.values(GROUPBY)
-  }
+  },
+  getTitleMetric1 (state, getters) {
+    if (state.current_task === TASK_ID.CLASSIFICATION) {
+      return 'Recall [%]'
+    } else if (state.current_task === TASK_ID.DETECTION) {
+      return 'mAP [%]'
+    }
+  },
+  getTitleMetric2 (state, getters) {
+    if (state.current_task === TASK_ID.CLASSIFICATION) {
+      return 'Precision [%]'
+    } else if (state.current_task === TASK_ID.DETECTION) {
+      return 'IOU [%]'
+    }
+  },
 }

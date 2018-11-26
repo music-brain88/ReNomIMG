@@ -1,6 +1,6 @@
 <template>
   <div id="model-item" v-if="model" v-bind:class="{ isSelected: model === getSelectedModel}">
-    <div id="model-color" v-bind:class='getAlgorithmClassFromId(model.algorithm_id)'>
+    <div id="model-color" v-bind:class='getColorClass(model)'>
     </div>
     <div id="model-add-button" v-if="isAddButton" @click="showModal({add_both: true})">
       ADD
@@ -58,7 +58,7 @@ export default {
       'getCurrentTask',
       'getModelResultTitle',
       'getAlgorithmTitleFromId',
-      'getAlgorithmClassFromId',
+      'getColorClass',
       'getSelectedModel'
     ]),
     getChildModelList: function () {
