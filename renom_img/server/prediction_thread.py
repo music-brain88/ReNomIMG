@@ -5,6 +5,7 @@ import json
 import weakref
 import traceback
 from threading import Event
+from PIL import Image
 sys.setrecursionlimit(10000)
 import numpy as np
 
@@ -117,7 +118,9 @@ class PredictionThread(object):
             return
         names = list(os.listdir(self.img_dir))
         N = len(names)
-        result = []
+        results = []
+        sizes = []
+        imgs = []
         self.total_batch = N
         for i, p in enumerate(names):
             self.nth_batch = i
@@ -125,13 +128,16 @@ class PredictionThread(object):
             pred = self.model.predict(path)
             if isinstance(pred, np.ndarray):
                 pred = pred.tolist()
-            result.append({
-                'prediction': pred,
-                'img': path,
-            })
+            results.append(pred)
+            sizes.append(Image.open(path).size)
+            imgs.append(path)
             self.updated = True
+        self.prediction_result = {
+            "img": imgs,
+            "size": sizes,
+            "prediction": results,
+        }
         self.need_pull = True
-        self.prediction_result = result
         self.sync_result()
         return
 

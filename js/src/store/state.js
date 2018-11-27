@@ -5,7 +5,8 @@ export default {
   polling_request_jobs: { // axios obj here.
     weight_download: [],
     train: [],
-    validation: []
+    validation: [],
+    prediction: []
   },
 
   current_task: TASK_ID.DETECTION,
@@ -50,6 +51,12 @@ export default {
 
   // Variable of image list pager.
   nth_image_page: {
+    [TASK_ID.CLASSIFICATION]: 0,
+    [TASK_ID.DETECTION]: 0,
+    [TASK_ID.SEGMENTATION]: 0,
+  },
+
+  nth_prediction_image_page: {
     [TASK_ID.CLASSIFICATION]: 0,
     [TASK_ID.DETECTION]: 0,
     [TASK_ID.SEGMENTATION]: 0,

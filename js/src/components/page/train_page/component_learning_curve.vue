@@ -57,7 +57,7 @@ export default {
   methods: {
     draw: function () {
       d3.select('#learning-curve-canvas').select('svg').remove() // Remove SVG if it has been created.
-      
+
       const margin = {top: 15, left: 40, right: 20, bottom: 20}
       const canvas = document.getElementById('learning-curve-canvas')
       const canvas_width = canvas.clientWidth

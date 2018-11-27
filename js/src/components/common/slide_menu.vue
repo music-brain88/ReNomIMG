@@ -59,6 +59,7 @@ export default {
       } else {
         console.log(page_name + 'is not supported page name.')
       }
+      this.showSlideMenu(false)
     }
 
   }
@@ -88,7 +89,7 @@ export default {
     background-color: $slide-window-background-color;
 
     .task-button {
-      font-size: 130%;
+      font-size: 125%;
       width: calc(100% - 40%);
       color: white;
       text-align: left;

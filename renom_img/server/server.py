@@ -254,7 +254,7 @@ def model_load_prediction_result(id):
     if thread is None:
         saved_model = storage.fetch_model(id)
         if saved_model is None:
-            return
+            raise Exception("Model id {} is not found".format(id))
         # If the state == STOPPED, client will never throw request.
         if saved_model["state"] != State.STOPPED.value:
             storage.update_model(id, state=State.STOPPED.value,

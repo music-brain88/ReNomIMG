@@ -115,6 +115,10 @@ export default {
     const task = state.current_task
     state.nth_image_page[task] = payload
   },
+  setImagePageOfPrediction (state, payload) {
+    const task = state.current_task
+    state.nth_prediction_image_page[task] = payload
+  },
   selectNextModel (state, payload) {
     const task = state.current_task
     const mlist = state.models.filter(m => m.task_id === task)

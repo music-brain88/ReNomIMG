@@ -247,6 +247,80 @@ export default {
     }, error_handler_creator(context))
   },
 
+  async runPredictionThread (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/thread/prediction/run/' + model_id
+    return axios.get(url)
+      .then(function (response) {
+        let model = context.getters.getModelById(model_id)
+        model.state = STATE.PRED_CREATED // TODO: Remove this line.
+        context.dispatch('startAllPolling')
+      }, error_handler_creator(context))
+  },
+
+  async pollingPrediction (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/polling/prediction/model/' + model_id
+    const request_source = {'prediction': model_id}
+    const current_requests = context.state.polling_request_jobs.prediction
+
+    // If polling for the model is already performed, do nothing.
+    if (current_requests.indexOf(model_id) >= 0) {
+      return
+    }
+
+    // Register request.
+    context.commit('addPollingJob', request_source)
+    return axios.get(url).then(function (response) {
+      // This 'response' can be empty.
+
+      // Check and run other model's polling.
+      context.dispatch('startAllPolling', payload)
+
+      // Remove finished request.
+      context.commit('rmPollingJob', request_source)
+
+      // Need to confirm the model is not removed.
+      const model = context.getters.getModelById(model_id)
+      if (model) {
+        let r = response.data
+        let state = r.state
+        let need_pull = response.data.need_pull
+
+        // Update model.
+        model.state = r.state
+        model.running_state = r.running_state
+        model.total_prediction_batch = r.total_batch
+        model.nth_prediction_batch = r.nth_batch
+
+        if (state === STATE.STOPPED) {
+
+        } else {
+          context.dispatch('pollingPrediction', model_id)
+        }
+        if (need_pull) {
+          context.dispatch('loadPredictionResult', model_id)
+        }
+      }
+    }, error_handler_creator(context, function () {
+      // Need to reload Model State.
+    }))
+  },
+
+  async loadPredictionResult (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/load/prediction/result/' + model_id
+    return axios.get(url).then(function (response) {
+      const model = context.getters.getModelById(model_id)
+      if (model) {
+        const r = response.data
+        const result = r.result
+        model.prediction_result = result
+        context.commit('forceUpdateModelList')
+      }
+    }, error_handler_creator(context))
+  },
+
   /*****
    *
    */
@@ -276,17 +350,37 @@ export default {
    */
   async startAllPolling (context, payload) {
     const model_list = context.state.models.filter(m => m.id >= 0)
-    const current_requests = context.state.polling_request_jobs.train
+    const current_train_requests = context.state.polling_request_jobs.train
+    const current_prediction_requests = context.state.polling_request_jobs.prediction
+
     for (let m of model_list) {
-      if (m.state !== STATE.STOPPED) {
+      if (
+        m.state === STATE.CREATED ||
+        m.state === STATE.RESERVED ||
+        m.state === STATE.STARTED
+      ) {
         let need_run_request = true
-        for (let model_id in current_requests) {
+        for (let model_id in current_train_requests) {
           if (model_id === m.id) {
             need_run_request = false
           }
         }
         if (need_run_request) {
           context.dispatch('pollingTrain', m.id)
+        }
+      } else if (
+        m.state === STATE.PRED_CREATED ||
+        m.state === STATE.PRED_RESERVED ||
+        m.state === STATE.PRED_STARTED
+      ) {
+        let need_run_request = true
+        for (let model_id in current_prediction_requests) {
+          if (model_id === m.id) {
+            need_run_request = false
+          }
+        }
+        if (need_run_request) {
+          context.dispatch('pollingPrediction', m.id)
         }
       }
     }
