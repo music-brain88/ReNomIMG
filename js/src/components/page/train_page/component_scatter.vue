@@ -120,6 +120,7 @@ export default {
       let tooltip = d3.select('#scatter-canvas')
         .append('div')
         .style('display', 'none')
+        .style('position', 'absolute')
 
       // Plot Models.
       svg.append('g')
@@ -151,10 +152,8 @@ export default {
         })
         .on('mousemove', (m, index) => {
           // TODO: Fix event handler.
-          let x = d3.event.pageX - document.getElementById('model-scatter-graph')
-            .getBoundingClientRect().x - 10
-          let y = -(d3.event.pageY - document.getElementById('model-scatter-graph')
-            .getBoundingClientRect().y - 10)
+          let x = d3.event.layerX + 10
+          let y = d3.event.layerY + 10
           tooltip.style('display', 'inline-block')
           tooltip.transition()
             .duration(200)
@@ -164,7 +163,6 @@ export default {
             'mAP:' + m.best_epoch_valid_result.mAP + '<br />' +
             'IoU:' + m.best_epoch_valid_result.IOU
           )
-            .style('position', 'absolute')
             .style('top', y + 'px')
             .style('left', x + 'px')
             .style('padding', '10px')

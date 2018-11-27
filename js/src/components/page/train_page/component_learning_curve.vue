@@ -89,6 +89,7 @@ export default {
       let tooltip = d3.select('#learning-curve-canvas')
         .append('div')
         .append('display', 'none')
+        .style('position', 'absolute')
 
       const zoom = d3.zoom()
         .scaleExtent([0, 10])
@@ -101,11 +102,6 @@ export default {
         .call(zoom)
 
       // Axis Settings
-      // const scaleX = d3.scaleLinear().domain([minX, d3.max(train_loss_list, function (d, index) { return index })])
-      //   .range([0, canvas_width - margin.left - margin.right])
-      // const scaleY = d3.scaleLinear().domain([minY, d3.max(train_loss_list, function (d) { return d })])
-      //   .range([canvas_height - margin.bottom - margin.top, 0])
-      
       const scaleX = d3.scaleLinear().domain([minX, maxX])
         .range([0, canvas_width - margin.left - margin.right])
       const scaleY = d3.scaleLinear().domain([minY, maxY])
@@ -113,7 +109,7 @@ export default {
 
       // Sublines.
       // Horizontal
-      svg.append('g')
+      let SubLineX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('class', 'grid-line')
         .call(
@@ -124,7 +120,7 @@ export default {
         )
 
       // Vertical
-      svg.append('g')
+      let SubLineY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('class', 'grid-line')
         .call(
@@ -197,25 +193,20 @@ export default {
         .attr('r', 2)
         .on('mousemove', (d, index) => {
           // find svg id and get mouse position
-          let x = d3.event.pageX - document.getElementById('learnning-graph')
-            .getBoundingClientRect().x + 10
-          let y = -(d3.event.pageY - document.getElementById('learnning-graph')
-            .getBoundingClientRect().y)
+          let x = d3.event.layerX + 10
+          let y = d3.event.layerY + 10
           tooltip.style('display', 'inline-block')
           tooltip.transition()
             .duration(200)
             .style('opacity', 0.9)
           tooltip.html(
             'Epoc:' + (index + 1) + '<br />' +
-            'Valid:' + utils.round(d, 1000) + '<br />' +
-            'Y:' + y + '<br />' +
-            'X:' + x + '<br />'
-          )
-
-            .style('position', 'absolute')
-            .style('background', train_color)
-            .style('top', y + 'px')
+            'Valid:' + utils.round(d, 1000) + '<br />'
+          ).style('top', y + 'px')
             .style('left', x + 'px')
+            .style('padding', '10px')
+            .style('background', train_color)
+            .style('color', 'white')
         })
         .on('mouseleave', () => {
           tooltip.style('display', 'none')
@@ -227,34 +218,26 @@ export default {
         .enter()
         .append('circle')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('cx', (d, index) => {
-          return scaleX(index + 1)
-        })
-        .attr('cy', (d) => {
-          return scaleY(d)
-        })
+        .attr('cx', (d, index) => { return scaleX(index + 1) })
+        .attr('cy', (d) => { return scaleY(d) })
         .attr('fill', valid_color)
         .attr('r', 2)
         .on('mousemove', (d, index) => {
-          let x = d3.event.pageX - document.getElementById('learnning-graph')
-            .getBoundingClientRect().x + 10
-          let y = -(d3.event.pageY - document.getElementById('learnning-graph')
-            .getBoundingClientRect().y + 10)
+          let x = d3.event.layerX + 10
+          let y = d3.event.layerY + 10
           tooltip.style('display', 'inline-block')
           tooltip.transition()
             .duration(200)
             .style('opacity', 0.9)
-          tooltip.html(
-            'Epoc:' + (index) + '<br />' +
-            'Valid:' + utils.round(d, 1000) + '<br />' +
-            'Y:' + y + '<br />' +
-            'X:' + x + '<br />'
-          )
 
-            .style('position', 'relative')
-            .style('background', valid_color)
-            .style('top', y + 'px')
+          tooltip.html(
+            'Epoc:' + (index + 1) + '<br />' +
+            'Valid:' + utils.round(d, 1000) + '<br />'
+          ).style('top', y + 'px')
             .style('left', x + 'px')
+            .style('padding', '10px')
+            .style('background', valid_color)
+            .style('color', 'white')
         })
         .on('mouseleave', () => {
           tooltip.style('display', 'none')
@@ -264,11 +247,13 @@ export default {
         .on('contextmenu', resetZoom)
 
       function zoomed () {
-        TrainLine.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
-        ValidLine.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
-        TrainScatter.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
-        ValidScatter.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
-        BestEpoc.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
+        let move_x = margin.left + d3.event.transform.x
+        let move_y = margin.top + d3.event.transform.y
+        TrainLine.attr('transform', 'translate(' + [move_x, move_y] + ') scale(' + d3.event.transform.k + ')')
+        ValidLine.attr('transform', 'translate(' + [move_x, move_y] + ') scale(' + d3.event.transform.k + ')')
+        TrainScatter.attr('transform', 'translate(' + [move_x, move_y] + ') scale(' + d3.event.transform.k + ')')
+        ValidScatter.attr('transform', 'translate(' + [move_x, move_y] + ') scale(' + d3.event.transform.k + ')')
+        BestEpoc.attr('transform', 'translate(' + [move_x, move_y] + ') scale(' + d3.event.transform.k + ')')
         gX.call(axX.scale(d3.event.transform.rescaleX(scaleX)))
         gY.call(axY.scale(d3.event.transform.rescaleY(scaleY)))
       }
@@ -280,25 +265,6 @@ export default {
         ValidScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         d3.event.preventDefault()
       }
-    }
-  }
-}
-</script>
-
-<style lang='scss'>
-#learning-curve {
-  width: 100%;
-  height: 100%;
-  padding: 20px;
-  #learning-curve-canvas {
-    width: 100%;
-    height: 100%;
-    .grid-line line {
-      stroke: $scatter-grid-color;
-    }
-  }
-}
-</style>
     }
   }
 }
