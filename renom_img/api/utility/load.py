@@ -154,10 +154,12 @@ def parse_classmap_file(class_map_file, separator=" "):
         ]
 
     """
-    class_map = list()
+    class_map = {}
     with open(str(class_map_file)) as reader:
         for line in reader.readlines():
             class_name, id = line.split(separator)[:2]
-            class_name.append({id: class_name})
+            class_name = class_name.strip()
+            id = int(id.strip())
+            class_map[id] = class_name
     class_map = [c for k, c in sorted(class_map.items(), key=lambda x: x[0])]
     return class_map

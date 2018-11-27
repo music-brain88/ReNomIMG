@@ -2,13 +2,13 @@
   <div id="app">
     <app-header/>
     <div id="app-content">
+      <slide-menu/>
       <div id="container">
         <transition name="fade">
           <router-view></router-view> 
         </transition>
       </div>
     </div>
-    <slide-menu/>
     <alert-modal v-if="$store.state.show_alert_modal"></alert-modal>
     <modal/>
   </div>
@@ -64,7 +64,7 @@ export default {
   width: 100%;
   #app-content {
     width: $app-window-width;
-    margin: 0 auto;
+    margin: $header-height auto;
     padding-top: $app-container-padding-top;
     padding-bottom: $app-container-padding-bottom;
   }

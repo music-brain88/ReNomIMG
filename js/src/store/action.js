@@ -22,6 +22,7 @@ export default {
    */
   async init (context, payload) {
     // context.commit('resetState')
+    context.commit('flushFilter')
     context.dispatch('loadDatasetsOfCurrentTask')
     context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask')
@@ -59,6 +60,7 @@ export default {
           model.last_batch_loss = m.last_batch_loss
 
           context.commit('addModel', model)
+          context.dispatch('loadBestValidResult', id)
         }
       }, error_handler_creator(context))
   },
@@ -352,5 +354,8 @@ export default {
       test_dataset.test_data = test_data
     }, error_handler_creator(context))
   },
-
+  async loadSegmentationTargetArray (context, payload) {
+    let url = '/target/segmentation/' + payload
+    return axios.get(url)
+  }
 }

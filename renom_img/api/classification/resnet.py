@@ -90,7 +90,8 @@ class Bottleneck(rm.Model):
 
 class ResNetBase(Classification):
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None,
+                      current_batch=None, total_batch=None, avg_valid_loss_list=None):
         """Returns an instance of Optimiser for training Yolov1 algorithm.
 
         Args:
@@ -99,10 +100,10 @@ class ResNetBase(Classification):
             current_batch:
             total_epoch:
         """
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch, avg_valid_loss_list]]):
             return self._opt
         elif self.plateau:
-            avg_valid_loss_list = kwargs['avg_valid_loss_list']
+            avg_valid_loss_list = avg_valid_loss_list
             if len(avg_valid_loss_list) >= 2 and current_batch == 0:
                 if avg_valid_loss_list[-1] > min(avg_valid_loss_list):
                     self._counter += 1
@@ -110,6 +111,7 @@ class ResNetBase(Classification):
                     if self._counter > self._patience and new_lr > self._min_lr:
                         self._opt._lr = new_lr
                         self._counter = 0
+                    print(self._opt._lr)
                 else:
                     self._counter = 0
 

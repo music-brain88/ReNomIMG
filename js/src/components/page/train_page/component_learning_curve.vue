@@ -75,6 +75,12 @@ export default {
         best_epoch = (best_epoch) ? best_epoch.nth_epoch : 0
         train_loss_list = model.train_loss_list
         valid_loss_list = model.valid_loss_list
+        if (!train_loss_list) {
+          train_loss_list = []
+        }
+        if (!valid_loss_list) {
+          valid_loss_list = []
+        }
       }
       const learning_epoch = train_loss_list.length
       let maxX = Math.max(learning_epoch + 1, 10)

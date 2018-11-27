@@ -19,17 +19,19 @@
         </select>
       </div>
     </div>
-
     <div id="params">
       <div class="title">Hyper parameters</div>
       <div v-for="item in getAlgorithmParamList(selectedAlgorithm)">
         <div class="hyper-param">{{ item.title }} 
-          <input :type="item.type"
+          <input :type="item.type" v-if="item.type !== 'select'"
             :placeholder="item.default"
             v-model="parameters[item.key]"
             :disabled="item.disabled"
             :min="item.min"
             :max="item.max">
+          <select v-else v-model="parameters[item.key]" :selected="item.default">
+            <option v-for="opt of item.options">{{ opt }}</option>
+          </select>
         </div>
       </div>
     </div>
@@ -85,7 +87,6 @@ export default {
     },
     onCreateModel: function () {
       this.showModal({'all': false})
-
       // Perform action 'createModel' with specified params.
       this.createModel({
         hyper_params: this.parameters,

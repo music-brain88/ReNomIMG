@@ -143,6 +143,12 @@ def datasrc(folder_name, file_name):
     return static_file(file_name, root=file_dir, mimetype='image/*')
 
 
+@route("/target/segmentation/<root:path>/<folder_name:path>/<file_name:path>")
+def segmentation_target_mask(root, folder_name, file_name):
+    file_dir = os.path.join('datasrc', folder_name)
+    return
+
+
 # WEB APIs
 @route("/api/renom_img/v2/model/create", method="POST")
 @json_handler
@@ -158,17 +164,15 @@ def model_create():
     return {"id": new_id}
 
 
-@route("/api/renom_img/v2/model/load/<id:int>", method="GET")
-@json_handler
-def model_load(id):
-    model = storage.fetch_model(id)
-    return {"model": model}
-
-
 @route("/api/renom_img/v2/model/load/task/<task_id:int>", method="GET")
 @json_handler
 def models_load_of_task(task_id):
     models = storage.fetch_models_of_task(task_id)
+    # Remove best_valid_changed because it is very large.
+    models = [
+      {k: v if k != "best_epoch_valid_result" else {} for k, v in m.items()}
+      for m in models
+    ]
     return {'model_list': models}
 
 
@@ -281,7 +285,15 @@ def dataset_create():
         xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
         parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
     elif task_id == Task.SEGMENTATION.value:
-        pass
+        segmentation_label_dir = label_dir / "segmentation"
+        file_names = [p for p in file_names if (img_dir / p).is_file() and
+                      any([((segmentation_label_dir / p.name).with_suffix(suf)).is_file()
+                           for suf in [".jpg", ".png"]])]
+        img_files = [str(img_dir / name) for name in file_names]
+        parsed_target = [str(segmentation_label_dir / name.with_suffix(".png"))
+                         for name in file_names]
+        class_map = parse_classmap_file(str(segmentation_label_dir / "class_map.txt"))
+        print(class_map)
 
     # Split into train and valid.
     n_imgs = len(file_names)
@@ -323,10 +335,21 @@ def dataset_create():
 @json_handler
 def dataset_load_of_task(id):
     # TODO: Remember last sent value and cache it.
-    print(id)
     datasets = storage.fetch_datasets_of_task(id)
     return {
-        "dataset_list": datasets
+        "dataset_list": [
+            {
+                'id': d["id"],
+                'name': d["name"],
+                'class_map': d["class_map"],
+                'task_id': d["task_id"],
+                'valid_data': d["valid_data"],
+                'ratio': d["ratio"],
+                'description': d["description"],
+                'test_dataset_id': d["test_dataset_id"],
+            }
+            for d in datasets
+        ]
     }
 
 

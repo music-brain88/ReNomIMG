@@ -74,6 +74,9 @@ export default {
       state.filters = [...state.filters, payload]
     }
   },
+  flushFilter (state, payload) {
+    state.filters = []
+  },
   addPollingJob (state, payload) {
     let key = Object.keys(payload)[0]
     let model_id = payload[key]
@@ -111,5 +114,29 @@ export default {
   setImagePageOfPredictionSample (state, payload) {
     const task = state.current_task
     state.nth_image_page[task] = payload
+  },
+  selectNextModel (state, payload) {
+    const task = state.current_task
+    const mlist = state.models.filter(m => m.task_id === task)
+    let current = state.selected_model[task]
+    let index = 0
+    if (current) {
+      index = mlist.indexOf(current) + 1
+    }
+    if (mlist.length > index) {
+      state.selected_model = Object.assign(...state.selected_model, {[task]: mlist[index]})
+    }
+  },
+  selectPrevModel (state, payload) {
+    const task = state.current_task
+    const mlist = state.models.filter(m => m.task_id === task)
+    let current = state.selected_model[task]
+    let index = 0
+    if (current) {
+      index = mlist.indexOf(current) - 1
+    }
+    if (index >= 0) {
+      state.selected_model = Object.assign(...state.selected_model, {[task]: mlist[index]})
+    }
   }
 }

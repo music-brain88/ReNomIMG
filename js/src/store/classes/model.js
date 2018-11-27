@@ -27,6 +27,7 @@ export default class Model {
 
     this.model_list = []
   }
+
   getResultOfMetric1 () {
     let m1 = '-'
     if (this.task_id === TASK_ID.CLASSIFICATION) {
@@ -47,6 +48,16 @@ export default class Model {
       }
       return {
         metric: 'mAP',
+        value: m1
+      }
+    } else if (this.task_id === TASK_ID.SEGMENTATION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.recall !== undefined) {
+          m1 = this.best_epoch_valid_result.recall.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Recall',
         value: m1
       }
     }
@@ -73,19 +84,15 @@ export default class Model {
         metric: 'IOU',
         value: m2
       }
-    }
-  }
-  getResultOfMetric3 () {
-    let m3 = '-'
-    if (this.task_id === TASK_ID.DETECTION) {
+    } else if (this.task_id === TASK_ID.SEGMENTATION) {
       if (this.best_epoch_valid_result) {
-        if (this.best_epoch_valid_result.loss !== undefined) {
-          m3 = this.best_epoch_valid_result.loss.toFixed(2)
+        if (this.best_epoch_valid_result.precision !== undefined) {
+          m2 = this.best_epoch_valid_result.precision.toFixed(2)
         }
       }
       return {
-        metric: 'Loss',
-        value: m3
+        metric: 'Precision',
+        value: m2
       }
     }
   }

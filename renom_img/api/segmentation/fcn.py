@@ -43,7 +43,7 @@ class DeconvInitializer(Initializer):
 @adddoc
 class FCN_Base(SemanticSegmentation):
 
-    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
 
         if any([num is None for num in
                 [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
