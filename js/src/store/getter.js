@@ -1,4 +1,4 @@
-import { GROUPBY, STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
+import { FILTER, GROUPBY, STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
 import Model from './classes/model'
 
 export default {
@@ -43,11 +43,32 @@ export default {
     return array
   },
   getFilterList (state, getters) {
-    return [1, 2, 3]
+    return state.filters
+  },
+  getFilterItemsOfCurrentTask (state, getters) {
+    let key = ''
+    const task = getters.getCurrentTask
+    if (task == TASK_ID.CLASSIFICATION) {
+      key = 'CLASSIFICATION'
+    } else if (task == TASK_ID.DETECTION) {
+      key = 'DETECTION'
+    } else if (task == TASK_ID.SEGMENTATION) {
+      key = 'SEGMENTATION'
+    } else {
+      return {}
+    }
+    return FILTER[key]
   },
   getFilteredModelList (state, getters) {
     // TODO: Sort by state and task.
-    return state.models.filter(m => m.task_id === getters.getCurrentTask)
+    let filtered = []
+    const task_filtered_model_list = state.models.filter(m => m.task_id === getters.getCurrentTask)
+    filtered = task_filtered_model_list
+    for (let flt of state.filters) {
+      filtered = flt.filter(filtered)
+    }
+    console.log(filtered)
+    return filtered
   },
   getFilteredDatasetList (state, getters) {
     // TODO: Sort by task.

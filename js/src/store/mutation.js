@@ -74,6 +74,9 @@ export default {
       state.filters = [...state.filters, payload]
     }
   },
+  flushFilter (state, payload) {
+    state.filters = []
+  },
   addPollingJob (state, payload) {
     let key = Object.keys(payload)[0]
     let model_id = payload[key]

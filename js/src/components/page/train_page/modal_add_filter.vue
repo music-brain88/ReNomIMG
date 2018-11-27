@@ -3,23 +3,34 @@
     Add Model Filter
     <div id="add-filter">
       <div id="item">
-        <input type="text">
+        <select v-model="itemObject" v-on:change="resetForm">
+          <option v-for="item of getFilterItemsOfCurrentTask" :value="item">{{item.title}}</option>
+        </select>
       </div>
       <div id="condition">
-        <select v-model="condition">
+        <select id="variable-condition" v-model="condition" v-if="itemObject.type !== 'select'">
           <option>>=</option>
           <option>==</option>
           <option><=</option>
         </select>
+        <select id="fixed-condition" v-model="condition" v-else disabled>
+          <option selected>==</option>
+        </select>
       </div>
       <div id="value">
-        <input type="text">
+        <input type="text" v-if="itemObject.type !== 'select'" v-model="threshold">
+        <select v-else v-model="threshold">
+          <option v-for="opt in itemObject.options" :value="opt">{{opt.title}}</option>
+        </select>
       </div>
       <div id="add">
-        <input type="button" value="+">
+        <input type="button" value="+" @click="creatrFilter">
       </div>
     </div>
     <div id="filter-list">
+      <div v-for="filterItem in getFilterList">
+        {{ filterItem }}
+      </div>
     </div>
   </div>
 </template>
@@ -35,17 +46,20 @@ export default {
   computed: {
     ...mapState([]),
     ...mapGetters([
-      'getCurrentTask',
-      'getAlgorithmList',
-      'getAlgorithmParamList',
-      'getAlgorithmIdFromTitle'
+      'getFilterItemsOfCurrentTask',
+      'getFilterList',
     ]),
   },
   data: function () {
     return {
-      item: '',
-      condition: '',
+      condition: '==',
       threshold: '',
+      itemObject: {
+        type: 'condition',
+        options: [],
+        min: 0,
+        max: 1,
+      }
     }
   },
   created: function () {
@@ -54,8 +68,19 @@ export default {
   methods: {
     ...mapMutations(['addFilter']),
     creatrFilter: function () {
-      const filter = new Filter()
-      this.addFilter(this.item, this.condition, this.threshold)
+      const filter = new Filter(this.itemObject, this.condition, this.threshold)
+      this.addFilter(filter)
+      this.resetForm()
+      this.itemObject = {
+        type: 'condition',
+        options: [],
+        min: 0,
+        max: 1,
+      }
+    },
+    resetForm: function () {
+      this.condition = '=='
+      this.threshold = ''
     }
   }
 }

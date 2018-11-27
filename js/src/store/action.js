@@ -22,6 +22,7 @@ export default {
    */
   async init (context, payload) {
     // context.commit('resetState')
+    context.commit('flushFilter')
     context.dispatch('loadDatasetsOfCurrentTask')
     context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask')

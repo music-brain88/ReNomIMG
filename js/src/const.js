@@ -361,32 +361,49 @@ export const RUNNING_STATE = {
 export const FILTER = {
   CLASSIFICATION: {
     VALID_RECALL: {
-      key: 'valid_recall',
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'recall',
       title: 'Valid Recall',
-      type: 'condition'
+      type: 'condition',
+      min: 0,
+      max: 1,
     },
     VALID_PRECISION: {
-      key: 'valid_precision',
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'precision',
       title: 'Valid Precision',
-      type: 'condition'
+      type: 'condition',
+      min: 0,
+      max: 1,
     },
+    /*
     VALID_F1: {
-      key: 'valid_precision',
-      title: 'Valid Precision',
-      type: 'condition'
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'f1',
+      title: 'Valid F1',
+      type: 'condition',
+      min: 0,
+      max: 1,
     },
+    */
     VALID_LOSS: {
-      key: 'valid_precision',
-      title: 'Valid Precision',
-      type: 'CONDITION'
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'loss',
+      title: 'Valid Loss',
+      type: 'condition',
+      min: 0,
+      max: 100,
     },
     ALGORITHM_NAME: {
       key: 'algorithm',
       title: 'Algorithm',
-      type: 'SELECT_ALGORITHM'
+      type: 'select',
+      options: Object.values(ALGORITHM.CLASSIFICATION)
     }
   },
 }
+
+console.log(Object.values(ALGORITHM.CLASSIFICATION))
 
 export const GROUPBY = {
   NONE: {
