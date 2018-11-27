@@ -89,12 +89,11 @@ export default {
       let tooltip = d3.select('#learning-curve-canvas')
         .append('div')
         .append('display', 'none')
-      
+
       const zoom = d3.zoom()
         .scaleExtent([0, 10])
         .translateExtent([[0, 0], [canvas_width, canvas_height]])
         .on('zoom', zoomed)
-      
 
       // Set size.
       svg.attr('width', canvas_width)
@@ -102,6 +101,11 @@ export default {
         .call(zoom)
 
       // Axis Settings
+      // const scaleX = d3.scaleLinear().domain([minX, d3.max(train_loss_list, function (d, index) { return index })])
+      //   .range([0, canvas_width - margin.left - margin.right])
+      // const scaleY = d3.scaleLinear().domain([minY, d3.max(train_loss_list, function (d) { return d })])
+      //   .range([canvas_height - margin.bottom - margin.top, 0])
+      
       const scaleX = d3.scaleLinear().domain([minX, maxX])
         .range([0, canvas_width - margin.left - margin.right])
       const scaleY = d3.scaleLinear().domain([minY, maxY])
@@ -140,50 +144,52 @@ export default {
         .call(axY)
 
       // Line graph
-      let TrainLine = svg.append('path')
+      let LineLayer = svg.append('g')
+
+      let TrainLine = LineLayer.append('path')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(train_loss_list)
         .attr('fill', 'none')
         .attr('stroke', train_color)
         .attr('stroke-width', 1.5)
         .attr('d', d3.line()
-          .x(function (d, index) { return scaleX(index) })
-          .y(function (d) { return scaleY(d) })
+          .x((d, index) => { return scaleX(index + 1) })
+          .y((d) => { return scaleY(d) })
           .curve(d3.curveLinear)
         )
 
-      let ValidLine = svg.append('path')
+      let ValidLine = LineLayer.append('path')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(valid_loss_list)
         .attr('fill', 'none')
         .attr('stroke', valid_color)
         .attr('stroke-width', 1.5)
         .attr('d', d3.line()
-          .x(function (d, index) { return scaleX(index) })
-          .y(function (d) { return scaleY(d) })
+          .x((d, index) => { return scaleX(index + 1) })
+          .y((d) => { return scaleY(d) })
           .curve(d3.curveLinear)
         )
 
-      let BestEpoc = svg.append('line')
+      let BestEpoc = LineLayer.append('line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('fill', 'none')
         .attr('stroke', 'red')
         .attr('stroke-width', 1.5)
-        .attr('x1', scaleX(best_epoch))
+        .attr('x1', scaleX(best_epoch + 1))
         .attr('y1', scaleY(maxY))
-        .attr('x2', scaleX(best_epoch))
+        .attr('x2', scaleX(best_epoch + 1))
         .attr('y2', scaleY(minY))
 
       // Scatter graph
-      let TrainScatter = svg.append('g')
+      let ScatterLayer = svg.append('g')
+
+      let TrainScatter = ScatterLayer.append('g')
         .selectAll('circle')
         .data(train_loss_list)
         .enter()
         .append('circle')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('cx', function (d, index) {
-          return scaleX(index)
-        })
+        .attr('cx', (d, index) => { return scaleX(index + 1) })
         .attr('cy', (d) => {
           return scaleY(d)
         })
@@ -215,14 +221,14 @@ export default {
           tooltip.style('display', 'none')
         })
 
-      let ValidScatter = svg.append('g')
+      let ValidScatter = ScatterLayer.append('g')
         .selectAll('circle')
         .data(valid_loss_list)
         .enter()
         .append('circle')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('cx', function (d, index) {
-          return scaleX(index)
+        .attr('cx', (d, index) => {
+          return scaleX(index + 1)
         })
         .attr('cy', (d) => {
           return scaleY(d)
@@ -258,16 +264,16 @@ export default {
         .on('contextmenu', resetZoom)
 
       function zoomed () {
-        TrainLine.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
-        ValidLine.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
-        TrainScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
-        ValidScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
-        BestEpoc.attr('transform', 'translate(' + [margin.left, margin.top] + ') scale(' + d3.event.transform.k + ')')
+        TrainLine.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
+        ValidLine.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
+        TrainScatter.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
+        ValidScatter.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
+        BestEpoc.attr('transform', 'translate(' + [(margin.left + d3.event.transform.x), (margin.top + d3.event.transform.y)] + ') scale(' + d3.event.transform.k + ')')
         gX.call(axX.scale(d3.event.transform.rescaleX(scaleX)))
         gY.call(axY.scale(d3.event.transform.rescaleY(scaleY)))
       }
       function resetZoom () {
-        svg.call(zoom.transform, d3.zoomIdentity)
+        svg.transition().duration(1000).call(zoom.transform, d3.zoomIdentity)
         TrainLine.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         ValidLine.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         TrainScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
