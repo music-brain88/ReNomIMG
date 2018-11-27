@@ -57,10 +57,7 @@ export default {
   methods: {
     draw: function () {
       d3.select('#learning-curve-canvas').select('svg').remove() // Remove SVG if it has been created.
-      const zoom = d3.zoom()
-        .scaleExtent([0, 10])
-        .translateExtent([0, 0])
-        .on('zoom', zoomed)
+      
       const margin = {top: 15, left: 40, right: 20, bottom: 20}
       const canvas = document.getElementById('learning-curve-canvas')
       const canvas_width = canvas.clientWidth
@@ -92,6 +89,12 @@ export default {
       let tooltip = d3.select('#learning-curve-canvas')
         .append('div')
         .append('display', 'none')
+      
+      const zoom = d3.zoom()
+        .scaleExtent([0, 10])
+        .translateExtent([[0, 0], [canvas_width, canvas_height]])
+        .on('zoom', zoomed)
+      
 
       // Set size.
       svg.attr('width', canvas_width)
@@ -144,7 +147,7 @@ export default {
         .attr('stroke', train_color)
         .attr('stroke-width', 1.5)
         .attr('d', d3.line()
-          .x(function (d, index) { return scaleX(index + 1) })
+          .x(function (d, index) { return scaleX(index) })
           .y(function (d) { return scaleY(d) })
           .curve(d3.curveLinear)
         )
@@ -156,7 +159,7 @@ export default {
         .attr('stroke', valid_color)
         .attr('stroke-width', 1.5)
         .attr('d', d3.line()
-          .x(function (d, index) { return scaleX(index + 1) })
+          .x(function (d, index) { return scaleX(index) })
           .y(function (d) { return scaleY(d) })
           .curve(d3.curveLinear)
         )
@@ -166,9 +169,9 @@ export default {
         .attr('fill', 'none')
         .attr('stroke', 'red')
         .attr('stroke-width', 1.5)
-        .attr('x1', scaleX(best_epoch + 1))
+        .attr('x1', scaleX(best_epoch))
         .attr('y1', scaleY(maxY))
-        .attr('x2', scaleX(best_epoch + 1))
+        .attr('x2', scaleX(best_epoch))
         .attr('y2', scaleY(minY))
 
       // Scatter graph
@@ -179,7 +182,7 @@ export default {
         .append('circle')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('cx', function (d, index) {
-          return scaleX(index + 1)
+          return scaleX(index)
         })
         .attr('cy', (d) => {
           return scaleY(d)
@@ -219,7 +222,7 @@ export default {
         .append('circle')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('cx', function (d, index) {
-          return scaleX(index + 1)
+          return scaleX(index)
         })
         .attr('cy', (d) => {
           return scaleY(d)
@@ -236,7 +239,7 @@ export default {
             .duration(200)
             .style('opacity', 0.9)
           tooltip.html(
-            'Epoc:' + (index + 1) + '<br />' +
+            'Epoc:' + (index) + '<br />' +
             'Valid:' + utils.round(d, 1000) + '<br />' +
             'Y:' + y + '<br />' +
             'X:' + x + '<br />'
