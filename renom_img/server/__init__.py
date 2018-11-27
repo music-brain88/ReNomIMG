@@ -15,6 +15,10 @@ class State(enum.Enum):
     STARTED = 2
     STOPPED = 3
 
+    PRED_CREATED = 4
+    PRED_RESERVED = 5
+    PRED_STARTED = 6
+
 
 class RunningState(enum.Enum):
     PREPARING = 0

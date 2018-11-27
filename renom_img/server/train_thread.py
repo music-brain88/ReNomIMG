@@ -236,6 +236,7 @@ class TrainThread(object):
                 if self.best_epoch_valid_result:
                     if self.best_epoch_valid_result["f1"] <= f1:
                         self.best_valid_changed = True
+                        self.save_best_model()
                         self.best_epoch_valid_result = {
                             "nth_epoch": e,
                             "prediction": prediction,
@@ -246,6 +247,7 @@ class TrainThread(object):
                         }
                 else:
                     self.best_valid_changed = True
+                    self.save_best_model()
                     self.best_epoch_valid_result = {
                         "nth_epoch": e,
                         "prediction": prediction,
@@ -266,6 +268,7 @@ class TrainThread(object):
                 if self.best_epoch_valid_result:
                     if self.best_epoch_valid_result["mAP"] <= mAP:
                         self.best_valid_changed = True
+                        self.save_best_model()
                         self.best_epoch_valid_result = {
                             "nth_epoch": e,
                             "prediction_box": prediction_box,
@@ -275,6 +278,7 @@ class TrainThread(object):
                         }
                 else:
                     self.best_valid_changed = True
+                    self.save_best_model()
                     self.best_epoch_valid_result = {
                         "nth_epoch": e,
                         "prediction_box": prediction_box,
@@ -288,7 +292,6 @@ class TrainThread(object):
                 targ = np.argmax(valid_target, axis=1)
                 _, pr, _, rc, _, f1, _, _, _, _ = \
                     get_segmentation_metrics(pred, targ, n_class=len(self.class_map))
-                print(pr, rc, f1)
                 prediction = [
                     {
                         "class": p.astype(np.int).tolist()
@@ -298,6 +301,7 @@ class TrainThread(object):
                 if self.best_epoch_valid_result:
                     if self.best_epoch_valid_result["f1"] <= f1:
                         self.best_valid_changed = True
+                        self.save_best_model()
                         self.best_epoch_valid_result = {
                             "nth_epoch": e,
                             "prediction": prediction,
@@ -308,6 +312,7 @@ class TrainThread(object):
                         }
                 else:
                     self.best_valid_changed = True
+                    self.save_best_model()
                     self.best_epoch_valid_result = {
                         "nth_epoch": e,
                         "prediction": prediction,
@@ -319,6 +324,7 @@ class TrainThread(object):
                 self.sync_best_valid_result()
 
             # Thread value changed.
+            self.save_last_model()
             self.updated = True
 
     def stop(self):
@@ -329,6 +335,12 @@ class TrainThread(object):
         # Perform this in polling progress.
         if not os.path.exists(path):
             pass
+
+    def save_best_model(self):
+        self.model.save(self.best_weight_path)
+
+    def save_last_model(self):
+        self.model.save(self.last_weight_path)
 
     def sync_state(self):
         storage.update_model(self.model_id, state=self.state.value,
@@ -364,6 +376,8 @@ class TrainThread(object):
         self.dataset_id = int(params["dataset_id"])
         self.algorithm_id = int(params["algorithm_id"])
         self.hyper_parameters = params["hyper_parameters"]
+        self.last_weight_path = registered_model["last_weight"]
+        self.best_weight_path = registered_model["best_epoch_weight"]
 
         dataset = storage.fetch_dataset(self.dataset_id)
         self.class_map = dataset["class_map"]

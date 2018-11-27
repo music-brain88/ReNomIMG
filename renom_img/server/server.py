@@ -170,8 +170,8 @@ def models_load_of_task(task_id):
     models = storage.fetch_models_of_task(task_id)
     # Remove best_valid_changed because it is very large.
     models = [
-      {k: v if k != "best_epoch_valid_result" else {} for k, v in m.items()}
-      for m in models
+        {k: v if k != "best_epoch_valid_result" else {} for k, v in m.items()}
+        for m in models
     ]
     return {'model_list': models}
 
@@ -181,6 +181,16 @@ def models_load_of_task(task_id):
 def model_thread_run(id):
     # TODO: Confirm if the model is already trained.
     thread = TrainThread(id)
+    th = executor.submit(thread)
+    thread.set_future(th)
+    return {"status": "ok"}
+
+
+@route("/api/renom_img/v2/model/thread/prediction/run/<id:int>", method="GET")
+@json_handler
+def model_prediction_thread_run(id):
+    # TODO: Confirm if the model is already trained.
+    thread = PredictionThread(id)
     th = executor.submit(thread)
     thread.set_future(th)
     return {"status": "ok"}
@@ -501,6 +511,45 @@ def polling_train(id):
             "best_result_changed": active_train_thread.best_valid_changed,
             "train_loss_list": active_train_thread.train_loss_list,
             "valid_loss_list": active_train_thread.valid_loss_list,
+        }
+
+
+@route("/api/renom_img/v2/polling/prediction/model/<id:int>", method="GET")
+@json_handler
+def polling_prediction(id):
+    """
+    Cations: 
+        This function is possible to return empty dictionary.
+    """
+    threads = PredictionThread.jobs
+    active_prediction_thread = threads.get(id, None)
+    if active_prediction_thread is None:
+        return {
+            "state": State.STOPPED.value,
+            "running_state": RunningState.STOPPING.value,
+            "total_batch": 0,
+            "nth_batch": 0,
+        }
+    elif active_prediction_thread.state == State.PRED_RESERVED or \
+            active_prediction_thread.state == State.PRED_CREATED:
+        return {
+            "state": active_prediction_thread.state.value,
+            "running_state": active_prediction_thread.running_state.value,
+            "total_batch": active_prediction_thread.total_batch,
+            "nth_batch": active_prediction_thread.nth_batch,
+        }
+    else:
+        for _ in range(10):
+            time.sleep(0.5)  # Avoid many request.
+            if active_prediction_thread.updated:
+                break
+            active_prediction_thread.consume_error()
+        active_prediction_thread.returned2client()
+        return {
+            "state": active_prediction_thread.state.value,
+            "running_state": active_prediction_thread.running_state.value,
+            "total_batch": active_prediction_thread.total_batch,
+            "nth_batch": active_prediction_thread.nth_batch,
         }
 
 
