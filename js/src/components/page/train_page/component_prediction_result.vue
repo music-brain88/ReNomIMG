@@ -58,7 +58,7 @@ export default {
     ]),
     getValidImages: function () {
       const model = this.getSelectedModel
-      if(!this.$refs.container) return []
+      if (!this.$refs.container) return []
       if (model) {
         let current_page = this.getImagePageOfPredictionSample
         const dataset = this.datasets.find(d => d.id === model.dataset_id)

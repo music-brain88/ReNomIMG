@@ -69,10 +69,10 @@ function override (key, params) {
 
 export const ALGORITHM = {
   CLASSIFICATION: {
-    ResNet18: {
+    ResNet: {
       id: 1,
-      key: 'resnet18',
-      title: 'ResNet18',
+      key: 'resnet',
+      title: 'ResNet',
       params: {
         ...COMMON_PARAMS,
         PLATEAU: {
@@ -80,13 +80,20 @@ export const ALGORITHM = {
           key: 'plateau',
           type: 'checkbox',
           default: true
+        },
+        LAYER: {
+          title: 'Number of Layers',
+          key: 'layer',
+          type: 'select',
+          default: '34',
+          options: ['18', '34', '50', '101', '152']
         }
       }
     },
-    ResNet34: {
+    ResNext: {
       id: 2,
-      key: 'resnet34',
-      title: 'ResNet34',
+      key: 'resnext',
+      title: 'ResNeXt',
       params: {
         ...COMMON_PARAMS,
         PLATEAU: {
@@ -94,149 +101,65 @@ export const ALGORITHM = {
           key: 'plateau',
           type: 'checkbox',
           default: true
+        },
+        LAYER: {
+          title: 'Number of Layers',
+          key: 'layer',
+          type: 'select',
+          default: '50',
+          options: ['50', '101']
         }
       }
     },
-    ResNet50: {
+
+    /* Not available in v2.0
+    DenseNet: {
       id: 3,
-      key: 'resnet',
-      title: 'ResNet50',
+      key: 'densenet',
+      title: 'DenseNet',
       params: {
         ...COMMON_PARAMS,
-        PLATEAU: {
-          title: 'Plateau',
-          key: 'plateau',
-          type: 'checkbox',
-          default: true
+        LAYER: {
+          title: 'Number of Layers',
+          key: 'layer',
+          type: 'select',
+          default: "121",
+          options: ["121", "169", "201"]
         }
       }
-    },
-    ResNet101: {
+    }, */
+    VGG: {
       id: 4,
-      key: 'resnet',
-      title: 'ResNet101',
+      key: 'Vgg',
+      title: 'VGG',
       params: {
         ...COMMON_PARAMS,
-        PLATEAU: {
-          title: 'Plateau',
-          key: 'plateau',
-          type: 'checkbox',
-          default: true
+        LAYER: {
+          title: 'Number of Layers',
+          key: 'layer',
+          type: 'select',
+          default: '16',
+          options: ['11', '16', '19']
         }
       }
     },
-    ResNet152: {
+    /* Not available in v2.0
+    Inception: {
       id: 5,
-      key: 'resnet',
-      title: 'ResNet152',
+      key: 'Inception',
+      title: 'Inception',
       params: {
         ...COMMON_PARAMS,
-        PLATEAU: {
-          title: 'Plateau',
-          key: 'plateau',
-          type: 'checkbox',
-          default: true
+        VERSION: {
+          title: 'Version',
+          key: 'version',
+          type: 'select',
+          default: "1",
+          options: ["1", "2", "3", "4"]
         }
       }
     },
-    DenseNet121: {
-      id: 6,
-      key: 'densenet121',
-      title: 'DenseNet121',
-      params: {
-        ...COMMON_PARAMS,
-      }
-    },
-    DenseNet169: {
-      id: 7,
-      key: 'densenet169',
-      title: 'DenseNet169',
-      params: {
-        ...COMMON_PARAMS,
-      }
-    },
-    DenseNet201: {
-      id: 8,
-      key: 'densenet121',
-      title: 'DenseNet121',
-      params: {
-        ...COMMON_PARAMS,
-      }
-    },
-    VGG11: {
-      id: 9,
-      key: 'Vgg11',
-      title: 'VGG11',
-      params: {
-        ...COMMON_PARAMS,
-      }
-    },
-    Vgg16: {
-      id: 13,
-      key: 'Vgg16',
-      title: 'VGG16',
-      params: {
-        ...COMMON_PARAMS,
-      }
-    },
-    Vgg19: {
-      id: 14,
-      key: 'Vgg19',
-      title: 'VGG19',
-      params: {
-        ...COMMON_PARAMS,
-      }
-    },
-    Inception1: {
-      id: 15,
-      key: 'Inseption1',
-      title: 'Inseption V1',
-      params: {
-        ...COMMON_PARAMS,
-      }
-    },
-    Inception2: {
-      id: 17,
-      key: 'Inseption2',
-      title: 'Inseption V2',
-      params: {
-        ...COMMON_PARAMS,
-        ...override('IMAGE_WIDTH', {
-          default: 299,
-        }),
-        ...override('IMAGE_HEIGHT', {
-          default: 299,
-        }),
-      }
-    },
-    Inception3: {
-      id: 18,
-      key: 'Inseption3',
-      title: 'Inseption V3',
-      params: {
-        ...COMMON_PARAMS,
-        ...override('IMAGE_WIDTH', {
-          default: 299,
-        }),
-        ...override('IMAGE_HEIGHT', {
-          default: 299,
-        }),
-      }
-    },
-    Inception4: {
-      id: 19,
-      key: 'Inseption4',
-      title: 'Inseption V4',
-      params: {
-        ...COMMON_PARAMS,
-        ...override('IMAGE_WIDTH', {
-          default: 299,
-        }),
-        ...override('IMAGE_HEIGHT', {
-          default: 299,
-        }),
-      }
-    },
+    */
   },
   DETECTION: {
     YOLOv1: {

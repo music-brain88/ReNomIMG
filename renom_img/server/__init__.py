@@ -26,10 +26,11 @@ class RunningState(enum.Enum):
 
 
 class Algorithm(enum.Enum):
-    RESNET18 = 1
-    RESNET34 = 2
-    VGG11 = 9
-    VGG16 = 13
+    RESNET = 1
+    RESNEXT = 2
+    DENSENET = 3
+    VGG = 4
+    INCEPTION = 5
     YOLOV1 = 30
     YOLOV2 = 31
     SSD = 32
