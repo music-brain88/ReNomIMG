@@ -121,7 +121,8 @@ class Storage:
     def update_model(self,
                      id, state=None, running_state=None, total_epoch=None, nth_epoch=None,
                      total_batch=None, nth_batch=None, last_batch_loss=None,
-                     train_loss_list=None, valid_loss_list=None, best_epoch_valid_result=None
+                     train_loss_list=None, valid_loss_list=None, best_epoch_valid_result=None,
+                     last_prediction_result=None
                      ):
         with SessionContext() as session:
             model = session.query(Model).filter(Model.id == id).first()
@@ -146,6 +147,8 @@ class Storage:
                     model.valid_loss_list = pickle_dump(valid_loss_list)
                 if best_epoch_valid_result is not None:
                     model.best_epoch_valid_result = pickle_dump(best_epoch_valid_result)
+                if last_prediction_result is not None:
+                    model.last_prediction_result = pickle_dump(last_prediction_result)
             session.commit()
 
     def fetch_dataset(self, id):

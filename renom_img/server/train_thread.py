@@ -376,8 +376,8 @@ class TrainThread(object):
         self.dataset_id = int(params["dataset_id"])
         self.algorithm_id = int(params["algorithm_id"])
         self.hyper_parameters = params["hyper_parameters"]
-        self.last_weight_path = registered_model["last_weight"]
-        self.best_weight_path = registered_model["best_epoch_weight"]
+        self.last_weight_path = params["last_weight"]
+        self.best_weight_path = params["best_epoch_weight"]
 
         dataset = storage.fetch_dataset(self.dataset_id)
         self.class_map = dataset["class_map"]

@@ -123,6 +123,8 @@ class Model(Base):
     last_weight = Column(TEXT)
     last_batch_loss = Column(NUMERIC, server_default=text('0'))
 
+    last_prediction_result = Column(BLOB, nullable=True)
+
     # Dates
     created = Column(DateTime(timezone=True), server_default=func.now())
     updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

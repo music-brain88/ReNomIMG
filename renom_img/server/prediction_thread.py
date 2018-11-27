@@ -61,6 +61,8 @@ class PredictionThread(object):
         # Define attr
         self.total_batch = 0
         self.nth_batch = 0
+        self.need_pull = False
+        self.prediction_result = []
 
     def __call__(self):
         try:
@@ -120,9 +122,18 @@ class PredictionThread(object):
         for i, p in enumerate(names):
             self.nth_batch = i
             path = os.path.join(self.img_dir, p)
-            result.append(self.model.predict(path))
+            pred = self.model.predict(path)
+            if isinstance(pred, np.ndarray):
+                pred = pred.tolist()
+            result.append({
+                'prediction': pred,
+                'img': path,
+            })
             self.updated = True
-        return result
+        self.need_pull = True
+        self.prediction_result = result
+        self.sync_result()
+        return
 
     def stop(self):
         self.stop_event.set()
@@ -131,6 +142,9 @@ class PredictionThread(object):
     def sync_state(self):
         storage.update_model(self.model_id, state=self.state.value,
                              running_state=self.running_state.value)
+
+    def sync_result(self):
+        storage.update_model(self.model_id, last_prediction_result=self.prediction_result)
 
     def _prepare_params(self):
         if self.stop_event.is_set():

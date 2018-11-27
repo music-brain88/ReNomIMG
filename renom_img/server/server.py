@@ -170,7 +170,9 @@ def models_load_of_task(task_id):
     models = storage.fetch_models_of_task(task_id)
     # Remove best_valid_changed because it is very large.
     models = [
-        {k: v if k != "best_epoch_valid_result" else {} for k, v in m.items()}
+        {k: v if k not in [
+            "best_epoch_valid_result",
+            "last_prediction_result"] else {} for k, v in m.items()}
         for m in models
     ]
     return {'model_list': models}
@@ -242,6 +244,26 @@ def model_load_best_result(id):
     else:
         thread.returned_best_result2client()
         return {"best_result": thread.best_epoch_valid_result}
+
+
+@route("/api/renom_img/v2/model/load/prediction/result/<id:int>", method="GET")
+@json_handler
+def model_load_prediction_result(id):
+    thread = PredictionThread.jobs.get(id, None)
+    print(list(PredictionThread.jobs.keys()))
+    if thread is None:
+        saved_model = storage.fetch_model(id)
+        if saved_model is None:
+            return
+        # If the state == STOPPED, client will never throw request.
+        if saved_model["state"] != State.STOPPED.value:
+            storage.update_model(id, state=State.STOPPED.value,
+                                 running_state=RunningState.STOPPING.value)
+            saved_model = storage.fetch_model(id)
+        return {"result": saved_model['last_prediction_result']}
+    else:
+        thread.need_pull = False
+        return {"result": thread.prediction_result}
 
 
 @route("/api/renom_img/v2/dataset/create", method="POST")
@@ -525,6 +547,7 @@ def polling_prediction(id):
     active_prediction_thread = threads.get(id, None)
     if active_prediction_thread is None:
         return {
+            "need_pull": False,
             "state": State.STOPPED.value,
             "running_state": RunningState.STOPPING.value,
             "total_batch": 0,
@@ -533,6 +556,7 @@ def polling_prediction(id):
     elif active_prediction_thread.state == State.PRED_RESERVED or \
             active_prediction_thread.state == State.PRED_CREATED:
         return {
+            "need_pull": active_prediction_thread.need_pull,
             "state": active_prediction_thread.state.value,
             "running_state": active_prediction_thread.running_state.value,
             "total_batch": active_prediction_thread.total_batch,
@@ -546,6 +570,7 @@ def polling_prediction(id):
             active_prediction_thread.consume_error()
         active_prediction_thread.returned2client()
         return {
+            "need_pull": active_prediction_thread.need_pull,
             "state": active_prediction_thread.state.value,
             "running_state": active_prediction_thread.running_state.value,
             "total_batch": active_prediction_thread.total_batch,
