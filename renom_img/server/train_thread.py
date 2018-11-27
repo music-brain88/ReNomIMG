@@ -10,7 +10,7 @@ import numpy as np
 
 from renom.cuda import set_cuda_active, release_mem_pool, use_device
 from renom_img.api.classification.vgg import VGG16
-from renom_img.api.classification.resnet import ResNet18
+from renom_img.api.classification.resnet import ResNet18, ResNet34
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.detection.ssd import SSD
@@ -420,6 +420,8 @@ class TrainThread(object):
 
         if self.algorithm_id == Algorithm.RESNET18.value:
             self._setting_resnet18()
+        elif self.algorithm_id == Algorithm.RESNET34.value:
+            self._setting_resnet34()
         elif self.algorithm_id == Algorithm.YOLOV1.value:
             self._setting_yolov1()
         elif self.algorithm_id == Algorithm.YOLOV2.value:
@@ -523,13 +525,14 @@ class TrainThread(object):
         )
 
     def _setting_resnet34(self):
-        assert all([self.hyper_parameters.keys()])
+        required_params = ['plateau']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
         assert self.task_id == Task.CLASSIFICATION.value, self.task_id
         self.model = ResNet34(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=True,
-            train_whole_network=self.hyper_parameters["train_whole"],
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole,
             plateau=self.hyper_parameters["plateau"]
         )
         self.train_dist = ImageDistributor(

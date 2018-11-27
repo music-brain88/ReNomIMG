@@ -13,18 +13,19 @@
       </div>
     </div>
     <div id="task-buttons">
-      <div id="classification-button"
-          @click="() => { setCurrentTask(TASK.CLASSIFICATION); init();}">
-        Classification
-      </div>  
-      <div id="classification-button"
+      <div id="classification-button" :class="{selectedTask: getCurrentTask === TASK.DETECTION}"
           @click="() => {setCurrentTask(TASK.DETECTION); init();}">
         Detection
       </div>  
-      <div id="classification-button"
+      <div id="classification-button" :class="{selectedTask: getCurrentTask === TASK.SEGMENTATION}"
           @click="() => {setCurrentTask(TASK.SEGMENTATION); init();}">
         Segmentation
       </div>  
+      <div id="classification-button" :class="{selectedTask: getCurrentTask === TASK.CLASSIFICATION}"
+          @click="() => { setCurrentTask(TASK.CLASSIFICATION); init();}">
+        Classification
+      </div>  
+
     </div>  
   </div>  
 </template>
@@ -37,6 +38,7 @@ export default {
   name: 'AppHeader',
   computed: {
     ...mapGetters([
+      'getCurrentTask',
       'getShowSlideMenu',
       'getCurrentTaskTitle',
       'getCurrentPageTitle']),
@@ -74,7 +76,15 @@ export default {
       margin-right: $header-title-margin-left;
       cursor: pointer;
     }
-    
+    div:hover {
+      color: gray;
+    }
+    .selectedTask {
+      border-bottom: solid 1.5px white;
+    }
+    .selectedTask:hover {
+      border-bottom: solid 1.5px gray;
+    }
   }
 
   #menu-title {
@@ -109,6 +119,7 @@ export default {
       #task-title {
         font-family: $header-title-font-family;
         font-size: $header-title-font-size;
+        font-weight: bold;
       }
   
       #page-title {

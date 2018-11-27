@@ -136,5 +136,4 @@ export default {
       state.selected_model = Object.assign(...state.selected_model, {[task]: mlist[index]})
     }
   }
-
 }

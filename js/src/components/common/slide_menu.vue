@@ -23,7 +23,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
-import { TASK_ID } from '@/const.js'
+import { TASK_ID, PAGE_ID } from '@/const.js'
 
 export default {
   name: 'SlideMenu',
@@ -37,7 +37,7 @@ export default {
     this.init()
   },
   methods: {
-    ...mapMutations(['showSlideMenu', 'setCurrentTask']),
+    ...mapMutations(['showSlideMenu', 'setCurrentTask', 'setCurrentPage']),
     ...mapActions(['init']),
     onItemClick: function (page_name) {
       this.init()

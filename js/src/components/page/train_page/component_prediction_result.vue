@@ -14,7 +14,7 @@
         <i class="fa fa-caret-right" aria-hidden="true"></i>
       </div>
     </div>
-    <div id="img-container">
+    <div id="img-container" ref="container">
       <!--<transition-group name="fade">-->
       <div v-for="(item, index) in getValidImages" :style="getImgSize(item)">
         <img :src="item.img"/>
@@ -58,6 +58,7 @@ export default {
     ]),
     getValidImages: function () {
       const model = this.getSelectedModel
+      if(!this.$refs.container) return []
       if (model) {
         let current_page = this.getImagePageOfPredictionSample
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
@@ -148,6 +149,7 @@ export default {
     },
     getImgSize: function (item) {
       const parent_div = document.getElementById('img-container')
+      console.log(this.$refs.container)
       if (!parent_div) return {}
       const parent_height = parent_div.clientHeight
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
