@@ -145,7 +145,7 @@ class Yolov2(Detection):
             DarknetConv2dBN(channel=1024, prev_ch=1024),
             DarknetConv2dBN(channel=1024, prev_ch=1024),
         ])
-        self._conv21 = DarknetConv2dBN(channel=64,prev_ch=512,filter=1)
+        self._conv21 = DarknetConv2dBN(channel=64, prev_ch=512, filter=1)
         self._conv2 = DarknetConv2dBN(channel=1024, prev_ch=1024 + 256)
         self._last = rm.Conv2d(channel=last_channel, filter=1)
         self._last.params = {
@@ -205,7 +205,7 @@ class Yolov2(Detection):
                 [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            if current_loss is not None and current_loss >50:
+            if current_loss is not None and current_loss > 50:
                 self._opt._lr *= 0.1
                 return self._opt
             ind0 = int(total_epoch * 1 / 16.)
