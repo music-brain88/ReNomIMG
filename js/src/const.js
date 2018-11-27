@@ -246,28 +246,19 @@ export const ALGORITHM = {
         })
       }
     },
-    Fcn8s: {
+    Fcn: {
       id: 61,
-      key: 'fcn8s',
-      title: 'FCN 8s',
+      key: 'fcn',
+      title: 'FCN',
       params: {
         ...COMMON_PARAMS,
-      }
-    },
-    Fcn16s: {
-      id: 62,
-      key: 'fcn16s',
-      title: 'FCN 16s',
-      params: {
-        ...COMMON_PARAMS,
-      }
-    },
-    Fcn32: {
-      id: 63,
-      key: 'fcn32',
-      title: 'FCN 32s',
-      params: {
-        ...COMMON_PARAMS,
+        LAYER: {
+          title: 'Number of Layers',
+          key: 'layer',
+          type: 'select',
+          default: '16',
+          options: ['8', '16', '32']
+        }
       }
     },
     TernousNet: {

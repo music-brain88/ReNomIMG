@@ -60,6 +60,7 @@ export default {
           model.last_batch_loss = m.last_batch_loss
 
           context.commit('addModel', model)
+          context.dispatch('loadBestValidResult', id)
         }
       }, error_handler_creator(context))
   },

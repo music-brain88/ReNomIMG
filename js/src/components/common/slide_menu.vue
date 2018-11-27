@@ -4,14 +4,17 @@
       <div id='menu-list'>
         <div class='task-button'
           @click="onItemClick('train')">
+          <i class="fa fa-home" aria-hidden="true"></i>
           Train
         </div>
         <div class='task-button'
           @click="onItemClick('predict')">
+          <i class="fa fa-area-chart" aria-hidden="true"></i>
           Predict
         </div>
         <div class='task-button'
           @click="onItemClick('dataset')">
+          <i class="fa fa-database" aria-hidden="true"></i>
           Dataset
         </div>
       </div>
@@ -65,9 +68,10 @@ export default {
 <style lang='scss'>
 #slide-menu {
   position: fixed;
+  z-index: 99;
   left: 0;
-  top: 0;
-  height: 100vh;
+  top: $header-height;
+  height: calc(100vh - #{$header-height});
   width: 100%;
   display: flex;
 
@@ -84,10 +88,16 @@ export default {
     background-color: $slide-window-background-color;
 
     .task-button {
-      width: 100%;
-      height: 10%;
-      // background-color: black;
-      text-align: center;
+      font-size: 130%;
+      width: calc(100% - 40%);
+      color: white;
+      text-align: left;
+      margin-top: 20%;
+      margin-left: 20%;
+    }
+    .task-button:hover {
+      color: gray;
+      cursor: pointer;
     }
   }
 }

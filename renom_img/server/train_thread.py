@@ -18,7 +18,7 @@ from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.detection.ssd import SSD
 from renom_img.api.segmentation.unet import UNet
-from renom_img.api.segmentation.fcn import FCN8s
+from renom_img.api.segmentation.fcn import FCN8s, FCN16s, FCN32s
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
 from renom_img.api.utility.evaluate.classification import precision_recall_f1_score
@@ -288,6 +288,7 @@ class TrainThread(object):
                 targ = np.argmax(valid_target, axis=1)
                 _, pr, _, rc, _, f1, _, _, _, _ = \
                     get_segmentation_metrics(pred, targ, n_class=len(self.class_map))
+                print(pr, rc, f1)
                 prediction = [
                     {
                         "class": p.astype(np.int).tolist()
@@ -439,8 +440,8 @@ class TrainThread(object):
         elif self.algorithm_id == Algorithm.SSD.value:
             self._setting_ssd()
 
-        elif self.algorithm_id == Algorithm.FCN8.value:
-            self._setting_fcn8()
+        elif self.algorithm_id == Algorithm.FCN.value:
+            self._setting_fcn()
         else:
             assert False
 
@@ -677,10 +678,21 @@ class TrainThread(object):
             target_builder=self.model.build_data()
         )
 
-    def _setting_fcn8(self):
-        assert all([self.hyper_parameters.keys()])
+    def _setting_fcn(self):
+        required_params = ['layer']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
         assert self.task_id == Task.SEGMENTATION.value, self.task_id
-        self.model = FCN8s(
+        num_layer = int(self.hyper_parameters['layer'])
+        assert num_layer in [8, 16, 32], "Not supported layer num. - FCN"
+
+        if num_layer == 8:
+            FCN = FCN8s
+        elif num_layer == 16:
+            FCN = FCN16s
+        elif num_layer == 32:
+            FCN = FCN32s
+
+        self.model = FCN(
             class_map=self.class_map,
             imsize=self.imsize,
             load_pretrained_weight=self.load_pretrained_weight,

@@ -149,7 +149,6 @@ export default {
     },
     getImgSize: function (item) {
       const parent_div = document.getElementById('img-container')
-      console.log(this.$refs.container)
       if (!parent_div) return {}
       const parent_height = parent_div.clientHeight
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
@@ -331,7 +330,11 @@ export default {
         indexCol = 0
         for (let col of row) {
           const color = this.getTagColor(col)
-          cxt.fillStyle = color
+          if (col === 0) {
+            cxt.fillStyle = color + '00'
+          } else {
+            cxt.fillStyle = color + '88'
+          }
           cxt.fillRect(indexCol, indexRow, 1, 1)
           indexCol++
         }

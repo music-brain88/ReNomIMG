@@ -164,17 +164,15 @@ def model_create():
     return {"id": new_id}
 
 
-@route("/api/renom_img/v2/model/load/<id:int>", method="GET")
-@json_handler
-def model_load(id):
-    model = storage.fetch_model(id)
-    return {"model": model}
-
-
 @route("/api/renom_img/v2/model/load/task/<task_id:int>", method="GET")
 @json_handler
 def models_load_of_task(task_id):
     models = storage.fetch_models_of_task(task_id)
+    # Remove best_valid_changed because it is very large.
+    models = [
+      {k: v if k != "best_epoch_valid_result" else {} for k, v in m.items()}
+      for m in models
+    ]
     return {'model_list': models}
 
 

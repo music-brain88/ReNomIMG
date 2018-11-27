@@ -58,6 +58,9 @@ export default {
 
 <style lang='scss'>
 #app-header {
+  position: fixed;
+  top: 0;
+  z-index: 1000;
   width: 100%;
   height: $header-height;
   min-height: $header-min-height;

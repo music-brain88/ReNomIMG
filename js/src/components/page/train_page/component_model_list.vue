@@ -1,6 +1,8 @@
 <template>
+  <!--TODO: Fix this top value-->
   <component-frame :width-weight="2" :height-weight="10"
-    :style="{position: 'sticky', top: 10 + 'px'}" class="model-list">
+    :style="{position: 'sticky', top: 'calc(100vh*0.04 + 15px)'}"
+    class="model-list">
     <template slot="header-slot">
       Model List
       <div id="add-button" @click="showModal({add_both: true})">
