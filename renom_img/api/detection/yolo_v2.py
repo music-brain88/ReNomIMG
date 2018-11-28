@@ -152,7 +152,8 @@ class Yolov2(Detection):
             "w": rm.Variable(self._last._initializer((last_channel, 1024, 1, 1)), auto_update=True),
             "b": rm.Variable(np.zeros((1, last_channel, 1, 1), dtype=np.float32), auto_update=False),
         }
-        self.iterations = 0
+        self.global_counter = 0
+        self.flag = True
         self._opt = rm.Sgd(0.001, 0.9)
         self._train_whole_network = train_whole_network
 
@@ -205,6 +206,9 @@ class Yolov2(Detection):
                 [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
+            self.global_counter += 1
+            if self.global_counter > int(0.4*(total_epoch*total_batch)):
+                self.flag = False
             if current_loss is not None and current_loss > 50:
                 self._opt._lr *= 0.1
                 return self._opt
@@ -502,13 +506,11 @@ class Yolov2(Detection):
         asw = W * 32 / self.anchor_size[0]
         ash = H * 32 / self.anchor_size[1]
         anchor = [[an[0] * asw, an[1] * ash] for an in self.anchor]
-        if self.inference == False:
-            self.iterations += 1
         num_anchor = self.num_anchor
         mask = np.zeros((N, C, H, W), dtype=np.float32)
         mask = mask.reshape(N, num_anchor, 5 + self.num_class, H, W)
         if self.inference == False:
-            if self.iterations < 51200:
+            if self.flag:
                 mask[:, :, 1:3, ...] = 1.0
                 mask[:, :, 3:5, ...] = 0.0
             else:
@@ -521,7 +523,7 @@ class Yolov2(Detection):
         target = target.reshape(N, num_anchor, 5 + self.num_class, H, W)
 
         if self.inference == False:
-            if self.iterations < 51200:
+            if self.flag:
                 target[:, :, 1:3, ...] = 0.5
                 target[:, :, 3:5, ...] = 0.0
             else:
