@@ -27,6 +27,7 @@ export default {
     context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask')
     context.dispatch('startAllPolling')
+    context.dispatch('loadDeployedModel')
   },
 
   /*****
@@ -316,7 +317,7 @@ export default {
         const r = response.data
         const result = r.result
         model.prediction_result = result
-        context.commit('forceUpdateModelList')
+        context.commit('forceUpdatePredictionPage')
       }
     }, error_handler_creator(context))
   },
@@ -451,5 +452,23 @@ export default {
   async loadSegmentationTargetArray (context, payload) {
     let url = '/target/segmentation/' + payload
     return axios.get(url)
+  },
+  async deployModel (context, payload) {
+    let model = payload
+    let url = '/api/renom_img/v2/model/deploy/' + model.id
+    return axios.get(url).then(() => {
+      this.commit('setDeployedModel', model)
+    }, error_handler_creator(context))
+  },
+  async loadDeployedModel (context, payload) {
+    let task_id = context.getters.getCurrentTask
+    let url = '/api/renom_img/v2/model/load/deployed/task/' + task_id
+    return axios.get(url).then((response) => {
+      const id = response.data.deployed_id
+      if (id) {
+        const model = context.getters.getModelById(id)
+        this.commit('setDeployedModel', model)
+      }
+    }, error_handler_creator(context))
   }
 }

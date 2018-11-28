@@ -219,12 +219,21 @@ def model_remove(id):
     return
 
 
-@route("/api/renom_img/v2/load_deployed_models", method="GET")
+@route("/api/renom_img/v2/model/deploy/<id:int>", method="GET")
 @json_handler
-def models_load_deployed():
-    dep_models = storage.fetch_task()
-    json = {"models": dep_models}
-    return json
+def model_deploy(id):
+    storage.deploy_model(id)
+    return {"status": "ok"}
+
+
+@route("/api/renom_img/v2/model/load/deployed/task/<id:int>", method="GET")
+@json_handler
+def model_load_id_deployed_of_task(id):
+    dep_model = storage.fetch_deployed_model(id)
+    if dep_model:
+        return {"deployed_id": dep_model["id"]}
+    else:
+        return {"deployed_id": None}
 
 
 @route("/api/renom_img/v2/model/load/best/result/<id:int>", method="GET")

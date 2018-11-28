@@ -32,6 +32,8 @@ export default {
   },
   setDeployedModel (state, payload) {
     const task_id = state.current_task
+    const model_task_id = payload.task_id
+    if (task_id !== model_task_id) throw new Error('Task ID not matched.')
     state.deployed_model = Object.assign(...state.deployed_model, {[task_id]: payload})
   },
   unDeployModel (state, payload) {
@@ -40,6 +42,10 @@ export default {
   },
   forceUpdateModelList (state, payload) {
     state.models = [...state.models]
+  },
+  forceUpdatePredictionPage (state, payload) {
+    const page = state.nth_prediction_image_page
+    state.nth_prediction_image_page = {...page}
   },
   setCurrentPage (state, payload) {
     const page = payload

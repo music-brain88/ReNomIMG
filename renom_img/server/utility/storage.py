@@ -11,6 +11,7 @@ from renom_img.server import DB_DIR
 from renom_img.server.utility.DAO import Session
 from renom_img.server.utility.DAO import engine
 from renom_img.server.utility.table import *
+from renom_img.server import Task as TaskConst
 TOTAL_ALOGORITHM_NUMBER = 3
 TOTAL_TASK = 3
 
@@ -63,9 +64,9 @@ class Storage:
 
         if len(task) < TOTAL_TASK:
             with SessionContext() as session:
-                session.add(Task(id=None, name='Detection'))
-                session.add(Task(id=None, name='Classification'))
-                session.add(Task(id=None, name='Segmentation'))
+                session.add(Task(id=TaskConst.DETECTION.value, name='Detection'))
+                session.add(Task(id=TaskConst.CLASSIFICATION.value, name='Classification'))
+                session.add(Task(id=TaskConst.SEGMENTATION.value, name='Segmentation'))
 
     def register_model(self, task_id,
                        dataset_id, algorithm_id, hyper_parameters):
@@ -117,6 +118,26 @@ class Storage:
             result = session.query(Dataset).filter(Dataset.task_id == id)
             dict_result = self.remove_instance_state_key(result)
             return dict_result
+
+    def deploy_model(self, model_id):
+        with SessionContext() as session:
+            model = session.query(Model).filter(Model.id == model_id).first()
+            task = session.query(Task).filter(Task.id == model.task_id).first()
+            if model:
+                task.deployed_model_id = model.id
+        return
+
+    def fetch_deployed_model(self, task_id):
+        model = None
+        with SessionContext() as session:
+            task = session.query(Task).filter(Task.id == task_id).first()
+            if task:
+                model = session.query(Model).filter(Model.id == task.deployed_model_id)
+                if model.first():
+                    model = self.remove_instance_state_key(model)[0]
+                else:
+                    model = None
+        return model
 
     def update_model(self,
                      id, state=None, running_state=None, total_epoch=None, nth_epoch=None,

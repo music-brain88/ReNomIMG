@@ -2,7 +2,7 @@
   <component-frame :width-weight="6" :height-weight="4">
     <template slot="header-slot">
       Model Detail
-      <div id="deploy-button" @click="setDeployedModel(model)">
+      <div id="deploy-button" @click="deployModel(model)">
         <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Deploy
       </div>
     </template>
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import { ALGORITHM } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -67,7 +67,8 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['setDeployedModel', 'unDeployModel'])
+    ...mapMutations(['setDeployedModel', 'unDeployModel']),
+    ...mapActions(['deployModel'])
   }
 }
 </script>
