@@ -53,63 +53,6 @@ export default {
     }
   },
   methods: {
-    // draw: function () {
-    //   d3.select('#alg-list').select('svg').remove() // Remove SVG if it has been created.
-    //   const margin = { top: 15, left: 45, right: 20, bottom: 20 }
-    //   const canvas = document.getElementById('alg-list')
-    //   const canvas_width = canvas.clientWidth
-    //   const canvas_height = canvas.clientHeight
-    //   const circle_radius = Math.min(canvas_width * 0.03, canvas_height * 0.03)
-    //   const svg = d3.select('#alg-list').append('svg')
-    //   let model_list = this.getFilteredModelList
-    //   const num_model = model_list.length
-    //
-    //   let color = ['red', 'blue', 'green', 'yellow']
-    //   console.log('model', model_list[0])
-    //   model_list = Object.entries(model_list.reduce(
-    //     function (algs, model) {
-    //       const id = model.algorithm_id
-    //       if (id in algs) {
-    //         algs[id] += 1
-    //       } else {
-    //         algs[id] = 1
-    //       }
-    //       return algs
-    //     }, {})).map(d => [d[0], parseFloat(d[1]) / parseFloat(num_model)])
-    //
-    //   // Set size.
-    //   svg
-    //     .attr('width', canvas_width)
-    //     .attr('height', canvas_height)
-    //
-    //   // Plot Rectangle
-    //   // svg.append('g')
-    //   //   .selectAll('rect')
-    //   //   .data(model_list)
-    //   //   .enter()
-    //   //   .append('rect')
-    //   //   .attr('x', (d, i) => {
-    //   //     return d[1]
-    //   //   })
-    //   //   .attr('y', canvas_height * 0.5)
-    //   //   .attr('width', (d) => d[1] * canvas_width)
-    //   //   .attr('height', 25)
-    //   //   .attr('color', 'blue')
-    //   //   .attr('fill', (d, index) => color[index % 4])
-    //
-    //   let Layer = svg.selectAll('.layers')
-    //     .data(model_list)
-    //     .enter().append('g')
-    //     .attr('class', 'layer')
-    //     .style('fill', (d, index) => { return color[index % 4] })
-    //   Layer.selectAll('rect')
-    //     .data(function (d) { return d })
-    //     .enter()
-    //     .append('rect')
-    //     .attr('y', canvas_height * 0.5)
-    //     .attr('x', function (d) { return d[1] })
-    //     .attr('width', function (d) { return d[1] * canvas_width })
-    // }
     reduceModelList: function (model_list) {
       model_list = Object.entries(model_list.reduce(
         function (algs, model) {
