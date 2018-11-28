@@ -90,7 +90,6 @@ export default {
       maxY = Math.ceil(maxY)
       let minY = Math.min(Math.min.apply(null, [...train_loss_list, ...valid_loss_list]), 0)
       minY = Math.floor(minY)
-      console.log(minX, maxX)
 
       let tooltip = d3.select('#learning-curve-canvas')
         .append('div')

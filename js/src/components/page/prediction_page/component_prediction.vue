@@ -91,6 +91,7 @@ export default {
     this.$nextTick(function () {
       if (this.isTaskSegmentation) {
         let index = 0
+        if (!this.getValidImages) return
         for (let item of this.getValidImages) {
           this.getSegmentationStyle(this.getSegmentationList(item), index)
           index += 1
@@ -226,6 +227,7 @@ export default {
       const model = this.getDeployedModel
       if (!model) return []
       if (!model.prediction_result) return null
+      if (!model.prediction_result.prediction) return null
       return model.prediction_result.prediction[item.index]
     },
 
@@ -233,7 +235,7 @@ export default {
       if (cls === null) {
         return {}
       }
-      if (cls['score'] !== undefined && cls['class'] !== undefined) {
+      if (cls.hasOwnProperty('class') && cls.hasOwnProperty('score')) {
         const class_id = cls['class']
         return {
           border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
@@ -285,15 +287,16 @@ export default {
       }
       let indexRow = 0
       let indexCol = 0
-      const height = item.class.length
-      const width = item.class[0].length
+      const height = item.length
+      const width = item[0].length
+
       var canvas = document.getElementById('canvas-' + String(index))
       if (!canvas) return
       var cxt = canvas.getContext('2d')
       canvas.height = height
       canvas.width = width
       cxt.clearRect(0, 0, width, height)
-      for (let row of item.class) {
+      for (let row of item) {
         indexCol = 0
         for (let col of row) {
           const color = this.getTagColor(col)

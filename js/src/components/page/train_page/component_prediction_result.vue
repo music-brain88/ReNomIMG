@@ -231,6 +231,7 @@ export default {
         return dataset.valid_data.target[item.index]
       } else {
         if (!model.best_epoch_valid_result) return null
+        if (!model.best_epoch_valid_result.prediction) return null
         return model.best_epoch_valid_result.prediction[item.index]
       }
     },
@@ -292,6 +293,7 @@ export default {
         })
       } else {
         if (!model.best_epoch_valid_result) return []
+        if (!model.best_epoch_valid_result.prediction_box) return []
         box_list = model.best_epoch_valid_result.prediction_box[item.index]
       }
       return box_list
@@ -305,7 +307,9 @@ export default {
         return dataset.valid_data.target[item.index]
       } else {
         if (!model.best_epoch_valid_result) return null
+        if (!model.best_epoch_valid_result.prediction) return null
         const pred = model.best_epoch_valid_result.prediction[item.index]
+
         return pred
       }
     },

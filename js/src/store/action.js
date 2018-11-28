@@ -244,6 +244,7 @@ export default {
         const best_result = r.best_result
         model.best_epoch_valid_result = best_result
         context.commit('forceUpdateModelList')
+        context.commit('forceUpdatePredictionPage')
       }
     }, error_handler_creator(context))
   },
@@ -468,6 +469,7 @@ export default {
       if (id) {
         const model = context.getters.getModelById(id)
         this.commit('setDeployedModel', model)
+        this.dispatch('loadPredictionResult', model.id)
       }
     }, error_handler_creator(context))
   }

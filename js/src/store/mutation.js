@@ -43,6 +43,10 @@ export default {
   forceUpdateModelList (state, payload) {
     state.models = [...state.models]
   },
+  forceUpdatePredictionPageSample (state, payload) {
+    const page = state.nth_image_page
+    state.nth_image_page = {...page}
+  },
   forceUpdatePredictionPage (state, payload) {
     const page = state.nth_prediction_image_page
     state.nth_prediction_image_page = {...page}

@@ -126,7 +126,7 @@ class PredictionThread(object):
             self.nth_batch = i
             path = os.path.join(self.img_dir, p)
             pred = self.model.predict(path)
-            if isinstance(pred, np.ndarray):
+            if not isinstance(pred, list):
                 pred = pred.tolist()
             results.append(pred)
             sizes.append(Image.open(path).size)
@@ -216,6 +216,7 @@ class PredictionThread(object):
             self._setting_fcn()
         else:
             assert False
+        self.model.load(self.best_weight_path)
 
     # Detection Algorithm
     def _setting_yolov1(self):
