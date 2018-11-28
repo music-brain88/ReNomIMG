@@ -210,26 +210,34 @@ export default {
   getAlgorithmColor (state, getters) {
     return function (n) {
       let color
-      switch (n) {
-        // YOLOv1
-        case 30:
-          color = '#903f84'
+      switch (n % 10) {
+        // judge by first digit
+        // if n = 10
+        // the color will set case 0 variable
+        // this is using in d3
+        case 0:
+          color = '#903e84'
           break
-        // YOLOv2
-        case 31:
-          color = '#433886'
+        case 1:
+          color = '#423885'
           break
-        // SSD
-        case 32:
+        case 2:
+          color = '#136eab'
+          break
+        case 3:
           color = '#009453'
+          break
+        case 4:
+          color = '#93b447'
+          break
+        case 5:
+          color = '#dfd238'
           break
         default:
           color = 'black'
           break
       }
       return color
-      // if (n === 10) return '#903f84'
-      // if (n === 11) return '#433886'
     }
   },
   getTagColor (state, getters) {

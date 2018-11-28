@@ -5,7 +5,9 @@
     </template>
     <div id="alg-list">
       <div class="bar" v-if="this.getFilteredModelList">
-        <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'"></section>
+        <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
+          {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
+        </section>
       </div>
       <div class="bar" v-else>
         <section id="green" style="width: 100%">Green</section>
