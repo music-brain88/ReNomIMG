@@ -3,15 +3,13 @@
     <template slot="header-slot">
       Train Progress
     </template>
-    <div id="alg-list">
-      <div class="bar" v-if="this.getFilteredModelList">
-        <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
-          {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
-        </section>
-      </div>
-      <div class="bar" v-else>
-        <section id="green" style="width: 100%">Green</section>
-      </div>
+    <div class="bar" v-if="this.getFilteredModelList">
+      <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
+        {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
+      </section>
+    </div>
+    <div class="bar" v-else>
+      <section id="green" style="width: 100%">Green</section>
     </div>
     <div id="component-progress" class="scrollbar-container">
       <progress-bar :isTitle="true"/>
@@ -75,10 +73,6 @@ export default {
 </script>
 
 <style lang='scss'>
-  #alg-list {
-    width: 100%;
-    height: 30%;
-  }
   #component-progress {
     height: 70%;
     overflow: auto;
@@ -86,9 +80,10 @@ export default {
   }
   .bar {
   display: flex;
-	height: 30%;
 	width: 100%;
+	height: 30%;
 	margin: 0 auto;
+  padding-top:3%;
 	
 	overflow: hidden;
   }
@@ -103,14 +98,5 @@ export default {
   }
   #green {
     background: #65d260;
-  }
-  #blue {
-    background: #45afd9;
-  }
-  #yellow {
-    background: #f6b50a;
-  }
-  #red {
-    background: #f54954;
-  }
+  } 
 </style>
