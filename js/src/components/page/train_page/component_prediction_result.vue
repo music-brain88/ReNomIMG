@@ -2,6 +2,22 @@
   <component-frame :width-weight="8" :height-weight="7">
     <template slot="header-slot">
       Prediction Result
+      <div id="valid-prediction-button-area"
+        v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
+        <label>
+          <input class="checkbox" type="checkbox"
+          id="prediction-show-button" v-model="show_image" :disabled="!isTaskSegmentation">
+          Image
+        </label>
+        <label>
+          <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction">
+          Prediction
+        </label>
+        <label>
+          <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target">
+          Target
+        </label>
+      </div>
     </template>
     <div id="pager" v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
       <div class="pager-arrow" @click="prevPage">
@@ -17,7 +33,7 @@
     <div id="img-container" ref="container">
       <!--<transition-group name="fade">-->
       <div v-for="(item, index) in getValidImages" :style="getImgSize(item)">
-        <img :src="item.img"/>
+        <img :src="item.img" v-if="showImage"/>
         <!--Change following div for each task-->
         <div id="cls" v-if='isTaskClassification'
           :style="getClassificationStyle(getClassificationList(item))">
@@ -46,7 +62,9 @@ export default {
   },
   data: function () {
     return {
-      show_target: false
+      show_image: true,
+      show_target: false,
+      show_prediction: true
     }
   },
   computed: {
@@ -56,6 +74,9 @@ export default {
       'getTagColor',
       'getImagePageOfPredictionSample'
     ]),
+    showImage: function () {
+      return this.show_image || !this.isTaskSegmentation
+    },
     getValidImages: function () {
       const model = this.getSelectedModel
       if (!this.$refs.container) return []
@@ -292,10 +313,13 @@ export default {
             }
           }, {}))
         })
-      } else {
-        if (!model.best_epoch_valid_result) return []
-        if (!model.best_epoch_valid_result.prediction) return []
-        box_list = model.best_epoch_valid_result.prediction[item.index]
+      }
+      if (this.show_prediction) {
+        if (model.best_epoch_valid_result) {
+          if (model.best_epoch_valid_result.prediction) {
+            box_list = box_list.concat(model.best_epoch_valid_result.prediction[item.index])
+          }
+        }
       }
       return box_list
     },
@@ -354,6 +378,49 @@ export default {
 </script>
 
 <style lang='scss'>
+#valid-prediction-button-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 100%;
+  width: 30%;
+  input {
+    display: none;
+    -webkit-appearance: none;
+  }
+  label { 
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $component-header-font-family;
+    font-size: 90%;
+  }
+  input[type="checkbox"] {
+    content: "";
+    display: block;
+    height: 12px;
+    width: 12px;
+    border: 1px solid white;
+    border-radius: 6px;
+  }
+  input[type="checkbox"]:checked {
+    content: "";
+    display: block;
+    border: 1px solid white;
+    background-color: white;
+  }
+  input[type="checkbox"]:disabled {
+    content: "";
+    display: block;
+    border: 1px solid gray;
+    background-color: gray;
+  }
+  input[type="checkbox"]:focus {
+      outline:none;  
+  }
+}
+
 #img-container{
   width: 100%;
   height: 95%;

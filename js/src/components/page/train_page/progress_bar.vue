@@ -159,21 +159,21 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 12.5%;
+    width: 15%;
     height: 100%;
   }
   #loss-area {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20%;
+    width: 18%;
     height: 100%;
   }
   #bar-area {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 35.5%;
+    width: 33%;
     height: 80%;
     #bar-background {
       width: 100%;
@@ -216,8 +216,8 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 130%;
-    width: 7%;
+    font-size: 131%;
+    width: 9%;
     height: 100%;
     text-align: center;
     color: lightgray;
