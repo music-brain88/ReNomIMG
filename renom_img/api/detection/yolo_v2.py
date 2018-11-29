@@ -1,6 +1,7 @@
 import os
 from itertools import chain
 import numpy as np
+import math
 import renom as rm
 import matplotlib.pyplot as plt
 from renom.cuda import release_mem_pool, is_cuda_active
@@ -151,7 +152,7 @@ class Yolov2(Detection):
             "w": rm.Variable(self._last._initializer((last_channel, 1024, 1, 1)), auto_update=True),
             "b": rm.Variable(np.zeros((1, last_channel, 1, 1), dtype=np.float32), auto_update=False),
         }
-
+        self.iterations = 0
         self._opt = rm.Sgd(0.001, 0.9)
         self._train_whole_network = train_whole_network
 
@@ -207,7 +208,6 @@ class Yolov2(Detection):
             if current_loss is not None and current_loss > 50:
                 self._opt._lr *= 0.1
                 return self._opt
-
             ind0 = int(total_epoch * 1 / 16.)
             ind1 = int(total_epoch * 5 / 16.)
             ind2 = int(total_epoch * 3 / 16.)
@@ -218,8 +218,8 @@ class Yolov2(Detection):
                 lr = 0.0001 + (0.001 - 0.0001) / float(total_batch) * current_batch
             else:
                 lr = lr_list[current_epoch]
-
             self._opt._lr = lr
+
             return self._opt
 
     def preprocess(self, x):
@@ -271,10 +271,11 @@ class Yolov2(Detection):
         h, f = self.freezed_network(x)
         f = self._conv21(f)
         h = self._conv1(h)
+
         h = self._conv2(rm.concat(h,
                                   rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
-        out = self._last(h)
 
+        out = self._last(h)
         # Create yolo format.
         N, C, H, W = h.shape
 
@@ -501,17 +502,32 @@ class Yolov2(Detection):
         asw = W * 32 / self.anchor_size[0]
         ash = H * 32 / self.anchor_size[1]
         anchor = [[an[0] * asw, an[1] * ash] for an in self.anchor]
-
+        if self.inference == False:
+            self.iterations += 1
         num_anchor = self.num_anchor
         mask = np.zeros((N, C, H, W), dtype=np.float32)
         mask = mask.reshape(N, num_anchor, 5 + self.num_class, H, W)
-        mask[:, :, 1:5, ...] = 0.01
+        if self.inference == False:
+            if self.iterations < 51200:
+                mask[:, :, 1:3, ...] = 1.0
+                mask[:, :, 3:5, ...] = 0.0
+            else:
+                mask[:, :, 1:5, ...] = 0.0
+        else:
+            mask[:, :, 1:5, ...] = 0.0
         mask = mask.reshape(N, C, H, W)
 
         target = np.zeros((N, C, H, W), dtype=np.float32)
         target = target.reshape(N, num_anchor, 5 + self.num_class, H, W)
-        target[:, :, 1:3, ...] = 0.5
-        target[:, :, 3:5, ...] = 1.0
+
+        if self.inference == False:
+            if self.iterations < 51200:
+                target[:, :, 1:3, ...] = 0.5
+                target[:, :, 3:5, ...] = 0.0
+            else:
+                target[:, :, 1:5, ...] = 0.0
+        else:
+            target[:, :, 1:5, ...] = 0.0
         target = target.reshape(N, C, H, W)
 
         low_thresh = 0.6
@@ -541,9 +557,9 @@ class Yolov2(Detection):
 
                 # scale of noobject iou
                 if max_iou <= low_thresh:
-                    # mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
-                    mask[n, ind[0] * offset, ind[1], ind[2]] = nd_x[n,
-                                                                    ind[0] * offset, ind[1], ind[2]] * 1
+                    mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
+#                     mask[n, ind[0] * offset, ind[1], ind[2]] = nd_x[n,
+#                                                                     ind[0] * offset, ind[1], ind[2]] * 1
 
             # Create target and mask for cell that contains obj.
             for h, w in zip(*gt_index):
@@ -585,9 +601,9 @@ class Yolov2(Detection):
                     calc_iou_xywh([px, py, pw, ph], [tx, ty, tw, th])
 
                 # scale of obj iou
-                # mask[n, 0 + best_anc_ind * offset, h, w] = 5.
-                mask[n, 0 + best_anc_ind * offset, h,
-                     w] = (1 - nd_x[n, best_anc_ind * offset, h, w]) * 5
+                mask[n, 0 + best_anc_ind * offset, h, w] = 5.
+#                 mask[n, 0 + best_anc_ind * offset, h,
+#                      w] = (1 - nd_x[n, best_anc_ind * offset, h, w]) * 5
 
                 # scale of coordinate
                 mask[n, 1 + best_anc_ind * offset, h, w] = 1
@@ -660,7 +676,10 @@ class Yolov2(Detection):
 
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=8)
-        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list, num_worker=8)
+        if valid_img_path_list is not None and valid_annotation_list is not None:
+            valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
+        else:
+            valid_dist = None
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
