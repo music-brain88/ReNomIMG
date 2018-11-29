@@ -14,7 +14,6 @@ export default {
     const task = getters.getCurrentTask
     // Filtering
     const filtered_list = getters.getFilteredModelList
-    console.log(filtered_list)
     // Grouping
     if (state.group_by === GROUPBY.NONE.key) {
       array = filtered_list
@@ -67,7 +66,6 @@ export default {
     for (let flt of state.filters) {
       filtered = flt.filter(filtered)
     }
-    console.log(filtered)
     return filtered
   },
   getFilteredDatasetList (state, getters) {

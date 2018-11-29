@@ -457,8 +457,9 @@ export default {
   async deployModel (context, payload) {
     let model = payload
     let url = '/api/renom_img/v2/model/deploy/' + model.id
+    this.commit('setDeployedModel', model)
     return axios.get(url).then(() => {
-      this.commit('setDeployedModel', model)
+
     }, error_handler_creator(context))
   },
   async loadDeployedModel (context, payload) {

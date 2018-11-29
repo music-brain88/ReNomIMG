@@ -31,7 +31,15 @@ export default class Model {
 
     this.model_list = []
   }
-
+  isDeployable () {
+    return (this.state !== STATE.STOPPED)
+  }
+  isTraining () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.TRAINING)
+  }
+  isValidating () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.VALIDATING)
+  }
   getResultOfMetric1 () {
     let m1 = '-'
     if (this.task_id === TASK_ID.CLASSIFICATION) {

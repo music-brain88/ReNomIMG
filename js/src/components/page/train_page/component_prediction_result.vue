@@ -92,6 +92,7 @@ export default {
     this.$nextTick(function () {
       if (this.isTaskSegmentation) {
         let index = 0
+        if (!this.getValidImages) return
         for (let item of this.getValidImages) {
           this.getSegmentationStyle(this.getSegmentationList(item), index)
           index += 1
@@ -239,8 +240,8 @@ export default {
       if (cls === null) {
         return {}
       }
-      if (cls['score'] !== undefined && cls['class'] !== undefined) {
-        const class_id = cls['class']
+      if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {
+        const class_id = cls.class
         return {
           border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
         }
@@ -293,8 +294,8 @@ export default {
         })
       } else {
         if (!model.best_epoch_valid_result) return []
-        if (!model.best_epoch_valid_result.prediction_box) return []
-        box_list = model.best_epoch_valid_result.prediction_box[item.index]
+        if (!model.best_epoch_valid_result.prediction) return []
+        box_list = model.best_epoch_valid_result.prediction[item.index]
       }
       return box_list
     },
@@ -337,7 +338,7 @@ export default {
           if (col === 0) {
             cxt.fillStyle = color + '00'
           } else {
-            cxt.fillStyle = color + '88'
+            cxt.fillStyle = color + '77'
           }
           cxt.fillRect(indexCol, indexRow, 1, 1)
           indexCol++

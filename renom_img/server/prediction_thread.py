@@ -214,6 +214,8 @@ class PredictionThread(object):
 
         elif self.algorithm_id == Algorithm.FCN.value:
             self._setting_fcn()
+        elif self.algorithm_id == Algorithm.UNET.value:
+            self._setting_unet()
         else:
             assert False
         self.model.load(self.best_weight_path)
@@ -378,6 +380,15 @@ class PredictionThread(object):
             FCN = FCN32s
 
         self.model = FCN(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+
+    def _setting_unet(self):
+        assert self.task_id == Task.SEGMENTATION.value, self.task_id
+        self.model = UNet(
             class_map=self.class_map,
             imsize=self.imsize,
             load_pretrained_weight=self.load_pretrained_weight,

@@ -91,7 +91,6 @@ export default {
 .isSelected#model-item {
   border: solid 1px $component-header-sub-color;
 }
-
 #model-item:hover {
   background-color: $model-item-hover-color;
 }

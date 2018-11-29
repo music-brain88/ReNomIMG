@@ -14,11 +14,16 @@
     </div>
     <div id="loss-area">
       <span v-if="isTitle">Loss</span>
-      <span v-else>{{ this.loss }}</span>
+      <span v-else-if="model.isTraining()">{{ this.loss }}</span>
+      <span v-else-if="model.isValidating()">Validating</span>
     </div>
     <div id="bar-area">
       <span v-if="isTitle">Progress</span>
       <div id="bar-background" v-else>
+        <div id="bar-front"
+          :style="getWidthOfBar"
+          :class="[getColorClass(model), getBarClass]">
+        </div>
       </div>
     </div>
     <div id="button-stop-area" v-if="!isTitle">
@@ -28,6 +33,7 @@
 </template>
 
 <script>
+import {RUNNING_STATE} from '@/const.js'
 import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 export default {
   name: 'ProgressBar',
@@ -44,11 +50,32 @@ export default {
     }
   },
   computed: {
+    ...mapGetters([
+      'getColorClass'
+    ]),
     model_id: function () {
       if (this.model === undefined) {
         return '-'
       } else {
         return this.model.id
+      }
+    },
+    getBarClass: function () {
+      if (this.model.isValidating()) {
+        return 'validating'
+      } else {
+        return 'training'
+      }
+    },
+    getWidthOfBar: function () {
+      if (this.model.isValidating()) {
+        return {
+          width: '20%'
+        }
+      } else {
+        return {
+          width: (this.current_batch / this.total_batch) * 100 + '%'
+        }
       }
     },
     current_epoch: function () {
@@ -105,10 +132,12 @@ export default {
 #progress-bar {
   display: flex;
   flex-direction: row;
+  align-items: center;
   width: 100%;
   height: calc(#{$progress-bar-height}*0.8);
   padding-left: $progress-bar-margin;
   padding-right: $progress-bar-margin;
+  margin-bottom: 10px;
   font-size: 80%;
   text-align: center;
 
@@ -145,26 +174,58 @@ export default {
     align-items: center;
     justify-content: center;
     width: 35.5%;
-    height: 100%;
+    height: 80%;
     #bar-background {
       width: 100%;
       height: calc(100% - #{$bar-margin}*2);
-      background-color: gray; 
+      background-color: lightgray; 
+      #bar-front.training {
+        position: relative;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transition: width 300ms;
+      }
+      #bar-front.validating {
+        position: relative;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transition: width 300ms;
+        animation: move-bar 1.5s;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+      }
+      @keyframes move-bar {
+        0% {
+          transform: translateX(-50%) scaleX(0);
+        } 
+        20% {
+          transform: translateX(0%) scaleX(1);
+        } 
+        80% {
+          transform: translateX(400%) scaleX(1);
+        }
+        100% {
+          transform: translateX(450%) scaleX(0);
+        }
+      }
     }
   }
   #button-stop-area {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 130%;
     width: 7%;
     height: 100%;
     text-align: center;
-    color: gray;
+    color: lightgray;
     i {
       cursor: pointer;
     }
     i:hover {
-      color: lightgray;
+      color: gray;
     }
   }
 }

@@ -2,7 +2,7 @@
   <component-frame :width-weight="6" :height-weight="4">
     <template slot="header-slot">
       Model Detail
-      <div id="deploy-button" @click="deployModel(model)">
+      <div id="deploy-button" @click="deployModel(model)" :disabled="model && model.isDeployable()">
         <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Deploy
       </div>
     </template>
@@ -51,7 +51,7 @@ export default {
       if (model) {
         return model
       } else {
-        return undefined
+        return false
       }
     },
     getDatasetName: function () {
@@ -83,6 +83,9 @@ export default {
   width: 25%;
   background-color: $component-header-sub-color;
   cursor: pointer;
+}
+#deploy-button:disabled {
+  background-color: black;
 }
 
 #model-detail {
