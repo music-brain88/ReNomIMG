@@ -334,41 +334,66 @@ export default {
         if (!model.best_epoch_valid_result) return null
         if (!model.best_epoch_valid_result.prediction) return null
         const pred = model.best_epoch_valid_result.prediction[item.index]
-
         return pred
       }
     },
     getSegmentationStyle: function (item, index) {
-      if (!item) {
+      if (!item || !this.show_prediction) {
+        // Clear canvas
         var canvas = document.getElementById('canvas-' + String(index))
-        var cxt = canvas.getContext('2d')
-        cxt.clearRect(0, 0, canvas.width, canvas.height)
+        var cxt = canvas.getContext('bitmaprenderer')
+        var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
+        var offCxt = offCanvas.getContext('2d')
+        offCxt.clearRect(0, 0, canvas.width, canvas.height)
+        cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
         return
       }
-      let indexRow = 0
-      let indexCol = 0
-      const height = item.class.length
-      const width = item.class[0].length
-      var canvas = document.getElementById('canvas-' + String(index))
-      if (!canvas) return
-      var cxt = canvas.getContext('2d')
-      canvas.height = height
-      canvas.width = width
-      cxt.clearRect(0, 0, width, height)
-      for (let row of item.class) {
-        indexCol = 0
-        for (let col of row) {
-          const color = this.getTagColor(col)
-          if (col === 0) {
-            cxt.fillStyle = color + '00'
-          } else {
-            cxt.fillStyle = color + '77'
+      function draw (item) {
+        const d = 2 // Resample drawing pixel.
+        const height = item.class.length
+        const width = item.class[0].length
+        var canvas = new OffscreenCanvas(width / d, height / d)
+        var cxt = canvas.getContext('2d')
+        var imageData = cxt.getImageData(0, 0, width / d, height / d)
+        cxt.clearRect(0, 0, width / d, height / d)
+
+        if (!item.hasOwnProperty('class')) return
+        for (let i = 0; i < width; i += d) {
+          for (let j = 0; j < height; j += d) {
+            let n = item.class[i][j]
+            let c
+            // Must be same getTagColor function.
+            if (n % 10 === 0) c = 'E7009A'
+            else if (n % 10 === 1) c = '9F13C1'
+            else if (n % 10 === 2) c = '582396'
+            else if (n % 10 === 3) c = '0B20C4'
+            else if (n % 10 === 4) c = '3F9AAF'
+            else if (n % 10 === 5) c = '14884B'
+            else if (n % 10 === 6) c = 'BBAA19'
+            else if (n % 10 === 7) c = 'FFCC33'
+            else if (n % 10 === 8) c = 'EF8200'
+            else if (n % 10 === 9) c = 'E94C33'
+
+            var bigint = parseInt(c, 16)
+            var r = (bigint >> 16) & 255
+            var g = (bigint >> 8) & 255
+            var b = bigint & 255
+
+            let img_index = (Math.floor(width * i / d / d) + Math.floor(j / d)) * 4
+            imageData.data[img_index + 0] = r
+            imageData.data[img_index + 1] = g
+            imageData.data[img_index + 2] = b
+            imageData.data[img_index + 3] = (n !== 0) * 160
           }
-          cxt.fillRect(indexCol, indexRow, 1, 1)
-          indexCol++
         }
-        indexRow++
+        cxt.putImageData(imageData, 0, 0)
+        return canvas.transferToImageBitmap()
       }
+      this.$worker.run(draw, [item]).then((ret) => {
+        var canvas = document.getElementById('canvas-' + String(index))
+        var cxt = canvas.getContext('bitmaprenderer')
+        cxt.transferFromImageBitmap(ret)
+      })
     },
     getSegmentationTargetArray: function (src) {
       let arr = this.loadSegmentationTargetArray(src)
