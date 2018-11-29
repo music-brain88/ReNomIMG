@@ -47,6 +47,7 @@ export default {
     add_dataset: false,
     add_both: false,
     add_filter: false,
+    show_image: false,
   },
 
   // Variable of image list pager.
@@ -63,5 +64,10 @@ export default {
   },
 
   // Grouping. // Not use in version 2.0
-  group_by: GROUPBY.NONE.key
+  group_by: GROUPBY.NONE.key,
+
+  // Image for modal
+  modal_image: null,
+  modal_prediction: null,
+  modal_target: null,
 }

@@ -39,10 +39,10 @@
         <div class="title">Loss
           <i class="fa fa-sort-desc" aria-hidden="true"></i>
         </div>
-        <div class="title">/ mAP
+        <div class="title">/ {{ getTitleMetric1 }}
           <i class="fa fa-sort-desc" aria-hidden="true"></i>
         </div>
-        <div class="title">/ IOU
+        <div class="title">/ {{ getTitleMetric2 }}
           <i class="fa fa-sort-desc" aria-hidden="true"></i>
         </div>
       </span>
@@ -76,9 +76,15 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getFilteredModelList', 'getFilteredAndGroupedModelList',
-      'getSortTitle', 'getDeployedModel',
-      'getGroupTitles']),
+    ...mapGetters([
+      'getFilteredModelList',
+      'getFilteredAndGroupedModelList',
+      'getSortTitle',
+      'getDeployedModel',
+      'getGroupTitles',
+      'getTitleMetric1',
+      'getTitleMetric2'
+    ]),
   },
   created: function () {
 

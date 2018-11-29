@@ -18,7 +18,7 @@
       <span v-else-if="model.isValidating()">Validating</span>
     </div>
     <div id="bar-area">
-      <span v-if="isTitle">Progress</span>
+      <span v-if="isTitle"></span>
       <div id="bar-background" v-else>
         <div id="bar-front"
           :style="getWidthOfBar"
@@ -73,8 +73,14 @@ export default {
           width: '20%'
         }
       } else {
-        return {
-          width: (this.current_batch / this.total_batch) * 100 + '%'
+        if (this.total_batch === 0) {
+          return {
+            width: 0 + '%'
+          }
+        } else {
+          return {
+            width: (this.current_batch / this.total_batch) * 100 + '%'
+          }
         }
       }
     },
@@ -174,7 +180,7 @@ export default {
     align-items: center;
     justify-content: center;
     width: 33%;
-    height: 80%;
+    height: 70%;
     #bar-background {
       width: 100%;
       height: calc(100% - #{$bar-margin}*2);
@@ -195,6 +201,8 @@ export default {
         animation: move-bar 1.5s;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-delay: 0.1s;
       }
       @keyframes move-bar {
         0% {

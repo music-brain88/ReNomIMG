@@ -40,7 +40,13 @@ export default {
     this.init()
   },
   methods: {
-    ...mapMutations(['showSlideMenu', 'setCurrentTask', 'setCurrentPage']),
+    ...mapMutations([
+      'showSlideMenu',
+      'setCurrentTask',
+      'setCurrentPage',
+      'forceUpdateModelList',
+      'forceUpdatePredictionPageSample',
+    ]),
     ...mapActions(['init']),
     onItemClick: function (page_name) {
       this.init()
@@ -61,7 +67,6 @@ export default {
       }
       this.showSlideMenu(false)
     }
-
   }
 }
 </script>

@@ -23,8 +23,8 @@
       <div class="pager-arrow" @click="prevPage">
         <i class="fa fa-caret-left" aria-hidden="true"></i>
       </div>
-      <div class="pager-number" v-for="item in pageList()">
-        {{item}}
+      <div class="pager-number" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
+        {{ item }}
       </div>
       <div class="pager-arrow" @click="nextPage">
         <i class="fa fa-caret-right" aria-hidden="true"></i>
@@ -32,7 +32,7 @@
     </div>
     <div id="img-container" ref="container">
       <!--<transition-group name="fade">-->
-      <div v-for="(item, index) in getValidImages" :style="getImgSize(item)">
+      <div v-for="(item, index) in getValidImages" :style="getImgSize(item)" @click="showImageModal(item)">
         <img :src="item.img" v-if="showImage"/>
         <!--Change following div for each task-->
         <div id="cls" v-if='isTaskClassification'
@@ -68,7 +68,12 @@ export default {
     }
   },
   computed: {
-    ...mapState(['datasets']),
+    ...mapState([
+      'datasets',
+      'modal_image',
+      'modal_prediction',
+      'modal_target'
+    ]),
     ...mapGetters(['getSelectedModel',
       'getCurrentTask',
       'getTagColor',
@@ -125,8 +130,48 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['setImagePageOfPredictionSample']),
+    ...mapMutations(['setImagePageOfPredictionSample', 'showModal', 'setImageModalData']),
     ...mapActions(['loadSegmentationTargetArray']),
+    showImageModal: function (item) {
+      let pred = null
+      let targ = null
+      if (this.isTaskClassification) {
+        pred = this.getClassificationList(item)
+      } else if (this.isTaskDetection) {
+        pred = this.getBoxList(item)
+      } else if (this.isTaskSegmentation) {
+        pred = this.getClassificationList(item)
+      }
+      this.setImageModalData({
+        'img': item.img,
+        'prediction': pred,
+        'target': targ,
+      })
+      this.showModal({'show_image': true})
+    },
+    pagerStyle: function (index) {
+      const current_page = this.getImagePageOfPredictionSample
+      if (current_page === index) {
+        return {
+          'background-color': '#063662',
+          'color': 'white',
+        }
+      }
+    },
+    setPageNum: function (index) {
+      if (index === '...') return
+
+      const model = this.getSelectedModel
+      if (!model) return
+
+      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      if (!dataset) return
+
+      const max_page_num = dataset.page.length - 1
+      const current_page = this.getImagePageOfPredictionSample
+      if (index === current_page) return
+      this.setImagePageOfPredictionSample(Math.min(index, max_page_num))
+    },
     nextPage: function () {
       const model = this.getSelectedModel
       if (!model) return
@@ -155,11 +200,22 @@ export default {
 
       const dataset = this.datasets.find(d => d.id === model.dataset_id)
       if (!dataset) return []
+      if (!dataset.page) return []
 
-      const current_page = this.getImagePageOfPredictionSample
-      const max_page_num = dataset.page.length - 1
-      // TODO: Return page numbers.
-      return [0, 1, 2, '...', max_page_num]
+      const current_page = Math.max(this.getImagePageOfPredictionSample, 0)
+      const max_page_num = Math.max(dataset.page.length - 1, 0)
+
+      if (max_page_num > 5) {
+        if (current_page < 4) {
+          return [...[...Array(Math.max(current_page, 5)).keys()], '...', max_page_num]
+        } else if (current_page > max_page_num - 4) {
+          return [0, '...', ...[...Array(Math.max(max_page_num - current_page, 5)).keys()].reverse().map(i => max_page_num - i)]
+        } else {
+          return [0, '...', ...[...Array(5).keys()].reverse().map(i => current_page - i + 2), '...', max_page_num]
+        }
+      } else {
+        return Array(max_page_num).keys()
+      }
     },
     vh: function (v) {
       var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
@@ -226,7 +282,8 @@ export default {
           if (i === last_index) {
             // Add white image to empty space.
             one_page.push({index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1]})
-            for (let j = nth_line_in_page; j < 2; j++) {
+            console.log(nth_line_in_page)
+            for (let j = nth_line_in_page; j <= 2; j++) {
               one_page.push({index: -1, img: brank, size: [max_ratio, 1]})
             }
           }
@@ -491,12 +548,16 @@ export default {
   width: 100%;
   height: 5%;
   display: flex;
-  align-items: right;
+  justify-content: flex-end;
+  padding-right: 5px;
+  align-items: center;
   .pager-arrow {
+    font-size: 150%;
     height: 100%;
     display: flex;
     align-items: center;
-    margin: 1px;
+    margin-left: 5px;
+    margin-right: 5px;
     cursor: pointer;
     i {
     }
@@ -504,10 +565,13 @@ export default {
   .pager-number {
     display: flex;
     align-items: center;
-    height: 100%;
-    border: solid 1px gray;
-    margin: 1px;
+    justify-content: center;
+    font-size: 75%;
+    height: calc(100% - 2px);
+    width: 3%;
     cursor: pointer;
+    letter-spacing: -1px;
+    transition: all 0.1s
   }
 }
 </style>

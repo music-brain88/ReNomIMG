@@ -5,10 +5,10 @@
     </template>
     <div id="component-scatter">
       <div id="title-metric1">
-        {{ getTitleMetric1 }}
+        {{ getTitleMetric1 }} [%]
       </div>
       <div id="title-metric2">
-        {{ getTitleMetric2 }}
+        {{ getTitleMetric2 }} [%]
       </div>
       <div id="scatter-canvas">
       </div>
@@ -30,6 +30,7 @@ export default {
     return {
       componentWidth: window.innerWidth,
       componentHeight: window.innerHeight,
+      tooltip: null
     }
   },
   created: function () {
@@ -117,10 +118,15 @@ export default {
             .scale(scaleX)
         )
 
-      let tooltip = d3.select('#scatter-canvas')
-        .append('div')
-        .style('display', 'none')
-        .style('position', 'absolute')
+      if (!this.tooltip) {
+        console.log('ss')
+        this.tooltip = d3.select('#scatter-canvas')
+          .append('div')
+          .style('display', 'none')
+          .style('position', 'absolute')
+      }
+
+      var ttip = this.tooltip
 
       // Plot Models.
       svg.append('g')
@@ -150,18 +156,20 @@ export default {
         .attr('fill', (m) => {
           return this.getAlgorithmColor(m.algorithm_id)
         })
-        .on('mousemove', (m, index) => {
+        .on('mouseenter', (m, index) => {
           // TODO: Fix event handler.
           let x = d3.event.layerX + 10
           let y = d3.event.layerY + 10
-          tooltip.style('display', 'inline-block')
-          tooltip.transition()
+          let metric1 = m.getResultOfMetric1()
+          let metric2 = m.getResultOfMetric2()
+          ttip.style('display', 'inline-block')
+          ttip.transition()
             .duration(200)
             .style('opacity', 0.9)
-          tooltip.html(
-            'model_id:' + m.id + '<br />' +
-            'mAP:' + m.best_epoch_valid_result.mAP + '<br />' +
-            'IoU:' + m.best_epoch_valid_result.IOU
+          ttip.html(
+            'Model ID : ' + m.id + '<br />' +
+            metric1.metric + ' : ' + metric1.value + '<br />' +
+            metric2.metric + ' : ' + metric2.value
           )
             .style('top', y + 'px')
             .style('left', x + 'px')
@@ -169,9 +177,12 @@ export default {
             .style('background', this.getAlgorithmColor(m.algorithm_id))
             .style('color', 'white')
             .style('text-align', 'left')
+            .on('mouseleave', () => {
+              console.log('leave')
+            })
         })
         .on('mouseleave', () => {
-          tooltip.style('display', 'none')
+          ttip.style('display', 'none')
         })
     }
   }

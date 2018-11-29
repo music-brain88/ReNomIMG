@@ -249,20 +249,20 @@ export default {
   },
   getTitleMetric1 (state, getters) {
     if (state.current_task === TASK_ID.CLASSIFICATION) {
-      return 'Recall [%]'
+      return 'Recall'
     } else if (state.current_task === TASK_ID.DETECTION) {
-      return 'mAP [%]'
+      return 'mAP'
     } else if (state.current_task === TASK_ID.SEGMENTATION) {
-      return 'Recall [%]'
+      return 'Recall'
     }
   },
   getTitleMetric2 (state, getters) {
     if (state.current_task === TASK_ID.CLASSIFICATION) {
-      return 'Precision [%]'
+      return 'Precision'
     } else if (state.current_task === TASK_ID.DETECTION) {
-      return 'IOU [%]'
+      return 'IOU'
     } else if (state.current_task === TASK_ID.SEGMENTATION) {
-      return 'Precision [%]'
+      return 'Precision'
     }
   },
   getImagePageOfPredictionSample (state, getters) {
@@ -272,5 +272,13 @@ export default {
   getImagePageOfPrediction (state, getters) {
     const task = getters.getCurrentTask
     return state.nth_prediction_image_page[task]
+  },
+  isShowableImageModal (state, getters) {
+    if ((state.modal_image && state.modal_prediction) ||
+      (state.modal_image && state.target)) {
+      return true
+    } else {
+      return false
+    }
   },
 }

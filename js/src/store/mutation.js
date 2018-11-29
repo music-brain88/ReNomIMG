@@ -33,7 +33,7 @@ export default {
   setDeployedModel (state, payload) {
     const task_id = state.current_task
     const model_task_id = payload.task_id
-    if (task_id !== model_task_id) throw new Error('Task ID not matched.', task_id, model_task_id)
+    if (task_id !== model_task_id) throw new Error('Task ID not matched.' + task_id + model_task_id)
     state.deployed_model = Object.assign({...state.deployed_model}, {[task_id]: payload})
   },
   unDeployModel (state, payload) {
@@ -108,6 +108,16 @@ export default {
       } else {
         state.show_modal[k] = false
       }
+    }
+  },
+  setImageModalData (state, payload) {
+    state.modal_image = payload.img
+    console.log(state.modal_image)
+    if (payload.hasOwnProperty('prediction')) {
+      state.modal_prediction = payload.prediction
+    }
+    if (payload.hasOwnProperty('target')) {
+      state.modal_target = payload.target
     }
   },
   setSortOrder (state, payload) {
