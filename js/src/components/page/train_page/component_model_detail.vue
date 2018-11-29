@@ -20,6 +20,17 @@
           <div class="item-title">Dataset :</div>
           <div class="item-content">{{ getDatasetName }}</div>
         </div>
+
+        <div class="item"></div>
+
+        <div class="item">
+          <div class="item-title">{{ model.getResultOfMetric1().metric }} :</div>
+          <div class="item-content">{{ model.getResultOfMetric1().value }}</div>
+        </div>
+        <div class="item">
+          <div class="item-title">{{ model.getResultOfMetric2().metric }} :</div>
+          <div class="item-content">{{ model.getResultOfMetric2().value }}</div>
+        </div>
       </div>
       <div class="col" v-if="model">
         <div class="item" v-for="param in getAlgorithmParamList(model.algorithm_id)">
@@ -98,8 +109,9 @@ export default {
     .item {
       width: calc(100% - #{$model-detail-item-margin-bottom}*2);
       display: flex;
+      align-items: center;
+      justify-content: space-around;
       margin: $model-detail-item-margin-bottom;
-      border-bottom: solid 1px lightgray;
       .item-title {
         width: 60%;
         color: $model-detail-item-title-font-color;
