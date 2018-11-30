@@ -36,10 +36,10 @@
         <img :src="item.img" v-if="showImage"/>
         <!--Change following div for each task-->
         <div id="cls" v-if='isTaskClassification'
-          :style="getClassificationStyle(getClassificationList(item))">
+          :style="getClassificationStyle(getValidResult(item))">
         </div>
         <div id="box" v-else-if='isTaskDetection'
-          :style="getBoxStyle(box)" v-for="box in getBoxList(item)">
+          :style="getBoxStyle(box)" v-for="box in getValidResult(item)">
         </div>
         <div id="seg" v-else-if='isTaskSegmentation'>
           <canvas :id="'canvas-' + index"/>
@@ -52,6 +52,7 @@
 
 <script>
 import { TASK_ID } from '@/const.js'
+import { render_segmentation, setup_image_list } from '@/utils.js'
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -120,7 +121,7 @@ export default {
         let index = 0
         if (!this.getValidImages) return
         for (let item of this.getValidImages) {
-          this.getSegmentationStyle(this.getSegmentationList(item), index)
+          this.getSegmentationStyle(this.getValidResult(item), index)
           index += 1
         }
       }
@@ -250,69 +251,27 @@ export default {
       const dataset = this.datasets.find(d => d.id === model.dataset_id)
       if (!dataset) return
 
-      function setup (dataset, parent_width, parent_height, margin) {
-        const brank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-        const valid_data = dataset.valid_data
-        const pages = []
-        const last_index = valid_data.img.length - 1
-        let one_page = []
-        let nth_page = 0
-        let nth_line_in_page = 1
-        let accumurated_ratio = 0
-        let max_ratio = (parent_width / (parent_height / 3))
-        for (let i = 0; i < valid_data.size.length; i++) {
-          let size = valid_data.size[i]
-          let ratio = ((size[0] + 2 * margin) / (size[1] + 2 * margin))
-          accumurated_ratio += ratio
-          if (accumurated_ratio <= max_ratio || one_page.length === 0) {
-            one_page.push({index: i, img: valid_data.img[i], size: valid_data.size[i]})
-          } else {
-            if (nth_line_in_page >= 3) {
-              pages.push(one_page)
-              nth_page++
-              one_page = [{index: i, img: valid_data.img[i], size: valid_data.size[i]}]
-              accumurated_ratio = ratio
-              nth_line_in_page = 1
-            } else {
-              one_page.push({index: i, img: valid_data.img[i], size: valid_data.size[i]})
-              accumurated_ratio = ratio
-              nth_line_in_page++
-            }
-          }
-          if (i === last_index) {
-            // Add white image to empty space.
-            one_page.push({index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1]})
-            console.log(nth_line_in_page)
-            for (let j = nth_line_in_page; j <= 2; j++) {
-              one_page.push({index: -1, img: brank, size: [max_ratio, 1]})
-            }
-          }
-        }
-        if (pages[pages.length - 1] !== one_page) {
-          pages.push(one_page)
-        }
-        return pages
-      }
-
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
-      this.$worker.run(setup, [dataset, parent_width, parent_height, child_margin])
+      this.$worker.run(setup_image_list, [dataset.valid_data, parent_width, parent_height, child_margin])
         .then((ret) => {
           dataset.page = ret
         })
     },
-    getClassificationList: function (item) {
+    getValidResult: function (item) {
       if (item.index < 0) return
+      const index = item.index
       const model = this.getSelectedModel
       if (!model) return []
+      let result = []
+
       if (this.show_target) {
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
-        return dataset.valid_data.target[item.index]
+        result = dataset.getValidTarget()
       } else {
-        if (!model.best_epoch_valid_result) return null
-        if (!model.best_epoch_valid_result.prediction) return null
-        return model.best_epoch_valid_result.prediction[item.index]
+        if (this.isTaskClassification) { result = model.getValidResult(index) } else if (this.isTaskDetection) { result = result.concat(model.getValidResult(index)) } else if (this.isTaskSegmentation) { result = model.getValidResult(index) }
       }
+      return result
     },
     getClassificationStyle: function (cls) {
       if (cls === null) {
@@ -342,58 +301,6 @@ export default {
         border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
       }
     },
-    getBoxList: function (item) {
-      if (item.index < 0) return
-      const model = this.getSelectedModel
-      if (!model) return []
-
-      let box_list = []
-      if (this.show_target) {
-        const dataset = this.datasets.find(d => d.id === model.dataset_id)
-        if (!dataset) return
-        const size_list = dataset.valid_data.size[item.index]
-        box_list = dataset.valid_data.target[item.index]
-        box_list = box_list.map((b, index) => {
-          const ow = size_list[0]
-          const oh = size_list[1]
-          const x = b.box[0] / ow
-          const y = b.box[1] / oh
-          const w = b.box[2] / ow
-          const h = b.box[3] / oh
-          return Object.assign({box: [
-            x, y, w, h
-          ]}, Object.keys(b).reduce((obj, k) => {
-            if (k === 'box') {
-              return obj
-            } else {
-              return Object.assign(obj, {[k]: b[k]})
-            }
-          }, {}))
-        })
-      }
-      if (this.show_prediction) {
-        if (model.best_epoch_valid_result) {
-          if (model.best_epoch_valid_result.prediction) {
-            box_list = box_list.concat(model.best_epoch_valid_result.prediction[item.index])
-          }
-        }
-      }
-      return box_list
-    },
-    getSegmentationList: function (item) {
-      if (item.index < 0) return
-      const model = this.getSelectedModel
-      if (!model) return []
-      if (this.show_target) {
-        const dataset = this.datasets.find(d => d.id === model.dataset_id)
-        return dataset.valid_data.target[item.index]
-      } else {
-        if (!model.best_epoch_valid_result) return null
-        if (!model.best_epoch_valid_result.prediction) return null
-        const pred = model.best_epoch_valid_result.prediction[item.index]
-        return pred
-      }
-    },
     getSegmentationStyle: function (item, index) {
       if (!item || !this.show_prediction) {
         // Clear canvas
@@ -405,48 +312,7 @@ export default {
         cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
         return
       }
-      function draw (item) {
-        const d = 2 // Resample drawing pixel.
-        const height = item.class.length
-        const width = item.class[0].length
-        var canvas = new OffscreenCanvas(width / d, height / d)
-        var cxt = canvas.getContext('2d')
-        var imageData = cxt.getImageData(0, 0, width / d, height / d)
-        cxt.clearRect(0, 0, width / d, height / d)
-
-        if (!item.hasOwnProperty('class')) return
-        for (let i = 0; i < width; i += d) {
-          for (let j = 0; j < height; j += d) {
-            let n = item.class[i][j]
-            let c
-            // Must be same getTagColor function.
-            if (n % 10 === 0) c = 'E7009A'
-            else if (n % 10 === 1) c = '9F13C1'
-            else if (n % 10 === 2) c = '582396'
-            else if (n % 10 === 3) c = '0B20C4'
-            else if (n % 10 === 4) c = '3F9AAF'
-            else if (n % 10 === 5) c = '14884B'
-            else if (n % 10 === 6) c = 'BBAA19'
-            else if (n % 10 === 7) c = 'FFCC33'
-            else if (n % 10 === 8) c = 'EF8200'
-            else if (n % 10 === 9) c = 'E94C33'
-
-            var bigint = parseInt(c, 16)
-            var r = (bigint >> 16) & 255
-            var g = (bigint >> 8) & 255
-            var b = bigint & 255
-
-            let img_index = (Math.floor(width * i / d / d) + Math.floor(j / d)) * 4
-            imageData.data[img_index + 0] = r
-            imageData.data[img_index + 1] = g
-            imageData.data[img_index + 2] = b
-            imageData.data[img_index + 3] = (n !== 0) * 160
-          }
-        }
-        cxt.putImageData(imageData, 0, 0)
-        return canvas.transferToImageBitmap()
-      }
-      this.$worker.run(draw, [item]).then((ret) => {
+      this.$worker.run(render_segmentation, [item]).then((ret) => {
         var canvas = document.getElementById('canvas-' + String(index))
         var cxt = canvas.getContext('bitmaprenderer')
         cxt.transferFromImageBitmap(ret)
