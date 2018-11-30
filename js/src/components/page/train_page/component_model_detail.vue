@@ -2,7 +2,7 @@
   <component-frame :width-weight="6" :height-weight="4">
     <template slot="header-slot">
       Model Detail
-      <div id="deploy-button" @click="setDeployedModel(model)">
+      <div id="deploy-button" @click="deployModel(model)" :disabled="model && model.isDeployable()">
         <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Deploy
       </div>
     </template>
@@ -20,6 +20,17 @@
           <div class="item-title">Dataset :</div>
           <div class="item-content">{{ getDatasetName }}</div>
         </div>
+
+        <div class="item"></div>
+
+        <div class="item">
+          <div class="item-title">{{ model.getResultOfMetric1().metric }} :</div>
+          <div class="item-content">{{ model.getResultOfMetric1().value }}</div>
+        </div>
+        <div class="item">
+          <div class="item-title">{{ model.getResultOfMetric2().metric }} :</div>
+          <div class="item-content">{{ model.getResultOfMetric2().value }}</div>
+        </div>
       </div>
       <div class="col" v-if="model">
         <div class="item" v-for="param in getAlgorithmParamList(model.algorithm_id)">
@@ -32,7 +43,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import { ALGORITHM } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -51,7 +62,7 @@ export default {
       if (model) {
         return model
       } else {
-        return undefined
+        return false
       }
     },
     getDatasetName: function () {
@@ -67,7 +78,8 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['setDeployedModel', 'unDeployModel'])
+    ...mapMutations(['setDeployedModel', 'unDeployModel']),
+    ...mapActions(['deployModel'])
   }
 }
 </script>
@@ -83,6 +95,9 @@ export default {
   background-color: $component-header-sub-color;
   cursor: pointer;
 }
+#deploy-button:disabled {
+  background-color: black;
+}
 
 #model-detail {
   width: 100%;
@@ -94,8 +109,9 @@ export default {
     .item {
       width: calc(100% - #{$model-detail-item-margin-bottom}*2);
       display: flex;
+      align-items: center;
+      justify-content: space-around;
       margin: $model-detail-item-margin-bottom;
-      border-bottom: solid 1px lightgray;
       .item-title {
         width: 60%;
         color: $model-detail-item-title-font-color;

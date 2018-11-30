@@ -39,6 +39,7 @@ class Algorithm(enum.Enum):
     YOLOV2 = 31
     SSD = 32
     FCN = 61
+    UNET = 60
 
 
 DB_DIR = "storage"

@@ -27,6 +27,11 @@ export default {
   components: {
     'component-frame': ComponentFrame
   },
+  data: function () {
+    return {
+      tooltip: null
+    }
+  },
   computed: {
     ...mapGetters(['getSelectedModel']),
     getTrainLossList: function () {
@@ -57,7 +62,7 @@ export default {
   methods: {
     draw: function () {
       d3.select('#learning-curve-canvas').select('svg').remove() // Remove SVG if it has been created.
-      
+
       const margin = {top: 15, left: 40, right: 20, bottom: 20}
       const canvas = document.getElementById('learning-curve-canvas')
       const canvas_width = canvas.clientWidth
@@ -90,15 +95,18 @@ export default {
       maxY = Math.ceil(maxY)
       let minY = Math.min(Math.min.apply(null, [...train_loss_list, ...valid_loss_list]), 0)
       minY = Math.floor(minY)
-      console.log(minX, maxX)
 
-      let tooltip = d3.select('#learning-curve-canvas')
-        .append('div')
-        .append('display', 'none')
-        .style('position', 'absolute')
+      if (!this.tooltip) {
+        // Ensure only one tooltip is exists.
+        this.tooltip = d3.select('#learning-curve-canvas')
+          .append('div')
+          .append('display', 'none')
+          .style('position', 'absolute')
+      }
+      var ttip = this.tooltip
 
       const zoom = d3.zoom()
-        .scaleExtent([0, 10])
+        .scaleExtent([1, 2])
         .translateExtent([[0, 0], [canvas_width, canvas_height]])
         .on('zoom', zoomed)
 
@@ -197,16 +205,16 @@ export default {
         })
         .attr('fill', train_color)
         .attr('r', 2)
-        .on('mousemove', (d, index) => {
+        .on('mouseenter', (d, index) => {
           // find svg id and get mouse position
           let x = d3.event.layerX + 10
           let y = d3.event.layerY + 10
-          tooltip.style('display', 'inline-block')
-          tooltip.transition()
+          ttip.style('display', 'inline-block')
+          ttip.transition()
             .duration(200)
             .style('opacity', 0.9)
-          tooltip.html(
-            'Epoc:' + (index + 1) + '<br />' +
+          ttip.html(
+            'Epoch:' + (index + 1) + '<br />' +
             'Valid:' + utils.round(d, 1000) + '<br />'
           ).style('top', y + 'px')
             .style('left', x + 'px')
@@ -215,7 +223,7 @@ export default {
             .style('color', 'white')
         })
         .on('mouseleave', () => {
-          tooltip.style('display', 'none')
+          ttip.style('display', 'none')
         })
 
       let ValidScatter = ScatterLayer.append('g')
@@ -227,18 +235,18 @@ export default {
         .attr('cx', (d, index) => { return scaleX(index + 1) })
         .attr('cy', (d) => { return scaleY(d) })
         .attr('fill', valid_color)
-        .attr('r', 2)
+        .attr('r', 2.5)
         .on('mousemove', (d, index) => {
           let x = d3.event.layerX + 10
           let y = d3.event.layerY + 10
-          tooltip.style('display', 'inline-block')
-          tooltip.transition()
+          ttip.style('display', 'inline-block')
+          ttip.transition()
             .duration(200)
             .style('opacity', 0.9)
 
-          tooltip.html(
-            'Epoc:' + (index + 1) + '<br />' +
-            'Valid:' + utils.round(d, 1000) + '<br />'
+          ttip.html(
+            'Epoch : ' + (index + 1) + '<br />' +
+            'Valid Loss: ' + utils.round(d, 1000) + '<br />'
           ).style('top', y + 'px')
             .style('left', x + 'px')
             .style('padding', '10px')
@@ -246,7 +254,7 @@ export default {
             .style('color', 'white')
         })
         .on('mouseleave', () => {
-          tooltip.style('display', 'none')
+          ttip.style('display', 'none')
         })
 
       d3.select('#learning-curve-canvas')

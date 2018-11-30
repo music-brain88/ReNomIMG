@@ -28,11 +28,13 @@ export default {
   },
   setSelectedModel (state, payload) {
     const task_id = state.current_task
-    state.selected_model = Object.assign(...state.selected_model, {[task_id]: payload})
+    state.selected_model = Object.assign({...state.selected_model}, {[task_id]: payload})
   },
   setDeployedModel (state, payload) {
     const task_id = state.current_task
-    state.deployed_model = Object.assign(...state.deployed_model, {[task_id]: payload})
+    const model_task_id = payload.task_id
+    if (task_id !== model_task_id) throw new Error('Task ID not matched.' + task_id + model_task_id)
+    state.deployed_model = Object.assign({...state.deployed_model}, {[task_id]: payload})
   },
   unDeployModel (state, payload) {
     const task_id = state.current_task
@@ -40,6 +42,14 @@ export default {
   },
   forceUpdateModelList (state, payload) {
     state.models = [...state.models]
+  },
+  forceUpdatePredictionPageSample (state, payload) {
+    const page = state.nth_image_page
+    state.nth_image_page = {...page}
+  },
+  forceUpdatePredictionPage (state, payload) {
+    const page = state.nth_prediction_image_page
+    state.nth_prediction_image_page = {...page}
   },
   setCurrentPage (state, payload) {
     const page = payload
@@ -100,6 +110,16 @@ export default {
       }
     }
   },
+  setImageModalData (state, payload) {
+    state.modal_image = payload.img
+    console.log(state.modal_image)
+    if (payload.hasOwnProperty('prediction')) {
+      state.modal_prediction = payload.prediction
+    }
+    if (payload.hasOwnProperty('target')) {
+      state.modal_target = payload.target
+    }
+  },
   setSortOrder (state, payload) {
     let task = state.current_task // Need access through getter.
     if (task in Object.values(TASK_ID)) {
@@ -114,6 +134,10 @@ export default {
   setImagePageOfPredictionSample (state, payload) {
     const task = state.current_task
     state.nth_image_page[task] = payload
+  },
+  setImagePageOfPrediction (state, payload) {
+    const task = state.current_task
+    state.nth_prediction_image_page[task] = payload
   },
   selectNextModel (state, payload) {
     const task = state.current_task

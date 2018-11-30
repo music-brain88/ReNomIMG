@@ -5,7 +5,8 @@ export default {
   polling_request_jobs: { // axios obj here.
     weight_download: [],
     train: [],
-    validation: []
+    validation: [],
+    prediction: []
   },
 
   current_task: TASK_ID.DETECTION,
@@ -46,6 +47,7 @@ export default {
     add_dataset: false,
     add_both: false,
     add_filter: false,
+    show_image: false,
   },
 
   // Variable of image list pager.
@@ -55,6 +57,17 @@ export default {
     [TASK_ID.SEGMENTATION]: 0,
   },
 
+  nth_prediction_image_page: {
+    [TASK_ID.CLASSIFICATION]: 0,
+    [TASK_ID.DETECTION]: 0,
+    [TASK_ID.SEGMENTATION]: 0,
+  },
+
   // Grouping. // Not use in version 2.0
-  group_by: GROUPBY.NONE.key
+  group_by: GROUPBY.NONE.key,
+
+  // Image for modal
+  modal_image: null,
+  modal_prediction: null,
+  modal_target: null,
 }

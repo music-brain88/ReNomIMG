@@ -2,13 +2,29 @@
   <component-frame :width-weight="8" :height-weight="7">
     <template slot="header-slot">
       Prediction Result
+      <div id="valid-prediction-button-area"
+        v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
+        <label>
+          <input class="checkbox" type="checkbox"
+          id="prediction-show-button" v-model="show_image" :disabled="!isTaskSegmentation">
+          Image
+        </label>
+        <label>
+          <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction">
+          Prediction
+        </label>
+        <label>
+          <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target">
+          Target
+        </label>
+      </div>
     </template>
     <div id="pager" v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
       <div class="pager-arrow" @click="prevPage">
         <i class="fa fa-caret-left" aria-hidden="true"></i>
       </div>
-      <div class="pager-number" v-for="item in pageList()">
-        {{item}}
+      <div class="pager-number" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
+        {{ item }}
       </div>
       <div class="pager-arrow" @click="nextPage">
         <i class="fa fa-caret-right" aria-hidden="true"></i>
@@ -16,8 +32,8 @@
     </div>
     <div id="img-container" ref="container">
       <!--<transition-group name="fade">-->
-      <div v-for="(item, index) in getValidImages" :style="getImgSize(item)">
-        <img :src="item.img"/>
+      <div v-for="(item, index) in getValidImages" :style="getImgSize(item)" @click="showImageModal(item)">
+        <img :src="item.img" v-if="showImage"/>
         <!--Change following div for each task-->
         <div id="cls" v-if='isTaskClassification'
           :style="getClassificationStyle(getClassificationList(item))">
@@ -46,16 +62,26 @@ export default {
   },
   data: function () {
     return {
-      show_target: false
+      show_image: true,
+      show_target: false,
+      show_prediction: true
     }
   },
   computed: {
-    ...mapState(['datasets']),
+    ...mapState([
+      'datasets',
+      'modal_image',
+      'modal_prediction',
+      'modal_target'
+    ]),
     ...mapGetters(['getSelectedModel',
       'getCurrentTask',
       'getTagColor',
       'getImagePageOfPredictionSample'
     ]),
+    showImage: function () {
+      return this.show_image || !this.isTaskSegmentation
+    },
     getValidImages: function () {
       const model = this.getSelectedModel
       if (!this.$refs.container) return []
@@ -92,6 +118,7 @@ export default {
     this.$nextTick(function () {
       if (this.isTaskSegmentation) {
         let index = 0
+        if (!this.getValidImages) return
         for (let item of this.getValidImages) {
           this.getSegmentationStyle(this.getSegmentationList(item), index)
           index += 1
@@ -103,8 +130,48 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['setImagePageOfPredictionSample']),
+    ...mapMutations(['setImagePageOfPredictionSample', 'showModal', 'setImageModalData']),
     ...mapActions(['loadSegmentationTargetArray']),
+    showImageModal: function (item) {
+      let pred = null
+      let targ = null
+      if (this.isTaskClassification) {
+        pred = this.getClassificationList(item)
+      } else if (this.isTaskDetection) {
+        pred = this.getBoxList(item)
+      } else if (this.isTaskSegmentation) {
+        pred = this.getClassificationList(item)
+      }
+      this.setImageModalData({
+        'img': item.img,
+        'prediction': pred,
+        'target': targ,
+      })
+      this.showModal({'show_image': true})
+    },
+    pagerStyle: function (index) {
+      const current_page = this.getImagePageOfPredictionSample
+      if (current_page === index) {
+        return {
+          'background-color': '#063662',
+          'color': 'white',
+        }
+      }
+    },
+    setPageNum: function (index) {
+      if (index === '...') return
+
+      const model = this.getSelectedModel
+      if (!model) return
+
+      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      if (!dataset) return
+
+      const max_page_num = dataset.page.length - 1
+      const current_page = this.getImagePageOfPredictionSample
+      if (index === current_page) return
+      this.setImagePageOfPredictionSample(Math.min(index, max_page_num))
+    },
     nextPage: function () {
       const model = this.getSelectedModel
       if (!model) return
@@ -133,11 +200,22 @@ export default {
 
       const dataset = this.datasets.find(d => d.id === model.dataset_id)
       if (!dataset) return []
+      if (!dataset.page) return []
 
-      const current_page = this.getImagePageOfPredictionSample
-      const max_page_num = dataset.page.length - 1
-      // TODO: Return page numbers.
-      return [0, 1, 2, '...', max_page_num]
+      const current_page = Math.max(this.getImagePageOfPredictionSample, 0)
+      const max_page_num = Math.max(dataset.page.length - 1, 0)
+
+      if (max_page_num > 5) {
+        if (current_page < 4) {
+          return [...[...Array(Math.max(current_page, 5)).keys()], '...', max_page_num]
+        } else if (current_page > max_page_num - 4) {
+          return [0, '...', ...[...Array(Math.max(max_page_num - current_page, 5)).keys()].reverse().map(i => max_page_num - i)]
+        } else {
+          return [0, '...', ...[...Array(5).keys()].reverse().map(i => current_page - i + 2), '...', max_page_num]
+        }
+      } else {
+        return Array(max_page_num).keys()
+      }
     },
     vh: function (v) {
       var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
@@ -204,7 +282,8 @@ export default {
           if (i === last_index) {
             // Add white image to empty space.
             one_page.push({index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1]})
-            for (let j = nth_line_in_page; j < 2; j++) {
+            console.log(nth_line_in_page)
+            for (let j = nth_line_in_page; j <= 2; j++) {
               one_page.push({index: -1, img: brank, size: [max_ratio, 1]})
             }
           }
@@ -231,6 +310,7 @@ export default {
         return dataset.valid_data.target[item.index]
       } else {
         if (!model.best_epoch_valid_result) return null
+        if (!model.best_epoch_valid_result.prediction) return null
         return model.best_epoch_valid_result.prediction[item.index]
       }
     },
@@ -238,8 +318,8 @@ export default {
       if (cls === null) {
         return {}
       }
-      if (cls['score'] !== undefined && cls['class'] !== undefined) {
-        const class_id = cls['class']
+      if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {
+        const class_id = cls.class
         return {
           border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
         }
@@ -290,9 +370,13 @@ export default {
             }
           }, {}))
         })
-      } else {
-        if (!model.best_epoch_valid_result) return []
-        box_list = model.best_epoch_valid_result.prediction_box[item.index]
+      }
+      if (this.show_prediction) {
+        if (model.best_epoch_valid_result) {
+          if (model.best_epoch_valid_result.prediction) {
+            box_list = box_list.concat(model.best_epoch_valid_result.prediction[item.index])
+          }
+        }
       }
       return box_list
     },
@@ -305,41 +389,68 @@ export default {
         return dataset.valid_data.target[item.index]
       } else {
         if (!model.best_epoch_valid_result) return null
+        if (!model.best_epoch_valid_result.prediction) return null
         const pred = model.best_epoch_valid_result.prediction[item.index]
         return pred
       }
     },
     getSegmentationStyle: function (item, index) {
-      if (!item) {
+      if (!item || !this.show_prediction) {
+        // Clear canvas
         var canvas = document.getElementById('canvas-' + String(index))
-        var cxt = canvas.getContext('2d')
-        cxt.clearRect(0, 0, canvas.width, canvas.height)
+        var cxt = canvas.getContext('bitmaprenderer')
+        var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
+        var offCxt = offCanvas.getContext('2d')
+        offCxt.clearRect(0, 0, canvas.width, canvas.height)
+        cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
         return
       }
-      let indexRow = 0
-      let indexCol = 0
-      const height = item.class.length
-      const width = item.class[0].length
-      var canvas = document.getElementById('canvas-' + String(index))
-      if (!canvas) return
-      var cxt = canvas.getContext('2d')
-      canvas.height = height
-      canvas.width = width
-      cxt.clearRect(0, 0, width, height)
-      for (let row of item.class) {
-        indexCol = 0
-        for (let col of row) {
-          const color = this.getTagColor(col)
-          if (col === 0) {
-            cxt.fillStyle = color + '00'
-          } else {
-            cxt.fillStyle = color + '88'
+      function draw (item) {
+        const d = 2 // Resample drawing pixel.
+        const height = item.class.length
+        const width = item.class[0].length
+        var canvas = new OffscreenCanvas(width / d, height / d)
+        var cxt = canvas.getContext('2d')
+        var imageData = cxt.getImageData(0, 0, width / d, height / d)
+        cxt.clearRect(0, 0, width / d, height / d)
+
+        if (!item.hasOwnProperty('class')) return
+        for (let i = 0; i < width; i += d) {
+          for (let j = 0; j < height; j += d) {
+            let n = item.class[i][j]
+            let c
+            // Must be same getTagColor function.
+            if (n % 10 === 0) c = 'E7009A'
+            else if (n % 10 === 1) c = '9F13C1'
+            else if (n % 10 === 2) c = '582396'
+            else if (n % 10 === 3) c = '0B20C4'
+            else if (n % 10 === 4) c = '3F9AAF'
+            else if (n % 10 === 5) c = '14884B'
+            else if (n % 10 === 6) c = 'BBAA19'
+            else if (n % 10 === 7) c = 'FFCC33'
+            else if (n % 10 === 8) c = 'EF8200'
+            else if (n % 10 === 9) c = 'E94C33'
+
+            var bigint = parseInt(c, 16)
+            var r = (bigint >> 16) & 255
+            var g = (bigint >> 8) & 255
+            var b = bigint & 255
+
+            let img_index = (Math.floor(width * i / d / d) + Math.floor(j / d)) * 4
+            imageData.data[img_index + 0] = r
+            imageData.data[img_index + 1] = g
+            imageData.data[img_index + 2] = b
+            imageData.data[img_index + 3] = (n !== 0) * 160
           }
-          cxt.fillRect(indexCol, indexRow, 1, 1)
-          indexCol++
         }
-        indexRow++
+        cxt.putImageData(imageData, 0, 0)
+        return canvas.transferToImageBitmap()
       }
+      this.$worker.run(draw, [item]).then((ret) => {
+        var canvas = document.getElementById('canvas-' + String(index))
+        var cxt = canvas.getContext('bitmaprenderer')
+        cxt.transferFromImageBitmap(ret)
+      })
     },
     getSegmentationTargetArray: function (src) {
       let arr = this.loadSegmentationTargetArray(src)
@@ -349,6 +460,49 @@ export default {
 </script>
 
 <style lang='scss'>
+#valid-prediction-button-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 100%;
+  width: 30%;
+  input {
+    display: none;
+    -webkit-appearance: none;
+  }
+  label { 
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $component-header-font-family;
+    font-size: 90%;
+  }
+  input[type="checkbox"] {
+    content: "";
+    display: block;
+    height: 12px;
+    width: 12px;
+    border: 1px solid white;
+    border-radius: 6px;
+  }
+  input[type="checkbox"]:checked {
+    content: "";
+    display: block;
+    border: 1px solid white;
+    background-color: white;
+  }
+  input[type="checkbox"]:disabled {
+    content: "";
+    display: block;
+    border: 1px solid gray;
+    background-color: gray;
+  }
+  input[type="checkbox"]:focus {
+      outline:none;  
+  }
+}
+
 #img-container{
   width: 100%;
   height: 95%;
@@ -394,12 +548,16 @@ export default {
   width: 100%;
   height: 5%;
   display: flex;
-  align-items: right;
+  justify-content: flex-end;
+  padding-right: 5px;
+  align-items: center;
   .pager-arrow {
+    font-size: 150%;
     height: 100%;
     display: flex;
     align-items: center;
-    margin: 1px;
+    margin-left: 5px;
+    margin-right: 5px;
     cursor: pointer;
     i {
     }
@@ -407,10 +565,13 @@ export default {
   .pager-number {
     display: flex;
     align-items: center;
-    height: 100%;
-    border: solid 1px gray;
-    margin: 1px;
+    justify-content: center;
+    font-size: 75%;
+    height: calc(100% - 2px);
+    width: 3%;
     cursor: pointer;
+    letter-spacing: -1px;
+    transition: all 0.1s
   }
 }
 </style>

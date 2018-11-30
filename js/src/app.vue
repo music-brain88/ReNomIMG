@@ -60,6 +60,11 @@ export default {
   box-sizing: border-box;
   font-family: $component-font-family;
 }
+
+*:hover {
+  transition: all 300ms 0s ease;
+}
+
 #app {
   width: 100%;
   #app-content {

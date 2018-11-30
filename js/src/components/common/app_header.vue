@@ -103,6 +103,11 @@ export default {
       align-items: center;
     }
 
+    #header-menu:hover {
+      cursor: pointer;
+      color: gray;
+    }
+
     #title {
       height: 100%;
       margin: 0 0 0 $header-title-margin-left;

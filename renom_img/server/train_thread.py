@@ -131,6 +131,8 @@ class TrainThread(object):
             model.set_models(inference=False)
             temp_train_batch_loss_list = []
             for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size), 1):
+                self.running_state = RunningState.TRAINING
+                self.sync_state()
                 if isinstance(self.model, Yolov2) and (b - 1) % 10 == 0 and (b - 1):
                     release_mem_pool()
 
@@ -271,7 +273,7 @@ class TrainThread(object):
                         self.save_best_model()
                         self.best_epoch_valid_result = {
                             "nth_epoch": e,
-                            "prediction_box": prediction_box,
+                            "prediction": prediction_box,
                             "mAP": float(mAP),
                             "IOU": float(iou),
                             "loss": float(loss)
@@ -281,7 +283,7 @@ class TrainThread(object):
                     self.save_best_model()
                     self.best_epoch_valid_result = {
                         "nth_epoch": e,
-                        "prediction_box": prediction_box,
+                        "prediction": prediction_box,
                         "mAP": float(mAP),
                         "IOU": float(iou),
                         "loss": float(loss)
@@ -456,6 +458,8 @@ class TrainThread(object):
 
         elif self.algorithm_id == Algorithm.FCN.value:
             self._setting_fcn()
+        elif self.algorithm_id == Algorithm.UNET.value:
+            self._setting_unet()
         else:
             assert False
 
@@ -707,6 +711,26 @@ class TrainThread(object):
             FCN = FCN32s
 
         self.model = FCN(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target,
+            augmentation=self.augmentation,
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.valid_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+    def _setting_unet(self):
+        assert self.task_id == Task.SEGMENTATION.value, self.task_id
+        self.model = UNet(
             class_map=self.class_map,
             imsize=self.imsize,
             load_pretrained_weight=self.load_pretrained_weight,

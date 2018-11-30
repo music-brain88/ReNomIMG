@@ -7,6 +7,7 @@
         <add-both v-if="show_modal.add_both"/>
         <add-dataset v-if="show_modal.add_dataset"/>
         <add-filter v-if="show_modal.add_filter"/>
+        <show-image v-if="show_modal.show_image"/>
       </div>
     </div>
   </transition>
@@ -17,25 +18,32 @@ import { mapGetters, mapMutations, mapState } from 'vuex'
 import ModalAddBoth from '@/components/page/train_page/modal_add_both.vue'
 import ModalAddDataset from '@/components/page/train_page/modal_add_dataset.vue'
 import ModalAddFilter from '@/components/page/train_page/modal_add_filter.vue'
+import ModalImage from '@/components/page/train_page/modal_image.vue'
 
 export default {
   name: 'Modal',
   components: {
     'add-both': ModalAddBoth,
     'add-dataset': ModalAddDataset,
-    'add-filter': ModalAddFilter
+    'add-filter': ModalAddFilter,
+    'show-image': ModalImage
   },
   computed: {
     ...mapState(['show_modal']),
+    ...mapGetters(['isShowableImageModal']),
     show: function () {
-      return Object.values(this.show_modal).some((d) => d)
-    }
+      if (this.show_modal.show_image) {
+        return this.isShowableImageModal
+      } else {
+        return Object.values(this.show_modal).some((d) => d)
+      }
+    },
   },
   methods: {
     ...mapMutations(['showModal']),
     toggle: function () {
       this.showModal({'all': false})
-    }
+    },
   }
 }
 </script>
@@ -45,6 +53,7 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 10;
   #modal-mask {
     position: fixed;
     top: 0;

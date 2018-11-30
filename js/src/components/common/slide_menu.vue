@@ -40,7 +40,13 @@ export default {
     this.init()
   },
   methods: {
-    ...mapMutations(['showSlideMenu', 'setCurrentTask', 'setCurrentPage']),
+    ...mapMutations([
+      'showSlideMenu',
+      'setCurrentTask',
+      'setCurrentPage',
+      'forceUpdateModelList',
+      'forceUpdatePredictionPageSample',
+    ]),
     ...mapActions(['init']),
     onItemClick: function (page_name) {
       this.init()
@@ -59,8 +65,8 @@ export default {
       } else {
         console.log(page_name + 'is not supported page name.')
       }
+      this.showSlideMenu(false)
     }
-
   }
 }
 </script>
@@ -88,7 +94,7 @@ export default {
     background-color: $slide-window-background-color;
 
     .task-button {
-      font-size: 130%;
+      font-size: 125%;
       width: calc(100% - 40%);
       color: white;
       text-align: left;

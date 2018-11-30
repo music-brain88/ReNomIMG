@@ -20,14 +20,26 @@ export default class Model {
     this.nth_batch = 0
     this.last_batch_loss = 0
 
+    this.total_prediction_batch = 0
+    this.nth_prediction_batch = 0
+
     this.train_loss_list = []
     this.valid_loss_list = []
 
     this.best_epoch_valid_result = null
+    this.prediction_result = null
 
     this.model_list = []
   }
-
+  isDeployable () {
+    return (this.state !== STATE.STOPPED)
+  }
+  isTraining () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.TRAINING)
+  }
+  isValidating () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.VALIDATING)
+  }
   getResultOfMetric1 () {
     let m1 = '-'
     if (this.task_id === TASK_ID.CLASSIFICATION) {

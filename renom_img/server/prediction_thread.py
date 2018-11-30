@@ -5,6 +5,7 @@ import json
 import weakref
 import traceback
 from threading import Event
+from PIL import Image
 sys.setrecursionlimit(10000)
 import numpy as np
 
@@ -117,21 +118,26 @@ class PredictionThread(object):
             return
         names = list(os.listdir(self.img_dir))
         N = len(names)
-        result = []
+        results = []
+        sizes = []
+        imgs = []
         self.total_batch = N
         for i, p in enumerate(names):
             self.nth_batch = i
             path = os.path.join(self.img_dir, p)
             pred = self.model.predict(path)
-            if isinstance(pred, np.ndarray):
+            if not isinstance(pred, list):
                 pred = pred.tolist()
-            result.append({
-                'prediction': pred,
-                'img': path,
-            })
+            results.append(pred)
+            sizes.append(Image.open(path).size)
+            imgs.append(path)
             self.updated = True
+        self.prediction_result = {
+            "img": imgs,
+            "size": sizes,
+            "prediction": results,
+        }
         self.need_pull = True
-        self.prediction_result = result
         self.sync_result()
         return
 
@@ -208,8 +214,11 @@ class PredictionThread(object):
 
         elif self.algorithm_id == Algorithm.FCN.value:
             self._setting_fcn()
+        elif self.algorithm_id == Algorithm.UNET.value:
+            self._setting_unet()
         else:
             assert False
+        self.model.load(self.best_weight_path)
 
     # Detection Algorithm
     def _setting_yolov1(self):
@@ -371,6 +380,15 @@ class PredictionThread(object):
             FCN = FCN32s
 
         self.model = FCN(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+
+    def _setting_unet(self):
+        assert self.task_id == Task.SEGMENTATION.value, self.task_id
+        self.model = UNet(
             class_map=self.class_map,
             imsize=self.imsize,
             load_pretrained_weight=self.load_pretrained_weight,
