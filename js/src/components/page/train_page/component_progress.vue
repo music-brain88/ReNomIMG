@@ -4,13 +4,13 @@
       Train Progress
     </template>
     <div class="progress wrap">
-      <div class="bar" v-if="this.getFilteredModelList">
+      <div class="bar" v-if="this.getFilteredModelList.length != 0">
         <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
           {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
         </section>
       </div>
       <div class="bar" v-else>
-        <section id="green" style="width: 100%">Green</section>
+        <section id="green" style="width: 100%">No model</section>
       </div>
       <div id="component-progress" class="scrollbar-container">
         <progress-bar :isTitle="true"/>
