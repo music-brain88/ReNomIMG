@@ -96,6 +96,18 @@ export default {
       let minY = Math.min(Math.min.apply(null, [...train_loss_list, ...valid_loss_list]), 0)
       minY = Math.floor(minY)
 
+
+      // if line chart axis overflow, clip the graph
+      svg
+        .append('defs')
+        .append('clipPath')
+        .attr('id', 'clip')
+        .append('rect')
+        .attr('x', margin.left)
+        .attr('y', margin.top)
+        .attr('width', canvas_width - (margin.left + margin.right))
+        .attr('height', canvas_height - (margin.top + margin.bottom))
+
       if (!this.tooltip) {
         // Ensure only one tooltip is exists.
         this.tooltip = d3.select('#learning-curve-canvas')
@@ -132,6 +144,10 @@ export default {
             .tickFormat('').ticks(5)
             .scale(scaleY)
         )
+        .selectAll('.tick:not(:first-child) line')
+        .style('stroke-dasharray', '2,2')
+        .selectAll('g:last-child .tick')
+        .style('opacity', 0)
 
       // Vertical
       let SubLineY = svg.append('g')
@@ -143,18 +159,21 @@ export default {
             .tickFormat('').ticks(5)
             .scale(scaleX)
         )
+        .selectAll('.tick:not(:last-child) line')
+        .style('stroke-dasharray', '2,2')
 
       const axX = d3.axisBottom(scaleX).ticks(5)
       const axY = d3.axisLeft(scaleY).ticks(5)
       let gX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
         .call(axX)
+
       let gY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .call(axY)
 
       // Line graph
-      let LineLayer = svg.append('g')
+      let LineLayer = svg.append('g').attr('clip-path', 'url(#clip)')
 
       let TrainLine = LineLayer.append('path')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
@@ -191,7 +210,7 @@ export default {
         .attr('y2', scaleY(minY))
 
       // Scatter graph
-      let ScatterLayer = svg.append('g')
+      let ScatterLayer = svg.append('g').attr('clip-path', 'url(#clip)')
 
       let TrainScatter = ScatterLayer.append('g')
         .selectAll('circle')

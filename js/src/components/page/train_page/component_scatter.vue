@@ -86,16 +86,6 @@ export default {
       const scaleY = d3.scaleLinear().domain([0, 100])
         .range([canvas_height - margin.bottom - margin.top, 0])
 
-      const axX = d3.axisBottom(scaleX).ticks(5)
-      const axY = d3.axisLeft(scaleY).ticks(5)
-
-      svg.append('g')
-        .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
-        .call(axX)
-      svg.append('g')
-        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .call(axY)
-
       // Sublines.
       // Horizontal
       svg.append('g')
@@ -107,6 +97,11 @@ export default {
             .tickFormat('')
             .scale(scaleY)
         )
+        .selectAll('.tick:not(:first-child) line, .tick:not(:last-child) line')
+        .style('stroke-dasharray', '2,2')
+        .selectAll('g:last-child .tick')
+        .style('opacity', 0)
+
       // Vertical
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
@@ -117,6 +112,10 @@ export default {
             .tickFormat('')
             .scale(scaleX)
         )
+        .selectAll('.tick:not(:last-child) line')
+        .style('stroke-dasharray', '2,2')
+        .selectAll('g:last-child .tick')
+        .style('opacity', 0)
 
       if (!this.tooltip) {
         console.log('ss')
@@ -128,6 +127,15 @@ export default {
 
       var ttip = this.tooltip
 
+      const axX = d3.axisBottom(scaleX).ticks(5)
+      const axY = d3.axisLeft(scaleY).ticks(5)
+
+      svg.append('g')
+        .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
+        .call(axX)
+      svg.append('g')
+        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        .call(axY)
       // Plot Models.
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
