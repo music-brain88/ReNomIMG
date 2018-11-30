@@ -3,24 +3,25 @@
     <template slot="header-slot">
       Train Progress
     </template>
-    <div class="bar" v-if="this.getFilteredModelList">
-      <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
-        {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
-      </section>
-    </div>
-    <div class="bar" v-else>
-      <section id="green" style="width: 100%">Green</section>
-    </div>
-    <div id="component-progress" class="scrollbar-container">
-      <progress-bar :isTitle="true"/>
-      <progress-bar v-for="item in getRunningModelList" :model="item"/>
+    <div class="progress wrap">
+      <div class="bar" v-if="this.getFilteredModelList">
+        <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
+          {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
+        </section>
+      </div>
+      <div class="bar" v-else>
+        <section id="green" style="width: 100%">Green</section>
+      </div>
+      <div id="component-progress" class="scrollbar-container">
+        <progress-bar :isTitle="true"/>
+        <progress-bar v-for="item in getRunningModelList" :model="item"/>
+      </div>
     </div>
   </component-frame>
 </template>
 
 <script>
 
-import * as d3 from 'd3'
 import { mapGetters } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ProgressBar from '@/components/page/train_page/progress_bar.vue'
@@ -72,7 +73,7 @@ export default {
 }
 </script>
 
-<style lang='scss'>
+<style lang='scss' scoped>
   #component-progress {
     height: 70%;
     overflow: auto;
@@ -83,7 +84,8 @@ export default {
 	width: 100%;
 	height: 30%;
 	margin: 0 auto;
-  padding-top:3%;
+  padding-top:8%;
+  margin-bottom:8%;
 	
 	overflow: hidden;
   }
