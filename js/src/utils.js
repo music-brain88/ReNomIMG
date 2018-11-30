@@ -74,7 +74,6 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
   for (let i = 0; i < size_list.length; i++) {
     let size = size_list[i]
     let ratio = ((size[0] + 2 * margin) / (size[1] + 2 * margin))
-    console.log(ratio, max_ratio)
     accumurated_ratio += ratio
     if (accumurated_ratio <= max_ratio || one_page.length === 0) {
       one_page.push({index: i, img: img_list[i], size: size_list[i]})
@@ -94,7 +93,6 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
     if (i === last_index) {
       // Add white image to empty space.
       one_page.push({index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1]})
-      console.log(nth_line_in_page)
       for (let j = nth_line_in_page; j <= 2; j++) {
         one_page.push({index: -1, img: brank, size: [max_ratio, 1]})
       }

@@ -16,13 +16,14 @@ export class Dataset {
     this.page = []
   }
   getValidTarget (index) {
+    const task = this.task_id
     const vd = this.valid_data
     if (!vd) return
     if (task === TASK_ID.CLASSIFICATION) {
       return vd.target[index]
     } else if (task === TASK_ID.DETECTION) {
       const size_list = vd.size[index]
-      box_list = vd.target[index]
+      let box_list = vd.target[index]
 
       box_list = box_list.map((b, index) => {
         const ow = size_list[0]

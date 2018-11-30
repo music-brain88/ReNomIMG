@@ -115,7 +115,7 @@ export default {
       return this.getCurrentTask === TASK_ID.SEGMENTATION
     }
   },
-  updated: function () {
+  beforeUpdate: function () {
     this.$nextTick(function () {
       if (this.isTaskSegmentation) {
         let index = 0
@@ -267,14 +267,21 @@ export default {
 
       if (this.show_target) {
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
-        result = dataset.getValidTarget()
-      } else {
-        if (this.isTaskClassification) { result = model.getValidResult(index) } else if (this.isTaskDetection) { result = result.concat(model.getValidResult(index)) } else if (this.isTaskSegmentation) { result = model.getValidResult(index) }
+        result = dataset.getValidTarget(index)
+      }
+      if (this.show_prediction) {
+        if (this.isTaskClassification) {
+          result = model.getValidResult(index)
+        } else if (this.isTaskDetection) {
+          result = result.concat(model.getValidResult(index))
+        } else if (this.isTaskSegmentation) {
+          result = model.getValidResult(index)
+        }
       }
       return result
     },
     getClassificationStyle: function (cls) {
-      if (cls === null) {
+      if (!cls) {
         return {}
       }
       if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {
