@@ -5,7 +5,7 @@
       <component-scatter/>
       <component-model-detail/>
       <component-learning-curve/>
-      <component-prediction-result/>
+      <component-valid-result/>
       <component-tag-list/>
     </div>
     <div id="vertical-component">
@@ -23,7 +23,7 @@ import ComponentModelList from '@/components/page/train_page/component_model_lis
 import ComponentModelDetail from '@/components/page/train_page/component_model_detail.vue'
 import ComponentTagList from '@/components/page/train_page/component_tag_list.vue'
 import ComponentLearningCurve from '@/components/page/train_page/component_learning_curve.vue'
-import ComponentPredictionResult from '@/components/page/train_page/component_prediction_result.vue'
+import ComponentValidResult from '@/components/page/train_page/component_valid_result.vue'
 import ComponentDataset from '@/components/page/dataset_page/component_dataset.vue'
 
 export default {
@@ -35,7 +35,7 @@ export default {
     'component-model-detail': ComponentModelDetail,
     'component-model-list': ComponentModelList,
     'component-learning-curve': ComponentLearningCurve,
-    'component-prediction-result': ComponentPredictionResult,
+    'component-valid-result': ComponentValidResult,
     'component-dataset': ComponentDataset,
   },
   computed: {

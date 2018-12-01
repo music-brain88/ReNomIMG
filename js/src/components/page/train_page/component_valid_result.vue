@@ -57,7 +57,7 @@ import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
-  name: 'ComponentPredictionResult',
+  name: 'ComponentValidResult',
   components: {
     'component-frame': ComponentFrame
   },
