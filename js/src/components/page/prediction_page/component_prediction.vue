@@ -224,7 +224,7 @@ export default {
       return (v * w) / 100
     },
     getImgSize: function (item) {
-      const parent_div = document.getElementById('img-container')
+      const parent_div = this.$refs.container
       if (!parent_div) return {}
       const parent_height = parent_div.clientHeight
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
@@ -236,7 +236,7 @@ export default {
       }
     },
     setUpImages: function () {
-      const parent_div = document.getElementById('img-container')
+      const parent_div = this.$refs.container
       if (!parent_div) return
       const parent_height = parent_div.clientHeight
       const parent_width = parent_div.clientWidth
