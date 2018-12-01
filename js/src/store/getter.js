@@ -273,7 +273,7 @@ export default {
       return 'Precision'
     }
   },
-  getImagePageOfPredictionSample (state, getters) {
+  getImagePageOfValid (state, getters) {
     const task = getters.getCurrentTask
     return state.nth_image_page[task]
   },

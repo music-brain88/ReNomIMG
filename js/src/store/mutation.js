@@ -131,7 +131,7 @@ export default {
       throw new Error('Not supported task.')
     }
   },
-  setImagePageOfPredictionSample (state, payload) {
+  setImagePageOfValid (state, payload) {
     const task = state.current_task
     state.nth_image_page[task] = payload
   },

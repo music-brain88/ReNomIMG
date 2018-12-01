@@ -78,7 +78,7 @@ export default {
     ...mapGetters(['getSelectedModel',
       'getCurrentTask',
       'getTagColor',
-      'getImagePageOfPredictionSample'
+      'getImagePageOfValid'
     ]),
     showImage: function () {
       return this.show_image || !this.isTaskSegmentation
@@ -87,7 +87,7 @@ export default {
       const model = this.getSelectedModel
       if (!this.$refs.container) return []
       if (model) {
-        let current_page = this.getImagePageOfPredictionSample
+        let current_page = this.getImagePageOfValid
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
         if (!dataset) return []
 
@@ -99,8 +99,8 @@ export default {
         // Clip page number.
         const max_page_num = dataset.page.length - 1
         const page_num = Math.max(Math.min(current_page, max_page_num), 0)
-        this.setImagePageOfPredictionSample(page_num)
-        current_page = this.getImagePageOfPredictionSample
+        this.setImagePageOfValid(page_num)
+        current_page = this.getImagePageOfValid
         return dataset.page[current_page]
       }
       return []
@@ -131,7 +131,7 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['setImagePageOfPredictionSample', 'showModal', 'setImageModalData']),
+    ...mapMutations(['setImagePageOfValid', 'showModal', 'setImageModalData']),
     ...mapActions(['loadSegmentationTargetArray']),
     showImageModal: function (item) {
       let pred = null
@@ -151,7 +151,7 @@ export default {
       this.showModal({'show_image': true})
     },
     pagerStyle: function (index) {
-      const current_page = this.getImagePageOfPredictionSample
+      const current_page = this.getImagePageOfValid
       if (current_page === index) {
         return {
           'background-color': '#063662',
@@ -169,9 +169,9 @@ export default {
       if (!dataset) return
 
       const max_page_num = dataset.page.length - 1
-      const current_page = this.getImagePageOfPredictionSample
+      const current_page = this.getImagePageOfValid
       if (index === current_page) return
-      this.setImagePageOfPredictionSample(Math.min(index, max_page_num))
+      this.setImagePageOfValid(Math.min(index, max_page_num))
     },
     nextPage: function () {
       const model = this.getSelectedModel
@@ -181,8 +181,8 @@ export default {
       if (!dataset) return
 
       const max_page_num = dataset.page.length - 1
-      const current_page = this.getImagePageOfPredictionSample
-      this.setImagePageOfPredictionSample(Math.min(current_page + 1, max_page_num))
+      const current_page = this.getImagePageOfValid
+      this.setImagePageOfValid(Math.min(current_page + 1, max_page_num))
     },
     prevPage: function () {
       const model = this.getSelectedModel
@@ -192,8 +192,8 @@ export default {
       if (!dataset) return
 
       const max_page_num = dataset.page.length - 1
-      const current_page = this.getImagePageOfPredictionSample
-      this.setImagePageOfPredictionSample(Math.max(current_page - 1, 0))
+      const current_page = this.getImagePageOfValid
+      this.setImagePageOfValid(Math.max(current_page - 1, 0))
     },
     pageList: function () {
       const model = this.getSelectedModel
@@ -203,7 +203,7 @@ export default {
       if (!dataset) return []
       if (!dataset.page) return []
 
-      const current_page = Math.max(this.getImagePageOfPredictionSample, 0)
+      const current_page = Math.max(this.getImagePageOfValid, 0)
       const max_page_num = Math.max(dataset.page.length - 1, 0)
 
       if (max_page_num > 5) {

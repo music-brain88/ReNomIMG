@@ -125,7 +125,7 @@ export default class Model {
   }
   getPredictionResult (index) {
     const task = this.task_id
-    const ret = this.best_epoch_valid_result
+    const ret = this.prediction_result
     if (!ret) return
     const pred = ret.prediction
     if (!pred) return

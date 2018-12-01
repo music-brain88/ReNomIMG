@@ -96,7 +96,6 @@ export default {
       let minY = Math.min(Math.min.apply(null, [...train_loss_list, ...valid_loss_list]), 0)
       minY = Math.floor(minY)
 
-
       // if line chart axis overflow, clip the graph
       svg
         .append('defs')
