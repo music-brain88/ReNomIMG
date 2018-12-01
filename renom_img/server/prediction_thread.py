@@ -132,6 +132,14 @@ class PredictionThread(object):
             sizes.append(Image.open(path).size)
             imgs.append(path)
             self.updated = True
+
+        if self.task_id == Task.CLASSIFICATION.value:
+            results = [{"class": r} for r in results]
+        elif self.task_id == Task.DETECTION.value:
+            pass
+        elif self.task_id == Task.SEGMENTATION.value:
+            results = [{"class": r} for r in results]
+
         self.prediction_result = {
             "img": imgs,
             "size": sizes,

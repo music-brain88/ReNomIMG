@@ -259,7 +259,6 @@ def model_load_best_result(id):
 @json_handler
 def model_load_prediction_result(id):
     thread = PredictionThread.jobs.get(id, None)
-    print(list(PredictionThread.jobs.keys()))
     if thread is None:
         saved_model = storage.fetch_model(id)
         if saved_model is None:
@@ -555,6 +554,7 @@ def polling_prediction(id):
     threads = PredictionThread.jobs
     active_prediction_thread = threads.get(id, None)
     if active_prediction_thread is None:
+        time.sleep(0.5)  # Avoid many request.
         return {
             "need_pull": False,
             "state": State.STOPPED.value,
@@ -564,6 +564,7 @@ def polling_prediction(id):
         }
     elif active_prediction_thread.state == State.PRED_RESERVED or \
             active_prediction_thread.state == State.PRED_CREATED:
+        time.sleep(0.5)  # Avoid many request.
         return {
             "need_pull": active_prediction_thread.need_pull,
             "state": active_prediction_thread.state.value,

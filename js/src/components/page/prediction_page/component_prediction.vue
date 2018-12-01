@@ -1,8 +1,8 @@
 <template>
-  <component-frame :width-weight="8" :height-weight="7">
+  <component-frame :width-weight="8" :height-weight="9">
     <template slot="header-slot">
       Prediction Result
-      <div id="valid-prediction-button-area"
+      <div id="prediction-button-area"
         v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
         <label>
           <input class="checkbox" type="checkbox"
@@ -13,39 +13,37 @@
           <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction">
           Prediction
         </label>
-        <label>
-          <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target">
-          Target
-        </label>
       </div>
     </template>
-    <div id="pager" v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
-      <div class="pager-arrow" @click="prevPage">
-        <i class="fa fa-caret-left" aria-hidden="true"></i>
-      </div>
-      <div class="pager-number" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
-        {{ item }}
-      </div>
-      <div class="pager-arrow" @click="nextPage">
-        <i class="fa fa-caret-right" aria-hidden="true"></i>
-      </div>
-    </div>
-    <div id="img-container" ref="container">
-      <!--<transition-group name="fade">-->
-      <div v-for="(item, index) in getValidImages" :style="getImgSize(item)" @click="showImageModal(item)">
-        <img :src="item.img" v-if="showImage"/>
-        <!--Change following div for each task-->
-        <div id="cls" v-if='isTaskClassification'
-          :style="getClassificationStyle(getValidResult(item))">
+    <div id="prediction-area">
+      <div id="pager" v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
+        <div class="pager-arrow" @click="prevPage">
+          <i class="fa fa-caret-left" aria-hidden="true"></i>
         </div>
-        <div id="box" v-else-if='isTaskDetection'
-          :style="getBoxStyle(box)" v-for="box in getValidResult(item)">
+        <div class="pager-number" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
+          {{ item }}
         </div>
-        <div id="seg" v-else-if='isTaskSegmentation'>
-          <canvas :id="'canvas-' + index"/>
+        <div class="pager-arrow" @click="nextPage">
+          <i class="fa fa-caret-right" aria-hidden="true"></i>
         </div>
       </div>
-      <!--</transition-group>-->
+      <div id="img-container" ref="container">
+        <!--<transition-group name="fade">-->
+        <div v-for="(item, index) in getImages" :style="getImgSize(item)" @click="showImageModal(item)">
+          <img :src="item.img" v-if="showImage"/>
+          <!--Change following div for each task-->
+          <div id="cls" v-if='isTaskClassification'
+            :style="getClassificationStyle(getResult(item))">
+          </div>
+          <div id="box" v-else-if='isTaskDetection'
+            :style="getBoxStyle(box)" v-for="box in getResult(item)">
+          </div>
+          <div id="seg" v-else-if='isTaskSegmentation'>
+            <canvas :id="'canvas-' + index"/>
+          </div>
+        </div>
+        <!--</transition-group>-->
+      </div>
     </div>
   </component-frame>
 </template>
@@ -65,7 +63,8 @@ export default {
     return {
       show_image: true,
       show_target: false,
-      show_prediction: true
+      show_prediction: true,
+      page: []
     }
   },
   computed: {
@@ -75,32 +74,41 @@ export default {
       'modal_prediction',
       'modal_target'
     ]),
-    ...mapGetters(['getSelectedModel',
+    ...mapGetters([
       'getCurrentTask',
       'getTagColor',
-      'getImagePageOfPredictionSample'
+      'getImagePageOfPrediction',
+      'getDeployedModel'
     ]),
+    model: function () {
+      const model = this.getDeployedModel
+      if (model) {
+        return model
+      } else {
+
+      }
+    },
     showImage: function () {
       return this.show_image || !this.isTaskSegmentation
     },
-    getValidImages: function () {
-      const model = this.getSelectedModel
+    getImages: function () {
+      const model = this.model
       if (model) {
-        let current_page = this.getImagePageOfPredictionSample
-        const dataset = this.datasets.find(d => d.id === model.dataset_id)
-        if (!dataset) return []
+        let current_page = this.getImagePageOfPrediction
+        const dataset = model.prediction_result
+        console.log(dataset)
 
-        if (dataset.page.length === 0) {
+        if (this.page.length === 0) {
           // Setup image page if it has not been set.
-          this.setUpValidImages()
+          this.setUpImages()
         }
 
         // Clip page number.
-        const max_page_num = dataset.page.length - 1
+        const max_page_num = this.page.length - 1
         const page_num = Math.max(Math.min(current_page, max_page_num), 0)
-        this.setImagePageOfPredictionSample(page_num)
-        current_page = this.getImagePageOfPredictionSample
-        return dataset.page[current_page]
+        this.setImagePageOfPrediction(page_num)
+        current_page = this.getImagePageOfPrediction
+        return this.page[current_page]
       }
       return []
     },
@@ -118,9 +126,9 @@ export default {
     this.$nextTick(function () {
       if (this.isTaskSegmentation) {
         let index = 0
-        if (!this.getValidImages) return
-        for (let item of this.getValidImages) {
-          this.getSegmentationStyle(this.getValidResult(item), index)
+        if (!this.getImages) return
+        for (let item of this.getImages) {
+          this.getSegmentationStyle(this.getResult(item), index)
           index += 1
         }
       }
@@ -130,7 +138,7 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['setImagePageOfPredictionSample', 'showModal', 'setImageModalData']),
+    ...mapMutations(['setImagePageOfPrediction', 'showModal', 'setImageModalData']),
     ...mapActions(['loadSegmentationTargetArray']),
     showImageModal: function (item) {
       let pred = null
@@ -150,7 +158,7 @@ export default {
       this.showModal({'show_image': true})
     },
     pagerStyle: function (index) {
-      const current_page = this.getImagePageOfPredictionSample
+      const current_page = this.getImagePageOfPrediction
       if (current_page === index) {
         return {
           'background-color': '#063662',
@@ -161,49 +169,39 @@ export default {
     setPageNum: function (index) {
       if (index === '...') return
 
-      const model = this.getSelectedModel
-      if (!model) return
+      const page = this.page
+      if (!page) return
 
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
-      if (!dataset) return
-
-      const max_page_num = dataset.page.length - 1
-      const current_page = this.getImagePageOfPredictionSample
+      const max_page_num = page.length - 1
+      const current_page = this.getImagePageOfPrediction
       if (index === current_page) return
-      this.setImagePageOfPredictionSample(Math.min(index, max_page_num))
+      this.setImagePageOfPrediction(Math.min(index, max_page_num))
     },
     nextPage: function () {
-      const model = this.getSelectedModel
-      if (!model) return
+      const page = this.page
+      if (!page) return
 
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
-      if (!dataset) return
-
-      const max_page_num = dataset.page.length - 1
-      const current_page = this.getImagePageOfPredictionSample
-      this.setImagePageOfPredictionSample(Math.min(current_page + 1, max_page_num))
+      const max_page_num = page.length - 1
+      const current_page = this.getImagePageOfPrediction
+      this.setImagePageOfPrediction(Math.min(current_page + 1, max_page_num))
     },
     prevPage: function () {
-      const model = this.getSelectedModel
-      if (!model) return
+      const page = this.page
+      if (!page) return
 
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
-      if (!dataset) return
-
-      const max_page_num = dataset.page.length - 1
-      const current_page = this.getImagePageOfPredictionSample
-      this.setImagePageOfPredictionSample(Math.max(current_page - 1, 0))
+      const max_page_num = page.length - 1
+      const current_page = this.getImagePageOfPrediction
+      this.setImagePageOfPrediction(Math.max(current_page - 1, 0))
     },
     pageList: function () {
-      const model = this.getSelectedModel
+      const model = this.model
       if (!model) return []
 
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
-      if (!dataset) return []
-      if (!dataset.page) return []
+      const page = this.page
+      if (!page) return []
 
-      const current_page = Math.max(this.getImagePageOfPredictionSample, 0)
-      const max_page_num = Math.max(dataset.page.length - 1, 0)
+      const current_page = Math.max(this.getImagePageOfPrediction, 0)
+      const max_page_num = Math.max(page.length - 1, 0)
 
       if (max_page_num > 5) {
         if (current_page < 4) {
@@ -237,44 +235,40 @@ export default {
         width: width + 'px',
       }
     },
-    setUpValidImages: function () {
+    setUpImages: function () {
       const parent_div = document.getElementById('img-container')
       if (!parent_div) return
       const parent_height = parent_div.clientHeight
       const parent_width = parent_div.clientWidth
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
 
-      const model = this.getSelectedModel
+      const model = this.model
       if (!model) return
 
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      const dataset = model.prediction_result
       if (!dataset) return
 
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
-      this.$worker.run(setup_image_list, [dataset.valid_data, parent_width, parent_height, child_margin])
+      this.$worker.run(setup_image_list, [dataset, parent_width, parent_height, child_margin])
         .then((ret) => {
-          dataset.page = ret
+          this.page = ret
         })
     },
-    getValidResult: function (item) {
+    getResult: function (item) {
       if (item.index < 0) return
       const index = item.index
-      const model = this.getSelectedModel
+      const model = this.model
       if (!model) return []
       let result = []
 
-      if (this.show_target) {
-        const dataset = this.datasets.find(d => d.id === model.dataset_id)
-        result = dataset.getValidTarget(index)
-      }
       if (this.show_prediction) {
         if (this.isTaskClassification) {
-          result = model.getValidResult(index)
+          result = model.getPredictionResult(index)
         } else if (this.isTaskDetection) {
-          result = result.concat(model.getValidResult(index))
+          result = result.concat(model.getPredictionResult(index))
         } else if (this.isTaskSegmentation) {
-          result = model.getValidResult(index)
+          result = model.getPredictionResult(index)
         }
       }
       return result
@@ -308,6 +302,7 @@ export default {
       }
     },
     getSegmentationStyle: function (item, index) {
+      console.log(item)
       if (!item || !this.show_prediction) {
         // Clear canvas
         var canvas = document.getElementById('canvas-' + String(index))
@@ -332,7 +327,7 @@ export default {
 </script>
 
 <style lang='scss'>
-#valid-prediction-button-area {
+#prediction-button-area {
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -375,75 +370,79 @@ export default {
   }
 }
 
-#img-container{
+#prediction-area {
   width: 100%;
-  height: 95%;
-  display: flex;
-  flex-wrap: wrap;
-  div {
-    display: inline-block;
-    flex-grow: 1;
-    flex-shrink: 1;
-    overflow: hidden;
-    position: relative;
-    margin: 0.25vmin;
-    img {
-      width: 100%;
-      height: 100%;
-    }
-    #box {
-      position: absolute;
-      height: 100%;
-      width: 100%;
-    }
-    #cls {
-      position: absolute;
-      height: 100%;
-      width: 100%;
-      top: -0.25vmin;
-      left: -0.25vmin;
-    }
-    #seg {
-      position: absolute;
-      height: 100%;
-      width: 100%;
-      top: -0.25vmin;
-      left: -0.25vmin;
-      canvas {
+  height: 100%;
+  #img-container{
+    width: 100%;
+    height: 95%;
+    display: flex;
+    flex-wrap: wrap;
+      div {
+      display: inline-block;
+      flex-grow: 1;
+      flex-shrink: 1;
+      overflow: hidden;
+      position: relative;
+      margin: 0.25vmin;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+      #box {
+        position: absolute;
         height: 100%;
         width: 100%;
       }
+      #cls {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: -0.25vmin;
+        left: -0.25vmin;
+      }
+      #seg {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: -0.25vmin;
+        left: -0.25vmin;
+        canvas {
+          height: 100%;
+          width: 100%;
+        }
+      }
     }
   }
-}
-#pager {
-  width: 100%;
-  height: 5%;
-  display: flex;
-  justify-content: flex-end;
-  padding-right: 5px;
-  align-items: center;
-  .pager-arrow {
-    font-size: 150%;
-    height: 100%;
+  #pager {
+    width: 100%;
+    height: 5%;
     display: flex;
+    justify-content: flex-end;
+    padding-right: 5px;
     align-items: center;
-    margin-left: 5px;
-    margin-right: 5px;
-    cursor: pointer;
-    i {
+    .pager-arrow {
+      font-size: 150%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      margin-left: 5px;
+      margin-right: 5px;
+      cursor: pointer;
+      i {
+      }
     }
-  }
-  .pager-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 75%;
-    height: calc(100% - 2px);
-    width: 3%;
-    cursor: pointer;
-    letter-spacing: -1px;
-    transition: all 0.1s
+    .pager-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 75%;
+      height: calc(100% - 2px);
+      width: 3%;
+      cursor: pointer;
+      letter-spacing: -1px;
+      transition: all 0.1s
+    }
   }
 }
 </style>

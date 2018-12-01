@@ -175,6 +175,7 @@ export default {
     width: 18%;
     height: 100%;
   }
+
   #bar-area {
     display: flex;
     align-items: center;
@@ -204,6 +205,8 @@ export default {
         animation-fill-mode: both;
         animation-delay: 0.1s;
       }
+      
+
       @keyframes move-bar {
         0% {
           transform: translateX(-50%) scaleX(0);
