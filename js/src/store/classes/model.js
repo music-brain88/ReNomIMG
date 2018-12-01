@@ -108,4 +108,34 @@ export default class Model {
       }
     }
   }
+  getValidResult (index) {
+    const task = this.task_id
+    const ret = this.best_epoch_valid_result
+    if (!ret) return
+    const pred = ret.prediction
+    if (!pred) return
+
+    if (task === TASK_ID.CLASSIFICATION) {
+      return pred[index]
+    } else if (task === TASK_ID.DETECTION) {
+      return pred[index]
+    } else if (task === TASK_ID.SEGMENTATION) {
+      return pred[index]
+    }
+  }
+  getPredictionResult (index) {
+    const task = this.task_id
+    const ret = this.best_epoch_valid_result
+    if (!ret) return
+    const pred = ret.prediction
+    if (!pred) return
+
+    if (task === TASK_ID.CLASSIFICATION) {
+      return pred[index]
+    } else if (task === TASK_ID.DETECTION) {
+      return pred[index]
+    } else if (task === TASK_ID.SEGMENTATION) {
+      return pred[index]
+    }
+  }
 }
