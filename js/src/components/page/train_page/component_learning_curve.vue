@@ -201,7 +201,7 @@ export default {
       let BestEpoc = LineLayer.append('line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('fill', 'none')
-        .attr('stroke', 'red')
+        .attr('stroke', '#999999')
         .attr('stroke-width', 1.5)
         .attr('x1', scaleX(best_epoch + 1))
         .attr('y1', scaleY(maxY))
