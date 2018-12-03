@@ -29,7 +29,12 @@
     </div>
     <div id="filter-list">
       <div v-for="filterItem in getFilterList">
-        {{ filterItem }}
+        <div v-if="filterItem.item.type === 'select'">
+          {{ filterItem.item.title }} == {{ filterItem.threshold.title }}
+        </div>
+        <div v-if="filterItem.item.type === 'condition'">
+          {{ filterItem.item.title }} {{ filterItem.condition }} {{filterItem.threshold}}
+        </div>
       </div>
     </div>
   </div>

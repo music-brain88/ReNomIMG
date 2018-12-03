@@ -112,7 +112,6 @@ export default {
   },
   setImageModalData (state, payload) {
     state.modal_image = payload.img
-    console.log(state.modal_image)
     if (payload.hasOwnProperty('prediction')) {
       state.modal_prediction = payload.prediction
     }
