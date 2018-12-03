@@ -118,7 +118,6 @@ export default {
         .style('opacity', 0)
 
       if (!this.tooltip) {
-        console.log('ss')
         this.tooltip = d3.select('#scatter-canvas')
           .append('div')
           .style('display', 'none')
@@ -186,7 +185,6 @@ export default {
             .style('color', 'white')
             .style('text-align', 'left')
             .on('mouseleave', () => {
-              console.log('leave')
             })
         })
         .on('mouseleave', () => {

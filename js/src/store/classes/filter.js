@@ -16,7 +16,6 @@ export default class Filter {
     function filter_func (m) {
       const key = item.key
       if (item.type === 'condition') {
-        console.log('AA')
         const model_value = m.best_epoch_valid_result
         if (condition === '>=') { // Less equal than
           if (model_value) {

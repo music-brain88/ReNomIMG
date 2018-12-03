@@ -316,7 +316,6 @@ export default {
       d3.select('#learning-curve-canvas')
         .on('contextmenu', resetZoom)
 
-
       function zoomed () {
         let move_x = margin.left + d3.event.transform.x
         let move_y = margin.top + d3.event.transform.y
@@ -335,8 +334,8 @@ export default {
         TrainScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         ValidScatter.attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         d3.event.preventDefault()
-      } 
-    } 
+      }
+    }
   }
 }
 </script>

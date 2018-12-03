@@ -430,8 +430,6 @@ export const FILTER = {
 
 }
 
-console.log(Object.values(ALGORITHM.CLASSIFICATION))
-
 export const GROUPBY = {
   NONE: {
     key: 'NONE',

@@ -33,8 +33,9 @@ export default {
   setDeployedModel (state, payload) {
     const task_id = state.current_task
     const model_task_id = payload.task_id
-    if (task_id !== model_task_id) throw new Error('Task ID not matched.' + task_id + model_task_id)
-    state.deployed_model = Object.assign({...state.deployed_model}, {[task_id]: payload})
+    if (task_id === model_task_id) {
+      state.deployed_model = Object.assign({...state.deployed_model}, {[task_id]: payload})
+    }
   },
   unDeployModel (state, payload) {
     const task_id = state.current_task
