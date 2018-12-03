@@ -82,4 +82,9 @@ class Classification(Base):
             >>> z = model(x)
             >>> loss = model.loss(z, y)
         """
-        return DataBuilderClassification(self.class_map, self.imsize)
+        b = DataBuilderClassification(self.class_map, self.imsize)
+
+        def builder(img_path_list, annotation_list, augmentation=None, **kwargs):
+            imgs, targets = b(img_path_list, annotation_list, augmentation=augmentation, **kwargs)
+            return self.preprocess(imgs), targets
+        return builder
