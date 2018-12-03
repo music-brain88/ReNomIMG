@@ -7,6 +7,7 @@
       <div id="legend">
         <div id="train-switch" @click="switch_train_graph()" class="train" v-bind:class="{'graph-off' : !this.train_graph_flg}">Train<span class="box"></span></div>
         <div id="valid-switch" @click="switch_valid_graph()" class="valid" v-bind:class="{'graph-off' : !this.valid_graph_flg}">Valid<span class="box"></span></div>
+        <div class="best-epoch">Best Epoch<span class="box"></span></div>
       </div>
       <div id="title-epoch">
         Epoch [-]
@@ -403,6 +404,11 @@ export default {
     .valid {
       .box{
         background-color: $color-valid;
+      }
+    }
+    .best-epoch{
+      .box {
+        background-color: $color-best-epoch;
       }
     }
   }
