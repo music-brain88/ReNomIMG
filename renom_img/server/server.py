@@ -27,6 +27,7 @@ from renom.cuda import release_mem_pool
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.load import parse_txt_classification
 from renom_img.api.utility.load import parse_classmap_file
+from renom_img.api.utility.load import parse_image_segmentation
 from renom_img.server import wsgi_server
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread
@@ -40,6 +41,11 @@ executor = Executor(max_workers=2)
 train_thread_pool = {}
 prediction_thread_pool = {}
 respopnse_cache = {}
+
+# temporary stored dataset
+# {hash: dataset}
+temp_dataset = {
+}
 
 
 def get_train_thread_count():
@@ -274,17 +280,24 @@ def model_load_prediction_result(id):
         return {"result": thread.prediction_result}
 
 
-@route("/api/renom_img/v2/dataset/create", method="POST")
+@route("/api/renom_img/v2/dataset/confirm", method="POST")
 @json_handler
-def dataset_create():
-    req_params = request.params
+def dataset_confirm():
+    # req_params = request.params
+    ratio = 0.8
+    dataset_name = "test"
+    task_id = 0
+    description = "This is test"
+    test_dataset_id = -1
+    dataset_hash = str(1143524)
+    
     # Receive params here.
-    ratio = float(req_params.ratio)
-    dataset_name = str(req_params.name)
-    test_dataset_id = int(
-        req_params.test_dataset_id if req_params.test_dataset_id != "undefined" else -1)
-    task_id = int(req_params.task_id)
-    description = str(req_params.description)
+    # ratio = float(req_params.ratio)
+    # dataset_name = str(req_params.name)
+    # test_dataset_id = int(
+    #     req_params.test_dataset_id if req_params.test_dataset_id != "undefined" else -1)
+    # task_id = int(req_params.task_id)
+    # description = str(req_params.description)
     ##
 
     root = pathlib.Path('datasrc')
@@ -333,7 +346,7 @@ def dataset_create():
         parsed_target = [str(segmentation_label_dir / name.with_suffix(".png"))
                          for name in file_names]
         class_map = parse_classmap_file(str(segmentation_label_dir / "class_map.txt"))
-        print(class_map)
+
 
     # Split into train and valid.
     n_imgs = len(file_names)
@@ -350,6 +363,33 @@ def dataset_create():
     train_target = train_target.tolist()
     valid_target = valid_target.tolist()
 
+
+    # Load test Dataset if exists.
+    if test_dataset_id > 0:
+        test_dataset = storage.fetch_test_dataset(test_dataset_id)
+        test_ratio = []
+    else:
+        test_ratio = []
+        
+    
+    # Dataset Informatin
+    if task_id == Task.CLASSIFICATION.value:
+        train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map))))
+        valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map))))
+    elif task_id == Task.DETECTION.value:
+        pass
+    elif task_id == Task.SEGMENTATION.value:
+        train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
+        valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
+
+    class_info = {
+      "class":class_map,
+      "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
+      "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+      "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+      "test_ratio": test_ratio,
+    }
+
     # Register
     train_data = {
         'img': train_img,
@@ -360,15 +400,26 @@ def dataset_create():
         'target': valid_target,
         'size': valid_img_size,
     }
-    dataset_id = storage.register_dataset(task_id, dataset_name, description, ratio,
-                                          train_data, valid_data,
-                                          class_map, {}, test_dataset_id
-                                          )
-    return {
-        'id': dataset_id,
-        'valid_data': valid_data,
-        'class_map': class_map,
+
+    dataset = {
+      "task_id": task_id,
+      "dataset_name": dataset_name,
+      "description": description,
+      "ratio": ratio,
+      "train_data": train_data,
+      "valid_data": valid_data,
+      "class_map": class_map,
+      "test_dataset_id": test_dataset_id,
+      "class_info": {}
     }
+    temp_dataset[dataset_hash] = dataset
+
+    # dataset_id = storage.register_dataset(task_id, dataset_name, description, ratio,
+    #                                       train_data, valid_data,
+    #                                       class_map, {}, test_dataset_id
+    #                                       )
+
+    return class_info
 
 
 @route("/api/renom_img/v2/dataset/load/task/<id:int>", method="GET")
