@@ -67,7 +67,7 @@ export default {
       if (!this.getFilteredAndGroupedModelList) return
       d3.select('#scatter-canvas').select('svg').remove() // Remove SVG if it has been created.
 
-      const margin = {top: 15, left: 40, right: 20, bottom: 20}
+      const margin = {top: 15, left: 40, right: 20, bottom: 35}
       const canvas = document.getElementById('scatter-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
