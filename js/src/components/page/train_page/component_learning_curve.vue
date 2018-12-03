@@ -270,7 +270,7 @@ export default {
             .style('opacity', 0.9)
           ttip.html(
             'Epoch:' + (index + 1) + '<br />' +
-            'Valid:' + utils.round(d, 1000) + '<br />'
+            'Valid:' + d.toFixed(2) + '<br />'
           ).style('top', y + 'px')
             .style('left', x + 'px')
             .style('padding', '10px')
@@ -302,7 +302,7 @@ export default {
 
           ttip.html(
             'Epoch : ' + (index + 1) + '<br />' +
-            'Valid Loss: ' + utils.round(d, 1000) + '<br />'
+            'Valid Loss: ' + d.toFixed(2) + '<br />'
           ).style('top', y + 'px')
             .style('left', x + 'px')
             .style('padding', '10px')

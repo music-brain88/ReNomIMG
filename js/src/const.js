@@ -395,6 +395,39 @@ export const FILTER = {
       options: Object.values(ALGORITHM.CLASSIFICATION)
     }
   },
+  DETECTION: {
+    VALID_MAP: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'mAP',
+      title: 'Valid mAP',
+      type: 'condition',
+      min: 0,
+      max: 1,
+    },
+    VALID_IOU: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'IOU',
+      title: 'Valid IOU',
+      type: 'condition',
+      min: 0,
+      max: 1,
+    },
+    VALID_LOSS: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'loss',
+      title: 'Valid Loss',
+      type: 'condition',
+      min: 0,
+      max: 100,
+    },
+    ALGORITHM_NAME: {
+      key: 'algorithm',
+      title: 'Algorithm',
+      type: 'select',
+      options: Object.values(ALGORITHM.DETECTION)
+    }
+  },
+
 }
 
 console.log(Object.values(ALGORITHM.CLASSIFICATION))
