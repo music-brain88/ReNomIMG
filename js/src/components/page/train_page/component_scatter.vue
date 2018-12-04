@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import * as d3 from 'd3'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -54,15 +54,35 @@ export default {
       'getColorClass',
       'getAlgorithmColor',
       'getTitleMetric1',
-      'getTitleMetric2'
+      'getTitleMetric2',
+      'getSelectedModel'
     ])
   },
   watch: {
     getFilteredAndGroupedModelList: function () {
       this.draw()
+    },
+    getSelectedModel: function () {
+      const svg = d3.select('#scatter-canvas').select('svg')
+      if (!svg) return
+      const canvas = document.getElementById('scatter-canvas')
+      const canvas_width = canvas.clientWidth
+      const canvas_height = canvas.clientHeight
+      const circle_radius = Math.min(canvas_width * 0.02, canvas_height * 0.02)
+      console.log('ASDA')
+      svg.selectAll('circle')
+        .attr('r', (m) => {
+          const model = this.getSelectedModel
+          if (model === m) {
+            return circle_radius * 1.6
+          } else {
+            return circle_radius
+          }
+        })
     }
   },
   methods: {
+    ...mapMutations(['setSelectedModel']),
     draw: function () {
       if (!this.getFilteredAndGroupedModelList) return
       d3.select('#scatter-canvas').select('svg').remove() // Remove SVG if it has been created.
@@ -164,9 +184,15 @@ export default {
           return this.getAlgorithmColor(m.algorithm_id)
         })
         .on('mouseenter', (m, index) => {
-          // TODO: Fix event handler.
           let x = d3.event.layerX + 10
           let y = d3.event.layerY + 10
+          if (x >= canvas_width * 0.8) {
+            x -= 100
+          }
+          if (y >= canvas_height * 0.8) {
+            y -= 80
+          }
+
           let metric1 = m.getResultOfMetric1()
           let metric2 = m.getResultOfMetric2()
           ttip.style('display', 'inline-block')
@@ -189,6 +215,9 @@ export default {
         })
         .on('mouseleave', () => {
           ttip.style('display', 'none')
+        })
+        .on('click', (m) => {
+          this.setSelectedModel(m)
         })
     }
   }

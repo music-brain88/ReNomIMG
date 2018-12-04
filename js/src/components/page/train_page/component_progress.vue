@@ -111,7 +111,7 @@ export default {
       align-items: center;
       justify-content: center;
       font-size: 90%;
-      height: 60%;
+      height: 55%;
     }
     #alg-num {
       width: 100%;
@@ -119,7 +119,7 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 40%;
+      height: 45%;
     }
   }
   .bar section:last-of-type {
