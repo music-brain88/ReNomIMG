@@ -6,7 +6,12 @@
     <div class="progress wrap">
       <div class="bar" v-if="this.getFilteredModelList.length != 0">
         <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
-          {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
+          <div id="alg-title">
+            {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
+          </div>
+          <div id="alg-num">
+            ({{ model[2] }})
+          </div>
         </section>
       </div>
       <div class="bar" v-else>
@@ -62,7 +67,7 @@ export default {
             algs[id] = 1
           }
           return algs
-        }, {})).map(d => [d[0], parseFloat(d[1]) / parseFloat(model_list.length)])
+        }, {})).map(d => [d[0], parseFloat(d[1]) / parseFloat(model_list.length), d[1]])
       return model_list
     },
     calc_width: function (width) {
@@ -81,19 +86,41 @@ export default {
   }
   .bar {
   display: flex;
-	width: 100%;
+	width: calc(100% - 40px);
 	height: 30%;
 	margin: 0 auto;
   padding-top:8%;
   margin-bottom:8%;
-	
+  margin-left: 20px;
+  margin-right: 20px;
 	overflow: hidden;
   }
   .bar section {
+  	min-width: 10%;
     height: 30px;
     line-height: 30px;
     text-align: center;
     color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    #alg-title {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 90%;
+      height: 60%;
+    }
+    #alg-num {
+      width: 100%;
+      font-size: 70%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 40%;
+    }
   }
   .bar section:last-of-type {
     flex: auto;

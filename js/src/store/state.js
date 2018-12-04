@@ -1,4 +1,4 @@
-import { GROUPBY, SORTBY, TASK_ID, PAGE_ID } from '@/const.js'
+import { SORT_DIRECTION, GROUPBY, SORTBY, TASK_ID, PAGE_ID } from '@/const.js'
 
 export default {
 
@@ -45,7 +45,8 @@ export default {
   show_slide_menu: false,
 
   // Sort order
-  sort_order: SORTBY.CLASSIFICATION.MODEL_ID.id,
+  sort_order: SORTBY.ID,
+  sort_order_direction: SORT_DIRECTION.DESCENDING,
 
   // Modal
   show_modal: {

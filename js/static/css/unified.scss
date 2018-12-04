@@ -97,6 +97,8 @@ $modal-tab-color-not-selected: #063662;
 $dataset-table-padding: 10px;
 $dataset-table-id-width: 10%;
 $dataset-table-name-width: 20%;
+$dataset-table-test-dataset-id-width: 10%;
+$dataset-table-valid-data-width: 15%;
 $dataset-table-item-height: 25px;
 
 // Class Colors
@@ -107,6 +109,12 @@ $dataset-table-item-height: 25px;
 .color-reserved {
   background-color: #F1C40F;
 }
+
+$color-train:#0762AD;
+
+$color-valid:#EF8200;
+
+$color-best-epoch:#999999;
 
 // The color is specified by algorithm ID(0 ~ 9).
 .color-0 {

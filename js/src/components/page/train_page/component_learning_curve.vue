@@ -4,6 +4,11 @@
       Learning Curve
     </template>
     <div id="learning-curve">
+      <div id="legend">
+        <div id="train-switch" @click="switch_train_graph()" class="train" v-bind:class="{'graph-off' : !this.train_graph_flg}">Train<span class="box"></span></div>
+        <div id="valid-switch" @click="switch_valid_graph()" class="valid" v-bind:class="{'graph-off' : !this.valid_graph_flg}">Valid<span class="box"></span></div>
+        <div class="best-epoch">Best Epoch Line<span class="legend-line">&mdash;</span></div>
+      </div>
       <div id="title-epoch">
         Epoch [-]
       </div>
@@ -29,7 +34,9 @@ export default {
   },
   data: function () {
     return {
-      tooltip: null
+      tooltip: null,
+      train_graph_flg: true,
+      valid_graph_flg: true
     }
   },
   computed: {
@@ -60,10 +67,37 @@ export default {
     window.removeEventListener('resize', this.draw, false)
   },
   methods: {
+    switch_train_graph: function () {
+      if (this.train_graph_flg === true) {
+        if (this.valid_graph_flg !== false) {
+          d3.select('#train-line').remove()
+          d3.select('#train-scatter').remove()
+          // reverse the show flag
+          this.train_graph_flg = !this.train_graph_flg
+        }
+      } else {
+        this.draw()
+        // set the flag true
+        this.train_graph_flg = !this.train_graph_flg
+      }
+    },
+    switch_valid_graph: function () {
+      if (this.valid_graph_flg === true) {
+        if (this.train_graph_flg !== false) {
+          d3.select('#valid-line').remove()
+          d3.select('#valid-scatter').remove()
+          // reverse the show flag
+          this.valid_graph_flg = !this.valid_graph_flg
+        }
+      } else {
+        this.draw()
+        // set the flag
+        this.valid_graph_flg = !this.valid_graph_flg
+      }
+    },
     draw: function () {
       d3.select('#learning-curve-canvas').select('svg').remove() // Remove SVG if it has been created.
-
-      const margin = {top: 15, left: 40, right: 20, bottom: 20}
+      const margin = {top: 15, left: 40, right: 20, bottom: 35}
       const canvas = document.getElementById('learning-curve-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
@@ -136,45 +170,46 @@ export default {
       // Horizontal
       let SubLineX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line')
+        .attr('class', 'grid-line axis')
         .call(
           d3.axisRight()
             .tickSize(canvas_width - margin.left - margin.right)
             .tickFormat('').ticks(5)
             .scale(scaleY)
         )
-        .selectAll('.tick:not(:first-child) line')
+        .selectAll('.tick line')
         .style('stroke-dasharray', '2,2')
-        .selectAll('g:last-child .tick')
-        .style('opacity', 0)
 
       // Vertical
       let SubLineY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line')
+        .attr('class', 'grid-line axis')
         .call(
           d3.axisTop()
             .tickSize(-canvas_height + margin.top + margin.bottom)
             .tickFormat('').ticks(5)
             .scale(scaleX)
         )
-        .selectAll('.tick:not(:last-child) line')
+        .selectAll('.tick line')
         .style('stroke-dasharray', '2,2')
 
       const axX = d3.axisBottom(scaleX).ticks(5)
       const axY = d3.axisLeft(scaleY).ticks(5)
       let gX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
+        .attr('class', 'axis')
         .call(axX)
 
       let gY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        .attr('class', 'axis')
         .call(axY)
 
       // Line graph
       let LineLayer = svg.append('g').attr('clip-path', 'url(#clip)')
 
       let TrainLine = LineLayer.append('path')
+        .attr('id', 'train-line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(train_loss_list)
         .attr('fill', 'none')
@@ -187,6 +222,7 @@ export default {
         )
 
       let ValidLine = LineLayer.append('path')
+        .attr('id', 'valid-line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(valid_loss_list)
         .attr('fill', 'none')
@@ -201,8 +237,8 @@ export default {
       let BestEpoc = LineLayer.append('line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('fill', 'none')
-        .attr('stroke', 'red')
-        .attr('stroke-width', 1.5)
+        .attr('stroke', '#aaaaaa')
+        .attr('stroke-width', 1.2)
         .attr('x1', scaleX(best_epoch + 1))
         .attr('y1', scaleY(maxY))
         .attr('x2', scaleX(best_epoch + 1))
@@ -212,6 +248,7 @@ export default {
       let ScatterLayer = svg.append('g').attr('clip-path', 'url(#clip)')
 
       let TrainScatter = ScatterLayer.append('g')
+        .attr('id', 'train-scatter')
         .selectAll('circle')
         .data(train_loss_list)
         .enter()
@@ -233,7 +270,7 @@ export default {
             .style('opacity', 0.9)
           ttip.html(
             'Epoch:' + (index + 1) + '<br />' +
-            'Valid:' + utils.round(d, 1000) + '<br />'
+            'Valid:' + d.toFixed(2) + '<br />'
           ).style('top', y + 'px')
             .style('left', x + 'px')
             .style('padding', '10px')
@@ -245,6 +282,7 @@ export default {
         })
 
       let ValidScatter = ScatterLayer.append('g')
+        .attr('id', 'valid-scatter')
         .selectAll('circle')
         .data(valid_loss_list)
         .enter()
@@ -264,7 +302,7 @@ export default {
 
           ttip.html(
             'Epoch : ' + (index + 1) + '<br />' +
-            'Valid Loss: ' + utils.round(d, 1000) + '<br />'
+            'Valid Loss: ' + d.toFixed(2) + '<br />'
           ).style('top', y + 'px')
             .style('left', x + 'px')
             .style('padding', '10px')
@@ -307,6 +345,7 @@ export default {
   width: 100%;
   height: 100%;
   padding: $scatter-padding;
+  padding-top: 0px;
   position: relative;
   #title-epoch {
     position: absolute;
@@ -333,6 +372,55 @@ export default {
     height: 100%;
     .grid-line line {
       stroke: $scatter-grid-color;
+    }
+    .axis path {
+      stroke: lightgray;
+    }
+    .axis line {
+      stroke: $scatter-grid-color;
+    }
+  }
+  #legend {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top:5px;
+    font-size: 70%;
+    
+    .graph-off {
+      text-decoration: line-through;
+    }
+
+    .box {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-left: 4px;
+      margin-right: 4px;
+    }
+    .train {
+      .box{
+        background-color: $color-train;
+      } 
+    }
+
+    .valid {
+      .box{
+        background-color: $color-valid;
+      }
+    }
+    .best-epoch{
+      .legend-line {
+        display: inline-block;
+        width: 10px;
+        margin-left: 4px;
+        margin-right: 4px;
+        font-size: 10px;
+        font-weight: bold;
+        color: $color-best-epoch;
+      }
     }
   }
 }

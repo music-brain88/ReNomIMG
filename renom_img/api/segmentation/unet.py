@@ -52,8 +52,7 @@ class UNet(SemanticSegmentation):
         self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._model = CNN_UNet(self.num_class)
         self._train_whole_network = train_whole_network
-        # self._opt = rm.Sgd(1e-2, 0.9)
-        self._opt = rm.Adam()
+        self._opt = rm.Sgd(1e-2, 0.9)
         self.decay_rate = 0.00002
         self._freeze()
 
@@ -68,8 +67,8 @@ class UNet(SemanticSegmentation):
         return x / 255.
 
     def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
-        if True or any([num is None for num in
-                        [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
+        if any([num is None for num in
+                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
             ind1 = int(total_epoch * 0.5)

@@ -96,7 +96,6 @@ export default {
       if (model) {
         let current_page = this.getImagePageOfPrediction
         const dataset = model.prediction_result
-        console.log(dataset)
 
         if (this.page.length === 0) {
           // Setup image page if it has not been set.
@@ -302,7 +301,6 @@ export default {
       }
     },
     getSegmentationStyle: function (item, index) {
-      console.log(item)
       if (!item || !this.show_prediction) {
         // Clear canvas
         var canvas = document.getElementById('canvas-' + String(index))

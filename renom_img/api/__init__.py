@@ -69,7 +69,7 @@ class Base(rm.Model):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return self.decay_rate * reg / 2
+        return (self.decay_rate / 2) * reg
 
     def preprocess(self, x):
         """Performs preprocess for a given array.
@@ -77,7 +77,7 @@ class Base(rm.Model):
         Args:
             x(ndarray, Node): Image array for preprocessing.
         """
-        pass
+        return x
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
@@ -133,7 +133,6 @@ class Base(rm.Model):
             display_loss = 0
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
-                train_x = self.preprocess(train_x)
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
@@ -154,7 +153,6 @@ class Base(rm.Model):
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)
-                    valid_x = self.preprocess(valid_x)
                     loss = self.loss(self(valid_x), valid_y)
                     try:
                         loss = loss.as_ndarray()[0]

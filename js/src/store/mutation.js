@@ -1,4 +1,4 @@
-import { GROUPBY, PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes } from '@/const.js'
+import { SORT_DIRECTION, GROUPBY, PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes } from '@/const.js'
 
 export default {
   resetState (state, payload) {
@@ -33,8 +33,9 @@ export default {
   setDeployedModel (state, payload) {
     const task_id = state.current_task
     const model_task_id = payload.task_id
-    if (task_id !== model_task_id) throw new Error('Task ID not matched.' + task_id + model_task_id)
-    state.deployed_model = Object.assign({...state.deployed_model}, {[task_id]: payload})
+    if (task_id === model_task_id) {
+      state.deployed_model = Object.assign({...state.deployed_model}, {[task_id]: payload})
+    }
   },
   unDeployModel (state, payload) {
     const task_id = state.current_task
@@ -112,7 +113,6 @@ export default {
   },
   setImageModalData (state, payload) {
     state.modal_image = payload.img
-    console.log(state.modal_image)
     if (payload.hasOwnProperty('prediction')) {
       state.modal_prediction = payload.prediction
     }
@@ -123,10 +123,19 @@ export default {
   setSortOrder (state, payload) {
     let task = state.current_task // Need access through getter.
     if (task in Object.values(TASK_ID)) {
-      let value = payload.target.value
-      let task_key = getKeyByValue(TASK_ID, task)
-      let key = getKeyByValueIncludes(SORTBY[task_key], value)
-      state.sort_order = SORTBY[task_key][key].id
+      state.sort_order = SORTBY[payload]
+    } else {
+      throw new Error('Not supported task.')
+    }
+  },
+  toggleSortOrder (state, payload) {
+    let task = state.current_task // Need access through getter.
+    if (task in Object.values(TASK_ID)) {
+      if (state.sort_order_direction === SORT_DIRECTION.DESCENDING) {
+        state.sort_order_direction = SORT_DIRECTION.ASCENDING
+      } else {
+        state.sort_order_direction = SORT_DIRECTION.DESCENDING
+      }
     } else {
       throw new Error('Not supported task.')
     }

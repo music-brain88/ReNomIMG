@@ -280,58 +280,16 @@ export const ALGORITHM = {
 }
 
 export const SORTBY = {
-  CLASSIFICATION: {
-    MODEL_ID: {
-      id: 0,
-      key: 'model_id',
-      title: 'Model ID',
-    },
-    VALID_RECALL: {
-      id: 1,
-      key: 'valid_recall',
-      title: 'Valid Recall'
-    },
-    VALID_PRECISION: {
-      id: 2,
-      key: 'valid_precision',
-      title: 'Valid Precision'
-    },
-    VALID_F1: {
-      id: 3,
-      key: 'valid_f1',
-      title: 'Valid F1'
-    },
-    VALID_LOSS: {
-      id: 4,
-      key: 'valid_loss',
-      title: 'Valid Loss'
-    }
-  },
-  DETECTION: {
-    MODEL_ID: {
-      id: 10,
-      key: 'model_id',
-      title: 'Model ID',
-    },
-    VALID_MAP: {
-      id: 11,
-      key: 'valid_mAP',
-      title: 'Valid mAP'
-    },
-    VALID_IOU: {
-      id: 12,
-      key: 'valid_iou',
-      title: 'Valid IOU'
-    },
-    VALID_LOSS: {
-      id: 13,
-      key: 'valid_loss',
-      title: 'Valid Loss'
-    }
+  ID: 0,
+  ALG: 1,
+  LOSS: 2,
+  M1: 3,
+  M2: 4,
+}
 
-  },
-  SEGMENTATION: {
-  },
+export const SORT_DIRECTION = {
+  ASCENDING: 0,
+  DESCENDING: 1,
 }
 
 export const STATE = {
@@ -346,10 +304,12 @@ export const STATE = {
 }
 
 export const RUNNING_STATE = {
-  STARTING: 0,
+  PREPARING: 0,
   TRAINING: 1,
   VALIDATING: 2,
-  STOPPING: 3,
+  PREDICTING: 3,
+  STARTING: 4,
+  STOPPING: 5
 }
 
 export const FILTER = {
@@ -395,9 +355,40 @@ export const FILTER = {
       options: Object.values(ALGORITHM.CLASSIFICATION)
     }
   },
-}
+  DETECTION: {
+    VALID_MAP: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'mAP',
+      title: 'Valid mAP',
+      type: 'condition',
+      min: 0,
+      max: 1,
+    },
+    VALID_IOU: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'IOU',
+      title: 'Valid IOU',
+      type: 'condition',
+      min: 0,
+      max: 1,
+    },
+    VALID_LOSS: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'loss',
+      title: 'Valid Loss',
+      type: 'condition',
+      min: 0,
+      max: 100,
+    },
+    ALGORITHM_NAME: {
+      key: 'algorithm',
+      title: 'Algorithm',
+      type: 'select',
+      options: Object.values(ALGORITHM.DETECTION)
+    }
+  },
 
-console.log(Object.values(ALGORITHM.CLASSIFICATION))
+}
 
 export const GROUPBY = {
   NONE: {

@@ -69,9 +69,8 @@ export default {
       }
     },
     getLastBatchLoss () {
-      if (this.model.last_batch_loss) {
-        const loss = this.model.last_batch_loss
-        return loss.toFixed(2)
+      if (this.model.getBestLoss()) {
+        return this.model.getBestLoss().toFixed(2)
       } else {
         return '-'
       }
