@@ -20,8 +20,14 @@ export default {
   // Datasets
   datasets: [],
 
+  // confirm Datasets details
+  dataset_details: [],
+
   // TestDatasets
   test_datasets: [],
+
+  // confirm Teset Datasets details
+  test_dataset_details: [],
 
   // Filter List
   filters: [],
