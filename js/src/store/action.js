@@ -451,10 +451,22 @@ export default {
     }, error_handler_creator(context))
   },
   async confirmDataset (context, payload) {
-    const url = '/api/renom_img/v2/dataset/confirm'
-  },
-  async confirmTestDataset () {
 
+  },
+  async confirmTestDataset (context, payload) {
+    const url = '/api/renom_img/v2/dataset/confirm'
+    const name = payload.name
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = 'test'
+    const param = new FormData()
+    param.append('name', name)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+    return axios.post(url, param).then(function (response) {
+      console.log([response])  
+    }, error_handler_creator(context))
   },
   async loadSegmentationTargetArray (context, payload) {
     let url = '/target/segmentation/' + payload

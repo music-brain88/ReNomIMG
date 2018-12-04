@@ -101,7 +101,12 @@ export default {
     },
     onAddDataset: function () {
       if (this.isTestDataset) {
-        this.createTestDataset({
+        // this.createTestDataset({
+        //   'name': this.name,
+        //   'ratio': this.ratio,
+        //   'description': this.description,
+        // })
+        this.confirmTestDataset({
           'name': this.name,
           'ratio': this.ratio,
           'description': this.description,
@@ -115,7 +120,7 @@ export default {
           'test_dataset_id': test_dataset_id,
         })
       }
-    }
+    } // onAddDataset
   }
 }
 </script>
