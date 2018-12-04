@@ -89,7 +89,12 @@ export default {
 
   },
   methods: {
-    ...mapActions(['createDataset', 'createTestDataset']),
+    ...mapActions([
+      'createDataset',
+      'createTestDataset',
+      'confirmDataset',
+      'confirmTestDataset'
+    ]),
     onConfirm: function () {
       const date = new Date()
       this.timeStamp = date.getTime()

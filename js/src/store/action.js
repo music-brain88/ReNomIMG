@@ -450,6 +450,12 @@ export default {
       test_dataset.test_data = test_data
     }, error_handler_creator(context))
   },
+  async confirmDataset (context, payload) {
+    const url = '/api/renom_img/v2/dataset/confirm'
+  },
+  async confirmTestDataset () {
+
+  },
   async loadSegmentationTargetArray (context, payload) {
     let url = '/target/segmentation/' + payload
     return axios.get(url)
