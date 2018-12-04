@@ -346,10 +346,12 @@ export const STATE = {
 }
 
 export const RUNNING_STATE = {
-  STARTING: 0,
+  PREPARING: 0,
   TRAINING: 1,
   VALIDATING: 2,
-  STOPPING: 3,
+  PREDICTING: 3,
+  STARTING: 4,
+  STOPPING: 5
 }
 
 export const FILTER = {

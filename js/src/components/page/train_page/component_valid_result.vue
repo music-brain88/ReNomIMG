@@ -297,6 +297,7 @@ export default {
       }
     },
     getBoxStyle: function (box) {
+      if (!box) return
       const class_id = box.class
       const x1 = (box.box[0] - box.box[2] / 2) * 100
       const y1 = (box.box[1] - box.box[3] / 2) * 100
@@ -309,6 +310,7 @@ export default {
       }
     },
     getSegmentationStyle: function (item, index) {
+      if (!item) return
       if (!item || !this.show_prediction) {
         // Clear canvas
         var canvas = document.getElementById('canvas-' + String(index))

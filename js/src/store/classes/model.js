@@ -40,6 +40,9 @@ export default class Model {
   isValidating () {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.VALIDATING)
   }
+  isStopping () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.STOPPING)
+  }
   getResultOfMetric1 () {
     let m1 = '-'
     if (this.task_id === TASK_ID.CLASSIFICATION) {

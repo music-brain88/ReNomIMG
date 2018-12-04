@@ -332,6 +332,7 @@ class TrainThread(object):
     def stop(self):
         self.stop_event.set()
         self.running_state = RunningState.STOPPING
+        self.sync_state()
 
     def weight_download(self, path):
         # Perform this in polling progress.
