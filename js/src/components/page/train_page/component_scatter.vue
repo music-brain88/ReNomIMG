@@ -69,7 +69,6 @@ export default {
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
       const circle_radius = Math.min(canvas_width * 0.02, canvas_height * 0.02)
-      console.log('ASDA')
       svg.selectAll('circle')
         .attr('r', (m) => {
           const model = this.getSelectedModel

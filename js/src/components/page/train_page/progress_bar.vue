@@ -17,6 +17,7 @@
       <span v-else-if="model.isTraining()">{{ this.loss }}</span>
       <span v-else-if="model.isValidating()">Validating</span>
       <span v-else-if="model.isStopping()">Stopping</span>
+      <span v-else-if="model.isWeightDownloading()">Weight Downloading</span>
     </div>
     <div id="bar-area">
       <span v-if="isTitle"></span>
@@ -62,15 +63,14 @@ export default {
       }
     },
     getBarClass: function () {
-      console.log(this.model.isStopping(), this.model.state, this.model.running_state)
-      if (this.model.isValidating() || this.model.isStopping()) {
+      if (this.model.isValidating() || this.model.isStopping() || this.model.isWeightDownloading()) {
         return 'validating'
       } else {
         return 'training'
       }
     },
     getWidthOfBar: function () {
-      if (this.model.isValidating() || this.model.isStopping()) {
+      if (this.model.isValidating() || this.model.isStopping() || this.model.isWeightDownloading()) {
         return {
           width: '20%'
         }

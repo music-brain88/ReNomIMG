@@ -309,7 +309,8 @@ export const RUNNING_STATE = {
   VALIDATING: 2,
   PREDICTING: 3,
   STARTING: 4,
-  STOPPING: 5
+  STOPPING: 5,
+  WEIGHT_DOWNLOADING: 6,
 }
 
 export const FILTER = {

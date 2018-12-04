@@ -60,6 +60,7 @@ class TrainThread(object):
         self.updated = True
 
         # This will be changed from web API.
+        self.best_epoch_valid_result = {}
         self.best_valid_changed = False
         self.error_msg = None
 
@@ -334,11 +335,6 @@ class TrainThread(object):
         self.running_state = RunningState.STOPPING
         self.sync_state()
 
-    def weight_download(self, path):
-        # Perform this in polling progress.
-        if not os.path.exists(path):
-            pass
-
     def save_best_model(self):
         self.model.save(self.best_weight_path)
 
@@ -438,6 +434,9 @@ class TrainThread(object):
             # Watch stop event
             self.updated = True
             return
+        self.running_state = RunningState.WEIGHT_DOWNLOADING
+        self.sync_state()
+        self.updated = True
 
         if self.algorithm_id == Algorithm.RESNET.value:
             self._setting_resnet()

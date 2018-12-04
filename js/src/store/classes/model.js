@@ -43,6 +43,9 @@ export default class Model {
   isStopping () {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.STOPPING)
   }
+  isWeightDownloading () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.WEIGHT_DOWNLOADING)
+  }
   getBestLoss () {
     let loss = null
     if (this.best_epoch_valid_result) {

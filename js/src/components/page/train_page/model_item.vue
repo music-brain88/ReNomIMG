@@ -115,7 +115,7 @@ export default {
     height: 100%;
   }
   #model-id {
-    width: calc(67% - 5px);
+    width: calc(72% - 5px);
     height: 100%;
     margin-left: 5px;
     padding-left: 5px;
@@ -138,7 +138,7 @@ export default {
     }
   }
   #model-buttons {
-    width: 30%;
+    width: 25%;
     height: 100%;
     display: flex;
     justify-content: space-around;
