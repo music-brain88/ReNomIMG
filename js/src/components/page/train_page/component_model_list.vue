@@ -27,23 +27,41 @@
 
     <div id="model-titles">
       <span class="title-row">
-        <div class="title selected">ID
-          <i class="fa fa-sort-desc" aria-hidden="true"></i>
-          &nbsp;&nbsp;&nbsp;
+        <div class="title" :class="{selected: isSortBy('ID')}" @click="setOrder('ID')">
+          ID
+          <div class="sort-icon">
+            <i class="fa fa-sort-desc" aria-hidden="true" v-if="isDescending && isSortBy('ID')"></i>
+            <i class="fa fa-sort-asc" aria-hidden="true" v-else-if="isSortBy('ID')"></i>
+          </div>
+          &nbsp&nbsp&nbsp
         </div>
-        <div class="title">Alg
-          <i class="fa fa-sort-desc" aria-hidden="true"></i>
+        <div class="title" :class="{selected: isSortBy('ALG')}" @click="setOrder('ALG')">Alg
+          <div class="sort-icon">
+            <i class="fa fa-sort-desc" aria-hidden="true" v-if="isDescending && isSortBy('ALG')"></i>
+            <i class="fa fa-sort-asc" aria-hidden="true" v-else-if="isSortBy('ALG')"></i>
+          </div>
         </div>
       </span>
       <span class="title-row">
-        <div class="title">Loss
-          <i class="fa fa-sort-desc" aria-hidden="true"></i>
+        <div class="title" :class="{selected: isSortBy('LOSS')}" @click="setOrder('LOSS')">Loss
+          <div class="sort-icon">
+            <i class="fa fa-sort-desc" aria-hidden="true" v-if="isDescending && isSortBy('LOSS')"></i>
+            <i class="fa fa-sort-asc" aria-hidden="true" v-else-if="isSortBy('LOSS')"></i>
+          </div>
         </div>
-        <div class="title">/ {{ getTitleMetric1 }}
-          <i class="fa fa-sort-desc" aria-hidden="true"></i>
+        <div class="title" :class="{selected: isSortBy('M1')}" @click="setOrder('M1')">
+            / {{ getTitleMetric1 }}
+          <div class="sort-icon">
+            <i class="fa fa-sort-desc" aria-hidden="true" v-if="isDescending && isSortBy('M1')"></i>
+            <i class="fa fa-sort-asc" aria-hidden="true" v-else-if="isSortBy('M1')"></i>
+          </div>
         </div>
-        <div class="title">/ {{ getTitleMetric2 }}
-          <i class="fa fa-sort-desc" aria-hidden="true"></i>
+        <div class="title" :class="{selected: isSortBy('M2')}" @click="setOrder('M2')">
+            / {{ getTitleMetric2 }}
+          <div class="sort-icon">
+            <i class="fa fa-sort-desc" aria-hidden="true" v-if="isDescending && isSortBy('M2')"></i>
+            <i class="fa fa-sort-asc" aria-hidden="true" v-else-if="isSortBy('M2')"></i>
+          </div>
         </div>
       </span>
     </div>
@@ -60,7 +78,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import { GROUPBY } from '@/const.js'
+import { GROUPBY, SORTBY, SORT_DIRECTION } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ModelItem from '@/components/page/train_page/model_item.vue'
 
@@ -76,6 +94,10 @@ export default {
     }
   },
   computed: {
+    ...mapState([
+      'sort_order',
+      'sort_order_direction'
+    ]),
     ...mapGetters([
       'getFilteredModelList',
       'getFilteredAndGroupedModelList',
@@ -85,15 +107,35 @@ export default {
       'getTitleMetric1',
       'getTitleMetric2'
     ]),
+    isDescending: function () {
+      return this.sort_order_direction === SORT_DIRECTION.DESCENDING
+    },
   },
   created: function () {
 
   },
   methods: {
-    ...mapMutations(['setSortOrder', 'showModal', 'setGoupBy', 'selectPrevModel', 'selectNextModel']),
+    ...mapMutations([
+      'setSortOrder',
+      'showModal',
+      'setGoupBy',
+      'selectPrevModel',
+      'selectNextModel',
+      'toggleSortOrder'
+    ]),
     setGoupingCategory: function () {
       this.setGoupBy(this.groupby)
     },
+    setOrder: function (key) {
+      if (this.isSortBy(key)) {
+        this.toggleSortOrder()
+      } else {
+        this.setSortOrder(key)
+      }
+    },
+    isSortBy: function (key) {
+      return this.sort_order === SORTBY[key]
+    }
   }
 }
 </script>
@@ -176,12 +218,25 @@ export default {
   .title:hover {
     color: lightgray;
   }
-  i {
-    font-size: 150%;
-    text-align: center;
-    position: relative;
-    top: -3px;
-    margin-left: 3px;
+  .selected:hover {
+    color:  $component-header-sub-color;
+  }
+  .sort-icon {
+    width: 10px;
+    height: 100%;
+    i {
+      font-size: 150%;
+      text-align: center;
+      margin-left: 2px;
+    }
+    .fa-sort-desc {
+      position: relative;
+      top: -3.5px;
+    }
+    .fa-sort-asc {
+      position: relative;
+      top: 3.5px;
+    }
   }
 }
 

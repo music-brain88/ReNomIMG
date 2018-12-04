@@ -83,6 +83,7 @@ export default {
       // Axis Settings
       const scaleX = d3.scaleLinear().domain([0, 100])
         .range([0, canvas_width - margin.left - margin.right])
+
       const scaleY = d3.scaleLinear().domain([0, 100])
         .range([canvas_height - margin.bottom - margin.top, 0])
 
@@ -90,22 +91,20 @@ export default {
       // Horizontal
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line')
+        .attr('class', 'grid-line axis')
         .call(
           d3.axisRight()
             .tickSize(canvas_width - margin.left - margin.right)
             .tickFormat('')
             .scale(scaleY)
         )
-        .selectAll('.tick:not(:first-child) line, .tick:not(:last-child) line')
+        .selectAll('.tick line')
         .style('stroke-dasharray', '2,2')
-        .selectAll('g:last-child .tick')
-        .style('opacity', 0)
 
       // Vertical
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line')
+        .attr('class', 'grid-line axis')
         .call(
           d3.axisTop()
             .tickSize(-canvas_height + margin.top + margin.bottom)
@@ -114,8 +113,6 @@ export default {
         )
         .selectAll('.tick:not(:last-child) line')
         .style('stroke-dasharray', '2,2')
-        .selectAll('g:last-child .tick')
-        .style('opacity', 0)
 
       if (!this.tooltip) {
         this.tooltip = d3.select('#scatter-canvas')
@@ -131,10 +128,13 @@ export default {
 
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
+        .attr('class', 'axis')
         .call(axX)
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        .attr('class', 'axis')
         .call(axY)
+
       // Plot Models.
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
@@ -229,18 +229,24 @@ export default {
     .grid-line line {
       stroke: $scatter-grid-color;
     }
+    .axis path {
+      stroke: lightgray;
+    }
+    .axis line {
+      stroke: $scatter-grid-color;
+    }
   }
   div.tooltip {
-  position: absolute;
-  text-align: center;
-  width: 60px;
-  height: 28px;
-  padding: 2px;
-  font: 12px sans-serif;
-  background: lightsteelblue;
-  border: 0px;
-  border-radius: 8px;
-  pointer-events: none;
+    position: absolute;
+    text-align: center;
+    width: 60px;
+    height: 28px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
   }
 }
 </style>

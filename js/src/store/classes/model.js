@@ -43,6 +43,13 @@ export default class Model {
   isStopping () {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.STOPPING)
   }
+  getBestLoss () {
+    let loss = null
+    if (this.best_epoch_valid_result) {
+      if (this.best_epoch_valid_result.loss) { loss = this.best_epoch_valid_result.loss }
+    }
+    return loss
+  }
   getResultOfMetric1 () {
     let m1 = '-'
     if (this.task_id === TASK_ID.CLASSIFICATION) {

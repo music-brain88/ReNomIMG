@@ -170,39 +170,39 @@ export default {
       // Horizontal
       let SubLineX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line')
+        .attr('class', 'grid-line axis')
         .call(
           d3.axisRight()
             .tickSize(canvas_width - margin.left - margin.right)
             .tickFormat('').ticks(5)
             .scale(scaleY)
         )
-        .selectAll('.tick:not(:first-child) line')
+        .selectAll('.tick line')
         .style('stroke-dasharray', '2,2')
-        .selectAll('g:last-child .tick')
-        .style('opacity', 0)
 
       // Vertical
       let SubLineY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line')
+        .attr('class', 'grid-line axis')
         .call(
           d3.axisTop()
             .tickSize(-canvas_height + margin.top + margin.bottom)
             .tickFormat('').ticks(5)
             .scale(scaleX)
         )
-        .selectAll('.tick:not(:last-child) line')
+        .selectAll('.tick line')
         .style('stroke-dasharray', '2,2')
 
       const axX = d3.axisBottom(scaleX).ticks(5)
       const axY = d3.axisLeft(scaleY).ticks(5)
       let gX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
+        .attr('class', 'axis')
         .call(axX)
 
       let gY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+        .attr('class', 'axis')
         .call(axY)
 
       // Line graph
@@ -237,8 +237,8 @@ export default {
       let BestEpoc = LineLayer.append('line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('fill', 'none')
-        .attr('stroke', '#999999')
-        .attr('stroke-width', 1.5)
+        .attr('stroke', '#aaaaaa')
+        .attr('stroke-width', 1.2)
         .attr('x1', scaleX(best_epoch + 1))
         .attr('y1', scaleY(maxY))
         .attr('x2', scaleX(best_epoch + 1))
@@ -371,6 +371,12 @@ export default {
     width: 100%;
     height: 100%;
     .grid-line line {
+      stroke: $scatter-grid-color;
+    }
+    .axis path {
+      stroke: lightgray;
+    }
+    .axis line {
       stroke: $scatter-grid-color;
     }
   }

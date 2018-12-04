@@ -280,58 +280,16 @@ export const ALGORITHM = {
 }
 
 export const SORTBY = {
-  CLASSIFICATION: {
-    MODEL_ID: {
-      id: 0,
-      key: 'model_id',
-      title: 'Model ID',
-    },
-    VALID_RECALL: {
-      id: 1,
-      key: 'valid_recall',
-      title: 'Valid Recall'
-    },
-    VALID_PRECISION: {
-      id: 2,
-      key: 'valid_precision',
-      title: 'Valid Precision'
-    },
-    VALID_F1: {
-      id: 3,
-      key: 'valid_f1',
-      title: 'Valid F1'
-    },
-    VALID_LOSS: {
-      id: 4,
-      key: 'valid_loss',
-      title: 'Valid Loss'
-    }
-  },
-  DETECTION: {
-    MODEL_ID: {
-      id: 10,
-      key: 'model_id',
-      title: 'Model ID',
-    },
-    VALID_MAP: {
-      id: 11,
-      key: 'valid_mAP',
-      title: 'Valid mAP'
-    },
-    VALID_IOU: {
-      id: 12,
-      key: 'valid_iou',
-      title: 'Valid IOU'
-    },
-    VALID_LOSS: {
-      id: 13,
-      key: 'valid_loss',
-      title: 'Valid Loss'
-    }
+  ID: 0,
+  ALG: 1,
+  LOSS: 2,
+  M1: 3,
+  M2: 4,
+}
 
-  },
-  SEGMENTATION: {
-  },
+export const SORT_DIRECTION = {
+  ASCENDING: 0,
+  DESCENDING: 1,
 }
 
 export const STATE = {

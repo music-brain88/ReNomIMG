@@ -1,4 +1,4 @@
-import { FILTER, GROUPBY, STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
+import { SORT_DIRECTION, FILTER, GROUPBY, STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
 import Model from './classes/model'
 
 export default {
@@ -39,6 +39,109 @@ export default {
     } else if (state.group_by === GROUPBY.DATASET.key) {
     }
     */
+
+    // Sort
+    if (state.sort_order === SORTBY.ID) {
+      if (state.sort_order_direction === SORT_DIRECTION.DESCENDING) {
+        return array.sort((m1, m2) => m1.id <= m2.id)
+      } else {
+        return array.sort((m1, m2) => m1.id > m2.id)
+      }
+    } else if (state.sort_order === SORTBY.ALG) {
+      if (state.sort_order_direction === SORT_DIRECTION.DESCENDING) {
+        return array.sort((m1, m2) => m1.algorithm_id <= m2.algorithm_id)
+      } else {
+        return array.sort((m1, m2) => m1.algorithm_id > m2.algorithm_id)
+      }
+    } else if (state.sort_order === SORTBY.LOSS) {
+      if (state.sort_order_direction === SORT_DIRECTION.ASCENDING) {
+        return array.sort((m1, m2) => {
+          if (!m1.getBestLoss() && !m2.getBestLoss()) {
+            return m1.id < m2.id
+          } else if (m1.getBestLoss() && m2.getBestLoss()) {
+            return m1.getBestLoss() > m2.getBestLoss()
+          } else if (m1.getBestLoss()) {
+            return false
+          } else if (m2.getBestLoss()) {
+            return true
+          }
+        })
+      } else {
+        return array.sort((m1, m2) => {
+          if (!m1.getBestLoss() && !m2.getBestLoss()) {
+            return m1.id > m2.id
+          } else if (m1.getBestLoss() && m2.getBestLoss()) {
+            return m1.getBestLoss() < m2.getBestLoss()
+          } else if (m1.getBestLoss()) {
+            return true
+          } else if (m2.getBestLoss()) {
+            return false
+          }
+        })
+      }
+    } else if (state.sort_order === SORTBY.M1) {
+      if (state.sort_order_direction === SORT_DIRECTION.DESCENDING) {
+        return array.sort((m1, m2) => {
+          const mm1 = m1.getResultOfMetric1().value
+          const mm2 = m2.getResultOfMetric1().value
+          console.log(mm1, mm2)
+          if (mm1 === '-' && !mm2 === '-') {
+            return m1.id < m2.id
+          } else if (mm1 !== '-' && !mm2 !== '-') {
+            return mm1 < mm2
+          } else if (mm1 !== '-') {
+            return false
+          } else if (mm2 !== '-') {
+            return true
+          }
+        })
+      } else {
+        return array.sort((m1, m2) => {
+          const mm1 = m1.getResultOfMetric1().value
+          const mm2 = m2.getResultOfMetric1().value
+          console.log(mm1, mm2)
+          if (mm1 === '-' && !mm2 === '-') {
+            return m1.id > m2.id
+          } else if (mm1 !== '-' && !mm2 !== '-') {
+            return mm1 > mm2
+          } else if (mm1 !== '-') {
+            return true
+          } else if (mm2 !== '-') {
+            return false
+          }
+        })
+      }
+    } else if (state.sort_order === SORTBY.M2) {
+      if (state.sort_order_direction === SORT_DIRECTION.DESCENDING) {
+        return array.sort((m1, m2) => {
+          const mm1 = m1.getResultOfMetric2().value
+          const mm2 = m2.getResultOfMetric2().value
+          if (mm1 === '-' && !mm2 === '-') {
+            return m1.id < m2.id
+          } else if (mm1 !== '-' && !mm2 !== '-') {
+            return mm1 < mm2
+          } else if (mm1 !== '-') {
+            return false
+          } else if (mm2 !== '-') {
+            return true
+          }
+        })
+      } else {
+        return array.sort((m1, m2) => {
+          const mm1 = m1.getResultOfMetric2().value
+          const mm2 = m2.getResultOfMetric2().value
+          if (mm1 === '-' && !mm2 === '-') {
+            return m1.id > m2.id
+          } else if (mm1 !== '-' && !mm2 !== '-') {
+            return mm1 > mm2
+          } else if (mm1 !== '-') {
+            return true
+          } else if (mm2 !== '-') {
+            return false
+          }
+        })
+      }
+    }
     return array
   },
   getFilterList (state, getters) {

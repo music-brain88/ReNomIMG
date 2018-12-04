@@ -207,10 +207,10 @@ export default {
       const max_page_num = Math.max(dataset.page.length - 1, 0)
 
       if (max_page_num > 5) {
-        if (current_page < 4) {
-          return [...[...Array(Math.max(current_page, 5)).keys()], '...', max_page_num]
-        } else if (current_page > max_page_num - 4) {
-          return [0, '...', ...[...Array(Math.max(max_page_num - current_page, 5)).keys()].reverse().map(i => max_page_num - i)]
+        if (current_page < 5) {
+          return [...[...Array(Math.max(current_page, 7)).keys()], '...', max_page_num]
+        } else if (current_page > max_page_num - 5) {
+          return [0, '...', ...[...Array(Math.max(max_page_num - current_page, 7)).keys()].reverse().map(i => max_page_num - i)]
         } else {
           return [0, '...', ...[...Array(5).keys()].reverse().map(i => current_page - i + 2), '...', max_page_num]
         }
@@ -263,7 +263,7 @@ export default {
       const index = item.index
       const model = this.getSelectedModel
       if (!model) return []
-      let result = []
+      let result
 
       if (this.show_target) {
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
@@ -273,6 +273,7 @@ export default {
         if (this.isTaskClassification) {
           result = model.getValidResult(index)
         } else if (this.isTaskDetection) {
+          if (!result) result = []
           result = result.concat(model.getValidResult(index))
         } else if (this.isTaskSegmentation) {
           result = model.getValidResult(index)
@@ -434,6 +435,7 @@ export default {
     margin-left: 5px;
     margin-right: 5px;
     cursor: pointer;
+    color: gray;
     i {
     }
   }
@@ -446,7 +448,8 @@ export default {
     width: 3%;
     cursor: pointer;
     letter-spacing: -1px;
-    transition: all 0.1s
+    transition: all 0.1s;
+    color: gray;
   }
 }
 </style>

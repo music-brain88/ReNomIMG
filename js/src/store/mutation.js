@@ -1,4 +1,4 @@
-import { GROUPBY, PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes } from '@/const.js'
+import { SORT_DIRECTION, GROUPBY, PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes } from '@/const.js'
 
 export default {
   resetState (state, payload) {
@@ -123,10 +123,19 @@ export default {
   setSortOrder (state, payload) {
     let task = state.current_task // Need access through getter.
     if (task in Object.values(TASK_ID)) {
-      let value = payload.target.value
-      let task_key = getKeyByValue(TASK_ID, task)
-      let key = getKeyByValueIncludes(SORTBY[task_key], value)
-      state.sort_order = SORTBY[task_key][key].id
+      state.sort_order = SORTBY[payload]
+    } else {
+      throw new Error('Not supported task.')
+    }
+  },
+  toggleSortOrder (state, payload) {
+    let task = state.current_task // Need access through getter.
+    if (task in Object.values(TASK_ID)) {
+      if (state.sort_order_direction === SORT_DIRECTION.DESCENDING) {
+        state.sort_order_direction = SORT_DIRECTION.ASCENDING
+      } else {
+        state.sort_order_direction = SORT_DIRECTION.DESCENDING
+      }
     } else {
       throw new Error('Not supported task.')
     }
