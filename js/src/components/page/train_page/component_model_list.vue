@@ -66,9 +66,15 @@
       </span>
     </div>
 
+    <div id="deployed-model-area">
+      <model-item :model="getDeployedModel" v-if="getDeployedModel"/>
+      <div id="empty" v-else>
+        No model deployed
+      </div>
+    </div>
+
     <div id="model-list" class="scrollbar-container"
       v-on:keyup.right="selectNextModel" v-on:keyup.left="selectPrevModel" tabindex="0">
-      <model-item :model="getDeployedModel"/>
       <model-item v-for="(model, index) in getFilteredAndGroupedModelList" :model="model"
          v-if="model !== getDeployedModel"/>
     </div>
@@ -247,6 +253,21 @@ export default {
   width: 100%;
   height: 100%;
   overflow: visible scroll;
+}
+
+#deployed-model-area {
+  width: 100%;
+  height: $model-item-height;
+  margin-bottom: calc(#{$model-item-margin});
+  #empty {
+    width: 100%;
+    height: 100%;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    border: dashed 2px lightgray;
+    color: gray;
+  }
 }
 
 .model-list {
