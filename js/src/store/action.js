@@ -465,7 +465,7 @@ export default {
     param.append('task_id', task_id)
     param.append('description', description)
     return axios.post(url, param).then(function (response) {
-      console.log([response])  
+      console.log([response])
     }, error_handler_creator(context))
   },
   async loadSegmentationTargetArray (context, payload) {
