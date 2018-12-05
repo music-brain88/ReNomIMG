@@ -286,7 +286,7 @@ def dataset_confirm():
     # req_params = request.params
     ratio = 0.8
     dataset_name = "test"
-    task_id = 0
+    task_id = 1
     description = "This is test"
     test_dataset_id = -1
     dataset_hash = str(1143524)
@@ -380,33 +380,53 @@ def dataset_confirm():
         valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map))))
 
         print(time.time() - start_t)
-        print(train_target)
+        print('train_target:',train_target)
+        print('type:train_target',type(train_target))
+        print('type:train_tag_num', type(train_tag_num))
+        print('class_map', class_map)
+        print('type(class_map)', type(class_map))
+        print(train_tag_num)
+        
     elif task_id == Task.DETECTION.value:
-        train_tag_count = {}
+        train_tag_list = []
+        valid_tag_list = []
+
+        # for i in range(len(train_target)):
+        #     for j in range(len(class_map)):
+        #         if train_target[i][0].get('name') == class_map[j]:
+        #             if class_map[j] not in train_tag_count:
+        #                 train_tag_count[class_map[j]] = 1
+        #             else:
+        #                 train_tag_count[class_map[j]] += 1
+        #
+        # valid_tag_count = {}
+        # for i in range(len(valid_target)):
+        #     for j in range(len(class_map)):
+        #         if valid_target[i][0].get('name') == class_map[j]:
+        #             if class_map[j] not in valid_tag_count:
+        #                 valid_tag_count[class_map[j]] = 1
+        #             else:
+        #                 valid_tag_count[class_map[j]] += 1
+        #
+        # train_tag_num = 0
+        # valid_tag_num = 0
+        # for i in range(len(class_map)):
+        #     train_tag_num += train_tag_count.get(class_map[i])
+        #     valid_tag_num += valid_tag_count.get(class_map[j])
+        # train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map))))
+        # valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map))))
         for i in range(len(train_target)):
             for j in range(len(class_map)):
                 if train_target[i][0].get('name') == class_map[j]:
-                    if class_map[j] not in train_tag_count:
-                        train_tag_count[class_map[j]] = 1
-                    else:
-                        train_tag_count[class_map[j]] += 1
+                    train_tag_list.append(j)
         
-        valid_tag_count = {}
         for i in range(len(valid_target)):
             for j in range(len(class_map)):
                 if valid_target[i][0].get('name') == class_map[j]:
-                    if class_map[j] not in valid_tag_count:
-                        valid_tag_count[class_map[j]] = 1
-                    else:
-                        valid_tag_count[class_map[j]] += 1
-        
-        train_tag_num = 0
-        valid_tag_num = 0
-        for i in range(len(class_map)):
-            train_tag_num += train_tag_count.get(class_map[i])
-            valid_tag_num += valid_tag_count.get(class_map[j])
-        # train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map))))
-        # valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map))))
+                    valid_tag_list.append(j)
+
+        train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map))))
+        valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map))))
     elif task_id == Task.SEGMENTATION.value:
         train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
         valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
