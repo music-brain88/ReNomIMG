@@ -3,23 +3,42 @@
     <template slot="header-slot">
       Train Progress
     </template>
-    <div class="progress wrap">
-      <div class="bar" v-if="this.getFilteredModelList.length != 0">
-        <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
-          <div id="alg-title">
-            {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
+    <div id="component-progress-model-num">
+      <div id="model-bar-legend">
+        <div id="total-num">
+          Total Models : {{ getFilteredModelList.length }}
+        </div>
+        <div id="legend">
+          <div id="legend-item" v-for="alg in getAlgorithList()">
+            <div id="legend-box" :class="getColorClass(alg.id)">
+            </div>
+            <div id="legend-title">
+              {{alg.title}}
+            </div>
           </div>
-          <div id="alg-num">
-            ({{ model[2] }})
-          </div>
+        </div>
+      </div>
+      <div id="model-bar" v-if="this.getFilteredModelList.length != 0"
+        @mouseenter="onHovering=true" @mouseleave="onHovering=false">
+        <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="getStyle(model)">
+          <transition name="fade">
+            <div v-if="onHovering">
+                {{ model[2] }}
+            </div>
+          </transition>
         </section>
       </div>
-      <div class="bar" v-else>
-        <section id="green" style="width: 100%">No model</section>
+      <div id="model-bar" v-else>
+        <section id="green" style="width: 100%">No Model Created</section>
       </div>
       <div id="component-progress" class="scrollbar-container">
-        <progress-bar :isTitle="true"/>
-        <progress-bar v-for="item in getRunningModelList" :model="item"/>
+        <div id="progress-title">
+          Running Progress
+        </div>
+        <div id="progress-bars">
+          <progress-bar :isTitle="true"/>
+          <progress-bar v-for="item in getRunningModelList" :model="item"/>
+        </div>
       </div>
     </div>
   </component-frame>
@@ -28,6 +47,7 @@
 <script>
 
 import { mapGetters } from 'vuex'
+import { RUNNING_STATE, ALGORITHM, TASK_ID } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ProgressBar from '@/components/page/train_page/progress_bar.vue'
 
@@ -37,24 +57,22 @@ export default {
     'component-frame': ComponentFrame,
     'progress-bar': ProgressBar
   },
+  data: function () {
+    return {
+      onHovering: false
+    }
+  },
   computed: {
     ...mapGetters([
       'getRunningModelList',
       'getFilteredModelList',
       'getAlgorithmTitleFromId',
-      'getAlgorithmColor'
+      'getAlgorithmColor',
+      'getCurrentTask',
     ]),
   },
   created: function () {
     window.addEventListener('resize', this.draw, false)
-  },
-  mounted: function () {
-    // this.draw()
-  },
-  watch: {
-    getFilteredModelList: function () {
-      // this.draw()
-    }
   },
   methods: {
     reduceModelList: function (model_list) {
@@ -70,62 +88,126 @@ export default {
         }, {})).map(d => [d[0], parseFloat(d[1]) / parseFloat(model_list.length), d[1]])
       return model_list
     },
-    calc_width: function (width) {
-      let percent = width * 100
-      return percent
+    getStyle: function (model_info) {
+      return {
+        'width': model_info[1] * 100 + '%',
+        'background-color': this.getAlgorithmColor(model_info[0])
+      }
+    },
+    getAlgorithList: function () {
+      const task = this.getCurrentTask
+      let arr
+      if (task === TASK_ID.CLASSIFICATION) {
+        arr = Object.values(ALGORITHM.CLASSIFICATION)
+      } else if (task === TASK_ID.DETECTION) {
+        arr = Object.values(ALGORITHM.DETECTION)
+      } else if (task === TASK_ID.SEGMENTATION) {
+        arr = Object.values(ALGORITHM.SEGMENTATION)
+      }
+      return arr.map(d => { return {title: d.title, key: d.key, id: d.id} })
+    },
+    getColorClass: function (alg_id) {
+      const id = alg_id % 10
+      console.log(id)
+      return 'color-' + id
     }
   }
 }
 </script>
 
 <style lang='scss' scoped>
+#component-progress-model-num {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: $total-model-padding-left-right;
+  padding-right: $total-model-padding-left-right;
+  #model-bar-legend {
+    width: 100%;
+    height: 30%;
+    #total-num {
+      width: 100%;    
+      height: 80%;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: $total-model-title-padding-bottom;
+      color: $component-font-color-title;
+    }
+    #legend {
+      width: 100%;
+      height: 20%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      #legend-item {
+        height: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-left: $total-model-legend-item-margin-left;
+        #legend-box {
+          width: $total-model-legend-box-width;
+          height: $total-model-legend-box-width;
+        }
+        #legend-title {
+          font-size: $component-font-size-small;
+          margin-left: $total-model-legend-box-margin-left;
+        }
+      }
+    }
+  }
+  #model-bar {
+  	width: 100%;
+  	height: 7%;
+    display: flex;
+  	overflow: hidden;
+    section {
+      height: 100%;
+    	min-width: 10%;
+      line-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      color: white;
+      #alg-title {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 55%;
+      }
+      #alg-num {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 45%;
+        width: 100%;
+      }
+    }
+    section:last-of-type {
+      flex: auto;
+    }
+  }
   #component-progress {
-    height: 70%;
+    width: 100%;
+    height: calc(63% - #{$progress-bar-area-margin-top});
     overflow: auto;
     line-height: auto;
-  }
-  .bar {
-  display: flex;
-	width: calc(100% - 40px);
-	height: 30%;
-	margin: 0 auto;
-  padding-top:8%;
-  margin-bottom:8%;
-  margin-left: 20px;
-  margin-right: 20px;
-	overflow: hidden;
-  }
-  .bar section {
-  	min-width: 10%;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    #alg-title {
+    margin-top: $progress-bar-area-margin-top;
+    #progress-title {
       width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 90%;
-      height: 55%;
+      margin-bottom: $total-model-title-padding-bottom;
+      color: $component-font-color-title;
+      #progress-bars {
+        width: 100%;
+      }
     }
-    #alg-num {
-      width: 100%;
-      font-size: 70%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 45%;
-    }
-  }
-  .bar section:last-of-type {
-    flex: auto;
   }
   #green {
     background: #65d260;
-  } 
+  }
+}
 </style>

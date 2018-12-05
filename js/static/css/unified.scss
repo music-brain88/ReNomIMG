@@ -46,6 +46,11 @@ $component-header-font-size: 0.9rem;
 $component-header-sub-color: #026699;
 // $component-font-family: Open Sans Lite;
 $component-font-family: Open Sans, sans-serif;
+$component-font-size: 0.9rem;
+$component-font-size-small: 0.8rem;
+$component-font-color-title: #999;
+$component-font-color: #555;
+
 $component-block-margin: 5px;
 $component-block-padding-left: 16px;
 $component-block-padding-right: 5px;
@@ -57,10 +62,22 @@ $component-block-height: calc(
 $component-block-height-min: 70px;
 $component-background-color: #ffffff;
 
-// Component Progress Bar Settings.
-$progress-bar-margin: 20px;
-$progress-bar-height: 25px;
-$bar-margin: 5px;
+//// Component Progress Bar Area Settings.
+$total-model-title-padding-bottom: 10px;
+$total-model-padding-left-right: 40px;
+$total-model-legend-box-width: 10px;
+$total-model-legend-box-margin-left: 3px;
+$total-model-legend-item-margin-left: 15px;
+// Progress bar
+$progress-bar-area-margin-top: 40px;
+$progress-bar-height: 20px;
+$progress-bar-margin-bottom: 2px;
+$progress-bar-stop-button-font-size: 1.1rem;
+$progress-bar-stop-button-color: #ddd;
+$progress-bar-stop-button-color-hover: #999;
+$progress-bar-background-color: #ddd;
+$progress-bar-margin: 5px;
+
 
 // Component Scatter model plot Settings.
 $scatter-padding: 20px;
@@ -137,7 +154,7 @@ $color-best-epoch:#999999;
   background-color: #009453;
 }
 .color-4 {
-  backgound-color: #93b447;
+  background-color: #92b447;
 }
 .color-5 {
   background-color: #dfd238;

@@ -82,6 +82,9 @@ export default {
 
 #app {
   width: 100%;
+  font-size: $component-font-size;
+  color: $component-font-color;
+
   #app-content {
     width: $app-window-width;
     margin: $header-height auto;
