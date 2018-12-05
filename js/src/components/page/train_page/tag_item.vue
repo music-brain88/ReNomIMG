@@ -38,12 +38,18 @@ export default {
   border-bottom: solid 1px lightgray;
   #tag-id {
     width: 15%;
+    height: 60%;
     color: white;
     text-align: center;
     margin-right: 10px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   #tag-title {
     color: gray;
+    font-size: 0.8rem;
   }
 }
 </style>

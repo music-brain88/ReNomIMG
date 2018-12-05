@@ -269,13 +269,14 @@ export default {
             .duration(200)
             .style('opacity', 0.9)
           ttip.html(
-            'Epoch:' + (index + 1) + '<br />' +
-            'Valid:' + d.toFixed(2) + '<br />'
+            'Epoch : ' + (index + 1) + '<br />' +
+            'Train Loss : ' + d.toFixed(2) + '<br />'
           ).style('top', y + 'px')
             .style('left', x + 'px')
             .style('padding', '10px')
             .style('background', train_color)
             .style('color', 'white')
+            .style('font-size', '0.8rem')
         })
         .on('mouseleave', () => {
           ttip.style('display', 'none')
@@ -308,6 +309,7 @@ export default {
             .style('padding', '10px')
             .style('background', valid_color)
             .style('color', 'white')
+            .style('font-size', '0.8rem')
         })
         .on('mouseleave', () => {
           ttip.style('display', 'none')

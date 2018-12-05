@@ -1,11 +1,14 @@
+@import url('http://fonts.googleapis.com/css?family=Open+Sans');
+
 // App window size settings.
 $app-window-width: 1280px;
 // $app-window-width: calc(100vw - 20px);
 $app-window-height: 100vh;
 
 //// App header Settings.
-$header-height: calc(100vh * 0.04);
-$header-min-height: 20px;
+// $header-height: calc(100vh * 0.04);
+$header-height: 40px;
+$header-min-height: 40px;
 $header-background-color: #063662;
 $header-product-name-font-family: Open Sans Regular;
 $header-product-name-font-size: 15pt;
@@ -31,16 +34,20 @@ $app-container-padding-left: 10px;
 $app-container-padding-right: 10px;
 
 //// Component Frame Settings
-$component-header-height: calc(#{$header-height}*0.85);
-$component-header-min-height: 25px;
+// $component-header-height: calc(#{$header-height}*0.85);
+$component-header-height: 32px;
+$component-header-min-height: 32px;
 $component-header-margin-bottom: 10px;
 $component-header-background-color: #063662;
-$component-header-font-family: Open Sans Regular;
+// $component-header-font-family: Open Sans Regular;
+$component-header-font-family: Open Sans, sans-serif;
 $component-header-font-color: #ffffff;
+$component-header-font-size: 0.9rem;
 $component-header-sub-color: #026699;
-$component-font-family: Open Sans Lite;
+// $component-font-family: Open Sans Lite;
+$component-font-family: Open Sans, sans-serif;
 $component-block-margin: 5px;
-$component-block-padding-left: 5px;
+$component-block-padding-left: 16px;
 $component-block-padding-right: 5px;
 $component-block-width: calc(#{$app-window-width} / 12);
 $component-block-height: calc(

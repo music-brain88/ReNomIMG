@@ -50,14 +50,14 @@
           </div>
         </div>
         <div class="title" :class="{selected: isSortBy('M1')}" @click="setOrder('M1')">
-            / {{ getTitleMetric1 }}
+            /&nbsp;&nbsp;&nbsp;{{ getTitleMetric1 }}
           <div class="sort-icon">
             <i class="fa fa-sort-desc" aria-hidden="true" v-if="isDescending && isSortBy('M1')"></i>
             <i class="fa fa-sort-asc" aria-hidden="true" v-else-if="isSortBy('M1')"></i>
           </div>
         </div>
         <div class="title" :class="{selected: isSortBy('M2')}" @click="setOrder('M2')">
-            / {{ getTitleMetric2 }}
+            /&nbsp;&nbsp;&nbsp; {{ getTitleMetric2 }}
           <div class="sort-icon">
             <i class="fa fa-sort-desc" aria-hidden="true" v-if="isDescending && isSortBy('M2')"></i>
             <i class="fa fa-sort-asc" aria-hidden="true" v-else-if="isSortBy('M2')"></i>
@@ -168,15 +168,19 @@ export default {
   width: 100%;
 
   padding: $model-list-margin;
+  padding-left: 17px;
   margin-bottom: $model-list-margin;
   font-size: 90%;
   color: gray;
   background-color: white;
 
   #add-filter {
-    width: 20%;
+    width: 15%;
+    height: 100%;
     font-size: 110%;
     cursor: pointer;
+    position: relative;
+    top: 3px;
   }
   #add-filter:hover {
     color: lightgray;
@@ -208,14 +212,12 @@ export default {
   }
 
   .title-row {
-    padding-left: 5px;
     display: flex;
     width: 100%;
     height: 50%;
   }
   .title {
     height: 100%;
-    margin-left: 3px;
     display: flex;
     align-items: center;
     justify-content: center;

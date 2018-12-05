@@ -14,9 +14,9 @@
       </div>
       <div class="info-row">
         <span>{{ getLastBatchLoss }}</span>
-        <span class="info-title">/</span>
+        <span class="info-title">&nbsp;/&nbsp;</span>
         <span>{{ model.getResultOfMetric1().value }}</span>
-        <span class="info-title">/</span>
+        <span class="info-title">&nbsp;/&nbsp;</span>
         <span>{{ model.getResultOfMetric2().value }}</span>
       </div>
     </div>
@@ -119,6 +119,10 @@ export default {
     height: 100%;
     margin-left: 5px;
     padding-left: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    color: gray;
+    font-size: 0.9rem;
     .info-row {
       height: 50%;
       display: flex;
@@ -130,7 +134,7 @@ export default {
     }
     .info-title {
       height: 50%;
-      color: gray;
+      color: #999;
       padding-right: 5px;
     }
     #trush {

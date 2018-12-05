@@ -16,6 +16,19 @@ export function max (x, y) {
   return x > y ? x : y
 }
 
+export function getTagColor (n) {
+  if (n % 10 === 0) return '#E7009A'
+  if (n % 10 === 1) return '#9F13C1'
+  if (n % 10 === 2) return '#582396'
+  if (n % 10 === 3) return '#0B20C4'
+  if (n % 10 === 4) return '#3F9AAF'
+  if (n % 10 === 5) return '#14884B'
+  if (n % 10 === 6) return '#BBAA19'
+  if (n % 10 === 7) return '#FFCC33'
+  if (n % 10 === 8) return '#EF8200'
+  if (n % 10 === 9) return '#E94C33'
+}
+
 export function render_segmentation (item) {
   if (!item.hasOwnProperty('class')) return
   const height = item.class.length
@@ -29,7 +42,19 @@ export function render_segmentation (item) {
   for (let i = 0; i < width; i += d) {
     for (let j = 0; j < height; j += d) {
       let n = item.class[i][j]
-      let c = getTagColor(n)
+      let c
+
+      if (n % 10 === 0) c = 'E7009A'
+      if (n % 10 === 1) c = '9F13C1'
+      if (n % 10 === 2) c = '582396'
+      if (n % 10 === 3) c = '0B20C4'
+      if (n % 10 === 4) c = '3F9AAF'
+      if (n % 10 === 5) c = '14884B'
+      if (n % 10 === 6) c = 'BBAA19'
+      if (n % 10 === 7) c = 'FFCC33'
+      if (n % 10 === 8) c = 'EF8200'
+      if (n % 10 === 9) c = 'E94C33'
+
       var bigint = parseInt(c, 16)
       var r = (bigint >> 16) & 255
       var g = (bigint >> 8) & 255
@@ -90,17 +115,4 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
     pages.push(one_page)
   }
   return pages
-}
-
-export function getTagColor (n) {
-  if (n % 10 === 0) return '#E7009A'
-  if (n % 10 === 1) return '#9F13C1'
-  if (n % 10 === 2) return '#582396'
-  if (n % 10 === 3) return '#0B20C4'
-  if (n % 10 === 4) return '#3F9AAF'
-  if (n % 10 === 5) return '#14884B'
-  if (n % 10 === 6) return '#BBAA19'
-  if (n % 10 === 7) return '#FFCC33'
-  if (n % 10 === 8) return '#EF8200'
-  if (n % 10 === 9) return '#E94C33'
 }

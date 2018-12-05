@@ -59,6 +59,7 @@ export default {
     color: $component-header-font-color;
     line-height: normal;
     font-family: $component-header-font-family;
+    font-size: $component-header-font-size;
     div {
       font-family: $component-header-font-family;
     }

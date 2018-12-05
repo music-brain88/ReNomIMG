@@ -4,7 +4,7 @@
       Prediction Result
       <div id="valid-prediction-button-area"
         v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
-        <label>
+        <label v-if="isTaskSegmentation">
           <input class="checkbox" type="checkbox"
           id="prediction-show-button" v-model="show_image" :disabled="!isTaskSegmentation">
           Image
@@ -343,7 +343,7 @@ export default {
 #valid-prediction-button-area {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: flex-end;
   height: 100%;
   width: 30%;
   input {
@@ -357,6 +357,7 @@ export default {
     justify-content: center;
     font-family: $component-header-font-family;
     font-size: 90%;
+    margin-right: 10px;
   }
   input[type="checkbox"] {
     content: "";

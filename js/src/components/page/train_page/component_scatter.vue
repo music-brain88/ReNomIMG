@@ -209,7 +209,9 @@ export default {
             .style('background', this.getAlgorithmColor(m.algorithm_id))
             .style('color', 'white')
             .style('text-align', 'left')
+            .style('font-size', '0.8rem')
             .on('mouseleave', () => {
+              ttip.style('display', 'none')
             })
         })
         .on('mouseleave', () => {
