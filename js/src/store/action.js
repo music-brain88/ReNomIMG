@@ -21,13 +21,15 @@ export default {
    *
    */
   async init (context, payload) {
+    context.commit('showLoadingMask', true)
     // context.commit('resetState')
     context.commit('flushFilter')
     context.dispatch('loadDatasetsOfCurrentTask')
     context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask')
+    await context.dispatch('loadDeployedModel')
+    context.commit('showLoadingMask', false)
     context.dispatch('startAllPolling')
-    context.dispatch('loadDeployedModel')
   },
 
   /*****

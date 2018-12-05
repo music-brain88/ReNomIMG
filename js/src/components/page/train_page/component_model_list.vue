@@ -72,7 +72,7 @@
         No model deployed
       </div>
     </div>
-
+    <hr>
     <div id="model-list" class="scrollbar-container"
       v-on:keyup.right="selectNextModel" v-on:keyup.left="selectPrevModel" tabindex="0">
       <model-item v-for="(model, index) in getFilteredAndGroupedModelList" :model="model"

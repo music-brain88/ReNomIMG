@@ -111,6 +111,9 @@ export default {
       }
     }
   },
+  showLoadingMask (state, payload) {
+    state.show_loading_mask = payload
+  },
   setImageModalData (state, payload) {
     state.modal_image = payload.img
     if (payload.hasOwnProperty('prediction')) {

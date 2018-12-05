@@ -57,7 +57,7 @@ export default {
       if (state.sort_order_direction === SORT_DIRECTION.ASCENDING) {
         return array.sort((m1, m2) => {
           if (!m1.getBestLoss() && !m2.getBestLoss()) {
-            return m1.id < m2.id
+            return m1.id > m2.id
           } else if (m1.getBestLoss() && m2.getBestLoss()) {
             return m1.getBestLoss() > m2.getBestLoss()
           } else if (m1.getBestLoss()) {
@@ -69,13 +69,13 @@ export default {
       } else {
         return array.sort((m1, m2) => {
           if (!m1.getBestLoss() && !m2.getBestLoss()) {
-            return m1.id > m2.id
+            return m1.id < m2.id
           } else if (m1.getBestLoss() && m2.getBestLoss()) {
             return m1.getBestLoss() < m2.getBestLoss()
           } else if (m1.getBestLoss()) {
-            return true
-          } else if (m2.getBestLoss()) {
             return false
+          } else if (m2.getBestLoss()) {
+            return true
           }
         })
       }
@@ -84,8 +84,7 @@ export default {
         return array.sort((m1, m2) => {
           const mm1 = m1.getResultOfMetric1().value
           const mm2 = m2.getResultOfMetric1().value
-          console.log(mm1, mm2)
-          if (mm1 === '-' && !mm2 === '-') {
+          if (mm1 === '-' && mm2 === '-') {
             return m1.id < m2.id
           } else if (mm1 !== '-' && !mm2 !== '-') {
             return mm1 < mm2
@@ -99,15 +98,14 @@ export default {
         return array.sort((m1, m2) => {
           const mm1 = m1.getResultOfMetric1().value
           const mm2 = m2.getResultOfMetric1().value
-          console.log(mm1, mm2)
-          if (mm1 === '-' && !mm2 === '-') {
+          if (mm1 === '-' && mm2 === '-') {
             return m1.id > m2.id
-          } else if (mm1 !== '-' && !mm2 !== '-') {
+          } else if (mm1 !== '-' && mm2 !== '-') {
             return mm1 > mm2
           } else if (mm1 !== '-') {
-            return true
-          } else if (mm2 !== '-') {
             return false
+          } else if (mm2 !== '-') {
+            return true
           }
         })
       }
@@ -116,9 +114,9 @@ export default {
         return array.sort((m1, m2) => {
           const mm1 = m1.getResultOfMetric2().value
           const mm2 = m2.getResultOfMetric2().value
-          if (mm1 === '-' && !mm2 === '-') {
+          if (mm1 === '-' && mm2 === '-') {
             return m1.id < m2.id
-          } else if (mm1 !== '-' && !mm2 !== '-') {
+          } else if (mm1 !== '-' && mm2 !== '-') {
             return mm1 < mm2
           } else if (mm1 !== '-') {
             return false
@@ -130,14 +128,14 @@ export default {
         return array.sort((m1, m2) => {
           const mm1 = m1.getResultOfMetric2().value
           const mm2 = m2.getResultOfMetric2().value
-          if (mm1 === '-' && !mm2 === '-') {
+          if (mm1 === '-' && mm2 === '-') {
             return m1.id > m2.id
-          } else if (mm1 !== '-' && !mm2 !== '-') {
+          } else if (mm1 !== '-' && mm2 !== '-') {
             return mm1 > mm2
           } else if (mm1 !== '-') {
-            return true
-          } else if (mm2 !== '-') {
             return false
+          } else if (mm2 !== '-') {
+            return true
           }
         })
       }

@@ -27,6 +27,7 @@ class RunningState(enum.Enum):
     PREDICTING = 3
     STARTING = 4
     STOPPING = 5
+    WEIGHT_DOWNLOADING = 6
 
 
 class Algorithm(enum.Enum):

@@ -23,7 +23,7 @@
       <div class="pager-arrow" @click="prevPage">
         <i class="fa fa-caret-left" aria-hidden="true"></i>
       </div>
-      <div class="pager-number" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
+      <div class="pager-number" :class="{number: item !== '...'}" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
         {{ item }}
       </div>
       <div class="pager-arrow" @click="nextPage">
@@ -310,6 +310,10 @@ export default {
         border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
       }
     },
+    getBoxLabel: function (box) {
+      if (!box) return
+      const class_id = box.name
+    },
     getSegmentationStyle: function (item, index) {
       if (!item) return
       if (!item || !this.show_prediction) {
@@ -435,8 +439,12 @@ export default {
     margin-left: 5px;
     margin-right: 5px;
     cursor: pointer;
-    color: gray;
+    color: lightgray;
+    transition: all 0.02s;
     i {
+    }
+    &:hover {
+      color: gray;
     }
   }
   .pager-number {
@@ -444,12 +452,18 @@ export default {
     align-items: center;
     justify-content: center;
     font-size: 75%;
-    height: calc(100% - 2px);
+    height: calc(100% - 3px);
+    margin-top: 2px;
     width: 3%;
-    cursor: pointer;
     letter-spacing: -1px;
-    transition: all 0.1s;
     color: gray;
+  }
+  .number {
+    transition: all 0.1s;
+    cursor: pointer;
+    &:hover {
+      color: black;
+    }
   }
 }
 </style>

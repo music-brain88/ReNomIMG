@@ -57,6 +57,9 @@ export default {
     show_image: false,
   },
 
+  // Loading Mask
+  show_loading_mask: false,
+
   // Variable of image list pager.
   nth_image_page: {
     [TASK_ID.CLASSIFICATION]: 0,

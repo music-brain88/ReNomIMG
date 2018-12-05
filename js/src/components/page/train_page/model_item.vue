@@ -22,7 +22,10 @@
     </div>
     <div id="model-buttons">
       <i class="fa fa-cog" aria-hidden="true"></i>
-      <i class="fa fa-times" aria-hidden="true" @click='removeModel(model.id)'></i>
+      <i class="fa fa-times" aria-hidden="true" @click='removeModel(model.id)' v-if="!isDeployedModel"></i>
+      <div id=deploy-icon v-else>
+        Deployed
+      </div>
     </div>
     <div id="child-model">
       <model-item v-for="item in getChildModelList" :model="item" :hierarchy="hierarchy+1"/>
@@ -59,7 +62,8 @@ export default {
       'getModelResultTitle',
       'getAlgorithmTitleFromId',
       'getColorClass',
-      'getSelectedModel'
+      'getSelectedModel',
+      'getDeployedModel'
     ]),
     getChildModelList: function () {
       if (this.isAddButton || this.hierarchy > 0) {
@@ -75,6 +79,9 @@ export default {
         return '-'
       }
     },
+    isDeployedModel () {
+      return this.model === this.getDeployedModel
+    }
   },
   created: function () {
 
@@ -108,7 +115,7 @@ export default {
     height: 100%;
   }
   #model-id {
-    width: calc(87% - 5px);
+    width: calc(72% - 5px);
     height: 100%;
     margin-left: 5px;
     padding-left: 5px;
@@ -131,12 +138,13 @@ export default {
     }
   }
   #model-buttons {
-    width: 10%;
+    width: 25%;
     height: 100%;
     display: flex;
     justify-content: space-around;
-    align-items: center;
+    align-items: flex-end;
     flex-direction: column;
+    padding-right: 5px;
     i {
       color: lightgray;
     }
@@ -150,6 +158,11 @@ export default {
     }
     .fa:active {
       color: gray;
+    }
+    #deploy-icon {
+      font-size: 70%;
+      font-weight: bold;
+      color: $component-header-sub-color;
     }
   }
   #child-model {
