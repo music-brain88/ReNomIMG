@@ -380,17 +380,15 @@ def dataset_confirm():
         valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map))))
 
         print(time.time() - start_t)
-        print('train_target:',train_target)
         print('type:train_target',type(train_target))
         print('type:train_tag_num', type(train_tag_num))
         print('class_map', class_map)
         print('type(class_map)', type(class_map))
-        print(train_tag_num)
-        
+        print('train:train_tag_num',train_tag_num)
+        print('_:', _)
     elif task_id == Task.DETECTION.value:
         train_tag_list = []
         valid_tag_list = []
-
         # for i in range(len(train_target)):
         #     for j in range(len(class_map)):
         #         if train_target[i][0].get('name') == class_map[j]:
@@ -427,18 +425,16 @@ def dataset_confirm():
 
         train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map))))
         valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map))))
+        print('type:train_target',type(train_target))
+        print('type:train_tag_num', type(train_tag_num))
+        print('class_map', class_map)
+        print('type(class_map)', type(class_map))
+        print('train:train_tag_num',train_tag_num)
+        print('_:', _)
     elif task_id == Task.SEGMENTATION.value:
         train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
         valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
     
-    # class_info = {
-    #   "class":class_map,
-    #   "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
-    #   "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
-    #   "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
-    #   "test_ratio": test_ratio,
-    # }
-
     class_info = {
       "class":class_map,
       "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
