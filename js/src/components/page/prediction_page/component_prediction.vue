@@ -50,7 +50,7 @@
 
 <script>
 import { TASK_ID } from '@/const.js'
-import { render_segmentation, setup_image_list } from '@/utils.js'
+import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -76,9 +76,8 @@ export default {
     ]),
     ...mapGetters([
       'getCurrentTask',
-      'getTagColor',
       'getImagePageOfPrediction',
-      'getDeployedModel'
+      'gestDeployedModel'
     ]),
     model: function () {
       const model = this.getDeployedModel
@@ -279,12 +278,12 @@ export default {
       if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {
         const class_id = cls.class
         return {
-          border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
+          border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
         }
       } else {
         const class_id = cls
         return {
-          border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
+          border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
         }
       }
     },
@@ -297,7 +296,7 @@ export default {
         left: x1 + '%',
         width: box.box[2] * 100 + '%',
         height: box.box[3] * 100 + '%',
-        border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
+        border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
       }
     },
     getSegmentationStyle: function (item, index) {

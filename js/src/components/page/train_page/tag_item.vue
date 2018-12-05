@@ -1,6 +1,6 @@
 <template>
   <div id="tag-item">
-    <div id="tag-id" :style="{backgroundColor: getTagColor(this.tagId)}">
+    <div id="tag-id" :style="{backgroundColor: tagColor(this.tagId)}">
       {{ tagId }}
     </div>
     <div id="tag-title">
@@ -11,6 +11,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { getTagColor } from '@/utils.js'
 
 export default {
   name: 'TagItem',
@@ -18,16 +19,10 @@ export default {
     tagName: '',
     tagId: '',
   },
-  components: {
-  },
-  computed: {
-    ...mapGetters(['getTagColor']),
-  },
-  created: function () {
-
-  },
   methods: {
-
+    tagColor: function (n) {
+      return getTagColor(n)
+    }
   }
 }
 </script>

@@ -339,20 +339,6 @@ export default {
       return color
     }
   },
-  getTagColor (state, getters) {
-    return function (n) {
-      if (n % 10 === 0) return '#E7009A'
-      if (n % 10 === 1) return '#9F13C1'
-      if (n % 10 === 2) return '#582396'
-      if (n % 10 === 3) return '#0B20C4'
-      if (n % 10 === 4) return '#3F9AAF'
-      if (n % 10 === 5) return '#14884B'
-      if (n % 10 === 6) return '#BBAA19'
-      if (n % 10 === 7) return '#FFCC33'
-      if (n % 10 === 8) return '#EF8200'
-      if (n % 10 === 9) return '#E94C33'
-    }
-  },
   getGroupTitles (state, getters) {
     return Object.values(GROUPBY)
   },
