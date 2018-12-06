@@ -36,7 +36,7 @@
           Running Progress
         </div>
         <div id="progress-bars">
-          <progress-bar :isTitle="true"/>
+          <progress-bar :isTitle="true" v-if="getRunningModelList.length > 0"/>
           <progress-bar v-for="item in getRunningModelList" :model="item"/>
         </div>
       </div>
@@ -108,7 +108,6 @@ export default {
     },
     getColorClass: function (alg_id) {
       const id = alg_id % 10
-      console.log(id)
       return 'color-' + id
     }
   }

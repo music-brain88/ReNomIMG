@@ -106,6 +106,9 @@ def prepare_detection_data(img_path_list, annotation_list, imsize):
 
 
 def parse_txt_classification(path, separator=" "):
+    """
+    filename separator class_name
+    """
     class_dict = {}
     filename_list = []
     annotation_list = []

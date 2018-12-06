@@ -9,32 +9,34 @@
     <div id="model-detail">
       <div class="col" v-if="model">
         <div class="item">
-          <div class="item-title">Model ID :</div>
+          <div class="item-title">Model ID</div>
           <div class="item-content">{{ model.id }}</div>
         </div>
+      </div>
+      <div class="col" v-if="model">
         <div class="item">
-          <div class="item-title">Algorithm :</div>
+          <div class="item-title">Algorithm</div>
           <div class="item-content">{{ getAlgorithmTitleFromId(model.algorithm_id) }}</div>
         </div>
         <div class="item">
-          <div class="item-title">Dataset :</div>
+          <div class="item-title">Dataset</div>
           <div class="item-content">{{ getDatasetName }}</div>
         </div>
 
         <div class="item"></div>
 
         <div class="item">
-          <div class="item-title">{{ model.getResultOfMetric1().metric }} :</div>
+          <div class="item-title">{{ model.getResultOfMetric1().metric }}</div>
           <div class="item-content">{{ model.getResultOfMetric1().value }}</div>
         </div>
         <div class="item">
-          <div class="item-title">{{ model.getResultOfMetric2().metric }} :</div>
+          <div class="item-title">{{ model.getResultOfMetric2().metric }}</div>
           <div class="item-content">{{ model.getResultOfMetric2().value }}</div>
         </div>
       </div>
       <div class="col" v-if="model">
         <div class="item" v-for="param in getAlgorithmParamList(model.algorithm_id)">
-          <div class="item-title">{{ param.title }} :</div>
+          <div class="item-title">{{ param.title }}</div>
           <div class="item-content">{{ model.hyper_parameters[param.key] }}</div>
         </div>
       </div>
@@ -94,31 +96,33 @@ export default {
   width: 25%;
   background-color: $component-header-sub-color;
   cursor: pointer;
-}
-#deploy-button:disabled {
-  background-color: black;
+  &:hover {
+    background-color: $component-header-sub-color-hover;
+  }
+  &:active {
+    background-color: $component-header-sub-color;
+  }
 }
 
 #model-detail {
   width: 100%;
-  padding: $model-detail-margin;
+  padding: $total-model-padding-left-right;
   display: flex;
   .col {
-    width: 50%;
     font-size: 90%;
     .item {
-      width: calc(100% - #{$model-detail-item-margin-bottom}*2);
+      width: calc(100% - #{$model-detail-item-margin-bottom});
       display: flex;
       align-items: center;
-      justify-content: space-around;
-      margin: $model-detail-item-margin-bottom;
+      margin-right: $model-detail-item-margin-right;
+      margin-bottom: $model-detail-item-margin-bottom;
       .item-title {
-        width: 60%;
-        color: $model-detail-item-title-font-color;
+        color: $component-font-color-title;
       }
       .item-content {
-        width: 40%;
         text-align: center;
+        color: $component-font-color;
+        margin-left: 10px;
       }
     }
   }

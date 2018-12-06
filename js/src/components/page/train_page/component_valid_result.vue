@@ -288,12 +288,12 @@ export default {
       if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {
         const class_id = cls.class
         return {
-          border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
+          border: 'solid 1.5px' + getTagColor(class_id) + 'bb'
         }
       } else {
         const class_id = cls
         return {
-          border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
+          border: 'solid 1.5px' + getTagColor(class_id) + 'bb'
         }
       }
     },

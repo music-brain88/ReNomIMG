@@ -44,6 +44,7 @@ $component-header-font-family: Open Sans, sans-serif;
 $component-header-font-color: #ffffff;
 $component-header-font-size: 0.9rem;
 $component-header-sub-color: #026699;
+$component-header-sub-color-hover: #01517a;
 // $component-font-family: Open Sans Lite;
 $component-font-family: Open Sans, sans-serif;
 $component-font-size: 0.9rem;
@@ -86,8 +87,8 @@ $scatter-circle-radius: 10;
 
 // Component Model Detail
 $model-detail-margin: 15px;
-$model-detail-item-margin-bottom: 12px;
-$model-detail-item-title-font-color: rgb(130, 130, 130);
+$model-detail-item-margin-right: 50px;
+$model-detail-item-margin-bottom: 15px;
 
 //// Modal Settings.
 $modal-mask-color: rgba(0, 0, 0, 0.6);
@@ -138,7 +139,7 @@ $color-train:#0762AD;
 
 $color-valid:#EF8200;
 
-$color-best-epoch:#999999;
+$color-best-epoch: red;
 
 // The color is specified by algorithm ID(0 ~ 9).
 .color-0 {
@@ -162,6 +163,16 @@ $color-best-epoch:#999999;
 .color-6 {
   background-color: black;
 }
+.color-7 {
+  background-color: black;
+}
+.color-8 {
+  background-color: black;
+}
+.color-9 {
+  background-color: black;
+}
+
 
 //// Animation Settings
 .fade-enter-active, .fade-leave-active {

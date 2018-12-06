@@ -8,16 +8,18 @@
     <div id="model-id"  @click='setSelectedModel(model)' v-else>
       <div class="info-row">
         <span class="info-title">ID:</span>
-        <span>{{ model.id }}</span>
+        <span :class="{'sorted-item': isSortBy('ID')}">{{ model.id }}</span>
         <span class="info-title">&nbsp;&nbsp;Alg:</span>
-        <span>{{ getAlgorithmTitleFromId(model.algorithm_id) }}</span>
+        <span :class="{'sorted-item': isSortBy('ALG')}">
+          {{ getAlgorithmTitleFromId(model.algorithm_id) }}
+        </span>
       </div>
       <div class="info-row">
-        <span>{{ getLastBatchLoss }}</span>
+        <span :class="{'sorted-item': isSortBy('LOSS')}">{{ getLastBatchLoss }}</span>
         <span class="info-title">&nbsp;/&nbsp;</span>
-        <span>{{ model.getResultOfMetric1().value }}</span>
+        <span :class="{'sorted-item': isSortBy('M1')}">{{ model.getResultOfMetric1().value }}</span>
         <span class="info-title">&nbsp;/&nbsp;</span>
-        <span>{{ model.getResultOfMetric2().value }}</span>
+        <span :class="{'sorted-item': isSortBy('M2')}">{{ model.getResultOfMetric2().value }}</span>
       </div>
     </div>
     <div id="model-buttons">
@@ -34,7 +36,8 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations, mapActions, mapState } from 'vuex'
+import { GROUPBY, SORTBY, SORT_DIRECTION } from '@/const.js'
 
 export default {
   name: 'ModelItem',
@@ -57,6 +60,9 @@ export default {
     hierarchy: 0,
   },
   computed: {
+    ...mapState([
+      'sort_order'
+    ]),
     ...mapGetters([
       'getCurrentTask',
       'getModelResultTitle',
@@ -89,6 +95,9 @@ export default {
   methods: {
     ...mapMutations(['showModal', 'setSelectedModel']),
     ...mapActions(['removeModel']),
+    isSortBy: function (key) {
+      return this.sort_order === SORTBY[key]
+    }
   }
 }
 </script>
@@ -139,6 +148,9 @@ export default {
     }
     #trush {
       align: right;
+    }
+    .sorted-item {
+      color: black;
     }
   }
   #model-buttons {

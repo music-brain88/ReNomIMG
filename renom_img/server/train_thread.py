@@ -463,6 +463,11 @@ class TrainThread(object):
         else:
             assert False
 
+        self.running_state = RunningState.STARTING
+        self.sync_state()
+        self.updated = True
+
+
     # Detection Algorithm
     def _setting_yolov1(self):
         required_params = ['cell', 'box']

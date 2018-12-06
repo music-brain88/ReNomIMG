@@ -36,11 +36,13 @@ class Algorithm(enum.Enum):
     DENSENET = 3
     VGG = 4
     INCEPTION = 5
+
     YOLOV1 = 30
     YOLOV2 = 31
     SSD = 32
-    FCN = 61
+
     UNET = 60
+    FCN = 61
 
 
 DB_DIR = "storage"

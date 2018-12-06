@@ -89,11 +89,12 @@ export default {
     border-bottom: solid 1px lightgray;
     .item-title {
       width: 60%;
-      color: $model-detail-item-title-font-color;
+      color: $component-font-color-title;
     }
     .item-content {
       width: 40%;
       text-align: center;
+      color: $component-font-color;
     }
   }
 }

@@ -156,6 +156,9 @@ export default {
   width: 35%;
   background-color: $component-header-sub-color;
   cursor: pointer;
+  &:hover {
+    background-color: $component-header-sub-color-hover;
+  }
 }
 
 #model-filter,#model-groupby,#model-titles {

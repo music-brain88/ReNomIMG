@@ -110,28 +110,24 @@ export default {
       // Horizontal
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line axis')
+        .attr('class', 'axis')
         .call(
           d3.axisRight()
             .tickSize(canvas_width - margin.left - margin.right)
             .tickFormat('')
             .scale(scaleY)
         )
-        .selectAll('.tick line')
-        .style('stroke-dasharray', '2,2')
 
       // Vertical
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line axis')
+        .attr('class', 'axis')
         .call(
           d3.axisTop()
             .tickSize(-canvas_height + margin.top + margin.bottom)
             .tickFormat('')
             .scale(scaleX)
         )
-        .selectAll('.tick:not(:last-child) line')
-        .style('stroke-dasharray', '2,2')
 
       if (!this.tooltip) {
         this.tooltip = d3.select('#scatter-canvas')
@@ -210,6 +206,7 @@ export default {
             .style('color', 'white')
             .style('text-align', 'left')
             .style('font-size', '0.8rem')
+            .style('line-height', '1.1rem')
             .on('mouseleave', () => {
               ttip.style('display', 'none')
             })
@@ -233,12 +230,13 @@ export default {
   position: relative;
   #title-metric1 {
     position: absolute;
-    top: calc(100% - #{$scatter-padding});
+    top: calc(100% - #{$scatter-padding}*1.5);
     left: $scatter-padding;
     width: calc(100% - #{$scatter-padding});
     height: $scatter-padding;
     text-align: center;
-    font-size: 70%;
+    font-size: $component-font-size-small;
+    color: $component-font-color-title;
   }
   #title-metric2 {
     position: absolute;
@@ -248,7 +246,8 @@ export default {
     height: 100%;
     writing-mode: vertical-rl;
     text-align: center;
-    font-size: 70%;
+    font-size: $component-font-size-small;
+    color: $component-font-color-title;
   }
   #scatter-canvas {
     position: absolute;
@@ -256,27 +255,22 @@ export default {
     left: $scatter-padding;
     width: calc(100% - #{$scatter-padding}*2);
     height: calc(100% - #{$scatter-padding}*2);
-    .grid-line line {
-      stroke: $scatter-grid-color;
+    .axis {
+      path {
+        stroke: lightgray;
+      }
+      line {
+        stroke: $scatter-grid-color;
+      }
     }
-    .axis path {
-      stroke: lightgray;
+    .tick {
+      text {
+        fill: $component-font-color-title;
+      }
+      line {
+        stroke-dasharray: 2, 2;
+      }
     }
-    .axis line {
-      stroke: $scatter-grid-color;
-    }
-  }
-  div.tooltip {
-    position: absolute;
-    text-align: center;
-    width: 60px;
-    height: 28px;
-    padding: 2px;
-    font: 12px sans-serif;
-    background: lightsteelblue;
-    border: 0px;
-    border-radius: 8px;
-    pointer-events: none;
   }
 }
 </style>
