@@ -141,6 +141,7 @@ export default {
         color: white;
         display: flex;
         justify-content: center;
+        font-size: 0.7rem;
       }
       @keyframes loading {
         0% {

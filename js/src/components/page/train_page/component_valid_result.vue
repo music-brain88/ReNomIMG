@@ -78,7 +78,10 @@ export default {
     ...mapGetters([
       'getSelectedModel',
       'getCurrentTask',
-      'getImagePageOfValid'
+      'getImagePageOfValid',
+      'isTaskClassification',
+      'isTaskDetection',
+      'isTaskSegmentation',
     ]),
     showImage: function () {
       return this.show_image || !this.isTaskSegmentation
@@ -105,15 +108,6 @@ export default {
       }
       return []
     },
-    isTaskClassification: function () {
-      return this.getCurrentTask === TASK_ID.CLASSIFICATION
-    },
-    isTaskDetection: function () {
-      return this.getCurrentTask === TASK_ID.DETECTION
-    },
-    isTaskSegmentation: function () {
-      return this.getCurrentTask === TASK_ID.SEGMENTATION
-    }
   },
   beforeUpdate: function () {
     this.$nextTick(function () {
@@ -134,20 +128,7 @@ export default {
     ...mapMutations(['setImagePageOfValid', 'showModal', 'setImageModalData']),
     ...mapActions(['loadSegmentationTargetArray']),
     showImageModal: function (item) {
-      let pred = null
-      let targ = null
-      if (this.isTaskClassification) {
-        pred = this.getClassificationList(item)
-      } else if (this.isTaskDetection) {
-        pred = this.getBoxList(item)
-      } else if (this.isTaskSegmentation) {
-        pred = this.getClassificationList(item)
-      }
-      this.setImageModalData({
-        'img': item.img,
-        'prediction': pred,
-        'target': targ,
-      })
+      this.setImageModalData(item.index)
       this.showModal({'show_image': true})
     },
     pagerStyle: function (index) {
@@ -309,10 +290,6 @@ export default {
         height: box.box[3] * 100 + '%',
         border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
       }
-    },
-    getBoxLabel: function (box) {
-      if (!box) return
-      const class_id = box.name
     },
     getSegmentationStyle: function (item, index) {
       if (!item) return

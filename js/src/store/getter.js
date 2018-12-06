@@ -368,12 +368,13 @@ export default {
     const task = getters.getCurrentTask
     return state.nth_prediction_image_page[task]
   },
-  isShowableImageModal (state, getters) {
-    if ((state.modal_image && state.modal_prediction) ||
-      (state.modal_image && state.target)) {
-      return true
-    } else {
-      return false
-    }
+  isTaskClassification (state, getters) {
+    return TASK_ID.CLASSIFICATION === getters.getCurrentTask
+  },
+  isTaskDetection (state, getters) {
+    return TASK_ID.DETECTION === getters.getCurrentTask
+  },
+  isTaskSegmentation (state, getters) {
+    return TASK_ID.SEGMENTATION === getters.getCurrentTask
   },
 }

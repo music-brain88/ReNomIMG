@@ -115,13 +115,7 @@ export default {
     state.show_loading_mask = payload
   },
   setImageModalData (state, payload) {
-    state.modal_image = payload.img
-    if (payload.hasOwnProperty('prediction')) {
-      state.modal_prediction = payload.prediction
-    }
-    if (payload.hasOwnProperty('target')) {
-      state.modal_target = payload.target
-    }
+    state.modal_index = payload
   },
   setSortOrder (state, payload) {
     let task = state.current_task // Need access through getter.
