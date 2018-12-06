@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import * as d3 from 'd3'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -54,15 +54,34 @@ export default {
       'getColorClass',
       'getAlgorithmColor',
       'getTitleMetric1',
-      'getTitleMetric2'
+      'getTitleMetric2',
+      'getSelectedModel'
     ])
   },
   watch: {
     getFilteredAndGroupedModelList: function () {
       this.draw()
+    },
+    getSelectedModel: function () {
+      const svg = d3.select('#scatter-canvas').select('svg')
+      if (!svg) return
+      const canvas = document.getElementById('scatter-canvas')
+      const canvas_width = canvas.clientWidth
+      const canvas_height = canvas.clientHeight
+      const circle_radius = Math.min(canvas_width * 0.02, canvas_height * 0.02)
+      svg.selectAll('circle')
+        .attr('r', (m) => {
+          const model = this.getSelectedModel
+          if (model === m) {
+            return circle_radius * 1.6
+          } else {
+            return circle_radius
+          }
+        })
     }
   },
   methods: {
+    ...mapMutations(['setSelectedModel']),
     draw: function () {
       if (!this.getFilteredAndGroupedModelList) return
       d3.select('#scatter-canvas').select('svg').remove() // Remove SVG if it has been created.
@@ -91,28 +110,24 @@ export default {
       // Horizontal
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line axis')
+        .attr('class', 'axis')
         .call(
           d3.axisRight()
             .tickSize(canvas_width - margin.left - margin.right)
             .tickFormat('')
             .scale(scaleY)
         )
-        .selectAll('.tick line')
-        .style('stroke-dasharray', '2,2')
 
       // Vertical
       svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('class', 'grid-line axis')
+        .attr('class', 'axis')
         .call(
           d3.axisTop()
             .tickSize(-canvas_height + margin.top + margin.bottom)
             .tickFormat('')
             .scale(scaleX)
         )
-        .selectAll('.tick:not(:last-child) line')
-        .style('stroke-dasharray', '2,2')
 
       if (!this.tooltip) {
         this.tooltip = d3.select('#scatter-canvas')
@@ -164,9 +179,15 @@ export default {
           return this.getAlgorithmColor(m.algorithm_id)
         })
         .on('mouseenter', (m, index) => {
-          // TODO: Fix event handler.
           let x = d3.event.layerX + 10
           let y = d3.event.layerY + 10
+          if (x >= canvas_width * 0.8) {
+            x -= 100
+          }
+          if (y >= canvas_height * 0.8) {
+            y -= 80
+          }
+
           let metric1 = m.getResultOfMetric1()
           let metric2 = m.getResultOfMetric2()
           ttip.style('display', 'inline-block')
@@ -184,11 +205,17 @@ export default {
             .style('background', this.getAlgorithmColor(m.algorithm_id))
             .style('color', 'white')
             .style('text-align', 'left')
+            .style('font-size', '0.8rem')
+            .style('line-height', '1.1rem')
             .on('mouseleave', () => {
+              ttip.style('display', 'none')
             })
         })
         .on('mouseleave', () => {
           ttip.style('display', 'none')
+        })
+        .on('click', (m) => {
+          this.setSelectedModel(m)
         })
     }
   }
@@ -203,12 +230,13 @@ export default {
   position: relative;
   #title-metric1 {
     position: absolute;
-    top: calc(100% - #{$scatter-padding});
+    top: calc(100% - #{$scatter-padding}*1.5);
     left: $scatter-padding;
     width: calc(100% - #{$scatter-padding});
     height: $scatter-padding;
     text-align: center;
-    font-size: 70%;
+    font-size: $component-font-size-small;
+    color: $component-font-color-title;
   }
   #title-metric2 {
     position: absolute;
@@ -218,7 +246,8 @@ export default {
     height: 100%;
     writing-mode: vertical-rl;
     text-align: center;
-    font-size: 70%;
+    font-size: $component-font-size-small;
+    color: $component-font-color-title;
   }
   #scatter-canvas {
     position: absolute;
@@ -226,27 +255,22 @@ export default {
     left: $scatter-padding;
     width: calc(100% - #{$scatter-padding}*2);
     height: calc(100% - #{$scatter-padding}*2);
-    .grid-line line {
-      stroke: $scatter-grid-color;
+    .axis {
+      path {
+        stroke: lightgray;
+      }
+      line {
+        stroke: $scatter-grid-color;
+      }
     }
-    .axis path {
-      stroke: lightgray;
+    .tick {
+      text {
+        fill: $component-font-color-title;
+      }
+      line {
+        stroke-dasharray: 2, 2;
+      }
     }
-    .axis line {
-      stroke: $scatter-grid-color;
-    }
-  }
-  div.tooltip {
-    position: absolute;
-    text-align: center;
-    width: 60px;
-    height: 28px;
-    padding: 2px;
-    font: 12px sans-serif;
-    background: lightsteelblue;
-    border: 0px;
-    border-radius: 8px;
-    pointer-events: none;
   }
 }
 </style>

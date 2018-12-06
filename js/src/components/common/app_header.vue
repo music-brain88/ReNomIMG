@@ -70,11 +70,11 @@ export default {
   justify-content: space-between;
 
   #task-buttons {
-    width: 25%;
+    width: 50%;
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: flex-end;
     div {
       margin-right: $header-title-margin-left;
       cursor: pointer;

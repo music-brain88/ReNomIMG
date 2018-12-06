@@ -4,7 +4,7 @@
       Prediction Result
       <div id="valid-prediction-button-area"
         v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
-        <label>
+        <label v-if="isTaskSegmentation">
           <input class="checkbox" type="checkbox"
           id="prediction-show-button" v-model="show_image" :disabled="!isTaskSegmentation">
           Image
@@ -23,7 +23,7 @@
       <div class="pager-arrow" @click="prevPage">
         <i class="fa fa-caret-left" aria-hidden="true"></i>
       </div>
-      <div class="pager-number" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
+      <div class="pager-number" :class="{number: item !== '...'}" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
         {{ item }}
       </div>
       <div class="pager-arrow" @click="nextPage">
@@ -52,7 +52,7 @@
 
 <script>
 import { TASK_ID } from '@/const.js'
-import { render_segmentation, setup_image_list } from '@/utils.js'
+import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -75,9 +75,9 @@ export default {
       'modal_prediction',
       'modal_target'
     ]),
-    ...mapGetters(['getSelectedModel',
+    ...mapGetters([
+      'getSelectedModel',
       'getCurrentTask',
-      'getTagColor',
       'getImagePageOfValid'
     ]),
     showImage: function () {
@@ -288,12 +288,12 @@ export default {
       if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {
         const class_id = cls.class
         return {
-          border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
+          border: 'solid 1.5px' + getTagColor(class_id) + 'bb'
         }
       } else {
         const class_id = cls
         return {
-          border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
+          border: 'solid 1.5px' + getTagColor(class_id) + 'bb'
         }
       }
     },
@@ -307,8 +307,12 @@ export default {
         left: x1 + '%',
         width: box.box[2] * 100 + '%',
         height: box.box[3] * 100 + '%',
-        border: 'solid 2.5px' + this.getTagColor(class_id) + 'bb'
+        border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
       }
+    },
+    getBoxLabel: function (box) {
+      if (!box) return
+      const class_id = box.name
     },
     getSegmentationStyle: function (item, index) {
       if (!item) return
@@ -339,7 +343,7 @@ export default {
 #valid-prediction-button-area {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: flex-end;
   height: 100%;
   width: 30%;
   input {
@@ -353,6 +357,7 @@ export default {
     justify-content: center;
     font-family: $component-header-font-family;
     font-size: 90%;
+    margin-right: 10px;
   }
   input[type="checkbox"] {
     content: "";
@@ -435,8 +440,12 @@ export default {
     margin-left: 5px;
     margin-right: 5px;
     cursor: pointer;
-    color: gray;
+    color: lightgray;
+    transition: all 0.02s;
     i {
+    }
+    &:hover {
+      color: gray;
     }
   }
   .pager-number {
@@ -444,12 +453,18 @@ export default {
     align-items: center;
     justify-content: center;
     font-size: 75%;
-    height: calc(100% - 2px);
+    height: calc(100% - 3px);
+    margin-top: 2px;
     width: 3%;
-    cursor: pointer;
     letter-spacing: -1px;
-    transition: all 0.1s;
     color: gray;
+  }
+  .number {
+    transition: all 0.1s;
+    cursor: pointer;
+    &:hover {
+      color: black;
+    }
   }
 }
 </style>

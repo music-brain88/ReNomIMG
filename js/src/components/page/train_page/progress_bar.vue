@@ -17,6 +17,7 @@
       <span v-else-if="model.isTraining()">{{ this.loss }}</span>
       <span v-else-if="model.isValidating()">Validating</span>
       <span v-else-if="model.isStopping()">Stopping</span>
+      <span v-else-if="model.isWeightDownloading()">Weight Downloading</span>
     </div>
     <div id="bar-area">
       <span v-if="isTitle"></span>
@@ -34,7 +35,7 @@
 </template>
 
 <script>
-import {RUNNING_STATE} from '@/const.js'
+import { RUNNING_STATE } from '@/const.js'
 import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 export default {
   name: 'ProgressBar',
@@ -62,15 +63,14 @@ export default {
       }
     },
     getBarClass: function () {
-      console.log(this.model.isStopping(), this.model.state, this.model.running_state)
-      if (this.model.isValidating() || this.model.isStopping()) {
+      if (this.model.isValidating() || this.model.isStopping() || this.model.isWeightDownloading()) {
         return 'validating'
       } else {
         return 'training'
       }
     },
     getWidthOfBar: function () {
-      if (this.model.isValidating() || this.model.isStopping()) {
+      if (this.model.isValidating() || this.model.isStopping() || this.model.isWeightDownloading()) {
         return {
           width: '20%'
         }
@@ -142,12 +142,9 @@ export default {
   flex-direction: row;
   align-items: center;
   width: 100%;
-  height: calc(#{$progress-bar-height}*0.8);
-  padding-left: $progress-bar-margin;
-  padding-right: $progress-bar-margin;
-  margin-bottom: 10px;
-  font-size: 80%;
-  text-align: center;
+  height: $progress-bar-height;
+  margin-bottom: $progress-bar-margin-bottom;
+  font-size: $component-font-size-small;
 
   #model-id-area {
     display: flex;
@@ -186,8 +183,8 @@ export default {
     height: 70%;
     #bar-background {
       width: 100%;
-      height: calc(100% - #{$bar-margin}*2);
-      background-color: lightgray; 
+      height: calc(100% - #{$progress-bar-margin}*2);
+      background-color: $progress-bar-background-color; 
       #bar-front.training {
         position: relative;
         top: 0;
@@ -207,7 +204,6 @@ export default {
         animation-fill-mode: both;
         animation-delay: 0.1s;
       }
-      
 
       @keyframes move-bar {
         0% {
@@ -226,19 +222,19 @@ export default {
     }
   }
   #button-stop-area {
+    width: 9%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 131%;
-    width: 9%;
-    height: 100%;
     text-align: center;
-    color: lightgray;
+    color: $progress-bar-stop-button-color;
+    font-size: $progress-bar-stop-button-font-size;
     i {
       cursor: pointer;
-    }
-    i:hover {
-      color: gray;
+      &:hover {
+        color: $progress-bar-stop-button-color-hover;
+      }
     }
   }
 }

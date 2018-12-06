@@ -1,11 +1,14 @@
+@import url('http://fonts.googleapis.com/css?family=Open+Sans');
+
 // App window size settings.
 $app-window-width: 1280px;
 // $app-window-width: calc(100vw - 20px);
 $app-window-height: 100vh;
 
 //// App header Settings.
-$header-height: calc(100vh * 0.04);
-$header-min-height: 20px;
+// $header-height: calc(100vh * 0.04);
+$header-height: 40px;
+$header-min-height: 40px;
 $header-background-color: #063662;
 $header-product-name-font-family: Open Sans Regular;
 $header-product-name-font-size: 15pt;
@@ -31,16 +34,26 @@ $app-container-padding-left: 10px;
 $app-container-padding-right: 10px;
 
 //// Component Frame Settings
-$component-header-height: calc(#{$header-height}*0.85);
-$component-header-min-height: 25px;
+// $component-header-height: calc(#{$header-height}*0.85);
+$component-header-height: 32px;
+$component-header-min-height: 32px;
 $component-header-margin-bottom: 10px;
 $component-header-background-color: #063662;
-$component-header-font-family: Open Sans Regular;
+// $component-header-font-family: Open Sans Regular;
+$component-header-font-family: Open Sans, sans-serif;
 $component-header-font-color: #ffffff;
+$component-header-font-size: 0.9rem;
 $component-header-sub-color: #026699;
-$component-font-family: Open Sans Lite;
+$component-header-sub-color-hover: #01517a;
+// $component-font-family: Open Sans Lite;
+$component-font-family: Open Sans, sans-serif;
+$component-font-size: 0.9rem;
+$component-font-size-small: 0.8rem;
+$component-font-color-title: #999;
+$component-font-color: #555;
+
 $component-block-margin: 5px;
-$component-block-padding-left: 5px;
+$component-block-padding-left: 16px;
 $component-block-padding-right: 5px;
 $component-block-width: calc(#{$app-window-width} / 12);
 $component-block-height: calc(
@@ -50,10 +63,22 @@ $component-block-height: calc(
 $component-block-height-min: 70px;
 $component-background-color: #ffffff;
 
-// Component Progress Bar Settings.
-$progress-bar-margin: 20px;
-$progress-bar-height: 25px;
-$bar-margin: 5px;
+//// Component Progress Bar Area Settings.
+$total-model-title-padding-bottom: 10px;
+$total-model-padding-left-right: 40px;
+$total-model-legend-box-width: 10px;
+$total-model-legend-box-margin-left: 3px;
+$total-model-legend-item-margin-left: 15px;
+// Progress bar
+$progress-bar-area-margin-top: 40px;
+$progress-bar-height: 20px;
+$progress-bar-margin-bottom: 2px;
+$progress-bar-stop-button-font-size: 1.1rem;
+$progress-bar-stop-button-color: #ddd;
+$progress-bar-stop-button-color-hover: #999;
+$progress-bar-background-color: #ddd;
+$progress-bar-margin: 5px;
+
 
 // Component Scatter model plot Settings.
 $scatter-padding: 20px;
@@ -62,8 +87,8 @@ $scatter-circle-radius: 10;
 
 // Component Model Detail
 $model-detail-margin: 15px;
-$model-detail-item-margin-bottom: 12px;
-$model-detail-item-title-font-color: rgb(130, 130, 130);
+$model-detail-item-margin-right: 50px;
+$model-detail-item-margin-bottom: 15px;
 
 //// Modal Settings.
 $modal-mask-color: rgba(0, 0, 0, 0.6);
@@ -114,7 +139,7 @@ $color-train:#0762AD;
 
 $color-valid:#EF8200;
 
-$color-best-epoch:#999999;
+$color-best-epoch: red;
 
 // The color is specified by algorithm ID(0 ~ 9).
 .color-0 {
@@ -130,7 +155,7 @@ $color-best-epoch:#999999;
   background-color: #009453;
 }
 .color-4 {
-  backgound-color: #93b447;
+  background-color: #92b447;
 }
 .color-5 {
   background-color: #dfd238;
@@ -138,6 +163,16 @@ $color-best-epoch:#999999;
 .color-6 {
   background-color: black;
 }
+.color-7 {
+  background-color: black;
+}
+.color-8 {
+  background-color: black;
+}
+.color-9 {
+  background-color: black;
+}
+
 
 //// Animation Settings
 .fade-enter-active, .fade-leave-active {

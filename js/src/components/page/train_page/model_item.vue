@@ -8,21 +8,26 @@
     <div id="model-id"  @click='setSelectedModel(model)' v-else>
       <div class="info-row">
         <span class="info-title">ID:</span>
-        <span>{{ model.id }}</span>
+        <span :class="{'sorted-item': isSortBy('ID')}">{{ model.id }}</span>
         <span class="info-title">&nbsp;&nbsp;Alg:</span>
-        <span>{{ getAlgorithmTitleFromId(model.algorithm_id) }}</span>
+        <span :class="{'sorted-item': isSortBy('ALG')}">
+          {{ getAlgorithmTitleFromId(model.algorithm_id) }}
+        </span>
       </div>
       <div class="info-row">
-        <span>{{ getLastBatchLoss }}</span>
-        <span class="info-title">/</span>
-        <span>{{ model.getResultOfMetric1().value }}</span>
-        <span class="info-title">/</span>
-        <span>{{ model.getResultOfMetric2().value }}</span>
+        <span :class="{'sorted-item': isSortBy('LOSS')}">{{ getLastBatchLoss }}</span>
+        <span class="info-title">&nbsp;/&nbsp;</span>
+        <span :class="{'sorted-item': isSortBy('M1')}">{{ model.getResultOfMetric1().value }}</span>
+        <span class="info-title">&nbsp;/&nbsp;</span>
+        <span :class="{'sorted-item': isSortBy('M2')}">{{ model.getResultOfMetric2().value }}</span>
       </div>
     </div>
     <div id="model-buttons">
       <i class="fa fa-cog" aria-hidden="true"></i>
-      <i class="fa fa-times" aria-hidden="true" @click='removeModel(model.id)'></i>
+      <i class="fa fa-times" aria-hidden="true" @click='removeModel(model.id)' v-if="!isDeployedModel"></i>
+      <div id=deploy-icon v-else>
+        Deployed
+      </div>
     </div>
     <div id="child-model">
       <model-item v-for="item in getChildModelList" :model="item" :hierarchy="hierarchy+1"/>
@@ -31,7 +36,8 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations, mapActions, mapState } from 'vuex'
+import { GROUPBY, SORTBY, SORT_DIRECTION } from '@/const.js'
 
 export default {
   name: 'ModelItem',
@@ -54,12 +60,16 @@ export default {
     hierarchy: 0,
   },
   computed: {
+    ...mapState([
+      'sort_order'
+    ]),
     ...mapGetters([
       'getCurrentTask',
       'getModelResultTitle',
       'getAlgorithmTitleFromId',
       'getColorClass',
-      'getSelectedModel'
+      'getSelectedModel',
+      'getDeployedModel'
     ]),
     getChildModelList: function () {
       if (this.isAddButton || this.hierarchy > 0) {
@@ -75,6 +85,9 @@ export default {
         return '-'
       }
     },
+    isDeployedModel () {
+      return this.model === this.getDeployedModel
+    }
   },
   created: function () {
 
@@ -82,6 +95,9 @@ export default {
   methods: {
     ...mapMutations(['showModal', 'setSelectedModel']),
     ...mapActions(['removeModel']),
+    isSortBy: function (key) {
+      return this.sort_order === SORTBY[key]
+    }
   }
 }
 </script>
@@ -108,10 +124,14 @@ export default {
     height: 100%;
   }
   #model-id {
-    width: calc(87% - 5px);
+    width: calc(72% - 5px);
     height: 100%;
     margin-left: 5px;
     padding-left: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    color: gray;
+    font-size: 0.9rem;
     .info-row {
       height: 50%;
       display: flex;
@@ -123,20 +143,24 @@ export default {
     }
     .info-title {
       height: 50%;
-      color: gray;
+      color: #999;
       padding-right: 5px;
     }
     #trush {
       align: right;
     }
+    .sorted-item {
+      color: black;
+    }
   }
   #model-buttons {
-    width: 10%;
+    width: 25%;
     height: 100%;
     display: flex;
     justify-content: space-around;
-    align-items: center;
+    align-items: flex-end;
     flex-direction: column;
+    padding-right: 5px;
     i {
       color: lightgray;
     }
@@ -150,6 +174,11 @@ export default {
     }
     .fa:active {
       color: gray;
+    }
+    #deploy-icon {
+      font-size: 70%;
+      font-weight: bold;
+      color: $component-header-sub-color;
     }
   }
   #child-model {

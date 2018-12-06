@@ -5,9 +5,17 @@
     </template>
     <div id="learning-curve">
       <div id="legend">
-        <div id="train-switch" @click="switch_train_graph()" class="train" v-bind:class="{'graph-off' : !this.train_graph_flg}">Train<span class="box"></span></div>
-        <div id="valid-switch" @click="switch_valid_graph()" class="valid" v-bind:class="{'graph-off' : !this.valid_graph_flg}">Valid<span class="box"></span></div>
-        <div class="best-epoch">Best Epoch Line<span class="legend-line">&mdash;</span></div>
+        <div id="train-switch" @click="switch_train_graph()"
+          class="train" v-bind:class="{'graph-off' : !this.train_graph_flg}">
+          <span class="box"></span>Train
+          </div>
+        <div id="valid-switch" @click="switch_valid_graph()"
+          class="valid" v-bind:class="{'graph-off' : !this.valid_graph_flg}">
+          <span class="box"></span>Valid
+        </div>
+        <div class="best-epoch">
+          <span class="legend-line">&mdash;</span>Best Epoch Line
+        </div>
       </div>
       <div id="title-epoch">
         Epoch [-]
@@ -237,8 +245,8 @@ export default {
       let BestEpoc = LineLayer.append('line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('fill', 'none')
-        .attr('stroke', '#aaaaaa')
-        .attr('stroke-width', 1.2)
+        .attr('stroke', 'red')
+        .attr('stroke-width', 0.5)
         .attr('x1', scaleX(best_epoch + 1))
         .attr('y1', scaleY(maxY))
         .attr('x2', scaleX(best_epoch + 1))
@@ -259,23 +267,31 @@ export default {
           return scaleY(d)
         })
         .attr('fill', train_color)
-        .attr('r', 2)
+        .attr('r', 1.5)
         .on('mouseenter', (d, index) => {
           // find svg id and get mouse position
           let x = d3.event.layerX + 10
           let y = d3.event.layerY + 10
+          if (x >= canvas_width * 0.8) {
+            x -= 100
+          }
+          if (y >= canvas_height * 0.8) {
+            y -= 80
+          }
+
           ttip.style('display', 'inline-block')
           ttip.transition()
             .duration(200)
             .style('opacity', 0.9)
           ttip.html(
-            'Epoch:' + (index + 1) + '<br />' +
-            'Valid:' + d.toFixed(2) + '<br />'
+            'Epoch : ' + (index + 1) + '<br />' +
+            'Train Loss : ' + d.toFixed(2) + '<br />'
           ).style('top', y + 'px')
             .style('left', x + 'px')
             .style('padding', '10px')
             .style('background', train_color)
             .style('color', 'white')
+            .style('font-size', '0.8rem')
         })
         .on('mouseleave', () => {
           ttip.style('display', 'none')
@@ -291,10 +307,17 @@ export default {
         .attr('cx', (d, index) => { return scaleX(index + 1) })
         .attr('cy', (d) => { return scaleY(d) })
         .attr('fill', valid_color)
-        .attr('r', 2.5)
+        .attr('r', 1.5)
         .on('mousemove', (d, index) => {
           let x = d3.event.layerX + 10
           let y = d3.event.layerY + 10
+          if (x >= canvas_width * 0.8) {
+            x -= 100
+          }
+          if (y >= canvas_height * 0.8) {
+            y -= 80
+          }
+
           ttip.style('display', 'inline-block')
           ttip.transition()
             .duration(200)
@@ -308,6 +331,7 @@ export default {
             .style('padding', '10px')
             .style('background', valid_color)
             .style('color', 'white')
+            .style('font-size', '0.8rem')
         })
         .on('mouseleave', () => {
           ttip.style('display', 'none')
@@ -345,16 +369,16 @@ export default {
   width: 100%;
   height: 100%;
   padding: $scatter-padding;
-  padding-top: 0px;
   position: relative;
+  color: $component-font-color-title;
   #title-epoch {
     position: absolute;
-    top: calc(100% - #{$scatter-padding});
+    top: calc(100% - #{$scatter-padding}*1.5);
     left: $scatter-padding;
     width: calc(100% - #{$scatter-padding});
     height: $scatter-padding;
     text-align: center;
-    font-size: 70%;
+    font-size: $component-font-size-small;
   }
   #title-loss {
     position: absolute;
@@ -364,12 +388,15 @@ export default {
     height: 100%;
     writing-mode: vertical-rl;
     text-align: center;
-    font-size: 70%;
+    font-size: $component-font-size-small;
   }
 
   #learning-curve-canvas {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    top: $scatter-padding;
+    left: $scatter-padding;
+    width: calc(100% - #{$scatter-padding}*2);
+    height: calc(100% - #{$scatter-padding}*2);
     .grid-line line {
       stroke: $scatter-grid-color;
     }
@@ -379,20 +406,24 @@ export default {
     .axis line {
       stroke: $scatter-grid-color;
     }
+    .tick {
+      text {
+        fill: $component-font-color-title;
+      }
+    }
   }
   #legend {
-    width: 100%;
+    position: absolute;
+    width: calc(100% - #{$scatter-padding}*2);
+    top: 20px;
     display: flex;
     flex-wrap: nowrap;
     justify-content: flex-end;
     align-items: center;
-    padding-top:5px;
-    font-size: 70%;
-    
+    font-size: $component-font-size-small;
     .graph-off {
       text-decoration: line-through;
     }
-
     .box {
       display: inline-block;
       width: 10px;
@@ -401,12 +432,17 @@ export default {
       margin-right: 4px;
     }
     .train {
+      z-index: 10;
+      margin-right: 9px;
+      cursor: pointer;
       .box{
         background-color: $color-train;
       } 
     }
-
     .valid {
+      z-index: 10;
+      margin-right: 9px;
+      cursor: pointer;
       .box{
         background-color: $color-valid;
       }
