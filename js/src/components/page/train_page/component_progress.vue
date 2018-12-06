@@ -29,7 +29,7 @@
         </section>
       </div>
       <div id="model-bar" v-else>
-        <section id="green" style="width: 100%">No Model Created</section>
+        <section id="green" style="width: 100%">No Model</section>
       </div>
       <div id="component-progress" class="scrollbar-container">
         <div id="progress-title">
