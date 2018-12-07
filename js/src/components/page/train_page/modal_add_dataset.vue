@@ -33,20 +33,20 @@
         Dataset BreakDown
       </div>
       <div id="dataset-name">
-        {{getDatasetDetail[0].dataset_name}} 
+        <span v-if="getDatasetDetail"> {{getDatasetDetail.dataset_name}} </span>
       </div>
       <div id="dataset-ratio">
-        {{getDatasetDetail[0].ratio}}
+        <span v-if="getDatasetDetail"> {{getDatasetDetail.ratio}} </span>
       </div>
       <div id="dataset-numbers">
         <div id="total-image-num">
-          Total Images: {{getDatasetDetail[0].train_data.img.length + getDatasetDetail[0].valid_data.img.length}}
+          Total Images: <span v-if="getDatasetDetail">{{getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length}}</span>
         </div>
         <div id="train-image-num" class="num">
-          Train: {{getDatasetDetail[0].train_data.img.length}} 
+          Train: <span v-if="getDatasetDetail">{{getDatasetDetail.train_data.img.length}}</span> 
         </div>
         <div id="valid-image-num" class="num">
-          Valid: {{getDatasetDetail[0].valid_data.img.length}} 
+          Valid: <span v-if="getDatasetDetail">{{getDatasetDetail.valid_data.img.length}} </span>
         </div>
         <div id="test-image-num" class="num">
           Test: 
@@ -54,6 +54,7 @@
       </div>
       <div id="breakdown">
         Break Downs
+        <span v-if="getDatasetDetail">{{getDatasetDetail.class_info}}</span>
       </div>
     </div>
   </div>
@@ -61,10 +62,12 @@
 
 <script>
 import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
+import BreakDownBar from '@/components/page/train_page/breakdown_ratio_bar.vue'
 
 export default {
   name: 'ModalAddDataset',
   components: {
+    'breakdown_ratio_bar': BreakDownBar
   },
   data: function () {
     return {
@@ -116,6 +119,7 @@ export default {
         })
       } else {
         const test_dataset_id = this.test_dataset.id
+        console.log('test', test_dataset_id)
         this.createDataset({
           'name': this.name,
           'ratio': this.ratio,

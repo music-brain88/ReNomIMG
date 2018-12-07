@@ -61,13 +61,11 @@ export default {
     }
   },
   setConfirmTestDataset (state, payload) {
-    if (state.datasets.find(n => n.id === payload.id) === undefined) {
-      state.dataset_details = [payload, ...state.datasets]
-    }
+    state.test_dataset_details = [payload, ...state.datasets]
   },
   addDataset (state, payload) {
     if (state.datasets.find(n => n.id === payload.id) === undefined) {
-      state.datasets = [payload, ...state.datasets]
+      state.datasets = payload
     }
   },
   addTestDataset (state, payload) {

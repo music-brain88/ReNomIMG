@@ -283,27 +283,30 @@ def model_load_prediction_result(id):
 @route("/api/renom_img/v2/dataset/confirm", method="POST")
 @json_handler
 def dataset_confirm():
-    # req_params = request.params
-    ratio = 0.8
-    dataset_name = "test"
-    task_id = 1
-    description = "This is test"
-    test_dataset_id = -1
+    req_params = request.params
+    # ratio = 0.8
+    # dataset_name = "test"
+    # task_id = 1
+    # description = "This is test"
+    # test_dataset_id = -1
     dataset_hash = str(1143524)
     # Receive params here.
-    # ratio = float(req_params.ratio)
-    # dataset_name = str(req_params.name)
-    # test_dataset_id = int(
-    #     req_params.test_dataset_id if req_params.test_dataset_id != "undefined" else -1)
-    # task_id = int(req_params.task_id)
-    # description = str(req_params.description)
-    ##
+    ratio = float(req_params.ratio)
+    # Correspondence for multi byte input data
+    dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
+    test_dataset_id = int(
+        req_params.test_dataset_id
+        if req_params.test_dataset_id != '' else -1)
+    task_id = int(req_params.task_id)
+    description = str(req_params.description)
+    #
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
     label_dir = root / 'label'
 
     assert img_dir.exists(), \
-        "The directory 'datasrc/img' is not found in current working directory."
+        "The directory 'datasrc/img' is\
+         not found in current working directory."
 
     file_names = set([name.relative_to(img_dir) for name in img_dir.iterdir()
                       if name.is_file()])
@@ -382,12 +385,6 @@ def dataset_confirm():
         valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map) + 1)))
 
         print(time.time() - start_t)
-        print('type:train_target',type(train_target))
-        print('type:train_tag_num', type(train_tag_num))
-        print('class_map', class_map)
-        print('type(class_map)', type(class_map))
-        print('train:train_tag_num',train_tag_num)
-        print('_:', _)
     elif task_id == Task.DETECTION.value:
         train_tag_list = []
         valid_tag_list = []
@@ -404,12 +401,6 @@ def dataset_confirm():
 
         train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))
-        print('type:train_target',type(train_target))
-        print('type:train_tag_num', type(train_tag_num))
-        print('class_map', class_map)
-        print('type(class_map)', type(class_map))
-        print('train:train_tag_num',train_tag_num)
-        print('_:', _)
     elif task_id == Task.SEGMENTATION.value:
         train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
         valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
@@ -421,7 +412,6 @@ def dataset_confirm():
       "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
       "test_ratio": test_ratio,
     }
-    print(class_info)
 
     # Register
     train_data = {
@@ -445,6 +435,7 @@ def dataset_confirm():
       "test_dataset_id": test_dataset_id,
       "class_info": class_info
     }
+
     temp_dataset[dataset_hash] = dataset
 
     # dataset_id = storage.register_dataset(task_id, dataset_name, description, ratio,

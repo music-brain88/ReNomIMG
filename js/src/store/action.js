@@ -457,10 +457,10 @@ export default {
   },
   async confirmTestDataset (context, payload) {
     const url = '/api/renom_img/v2/dataset/confirm'
-    const name = payload.name
+    const name = encodeURIComponent(payload.name)
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
-    const description = 'test'
+    const description = encodeURIComponent(payload.description)
     const param = new FormData()
     param.append('name', name)
     param.append('ratio', ratio)
