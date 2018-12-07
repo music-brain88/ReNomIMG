@@ -385,14 +385,10 @@ def dataset_confirm():
         valid_tag_list = []
 
         for i in range(len(train_target)):
-            for j in range(len(class_map)):
-                if train_target[i][0].get('name') == class_map[j]:
-                    train_tag_list.append(j)
+            train_tag_list.append(train_target[i][0].get('class'))
 
         for i in range(len(valid_target)):
-            for j in range(len(class_map)):
-                if valid_target[i][0].get('name') == class_map[j]:
-                    valid_tag_list.append(j)
+            valid_tag_list.append(valid_target[i][0].get('class'))
 
         train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))
@@ -521,6 +517,8 @@ def test_dataset_confirm():
     file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
                   if name.is_file()]
 
+    class_map = {}
+    n_imgs = 0
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
         classification_label_dir = label_dir / "classification"
@@ -556,11 +554,34 @@ def test_dataset_confirm():
         "target": parsed_target,
     }
     # test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, test_data)
-    return {
-        'id': 1 ,#test_dataset_id,
-        'test_data': test_data,
-        'class_map': class_map,
+    test_tag_num = []
+    if task_id == Task.DETECTION.value:
+        test_tag_list = []
+
+        for i in range(len(parsed_target)):
+            test_tag_list.append(parsed_target[i][0].get('class'))
+        #print([i for i in test_tag_list])
+
+        test_tag_num, _ = np.histogram(test_tag_list, bins=list(range(len(class_map) + 1)))
+
+    print(test_tag_num)
+    class_info = {
+        "class_map": class_map,
+        "other_imgs": (n_imgs - len(img_files)),
+        "test_imgs": len(img_files),
+        "class_ratio": test_tag_num.tolist(),
+        "test_ratio": ratio,
     }
+
+    print(class_info)
+
+    #   "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
+    #   "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+    #   "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+    #   "test_ratio": test_ratio,
+    # }
+
+    return class_info
 
 @route("/api/renom_img/v2/test_dataset/create", method="POST")
 @json_handler
