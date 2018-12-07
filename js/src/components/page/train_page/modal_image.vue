@@ -8,33 +8,43 @@
         <span>Prediction Result</span>
         <span>{{modal_index}} / {{length}}</span>
       </div>
-      <div id="image-wrapper" :style="getSize">
-        <img :src="img"/>
+      <div id="image-container">
+        <div id="image-wrapper" :style="getSize">
+          <img :src="img"/>
+  
+          <div id="cls" v-if="isTaskClassification"
+            :style="getClassificationStyle(prediction)">
+          </div>
 
-        <div id="cls" v-if="isTaskClassification"
-          :style="getClassificationStyle(prediction)">
+          <div id="box" v-else-if="isTaskDetection"
+            :class="{'selected-box': index === hoverBox}"
+            @mouseenter="hoverBox=index"
+            @mouseleave="hoverBox=null"
+            :style="getBoxStyle(box)" v-for="(box, index) in prediction">
+          </div>
+
+          <div id="seg" v-if="isTaskSegmentation">
+            <canvas id="canvas-modal"/>
+          </div>
+
         </div>
-
-        <div id="box" v-else-if="isTaskDetection"
-          :class="{'selected-box': index === hoverBox}"
-          @mouseenter="hoverBox=index"
-          @mouseleave="hoverBox=null"
-          :style="getBoxStyle(box)" v-for="(box, index) in prediction">
-        </div>
-
-        <div id="seg" v-if="isTaskSegmentation">
-          <canvas id="canvas-modal"/>
-        </div>
-
       </div>
     </div>
     <div id="result">
       <div class="header"></div>
       <div id="result-container">
-
         <div id="cls-result" class="result" v-if="isTaskClassification">
+          <div v-for="(item, index) in getClassificationTop3">
+            <span>{{ index + 1 }}</span>
+            <span>{{ item.index }}</span>
+            <span>{{ item.score }}%</span>
+          </div>
+          <div v-if="!prediction">
+            <span></span>
+            <span>No prediction</span>
+            <span></span>
+          </div>
         </div>
-
         <div id="box-result" class="result" v-else-if="isTaskDetection">
           <div v-for="(r, index) in prediction"
             @mouseenter="hoverBox=index"
@@ -50,10 +60,8 @@
             <span></span>
           </div>
         </div>
-
         <div id="seg-result" class="result" v-else-if="isTaskSegmentation">
         </div>
-
       </div>
     </div>
   </div>
@@ -119,6 +127,10 @@ export default {
       }
       return null
     },
+    class_map: function () {
+      const map = this.dataset.class_map
+      return map
+    },
     img: function () {
       const index = this.modal_index
       return this.dataset.valid_data.img[index]
@@ -136,7 +148,7 @@ export default {
       let h = size[1]
       let parentW = (this.vw(60) - 20) * 0.65
       let parentH = this.vh(60) - 20 - 40 - 10
-      if (parentW / parentH < w / h) {
+      if (parentW - w < parentH - h) {
         w = parentW
         h = parentW * h / w
       } else {
@@ -147,6 +159,27 @@ export default {
         width: w + 'px',
         height: h + 'px',
       }
+    },
+    getClassificationTop3: function () {
+      const map = this.class_map
+      if (!this.prediction) return
+      const score = this.prediction.score.map((s, index) => {
+        return {
+          index: map[index],
+          score: (s * 100)
+        }
+      })
+      const top5 = score.sort((a, b) => {
+        if (a.score < b.score) {
+          return 1
+        } else {
+          return -1
+        }
+      }).slice(0, 5)
+      return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
+    },
+    getSegmentationTargetOnly: function () {
+
     }
   },
   watch: {
@@ -241,37 +274,46 @@ export default {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    #image-wrapper {
-      position: relative;
-      img {
+    #image-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: calc(100% - 40px - 10px);
+      #image-wrapper {
         width: 100%;
         height: 100%;
-      }
-      #cls {
-        top: 0;
-        left: 0;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-      }
-      #box {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-      }
-      #seg {
-        top: 0;
-        left: 0;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        canvas {
+        position: relative;
+        img {
+          width: 100%;
+          height: 100%;
+        }
+        #cls {
+          top: 0;
+          left: 0;
+          position: absolute;
           height: 100%;
           width: 100%;
         }
-      }
-      .selected-box {
-        background-color: rgba(255, 255, 255, 0.4);
+        #box {
+          position: absolute;
+          height: 100%;
+          width: 100%;
+        }
+        #seg {
+          top: 0;
+          left: 0;
+          position: absolute;
+          height: 100%;
+          width: 100%;
+          canvas {
+            height: 100%;
+            width: 100%;
+          }
+        }
+        .selected-box {
+          background-color: rgba(255, 255, 255, 0.4);
+        }
       }
     }
   }
@@ -282,6 +324,21 @@ export default {
     #result-container {
       width: 100%;
       height: calc(100% - 40px - 10px);
+      #cls-result div{
+        display: flex;
+        width: 100%;
+        height: 9%;
+        border-bottom: solid 1px lightgray;
+        &:first-child {
+          font-size: 1.1rem;
+        }
+        span {
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          width: 33.3%;
+        }
+      }
       #box-result div {
         display: flex;
         width: 100%;
