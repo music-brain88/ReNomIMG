@@ -5,7 +5,8 @@
     </template>
     <div class="progress wrap">
       <div class="bar" v-if="this.getFilteredModelList.length != 0">
-        <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
+        <section v-for="model in reduceModelList(this.getFilteredModelList)" 
+          :style="'width:' + calc_width(model[1]) + '%;background:'+ getAlgorithmColor(parseInt(model[0])) +';'">
           <div id="alg-title">
             {{ getAlgorithmTitleFromId(parseInt(model[0])) }}
           </div>

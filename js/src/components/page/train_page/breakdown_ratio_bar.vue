@@ -1,6 +1,6 @@
 <template>
-  <div id="progress-bar">
-    <div id="model-id-area">
+  <div id="class-info-area">
+    <!-- <div id="model-id-area">
       <span v-if="isTitle">Model</span>
       <span v-else>{{ this.model_id }}</span>
     </div>
@@ -30,7 +30,22 @@
     </div>
     <div id="button-stop-area" v-if="!isTitle">
       <i class="fa fa-stop-circle-o" aria-hidden="true" @click="onStop"></i>
+    </div> -->
+    
+    <div class="item-name">
+      {{item_name}}
     </div>
+    <div class="item-value"> 
+      <div class="bar" :style="'width:' + calc_width(item_class_ratio) + '%;'">
+        <section class="color-train" :style="'width:' + calc_width(item_train_ratio) + '%;background:#0762AD;'">
+        </section>
+        <section class="color-valid" :style="'width:' + calc_width(item_valid_ratio) + '%;background:#EF8200; '">
+        </section>
+        <section v-if="item_test_ratio" :style="'width:' + calc_width(item_test_ratio) + '%;background:red'">
+        </section>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -40,11 +55,13 @@ import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 export default {
   name: 'ProgressBar',
   props: {
-    model: Object,
-    isTitle: {
-      type: Boolean,
-      default: false
-    }
+    item_name: String,
+    item_class_ratio: Number,
+    item_test_ratio: Number,
+    item_train_ratio: Number,
+    item_valid_ratio: Number,
+    height: Number,
+    width: Number
   },
   data: function () {
     return {
@@ -126,20 +143,19 @@ export default {
 
   },
   methods: {
-    ...mapActions(['stopModelTrain']),
-    onStop: function () {
-      if (this.model) {
-        this.stopModelTrain(this.model.id)
-      }
+    calc_width: function (width) {
+      let percent = width * 100
+      return percent
     }
   }
 }
 </script>
 
-<style lang='scss'>
-#progress-bar {
+<style lang='scss' scoped>
+#class-info-area {
   display: flex;
   flex-direction: row;
+  justify-content: flex-start;
   align-items: center;
   width: 100%;
   height: calc(#{$progress-bar-height}*0.8);
@@ -149,97 +165,32 @@ export default {
   font-size: 80%;
   text-align: center;
 
-  #model-id-area {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 12.5%;
-    height: 100%;
-  }
-  #epoch-area {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 12.5%;
-    height: 100%;
-  }
-  #batch-area {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 15%;
-    height: 100%;
-  }
-  #loss-area {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 18%;
-    height: 100%;
+  .item-name {
+    width: 30%;
   }
 
-  #bar-area {
+  .item-value {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 33%;
-    height: 70%;
-    #bar-background {
-      width: 100%;
-      height: calc(100% - #{$bar-margin}*2);
-      background-color: lightgray; 
-      #bar-front.training {
-        position: relative;
-        top: 0;
-        left: 0;
-        height: 100%;
-        transition: width 300ms;
-      }
-      #bar-front.validating {
-        position: relative;
-        top: 0;
-        left: 0;
-        height: 100%;
-        transition: width 300ms;
-        animation: move-bar 1.5s;
-        animation-iteration-count: infinite;
-        animation-timing-function: linear;
-        animation-fill-mode: both;
-        animation-delay: 0.1s;
-      }
-      
-
-      @keyframes move-bar {
-        0% {
-          transform: translateX(-50%) scaleX(0);
-        } 
-        20% {
-          transform: translateX(0%) scaleX(1);
-        } 
-        80% {
-          transform: translateX(400%) scaleX(1);
-        }
-        100% {
-          transform: translateX(450%) scaleX(0);
-        }
-      }
-    }
+    width: 70%;
   }
-  #button-stop-area {
+  .bar {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 131%;
-    width: 9%;
-    height: 100%;
+    justify-content: flex-start;
+    width: 100%;
+    height: 10px;
+    overflow: hidden;
+  }
+  .bar section {
+  	min-width: 10%;
+    height: 10px;
+    line-height: 10px;
     text-align: center;
-    color: lightgray;
-    i {
-      cursor: pointer;
-    }
-    i:hover {
-      color: gray;
-    }
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
   }
+  
 }
 </style>

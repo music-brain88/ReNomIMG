@@ -54,7 +54,18 @@
       </div>
       <div id="breakdown">
         Break Downs
-        <span v-if="getDatasetDetail">{{getDatasetDetail.class_info}}</span>
+        <div v-if="getDatasetDetail">
+          <breakdown-ratio-bar 
+            v-for="item in getDatasetDetail.class_info.class.length"
+            :key="item"
+            :item_name="getDatasetDetail.class_info.class[item - 1]"
+            :item_class_ratio="getDatasetDetail.class_info.class_ratio[item - 1]"
+            :item_test_ratio="getDatasetDetail.class_info.test_ratio[item - 1]"
+            :item_train_ratio="getDatasetDetail.class_info.train_ratio[item - 1]"
+            :item_valid_ratio="getDatasetDetail.class_info.valid_ratio[item - 1]"
+            >
+          </breakdown-ratio-bar>
+        </div>
       </div>
     </div>
   </div>
@@ -67,7 +78,7 @@ import BreakDownBar from '@/components/page/train_page/breakdown_ratio_bar.vue'
 export default {
   name: 'ModalAddDataset',
   components: {
-    'breakdown_ratio_bar': BreakDownBar
+    'breakdown-ratio-bar': BreakDownBar
   },
   data: function () {
     return {
