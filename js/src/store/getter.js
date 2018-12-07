@@ -199,6 +199,9 @@ export default {
     return state.deployed_model[getters.getCurrentTask]
   },
   getDatasetDetail (state, getters) {
+    return state.dataset_details[0]
+  },
+  getTestDatasetDetail (state, getters) {
     return state.test_dataset_details[0]
   },
   getCurrentTaskTitle (state, getters) {

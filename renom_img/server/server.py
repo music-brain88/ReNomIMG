@@ -291,7 +291,7 @@ def dataset_confirm():
     dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
     test_dataset_id = int(
         req_params.test_dataset_id
-        if req_params.test_dataset_id != '' else -1)
+        if req_params.test_dataset_id != '' else '-1')
     task_id = int(req_params.task_id)
     description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
     #
@@ -503,9 +503,11 @@ def test_dataset_confirm():
     req_params = request.params
     # Receive params here.
     ratio = float(req_params.ratio)
-    dataset_name = str(req_params.name)
+    dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
     task_id = int(req_params.task_id)
-    description = str(req_params.description)
+    description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
+    print(dataset_name)
+    print(description)
     ##
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
@@ -553,10 +555,9 @@ def test_dataset_confirm():
         "img": img_files,
         "target": parsed_target,
     }
-    test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, test_data)
-
+    # test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, test_data)
     return {
-        'id': test_dataset_id,
+        'id': 1 ,#test_dataset_id,
         'test_data': test_data,
         'class_map': class_map,
     }

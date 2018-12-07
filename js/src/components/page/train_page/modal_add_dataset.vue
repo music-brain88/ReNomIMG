@@ -52,7 +52,7 @@
           Test: 
         </div>
       </div>
-      <div id="dataset-ratio-bar">
+      <div id="dataset-ratio-bar" v-if="getDatasetDetail">
         <dataset-ratio-bar
           :item_train_ratio="getDatasetDetail.train_data.img.length/(getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length)"
           :item_valid_ratio="getDatasetDetail.valid_data.img.length/(getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length)"
@@ -72,7 +72,7 @@
             :item_valid_ratio="getDatasetDetail.class_info.valid_ratio[item - 1]"
             >
           </breakdown-ratio-bar>
-          <input type="button" value="submit" @click="onAddDataset" :disabled="isComfirmable">
+          <input type="button" value="submit" @click="" :disabled="isComfirmable">
         </div>
       </div>
     </div>
