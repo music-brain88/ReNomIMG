@@ -207,7 +207,7 @@ class Yolov2(Detection):
             return self._opt
         else:
             self.global_counter += 1
-            if self.global_counter > int(0.4*(total_epoch*total_batch)):
+            if self.global_counter > int(0.3*(total_epoch*total_batch)):
                 self.flag = False
             if current_loss is not None and current_loss > 50:
                 self._opt._lr *= 0.1
@@ -225,19 +225,6 @@ class Yolov2(Detection):
             self._opt._lr = lr
 
             return self._opt
-
-    def preprocess(self, x):
-        """Image preprocess for Yolov2.
-
-        :math:`x_{new} = x*2/255 - 1`
-
-        Args:
-            x (ndarray):
-
-        Returns:
-            (ndarray): Preprocessed data.
-        """
-        return x / 255. * 2 - 1
 
     def forward(self, x):
         """Performs forward propagation.
@@ -724,7 +711,6 @@ class Yolov2(Detection):
                         loss = float(loss.as_ndarray()[0])
                     except:
                         loss = float(loss.as_ndarray())
-
                     display_loss += loss
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
