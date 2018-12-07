@@ -198,6 +198,9 @@ export default {
   getDeployedModel (state, getters) {
     return state.deployed_model[getters.getCurrentTask]
   },
+  getDatasetDetail (state, getters) {
+    return state.dataset_details
+  },
   getCurrentTaskTitle (state, getters) {
     if (state.current_task === TASK_ID.CLASSIFICATION) {
       return 'Classification'

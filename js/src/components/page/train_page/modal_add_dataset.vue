@@ -33,23 +33,23 @@
         Dataset BreakDown
       </div>
       <div id="dataset-name">
-        AA
+        {{getDatasetDetail[0].dataset_name}} 
       </div>
-      <div id="dataset-taio">
-        0.9
+      <div id="dataset-ratio">
+        {{getDatasetDetail[0].ratio}}
       </div>
       <div id="dataset-numbers">
         <div id="total-image-num">
-          Total Images: 12000
+          Total Images: {{getDatasetDetail[0].train_data.img.length + getDatasetDetail[0].valid_data.img.length}}
         </div>
         <div id="train-image-num" class="num">
-          Train: 10000
+          Train: {{getDatasetDetail[0].train_data.img.length}} 
         </div>
-        <div id="valid-image-num" class="nun">
-          Valid: 1000
+        <div id="valid-image-num" class="num">
+          Valid: {{getDatasetDetail[0].valid_data.img.length}} 
         </div>
         <div id="test-image-num" class="num">
-          Test: 1000
+          Test: 
         </div>
       </div>
       <div id="breakdown">
@@ -77,7 +77,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getFilteredTestDatasetList']),
+    ...mapGetters([
+      'getFilteredTestDatasetList',
+      'getDatasetDetail'
+    ]),
     isComfirmable: function () {
       if (this.name && this.ratio > 0 && this.ratio < 1) {
         return false
@@ -120,7 +123,11 @@ export default {
           'test_dataset_id': test_dataset_id,
         })
       }
-    } // onAddDataset
+    }, // onAddDataset
+    hasData (data) {
+      let value = data.length > 0 ? data : 'No Test Dataset Selected'
+      return value
+    }
   }
 }
 </script>

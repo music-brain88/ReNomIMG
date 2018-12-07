@@ -318,7 +318,7 @@ def dataset_confirm():
     import time
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
-        
+
         start_t = time.time()
         classification_label_dir = label_dir / "classification"
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
@@ -330,6 +330,7 @@ def dataset_confirm():
         img_files = [str(img_dir / name) for name in file_names]
         parsed_target = [target[name.name] for name in file_names]
         print(time.time() - start_t)
+
     elif task_id == Task.DETECTION.value:
         detection_label_dir = label_dir / "detection"
         file_names = [p for p in file_names
@@ -337,6 +338,7 @@ def dataset_confirm():
         img_files = [str(img_dir / name) for name in file_names]
         xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
         parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
+
     elif task_id == Task.SEGMENTATION.value:
         segmentation_label_dir = label_dir / "segmentation"
         file_names = [p for p in file_names if (img_dir / p).is_file() and
@@ -370,14 +372,14 @@ def dataset_confirm():
         test_ratio = []
     else:
         test_ratio = []
-        
-    
-    # Dataset Informatin
+
+
+    # Dataset Information
     if task_id == Task.CLASSIFICATION.value:
-        
+
         start_t = time.time()
-        train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map))))
-        valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map))))
+        train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map) + 1)))
+        valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map) + 1)))
 
         print(time.time() - start_t)
         print('type:train_target',type(train_target))
@@ -389,42 +391,19 @@ def dataset_confirm():
     elif task_id == Task.DETECTION.value:
         train_tag_list = []
         valid_tag_list = []
-        # for i in range(len(train_target)):
-        #     for j in range(len(class_map)):
-        #         if train_target[i][0].get('name') == class_map[j]:
-        #             if class_map[j] not in train_tag_count:
-        #                 train_tag_count[class_map[j]] = 1
-        #             else:
-        #                 train_tag_count[class_map[j]] += 1
-        #
-        # valid_tag_count = {}
-        # for i in range(len(valid_target)):
-        #     for j in range(len(class_map)):
-        #         if valid_target[i][0].get('name') == class_map[j]:
-        #             if class_map[j] not in valid_tag_count:
-        #                 valid_tag_count[class_map[j]] = 1
-        #             else:
-        #                 valid_tag_count[class_map[j]] += 1
-        #
-        # train_tag_num = 0
-        # valid_tag_num = 0
-        # for i in range(len(class_map)):
-        #     train_tag_num += train_tag_count.get(class_map[i])
-        #     valid_tag_num += valid_tag_count.get(class_map[j])
-        # train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map))))
-        # valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map))))
+
         for i in range(len(train_target)):
             for j in range(len(class_map)):
                 if train_target[i][0].get('name') == class_map[j]:
                     train_tag_list.append(j)
-        
+
         for i in range(len(valid_target)):
             for j in range(len(class_map)):
                 if valid_target[i][0].get('name') == class_map[j]:
                     valid_tag_list.append(j)
 
-        train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map))))
-        valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map))))
+        train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
+        valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))
         print('type:train_target',type(train_target))
         print('type:train_tag_num', type(train_tag_num))
         print('class_map', class_map)
@@ -434,9 +413,9 @@ def dataset_confirm():
     elif task_id == Task.SEGMENTATION.value:
         train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
         valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
-    
+
     class_info = {
-      "class":class_map,
+      "class": class_map,
       "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
       "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
       "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
@@ -464,7 +443,7 @@ def dataset_confirm():
       "valid_data": valid_data,
       "class_map": class_map,
       "test_dataset_id": test_dataset_id,
-      "class_info": {}
+      "class_info": class_info
     }
     temp_dataset[dataset_hash] = dataset
 
@@ -473,7 +452,7 @@ def dataset_confirm():
     #                                       class_map, {}, test_dataset_id
     #                                       )
 
-    return class_info
+    return dataset
 
 
 @route("/api/renom_img/v2/dataset/load/task/<id:int>", method="GET")
@@ -567,7 +546,7 @@ def test_dataset_create():
 def polling_train(id):
     """
 
-    Cations: 
+    Cations:
         This function is possible to return empty dictionary.
     """
     threads = TrainThread.jobs
@@ -653,7 +632,7 @@ def polling_train(id):
 @json_handler
 def polling_prediction(id):
     """
-    Cations: 
+    Cations:
         This function is possible to return empty dictionary.
     """
     threads = PredictionThread.jobs
