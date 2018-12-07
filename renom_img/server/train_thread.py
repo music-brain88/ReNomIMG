@@ -305,13 +305,13 @@ class TrainThread(object):
 
                 prediction = []
                 for p, t in zip(pred, targ):
-                    lep, lemp, ler, lemr, _, _, _, _, _, _ =get_segmentation_metrics(p[None], 
-                        t[None], n_class=len(self.class_map))
+                    lep, lemp, ler, lemr, _, _, _, _, _, _ = get_segmentation_metrics(p[None],
+                                                                                      t[None], n_class=len(self.class_map))
                     prediction.append({
-                       "class": p.astype(np.int).tolist(),
-                       "recall": {k: float(v) for k, v in ler.items()},
-                       "precision": {k: float(v) for k, v in lep.items()},
-                    }) 
+                        "class": p.astype(np.int).tolist(),
+                        "recall": {k: float(v) for k, v in ler.items()},
+                        "precision": {k: float(v) for k, v in lep.items()},
+                    })
 
                 if self.best_epoch_valid_result:
                     if self.best_epoch_valid_result["f1"] <= f1:
@@ -478,7 +478,6 @@ class TrainThread(object):
         self.running_state = RunningState.STARTING
         self.sync_state()
         self.updated = True
-
 
     # Detection Algorithm
     def _setting_yolov1(self):

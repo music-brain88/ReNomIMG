@@ -64,41 +64,43 @@ class Yolov1(Detection):
 
     """
 
-    SERIALIZED = ("_cells", "_bbox", "imsize", "class_map", "num_class", "_last_dense_size")
+    SERIALIZED = ("_cells", "_bbox", "_last_dense_size", *Base.SERIALIZED)
     WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map=[], cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        num_class = len(class_map)
-
-        if not hasattr(cells, "__getitem__"):
+    def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        if isinstance(cells, int):
             cells = (cells, cells)
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-
-        self.num_class = num_class
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
+        elif isinstance(cells, (list, tuple)):
+            cells = cells
+        else:
+            assert False
         self._cells = cells
         self._bbox = bbox
-        self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
+        self._last_dense_size = 1
         model = Darknet(self._last_dense_size)
-        self._train_whole_network = train_whole_network
-
-        self.imsize = imsize
         self._freezed_network = rm.Sequential(model[:-7])
         self._network = rm.Sequential(model[-7:])
 
+        super(Yolov1, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network)
+
+        # This looks silly but need for following 3 cases.
+        # case1. Load only pretrained weight.
+        # case2. Load not only pretrained weight but also Yolov1 params including '_last_dense_size'.
+        # case3. Not load.
+        if self._last_dense_size == 1:
+            # If 'Yolov1 params' are not loaded, program will reach here.
+            num_class = len(self.class_map)
+            self._network[-1]._output_size = (num_class + 5 * bbox) * cells[0] * cells[1]
+        else:
+            # If 'Yolov1 params' are loaded, program will reach here.
+            pass
+        ####
+
+        self.num_class = len(self.class_map)
         self._opt = rm.Sgd(0.01, 0.9)
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self.load(load_pretrained_weight)
-            for layer in self._network.iter_models():
-                layer.params = {}
+        for layer in self._network.iter_models():
+            layer.params = {}
 
     def get_optimizer(self, current_loss=None, current_epoch=None,
                       total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
@@ -178,8 +180,8 @@ class Yolov1(Detection):
         assert len(self.class_map) > 0, \
             "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
             "Or, please load already trained model using the method 'load()'."
-        self.freezed_network.set_auto_update(self._train_whole_network)
-        return self.network(self.freezed_network(x))
+        self._freezed_network.set_auto_update(self.train_whole_network)
+        return self._network(self._freezed_network(x))
 
     def regularize(self):
         """Regularize term. You can use this function to add regularize term to

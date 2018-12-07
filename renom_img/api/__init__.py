@@ -7,6 +7,7 @@ import numpy as np
 import renom as rm
 from tqdm import tqdm
 
+from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 
@@ -36,6 +37,31 @@ def adddoc(cls):
 class Base(rm.Model):
     """Base class of all ReNomIMG algorithm api.
     """
+
+    SERIALIZED = ("_cells", "_bbox", "imsize", "class_map", "num_class")
+    WEIGHT_URL = None
+
+    def __init__(self, class_map=None, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        if class_map is None:
+            self.class_map = {}
+        else:
+            if isinstance(class_map, list):
+                self.class_map = {c.encode("ascii", "ignore"): i for i, c in enumerate(class_map)}
+            elif isinstance(class_map, dict):
+                self.class_map = {k.encode("ascii", "ignore"): v for k, v in class_map.items()}
+
+        self.imsize = imsize
+        self.load_pretrained_weight = load_pretrained_weight
+        self.train_whole_network = train_whole_network
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                weight_path = self.__class__.__name__ + '.h5'
+            elif isinstance(load_pretrained_weight, str):
+                weight_path = load_pretrained_weight
+
+            if not os.path.exists(weight_path):
+                download(self.WEIGHT_URL, weight_path)
+            self.load(weight_path)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         """
