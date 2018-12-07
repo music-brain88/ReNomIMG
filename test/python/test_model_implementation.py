@@ -21,9 +21,9 @@ set_cuda_active(True)
 
 
 @pytest.mark.parametrize("algo", [
-    # Yolov1,
+    Yolov1,
     Yolov2,
-    # SSD
+    SSD
 ])
 def test_detection_model_implementation(algo):
     # 1. Check if the model can be instantiate only giving nothing.
