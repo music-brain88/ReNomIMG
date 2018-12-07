@@ -21,8 +21,8 @@ set_cuda_active(True)
 
 
 @pytest.mark.parametrize("algo", [
-    Yolov1,
-    # Yolov2,
+    # Yolov1,
+    Yolov2,
     # SSD
 ])
 def test_detection_model_implementation(algo):

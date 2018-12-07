@@ -121,23 +121,28 @@ class Yolov2(Detection):
     """
 
     # Anchor information will be serialized by 'save' method.
-    SERIALIZED = ("anchor", "num_anchor", "anchor_size", "class_map", "num_class", "imsize")
+    SERIALIZED = ("anchor", "num_anchor", "anchor_size", "num_class", *Base.SERIALIZED)
     WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Yolov2.h5"
 
-    def __init__(self, class_map=[], anchor=None,
+    def __init__(self, class_map=None, anchor=None,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
 
         assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
               exp),imsize=(320, 320)."
 
-        num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._freezed_network = Darknet19()
+        darknet = Darknet19()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
+
+        # Network Definition. This is need for load weight.
+        if class_map is None:
+            num_class = 0
+        else:
+            num_class = len(class_map)
+            print(num_class)
+
         self.num_class = num_class
         last_channel = (num_class + 5) * self.num_anchor
         self._conv1 = rm.Sequential([
@@ -151,37 +156,40 @@ class Yolov2(Detection):
             "w": rm.Variable(self._last._initializer((last_channel, 1024, 1, 1)), auto_update=True),
             "b": rm.Variable(np.zeros((1, last_channel, 1, 1), dtype=np.float32), auto_update=False),
         }
+        self._freezed_network = darknet._base
+
+        # Super constructor possibly load 'class map'.
+        super(Yolov2, self).__init__(class_map, imsize, False, train_whole_network)
 
         self._opt = rm.Sgd(0.001, 0.9)
         self._train_whole_network = train_whole_network
 
+        # This looks silly.
+        num_class = len(self.class_map)
+        self.num_class = num_class
+        last_channel = (num_class + 5) * self.num_anchor
+
+        self._last.params = {
+            "w": rm.Variable(self._last._initializer((last_channel, 1024, 1, 1)), auto_update=True),
+            "b": rm.Variable(np.zeros((1, last_channel, 1, 1), dtype=np.float32), auto_update=False),
+        }
+        ####
+
         # Load weight here.
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-            try:
-                self.freezed_network.load(load_pretrained_weight)
-            except:
-                raise Exception("Couldn't load pretrained weight.")
-
-            for model in [self._conv1, self._conv2, self._last]:
-                for layer in model.iter_models():
-                    if not layer.params:
-                        continue
-                    if isinstance(layer, rm.Conv2d):
-                        layer.params = {
-                            "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
-                            "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=False),
-                        }
-                    elif isinstance(layer, rm.BatchNormalize):
-                        layer.params = {
-                            "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
-                            "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=True),
-                        }
-        self._freezed_network = self.freezed_network._base
+        for model in [self._conv21, self._conv1, self._conv2]:
+            for layer in model.iter_models():
+                if not layer.params:
+                    continue
+                if isinstance(layer, rm.Conv2d):
+                    layer.params = {
+                        "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
+                        "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=False),
+                    }
+                elif isinstance(layer, rm.BatchNormalize):
+                    layer.params = {
+                        "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
+                        "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=True),
+                    }
 
     def get_optimizer(self, current_loss=None, current_epoch=None,
                       total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
@@ -265,11 +273,12 @@ class Yolov2(Detection):
         assert len(self.class_map) > 0, \
             "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
             "Or, please load already trained model using the method 'load()'."
-        self.freezed_network.set_auto_update(self._train_whole_network)
-        self.freezed_network.set_models(inference=(
+
+        self._freezed_network.set_auto_update(self._train_whole_network)
+        self._freezed_network.set_models(inference=(
             not self._train_whole_network or getattr(self, 'inference', False)))
 
-        h, f = self.freezed_network(x)
+        h, f = self._freezed_network(x)
         f = self._conv21(f)
         h = self._conv1(h)
         h = self._conv2(rm.concat(h,

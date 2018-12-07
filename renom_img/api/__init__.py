@@ -46,9 +46,9 @@ class Base(rm.Model):
             self.class_map = {}
         else:
             if isinstance(class_map, list):
-                self.class_map = {c.encode("ascii", "ignore"): i for i, c in enumerate(class_map)}
+                self.class_map = {i: c.encode("ascii", "ignore") for i, c in enumerate(class_map)}
             elif isinstance(class_map, dict):
-                self.class_map = {k.encode("ascii", "ignore"): v for k, v in class_map.items()}
+                self.class_map = {v: k.encode("ascii", "ignore") for k, v in class_map.items()}
 
         self.imsize = imsize
         self.load_pretrained_weight = load_pretrained_weight

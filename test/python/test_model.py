@@ -21,9 +21,12 @@ set_cuda_active(True)
 
 
 @pytest.mark.parametrize("algo", [
-    Yolov1,
-    # Yolov2,
+    # Yolov1,
+    Yolov2,
     # SSD
 ])
 def test_weight_download(algo):
     model = algo(load_pretrained_weight=True)
+
+
+
