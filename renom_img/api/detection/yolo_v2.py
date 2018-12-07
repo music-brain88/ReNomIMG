@@ -207,7 +207,7 @@ class Yolov2(Detection):
             return self._opt
         else:
             self.global_counter += 1
-            if self.global_counter > int(0.3*(total_epoch*total_batch)):
+            if self.global_counter > int(0.3 * (total_epoch * total_batch)):
                 self.flag = False
             if current_loss is not None and current_loss > 50:
                 self._opt._lr *= 0.1
