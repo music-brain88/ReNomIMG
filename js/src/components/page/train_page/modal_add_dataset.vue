@@ -52,6 +52,13 @@
           Test: 
         </div>
       </div>
+      <div id="dataset-ratio-bar">
+        <dataset-ratio-bar
+          :item_train_ratio="getDatasetDetail.train_data.img.length/(getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length)"
+          :item_valid_ratio="getDatasetDetail.valid_data.img.length/(getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length)"
+        >
+        </dataset-ratio-bar>  
+      </div>
       <div id="breakdown">
         Break Downs
         <div v-if="getDatasetDetail">
@@ -74,10 +81,12 @@
 <script>
 import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 import BreakDownBar from '@/components/page/train_page/breakdown_ratio_bar.vue'
+import DatasetDetailBar from '@/components/page/train_page/dataset_detail_ratio_bar.vue'
 
 export default {
   name: 'ModalAddDataset',
   components: {
+    'dataset-ratio-bar': DatasetDetailBar,
     'breakdown-ratio-bar': BreakDownBar
   },
   data: function () {
@@ -139,9 +148,12 @@ export default {
         })
       }
     }, // onAddDataset
-    hasData (data) {
+    hasData: function (data) {
       let value = data.length > 0 ? data : 'No Test Dataset Selected'
       return value
+    },
+    calcNumberImageRatio: function () {
+
     }
   }
 }
