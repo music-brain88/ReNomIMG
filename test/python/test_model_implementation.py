@@ -10,7 +10,7 @@ from renom_img.api.detection.yolo_v2 import Yolov2, AnchorYolov2
 from renom_img.api.detection.ssd import SSD
 
 from renom_img.api.classification.vgg import VGG16, VGG19
-from renom_img.api.classification.resnet import ResNet34, ResNet50, ResNet101
+from renom_img.api.classification.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
 from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
 from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
 from renom_img.api.utility.augmentation import Augmentation
@@ -128,18 +128,20 @@ def test_detection_model_implementation(algo):
 
 
 @pytest.mark.parametrize("algo", [
-    VGG16,
-    VGG19,
+    # VGG16,
+    # VGG19,
+    ResNet18,
     ResNet34,
     ResNet50,
     ResNet101,
-    InceptionV1,
-    InceptionV2,
-    InceptionV3,
-    InceptionV4,
-    DenseNet121,
-    DenseNet169,
-    DenseNet201,
+    ResNet152,
+    # InceptionV1,
+    # InceptionV2,
+    # InceptionV3,
+    # InceptionV4,
+    # DenseNet121,
+    # DenseNet169,
+    # DenseNet201,
 ])
 def test_classification_model_implementation(algo):
     release_mem_pool()

@@ -4,6 +4,7 @@ import renom as rm
 import numpy as np
 from tqdm import tqdm
 
+from renom_img.api import Base, adddoc
 from renom_img.api.utility.misc.download import download
 from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
@@ -90,6 +91,19 @@ class Bottleneck(rm.Model):
 
 class ResNetBase(Classification):
 
+    SERIALIZED = ("num_class", *Base.SERIALIZED)
+
+    def _load_weight(self, load_pretrained_weight):
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                weight_path = self.__class__.__name__ + '.h5'
+            elif isinstance(load_pretrained_weight, str):
+                weight_path = load_pretrained_weight
+
+            if not os.path.exists(weight_path):
+                download(self.WEIGHT_URL, weight_path)
+            self._model.load(weight_path)
+
     def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None,
                       current_batch=None, total_batch=None, avg_valid_loss_list=None):
         """Returns an instance of Optimiser for training Yolov1 algorithm.
@@ -134,12 +148,12 @@ class ResNetBase(Classification):
         return x
 
     def _freeze(self):
-        self._model.conv1.set_auto_update(self._train_whole_network)
-        self._model.bn1.set_auto_update(self._train_whole_network)
-        self._model.layer1.set_auto_update(self._train_whole_network)
-        self._model.layer2.set_auto_update(self._train_whole_network)
-        self._model.layer3.set_auto_update(self._train_whole_network)
-        self._model.layer4.set_auto_update(self._train_whole_network)
+        self._model.conv1.set_auto_update(self.train_whole_network)
+        self._model.bn1.set_auto_update(self.train_whole_network)
+        self._model.layer1.set_auto_update(self.train_whole_network)
+        self._model.layer2.set_auto_update(self.train_whole_network)
+        self._model.layer3.set_auto_update(self.train_whole_network)
+        self._model.layer4.set_auto_update(self.train_whole_network)
 
 
 class ResNet(rm.Model):
@@ -215,20 +229,20 @@ class ResNet18(ResNetBase):
         https://arxiv.org/abs/1512.03385
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet18.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-
+    def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
 
+        self.num_class = None
         self._model = ResNet(self.num_class, BasicBlock, [2, 2, 2, 2])
+        super(ResNet18, self).__init__(class_map, imsize, False, train_whole_network)
+        self._load_weight(load_pretrained_weight)
+
+        self.num_class = len(self.class_map)  # This parameter possibly be updated.
+        self._model.fc._output_size = self.num_class
+        self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 
         # for error plateau
@@ -237,16 +251,7 @@ class ResNet18(ResNetBase):
         self._counter = 0
         self._min_lr = 1e-6
         self._factor = np.sqrt(0.1)
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
+        self._model.fc.params = {}
 
 
 class ResNet34(ResNetBase):
@@ -272,20 +277,21 @@ class ResNet34(ResNetBase):
         https://arxiv.org/abs/1512.03385
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet34.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
 
+        self.num_class = None
         self._model = ResNet(self.num_class, BasicBlock, [3, 4, 6, 3])
+        super(ResNet34, self).__init__(class_map, imsize, False, train_whole_network)
+        self._load_weight(load_pretrained_weight)
+
+        self.num_class = len(self.class_map)  # This parameter possibly be updated.
+        self._model.fc._output_size = self.num_class
+        self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 
         # for error plateau
@@ -294,16 +300,7 @@ class ResNet34(ResNetBase):
         self._counter = 0
         self._min_lr = 1e-6
         self._factor = np.sqrt(0.1)
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
+        self._model.fc.params = {}
 
 
 class ResNet50(ResNetBase):
@@ -332,17 +329,18 @@ class ResNet50(ResNetBase):
     SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet50.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-
+    def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
 
+        self.num_class = None
         self._model = ResNet(self.num_class, Bottleneck, [3, 4, 6, 3])
+        super(ResNet50, self).__init__(class_map, imsize, False, train_whole_network)
+        self._load_weight(load_pretrained_weight)
+
+        self.num_class = len(self.class_map)  # This parameter possibly be updated.
+        self._model.fc._output_size = self.num_class
+        self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 
         # for error plateau
@@ -351,16 +349,7 @@ class ResNet50(ResNetBase):
         self._counter = 0
         self._min_lr = 1e-6
         self._factor = np.sqrt(0.1)
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
+        self._model.fc.params = {}
 
 
 class ResNet101(ResNetBase):
@@ -386,20 +375,20 @@ class ResNet101(ResNetBase):
         https://arxiv.org/abs/1603.05027
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet101.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
-
+        self.num_class = None
         self._model = ResNet(self.num_class, Bottleneck, [3, 4, 23, 3])
+        super(ResNet101, self).__init__(class_map, imsize, False, train_whole_network)
+        self._load_weight(load_pretrained_weight)
+
+        self.num_class = len(self.class_map)  # This parameter possibly be updated.
+        self._model.fc._output_size = self.num_class
+        self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 
         # for error plateau
@@ -408,16 +397,7 @@ class ResNet101(ResNetBase):
         self._counter = 0
         self._min_lr = 1e-6
         self._factor = np.sqrt(0.1)
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
+        self._model.fc.params = {}
 
 
 class ResNet152(ResNetBase):
@@ -443,20 +423,20 @@ class ResNet152(ResNetBase):
         https://arxiv.org/abs/1603.05027
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet152.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
-
+        self.num_class = None
         self._model = ResNet(self.num_class, Bottleneck, [3, 8, 36, 3])
+        super(ResNet152, self).__init__(class_map, imsize, False, train_whole_network)
+        self._load_weight(load_pretrained_weight)
+
+        self.num_class = len(self.class_map)  # This parameter possibly be updated.
+        self._model.fc._output_size = self.num_class
+        self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 
         # for error plateau
@@ -465,13 +445,4 @@ class ResNet152(ResNetBase):
         self._counter = 0
         self._min_lr = 1e-6
         self._factor = np.sqrt(0.1)
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
+        self._model.fc.params = {}
