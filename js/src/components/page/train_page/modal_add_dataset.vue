@@ -26,7 +26,7 @@
       <div class='item'>
         Ratio<input type="number" v-model="ratio" placeholder="0.8" step="0.1" min="0" max="1"/>
       </div>
-      <input type="button" value="Confirm" @click="onAddDataset" :disabled="isComfirmable">
+      <input type="button" value="Confirm" @click="onConfirmDataset" :disabled="isComfirmable">
     </div>
     <div id="dataset-confirm">
       <div id="title">
@@ -72,6 +72,7 @@
             :item_valid_ratio="getDatasetDetail.class_info.valid_ratio[item - 1]"
             >
           </breakdown-ratio-bar>
+          <input type="button" value="submit" @click="onAddDataset" :disabled="isComfirmable">
         </div>
       </div>
     </div>
@@ -125,13 +126,8 @@ export default {
       const date = new Date()
       this.timeStamp = date.getTime()
     },
-    onAddDataset: function () {
+    onConfirmDataset: function () {
       if (this.isTestDataset) {
-        // this.createTestDataset({
-        //   'name': this.name,
-        //   'ratio': this.ratio,
-        //   'description': this.description,
-        // })
         this.confirmTestDataset({
           'name': this.name,
           'ratio': this.ratio,
@@ -140,6 +136,23 @@ export default {
       } else {
         const test_dataset_id = this.test_dataset.id
         console.log('test', test_dataset_id)
+        this.confirmDataset({
+          'name': this.name,
+          'ratio': this.ratio,
+          'description': this.description,
+          'test_dataset_id': test_dataset_id,
+        })
+      }
+    },
+    onAddDataset: function () {
+      if (this.isTestDataset) {
+        this.createTestDataset({
+          'name': this.name,
+          'ratio': this.ratio,
+          'description': this.description,
+        })
+      } else {
+        const test_dataset_id = this.test_dataset.id
         this.createDataset({
           'name': this.name,
           'ratio': this.ratio,
@@ -147,13 +160,10 @@ export default {
           'test_dataset_id': test_dataset_id,
         })
       }
-    }, // onAddDataset
+    },
     hasData: function (data) {
       let value = data.length > 0 ? data : 'No Test Dataset Selected'
       return value
-    },
-    calcNumberImageRatio: function () {
-
     }
   }
 }

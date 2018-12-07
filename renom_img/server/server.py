@@ -284,11 +284,6 @@ def model_load_prediction_result(id):
 @json_handler
 def dataset_confirm():
     req_params = request.params
-    # ratio = 0.8
-    # dataset_name = "test"
-    # task_id = 1
-    # description = "This is test"
-    # test_dataset_id = -1
     dataset_hash = str(1143524)
     # Receive params here.
     ratio = float(req_params.ratio)
@@ -298,7 +293,7 @@ def dataset_confirm():
         req_params.test_dataset_id
         if req_params.test_dataset_id != '' else -1)
     task_id = int(req_params.task_id)
-    description = str(req_params.description)
+    description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
     #
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
@@ -442,8 +437,43 @@ def dataset_confirm():
     #                                       train_data, valid_data,
     #                                       class_map, {}, test_dataset_id
     #                                       )
-
+    # print(temp_dataset[dataset_hash])
+    print(len(temp_dataset))
     return dataset
+
+@route("/api/renom_img/v2/dataset/create", method="POST")
+@json_handler
+def dataset_create():
+    dataset_hash = str(1143524)
+    req_params = request.params
+    task_id = temp_dataset[dataset_hash].get('task_id')
+    dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
+    description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
+    ratio = temp_dataset[dataset_hash].get('ratio')
+    train_data = temp_dataset[dataset_hash].get('train_data')
+    valid_data = temp_dataset[dataset_hash].get('valid_data')
+    class_map = temp_dataset[dataset_hash].get('class_map')
+    class_info = temp_dataset[dataset_hash].get('class_info')
+    test_dataset_id = temp_dataset[dataset_hash].get('test_dataset_id')
+
+    # print(task_id)
+    # print(dataset_name)
+    # print(description)
+    # print(ratio)
+    dataset_id = storage.register_dataset(
+        task_id,
+        dataset_name,
+        description,
+        ratio,
+        train_data,
+        valid_data,
+        class_map,
+        class_info,
+        test_dataset_id
+    )
+    return {'dataset_id': dataset_id}
+
+
 
 
 @route("/api/renom_img/v2/dataset/load/task/<id:int>", method="GET")
@@ -467,6 +497,69 @@ def dataset_load_of_task(id):
         ]
     }
 
+@route("/api/renom_img/v2/test_dataset/confirm", method="POST")
+@json_handler
+def test_dataset_confirm():
+    req_params = request.params
+    # Receive params here.
+    ratio = float(req_params.ratio)
+    dataset_name = str(req_params.name)
+    task_id = int(req_params.task_id)
+    description = str(req_params.description)
+    ##
+    root = pathlib.Path('datasrc')
+    img_dir = root / 'img'
+    label_dir = root / 'label'
+
+    assert img_dir.exists(), \
+        "The directory 'datasrc/img' is not found in current working directory."
+    assert label_dir.exists(), \
+        "The directory 'datasrc/label/detection' is not found in current working directory."
+
+    file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
+                  if name.is_file()]
+
+    # For Detection
+    if task_id == Task.CLASSIFICATION.value:
+        classification_label_dir = label_dir / "classification"
+        target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
+        target_file_list = list(target.keys())
+
+        file_names = [p for p in file_names
+                      if (img_dir / p).is_file() and (p.name in target_file_list)]
+
+        n_imgs = len(file_names)
+        perm = np.random.permutation(n_imgs)
+        file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]
+
+        img_files = [str(img_dir / name) for name in file_names]
+        parsed_target = [target[name.name] for name in file_names]
+
+    elif task_id == Task.DETECTION.value:
+        detection_label_dir = label_dir / "detection"
+        file_names = [p for p in file_names
+                      if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
+        n_imgs = len(file_names)
+        perm = np.random.permutation(n_imgs)
+        file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]
+
+        img_files = [str(img_dir / name) for name in file_names]
+        xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
+        parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
+    elif task_id == Task.SEGMENTATION.value:
+        pass
+
+    test_data = {
+        "img": img_files,
+        "target": parsed_target,
+    }
+    test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, test_data)
+
+    return {
+        'id': test_dataset_id,
+        'test_data': test_data,
+        'class_map': class_map,
+    }
 
 @route("/api/renom_img/v2/test_dataset/create", method="POST")
 @json_handler
