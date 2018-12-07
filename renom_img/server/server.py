@@ -566,14 +566,13 @@ def test_dataset_confirm():
 
     print(test_tag_num)
     class_info = {
+        "test_dataset_name": dataset_name,
         "class_map": class_map,
         "other_imgs": (n_imgs - len(img_files)),
         "test_imgs": len(img_files),
         "class_ratio": test_tag_num.tolist(),
         "test_ratio": ratio,
     }
-
-    print(class_info)
 
     #   "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
     #   "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),

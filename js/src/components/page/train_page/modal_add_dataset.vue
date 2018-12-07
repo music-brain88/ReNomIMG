@@ -28,7 +28,7 @@
       </div>
       <input type="button" value="Confirm" @click="onConfirmDataset" :disabled="isComfirmable">
     </div>
-    <div id="dataset-confirm">
+    <div id="dataset-confirm" v-if="!this.isTestDataset">
       <div id="title">
         Dataset BreakDown
       </div>
@@ -76,6 +76,50 @@
         </div>
       </div>
     </div>
+    <div id="dataset-confirm" v-else>
+      <div id="title">
+        Dataset BreakDown
+      </div>
+      <div id="dataset-name">
+        <span v-if="getTestDatasetDetail"> {{getTestDatasetDetail.test_dataset_name}} </span>
+      </div>
+      <div id="dataset-ratio">
+        <span v-if="getTestDatasetDetail"> {{getTestDatasetDetail.test_ratio}} </span>
+      </div>
+      <div id="dataset-numbers">
+        <div id="total-image-num">
+          Total Images: <span v-if="getTestDatasetDetail">{{getTestDatasetDetail.test_imgs + getTestDatasetDetail.other_imgs}}</span>
+        </div>
+        <div id="train-image-num" class="num">
+          Test: <span v-if="getTestDatasetDetail">{{getTestDatasetDetail.test_imgs}}</span> 
+        </div>
+        <div id="valid-image-num" class="num">
+          Other: <span v-if="getTestDatasetDetail">{{getTestDatasetDetail.other_imgs}} </span>
+        </div>
+      </div>
+      <div id="dataset-ratio-bar" v-if="getTestDatasetDetail">
+        <dataset-ratio-bar
+          :item_train_ratio="getTestDatasetDetail.test_imgs/(getTestDatasetDetail.test_img + getTestDatasetDetail.other_imgs)"
+          :item_valid_ratio="getTestDatasetDetail.other_imgs/(getTestDatasetDetail.test_img + getTestDatasetDetail.other_imgs)">
+        </dataset-ratio-bar>
+      </div>
+      <div id="breakdown">
+        Break Downs
+        <div v-if="getDatasetDetail">
+          <!-- <breakdown-ratio-bar 
+            v-for="item in getDatasetDetail.class_info.class.length"
+            :key="item"
+            :item_name="getDatasetDetail.class_info.class[item - 1]"
+            :item_class_ratio="getDatasetDetail.class_info.class_ratio[item - 1]"
+            :item_test_ratio="getDatasetDetail.class_info.test_ratio[item - 1]"
+            :item_train_ratio="getDatasetDetail.class_info.train_ratio[item - 1]"
+            :item_valid_ratio="getDatasetDetail.class_info.valid_ratio[item - 1]"
+            >
+          </breakdown-ratio-bar> -->
+          <input type="button" value="submit" @click="" :disabled="isComfirmable">
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -103,7 +147,8 @@ export default {
   computed: {
     ...mapGetters([
       'getFilteredTestDatasetList',
-      'getDatasetDetail'
+      'getDatasetDetail',
+      'getTestDatasetDetail'
     ]),
     isComfirmable: function () {
       if (this.name && this.ratio > 0 && this.ratio < 1) {
