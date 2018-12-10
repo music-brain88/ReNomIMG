@@ -67,7 +67,7 @@ set training label data to ``datasrc/label``.
     have to be ``image01.xml``.
 
 
-Format of the data
+Format of the Detection data
 ~~~~~~~~~~~~~~~~~~~
 
 **Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` formatted image files.
@@ -99,9 +99,100 @@ ReNomIMG accepts PASCAL VOC formatted object detection data.
 | **The PASCAL Visual Object Classes**
 | http://host.robots.ox.ac.uk/pascal/VOC/
 | 
-| 
+|
 
-   
+Format of the Classification data
+~~~~~~~~~~~~~~~~~~~
+
+**Format of label files** : ReNomIMG only accepts ''txt'' formatted label files.
+The format of text file is bellow.
+
+| Please Save as target.txt.
+| **put here**:``datasrc/label/classification/target.txt``
+
+.. code-block :: shell
+
+    crayfish_image_0035.jpg crayfish
+    crayfish_image_0065.jpg crayfish
+    crayfish_image_0037.jpg crayfish
+    crayfish_image_0032.jpg crayfish
+    crayfish_image_0028.jpg crayfish
+    crayfish_image_0051.jpg crayfish
+    wrench_image_0035.jpg wrench
+    wrench_image_0037.jpg wrench
+    wrench_image_0032.jpg wrench
+    wrench_image_0028.jpg wrench
+    wrench_image_0019.jpg wrench
+    wrench_image_0031.jpg wrench
+ 
+ReNomIMG accepts PASCAL VOC formatted object detection data.
+
+| **The PASCAL Visual Object Classes**
+| http://host.robots.ox.ac.uk/pascal/VOC/
+| 
+|
+
+Format of the Segmentation data
+~~~~~~~~~~~~~~~~~~~
+
+.. warning::
+    Segmentation require two kind of labels. 
+    ``PNG`` files and ``class_map.txt`` 
+
+**Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` formatted image files.
+
+**Format of label files** : ReNomIMG only accepts ``txt`` and ``PNG`` formatted label files.
+The format of txt file is bellow.
+
+| Please Save as class_map.txt.
+| **put here**:``datasrc/label/segmentation/class_map.txt``
+
+.. code-block :: shell
+
+      
+       a 0
+       b 1
+       c 2
+       d 3
+       e 4
+       f 5
+       g 6
+       h 7
+       i 8
+       j 9
+       k 10
+       l 11
+       m 12
+       n 13
+       o 14
+       p 15
+       q 16
+       r 17
+       s 18
+       t 19
+       u 20
+
+
+
+
+Sample of Segementation  PNG label file
+
+.. image:: /_static/image/009592.png
+
+
+ReNomIMG accepts PASCAL VOC formatted object detection data.
+
+| **The PASCAL Visual Object Classes**
+| http://host.robots.ox.ac.uk/pascal/VOC/
+| 
+|
+
+.. note:: 
+    The name of image file and corresponded label file name have to be same.
+    For example, the image file name is ``image01.jpg``, corresponded label file name
+    have to be ``image01.png``.
+
+
 Create Detection Model
 ----------------------
 
