@@ -40,6 +40,7 @@
         </div>
         <div id="box" v-else-if='isTaskDetection'
           :style="getBoxStyle(box)" v-for="box in getValidResult(item)">
+          <div id="box-label" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
         </div>
         <div id="seg" v-else-if='isTaskSegmentation'>
           <canvas :id="'canvas-' + index"/>
@@ -294,6 +295,11 @@ export default {
         border: 'solid 2px' + getTagColor(class_id) + 'bb'
       }
     },
+    getBoxLabelColor: function (class_id) {
+      return {
+        'background-color': getTagColor(class_id) + 'bb'
+      }
+    },
     getSegmentationStyle: function (item, index) {
       if (!item) return
       if (!item || !this.show_prediction) {
@@ -384,6 +390,16 @@ export default {
       position: absolute;
       height: 100%;
       width: 100%;
+      #box-label {
+        display: flex;
+        min-width: 100%;
+        height: calc(20px - 2.5px);
+        position: relative;
+        background-color: white;
+        color: white;
+        font-size: 0.8rem;
+        margin: 0;
+      }
     }
     #cls {
       position: absolute;

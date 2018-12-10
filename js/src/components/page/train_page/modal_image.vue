@@ -310,7 +310,7 @@ export default {
           width: 100%;
           #box-label {
             display: flex;
-            width: 100%;
+            min-width: 100%;
             height: calc(20px - 2.5px);
             position: relative;
             background-color: white;
