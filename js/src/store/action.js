@@ -396,10 +396,10 @@ export default {
   async createDataset (context, payload) {
     const url = '/api/renom_img/v2/dataset/create'
     const param = new FormData()
-    const name = payload.name
+    const name = encodeURIComponent(payload.name)
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
-    const description = 'test'
+    const description = encodeURIComponent(payload.description)
     const test_dataset_id = payload.test_dataset_id
 
     param.append('name', name)
@@ -427,7 +427,7 @@ export default {
    *
    */
   async createTestDataset (context, payload) {
-    const url = '/api/renom_img/v2/test_dataset/create'
+    const url = '/api/renom_img/v2/test_dataset/confirm'
     const name = payload.name
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
@@ -453,21 +453,38 @@ export default {
     }, error_handler_creator(context))
   },
   async confirmDataset (context, payload) {
-
-  },
-  async confirmTestDataset (context, payload) {
     const url = '/api/renom_img/v2/dataset/confirm'
-    const name = payload.name
+    const name = encodeURIComponent(payload.name)
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
-    const description = 'test'
+    const description = encodeURIComponent(payload.description)
     const param = new FormData()
     param.append('name', name)
     param.append('ratio', ratio)
     param.append('task_id', task_id)
     param.append('description', description)
     return axios.post(url, param).then(function (response) {
-      console.log([response])  
+      if (response.status === 204) return
+      console.log([response.data])
+      context.commit('setConfirmDataset', response.data)
+    }, error_handler_creator(context))
+  },
+  async confirmTestDataset (context, payload) {
+    const url = '/api/renom_img/v2/test_dataset/confirm'
+    const name = encodeURIComponent(payload.name)
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = encodeURIComponent(payload.description)
+    const param = new FormData()
+    param.append('name', name)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+    return axios.post(url, param).then(function (response) {
+      if (response.status === 204) return
+      console.log([response.data])
+      const class_info = response.data
+      context.commit('setConfirmTestDataset', class_info)
     }, error_handler_creator(context))
   },
   async loadSegmentationTargetArray (context, payload) {

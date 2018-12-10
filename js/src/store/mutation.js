@@ -60,9 +60,19 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+  setConfirmTestDataset (state, payload) {
+    if (state.datasets.find(n => n.id === payload.id) === undefined) {
+      state.test_dataset_details = [payload, ...state.datasets]
+    }
+  },
+  setConfirmDataset (state, payload) {
+    if (state.datasets.find(n => n.id === payload.id) === undefined) {
+      state.dataset_details = [payload, ...state.datasets]
+    }
+  },
   addDataset (state, payload) {
     if (state.datasets.find(n => n.id === payload.id) === undefined) {
-      state.datasets = [payload, ...state.datasets]
+      state.datasets = payload
     }
   },
   addTestDataset (state, payload) {

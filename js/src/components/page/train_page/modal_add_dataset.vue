@@ -26,34 +26,98 @@
       <div class='item'>
         Ratio<input type="number" v-model="ratio" placeholder="0.8" step="0.1" min="0" max="1"/>
       </div>
-      <input type="button" value="Confirm" @click="onAddDataset" :disabled="isComfirmable">
+      <input type="button" value="Confirm" @click="onConfirmDataset" :disabled="isComfirmable">
     </div>
-    <div id="dataset-confirm">
+    <div id="dataset-confirm" v-if="!this.isTestDataset">
       <div id="title">
         Dataset BreakDown
       </div>
       <div id="dataset-name">
-        AA
+        <span v-if="getDatasetDetail"> {{getDatasetDetail.dataset_name}} </span>
       </div>
-      <div id="dataset-taio">
-        0.9
+      <div id="dataset-ratio">
+        <span v-if="getDatasetDetail"> {{getDatasetDetail.ratio}} </span>
       </div>
       <div id="dataset-numbers">
         <div id="total-image-num">
-          Total Images: 12000
+          Total Images: <span v-if="getDatasetDetail">{{getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length}}</span>
         </div>
         <div id="train-image-num" class="num">
-          Train: 10000
+          Train: <span v-if="getDatasetDetail">{{getDatasetDetail.train_data.img.length}}</span> 
         </div>
-        <div id="valid-image-num" class="nun">
-          Valid: 1000
+        <div id="valid-image-num" class="num">
+          Valid: <span v-if="getDatasetDetail">{{getDatasetDetail.valid_data.img.length}} </span>
         </div>
         <div id="test-image-num" class="num">
-          Test: 1000
+          Test: 
         </div>
+      </div>
+      <div id="dataset-ratio-bar" v-if="getDatasetDetail">
+        <dataset-ratio-bar
+          :item_train_ratio="getDatasetDetail.train_data.img.length/(getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length)"
+          :item_valid_ratio="getDatasetDetail.valid_data.img.length/(getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length)"
+        >
+        </dataset-ratio-bar>  
       </div>
       <div id="breakdown">
         Break Downs
+        <div v-if="getDatasetDetail">
+          <breakdown-ratio-bar 
+            v-for="item in getDatasetDetail.class_info.class.length"
+            :key="item"
+            :item_name="getDatasetDetail.class_info.class[item - 1]"
+            :item_class_ratio="getDatasetDetail.class_info.class_ratio[item - 1]"
+            :item_test_ratio="getDatasetDetail.class_info.test_ratio[item - 1]"
+            :item_train_ratio="getDatasetDetail.class_info.train_ratio[item - 1]"
+            :item_valid_ratio="getDatasetDetail.class_info.valid_ratio[item - 1]"
+            >
+          </breakdown-ratio-bar>
+          <input type="button" value="submit" @click="" :disabled="isComfirmable">
+        </div>
+      </div>
+    </div>
+    <div id="dataset-confirm" v-else>
+      <div id="title">
+        Dataset BreakDown
+      </div>
+      <div id="dataset-name">
+        <span v-if="getTestDatasetDetail"> {{getTestDatasetDetail.test_dataset_name}} </span>
+      </div>
+      <div id="dataset-ratio">
+        <span v-if="getTestDatasetDetail"> {{getTestDatasetDetail.test_ratio}} </span>
+      </div>
+      <div id="dataset-numbers">
+        <div id="total-image-num">
+          Total Images: <span v-if="getTestDatasetDetail">{{getTestDatasetDetail.test_imgs + getTestDatasetDetail.other_imgs}}</span>
+        </div>
+        <div id="train-image-num" class="num">
+          Test: <span v-if="getTestDatasetDetail">{{getTestDatasetDetail.test_imgs}}</span> 
+        </div>
+        <div id="valid-image-num" class="num">
+          Other: <span v-if="getTestDatasetDetail">{{getTestDatasetDetail.other_imgs}} </span>
+        </div>
+      </div>
+      <div id="dataset-ratio-bar" v-if="getTestDatasetDetail">
+        <dataset-ratio-bar
+          :item_train_ratio="getTestDatasetDetail.test_imgs/(getTestDatasetDetail.test_img + getTestDatasetDetail.other_imgs)"
+          :item_valid_ratio="getTestDatasetDetail.other_imgs/(getTestDatasetDetail.test_img + getTestDatasetDetail.other_imgs)">
+        </dataset-ratio-bar>
+      </div>
+      <div id="breakdown">
+        Break Downs
+        <div v-if="getDatasetDetail">
+          <!-- <breakdown-ratio-bar 
+            v-for="item in getDatasetDetail.class_info.class.length"
+            :key="item"
+            :item_name="getDatasetDetail.class_info.class[item - 1]"
+            :item_class_ratio="getDatasetDetail.class_info.class_ratio[item - 1]"
+            :item_test_ratio="getDatasetDetail.class_info.test_ratio[item - 1]"
+            :item_train_ratio="getDatasetDetail.class_info.train_ratio[item - 1]"
+            :item_valid_ratio="getDatasetDetail.class_info.valid_ratio[item - 1]"
+            >
+          </breakdown-ratio-bar> -->
+          <input type="button" value="submit" @click="" :disabled="isComfirmable">
+        </div>
       </div>
     </div>
   </div>
@@ -61,10 +125,14 @@
 
 <script>
 import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
+import BreakDownBar from '@/components/page/train_page/breakdown_ratio_bar.vue'
+import DatasetDetailBar from '@/components/page/train_page/dataset_detail_ratio_bar.vue'
 
 export default {
   name: 'ModalAddDataset',
   components: {
+    'dataset-ratio-bar': DatasetDetailBar,
+    'breakdown-ratio-bar': BreakDownBar
   },
   data: function () {
     return {
@@ -77,7 +145,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getFilteredTestDatasetList']),
+    ...mapGetters([
+      'getFilteredTestDatasetList',
+      'getDatasetDetail',
+      'getTestDatasetDetail'
+    ]),
     isComfirmable: function () {
       if (this.name && this.ratio > 0 && this.ratio < 1) {
         return false
@@ -99,14 +171,27 @@ export default {
       const date = new Date()
       this.timeStamp = date.getTime()
     },
+    onConfirmDataset: function () {
+      if (this.isTestDataset) {
+        this.confirmTestDataset({
+          'name': this.name,
+          'ratio': this.ratio,
+          'description': this.description,
+        })
+      } else {
+        const test_dataset_id = this.test_dataset.id
+        console.log('test', test_dataset_id)
+        this.confirmDataset({
+          'name': this.name,
+          'ratio': this.ratio,
+          'description': this.description,
+          'test_dataset_id': test_dataset_id,
+        })
+      }
+    },
     onAddDataset: function () {
       if (this.isTestDataset) {
-        // this.createTestDataset({
-        //   'name': this.name,
-        //   'ratio': this.ratio,
-        //   'description': this.description,
-        // })
-        this.confirmTestDataset({
+        this.createTestDataset({
           'name': this.name,
           'ratio': this.ratio,
           'description': this.description,
@@ -120,7 +205,11 @@ export default {
           'test_dataset_id': test_dataset_id,
         })
       }
-    } // onAddDataset
+    },
+    hasData: function (data) {
+      let value = data.length > 0 ? data : 'No Test Dataset Selected'
+      return value
+    }
   }
 }
 </script>
