@@ -151,7 +151,9 @@ def segmentation_target_mask():
     path = pathlib.Path(path)
     file_dir = path.with_suffix('.png').relative_to('datasrc/img')
     file_dir = 'datasrc/label/segmentation' / file_dir
-    img = np.array(Image.open(file_dir).resize(size)).tolist()
+    img = np.array(Image.open(file_dir).resize(size)).astype(np.uint8)
+    img[img == 255] = 0
+    img = img.tolist()
     return {"class": img}
 
 

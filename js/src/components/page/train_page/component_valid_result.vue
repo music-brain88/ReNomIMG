@@ -318,6 +318,8 @@ export default {
 
       if (item.index < 0) return
       const index = item.index
+      const model = this.getSelectedModel
+      if (!model) return
       let result
       if (this.show_target) {
         const dataset = this.dataset
@@ -339,8 +341,6 @@ export default {
         }
       }
       if (this.show_prediction) {
-        const model = this.getSelectedModel
-        if (!model) return
         if (this.isTaskClassification) {
           return model.getValidResult(index)
         } else if (this.isTaskDetection) {

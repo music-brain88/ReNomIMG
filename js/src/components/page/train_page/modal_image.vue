@@ -12,14 +12,14 @@
           <img :src="img"/>
   
           <div id="cls" v-if="isTaskClassification"
-            :style="getClassificationStyle(prediction)">
+            :style="getClassificationStyle(result)">
           </div>
 
           <div id="box" v-else-if="isTaskDetection"
             :class="{'selected-box': index === hoverBox}"
             @mouseenter="hoverBox=index"
             @mouseleave="hoverBox=null"
-            :style="getBoxStyle(box)" v-for="(box, index) in prediction">
+            :style="getBoxStyle(box)" v-for="(box, index) in result">
             <div id="box-label" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
           </div>
 
@@ -43,7 +43,7 @@
             <span>{{ item.index }}</span>
             <span>{{ item.score }}%</span>
           </div>
-          <div v-if="!prediction">
+          <div v-if="!result">
             <span></span>
             <span>No prediction</span>
             <span></span>
@@ -58,7 +58,7 @@
             <span>{{r.score.toFixed(2)}}</span>
             <span>{{r.name}}</span>
           </div>
-          <div v-if="prediction.length === 0">
+          <div v-if="result.length === 0">
             <span></span>
             <span>No Prediction</span>
             <span></span>
@@ -82,7 +82,7 @@ export default {
   mounted: function () {
     this.$refs.container.focus()
     if (this.isTaskSegmentation) {
-      this.getSegmentationStyle(this.prediction)
+      let a = this.result
     }
   },
   data: function () {
@@ -111,11 +111,36 @@ export default {
       }
       return null
     },
+    target: function () {
+      const index = this.modal_index
+      const dataset = this.dataset
+      const model = this.model
+      const target = dataset.getValidTarget(index)
+      if (!dataset || !model) return
+      if (this.isTaskSegmentation) {
+        this.loadSegmentationTargetArray({
+          name: target.name,
+          size: [
+            parseInt(model.hyper_parameters.imsize_w),
+            parseInt(model.hyper_parameters.imsize_h)],
+          callback: (response) => {
+            const item = response.data
+            this.getSegmentationStyle(item)
+          }
+        })
+        return
+      }
+      return target
+    },
     prediction: function () {
       const model = this.model
       if (model) {
         const result = model.getValidResult(this.modal_index)
         if (result) {
+          if (this.isTaskSegmentation) {
+            this.getSegmentationStyle(result)
+            return
+          }
           return result
         }
       }
@@ -182,11 +207,19 @@ export default {
       }).slice(0, 5)
       return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
     },
+    result: function () {
+      if (true) {
+        console.log(this.target)
+        return this.target
+      } else {
+        return this.prediction
+      }
+    }
   },
   watch: {
     modal_index: function () {
       if (this.isTaskSegmentation) {
-        this.getSegmentationStyle(this.prediction)
+        this.result
       }
     }
   },
