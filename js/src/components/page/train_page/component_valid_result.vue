@@ -1,14 +1,26 @@
 <template>
   <component-frame :width-weight="8" :height-weight="7">
+
+    <!--Header Contents--------------->
     <template slot="header-slot">
       Prediction Result
-      <div id="valid-prediction-button-area"
-        v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
+      <div id="valid-prediction-button-area" tabindex="0"
+        v-on:keyup.right="nextPage" v-on:keyup.left="prevPage">
+        <!--
+          Only if Segmentation, show image toggle will be shown.
+        -->
         <label v-if="isTaskSegmentation">
           <input class="checkbox" type="checkbox"
           id="prediction-show-button" v-model="show_image" :disabled="!isTaskSegmentation">
           Image
         </label>
+
+        <!--
+          'Show prediction result' Button and 'show target' Button.
+          - In classification, prediction or target can be on.
+          - In detection, both prediction and target can be on.
+          - In segmentation, prediction or target can be on.
+        -->
         <label>
           <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction">
           Prediction
@@ -19,35 +31,54 @@
         </label>
       </div>
     </template>
-    <div id="pager" v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
+    <!---------------Header Contents-->
+
+
+    <!--Pager Settings--------------->
+    <div id="pager" tabindex="0"
+      v-on:keyup.right="nextPage" v-on:keyup.left="prevPage">
+
+      <!--Left Arrow-->
       <div class="pager-arrow" @click="prevPage">
         <i class="fa fa-caret-left" aria-hidden="true"></i>
       </div>
-      <div class="pager-number" :class="{number: item !== '...'}" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
+
+      <!--Number-->
+      <div v-for="item in pageList()" class="pager-number" 
+        :class="{number: item !== '...'}"  @click="setPageNum(item)" :style="pagerStyle(item)">
         {{ item }}
       </div>
+
+      <!--Right Arrow-->
       <div class="pager-arrow" @click="nextPage">
         <i class="fa fa-caret-right" aria-hidden="true"></i>
       </div>
     </div>
+    <!---------------Pager Settings-->
+
+    <!--Image list--------------->
     <div id="img-container" ref="container">
-      <!--<transition-group name="fade">-->
       <div v-for="(item, index) in getValidImages" :style="getImgSize(item)" @click="showImageModal(item)">
         <img :src="item.img" v-if="showImage"/>
-        <!--Change following div for each task-->
+
+        <!--Classification-->
         <div id="cls" v-if='isTaskClassification'
           :style="getClassificationStyle(getValidResult(item))">
         </div>
+
+        <!--Detection-->
         <div id="box" v-else-if='isTaskDetection'
           :style="getBoxStyle(box)" v-for="box in getValidResult(item)">
           <div id="box-label" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
         </div>
+
+        <!--Segmentation-->
         <div id="seg" v-else-if='isTaskSegmentation'>
-          <canvas :id="'canvas-' + index"/>
+          <canvas ref="canvas"/>
         </div>
       </div>
-      <!--</transition-group>-->
     </div>
+    <!---------------Image list-->
   </component-frame>
 </template>
 
@@ -72,9 +103,6 @@ export default {
   computed: {
     ...mapState([
       'datasets',
-      'modal_image',
-      'modal_prediction',
-      'modal_target'
     ]),
     ...mapGetters([
       'getSelectedModel',
@@ -116,7 +144,7 @@ export default {
         let index = 0
         if (!this.getValidImages) return
         for (let item of this.getValidImages) {
-          this.getSegmentationStyle(this.getValidResult(item), index)
+          this.getValidResult(item, index)
           index += 1
         }
       }
@@ -240,18 +268,26 @@ export default {
           dataset.page = ret
         })
     },
-    getValidResult: function (item) {
+    getValidResult: function (item, canvas_index = 0) {
       if (item.index < 0) return
       const index = item.index
       const model = this.getSelectedModel
       if (!model) return []
       let result
-
       if (this.show_target) {
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
         result = dataset.getValidTarget(index)
         if (this.isTaskSegmentation) {
-          this.loadSegmentationTargetArray(result)
+          return this.loadSegmentationTargetArray({
+            name: result.name,
+            size: [
+              parseInt(model.hyper_parameters.imsize_w),
+              parseInt(model.hyper_parameters.imsize_h)],
+            callback: (response) => {
+              const item = response.data
+              this.getSegmentationStyle(item, canvas_index)
+            }
+          })
         }
       }
       if (this.show_prediction) {
@@ -262,6 +298,7 @@ export default {
           result = result.concat(model.getValidResult(index))
         } else if (this.isTaskSegmentation) {
           result = model.getValidResult(index)
+          this.getSegmentationStyle(result, canvas_index)
         }
       }
       return result
@@ -304,7 +341,8 @@ export default {
       if (!item) return
       if (!item || !this.show_prediction) {
         // Clear canvas
-        var canvas = document.getElementById('canvas-' + String(index))
+        var canvas = this.$refs.canvas[index]
+        if (!canvas) return
         var cxt = canvas.getContext('bitmaprenderer')
         var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
         var offCxt = offCanvas.getContext('2d')
@@ -313,7 +351,7 @@ export default {
         return
       }
       this.$worker.run(render_segmentation, [item]).then((ret) => {
-        var canvas = document.getElementById('canvas-' + String(index))
+        var canvas = this.$refs.canvas[index]
         var cxt = canvas.getContext('bitmaprenderer')
         cxt.transferFromImageBitmap(ret)
       })

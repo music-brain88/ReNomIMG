@@ -73,7 +73,7 @@
 
 <script>
 import { TASK_ID } from '@/const.js'
-import { mapGetters, mapState, mapMutations } from 'vuex'
+import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -182,9 +182,6 @@ export default {
       }).slice(0, 5)
       return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
     },
-    getSegmentationTargetOnly: function () {
-
-    }
   },
   watch: {
     modal_index: function () {
@@ -195,6 +192,7 @@ export default {
   },
   methods: {
     ...mapMutations(['setImageModalData']),
+    ...mapActions(['loadSegmentationTargetArray']),
     nextPage: function () {
       this.setImageModalData(Math.min(this.length - 1,
         this.modal_index + 1))
