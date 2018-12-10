@@ -91,18 +91,7 @@ class Bottleneck(rm.Model):
 
 class ResNetBase(Classification):
 
-    SERIALIZED = ("num_class", *Base.SERIALIZED)
-
-    def _load_weight(self, load_pretrained_weight):
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                weight_path = self.__class__.__name__ + '.h5'
-            elif isinstance(load_pretrained_weight, str):
-                weight_path = load_pretrained_weight
-
-            if not os.path.exists(weight_path):
-                download(self.WEIGHT_URL, weight_path)
-            self._model.load(weight_path)
+    SERIALIZED = Base.SERIALIZED
 
     def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None,
                       current_batch=None, total_batch=None, avg_valid_loss_list=None):
@@ -155,6 +144,9 @@ class ResNetBase(Classification):
         self._model.layer3.set_auto_update(self.train_whole_network)
         self._model.layer4.set_auto_update(self.train_whole_network)
 
+    def set_last_layer_unit(self, unit_size):
+        self._model.set_last_layer_unit(unit_size)
+
 
 class ResNet(rm.Model):
 
@@ -205,6 +197,9 @@ class ResNet(rm.Model):
 
         return x
 
+    def set_last_layer_unit(self, unit_size):
+        self.fc._output_size = unit_size
+
 
 class ResNet18(ResNetBase):
     """ResNet18 model.
@@ -232,16 +227,11 @@ class ResNet18(ResNetBase):
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet18.h5"
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
 
-        self.num_class = None
-        self._model = ResNet(self.num_class, BasicBlock, [2, 2, 2, 2])
-        super(ResNet18, self).__init__(class_map, imsize, False, train_whole_network)
-        self._load_weight(load_pretrained_weight)
+        self._model = ResNet(1, BasicBlock, [2, 2, 2, 2])
+        super(ResNet18, self).__init__(class_map, imsize,
+                                       load_pretrained_weight, train_whole_network, self._model)
 
-        self.num_class = len(self.class_map)  # This parameter possibly be updated.
-        self._model.fc._output_size = self.num_class
         self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 
@@ -281,16 +271,10 @@ class ResNet34(ResNetBase):
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
+        self._model = ResNet(1, BasicBlock, [3, 4, 6, 3])
+        super(ResNet34, self).__init__(class_map, imsize,
+                                       load_pretrained_weight, train_whole_network, self._model)
 
-        self.num_class = None
-        self._model = ResNet(self.num_class, BasicBlock, [3, 4, 6, 3])
-        super(ResNet34, self).__init__(class_map, imsize, False, train_whole_network)
-        self._load_weight(load_pretrained_weight)
-
-        self.num_class = len(self.class_map)  # This parameter possibly be updated.
-        self._model.fc._output_size = self.num_class
         self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 
@@ -330,16 +314,11 @@ class ResNet50(ResNetBase):
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet50.h5"
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
 
-        self.num_class = None
-        self._model = ResNet(self.num_class, Bottleneck, [3, 4, 6, 3])
-        super(ResNet50, self).__init__(class_map, imsize, False, train_whole_network)
-        self._load_weight(load_pretrained_weight)
+        self._model = ResNet(1, Bottleneck, [3, 4, 6, 3])
+        super(ResNet50, self).__init__(class_map, imsize,
+                                       load_pretrained_weight, train_whole_network, self._model)
 
-        self.num_class = len(self.class_map)  # This parameter possibly be updated.
-        self._model.fc._output_size = self.num_class
         self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 
@@ -379,15 +358,10 @@ class ResNet101(ResNetBase):
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = None
-        self._model = ResNet(self.num_class, Bottleneck, [3, 4, 23, 3])
-        super(ResNet101, self).__init__(class_map, imsize, False, train_whole_network)
-        self._load_weight(load_pretrained_weight)
+        self._model = ResNet(1, Bottleneck, [3, 4, 23, 3])
+        super(ResNet101, self).__init__(class_map, imsize,
+                                        load_pretrained_weight, train_whole_network, self._model)
 
-        self.num_class = len(self.class_map)  # This parameter possibly be updated.
-        self._model.fc._output_size = self.num_class
         self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 
@@ -427,15 +401,10 @@ class ResNet152(ResNetBase):
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = None
-        self._model = ResNet(self.num_class, Bottleneck, [3, 8, 36, 3])
-        super(ResNet152, self).__init__(class_map, imsize, False, train_whole_network)
-        self._load_weight(load_pretrained_weight)
+        self._model = ResNet(1, Bottleneck, [3, 8, 36, 3])
+        super(ResNet152, self).__init__(class_map, imsize,
+                                        load_pretrained_weight, train_whole_network, self._model)
 
-        self.num_class = len(self.class_map)  # This parameter possibly be updated.
-        self._model.fc._output_size = self.num_class
         self.decay_rate = 0.0001
         self._opt = rm.Sgd(0.1, 0.9)
 

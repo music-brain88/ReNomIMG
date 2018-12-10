@@ -84,4 +84,3 @@ def test_evaluator_iou(pred, gt):
     iou = evalDetection.iou()
     assert iou['dog'] == 0.662
     assert iou['cat'] == 0.667
-

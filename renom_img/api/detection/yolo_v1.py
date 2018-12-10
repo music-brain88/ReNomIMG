@@ -64,43 +64,39 @@ class Yolov1(Detection):
 
     """
 
-    SERIALIZED = ("_cells", "_bbox", "_last_dense_size", *Base.SERIALIZED)
+    SERIALIZED = ("_cells", "_bbox", *Base.SERIALIZED)
     WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, cells=7, bbox=2,
+                 imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+
         if isinstance(cells, int):
             cells = (cells, cells)
         elif isinstance(cells, (list, tuple)):
             cells = cells
         else:
             assert False
-        self._cells = cells
-        self._bbox = bbox
-        self._last_dense_size = 1
-        model = Darknet(self._last_dense_size)
+
+        # Algorithm params settings.
+        model = Darknet(1)
         self._freezed_network = rm.Sequential(model[:-7])
         self._network = rm.Sequential(model[-7:])
-
-        super(Yolov1, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network)
-
-        # This looks silly but need for following 3 cases.
-        # case1. Load only pretrained weight.
-        # case2. Load not only pretrained weight but also Yolov1 params including '_last_dense_size'.
-        # case3. Not load.
-        if self._last_dense_size == 1:
-            # If 'Yolov1 params' are not loaded, program will reach here.
-            num_class = len(self.class_map)
-            self._network[-1]._output_size = (num_class + 5 * bbox) * cells[0] * cells[1]
-        else:
-            # If 'Yolov1 params' are loaded, program will reach here.
-            pass
-        ####
-
-        self.num_class = len(self.class_map)
+        self._cells = cells
+        self._bbox = bbox
         self._opt = rm.Sgd(0.01, 0.9)
 
+        # Load pretrained weights
+        super(Yolov1, self).__init__(class_map, imsize, load_pretrained_weight,
+                                     train_whole_network, load_target=self)
+
+        # Reset last weights.
         for layer in self._network.iter_models():
             layer.params = {}
+
+    def set_last_layer_unit(self, unit_size):
+        # Reset last dense layer
+        unit_size = (unit_size + 5 * self._bbox) * self._cells[0] * self._cells[1]
+        self._network[-1]._output_size = unit_size
 
     def get_optimizer(self, current_loss=None, current_epoch=None,
                       total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):

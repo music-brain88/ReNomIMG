@@ -68,4 +68,3 @@ def test_target_bulder_implementation(method):
             assert index > last_checked_index, \
                 "The order of arguments are not correct."
             last_checked_index = index
-

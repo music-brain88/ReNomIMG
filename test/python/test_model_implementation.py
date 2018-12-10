@@ -13,6 +13,9 @@ from renom_img.api.classification.vgg import VGG16, VGG19
 from renom_img.api.classification.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
 from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
 from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
+from renom_img.api.segmentation.unet import UNet
+from renom_img.api.segmentation.fcn import FCN16s, FCN8s, FCN32s
+
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.load import parse_xml_detection
 
@@ -128,8 +131,8 @@ def test_detection_model_implementation(algo):
 
 
 @pytest.mark.parametrize("algo", [
-    # VGG16,
-    # VGG19,
+    VGG16,
+    VGG19,
     ResNet18,
     ResNet34,
     ResNet50,
@@ -233,6 +236,109 @@ def test_classification_model_implementation(algo):
     class_map = ["car"]
     model = algo(class_map)
     model.fit(test_imgs, test_annotation, test_imgs, test_annotation, batch_size=2, epoch=2)
+
+    # Predict
+    model.predict(test_imgs)
+
+
+@pytest.mark.parametrize("algo", [
+    UNet,
+    FCN8s,
+    FCN16s,
+    FCN32s,
+])
+def test_segmentation_model_implementation(algo):
+    release_mem_pool()
+    # 1. Check if the model can be instantiate only giving nothing.
+    try:
+        model = algo()
+    except Exception as e:
+        # Model have to be initializable without no argument for using it with trained weight.
+        raise Exception("Model have to be  initializable without no argument.")
+
+    methods = {k: v for k, v in inspect.getmembers(model) if inspect.ismethod(v)}
+
+    # 2. Check function names and their arguments.
+    method_list = {
+        "__init__": [
+            ["class_map", type(None)],
+            ["imsize", tuple],
+            ["load_pretrained_weight", bool],
+            ["train_whole_network", bool]
+        ],
+        "loss": ["x", "y"],
+        "fit": ["train_img_path_list",
+                "train_annotation_list",
+                ["valid_img_path_list", type(None)],
+                ["valid_annotation_list", type(None)],
+                ["epoch", int],
+                ["batch_size", int],
+                ["augmentation", type(None)],
+                ["callback_end_epoch", type(None)]
+                ],
+        "predict": [
+            "img_list"
+        ],
+        "get_optimizer": [
+            ["current_loss", type(None)],
+            ["current_epoch", type(None)],
+            ["total_epoch", type(None)],
+            ["current_batch", type(None)],
+            ["total_batch", type(None)],
+            ["avg_valid_loss_list", type(None)],
+        ],
+        "preprocess": [
+            "x"
+        ],
+        "regularize": [],
+    }
+
+    for k, v in method_list.items():
+        last_checked_index = -1
+        assert k in methods
+        args = inspect.getargspec(getattr(model, k))
+        for i, a in enumerate(v):
+            if isinstance(a, list):
+                try:
+                    index = args.args.index(a[0])
+                except ValueError as e:
+                    raise ValueError("Argument '{}' is not implemented.".format(a[0]))
+                assert a[1] == type(args.defaults[index - (len(args.args) - len(args.defaults))]), \
+                    "Default argument type miss matched."
+            else:
+                try:
+                    index = args.args.index(a)
+                except ValueError as e:
+                    raise ValueError("Argument '{}' is not implemented.".format(a))
+
+            print(index, last_checked_index)
+            assert index > last_checked_index, \
+                "The order of arguments are not correct."
+            last_checked_index = index
+
+    # 3. Check serializable attributes.
+    serializables = [
+        "class_map",
+        "imsize",
+        "num_class"
+    ]
+    for s in serializables:
+        assert s in algo.SERIALIZED
+
+    # 4. Check fit function.
+    test_imgs = [
+        "voc.jpg",
+        "voc.jpg",
+    ]
+    test_annotation = [
+        "segmentation_target.png",
+        "segmentation_target.png",
+    ]
+
+    class_map = ["car"]
+    model = algo(class_map)
+    model.fit(test_imgs, test_annotation, test_imgs, test_annotation,
+              batch_size=2, epoch=2)
 
     # Predict
     model.predict(test_imgs)

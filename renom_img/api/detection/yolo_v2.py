@@ -121,7 +121,7 @@ class Yolov2(Detection):
     """
 
     # Anchor information will be serialized by 'save' method.
-    SERIALIZED = ("anchor", "num_anchor", "anchor_size", "num_class", *Base.SERIALIZED)
+    SERIALIZED = ("anchor", "num_anchor", "anchor_size",  *Base.SERIALIZED)
     WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Yolov2.h5"
 
     def __init__(self, class_map=None, anchor=None,
@@ -131,20 +131,18 @@ class Yolov2(Detection):
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
               exp),imsize=(320, 320)."
 
-        darknet = Darknet19()
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
 
-        # Network Definition. This is need for load weight.
-        if class_map is None:
-            num_class = 0
-        else:
-            num_class = len(class_map)
-            print(num_class)
+        darknet = Darknet19(1)
+        self._opt = rm.Sgd(0.001, 0.9)
 
-        self.num_class = num_class
-        last_channel = (num_class + 5) * self.num_anchor
+        super(Yolov2, self).__init__(class_map, imsize,
+                                     load_pretrained_weight, train_whole_network, darknet)
+
+        # Initialize trainable layers.
+        last_channel = (self.num_class + 5) * self.num_anchor
         self._conv1 = rm.Sequential([
             DarknetConv2dBN(channel=1024, prev_ch=1024),
             DarknetConv2dBN(channel=1024, prev_ch=1024),
@@ -152,30 +150,8 @@ class Yolov2(Detection):
         self._conv21 = DarknetConv2dBN(channel=64, prev_ch=512, filter=1)
         self._conv2 = DarknetConv2dBN(channel=1024, prev_ch=1024 + 256)
         self._last = rm.Conv2d(channel=last_channel, filter=1)
-        self._last.params = {
-            "w": rm.Variable(self._last._initializer((last_channel, 1024, 1, 1)), auto_update=True),
-            "b": rm.Variable(np.zeros((1, last_channel, 1, 1), dtype=np.float32), auto_update=False),
-        }
         self._freezed_network = darknet._base
 
-        # Super constructor possibly load 'class map'.
-        super(Yolov2, self).__init__(class_map, imsize, False, train_whole_network)
-
-        self._opt = rm.Sgd(0.001, 0.9)
-        self._train_whole_network = train_whole_network
-
-        # This looks silly.
-        num_class = len(self.class_map)
-        self.num_class = num_class
-        last_channel = (num_class + 5) * self.num_anchor
-
-        self._last.params = {
-            "w": rm.Variable(self._last._initializer((last_channel, 1024, 1, 1)), auto_update=True),
-            "b": rm.Variable(np.zeros((1, last_channel, 1, 1), dtype=np.float32), auto_update=False),
-        }
-        ####
-
-        # Load weight here.
         for model in [self._conv21, self._conv1, self._conv2]:
             for layer in model.iter_models():
                 if not layer.params:
@@ -190,6 +166,10 @@ class Yolov2(Detection):
                         "w": rm.Variable(layer._initializer(layer.params.w.shape), auto_update=True),
                         "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=True),
                     }
+
+    def set_last_layer_unit(self, unit_size):
+        # Last layer setting is done in __init__.
+        pass
 
     def get_optimizer(self, current_loss=None, current_epoch=None,
                       total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
@@ -274,9 +254,9 @@ class Yolov2(Detection):
             "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
             "Or, please load already trained model using the method 'load()'."
 
-        self._freezed_network.set_auto_update(self._train_whole_network)
+        self._freezed_network.set_auto_update(self.train_whole_network)
         self._freezed_network.set_models(inference=(
-            not self._train_whole_network or getattr(self, 'inference', False)))
+            not self.train_whole_network or getattr(self, 'inference', False)))
 
         h, f = self._freezed_network(x)
         f = self._conv21(f)

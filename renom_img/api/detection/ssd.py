@@ -259,30 +259,33 @@ class DetectorNetwork(rm.Model):
 
 class SSD(Detection):
 
-    SERIALIZED = ("overlap_threshold", "num_class", *Base.SERIALIZED)
+    SERIALIZED = ("overlap_threshold", *Base.SERIALIZED)
 
     def __init__(self, class_map=None, imsize=(300, 300),
                  overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
 
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-
         assert imsize == (300, 300), \
             "SSD of ReNomIMG v1.1 only accepts image size of (300, 300)."
 
-        super(SSD, self).__init__(class_map, imsize, False, train_whole_network)
+        vgg = VGG16()
+        super(SSD, self).__init__(class_map, imsize,
+                                  load_pretrained_weight, train_whole_network, vgg)
+
         self.num_class = len(self.class_map) + 1
+        self._network = DetectorNetwork(self.num_class, vgg)
+        self._freezed_network = rm.Sequential([vgg._model.block1,
+                                               vgg._model.block2])
 
         self.prior = PriorBox()
         self.prior_box = self.prior.create()
         self.num_prior = len(self.prior_box)
         self.overlap_threshold = overlap_threshold
 
-        vgg = VGG16(self.class_map, load_pretrained_weight=load_pretrained_weight)
-        self._freezed_network = rm.Sequential([vgg._model.block1,
-                                               vgg._model.block2])
-        self._network = DetectorNetwork(self.num_class, vgg)
         self._opt = rm.Sgd(1e-3, 0.9)
+
+    def set_last_layer_unit(self, unit_size):
+        # Settings of last layer is done in __init__.
+        pass
 
     def regularize(self):
         """Regularize term. You can use this function to add regularize term to
