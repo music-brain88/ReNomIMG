@@ -56,6 +56,7 @@
     </div>
     <!---------------Pager Settings-->
 
+
     <!--Image list--------------->
     <div id="img-container" ref="container">
       <div v-for="(item, index) in getValidImages" :style="getImgSize(item)" @click="showImageModal(item)">
@@ -95,10 +96,30 @@ export default {
   },
   data: function () {
     return {
+      // The state of the checkbox which represents weather image is shown.
       show_image: true,
+      // The state of the checkbox which represents weather target is shown.
       show_target: false,
+      // The state of the checkbox which represents weather prediction is shown.
       show_prediction: true
     }
+  },
+  beforeUpdate: function () {
+    /**
+      If the task is segmentation, drawing function will be called in
+      each update.
+    */
+    this.$nextTick(function () {
+      if (this.isTaskSegmentation) {
+        if (!this.getValidImages) return
+        let canvas_index = 0
+        for (let item of this.getValidImages) {
+          // This function will draw item to the canvas witch has same index to canvas_index.
+          this.getValidResult(item, canvas_index)
+          canvas_index += 1
+        }
+      }
+    })
   },
   computed: {
     ...mapState([
@@ -107,60 +128,65 @@ export default {
     ...mapGetters([
       'getSelectedModel',
       'getCurrentTask',
-      'getImagePageOfValid',
+      'getImagePageOfValid', // This will return current page number of image list.
       'isTaskClassification',
       'isTaskDetection',
       'isTaskSegmentation',
     ]),
+    dataset: function () {
+      const model = this.getSelectedModel
+      if (model) return this.datasets.find(d => d.id === model.dataset_id)
+    },
     showImage: function () {
+      // If the task is segmentation, image show button will be appeared.
       return this.show_image || !this.isTaskSegmentation
     },
     getValidImages: function () {
-      const model = this.getSelectedModel
-      if (!this.$refs.container) return []
-      if (model) {
-        let current_page = this.getImagePageOfValid
-        const dataset = this.datasets.find(d => d.id === model.dataset_id)
-        if (!dataset) return []
+      /**
+        If the dataset obj has no page, new image list will be created and
+        saved to 'dataset.page', otherwise 'dataset.page' will be returned.
 
-        if (dataset.page.length === 0) {
-          // Setup image page if it has not been set.
-          this.setUpValidImages()
-        }
+        Returns : Image list of current page.
+      */
+      if (!this.$refs.container === undefined) return
 
-        // Clip page number.
-        const max_page_num = dataset.page.length - 1
-        const page_num = Math.max(Math.min(current_page, max_page_num), 0)
-        this.setImagePageOfValid(page_num)
-        current_page = this.getImagePageOfValid
-        return dataset.page[current_page]
+      const dataset = this.dataset
+      if (!dataset) return
+      if (dataset.page.length === 0) {
+        // Setup image page if it has not been set.
+        this.setUpValidImages()
       }
-      return []
+
+      // Clip page number.
+      let current_page = this.getImagePageOfValid
+      const max_page_num = dataset.page.length - 1
+      const page_num = Math.max(Math.min(current_page, max_page_num), 0)
+      this.setImagePageOfValid(page_num)
+      current_page = this.getImagePageOfValid
+      return dataset.page[current_page]
     },
   },
-  beforeUpdate: function () {
-    this.$nextTick(function () {
-      if (this.isTaskSegmentation) {
-        let index = 0
-        if (!this.getValidImages) return
-        for (let item of this.getValidImages) {
-          this.getValidResult(item, index)
-          index += 1
-        }
-      }
-    })
-  },
-  created: function () {
-
-  },
   methods: {
-    ...mapMutations(['setImagePageOfValid', 'showModal', 'setImageModalData']),
-    ...mapActions(['loadSegmentationTargetArray']),
+    ...mapMutations([
+      'setImagePageOfValid', // Set current page number.
+      'showModal',
+      'setImageModalData' // This will set index of image for show in modal.
+    ]),
+    ...mapActions([
+      'loadSegmentationTargetArray' // Get segmentation target from server.
+    ]),
     showImageModal: function (item) {
+      /**
+        The image modal will appear.
+      */
       this.setImageModalData(item.index)
       this.showModal({'show_image': true})
     },
     pagerStyle: function (index) {
+      /**
+        This returns pager number style.
+        The current page number will be emphasized.
+      */
       const current_page = this.getImagePageOfValid
       if (current_page === index) {
         return {
@@ -170,12 +196,12 @@ export default {
       }
     },
     setPageNum: function (index) {
+      /**
+        If the pushed pager button is number,
+        set current page number as new number.
+      */
       if (index === '...') return
-
-      const model = this.getSelectedModel
-      if (!model) return
-
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      const dataset = this.dataset
       if (!dataset) return
 
       const max_page_num = dataset.page.length - 1
@@ -184,34 +210,32 @@ export default {
       this.setImagePageOfValid(Math.min(index, max_page_num))
     },
     nextPage: function () {
-      const model = this.getSelectedModel
-      if (!model) return
-
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      /**
+        Go to next page.
+      */
+      const dataset = this.dataset
       if (!dataset) return
-
       const max_page_num = dataset.page.length - 1
       const current_page = this.getImagePageOfValid
       this.setImagePageOfValid(Math.min(current_page + 1, max_page_num))
     },
     prevPage: function () {
-      const model = this.getSelectedModel
-      if (!model) return
-
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      /**
+        Go to previous page.
+      */
+      const dataset = this.dataset
       if (!dataset) return
-
       const max_page_num = dataset.page.length - 1
       const current_page = this.getImagePageOfValid
       this.setImagePageOfValid(Math.max(current_page - 1, 0))
     },
     pageList: function () {
-      const model = this.getSelectedModel
-      if (!model) return []
-
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
-      if (!dataset) return []
-      if (!dataset.page) return []
+      /**
+        Get the pager list.
+      */
+      const dataset = this.dataset
+      if (!dataset) return
+      if (!dataset.page) return
 
       const current_page = Math.max(this.getImagePageOfValid, 0)
       const max_page_num = Math.max(dataset.page.length - 1, 0)
@@ -237,8 +261,11 @@ export default {
       return (v * w) / 100
     },
     getImgSize: function (item) {
-      const parent_div = document.getElementById('img-container')
-      if (!parent_div) return {}
+      /**
+        Get the size of image.
+      */
+      const parent_div = this.$refs.container
+      if (parent_div === undefined) return
       const parent_height = parent_div.clientHeight
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
       const height = (parent_height - child_margin * 6) / 3
@@ -249,16 +276,21 @@ export default {
       }
     },
     setUpValidImages: function () {
-      const parent_div = document.getElementById('img-container')
-      if (!parent_div) return
+      /**
+        This function will create page list of image like following example.
+        [
+          [img1.jpg, img2.jpg, img3.jpg...], // Page1
+          [img11.jpg, img12.jpg, img13.jpg...], // Page2
+          ...
+        ]
+      */
+      const parent_div = this.$refs.container
+      if (parent_div === undefined) return
       const parent_height = parent_div.clientHeight
       const parent_width = parent_div.clientWidth
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
 
-      const model = this.getSelectedModel
-      if (!model) return
-
-      const dataset = this.datasets.find(d => d.id === model.dataset_id)
+      const dataset = this.dataset
       if (!dataset) return
 
       // Using vue-worker here.
@@ -269,15 +301,31 @@ export default {
         })
     },
     getValidResult: function (item, canvas_index = 0) {
+      /**
+        This function gets the result of prediction or target.
+        If the task is segmentation, this will call draw function.
+
+        Args:
+          item: This is a item of dataset.valid_data. It has following format.
+            {
+              index: (nth image),
+              img: (url),
+              size: (image size)
+            }
+          canvas_index: Required for drawing segmentation result.
+            In other task, this is not used.
+      */
+
       if (item.index < 0) return
       const index = item.index
-      const model = this.getSelectedModel
-      if (!model) return []
       let result
       if (this.show_target) {
-        const dataset = this.datasets.find(d => d.id === model.dataset_id)
+        const dataset = this.dataset
+        if (!dataset) return
         result = dataset.getValidTarget(index)
-        if (this.isTaskSegmentation) {
+        if (this.isTaskClassification) {
+          return result
+        } else if (this.isTaskSegmentation) {
           return this.loadSegmentationTargetArray({
             name: result.name,
             size: [
@@ -291,8 +339,10 @@ export default {
         }
       }
       if (this.show_prediction) {
+        const model = this.getSelectedModel
+        if (!model) return
         if (this.isTaskClassification) {
-          result = model.getValidResult(index)
+          return model.getValidResult(index)
         } else if (this.isTaskDetection) {
           if (!result) result = []
           result = result.concat(model.getValidResult(index))
@@ -356,9 +406,6 @@ export default {
         cxt.transferFromImageBitmap(ret)
       })
     },
-    getSegmentationTargetArray: function (src) {
-      let arr = this.loadSegmentationTargetArray(src)
-    }
   }
 }
 </script>
