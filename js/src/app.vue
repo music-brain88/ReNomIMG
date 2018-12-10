@@ -84,6 +84,8 @@ export default {
 }
 
 #app {
+  position: absolute;
+  top: 0px;
   width: 100%;
   font-size: $component-font-size;
   color: $component-font-color;
