@@ -1,7 +1,7 @@
 <template>
   <!--TODO: Fix this top value-->
-  <component-frame :width-weight="2" :height-weight="10"
-    :style="{position: 'sticky', top: 'calc(100vh*0.04 + 15px)'}"
+  <component-frame :width-weight="2" :height-weight="12"
+    :style="{position: 'sticky', top: '55px', bottom: 'calc(100vh - 72px)'}"
     class="model-list">
     <template slot="header-slot">
       Model List
@@ -256,8 +256,9 @@ export default {
   align-content: flex-start;
   flex-wrap: wrap;
   width: 100%;
-  height: 100%;
-  overflow: visible scroll;
+  max-height: calc(100% - #{$model-filter-height}*1.4 - #{$model-item-height} - 20px - 1rem);
+  height: calc(100% - #{$model-filter-min-height}*1.4 - #{$model-item-height-min} - 20px - 1rem);
+  overflow: auto;
 }
 
 #deployed-model-area {

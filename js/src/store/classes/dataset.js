@@ -45,7 +45,10 @@ export class Dataset {
 
       return box_list
     } else if (task === TASK_ID.SEGMENTATION) {
-      return vd[index]
+      return {
+        size: vd.size[index],
+        name: vd.img[index],
+      }
     }
   }
 }

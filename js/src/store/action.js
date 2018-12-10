@@ -453,8 +453,11 @@ export default {
     }, error_handler_creator(context))
   },
   async loadSegmentationTargetArray (context, payload) {
-    let url = '/target/segmentation/' + payload
-    return axios.get(url)
+    let url = '/target/segmentation'
+    const param = new FormData()
+    param.append('size', payload.size)
+    param.append('name', payload.name)
+    return axios.get(url, param)
   },
   async deployModel (context, payload) {
     let model = payload

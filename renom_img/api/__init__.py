@@ -68,7 +68,7 @@ class Base(rm.Model):
         # 4. Load pretrained weight.
         self.load_pretrained_weight = load_pretrained_weight
         if load_pretrained_weight and load_target is not None:
-            assert WEIGHT_URL, \
+            assert self.WEIGHT_URL, \
                 "The class '{}' has no pretrained weight.".format(self.__class__.__name__)
 
             if isinstance(load_pretrained_weight, bool):

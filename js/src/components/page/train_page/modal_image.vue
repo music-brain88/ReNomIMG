@@ -5,8 +5,7 @@
     tabindex="0">
     <div id="image-result">
       <div class="header">
-        <span>Prediction Result</span>
-        <span>{{modal_index}} / {{length}}</span>
+        <span style="width: 50%">Prediction Result &nbsp;&nbsp; {{modal_index+1}} / {{length}}</span>
       </div>
       <div id="image-container">
         <div id="image-wrapper" :style="getSize">
@@ -21,6 +20,7 @@
             @mouseenter="hoverBox=index"
             @mouseleave="hoverBox=null"
             :style="getBoxStyle(box)" v-for="(box, index) in prediction">
+            <div id="box-label" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
           </div>
 
           <div id="seg" v-if="isTaskSegmentation">
@@ -31,7 +31,11 @@
       </div>
     </div>
     <div id="result">
-      <div class="header"></div>
+      <div class="header">
+        <span>No.</span>
+        <span>Score</span>
+        <span>Name</span>
+      </div>
       <div id="result-container">
         <div id="cls-result" class="result" v-if="isTaskClassification">
           <div v-for="(item, index) in getClassificationTop3">
@@ -52,7 +56,7 @@
             :class="{'selected-box-item': index === hoverBox}">
             <span>{{index}}</span>
             <span>{{r.score.toFixed(2)}}</span>
-            <span>{{r.name}}-{{r.class}}</span>
+            <span>{{r.name}}</span>
           </div>
           <div v-if="prediction.length === 0">
             <span></span>
@@ -146,8 +150,8 @@ export default {
       const size = this.size
       let w = size[0]
       let h = size[1]
-      let parentW = (this.vw(60) - 20) * 0.65
-      let parentH = this.vh(60) - 20 - 40 - 10
+      let parentW = (this.vw(60) - 40) * 0.65
+      let parentH = this.vh(60) - 40 - 40 - 10
       if (parentW - w < parentH - h) {
         w = parentW
         h = parentW * h / w
@@ -236,7 +240,12 @@ export default {
         left: x1 + '%',
         width: box.box[2] * 100 + '%',
         height: box.box[3] * 100 + '%',
-        border: 'solid 5px' + getTagColor(class_id) + 'bb'
+        border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
+      }
+    },
+    getBoxLabelColor: function (class_id) {
+      return {
+        'background-color': getTagColor(class_id) + 'bb'
       }
     },
     getSegmentationStyle: function (item) {
@@ -257,7 +266,6 @@ export default {
         cxt.transferFromImageBitmap(ret)
       })
     },
-
   },
 }
 </script>
@@ -268,6 +276,7 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
+  padding: 10px;
   #image-result {
     width: 65%;
     height: 100%;
@@ -299,6 +308,15 @@ export default {
           position: absolute;
           height: 100%;
           width: 100%;
+          #box-label {
+            display: flex;
+            width: 100%;
+            height: calc(20px - 2.5px);
+            position: relative;
+            background-color: white;
+            color: white;
+            font-size: 0.8rem;
+          }
         }
         #seg {
           top: 0;
@@ -348,8 +366,15 @@ export default {
           height: 100%;
           display: flex;
           align-items: center;
-          justify-content: space-around;
+          justify-content: flex-start;
           width: 33.3%;
+          padding-left: 20px;
+          &:nth-child(1) {
+            width: 25%;
+          }
+          &:nth-child(2) {
+            width: 31%;
+          }
         }
       }
       .selected-box-item {
@@ -362,16 +387,28 @@ export default {
     }
   }
   .header {
-    height: 40px;
+    height: 32px;
     width: 100%;
     background-color: $header-background-color;
     margin-bottom: 10px;
     color: white;
     display: flex;
     align-items: center;
-    padding-left: 10px;
-    padding-right: 10px;
-    justify-content: space-between;
+    justify-content: flex-start;;
+    span {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 33.3%;
+      padding-left: 20px;
+      &:nth-child(1) {
+        width: 25%;
+      }
+      &:nth-child(2) {
+        width: 31%;
+      }
+    }
   }
 }
 </style>

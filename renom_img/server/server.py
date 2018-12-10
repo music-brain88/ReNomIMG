@@ -143,10 +143,18 @@ def datasrc(folder_name, file_name):
     return static_file(file_name, root=file_dir, mimetype='image/*')
 
 
-@route("/target/segmentation/<root:path>/<folder_name:path>/<file_name:path>")
-def segmentation_target_mask(root, folder_name, file_name):
-    file_dir = os.path.join('datasrc', folder_name)
-    return
+@route("/target/segmentation")
+@json_handler
+def segmentation_target_mask():
+    size = request.params.size
+    path = request.params.name
+    print(size, path)
+    path = pathlib.Path(path)
+    file_dir = path.with_suffix('.png')
+    img = np.array(Image.open(file_dir).resize(size)).tolist()
+    return {
+        "target": img
+    }
 
 
 # WEB APIs

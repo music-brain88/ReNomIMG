@@ -249,6 +249,9 @@ export default {
       if (this.show_target) {
         const dataset = this.datasets.find(d => d.id === model.dataset_id)
         result = dataset.getValidTarget(index)
+        if (this.isTaskSegmentation) {
+          this.loadSegmentationTargetArray(result)
+        }
       }
       if (this.show_prediction) {
         if (this.isTaskClassification) {
@@ -288,7 +291,7 @@ export default {
         left: x1 + '%',
         width: box.box[2] * 100 + '%',
         height: box.box[3] * 100 + '%',
-        border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
+        border: 'solid 2px' + getTagColor(class_id) + 'bb'
       }
     },
     getSegmentationStyle: function (item, index) {
