@@ -259,33 +259,33 @@ class DetectorNetwork(rm.Model):
 
 class SSD(Detection):
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
+    SERIALIZED = ("overlap_threshold", *Base.SERIALIZED)
 
-    def __init__(self, class_map=[], imsize=(300, 300),
+    def __init__(self, class_map=None, imsize=(300, 300),
                  overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
-
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
 
         assert imsize == (300, 300), \
             "SSD of ReNomIMG v1.1 only accepts image size of (300, 300)."
 
-        self.num_class = len(class_map) + 1
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
+        vgg = VGG16()
+        super(SSD, self).__init__(class_map, imsize,
+                                  load_pretrained_weight, train_whole_network, vgg)
 
-        self._train_whole_network = train_whole_network
+        self.num_class = len(self.class_map) + 1
+        self._network = DetectorNetwork(self.num_class, vgg)
+        self._freezed_network = rm.Sequential([vgg._model.block1,
+                                               vgg._model.block2])
+
         self.prior = PriorBox()
         self.prior_box = self.prior.create()
         self.num_prior = len(self.prior_box)
         self.overlap_threshold = overlap_threshold
 
-        self.imsize = imsize
-        vgg = VGG16(class_map, load_pretrained_weight=load_pretrained_weight)
-        self._freezed_network = rm.Sequential([vgg._model.block1,
-                                               vgg._model.block2])
-        self._network = DetectorNetwork(self.num_class, vgg)
         self._opt = rm.Sgd(1e-3, 0.9)
-        self._lr_list = []
+
+    def set_last_layer_unit(self, unit_size):
+        # Settings of last layer is done in __init__.
+        pass
 
     def regularize(self):
         """Regularize term. You can use this function to add regularize term to
@@ -436,8 +436,8 @@ class SSD(Detection):
         return boxes
 
     def forward(self, x):
-        self.freezed_network.set_auto_update(self._train_whole_network)
-        return self.network(self.freezed_network(x))
+        self._freezed_network.set_auto_update(self.train_whole_network)
+        return self._network(self._freezed_network(x))
 
     def loss(self, x, y, neg_pos_ratio=3.0):
         pos_samples = (y[:, :, 5] == 0)[..., None]

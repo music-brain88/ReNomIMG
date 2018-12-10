@@ -242,7 +242,20 @@ export const ALGORITHM = {
         ...override('IMAGE_HEIGHT', {
           disabled: false,
           default: 512,
-        })
+        }),
+        ...override('LOAD_PRETRAINED_WEIGHT', {
+          title: 'Load pretrain weight',
+          key: 'load_pretrained_weight',
+          disabled: true,
+          default: false,
+          type: 'checkbox'
+        }),
+        ...override('TRAIN_WHOLE', {
+          title: 'Train Whole Network',
+          key: 'train_whole',
+          type: 'checkbox',
+          default: true,
+        }),
       }
     },
     Fcn: {
@@ -251,6 +264,19 @@ export const ALGORITHM = {
       title: 'FCN',
       params: {
         ...COMMON_PARAMS,
+        ...override('LOAD_PRETRAINED_WEIGHT', {
+          title: 'Load pretrain weight',
+          key: 'load_pretrained_weight',
+          disabled: true,
+          default: false,
+          type: 'checkbox'
+        }),
+        ...override('TRAIN_WHOLE', {
+          title: 'Train Whole Network',
+          key: 'train_whole',
+          type: 'checkbox',
+          default: true,
+        }),
         LAYER: {
           title: 'Number of Layers',
           key: 'layer',
@@ -388,7 +414,48 @@ export const FILTER = {
       options: Object.values(ALGORITHM.DETECTION)
     }
   },
-
+  SEGMENTATION: {
+    VALID_RECALL: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'recall',
+      title: 'Valid Recall',
+      type: 'condition',
+      min: 0,
+      max: 1,
+    },
+    VALID_PRECISION: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'precision',
+      title: 'Valid Precision',
+      type: 'condition',
+      min: 0,
+      max: 1,
+    },
+    /*
+    VALID_F1: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'f1',
+      title: 'Valid F1',
+      type: 'condition',
+      min: 0,
+      max: 1,
+    },
+    */
+    VALID_LOSS: {
+      // Must be equal to the response of server key. "best_epoch_valid_result.key"
+      key: 'loss',
+      title: 'Valid Loss',
+      type: 'condition',
+      min: 0,
+      max: 100,
+    },
+    ALGORITHM_NAME: {
+      key: 'algorithm',
+      title: 'Algorithm',
+      type: 'select',
+      options: Object.values(ALGORITHM.SEGMENTATION)
+    }
+  }
 }
 
 export const GROUPBY = {

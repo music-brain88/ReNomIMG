@@ -30,13 +30,9 @@ export default {
   },
   computed: {
     ...mapState(['show_modal']),
-    ...mapGetters(['isShowableImageModal']),
+    ...mapGetters([]),
     show: function () {
-      if (this.show_modal.show_image) {
-        return this.isShowableImageModal
-      } else {
-        return Object.values(this.show_modal).some((d) => d)
-      }
+      return Object.values(this.show_modal).some((d) => d)
     },
   },
   methods: {

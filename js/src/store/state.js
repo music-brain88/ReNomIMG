@@ -77,7 +77,5 @@ export default {
   group_by: GROUPBY.NONE.key,
 
   // Image for modal
-  modal_image: null,
-  modal_prediction: null,
-  modal_target: null,
+  modal_index: null,
 }

@@ -24,7 +24,6 @@ class DataBuilderBase(object):
     def __init__(self, class_map, imsize):
         if isinstance(imsize, int):
             imsize = (imsize, imsize)
-
         self.imsize = imsize
         self.class_map = class_map
 
@@ -177,10 +176,13 @@ class DataBuilderSegmentation(DataBuilderBase):
         Returns:
             (tuple): Returns annotation data(numpy.array), the ratio of the given width to the actual image width,
         """
+        N = len(self.class_map)
         img = Image.open(path)
         img.load()
         w, h = img.size
-        img = img.resize(self.imsize, RESIZE_METHOD)
+        img = np.array(img.resize(self.imsize, RESIZE_METHOD))
+        assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
+        assert img.ndim == 2
         return np.array(img), self.imsize[0] / float(w), self.imsize[1] / h
 
     def load_img(self, path):

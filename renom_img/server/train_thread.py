@@ -8,6 +8,7 @@ from threading import Event
 sys.setrecursionlimit(10000)
 import numpy as np
 
+import renom as rm
 from renom.cuda import set_cuda_active, release_mem_pool, use_device
 from renom_img.api.classification.vgg import VGG11, VGG16, VGG19
 from renom_img.api.classification.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
@@ -88,8 +89,11 @@ class TrainThread(object):
             self.run()
         except Exception as e:
             traceback.print_exc()
+            self.state = State.STOPPED
+            self.running_state = RunningState.STOPPING
             self.error_msg = e
             self.model = None
+            self.sync_state()
         finally:
             release_mem_pool()
             TrainThread.semaphore.release()
@@ -199,7 +203,10 @@ class TrainThread(object):
 
                 valid_prediction_in_batch = model(valid_x)
                 loss = model.loss(valid_prediction_in_batch, valid_y)
-                valid_prediction.append(valid_prediction_in_batch.as_ndarray())
+                if self.task_id == Task.CLASSIFICATION.value:
+                    valid_prediction.append(rm.softmax(valid_prediction_in_batch).as_ndarray())
+                else:
+                    valid_prediction.append(valid_prediction_in_batch.as_ndarray())
 
                 if self.task_id != Task.DETECTION.value:
                     valid_target.append(valid_y)
@@ -295,12 +302,17 @@ class TrainThread(object):
                 targ = np.argmax(valid_target, axis=1)
                 _, pr, _, rc, _, f1, _, _, _, _ = \
                     get_segmentation_metrics(pred, targ, n_class=len(self.class_map))
-                prediction = [
-                    {
-                        "class": p.astype(np.int).tolist()
-                    }
-                    for p in pred
-                ]
+
+                prediction = []
+                for p, t in zip(pred, targ):
+                    lep, lemp, ler, lemr, _, _, _, _, _, _ = get_segmentation_metrics(p[None],
+                                                                                      t[None], n_class=len(self.class_map))
+                    prediction.append({
+                        "class": p.astype(np.int).tolist(),
+                        "recall": {k: float(v) for k, v in ler.items()},
+                        "precision": {k: float(v) for k, v in lep.items()},
+                    })
+
                 if self.best_epoch_valid_result:
                     if self.best_epoch_valid_result["f1"] <= f1:
                         self.best_valid_changed = True
@@ -466,7 +478,6 @@ class TrainThread(object):
         self.running_state = RunningState.STARTING
         self.sync_state()
         self.updated = True
-
 
     # Detection Algorithm
     def _setting_yolov1(self):

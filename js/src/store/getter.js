@@ -43,39 +43,39 @@ export default {
     // Sort
     if (state.sort_order === SORTBY.ID) {
       if (state.sort_order_direction === SORT_DIRECTION.DESCENDING) {
-        return array.sort((m1, m2) => m1.id <= m2.id)
+        return array.sort((m1, m2) => (m1.id <= m2.id) ? 1 : -1)
       } else {
-        return array.sort((m1, m2) => m1.id > m2.id)
+        return array.sort((m1, m2) => (m1.id > m2.id) ? 1 : -1)
       }
     } else if (state.sort_order === SORTBY.ALG) {
       if (state.sort_order_direction === SORT_DIRECTION.DESCENDING) {
-        return array.sort((m1, m2) => m1.algorithm_id <= m2.algorithm_id)
+        return array.sort((m1, m2) => (m1.algorithm_id <= m2.algorithm_id) ? 1 : -1)
       } else {
-        return array.sort((m1, m2) => m1.algorithm_id > m2.algorithm_id)
+        return array.sort((m1, m2) => (m1.algorithm_id > m2.algorithm_id) ? 1 : -1)
       }
     } else if (state.sort_order === SORTBY.LOSS) {
       if (state.sort_order_direction === SORT_DIRECTION.ASCENDING) {
         return array.sort((m1, m2) => {
           if (!m1.getBestLoss() && !m2.getBestLoss()) {
-            return m1.id > m2.id
+            return (m1.id > m2.id) ? 1 : -1
           } else if (m1.getBestLoss() && m2.getBestLoss()) {
-            return m1.getBestLoss() > m2.getBestLoss()
+            return (m1.getBestLoss() > m2.getBestLoss()) ? 1 : -1
           } else if (m1.getBestLoss()) {
-            return false
+            return -1
           } else if (m2.getBestLoss()) {
-            return true
+            return 1
           }
         })
       } else {
         return array.sort((m1, m2) => {
           if (!m1.getBestLoss() && !m2.getBestLoss()) {
-            return m1.id < m2.id
+            return (m1.id < m2.id) ? 1 : -1
           } else if (m1.getBestLoss() && m2.getBestLoss()) {
-            return m1.getBestLoss() < m2.getBestLoss()
+            return (m1.getBestLoss() < m2.getBestLoss()) ? 1 : -1
           } else if (m1.getBestLoss()) {
-            return false
+            return -1
           } else if (m2.getBestLoss()) {
-            return true
+            return 1
           }
         })
       }
@@ -85,13 +85,13 @@ export default {
           const mm1 = m1.getResultOfMetric1().value
           const mm2 = m2.getResultOfMetric1().value
           if (mm1 === '-' && mm2 === '-') {
-            return m1.id < m2.id
+            return (m1.id < m2.id) ? 1 : -1
           } else if (mm1 !== '-' && !mm2 !== '-') {
-            return mm1 < mm2
+            return (mm1 < mm2) ? 1 : -1
           } else if (mm1 !== '-') {
-            return false
+            return -1
           } else if (mm2 !== '-') {
-            return true
+            return 1
           }
         })
       } else {
@@ -99,13 +99,13 @@ export default {
           const mm1 = m1.getResultOfMetric1().value
           const mm2 = m2.getResultOfMetric1().value
           if (mm1 === '-' && mm2 === '-') {
-            return m1.id > m2.id
+            return (m1.id > m2.id) ? 1 : -1
           } else if (mm1 !== '-' && mm2 !== '-') {
-            return mm1 > mm2
+            return (mm1 > mm2) ? 1 : -1
           } else if (mm1 !== '-') {
-            return false
+            return -1
           } else if (mm2 !== '-') {
-            return true
+            return 1
           }
         })
       }
@@ -115,13 +115,13 @@ export default {
           const mm1 = m1.getResultOfMetric2().value
           const mm2 = m2.getResultOfMetric2().value
           if (mm1 === '-' && mm2 === '-') {
-            return m1.id < m2.id
+            return (m1.id < m2.id) ? 1 : -1
           } else if (mm1 !== '-' && mm2 !== '-') {
-            return mm1 < mm2
+            return (mm1 < mm2) ? 1 : -1
           } else if (mm1 !== '-') {
-            return false
+            return -1
           } else if (mm2 !== '-') {
-            return true
+            return 1
           }
         })
       } else {
@@ -129,13 +129,13 @@ export default {
           const mm1 = m1.getResultOfMetric2().value
           const mm2 = m2.getResultOfMetric2().value
           if (mm1 === '-' && mm2 === '-') {
-            return m1.id > m2.id
+            return (m1.id > m2.id) ? 1 : -1
           } else if (mm1 !== '-' && mm2 !== '-') {
-            return mm1 > mm2
+            return (mm1 > mm2) ? 1 : -1
           } else if (mm1 !== '-') {
-            return false
+            return -1
           } else if (mm2 !== '-') {
-            return true
+            return 1
           }
         })
       }
@@ -374,12 +374,13 @@ export default {
     const task = getters.getCurrentTask
     return state.nth_prediction_image_page[task]
   },
-  isShowableImageModal (state, getters) {
-    if ((state.modal_image && state.modal_prediction) ||
-      (state.modal_image && state.target)) {
-      return true
-    } else {
-      return false
-    }
+  isTaskClassification (state, getters) {
+    return TASK_ID.CLASSIFICATION === getters.getCurrentTask
+  },
+  isTaskDetection (state, getters) {
+    return TASK_ID.DETECTION === getters.getCurrentTask
+  },
+  isTaskSegmentation (state, getters) {
+    return TASK_ID.SEGMENTATION === getters.getCurrentTask
   },
 }

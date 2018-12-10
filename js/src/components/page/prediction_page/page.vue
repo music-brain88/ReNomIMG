@@ -33,5 +33,6 @@ export default {
   display: flex;
   align-content: flex-start;
   flex-wrap: wrap;
+  height: calc(#{$app-window-height} - #{$footer-height} - 100px);
 }
 </style>
