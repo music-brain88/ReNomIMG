@@ -44,12 +44,18 @@ The ``datasrc`` directory has following folder structure.
 
     datasrc/
       ├── img   # Set training img files here.
-      ├── label # Set training label files here.
+      ├── label
+      │    ├── classofication # Set classofication training label files here.
+      │    ├── detection      # Set detection training label files here.
+      │    └── segmentation   # Set segmentation training label files here.
       └── prediction_set
             ├── img     # Set prediction img files here.
             └── output  # Prediction result will be output here.
-                  ├── csv
-                  └── xml
+            	  ├── classofication # Set classofication training label files here.
+            	  ├── detection      # Set detection training label files here.
+            	  │     ├── csv
+                  │     └── xml
+            	  └── segmentation   # Set segmentation training label files here.
 
 As written in the above comments, please set training image data to ``datasrc/img``,
 set training label data to ``datasrc/label``.
@@ -103,7 +109,7 @@ So far, the server and dataset are prepared. Let's build a object detection mode
 For building a model, you have to specify ``dataset`` and ``hyper parameters``.
 
 Create Dataset
-~~~~~~~~~~~~~~
+​~~~~~~~~~~~~~~
 
 For training a machine learning model, you have to prepare training dataset and validation dataset.
 Training dataset is used for training model, and validation dataset is used for
@@ -149,7 +155,7 @@ In the above figure, 2 datasets are already created.
 
 
 Hyper parameter setting
-~~~~~~~~~~~~~~~~~~~~~~~
+​~~~~~~~~~~~~~~~~~~~~~~~
 
 So far you got all the materials, let's build a model and run training.
 For creating a model please push the button ``Add New Model``.
@@ -173,7 +179,7 @@ As you can see in above figure, you can specify following parameters.
     Depending on your GPU device, larger image size or batch size causes memory overflow.
 
 Training Model
-~~~~~~~~~~~~~~
+​~~~~~~~~~~~~~~
 
 Finishing hyper parameter settings, then **push run button to start training!**
 
@@ -190,3 +196,5 @@ You can uninstall ReNomIMG by following pip command.
 .. code-block :: shell
 
     pip uninstall renom_img
+
+~~~~~~~~~~~~~~~~~~~
