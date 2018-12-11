@@ -60,19 +60,19 @@ export default {
       throw new Error('Not supported task.')
     }
   },
-  setConfirmTestDataset (state, payload) {
-    if (state.datasets.find(n => n.id === payload.id) === undefined) {
-      state.test_dataset_details = [payload, ...state.datasets]
-    }
+  setConfirmingFlag (state, payload) {
+    state.confirming_flag = payload
   },
-  setConfirmDataset (state, payload) {
-    if (state.datasets.find(n => n.id === payload.id) === undefined) {
-      state.dataset_details = [payload, ...state.datasets]
-    }
+  setConfirmingDataset (state, payload) {
+    state.confirming_dataset = payload
+  },
+  setConfirmingTestDataset (state, payload) {
+    state.confirming_test_dataset = payload
   },
   addDataset (state, payload) {
+    console.log('AA', state.datasets)
     if (state.datasets.find(n => n.id === payload.id) === undefined) {
-      state.datasets = payload
+      state.datasets = [payload, ...state.datasets]
     }
   },
   addTestDataset (state, payload) {

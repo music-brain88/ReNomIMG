@@ -167,6 +167,7 @@ def parse_classmap_file(class_map_file, separator=" "):
     class_map = [c for k, c in sorted(class_map.items(), key=lambda x: x[0])]
     return class_map
 
+
 def parse_image_segmentation(annotation_list, class_num, num_thread=8):
 
     def load(path):
@@ -174,7 +175,7 @@ def parse_image_segmentation(annotation_list, class_num, num_thread=8):
         size_ratio = np.prod(img.size) / (128**2)
         img = np.array(img).flatten().astype(np.uint8)
         hist, edge = np.histogram(img, bins=list(range(256)))
-        return np.array(hist)/size_ratio
+        return np.array(hist) / size_ratio
 
     with Executor(max_workers=num_thread) as exc:
         ret = exc.map(load, annotation_list)
@@ -183,6 +184,7 @@ def parse_image_segmentation(annotation_list, class_num, num_thread=8):
     ret = ret[ret > 0]
     ret[0] += np.sum(ret[class_num:])
     return ret[:-1]
+
 
 def parce_class_id_segmentation(annotation_list):
     class_id_dict = {}

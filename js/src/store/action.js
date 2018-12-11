@@ -397,29 +397,24 @@ export default {
     const url = '/api/renom_img/v2/dataset/create'
     const param = new FormData()
     const name = encodeURIComponent(payload.name)
+    const hash = payload.hash
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
     const description = encodeURIComponent(payload.description)
     const test_dataset_id = payload.test_dataset_id
 
     param.append('name', name)
+    param.append('hash', hash)
     param.append('ratio', ratio)
     param.append('task_id', task_id)
     param.append('description', description)
     param.append('test_dataset_id', test_dataset_id)
 
-    const dataset = new Dataset(task_id, name, ratio, description, test_dataset_id)
-
-    context.commit('addDataset', dataset)
-
     return axios.post(url, param).then(function (response) {
       if (response.status === 204) return
-      const id = response.data.id
-      const class_map = response.data.class_map
-      const valid_data = response.data.valid_data
-      dataset.id = id
-      dataset.class_map = class_map
-      dataset.valid_data = valid_data
+      const dataset = context.state.confirming_dataset
+      dataset.id = response.data.dataset_id
+      context.commit('addDataset', dataset)
     }, error_handler_creator(context))
   },
 
@@ -454,20 +449,38 @@ export default {
   },
   async confirmDataset (context, payload) {
     const url = '/api/renom_img/v2/dataset/confirm'
+    const hash = payload.hash
     const name = encodeURIComponent(payload.name)
+    const test_dataset_id = payload.test_dataset_id
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
     const description = encodeURIComponent(payload.description)
     const param = new FormData()
+
     param.append('name', name)
+    param.append('hash', hash)
     param.append('ratio', ratio)
     param.append('task_id', task_id)
     param.append('description', description)
+    param.append('test_dataset_id', test_dataset_id)
+
     return axios.post(url, param).then(function (response) {
       if (response.status === 204) return
-      console.log([response.data])
-      context.commit('setConfirmDataset', response.data)
-    }, error_handler_creator(context))
+      const class_map = response.data.class_map
+      const valid_data = response.data.valid_data
+      const class_info = response.data.class_info
+
+      // The dataset id will be available when the dataset registered to DB.
+      // So tentatively, insert -1.
+      const dataset = new Dataset(task_id, name, ratio, description, test_dataset_id)
+      dataset.class_map = class_map
+      dataset.valid_data = valid_data
+      dataset.class_info = class_info
+      context.commit('setConfirmingDataset', dataset)
+      context.commit('setConfirmingFlag', false)
+    }, error_handler_creator(context, () => {
+      context.commit('setConfirmingFlag', false)
+    }))
   },
   async confirmTestDataset (context, payload) {
     const url = '/api/renom_img/v2/test_dataset/confirm'

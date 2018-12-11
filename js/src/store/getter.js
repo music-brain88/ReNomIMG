@@ -177,12 +177,6 @@ export default {
     // TODO: Sort by task.
     return state.test_datasets.filter(d => d.task_id === getters.getCurrentTask)
   },
-  getDatasetFromId (state, getters) {
-    // TODO: Sort by task.
-    return function (id) {
-      return state.datasets.find(d => d.id === id)
-    }
-  },
   getModelById (state, getters) {
     return function (id) {
       let model = state.models.find(m => m.id === id)

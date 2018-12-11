@@ -44,8 +44,7 @@ respopnse_cache = {}
 
 # temporary stored dataset
 # {hash: dataset}
-temp_dataset = {
-}
+temp_dataset = {}
 
 
 def get_train_thread_count():
@@ -291,8 +290,9 @@ def model_load_prediction_result(id):
 @route("/api/renom_img/v2/dataset/confirm", method="POST")
 @json_handler
 def dataset_confirm():
+    global temp_dataset
     req_params = request.params
-    dataset_hash = str(1143524)
+    dataset_hash = req_params.hash
     # Receive params here.
     ratio = float(req_params.ratio)
     # Correspondence for multi byte input data
@@ -303,6 +303,7 @@ def dataset_confirm():
     task_id = int(req_params.task_id)
     description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
     #
+
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
     label_dir = root / 'label'
@@ -355,7 +356,6 @@ def dataset_confirm():
                          for name in file_names]
         class_map = parse_classmap_file(str(segmentation_label_dir / "class_map.txt"))
 
-
     # Split into train and valid.
     n_imgs = len(file_names)
     perm = np.random.permutation(n_imgs)
@@ -371,14 +371,12 @@ def dataset_confirm():
     train_target = train_target.tolist()
     valid_target = valid_target.tolist()
 
-
     # Load test Dataset if exists.
     if test_dataset_id > 0:
         test_dataset = storage.fetch_test_dataset(test_dataset_id)
         test_ratio = []
     else:
         test_ratio = []
-
 
     # Dataset Information
     if task_id == Task.CLASSIFICATION.value:
@@ -405,11 +403,14 @@ def dataset_confirm():
         valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
 
     class_info = {
-      "class": class_map,
-      "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
-      "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
-      "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
-      "test_ratio": test_ratio,
+        "class_map": class_map,
+        "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
+        "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+        "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+        "test_ratio": test_ratio,
+        "train_img_num": len(train_img),
+        "valid_img_num": len(valid_img),
+        "test_img_num": 1,
     }
 
     # Register
@@ -424,46 +425,73 @@ def dataset_confirm():
     }
 
     dataset = {
-      "task_id": task_id,
-      "dataset_name": dataset_name,
-      "description": description,
-      "ratio": ratio,
-      "train_data": train_data,
-      "valid_data": valid_data,
-      "class_map": class_map,
-      "test_dataset_id": test_dataset_id,
-      "class_info": class_info
+        "task_id": task_id,
+        "dataset_name": dataset_name,
+        "description": description,
+        "ratio": ratio,
+        "train_data": train_data,
+        "valid_data": valid_data,
+        "class_map": class_map,
+        "test_dataset_id": test_dataset_id,
+        "class_info": class_info
     }
-
     temp_dataset[dataset_hash] = dataset
 
-    # dataset_id = storage.register_dataset(task_id, dataset_name, description, ratio,
-    #                                       train_data, valid_data,
-    #                                       class_map, {}, test_dataset_id
-    #                                       )
-    # print(temp_dataset[dataset_hash])
-    print(len(temp_dataset))
-    return dataset
+    # Client doesn't need 'train_data'
+    return_dataset = {
+        "task_id": task_id,
+        "dataset_name": dataset_name,
+        "description": description,
+        "ratio": ratio,
+        # "train_data": train_data,
+        "valid_data": valid_data,
+        "class_map": class_map,
+        "test_dataset_id": test_dataset_id,
+        "class_info": class_info
+    }
+    return return_dataset
+
 
 @route("/api/renom_img/v2/dataset/create", method="POST")
 @json_handler
 def dataset_create():
-    dataset_hash = str(1143524)
-    req_params = request.params
-    task_id = temp_dataset[dataset_hash].get('task_id')
-    dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
-    description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
-    ratio = temp_dataset[dataset_hash].get('ratio')
-    train_data = temp_dataset[dataset_hash].get('train_data')
-    valid_data = temp_dataset[dataset_hash].get('valid_data')
-    class_map = temp_dataset[dataset_hash].get('class_map')
-    class_info = temp_dataset[dataset_hash].get('class_info')
-    test_dataset_id = temp_dataset[dataset_hash].get('test_dataset_id')
+    """
+    dataset_confirm => dataset_create.
 
-    # print(task_id)
-    # print(dataset_name)
-    # print(description)
-    # print(ratio)
+    Note: User can rename the dataset name and description.
+    If the hash equals to the dataset in the temp_dataset but
+    the requested ratio and saved ratio is not same, raise Exception.
+
+    """
+    global temp_dataset
+
+    # Request params.
+    req_params = request.params
+    dataset_hash = req_params.hash
+    request_dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
+    request_dataset_description = str(urllib.parse.unquote(
+        req_params.description, encoding='utf-8'))
+    request_dataset_ratio = float(req_params.ratio)
+    request_test_dataset_id = int(req_params.test_dataset_id)
+
+    # Saved params.
+    dataset = temp_dataset.get(dataset_hash, False)
+    assert dataset, "Requested dataset does not exist."
+
+    task_id = dataset.get('task_id')
+    dataset_name = dataset.get('dataset_name')
+    description = dataset.get('description')
+    ratio = dataset.get('ratio')
+    train_data = dataset.get('train_data')
+    valid_data = dataset.get('valid_data')
+    class_map = dataset.get('class_map')
+    class_info = dataset.get('class_info')
+    test_dataset_id = dataset.get('test_dataset_id')
+
+    assert ratio == request_dataset_ratio, \
+        "Requested ratio and saved one is not same. {}, {}".format(ratio, request_dataset_ratio)
+    assert test_dataset_id == request_test_dataset_id, "Requested test_dataset_id and saved one is not same."
+
     dataset_id = storage.register_dataset(
         task_id,
         dataset_name,
@@ -475,9 +503,9 @@ def dataset_create():
         class_info,
         test_dataset_id
     )
+
+    temp_dataset = {}  # Release
     return {'dataset_id': dataset_id}
-
-
 
 
 @route("/api/renom_img/v2/dataset/load/task/<id:int>", method="GET")
@@ -500,6 +528,7 @@ def dataset_load_of_task(id):
             for d in datasets
         ]
     }
+
 
 @route("/api/renom_img/v2/test_dataset/confirm", method="POST")
 @json_handler
@@ -589,6 +618,7 @@ def test_dataset_confirm():
     # }
 
     return class_info
+
 
 @route("/api/renom_img/v2/test_dataset/create", method="POST")
 @json_handler

@@ -1,5 +1,7 @@
 <template>
   <div id="modal-add-dataset">
+
+    <!--Left page of creating dataset---------->
     <div id="dataset-setting">
       <div id="title" v-if="isTestDataset"> Test Dataset Setting
       </div>
@@ -26,100 +28,55 @@
       <div class='item'>
         Ratio<input type="number" v-model="ratio" placeholder="0.8" step="0.1" min="0" max="1"/>
       </div>
-      <input type="button" value="Confirm" @click="onConfirmDataset" :disabled="isComfirmable">
+      <input type="button" value="Confirm" @click="onConfirmDataset" :disabled="!confirmable">
     </div>
-    <div id="dataset-confirm" v-if="!this.isTestDataset">
+    <!----------Left page of creating dataset-->
+    
+    <!--Right page of creating dataset---------->
+    <div id="dataset-confirm">
       <div id="title">
         Dataset BreakDown
       </div>
-      <div id="dataset-name">
-        <span v-if="getDatasetDetail"> {{getDatasetDetail.dataset_name}} </span>
-      </div>
-      <div id="dataset-ratio">
-        <span v-if="getDatasetDetail"> {{getDatasetDetail.ratio}} </span>
+      <div id="dataset-params">
+        <span> Name : {{ name }} </span>
+        <span> Ratio : {{ ratio }} </span>
       </div>
       <div id="dataset-numbers">
-        <div id="total-image-num">
-          Total Images: <span v-if="getDatasetDetail">{{getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length}}</span>
-        </div>
-        <div id="train-image-num" class="num">
-          Train: <span v-if="getDatasetDetail">{{getDatasetDetail.train_data.img.length}}</span> 
-        </div>
-        <div id="valid-image-num" class="num">
-          Valid: <span v-if="getDatasetDetail">{{getDatasetDetail.valid_data.img.length}} </span>
-        </div>
-        <div id="test-image-num" class="num">
-          Test: 
+        <div class="num-item">
+          <div class="num-title">
+            Total Images :
+          </div>
+          <div class="num">
+            {{ total_num }}
+          </div>
         </div>
       </div>
-      <div id="dataset-ratio-bar" v-if="getDatasetDetail">
-        <dataset-ratio-bar
-          :item_train_ratio="getDatasetDetail.train_data.img.length/(getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length)"
-          :item_valid_ratio="getDatasetDetail.valid_data.img.length/(getDatasetDetail.train_data.img.length + getDatasetDetail.valid_data.img.length)"
-        >
-        </dataset-ratio-bar>  
+
+      <div id="dataset-ratio-bar" @mouseenter="isHovering=true" @mouseleave="isHovering=false">
+        <section class="color-train" :style="train_num_style">
+          <transition name="fade">
+            <span v-if="!isHovering">Train</span>
+            <span v-else>{{train_num}}</span>
+          </transition>
+        </section>
+        <section class="color-valid" :style="valid_num_style">
+          <transition name="fade">
+            <span v-if="!isHovering">Valid</span>
+            <span v-else>{{valid_num}}</span>
+          </transition>
+        </section>
       </div>
       <div id="breakdown">
         Break Downs
-        <div v-if="getDatasetDetail">
-          <breakdown-ratio-bar 
-            v-for="item in getDatasetDetail.class_info.class.length"
-            :key="item"
-            :item_name="getDatasetDetail.class_info.class[item - 1]"
-            :item_class_ratio="getDatasetDetail.class_info.class_ratio[item - 1]"
-            :item_test_ratio="getDatasetDetail.class_info.test_ratio[item - 1]"
-            :item_train_ratio="getDatasetDetail.class_info.train_ratio[item - 1]"
-            :item_valid_ratio="getDatasetDetail.class_info.valid_ratio[item - 1]"
-            >
-          </breakdown-ratio-bar>
-          <input type="button" value="submit" @click="" :disabled="isComfirmable">
+        <div id="class-ratio-bars" v-for="item in class_items">
+          <span>{{item[0]}}</span>
+          <section class="color-train" :style="{width: item[1] + '%'}"/>
+          <section class="color-valid" :style="{width: item[2] + '%'}"/>
         </div>
+        <input type="button" value="submit" @click="onAddDataset" :disabled="!submitable">
       </div>
     </div>
-    <div id="dataset-confirm" v-else>
-      <div id="title">
-        Dataset BreakDown
-      </div>
-      <div id="dataset-name">
-        <span v-if="getTestDatasetDetail"> {{getTestDatasetDetail.test_dataset_name}} </span>
-      </div>
-      <div id="dataset-ratio">
-        <span v-if="getTestDatasetDetail"> {{getTestDatasetDetail.test_ratio}} </span>
-      </div>
-      <div id="dataset-numbers">
-        <div id="total-image-num">
-          Total Images: <span v-if="getTestDatasetDetail">{{getTestDatasetDetail.test_imgs + getTestDatasetDetail.other_imgs}}</span>
-        </div>
-        <div id="train-image-num" class="num">
-          Test: <span v-if="getTestDatasetDetail">{{getTestDatasetDetail.test_imgs}}</span> 
-        </div>
-        <div id="valid-image-num" class="num">
-          Other: <span v-if="getTestDatasetDetail">{{getTestDatasetDetail.other_imgs}} </span>
-        </div>
-      </div>
-      <div id="dataset-ratio-bar" v-if="getTestDatasetDetail">
-        <dataset-ratio-bar
-          :item_train_ratio="getTestDatasetDetail.test_imgs/(getTestDatasetDetail.test_img + getTestDatasetDetail.other_imgs)"
-          :item_valid_ratio="getTestDatasetDetail.other_imgs/(getTestDatasetDetail.test_img + getTestDatasetDetail.other_imgs)">
-        </dataset-ratio-bar>
-      </div>
-      <div id="breakdown">
-        Break Downs
-        <div v-if="getDatasetDetail">
-          <!-- <breakdown-ratio-bar 
-            v-for="item in getDatasetDetail.class_info.class.length"
-            :key="item"
-            :item_name="getDatasetDetail.class_info.class[item - 1]"
-            :item_class_ratio="getDatasetDetail.class_info.class_ratio[item - 1]"
-            :item_test_ratio="getDatasetDetail.class_info.test_ratio[item - 1]"
-            :item_train_ratio="getDatasetDetail.class_info.train_ratio[item - 1]"
-            :item_valid_ratio="getDatasetDetail.class_info.valid_ratio[item - 1]"
-            >
-          </breakdown-ratio-bar> -->
-          <input type="button" value="submit" @click="" :disabled="isComfirmable">
-        </div>
-      </div>
-    </div>
+    <!----------Right page of creating dataset-->
   </div>
 </template>
 
@@ -141,37 +98,93 @@ export default {
       ratio: 0.8,
       isTestDataset: false,
       test_dataset: '',
-      timeStamp: ''
+      timeStamp: '',
+      isHovering: false
     }
   },
   computed: {
+    ...mapState([
+      'confirming_flag',
+      'confirming_dataset'
+    ]),
     ...mapGetters([
       'getFilteredTestDatasetList',
-      'getDatasetDetail',
-      'getTestDatasetDetail'
     ]),
-    isComfirmable: function () {
-      if (this.name && this.ratio > 0 && this.ratio < 1) {
+    confirmable: function () {
+      if (!this.name || this.ratio <= 0 || this.ratio >= 1 || this.confirming_flag) {
         return false
       }
       return true
+    },
+    submitable: function () {
+      if (!this.confirming_dataset || this.confirming_flag) {
+        return false
+      }
+      return true
+    },
+    info: function () {
+      const dataset = this.confirming_dataset
+      if (!dataset) return
+      const info = dataset.class_info
+      return info
+    },
+    total_num: function () {
+      const info = this.info
+      if (!info) return
+      return info.train_img_num + info.valid_img_num
+    },
+    train_num: function () {
+      const info = this.info
+      if (!info) return 0
+      return info.train_img_num
+    },
+    valid_num: function () {
+      const info = this.info
+      if (!info) return 0
+      return info.valid_img_num
+    },
+    class_items: function () {
+      const dataset = this.confirming_dataset
+      if (!dataset) return
+      const class_map = dataset.class_map
+      if (!this.info) return
+      const train_list = this.info.train_ratio
+      const valid_list = this.info.valid_ratio
+      const class_list = this.info.class_ratio
+      return train_list.map((t, index) => [
+        class_map[index],
+        (t) * class_list[index] * 100,
+        valid_list[index] * class_list[index] * 100
+      ])
+    },
+    train_num_style: function () {
+      if (this.total_num <= 0) return
+      return {
+        width: (this.train_num / this.total_num) * 100 + '%',
+      }
+    },
+    valid_num_style: function () {
+      if (this.total_num <= 0) return
+      return {
+        width: (this.valid_num / this.total_num) * 100 + '%',
+      }
     }
   },
-  created: function () {
-
-  },
   methods: {
+    ...mapMutations([
+      'setConfirmingFlag',
+      'setConfirmingDataset'
+    ]),
     ...mapActions([
       'createDataset',
       'createTestDataset',
       'confirmDataset',
       'confirmTestDataset'
     ]),
-    onConfirm: function () {
+    onConfirmDataset: function () {
       const date = new Date()
       this.timeStamp = date.getTime()
-    },
-    onConfirmDataset: function () {
+      this.setConfirmingFlag(true)
       if (this.isTestDataset) {
         this.confirmTestDataset({
           'name': this.name,
@@ -179,9 +192,12 @@ export default {
           'description': this.description,
         })
       } else {
-        const test_dataset_id = this.test_dataset.id
-        console.log('test', test_dataset_id)
+        let test_dataset_id = this.test_dataset.id
+        if (!test_dataset_id) {
+          test_dataset_id = -1
+        }
         this.confirmDataset({
+          'hash': this.timeStamp,
           'name': this.name,
           'ratio': this.ratio,
           'description': this.description,
@@ -195,20 +211,33 @@ export default {
           'name': this.name,
           'ratio': this.ratio,
           'description': this.description,
+        }).then(() => {
+          this.reset()
         })
       } else {
-        const test_dataset_id = this.test_dataset.id
+        let test_dataset_id = this.test_dataset.id
+        if (!test_dataset_id) {
+          test_dataset_id = -1
+        }
         this.createDataset({
+          'hash': this.timeStamp,
           'name': this.name,
           'ratio': this.ratio,
           'description': this.description,
           'test_dataset_id': test_dataset_id,
+        }).then(() => {
+          this.reset()
         })
       }
     },
-    hasData: function (data) {
-      let value = data.length > 0 ? data : 'No Test Dataset Selected'
-      return value
+    reset: function () {
+      this.name = ''
+      this.description = ''
+      this.ratio = 0.8
+      this.isTestDataset = false
+      this.test_dataset = ''
+      this.timeStamp = ''
+      this.setConfirmingDataset(null)
     }
   }
 }
@@ -220,20 +249,21 @@ export default {
   width: 100%;
   height: 100%;
   padding: 10px;
-
+  font-size: $component-font-size-small;
   #title {
+    height: 5%;
     color: gray;
+    font-size: $component-font-size;
   }
   #dataset-setting {
     height: 100%;
     width: 50%;
-    font-size: 90%;
     .item {
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: calc(100% - 8%);
-      margin: 4%;
+      margin: 3%;
       input, textarea {
         width: 50%;
       }
@@ -245,21 +275,73 @@ export default {
   #dataset-confirm {
     width: 50%;
     height: 100%;
-    #dataset-numbers {
-      width: 100%;
+    #dataset-ratio-bar {
+      width: calc(100% - 30px);
+      height: 20px;
+      margin-bottom: 2%;
       display: flex;
-      justify-content: space-around;
-      align-items: center;
-      margin: 4%;
-      #total-image-num {
-        width: 31%;
-      }
-      .num {
+      margin-left: 30px;
+      section {
+        height: 20px;
         display: flex;
+        align-items: center;
         justify-content: center;
-        width: 23%;
+        color: white;
       }
     }
+    #dataset-params {
+      width: calc(100% - 3%);
+      display: flex;
+      margin-top: 3%;
+      margin-left: 3%;
+      span {
+        width: calc(30%);
+      }
+    }
+    #dataset-numbers {
+      width: calc(100% - 3%);
+      display: flex;
+      margin-top: 3%;
+      margin-left: 3%;
+      margin-bottom: 3%;
+      .num-item {
+        width: 30%;
+        display: flex;
+        .num-title {
+        }
+        .num {
+          margin-left: 3%;
+        }
+      }
+    }
+    #breakdown {
+      width: 100%;
+      margin-top: 5%;
+      height: 80%;
+      overflow: auto;
+      #class-ratio-bars {
+        width: 100%;
+        display: flex;
+        span {
+          width: 20%;
+          display: flex;
+          justify-content: flex-end;
+        }
+        section {
+          height: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+        }
+      }
+    }
+  }
+  .color-train {
+    background-color: #0762AD;
+  }
+  .color-valid {
+    background-color: #EF8200;
   }
 }
 </style>
