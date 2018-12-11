@@ -240,7 +240,7 @@ So far, the server and dataset are prepared. Let's build a object detection mode
 For building a model, you have to specify ``dataset`` and ``hyper parameters``.
 
 Create Dataset
-​~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 For training a machine learning model, you have to prepare training dataset and validation dataset.
 Training dataset is used for training model, and validation dataset is used for
@@ -286,7 +286,7 @@ In the above figure, 2 datasets are already created.
 
 
 Hyper parameter setting
-​~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 So far you got all the materials, let's build a model and run training.
 For creating a model please push the button ``Add New Model``.
@@ -301,7 +301,7 @@ As you can see in above figure, you can specify following parameters.
 
 * **Dataset Name** ... Select the dataset for training.
 * **CNN architecture** ... Select the object detection algorithm.
-* **Train Whole network** ... If this is set to True, whole network weight will be trained.
+* **Train Whole network** ... If this is  check, whole network weight will be trained.
 * **Image size** ... Image size for training.
 * **Training loop setting** ... Number of training and batch size.
 
@@ -309,8 +309,12 @@ As you can see in above figure, you can specify following parameters.
 
     Depending on your GPU device, larger image size or batch size causes memory overflow.
 
+
+Create Classification Model
+----------------------
+
 Training Model
-​~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 Finishing hyper parameter settings, then **push run button to start training!**
 
