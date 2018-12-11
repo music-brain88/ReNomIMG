@@ -75,6 +75,8 @@ Format of the Detection data
 **Format of label files** : ReNomIMG only accepts ``xml`` formatted label files.
 The format of xml file is bellow.
 
+**put xml files here**:``<ReNomIMG dir>datasrc/label/detection/<sample.xml>``
+
 .. code-block :: shell
 
     <annotation>
@@ -107,8 +109,9 @@ Format of the Classification data
 **Format of label files** : ReNomIMG only accepts ''txt'' formatted label files.
 The format of text file is bellow.
 
-| Please Save as target.txt.
-| **put here**:``datasrc/label/classification/target.txt``
+Please Save as target.txt
+
+**put here**:``<ReNomIMG dir>datasrc/label/classification/target.txt``
 
 .. code-block :: shell
 
@@ -144,36 +147,73 @@ Format of the Segmentation data
 **Format of label files** : ReNomIMG only accepts ``txt`` and ``PNG`` formatted label files.
 The format of txt file is bellow.
 
-| Please Save as class_map.txt.
-| **put here**:``datasrc/label/segmentation/class_map.txt``
+Please Save as class_map.txt.
+
+**Put file here**:``<ReNomIMG dir>/datasrc/label/segmentation/class_map.txt``
+
+* Class number id must be start 0 and  set background
+* Class munber id must be serial number
+
+Good example
+
+.. code-block :: shell
+
+       background 0
+       airplane 1
+       bicycle 2
+       bird 3
+       boat 4
+       bottle 5
+       bus 6
+       car 7
+       cat 8
+       chair 8
+       cow 10
+       diningtable 11
+       dog 12
+       horse 13
+       motorbike 14
+       person 15
+       potted plant 16
+       sheep 17
+       sofa 18
+       train 19
+       tv/monitor 20
+
+
+----
+
+.. raw:: html
+
+  <style>.red {color:red} </style>
+
+.. role:: red
+
+:red:`Bad example`
 
 .. code-block :: shell
 
       
-       a 0
-       b 1
-       c 2
-       d 3
-       e 4
-       f 5
-       g 6
-       h 7
-       i 8
-       j 9
-       k 10
-       l 11
-       m 12
-       n 13
-       o 14
-       p 15
-       q 16
-       r 17
-       s 18
-       t 19
-       u 20
-
-
-
+       airplane 1
+       bicycle 10
+       bird 50
+       boat 100
+       bottle 150
+       bus 200
+       car 250
+       cat 300
+       chair 350
+       cow 400
+       diningtable 450
+       dog 500
+       horse 550
+       motorbike 600
+       person 700
+       potted plant 750
+       sheep 800
+       sofa 900
+       train 950
+       tv/monitor 1000
 
 Sample of Segementation  PNG label file
 
