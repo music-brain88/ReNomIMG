@@ -7,6 +7,7 @@ export class Dataset {
     this.name = name
     this.description = description
     this.test_dataset_id = test_dataset_id
+    this.ratio = ratio
 
     // Followings will be loaded from server.
     this.valid_data = {}
