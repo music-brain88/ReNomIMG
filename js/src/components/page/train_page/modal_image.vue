@@ -209,7 +209,6 @@ export default {
     },
     result: function () {
       if (true) {
-        console.log(this.target)
         return this.target
       } else {
         return this.prediction

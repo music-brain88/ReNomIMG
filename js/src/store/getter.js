@@ -195,6 +195,11 @@ export default {
   getDatasetDetail (state, getters) {
     return state.dataset_details[0]
   },
+  getDatasetFromId (state, getters) {
+    return function (id) {
+      return state.datasets.find(n => n.id === id)
+    }
+  },
   getTestDatasetDetail (state, getters) {
     return state.test_dataset_details[0]
   },

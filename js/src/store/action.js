@@ -495,7 +495,6 @@ export default {
     param.append('description', description)
     return axios.post(url, param).then(function (response) {
       if (response.status === 204) return
-      console.log([response.data])
       const class_info = response.data
       context.commit('setConfirmTestDataset', class_info)
     }, error_handler_creator(context))

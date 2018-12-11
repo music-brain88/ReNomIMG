@@ -70,7 +70,6 @@ export default {
     state.confirming_test_dataset = payload
   },
   addDataset (state, payload) {
-    console.log('AA', state.datasets)
     if (state.datasets.find(n => n.id === payload.id) === undefined) {
       state.datasets = [payload, ...state.datasets]
     }
