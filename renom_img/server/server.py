@@ -524,6 +524,7 @@ def dataset_load_of_task(id):
                 'ratio': d["ratio"],
                 'description': d["description"],
                 'test_dataset_id': d["test_dataset_id"],
+                'class_info': d["class_info"],
             }
             for d in datasets
         ]

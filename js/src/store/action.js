@@ -86,10 +86,12 @@ export default {
           const ratio = ds.ratio
           const description = ds.description
           const test_dataset_id = ds.test_dataset_id
+          const class_info = ds.class_info
           const loaded_dataset = new Dataset(task, name, ratio, description, test_dataset_id)
           loaded_dataset.id = id
           loaded_dataset.class_map = class_map
           loaded_dataset.valid_data = valid_data
+          loaded_dataset.class_info = class_info
           context.commit('addDataset', loaded_dataset)
         }
       }, error_handler_creator(context))
