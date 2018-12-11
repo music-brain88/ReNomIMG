@@ -166,3 +166,19 @@ def parse_classmap_file(class_map_file, separator=" "):
             class_map[id] = class_name
     class_map = [c for k, c in sorted(class_map.items(), key=lambda x: x[0])]
     return class_map
+
+
+def parce_class_id_segmentation(annotation_list):
+    class_id_dict = {}
+
+    def func(path):
+        annot = np.array(Image.open(path))
+        hist, _ = np.histogram(annot, bins=list(range(256)))
+        hist = np.array(hist > 0).astype(np.int)
+        return hist
+
+    with Executor(max_workers=8) as e:
+        ret = e.map(func, annotation_list)
+    data = np.sum(np.array(list(ret)), axis=0)
+    print(np.sum(data > 0))
+    return data

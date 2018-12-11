@@ -90,14 +90,6 @@ class Detection(Base):
                              score_threshold,
                              nms_threshold)
 
-    @property
-    def freezed_network(self):
-        return self._freezed_network
-
-    @property
-    def network(self):
-        return self._network
-
     def loss(self, x, y):
         """
         Loss function of ${class} algorithm.

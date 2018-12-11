@@ -23,6 +23,7 @@
         </div>
       </div>
     </transition>
+    <app-footer/>
   </div>
 </template>
 
@@ -30,6 +31,7 @@
 import { PAGE_ID } from '@/const.js'
 import AlertModal from '@/components/common/alert_modal.vue'
 import AppHeader from '@/components/common/app_header.vue'
+import AppFooter from '@/components/common/app_footer.vue'
 import SlideMenu from '@/components/common/slide_menu.vue'
 import Modal from '@/components/common/modalbox.vue'
 import { mapMutations, mapActions, mapState } from 'vuex'
@@ -39,6 +41,7 @@ export default {
   components: {
     'modal': Modal,
     'app-header': AppHeader,
+    'app-footer': AppFooter,
     'slide-menu': SlideMenu,
     'alert-modal': AlertModal
   },
@@ -81,6 +84,8 @@ export default {
 }
 
 #app {
+  position: absolute;
+  top: 0px;
   width: 100%;
   font-size: $component-font-size;
   color: $component-font-color;

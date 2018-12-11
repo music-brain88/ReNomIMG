@@ -92,7 +92,6 @@ class SemanticSegmentation(Base):
             display_loss = 0
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
-                train_x = self.preprocess(train_x)
                 with self.train():
                     loss = self.loss(self(train_x), train_y, class_weight=class_weight)
                     reg_loss = loss + self.regularize()
@@ -113,7 +112,6 @@ class SemanticSegmentation(Base):
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)
-                    valid_x = self.preprocess(valid_x)
                     loss = self.loss(self(valid_x), valid_y, class_weight=class_weight)
                     try:
                         loss = loss.as_ndarray()[0]
@@ -134,7 +132,7 @@ class SemanticSegmentation(Base):
         return avg_train_loss_list, avg_valid_loss_list
 
     def loss(self, x, y, class_weight=None):
-        if class_weight is not None:
+        if class_weight is not None and class_weight:
             mask = np.concatenate(
                 [np.ones((y.shape[0], 1, y.shape[2], y.shape[3])) * c for c in class_weight], axis=1)
             loss = rm.softmax_cross_entropy(x, y, reduce_sum=False)

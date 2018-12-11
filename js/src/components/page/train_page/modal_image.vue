@@ -5,22 +5,22 @@
     tabindex="0">
     <div id="image-result">
       <div class="header">
-        <span>Prediction Result</span>
-        <span>{{modal_index}} / {{length}}</span>
+        <span style="width: 50%">Prediction Result &nbsp;&nbsp; {{modal_index+1}} / {{length}}</span>
       </div>
       <div id="image-container">
         <div id="image-wrapper" :style="getSize">
           <img :src="img"/>
   
           <div id="cls" v-if="isTaskClassification"
-            :style="getClassificationStyle(prediction)">
+            :style="getClassificationStyle(result)">
           </div>
 
           <div id="box" v-else-if="isTaskDetection"
             :class="{'selected-box': index === hoverBox}"
             @mouseenter="hoverBox=index"
             @mouseleave="hoverBox=null"
-            :style="getBoxStyle(box)" v-for="(box, index) in prediction">
+            :style="getBoxStyle(box)" v-for="(box, index) in result">
+            <div id="box-label" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
           </div>
 
           <div id="seg" v-if="isTaskSegmentation">
@@ -31,7 +31,11 @@
       </div>
     </div>
     <div id="result">
-      <div class="header"></div>
+      <div class="header">
+        <span>No.</span>
+        <span>Score</span>
+        <span>Name</span>
+      </div>
       <div id="result-container">
         <div id="cls-result" class="result" v-if="isTaskClassification">
           <div v-for="(item, index) in getClassificationTop3">
@@ -39,7 +43,7 @@
             <span>{{ item.index }}</span>
             <span>{{ item.score }}%</span>
           </div>
-          <div v-if="!prediction">
+          <div v-if="!result">
             <span></span>
             <span>No prediction</span>
             <span></span>
@@ -52,9 +56,9 @@
             :class="{'selected-box-item': index === hoverBox}">
             <span>{{index}}</span>
             <span>{{r.score.toFixed(2)}}</span>
-            <span>{{r.name}}-{{r.class}}</span>
+            <span>{{r.name}}</span>
           </div>
-          <div v-if="prediction.length === 0">
+          <div v-if="result.length === 0">
             <span></span>
             <span>No Prediction</span>
             <span></span>
@@ -69,7 +73,7 @@
 
 <script>
 import { TASK_ID } from '@/const.js'
-import { mapGetters, mapState, mapMutations } from 'vuex'
+import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -78,7 +82,7 @@ export default {
   mounted: function () {
     this.$refs.container.focus()
     if (this.isTaskSegmentation) {
-      this.getSegmentationStyle(this.prediction)
+      let a = this.result
     }
   },
   data: function () {
@@ -107,11 +111,36 @@ export default {
       }
       return null
     },
+    target: function () {
+      const index = this.modal_index
+      const dataset = this.dataset
+      const model = this.model
+      const target = dataset.getValidTarget(index)
+      if (!dataset || !model) return
+      if (this.isTaskSegmentation) {
+        this.loadSegmentationTargetArray({
+          name: target.name,
+          size: [
+            parseInt(model.hyper_parameters.imsize_w),
+            parseInt(model.hyper_parameters.imsize_h)],
+          callback: (response) => {
+            const item = response.data
+            this.getSegmentationStyle(item)
+          }
+        })
+        return
+      }
+      return target
+    },
     prediction: function () {
       const model = this.model
       if (model) {
         const result = model.getValidResult(this.modal_index)
         if (result) {
+          if (this.isTaskSegmentation) {
+            this.getSegmentationStyle(result)
+            return
+          }
           return result
         }
       }
@@ -146,8 +175,8 @@ export default {
       const size = this.size
       let w = size[0]
       let h = size[1]
-      let parentW = (this.vw(60) - 20) * 0.65
-      let parentH = this.vh(60) - 20 - 40 - 10
+      let parentW = (this.vw(60) - 40) * 0.65
+      let parentH = this.vh(60) - 40 - 40 - 10
       if (parentW - w < parentH - h) {
         w = parentW
         h = parentW * h / w
@@ -178,19 +207,25 @@ export default {
       }).slice(0, 5)
       return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
     },
-    getSegmentationTargetOnly: function () {
-
+    result: function () {
+      if (true) {
+        console.log(this.target)
+        return this.target
+      } else {
+        return this.prediction
+      }
     }
   },
   watch: {
     modal_index: function () {
       if (this.isTaskSegmentation) {
-        this.getSegmentationStyle(this.prediction)
+        this.result
       }
     }
   },
   methods: {
     ...mapMutations(['setImageModalData']),
+    ...mapActions(['loadSegmentationTargetArray']),
     nextPage: function () {
       this.setImageModalData(Math.min(this.length - 1,
         this.modal_index + 1))
@@ -236,7 +271,12 @@ export default {
         left: x1 + '%',
         width: box.box[2] * 100 + '%',
         height: box.box[3] * 100 + '%',
-        border: 'solid 5px' + getTagColor(class_id) + 'bb'
+        border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
+      }
+    },
+    getBoxLabelColor: function (class_id) {
+      return {
+        'background-color': getTagColor(class_id) + 'bb'
       }
     },
     getSegmentationStyle: function (item) {
@@ -257,7 +297,6 @@ export default {
         cxt.transferFromImageBitmap(ret)
       })
     },
-
   },
 }
 </script>
@@ -268,6 +307,7 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
+  padding: 10px;
   #image-result {
     width: 65%;
     height: 100%;
@@ -299,6 +339,15 @@ export default {
           position: absolute;
           height: 100%;
           width: 100%;
+          #box-label {
+            display: flex;
+            min-width: 100%;
+            height: calc(20px - 2.5px);
+            position: relative;
+            background-color: white;
+            color: white;
+            font-size: 0.8rem;
+          }
         }
         #seg {
           top: 0;
@@ -348,8 +397,15 @@ export default {
           height: 100%;
           display: flex;
           align-items: center;
-          justify-content: space-around;
+          justify-content: flex-start;
           width: 33.3%;
+          padding-left: 20px;
+          &:nth-child(1) {
+            width: 25%;
+          }
+          &:nth-child(2) {
+            width: 31%;
+          }
         }
       }
       .selected-box-item {
@@ -362,16 +418,28 @@ export default {
     }
   }
   .header {
-    height: 40px;
+    height: 32px;
     width: 100%;
     background-color: $header-background-color;
     margin-bottom: 10px;
     color: white;
     display: flex;
     align-items: center;
-    padding-left: 10px;
-    padding-right: 10px;
-    justify-content: space-between;
+    justify-content: flex-start;;
+    span {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 33.3%;
+      padding-left: 20px;
+      &:nth-child(1) {
+        width: 25%;
+      }
+      &:nth-child(2) {
+        width: 31%;
+      }
+    }
   }
 }
 </style>

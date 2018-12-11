@@ -1,3 +1,3 @@
-autopep8 -ir --max-line-length=100 renom_img
+autopep8 -ir --max-line-length=100 renom_img test/python
 
 
