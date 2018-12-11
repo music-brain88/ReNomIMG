@@ -127,6 +127,26 @@ Please Save as target.txt
     wrench_image_0028.jpg wrench
     wrench_image_0019.jpg wrench
     wrench_image_0031.jpg wrench
+    ...
+    ...
+    ...
+    ...
+    ...
+    pigeon_image_0035.jpg pigeon
+    pigeon_image_0037.jpg pigeon
+    pigeon_image_0032.jpg pigeon
+    pigeon_image_0028.jpg pigeon
+    pigeon_image_0019.jpg pigeon
+    pigeon_image_0031.jpg pigeon
+    pigeon_image_0012.jpg pigeon
+    pigeon_image_0002.jpg pigeon
+    pigeon_image_0015.jpg pigeon
+    pigeon_image_0042.jpg pigeon
+    pigeon_image_0036.jpg pigeon
+    pigeon_image_0022.jpg pigeon
+    pigeon_image_0021.jpg pigeon
+    pigeon_image_0029.jpg pigeon
+
  
 ReNomIMG accepts PASCAL VOC formatted object detection data.
 
@@ -151,10 +171,10 @@ Please Save as class_map.txt.
 
 **Put file here**:``<ReNomIMG dir>/datasrc/label/segmentation/class_map.txt``
 
-* Class number id must be start 0 and  set background
-* Class munber id must be serial number
-
 Good example
+
+* Class number id must be start 0 and  set background.
+* Class munber id must be serial number.
 
 .. code-block :: shell
 
@@ -190,6 +210,10 @@ Good example
 .. role:: red
 
 :red:`Bad example`
+
+* Class number id is not start 0.
+* Class name dose not have background.
+* Class munber id is fall apart. that not serial number.
 
 .. code-block :: shell
 
@@ -231,6 +255,17 @@ ReNomIMG accepts PASCAL VOC formatted object detection data.
     The name of image file and corresponded label file name have to be same.
     For example, the image file name is ``image01.jpg``, corresponded label file name
     have to be ``image01.png``.
+
+Choose training task
+---------------------
+
+First, select your task.
+ReNomIMG has 3 kind of task, please select it task from below.
+After select task, you can train model
+
+* Object Detection.
+* Semantic Segmentation.
+* Image Classification.
 
 
 Create Detection Model
