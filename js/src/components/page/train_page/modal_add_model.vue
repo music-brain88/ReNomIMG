@@ -36,7 +36,7 @@
       </div>
     </div>
     <div id="button-area">
-      <button @click="onCreateModel" :disabled="isRunnable">create</button>
+      <input type="button" @click="onCreateModel" :disabled="isRunnable" value="Create">
     </div>
   </div>
 </template>

@@ -212,3 +212,41 @@ $color-best-epoch: red;
   width: 100%;
   overflow: auto;
 }
+
+// Button Setting
+
+input[type='button'] {
+  background-color: $component-header-sub-color;
+  color: white;
+  border: none;
+  padding: 5px;
+  width: 100px;
+  cursor: pointer;
+
+  // Style Default
+  &:hover {
+    background-color: $component-header-sub-color-hover;
+  }
+  &:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  &:active {
+    background-color: #02669999;
+  }
+
+  // Style Cancel
+  & .cancel {
+    background-color: #999;
+    &:hover {
+      background-color: $component-header-sub-color-hover;
+    }
+    &:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    &:active {
+      background-color: #02669999;
+    }
+  }
+}

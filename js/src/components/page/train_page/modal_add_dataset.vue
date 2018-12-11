@@ -67,14 +67,17 @@
         </section>
       </div>
       <div id="breakdown">
-        Break Downs
-        <div id="class-ratio-bars" v-for="item in class_items">
+        <div id="class-ratio-bars" v-for="item in class_items"
+          @mouseenter="isHovering=true" @mouseleave="isHovering=false">
           <span>{{item[0]}}</span>
           <section class="color-train" :style="{width: item[1] + '%'}"/>
           <section class="color-valid" :style="{width: item[2] + '%'}"/>
+          <span v-if="isHovering">&nbsp;&nbsp;{{item[1].toFixed(2)}}-</span>
+          <span v-if="isHovering">{{item[2].toFixed(2)}}[%]</span>
         </div>
-        <input type="button" value="submit" @click="onAddDataset" :disabled="!submitable">
       </div>
+      <input id="submit-button" type="button"
+        value="submit" @click="onAddDataset" :disabled="!submitable">
     </div>
     <!----------Right page of creating dataset-->
   </div>
@@ -101,6 +104,9 @@ export default {
       timeStamp: '',
       isHovering: false
     }
+  },
+  beforeMount: function () {
+    this.reset()
   },
   computed: {
     ...mapState([
@@ -251,6 +257,7 @@ export default {
   padding: 10px;
   font-size: $component-font-size-small;
   #title {
+    width: 100%;
     height: 5%;
     color: gray;
     font-size: $component-font-size;
@@ -275,6 +282,9 @@ export default {
   #dataset-confirm {
     width: 50%;
     height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     #dataset-ratio-bar {
       width: calc(100% - 30px);
       height: 20px;
@@ -316,16 +326,18 @@ export default {
     }
     #breakdown {
       width: 100%;
-      margin-top: 5%;
-      height: 80%;
+      margin-top: 2%;
+      height: calc(100% - 5% - 3% - 1.6rem - 6% - 20px - 2% - 40px - 2%);
       overflow: auto;
       #class-ratio-bars {
+        height: 18px;
         width: 100%;
         display: flex;
-        span {
+        span:nth-child(1) {
           width: 20%;
           display: flex;
           justify-content: flex-end;
+          margin-right: 5px;
         }
         section {
           height: 10px;
@@ -335,6 +347,8 @@ export default {
           color: white;
         }
       }
+    }
+    #submit-button {
     }
   }
   .color-train {

@@ -68,6 +68,7 @@ export default {
       width: 25%;
       background-color: $modal-tab-color-not-selected;
       color: white;
+      cursor: pointer;
     }
     .selected {
       color: black;
