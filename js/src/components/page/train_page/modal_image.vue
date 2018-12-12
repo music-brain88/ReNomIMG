@@ -9,11 +9,13 @@
 
         <div id="checkbox-area">
           <label>
-            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction">
+            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction"
+              v-on:change="onChangePredictionCheckBox">
             Prediction
           </label>
           <label>
-            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target">
+            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target"
+              v-on:change="onChangeTargetCheckBox">
             Target
           </label>
         </div>
@@ -69,7 +71,7 @@
             <span>{{r.score.toFixed(2)}}</span>
             <span>{{r.name}}</span>
           </div>
-          <div v-if="result.length === 0">
+          <div v-if="!prediction || prediction.length === 0">
             <span></span>
             <span>No Prediction</span>
             <span></span>
@@ -100,9 +102,28 @@ export default {
   data: function () {
     return {
       hoverBox: null,
-      show_image: false,
-      show_target: false,
-      show_prediction: true
+
+      /**
+        The states of checkbox. Allowed patterns.
+
+          Classification:
+                 show_image: disabled  disabled
+                show_target:   true     false
+            show_prediction:  false      true
+
+          Detection:
+                 show_image: disabled  disabled  disabled  disabled
+                show_target:   true     false      true     false
+            show_prediction:   true     false     false      true
+
+          Segmentation:
+                 show_image:   true      true     false    false
+                show_target:   true     false      true    false
+            show_prediction:  false      true     false     true
+      */
+      show_image: false, // Show image or not.
+      show_target: false, // Show target or not.
+      show_prediction: true // Show prediction result or not.
     }
   },
   computed: {
@@ -131,6 +152,8 @@ export default {
       const dataset = this.dataset
       const model = this.model
       const target = dataset.getValidTarget(index)
+      // 'This is not used but needed for reacting to the change of checkbox'
+      const _ = this.show_target
       if (!dataset || !model) return
       if (this.isTaskSegmentation) {
         this.loadSegmentationTargetArray({
@@ -149,6 +172,8 @@ export default {
     },
     prediction: function () {
       const model = this.model
+      // 'This is not used but needed for reacting to the change of checkbox'
+      const _ = this.show_prediction
       if (model) {
         const result = model.getValidResult(this.modal_index)
         if (result) {
@@ -226,15 +251,21 @@ export default {
       return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
     },
     result: function () {
-      if (this.show_target) {
-        this.show_prediction = false
-        this.show_target = true
-        return this.target
-      }
-      if (this.show_prediction) {
-        this.show_prediction = true
-        this.show_target = false
-        return this.prediction
+      if (this.isTaskDetection) {
+        let result = []
+        if (this.show_target) {
+          result = [...this.target]
+        }
+        if (this.show_prediction) {
+          result = [...this.prediction, ...result]
+        }
+        return result
+      } else {
+        if (this.show_target) {
+          return this.target
+        } else if (this.show_prediction) {
+          return this.prediction
+        }
       }
       return []
     }
@@ -245,20 +276,20 @@ export default {
         this.result
       }
     },
-    show_prediction: function () {
-      if (this.isTaskSegmentation) {
-        this.result
-      }
-    },
-    show_target: function () {
-      if (this.isTaskSegmentation) {
-        this.result
-      }
-    }
   },
   methods: {
     ...mapMutations(['setImageModalData']),
     ...mapActions(['loadSegmentationTargetArray']),
+    onChangePredictionCheckBox: function (e) {
+      this.show_prediction = e.target.checked
+      this.show_target = (!this.show_prediction || this.isTaskDetection) && this.show_target
+      const a = this.result
+    },
+    onChangeTargetCheckBox: function (e) {
+      this.show_target = e.target.checked
+      this.show_prediction = (!this.show_target || this.isTaskDetection) && this.show_prediction
+      const a = this.result
+    },
     nextPage: function () {
       this.setImageModalData(Math.min(this.length - 1,
         this.modal_index + 1))
@@ -314,6 +345,7 @@ export default {
     },
     getSegmentationStyle: function (item) {
       if (!item) return
+      console.log('will call render')
       if (!item) {
         // Clear canvas
         var canvas = document.getElementById('canvas-modal')
@@ -325,6 +357,7 @@ export default {
         return
       }
       this.$worker.run(render_segmentation, [item]).then((ret) => {
+        console.log('render')
         var canvas = document.getElementById('canvas-modal')
         var cxt = canvas.getContext('bitmaprenderer')
         cxt.transferFromImageBitmap(ret)
