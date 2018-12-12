@@ -45,6 +45,44 @@ What users have to do are **preparing training data**,
 
 .. image:: /_static/image/renomimg_gui_top.png
 
+3. ReNomIMG overview
+---------------------
+
+ReNomIMG is service for image classification.Image classification has three types
+
+* Object Detection(or just detection).
+* Semantic Segmentation(or just Segmentation).
+* Image Classification(or just classification).
+
+ReNomIMG can do these three kind of tasks. Not only one job
+
+ReNomIMG is not only that, such as detection, segmentation, classification.
+You can also to use own data and splitting, model comparing, to see how to learning data and
+export model then use another services.
+
+4. ReNomIMG Algorithms
+----------------------
+
+You can use these algorithms.
+
+* detection
+
+  - Yolo v1
+  - Yolo v2
+  - SSD
+
+* segmentation
+
+  - U-Net
+  - FCN
+  - TernousNet
+
+* classification
+
+  - ResNet
+  - ResNeXt
+  - VGG
+
 
 Python API
 ~~~~~~~~~~~

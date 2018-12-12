@@ -256,17 +256,6 @@ ReNomIMG accepts PASCAL VOC formatted object detection data.
     For example, the image file name is ``image01.jpg``, corresponded label file name
     have to be ``image01.png``.
 
-Choose training task
----------------------
-
-First, select your task.
-ReNomIMG has 3 kind of task, please select it task from below.
-After select task, you can train model
-
-* Object Detection.
-* Semantic Segmentation.
-* Image Classification.
-
 
 Create Detection Model
 ----------------------
