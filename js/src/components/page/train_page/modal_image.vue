@@ -64,9 +64,9 @@
         </div>
         <div id="box-result" class="result" v-else-if="isTaskDetection">
           <div v-for="(r, index) in prediction"
-            @mouseenter="hoverBox=index"
+            @mouseenter="hoverBox=index + target.length*((show_target)? 1:0)"
             @mouseleave="hoverBox=null"
-            :class="{'selected-box-item': index === hoverBox}">
+            :class="{'selected-box-item': index + target.length * ((show_target)? 1:0) === hoverBox}">
             <span>{{index}}</span>
             <span>{{r.score.toFixed(2)}}</span>
             <span>{{r.name}}</span>
@@ -257,7 +257,7 @@ export default {
           result = [...this.target]
         }
         if (this.show_prediction) {
-          result = [...this.prediction, ...result]
+          result = [...result, ...this.prediction]
         }
         return result
       } else {
@@ -453,6 +453,9 @@ export default {
           justify-content: space-around;
           width: 33.3%;
         }
+      }
+      #box-result {
+        overflow: auto;
       }
       #box-result div {
         display: flex;

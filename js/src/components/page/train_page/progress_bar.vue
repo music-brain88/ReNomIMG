@@ -197,7 +197,8 @@ export default {
         top: 0;
         left: 0;
         height: 100%;
-        transition: width 300ms;
+        // transition: width 300ms;
+        
         animation: move-bar 1.5s;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
