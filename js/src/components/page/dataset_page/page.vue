@@ -7,7 +7,7 @@
         </template>
         <div id="container">
           <div id="left-colmn">
-            <div class="dataset-item" style="color: black;">
+            <div class="dataset-item" style="color: #666;">
               <span>Dataset ID</span>
               <span>Name</span>
               <span>Ratio</span>
