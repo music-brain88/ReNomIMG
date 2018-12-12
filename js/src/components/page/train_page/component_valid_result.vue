@@ -367,6 +367,7 @@ export default {
       return result
     },
     getClassLabel: function (item) {
+      if (item.index < 0) return
       let cls = this.getValidResult(item)
       if (cls.hasOwnProperty('class')) {
         cls = cls.class
@@ -375,6 +376,7 @@ export default {
       return map[cls]
     },
     getClassLabelStyle: function (item) {
+      if (item.index < 0) return
       let cls = this.getValidResult(item)
       if (cls.hasOwnProperty('class')) {
         cls = cls.class
@@ -384,7 +386,7 @@ export default {
       }
     },
     getClassificationStyle: function (cls) {
-      if (!cls) {
+      if (cls === undefined) {
         return {}
       }
       if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {

@@ -10,8 +10,16 @@ export default {
     state.show_alert_modal = true
     state.error_msg = payload
   },
+  showConfirm (state, payload) {
+    state.show_confirm_modal = true
+    state.modal_msg = payload
+  },
   hideAlert (state, payload) {
     state.show_alert_modal = false
+    state.error_msg = ''
+  },
+  hideConfirm (state, payload) {
+    state.show_confirm_modal = false
     state.error_msg = ''
   },
   setCurrentTask (state, payload) {

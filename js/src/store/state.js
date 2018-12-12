@@ -36,9 +36,13 @@ export default {
   */
   // show alert message modal or not
   show_alert_modal: false,
+  show_confirm_modal: false,
 
   // error msg from server
   error_msg: '',
+
+  // Other messages
+  modal_msg: '',
 
   // show slide menu.
   show_slide_menu: false,

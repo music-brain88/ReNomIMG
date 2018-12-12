@@ -9,7 +9,8 @@
         </transition>
       </div>
     </div>
-    <alert-modal v-if="$store.state.show_alert_modal"></alert-modal>
+    <alert-modal v-if="$store.state.show_alert_modal"/>
+    <confirm-modal v-if="$store.state.show_confirm_modal"/>
     <modal/>
     <transition name="fade">
       <div id="loading-whole-mask" v-if="show_loading_mask">
@@ -30,6 +31,7 @@
 <script>
 import { PAGE_ID } from '@/const.js'
 import AlertModal from '@/components/common/alert_modal.vue'
+import ConfirmModal from '@/components/common/confirm_modal.vue'
 import AppHeader from '@/components/common/app_header.vue'
 import AppFooter from '@/components/common/app_footer.vue'
 import SlideMenu from '@/components/common/slide_menu.vue'
@@ -43,7 +45,8 @@ export default {
     'app-header': AppHeader,
     'app-footer': AppFooter,
     'slide-menu': SlideMenu,
-    'alert-modal': AlertModal
+    'alert-modal': AlertModal,
+    'confirm-modal': ConfirmModal
   },
   computed: {
     ...mapState(['show_loading_mask']),
