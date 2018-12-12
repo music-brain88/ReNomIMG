@@ -19,9 +19,14 @@ export default {
 
   // Datasets
   datasets: [],
+  confirming_dataset: null,
 
   // TestDatasets
   test_datasets: [],
+  confirming_test_dataset: null,
+
+  // Dataset Confirming
+  confirming_flag: false,
 
   // Filter List
   filters: [],

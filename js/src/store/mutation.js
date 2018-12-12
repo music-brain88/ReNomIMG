@@ -60,6 +60,15 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+  setConfirmingFlag (state, payload) {
+    state.confirming_flag = payload
+  },
+  setConfirmingDataset (state, payload) {
+    state.confirming_dataset = payload
+  },
+  setConfirmingTestDataset (state, payload) {
+    state.confirming_test_dataset = payload
+  },
   addDataset (state, payload) {
     if (state.datasets.find(n => n.id === payload.id) === undefined) {
       state.datasets = [payload, ...state.datasets]

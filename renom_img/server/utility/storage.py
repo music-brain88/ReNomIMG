@@ -180,22 +180,23 @@ class Storage:
             return dict_result[0]
 
     def register_dataset(self, task_id, name, description, ratio,
-                         train_data, valid_data, class_map, class_tag_list, test_dataset_id):
+                         train_data, valid_data, class_map, class_info, test_dataset_id):
         with SessionContext() as session:
             new_dataset = Dataset(
                 task_id=task_id, name=name, description=description, ratio=ratio,
                 train_data=pickle_dump(train_data), valid_data=pickle_dump(valid_data),
-                class_map=pickle_dump(class_map), class_tag_list=pickle_dump(class_tag_list),
+                class_map=pickle_dump(class_map), class_info=pickle_dump(class_info),
                 test_dataset_id=test_dataset_id
             )
             session.add(new_dataset)
             session.commit()
             return new_dataset.id
 
-    def register_test_dataset(self, task_id, name, description, data):
+    def register_test_dataset(self, task_id, name, description, data, class_info):
         with SessionContext() as session:
             new_test_dataset = TestDataset(
-                task_id=task_id, name=name, description=description, data=pickle_dump(data)
+                task_id=task_id, name=name, description=description, data=pickle_dump(data),
+                class_info=pickle_dump(class_info)
             )
             session.add(new_test_dataset)
             session.commit()

@@ -6,6 +6,19 @@
     <div id="image-result">
       <div class="header">
         <span style="width: 50%">Prediction Result &nbsp;&nbsp; {{modal_index+1}} / {{length}}</span>
+
+        <div id="checkbox-area">
+          <label>
+            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction"
+              v-on:change="onChangePredictionCheckBox">
+            Prediction
+          </label>
+          <label>
+            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target"
+              v-on:change="onChangeTargetCheckBox">
+            Target
+          </label>
+        </div>
       </div>
       <div id="image-container">
         <div id="image-wrapper" :style="getSize">
@@ -58,13 +71,14 @@
             <span>{{r.score.toFixed(2)}}</span>
             <span>{{r.name}}</span>
           </div>
-          <div v-if="result.length === 0">
+          <div v-if="!prediction || prediction.length === 0">
             <span></span>
             <span>No Prediction</span>
             <span></span>
           </div>
         </div>
         <div id="seg-result" class="result" v-else-if="isTaskSegmentation">
+            <span>{{ prediction }}</span>
         </div>
       </div>
     </div>
@@ -87,7 +101,29 @@ export default {
   },
   data: function () {
     return {
-      hoverBox: null
+      hoverBox: null,
+
+      /**
+        The states of checkbox. Allowed patterns.
+
+          Classification:
+                 show_image: disabled  disabled
+                show_target:   true     false
+            show_prediction:  false      true
+
+          Detection:
+                 show_image: disabled  disabled  disabled  disabled
+                show_target:   true     false      true     false
+            show_prediction:   true     false     false      true
+
+          Segmentation:
+                 show_image:   true      true     false    false
+                show_target:   true     false      true    false
+            show_prediction:  false      true     false     true
+      */
+      show_image: false, // Show image or not.
+      show_target: false, // Show target or not.
+      show_prediction: true // Show prediction result or not.
     }
   },
   computed: {
@@ -116,6 +152,8 @@ export default {
       const dataset = this.dataset
       const model = this.model
       const target = dataset.getValidTarget(index)
+      // 'This is not used but needed for reacting to the change of checkbox'
+      const _ = this.show_target
       if (!dataset || !model) return
       if (this.isTaskSegmentation) {
         this.loadSegmentationTargetArray({
@@ -134,12 +172,17 @@ export default {
     },
     prediction: function () {
       const model = this.model
+      // 'This is not used but needed for reacting to the change of checkbox'
+      const _ = this.show_prediction
       if (model) {
         const result = model.getValidResult(this.modal_index)
         if (result) {
           if (this.isTaskSegmentation) {
             this.getSegmentationStyle(result)
-            return
+            return {
+              recall: result.recall,
+              precision: result.precision,
+            }
           }
           return result
         }
@@ -208,12 +251,23 @@ export default {
       return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
     },
     result: function () {
-      if (true) {
-        console.log(this.target)
-        return this.target
+      if (this.isTaskDetection) {
+        let result = []
+        if (this.show_target) {
+          result = [...this.target]
+        }
+        if (this.show_prediction) {
+          result = [...this.prediction, ...result]
+        }
+        return result
       } else {
-        return this.prediction
+        if (this.show_target) {
+          return this.target
+        } else if (this.show_prediction) {
+          return this.prediction
+        }
       }
+      return []
     }
   },
   watch: {
@@ -221,11 +275,21 @@ export default {
       if (this.isTaskSegmentation) {
         this.result
       }
-    }
+    },
   },
   methods: {
     ...mapMutations(['setImageModalData']),
     ...mapActions(['loadSegmentationTargetArray']),
+    onChangePredictionCheckBox: function (e) {
+      this.show_prediction = e.target.checked
+      this.show_target = (!this.show_prediction || this.isTaskDetection) && this.show_target
+      const a = this.result
+    },
+    onChangeTargetCheckBox: function (e) {
+      this.show_target = e.target.checked
+      this.show_prediction = (!this.show_target || this.isTaskDetection) && this.show_prediction
+      const a = this.result
+    },
     nextPage: function () {
       this.setImageModalData(Math.min(this.length - 1,
         this.modal_index + 1))
@@ -281,6 +345,7 @@ export default {
     },
     getSegmentationStyle: function (item) {
       if (!item) return
+      console.log('will call render')
       if (!item) {
         // Clear canvas
         var canvas = document.getElementById('canvas-modal')
@@ -292,6 +357,7 @@ export default {
         return
       }
       this.$worker.run(render_segmentation, [item]).then((ret) => {
+        console.log('render')
         var canvas = document.getElementById('canvas-modal')
         var cxt = canvas.getContext('bitmaprenderer')
         cxt.transferFromImageBitmap(ret)
@@ -425,7 +491,7 @@ export default {
     color: white;
     display: flex;
     align-items: center;
-    justify-content: flex-start;;
+    justify-content: space-between;;
     span {
       height: 100%;
       display: flex;
@@ -438,6 +504,49 @@ export default {
       }
       &:nth-child(2) {
         width: 31%;
+      }
+    }
+    #checkbox-area {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+      width: 50%;
+      label { 
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: $component-header-font-family;
+        font-size: 90%;
+        margin-right: 10px;
+      }
+      input {
+        display: none;
+        -webkit-appearance: none;
+      }
+      input[type="checkbox"] {
+        content: "";
+        display: block;
+        height: 12px;
+        width: 12px;
+        border: 1px solid white;
+        border-radius: 6px;
+      }
+      input[type="checkbox"]:checked {
+        content: "";
+        display: block;
+        border: 1px solid white;
+        background-color: white;
+      }
+      input[type="checkbox"]:disabled {
+        content: "";
+        display: block;
+        border: 1px solid gray;
+        background-color: gray;
+      }
+      input[type="checkbox"]:focus {
+          outline:none;  
       }
     }
   }

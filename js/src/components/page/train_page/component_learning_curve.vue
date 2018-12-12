@@ -119,7 +119,7 @@ export default {
       if (this.getSelectedModel) {
         const model = this.getSelectedModel
         best_epoch = model.best_epoch_valid_result
-        best_epoch = (best_epoch) ? best_epoch.nth_epoch : 0
+        best_epoch = (best_epoch && best_epoch.nth_epoch) ? best_epoch.nth_epoch : 0
         train_loss_list = model.train_loss_list
         valid_loss_list = model.valid_loss_list
         if (!train_loss_list) {

@@ -44,10 +44,10 @@ The ``datasrc`` directory has following folder structure.
 
     datasrc/
       ├── img   # Set training img files here.
-      ├── label
-      │    ├── classofication # Set classofication training label files here.
-      │    ├── detection      # Set detection training label files here.
-      │    └── segmentation   # Set segmentation training label files here.
+      ├── label 
+      │   ├── classification # Set classification training label files here
+      │   ├── detection	     # Set detection training label files here
+      │   └── segmentation   # Set segmentation training label files here
       └── prediction_set
             ├── img     # Set prediction img files here.
             └── output  # Prediction result will be output here.

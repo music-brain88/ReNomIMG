@@ -7,6 +7,7 @@ export class Dataset {
     this.name = name
     this.description = description
     this.test_dataset_id = test_dataset_id
+    this.ratio = ratio
 
     // Followings will be loaded from server.
     this.valid_data = {}
@@ -14,6 +15,43 @@ export class Dataset {
 
     // Cache page division.
     this.page = []
+
+    /**
+      This is a dictionary.
+      {
+        // 'class_map' is a list of class name. This is same to this.class_map
+        class_map: ['dog', 'cat', ...],
+
+        // 'class_ratio' is a ratio of each number of
+        // each class object to total number of object.
+        // So Sum(class_ratio) must be 1.
+        class_ratio: [0.23, 0.12],
+
+        // 'train_ratio' is a list.
+        // This contains each class's train image ratio.
+        train_ratio: [],
+
+        // 'valid_ratio' is a list.
+        // This contains each class's valid image ratio.
+        valid_ratio: [],
+
+        // 'test_ratio' is a list.
+        // This contains each class's test image ratio.
+        // So for each 'i',
+        // (train_ratio[i] + valid_ratio[i] + test_ratio[i]) must be 1.
+        test_ratio: [],
+
+        // Number of train images.
+        train_img_num: (int)
+
+        // Number of valid images.
+        valid_img_num: (int)
+
+        // Number of test images.
+        test_img_num: (int)
+      }
+    */
+    this.class_info = {}
   }
   getValidTarget (index) {
     const task = this.task_id

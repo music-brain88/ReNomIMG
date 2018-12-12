@@ -70,7 +70,7 @@
         <!--Detection-->
         <div id="box" v-else-if='isTaskDetection'
           :style="getBoxStyle(box)" v-for="box in getValidResult(item)">
-          <div id="box-label" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
+          <div id="box-label" v-if="box" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
         </div>
 
         <!--Segmentation-->

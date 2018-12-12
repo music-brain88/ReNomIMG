@@ -86,10 +86,12 @@ export default {
           const ratio = ds.ratio
           const description = ds.description
           const test_dataset_id = ds.test_dataset_id
+          const class_info = ds.class_info
           const loaded_dataset = new Dataset(task, name, ratio, description, test_dataset_id)
           loaded_dataset.id = id
           loaded_dataset.class_map = class_map
           loaded_dataset.valid_data = valid_data
+          loaded_dataset.class_info = class_info
           context.commit('addDataset', loaded_dataset)
         }
       }, error_handler_creator(context))
@@ -396,30 +398,25 @@ export default {
   async createDataset (context, payload) {
     const url = '/api/renom_img/v2/dataset/create'
     const param = new FormData()
-    const name = payload.name
+    const name = encodeURIComponent(payload.name)
+    const hash = payload.hash
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
-    const description = 'test'
+    const description = encodeURIComponent(payload.description)
     const test_dataset_id = payload.test_dataset_id
 
     param.append('name', name)
+    param.append('hash', hash)
     param.append('ratio', ratio)
     param.append('task_id', task_id)
     param.append('description', description)
     param.append('test_dataset_id', test_dataset_id)
 
-    const dataset = new Dataset(task_id, name, ratio, description, test_dataset_id)
-
-    context.commit('addDataset', dataset)
-
     return axios.post(url, param).then(function (response) {
       if (response.status === 204) return
-      const id = response.data.id
-      const class_map = response.data.class_map
-      const valid_data = response.data.valid_data
-      dataset.id = id
-      dataset.class_map = class_map
-      dataset.valid_data = valid_data
+      const dataset = context.state.confirming_dataset
+      dataset.id = response.data.dataset_id
+      context.commit('addDataset', dataset)
     }, error_handler_creator(context))
   },
 
@@ -427,7 +424,7 @@ export default {
    *
    */
   async createTestDataset (context, payload) {
-    const url = '/api/renom_img/v2/test_dataset/create'
+    const url = '/api/renom_img/v2/test_dataset/confirm'
     const name = payload.name
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
@@ -450,6 +447,58 @@ export default {
       test_dataset.id = id
       test_dataset.class_map = class_map
       test_dataset.test_data = test_data
+    }, error_handler_creator(context))
+  },
+  async confirmDataset (context, payload) {
+    const url = '/api/renom_img/v2/dataset/confirm'
+    const hash = payload.hash
+    const name = encodeURIComponent(payload.name)
+    const test_dataset_id = payload.test_dataset_id
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = encodeURIComponent(payload.description)
+    const param = new FormData()
+
+    param.append('name', name)
+    param.append('hash', hash)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+    param.append('test_dataset_id', test_dataset_id)
+
+    return axios.post(url, param).then(function (response) {
+      if (response.status === 204) return
+      const class_map = response.data.class_map
+      const valid_data = response.data.valid_data
+      const class_info = response.data.class_info
+
+      // The dataset id will be available when the dataset registered to DB.
+      // So tentatively, insert -1.
+      const dataset = new Dataset(task_id, name, ratio, description, test_dataset_id)
+      dataset.class_map = class_map
+      dataset.valid_data = valid_data
+      dataset.class_info = class_info
+      context.commit('setConfirmingDataset', dataset)
+      context.commit('setConfirmingFlag', false)
+    }, error_handler_creator(context, () => {
+      context.commit('setConfirmingFlag', false)
+    }))
+  },
+  async confirmTestDataset (context, payload) {
+    const url = '/api/renom_img/v2/test_dataset/confirm'
+    const name = encodeURIComponent(payload.name)
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = encodeURIComponent(payload.description)
+    const param = new FormData()
+    param.append('name', name)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+    return axios.post(url, param).then(function (response) {
+      if (response.status === 204) return
+      const class_info = response.data
+      context.commit('setConfirmTestDataset', class_info)
     }, error_handler_creator(context))
   },
   async loadSegmentationTargetArray (context, payload) {

@@ -35,6 +35,7 @@ class TestDataset(Base):
     task_id = Column(Integer)
     data = Column(CLOB)
     created = Column(DateTime)
+    class_info = Column(BLOB)
 
     relationship("Dataset")
 
@@ -57,7 +58,7 @@ class Dataset(Base):
     train_data = Column(BLOB)
     valid_data = Column(BLOB)
     class_map = Column(BLOB)
-    class_tag_list = Column(BLOB)
+    class_info = Column(BLOB)
     created = Column(DateTime(timezone=True), server_default=func.now())
     test_dataset_id = Column(
         Integer,
@@ -74,7 +75,7 @@ class Dataset(Base):
                     train_imgs='%s',
                     valid_imgs='%s'
                     class_map='%s',
-                    class_tag_list='%s'
+                    class_info='%s'
                     created='%s'
                     test_dataset_id='%s',
                 )>
@@ -87,7 +88,7 @@ class Dataset(Base):
             self.train_data,
             self.valid_data,
             self.class_map,
-            self.class_tag_list,
+            self.class_info,
             self.created,
             self.test_dataset_id
         )
