@@ -231,6 +231,7 @@ export default {
           'test_dataset_id': test_dataset_id,
         }).then(() => {
           this.reset()
+          this.$parent.showAddModel()
         })
       }
     },
