@@ -6,6 +6,17 @@
     <div id="image-result">
       <div class="header">
         <span style="width: 50%">Prediction Result &nbsp;&nbsp; {{modal_index+1}} / {{length}}</span>
+
+        <div id="checkbox-area">
+          <label>
+            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction">
+            Prediction
+          </label>
+          <label>
+            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target">
+            Target
+          </label>
+        </div>
       </div>
       <div id="image-container">
         <div id="image-wrapper" :style="getSize">
@@ -65,6 +76,7 @@
           </div>
         </div>
         <div id="seg-result" class="result" v-else-if="isTaskSegmentation">
+            <span>{{ prediction }}</span>
         </div>
       </div>
     </div>
@@ -87,7 +99,10 @@ export default {
   },
   data: function () {
     return {
-      hoverBox: null
+      hoverBox: null,
+      show_image: false,
+      show_target: false,
+      show_prediction: true
     }
   },
   computed: {
@@ -139,7 +154,10 @@ export default {
         if (result) {
           if (this.isTaskSegmentation) {
             this.getSegmentationStyle(result)
-            return
+            return {
+              recall: result.recall,
+              precision: result.precision,
+            }
           }
           return result
         }
@@ -208,15 +226,31 @@ export default {
       return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
     },
     result: function () {
-      if (true) {
+      if (this.show_target) {
+        this.show_prediction = false
+        this.show_target = true
         return this.target
-      } else {
+      }
+      if (this.show_prediction) {
+        this.show_prediction = true
+        this.show_target = false
         return this.prediction
       }
+      return []
     }
   },
   watch: {
     modal_index: function () {
+      if (this.isTaskSegmentation) {
+        this.result
+      }
+    },
+    show_prediction: function () {
+      if (this.isTaskSegmentation) {
+        this.result
+      }
+    },
+    show_target: function () {
       if (this.isTaskSegmentation) {
         this.result
       }
@@ -424,7 +458,7 @@ export default {
     color: white;
     display: flex;
     align-items: center;
-    justify-content: flex-start;;
+    justify-content: space-between;;
     span {
       height: 100%;
       display: flex;
@@ -437,6 +471,49 @@ export default {
       }
       &:nth-child(2) {
         width: 31%;
+      }
+    }
+    #checkbox-area {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+      width: 50%;
+      label { 
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: $component-header-font-family;
+        font-size: 90%;
+        margin-right: 10px;
+      }
+      input {
+        display: none;
+        -webkit-appearance: none;
+      }
+      input[type="checkbox"] {
+        content: "";
+        display: block;
+        height: 12px;
+        width: 12px;
+        border: 1px solid white;
+        border-radius: 6px;
+      }
+      input[type="checkbox"]:checked {
+        content: "";
+        display: block;
+        border: 1px solid white;
+        background-color: white;
+      }
+      input[type="checkbox"]:disabled {
+        content: "";
+        display: block;
+        border: 1px solid gray;
+        background-color: gray;
+      }
+      input[type="checkbox"]:focus {
+          outline:none;  
       }
     }
   }

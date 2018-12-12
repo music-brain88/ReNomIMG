@@ -52,28 +52,26 @@
         </div>
       </div>
 
-      <div id="dataset-ratio-bar" @mouseenter="isHovering=true" @mouseleave="isHovering=false">
+      <div id="dataset-ratio-bar" :class="{'bar-anime': confirming_dataset}"
+        @mouseenter="isHovering=true" @mouseleave="isHovering=false">
         <section class="color-train" :style="train_num_style">
-          <transition name="fade">
-            <span v-if="!isHovering">Train</span>
-            <span v-else>{{train_num}}</span>
-          </transition>
+          <span>Train</span>
         </section>
         <section class="color-valid" :style="valid_num_style">
-          <transition name="fade">
-            <span v-if="!isHovering">Valid</span>
-            <span v-else>{{valid_num}}</span>
-          </transition>
+          <span>Valid</span>
         </section>
       </div>
       <div id="breakdown">
-        <div id="class-ratio-bars" v-for="item in class_items"
-          @mouseenter="isHovering=true" @mouseleave="isHovering=false">
+        <div id="load-progress" v-if="confirming_flag">
+          <div class="lds-ripple"><div></div><div></div></div>
+          Loadging Dataset...
+        </div>
+        <div id="class-ratio-bars" v-else v-for="item in class_items">
           <span>{{item[0]}}</span>
-          <section class="color-train" :style="{width: item[1] + '%'}"/>
-          <section class="color-valid" :style="{width: item[2] + '%'}"/>
-          <span v-if="isHovering">&nbsp;&nbsp;{{item[1].toFixed(2)}}-</span>
-          <span v-if="isHovering">{{item[2].toFixed(2)}}[%]</span>
+          <div class="bar" :class="{'bar-anime': confirming_dataset}" :style="{width: item[1] + item[2] + '%'}">
+            <section class="color-train" :style="{width: item[1]/(item[1] + item[2])*100 + '%'}"/>
+            <section class="color-valid" :style="{width: item[2]/(item[1] + item[2])*100 + '%'}"/>
+          </div>
         </div>
       </div>
       <input id="submit-button" type="button"
@@ -339,12 +337,60 @@ export default {
           justify-content: flex-end;
           margin-right: 5px;
         }
-        section {
+        .bar {
           height: 10px;
+          display: flex;
+        }
+        section {
+          height: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
           color: white;
+        }
+      }
+      #load-progress {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        padding-bottom: 10%;
+        align-items: center;
+        justify-content: center;
+        .lds-ripple {
+          display: inline-block;
+          position: relative;
+          width: 64px;
+          height: 64px;
+          top: 3px;
+          left: 3px;
+        }
+        .lds-ripple div {
+          position: absolute;
+          border: 4px solid #777;
+          opacity: 1;
+          border-radius: 50%;
+          animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+          animation-fill-mode: both;
+        }
+        .lds-ripple div:nth-child(2) {
+          animation-delay: -0.5s;
+          animation-fill-mode: both;
+        }
+        @keyframes lds-ripple {
+          0% {
+            top: 28px;
+            left: 28px;
+            width: 0;
+            height: 0;
+            opacity: 1;
+          }
+          100% {
+            top: -1px;
+            left: -1px;
+            width: 58px;
+            height: 58px;
+            opacity: 0;
+          }
         }
       }
     }
@@ -356,6 +402,27 @@ export default {
   }
   .color-valid {
     background-color: #EF8200;
+  }
+  .train-anime {
+    animation: growXTrain 0.8s linear;
+    animation-fill-mode: both;
+  }
+  .valid-anime {
+    animation: growXValid 0.8s linear;
+    animation-fill-mode: both;
+  }
+  .bar-anime {
+    animation: growX 0.8s;
+    animation-fill-mode: both;
+    animation-iteration-count: 1;
+  }
+  @keyframes growX {
+    0% {
+      transform: translateX(-50%) scaleX(0);
+    }
+    100% {
+      transform: translateX(0) scaleX(1);
+    }
   }
 }
 </style>

@@ -38,23 +38,22 @@
                 </div>
               </div>
             </div>
-            <div id="dataset-num-bar"
+            <div id="dataset-num-bar" class="bar" :class="{'bar-anime': current_dataset}"
               @mouseenter="isHover=true" @mouseleave="isHover=false">
               <section class="bar color-train" :style="train_style">
-                <span v-if="!isHover">Train</span>
-                <span v-else>{{ train_num }}</span>
+                <span>Train</span>
               </section>
               <section class="bar color-valid" :style="valid_style">
-                <span v-if="!isHover">Valid</span>
-                <span v-else>{{ valid_num }}</span>
+                <span>Valid</span>
               </section>
             </div>
             <div id="dataset-class-bars">
               <div id="item" v-for="item in class_items">
                 <span>{{item[0]}}</span>
-                <section class="color-train" :style="{width: item[1] + '%'}"/>
-                <section class="color-valid" :style="{width: item[2] + '%'}"/>
-
+                <div class="bar" :class="{'bar-anime': current_dataset}" :style="{width: item[1] + item[2] + '%'}">
+                  <section class="color-train" :style="{width: item[1]/(item[1] + item[2])*100 + '%'}"/>
+                  <section class="color-valid" :style="{width: item[2]/(item[1] + item[2])*100 + '%'}"/>
+                </div>
               </div>
             </div>
           </div>
@@ -80,8 +79,16 @@ export default {
       isHover: false
     }
   },
+  watch: {
+    getCurrentTask: function () {
+      this.reset()
+    }
+  },
   computed: {
-    ...mapGetters(['getFilteredDatasetList']),
+    ...mapGetters([
+      'getFilteredDatasetList',
+      'getCurrentTask'
+    ]),
     datasets: function () {
       const datasets = this.getFilteredDatasetList
       if (datasets) {
@@ -159,7 +166,9 @@ export default {
     },
   },
   methods: {
-
+    reset: function () {
+      this.current_dataset = undefined
+    }
   }
 }
 </script>
@@ -254,15 +263,21 @@ export default {
         }
       }
       #dataset-class-bars{
-        width: 100%;
-        height: calc(75%);
+        width: calc(100% - 40px);
+        height: calc(75% - 40px);
+        overflow: auto;
+        margin: 20px;
         #item {
           display: flex;
           align-items: center;
           width: 100%;
           height: 20px;
-          section {
+          .bar {
             height: 80%;
+            display: flex;
+          }
+          section {
+            height: 100%;
           }
           span {
             display: flex;
@@ -279,6 +294,19 @@ export default {
       }
       .color-valid {
         background-color: #EF8200;
+      }
+      .bar-anime {
+        animation: growX 0.8s;
+        animation-fill-mode: both;
+        animation-iteration-count: 1;
+      }
+      @keyframes growX {
+        0% {
+          transform: translateX(-50%) scaleX(0);
+        }
+        100% {
+          transform: translateX(0) scaleX(1);
+        }
       }
     }
   }  
