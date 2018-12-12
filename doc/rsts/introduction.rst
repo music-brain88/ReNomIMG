@@ -84,8 +84,8 @@ You can use these algorithms.
   - VGG
 
 
-Python API
-~~~~~~~~~~~
+5. Python API
+---------------------
 ReNomIMG API is a python api which provides you not only modern **object detection model** 
 but also **classification model**, **segmentation model**. 
 
