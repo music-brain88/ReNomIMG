@@ -216,6 +216,7 @@ $color-best-epoch: red;
 // Button Setting
 
 input[type='button'] {
+  height: 28px;
   background-color: $component-header-sub-color;
   color: white;
   border: none;

@@ -96,6 +96,7 @@ export default {
   #app-content {
     width: $app-window-width;
     margin: $header-height auto;
+    margin-bottom: 10px;
     padding-top: $app-container-padding-top;
     padding-bottom: $app-container-padding-bottom;
   }

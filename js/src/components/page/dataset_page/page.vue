@@ -183,7 +183,7 @@ export default {
   display: flex;
   align-content: flex-start;
   flex-wrap: wrap;
-  height: calc(#{$app-window-height} - #{$footer-height} - 100px);
+  height: calc(#{$app-window-height} - #{$footer-height} - 70px);
   font-size: $component-font-size-small;
 
   .title {
@@ -208,6 +208,7 @@ export default {
       height: 100%;
       padding: 10px;
       color: #999;
+      overflow: auto;
       .dataset-item {
         display: flex;
         align-content: center;

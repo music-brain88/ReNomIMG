@@ -267,17 +267,22 @@ export default {
     height: 100%;
     width: 50%;
     .item {
+      height: 10%;
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: calc(100% - 8%);
-      margin: 3%;
       input, textarea {
         width: 50%;
       }
       select {
         background-color: white;
       }
+    }
+    input[type="button"] {
+      width: 20%;
+      margin-left: 74%;
+      margin-top: calc(45% - 56px);
     }
   }
   #dataset-confirm {

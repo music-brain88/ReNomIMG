@@ -187,7 +187,6 @@ export default {
           return result
         }
       }
-      return null
     },
     dataset: function () {
       const model = this.model
@@ -257,7 +256,11 @@ export default {
           result = [...this.target]
         }
         if (this.show_prediction) {
-          result = [...result, ...this.prediction]
+          if (this.prediction) {
+            result = [...result, ...this.prediction]
+          } else {
+            result = [...result]
+          }
         }
         return result
       } else {
@@ -345,7 +348,6 @@ export default {
     },
     getSegmentationStyle: function (item) {
       if (!item) return
-      console.log('will call render')
       if (!item) {
         // Clear canvas
         var canvas = document.getElementById('canvas-modal')
@@ -357,7 +359,6 @@ export default {
         return
       }
       this.$worker.run(render_segmentation, [item]).then((ret) => {
-        console.log('render')
         var canvas = document.getElementById('canvas-modal')
         var cxt = canvas.getContext('bitmaprenderer')
         cxt.transferFromImageBitmap(ret)
