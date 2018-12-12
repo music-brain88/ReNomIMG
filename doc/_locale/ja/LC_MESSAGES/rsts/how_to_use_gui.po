@@ -85,21 +85,26 @@ msgid ""
 "file name have to be ``image01.xml``."
 msgstr "画像ファイル名と対応するラベルファイル名は同じでなければなりません。例えば、画像ファイルの名前がimage01.jpgの場合、対応するラベルの名前はimage01.xmlでなければなりません。"
 
-#: ../../rsts/how_to_use_gui.rst:65
-msgid "Format of the data"
-msgstr "データのフォーマット"
+#: ../../rsts/how_to_use_gui.rst:70
+msgid "Format of the Detection data"
+msgstr "オブジェクト検出のデータフォーマット"
 
-#: ../../rsts/how_to_use_gui.rst:67
+#: ../../rsts/how_to_use_gui.rst:73
 msgid ""
 "**Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` "
 "formatted image files."
 msgstr "**画像ファイルの形式** : ReNomIMGはJPEGかPNG形式の画像ファイルのみを受け付けます。"
 
-#: ../../rsts/how_to_use_gui.rst:69
+#: ../../rsts/how_to_use_gui.rst:75
 msgid ""
 "**Format of label files** : ReNomIMG only accepts ``xml`` formatted label"
 " files. The format of xml file is bellow."
 msgstr "**ラベルの形式** : ReNomIMGはxml形式のラベルのみを受け付けます。"
+
+#: ../../rsts/how_to_use_gui.rst:78
+msgid ""
+"**put xml files here**: ``<ReNomIMG dir>datasrc/label/detection/<sample.xml>`` "
+msgstr "**ここにファイルを配置してください** : ``<ReNomIMG dir>datasrc/label/classification/target.txt``"
 
 #: ../../rsts/how_to_use_gui.rst:91
 msgid "ReNomIMG accepts PASCAL VOC formatted object detection data."
@@ -116,6 +121,33 @@ msgstr ""
 #: ../../rsts/how_to_use_gui.rst:100
 msgid "Create Detection Model"
 msgstr "予測モデルの作成"
+
+#: ../../rsts/how_to_use_gui.rst:106
+msgid "Format of the Classification data"
+msgstr "画像分類のデータフォーマット"
+
+#: ../../rsts/how_to_use_gui.rst:109
+msgid "**Format of label files** : ReNomIMG only accepts ``txt`` formatted label files."
+"The format of text file is bellow."
+msgstr "**ラベルの形式** : ReNomIMG は ``txt`` 形式のラベルのみを受け付けます。"
+
+#: ../../rsts/how_to_use_gui.rst:112
+msgid "Please Save as ``target.txt``"
+msgstr "ファイル名は ``target.txt`` で保存してください。"
+
+#: ../../rsts/how_to_use_gui.rst:114
+msgid "**put here**:``<ReNomIMG dir>datasrc/label/classification/target.txt``"
+msgstr "**ここにファイルを配置してください** ``<ReNomIMG dir>datasrc/label/classification/target.txt`` "
+
+#: ../../rsts/how_to_use_gui.rst:158
+msgid "Format of the Segmentation data"
+msgstr "セグメンテーションのデータフォーマット"
+
+#: ../../rsts/how_to_use_gui.rst:162
+msgid ""
+"Segmentation require two kind of labels."
+"    ``PNG`` files and ``class_map.txt``"
+msgstr "画像ファイル名と対応するラベルファイル名は同じでなければなりません。例えば、画像ファイルの名前がimage01.jpgの場合、対応するラベルの名前はimage01.xmlでなければなりません。"
 
 #: ../../rsts/how_to_use_gui.rst:102
 msgid ""
@@ -162,13 +194,13 @@ msgstr "そうしましたら、以下のページが表れます。"
 msgid ""
 "As you can see, you can specify the ``dataset name``, ''description'' and"
 " ``ratio of training data``."
-msgstr ""
+msgstr "ご覧のように``dataset name``、``description``と``学習データ割合``を指定することが出来ます。"
 
 #: ../../rsts/how_to_use_gui.rst:131
 msgid ""
 "After filling all forms, please push the ``confirm`` button to confirm "
 "the content that the dataset includes."
-msgstr "すべての入力フォームを埋めた後, ``content``ボタンを押してください."
+msgstr "すべての入力フォームを埋めた後, ``confirm``ボタンを押してください."
 
 #: ../../rsts/how_to_use_gui.rst:136
 msgid ""
@@ -179,7 +211,7 @@ msgstr "ボタン押下後, 以下のうようなデータセット確認画面�
 "が表示されます."
 
 #: ../../rsts/how_to_use_gui.rst:139
-msgid "At last, for saving the dataset, please push the ``save`` button."
+msgid "At last, for saving the dataset, please push the ``submit`` button."
 msgstr "データセットの内容を確認した後, データセットを保存する場合は``save``ボタンを"
 "押してください."
 

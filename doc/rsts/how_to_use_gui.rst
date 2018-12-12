@@ -106,10 +106,10 @@ ReNomIMG accepts PASCAL VOC formatted object detection data.
 Format of the Classification data
 ~~~~~~~~~~~~~~~~~~~
 
-**Format of label files** : ReNomIMG only accepts ''txt'' formatted label files.
+**Format of label files** : ReNomIMG only accepts ``txt`` formatted label files.
 The format of text file is bellow.
 
-Please Save as target.txt
+Please Save as ``target.txt``
 
 **put here**:``<ReNomIMG dir>datasrc/label/classification/target.txt``
 
@@ -287,7 +287,7 @@ Then following page will be appeared.
 
 .. image:: /_static/image/how_to_use_gui_dataset_create_button02.png
 
-As you can see, you can specify the ``dataset name``, ''description'' and ``ratio of training data``.
+As you can see, you can specify the ``dataset name``, ``description`` and ``ratio of training data``.
 
 After filling all forms, please push the ``confirm`` button to confirm the content that 
 the dataset includes.
@@ -297,7 +297,7 @@ the dataset includes.
 Then following graph will be appeared. You can confirm what classes are included 
 in the dataset and how many tags are they.
 
-At last, for saving the dataset, please push the ``save`` button.
+At last, for saving the dataset, please push the ``submit`` button.
 
 You can confirm created datasets in the dataset page.
 For going to the dataset page, please follow the figure below.
