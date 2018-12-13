@@ -12,6 +12,7 @@ before_script:
   - tar Jxfv Python-3.6.0.tar.xz
   - cd Python-3.6.0
   - ./configure; make; make install
+  - cd ../
   - wget https://bootstrap.pypa.io/get-pip.py
   - /usr/local/bin/python3.6 get-pip.py
   - pip install virtualenv
