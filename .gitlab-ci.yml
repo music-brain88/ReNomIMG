@@ -12,11 +12,12 @@ before_script:
   - tar Jxfv Python-3.6.0.tar.xz
   - cd Python-3.6.0
   - ./configure; make; make install
-  - apt-get install -y virtualenv virtualenvwrapper
-  - virtualenv --no-site-packages -p /usr/local/bin/python3.5 py35
   - wget https://bootstrap.pypa.io/get-pip.py
   - /usr/local/bin/python3.6 get-pip.py
+  - pip install virtualenv
+  - pip install virtualenvwrapper
   - virtualenv --no-site-packages -p /usr/local/bin/python3.6 py36
+  - virtualenv --no-site-packages -p /usr/local/bin/python3.5 py35
   - source py35/bin/activate
   - pip install -r requirements.txt
   - source py36/bin/activate
