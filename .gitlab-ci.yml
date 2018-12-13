@@ -1,11 +1,12 @@
 image: node:10.1
 
 before_script:
-  - apt-get -y update
+  - apt-get update
+  - apt-get install -y python3.5 python3.5-dev
   - apt-get install -y software-properties-common
   - add-apt-repository ppa:jonathonf/python-3.6
-  - apt-get -y update
-  - apt-get install -y python3.5 python3.5-dev
+  - apt-get update
+  - apt-get upgrade
   - apt-get install -y python3.6 python3.6-dev
   - apt-get install -y virtualenv virtualenvwrapper
   - which python3
