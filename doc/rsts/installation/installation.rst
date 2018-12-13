@@ -9,16 +9,37 @@ Install by pip.
 
 You can install ReNomIMG by ``pip`` command. This is the simplest way for installation.
 
+For python3.5
 
     .. code-block:: shell
 
-        pip install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-0.9b0-cp35-cp35m-linux_x86_64.whl
+        pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-1.0.7-cp35-cp35m-linux_x86_64.whl
+
+For python3.6
+
+    .. code-block:: shell
+
+        pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-1.0.7-cp36-cp36m-linux_x86_64.whl
+
 
 
     .. note::
 
         This is ``linux OS`` only. If your OS is windows or MAC, please install ReNomIMG
         from binary code.
+
+        If you have following error,
+        
+        .. code-block:: shell
+
+            ImportError: No module named '_tkinter', please install the python3-tk package
+
+        please install python3-tk using following command.
+
+        .. code-block:: shell
+
+            sudo apt-get install python3-tk
+
 
 
 Install from binary.
