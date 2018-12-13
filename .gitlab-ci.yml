@@ -2,6 +2,7 @@ image: node:10.1
 
 before_script:
   - apt-get update
+  - apt-get -y upgrade
   - wget https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tar.xz
   - tar Jxfv Python-3.5.0.tar.xz
   - cd Python-3.5.0
@@ -13,7 +14,7 @@ before_script:
   - ./configure; make; make install
   - apt-get install -y virtualenv virtualenvwrapper
   - virtualenv --no-site-packages -p /usr/local/bin/python3.5 py35
-  - virtualenv --no-site-packages --no-pip -p /usr/local/bin/python3.6 py36
+  - virtualenv --no-site-packages -p /usr/local/bin/python3.6 py36
   - source py35/bin/activate
   - pip install -r requirements.txt
   - source py36/bin/activate
