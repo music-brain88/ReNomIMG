@@ -64,7 +64,7 @@
       <div id="breakdown">
         <div id="load-progress" v-if="confirming_flag">
           <div class="lds-ripple"><div></div><div></div></div>
-          Loadging Dataset...
+          Loading Dataset...
         </div>
         <div id="class-ratio-bars" v-else v-for="item in class_items">
           <span>{{item[0]}}</span>
@@ -104,6 +104,7 @@ export default {
     }
   },
   beforeMount: function () {
+    console.log('AS')
     this.reset()
   },
   computed: {
@@ -162,6 +163,7 @@ export default {
       ])
     },
     train_num_style: function () {
+      console.log('called')
       if (this.total_num <= 0) return
       return {
         width: (this.train_num / this.total_num) * 100 + '%',
@@ -265,17 +267,22 @@ export default {
     height: 100%;
     width: 50%;
     .item {
+      height: 10%;
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: calc(100% - 8%);
-      margin: 3%;
       input, textarea {
         width: 50%;
       }
       select {
         background-color: white;
       }
+    }
+    input[type="button"] {
+      width: 20%;
+      margin-left: 74%;
+      margin-top: calc(45% - 56px);
     }
   }
   #dataset-confirm {

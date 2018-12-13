@@ -25,9 +25,7 @@
           <option v-for="opt in itemObject.options" :value="opt">{{opt.title}}</option>
         </select>
       </div>
-      <div id="add" @click="creatrFilter" :disabled="isDisabled" tabindex="0">
-        <i class="fa fa-plus" aria-hidden="true"></i>
-      </div>
+      <input id="add" type="button" value="Add" @click="createFilter" :disabled="isDisabled">
     </div>
     <div id="filter-list">
       <div v-for="filterItem in getFilterList" id="filter-item">
@@ -103,7 +101,7 @@ export default {
       'addFilter',
       'rmFilter'
     ]),
-    creatrFilter: function () {
+    createFilter: function () {
       if (this.isDisabled) return
       const filter = new Filter(this.itemObject, this.condition, this.threshold)
       this.addFilter(filter)
@@ -163,19 +161,11 @@ export default {
         height: 100%;
       }
     }
+    select {
+      background-color: white;
+    }
     #add {
-      width: 10%;
-      height: 100%;
       margin-left: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      cursor: pointer;
-      color: #ccc;
-      &:hover {
-        color: #555;;
-      }
     }
   }
 

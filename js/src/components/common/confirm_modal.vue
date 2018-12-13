@@ -22,10 +22,10 @@
 <script>
 
 export default {
-  name: 'AlertModal',
+  name: 'ConfirmModal',
   methods: {
     hide: function () {
-      this.$store.commit('hideAlert')
+      this.$store.commit('hideConfirm')
     }
   }
 }

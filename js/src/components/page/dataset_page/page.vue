@@ -7,7 +7,12 @@
         </template>
         <div id="container">
           <div id="left-colmn">
-            <div class="dataset-item"
+            <div class="dataset-item" style="color: #666;">
+              <span>Dataset ID</span>
+              <span>Name</span>
+              <span>Ratio</span>
+            </div>
+            <div class="dataset-item" :class="{selected: current_dataset===item}"
               v-for="item in datasets" @click="current_dataset=item">
               <span>{{ item.id }}</span>
               <span>{{ item.name }}</span>
@@ -178,7 +183,7 @@ export default {
   display: flex;
   align-content: flex-start;
   flex-wrap: wrap;
-  height: calc(#{$app-window-height} - #{$footer-height} - 100px);
+  height: calc(#{$app-window-height} - #{$footer-height} - 70px);
   font-size: $component-font-size-small;
 
   .title {
@@ -202,6 +207,8 @@ export default {
       width: 40%;
       height: 100%;
       padding: 10px;
+      color: #999;
+      overflow: auto;
       .dataset-item {
         display: flex;
         align-content: center;
@@ -211,6 +218,12 @@ export default {
         cursor: pointer;
         &:hover {
           background-color: #ddd;
+        }
+        &:active {
+          background-color: #eee;
+        }
+        &.selected {
+          color: $component-header-sub-color;
         }
         span {
           display: flex;
@@ -237,21 +250,25 @@ export default {
           margin-left: 10px;
           .item {
             width: 100%;
+            padding-left: 10px;
           }
         }
         .col:nth-child(2) {
           width: 70%;
           div {
-            width: 100%;
+            width: calc(100% - 20px);
             height: 100%;
             word-wrap: break-word;
+            padding-right: 20px;
+            background-color: #eee;
+            border: solid 1px #ddd;
           }
         }
       }
       #dataset-num-bar {
         width: 100%;
-        height: 10%;
-        padding: 20px;
+        height: 13%;
+        padding: 30px;
         display: flex;
         .bar {
           display: flex;
@@ -264,9 +281,11 @@ export default {
       }
       #dataset-class-bars{
         width: calc(100% - 40px);
-        height: calc(75% - 40px);
+        height: calc(72% - 20px);
         overflow: auto;
-        margin: 20px;
+        margin-bottom: 20px;
+        margin-left: 20px;
+        margin-right: 20px;
         #item {
           display: flex;
           align-items: center;

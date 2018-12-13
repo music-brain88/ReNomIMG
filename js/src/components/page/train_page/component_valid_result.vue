@@ -22,11 +22,13 @@
           - In segmentation, prediction or target can be on.
         -->
         <label>
-          <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction">
+          <input class="checkbox" type="checkbox" id="prediction-show-button"
+            v-model="show_prediction" v-on:change="onChangePredictionCheckBox">
           Prediction
         </label>
         <label>
-          <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target">
+          <input class="checkbox" type="checkbox" id="prediction-show-button"
+            v-model="show_target" v-on:change="onChangeTargetCheckBox">
           Target
         </label>
       </div>
@@ -65,6 +67,7 @@
         <!--Classification-->
         <div id="cls" v-if='isTaskClassification'
           :style="getClassificationStyle(getValidResult(item))">
+          <div id="cls-label" :style="getClassLabelStyle(item)">{{getClassLabel(item)}}</div>
         </div>
 
         <!--Detection-->
@@ -175,6 +178,16 @@ export default {
     ...mapActions([
       'loadSegmentationTargetArray' // Get segmentation target from server.
     ]),
+    onChangePredictionCheckBox: function (e) {
+      this.show_prediction = e.target.checked
+      this.show_target = (!this.show_prediction || this.isTaskDetection) && this.show_target
+      const a = this.result
+    },
+    onChangeTargetCheckBox: function (e) {
+      this.show_target = e.target.checked
+      this.show_prediction = (!this.show_target || this.isTaskDetection) && this.show_prediction
+      const a = this.result
+    },
     showImageModal: function (item) {
       /**
         The image modal will appear.
@@ -353,8 +366,27 @@ export default {
       }
       return result
     },
+    getClassLabel: function (item) {
+      if (item.index < 0) return
+      let cls = this.getValidResult(item)
+      if (cls.hasOwnProperty('class')) {
+        cls = cls.class
+      }
+      const map = this.dataset.class_map
+      return map[cls]
+    },
+    getClassLabelStyle: function (item) {
+      if (item.index < 0) return
+      let cls = this.getValidResult(item)
+      if (cls.hasOwnProperty('class')) {
+        cls = cls.class
+      }
+      return {
+        'background-color': getTagColor(cls) + 'bb',
+      }
+    },
     getClassificationStyle: function (cls) {
-      if (!cls) {
+      if (cls === undefined) {
         return {}
       }
       if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {
@@ -389,7 +421,7 @@ export default {
     },
     getSegmentationStyle: function (item, index) {
       if (!item) return
-      if (!item || !this.show_prediction) {
+      if (!item || (!this.show_prediction && !this.show_target)) {
         // Clear canvas
         var canvas = this.$refs.canvas[index]
         if (!canvas) return
@@ -492,6 +524,17 @@ export default {
       width: 100%;
       top: -0.25vmin;
       left: -0.25vmin;
+      display: flex;
+      align-items: flex-end;
+      #cls-label {
+        width: 100%;
+        height: 18px;
+        margin: 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
     #seg {
       position: absolute;
