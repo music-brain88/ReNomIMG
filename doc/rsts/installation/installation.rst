@@ -51,6 +51,7 @@ Install from binary.
 
         git clone ~~
         cd ReNomIMG/
+        pip install -r requirements.txt
         python setup.py build
         pip install -e .
 
