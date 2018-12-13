@@ -167,7 +167,7 @@ Format of the Segmentation data
 **Format of label files** : ReNomIMG only accepts ``txt`` and ``PNG`` formatted label files.
 The format of txt file is bellow.
 
-Please Save as class_map.txt.
+Please Save as ``class_map.txt.``
 
 **Put file here**:``<ReNomIMG dir>/datasrc/label/segmentation/class_map.txt``
 
