@@ -96,7 +96,7 @@ msgstr "3. ReNomIMG 概要"
 msgid ""
 "ReNomIMG is service for image classification.Image classification has "
 "three types"
-msgstr "ReNomIMG は画像認識のサービスです。以下3つの機能を持ちます。"
+msgstr "ReNomIMG は画像認識のサービスです。画像認識にも種類があり以下3つあります。"
 
 #: ../../rsts/introduction.rst:53
 msgid "Object Detection(or just detection)."
@@ -112,7 +112,7 @@ msgstr "画像分類"
 
 #: ../../rsts/introduction.rst:57
 msgid "ReNomIMG can do these three kind of tasks. Not only one job"
-msgstr "これら３つの機能を全て提供します。"
+msgstr "ReNomIM はこれら３つの機能を全て提供します。"
 
 #: ../../rsts/introduction.rst:59
 msgid ""

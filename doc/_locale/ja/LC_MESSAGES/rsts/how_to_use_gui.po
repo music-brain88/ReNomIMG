@@ -303,7 +303,7 @@ msgstr "ハイパーパラメータの設定"
 #: ../../rsts/how_to_use_gui.rst:318
 msgid ""
 "So far you got all the materials, let's build a model and run training. "
-"For creating a model please push the button ``Add New Model``."
+"For creating a model please push the button ``New``."
 msgstr ""
 "ここまでで全て材料がそろいました。それでは、モデルの作成して訓練させましょう。モデルを作成するために、``New`` "
 "ボタンを押してください。"
