@@ -181,7 +181,7 @@ msgid "Class number id must be start 0 and  set background."
 msgstr "クラス番号は0始まりでなければなりません。0 に対応するクラスは必ず背景を設定してください。"
 
 #: ../../rsts/how_to_use_gui.rst:177
-msgid "Class munber id must be serial number."
+msgid "Class number id must be serial number."
 msgstr "クラス番号は必ず連番でなければなりません。"
 
 #: ../../rsts/how_to_use_gui.rst:212
@@ -189,15 +189,15 @@ msgid ":red:`Bad example`"
 msgstr "悪いファイル例"
 
 #: ../../rsts/how_to_use_gui.rst:214
-msgid "Class number id is not start 0."
+msgid "Class number id does not start 0."
 msgstr "クラス番号が0スタートでありません。"
 
 #: ../../rsts/how_to_use_gui.rst:215
-msgid "Class name dose not have background."
+msgid "Class name does not have background."
 msgstr "クラス名に背景が設定されていません。"
 
 #: ../../rsts/how_to_use_gui.rst:216
-msgid "Class munber id is fall apart. that not serial number."
+msgid "Class number does not have serial number."
 msgstr "クラス番号が歯抜けになっており、連番でないです。"
 
 #: ../../rsts/how_to_use_gui.rst:242
