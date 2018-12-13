@@ -7,6 +7,7 @@ before_script:
   - cd Python-3.5.0
   - ./configure; make; make install
   - alias python35='python3.5'; alias pip35='pip3.5'
+  - alias
   - cd ..
   - pip35 install --upgrade pip
   - pip35 install wheel Cython
