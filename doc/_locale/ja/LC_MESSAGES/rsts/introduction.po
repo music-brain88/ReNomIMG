@@ -112,7 +112,7 @@ msgstr "画像分類"
 
 #: ../../rsts/introduction.rst:57
 msgid "ReNomIMG can do these three kind of tasks. Not only one job"
-msgstr "ReNomIM はこれら３種類を全て提供します。"
+msgstr "ReNomIMG はこれら３種類を全て提供します。"
 
 #: ../../rsts/introduction.rst:59
 msgid ""
