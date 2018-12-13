@@ -102,7 +102,6 @@ msgid ""
 msgstr "**ラベルの形式** : ReNomIMGはxml形式のラベルのみを受け付けます。"
 
 #: ../../rsts/how_to_use_gui.rst:78
-#, fuzzy
 msgid ""
 "**put xml files here**:``<ReNomIMG "
 "dir>datasrc/label/detection/<sample.xml>``"
@@ -130,7 +129,6 @@ msgid "Format of the Classification data"
 msgstr "画像分類のデータフォーマット"
 
 #: ../../rsts/how_to_use_gui.rst:109
-#, fuzzy
 msgid ""
 "**Format of label files** : ReNomIMG only accepts ``txt`` formatted label"
 " files. The format of text file is bellow."
@@ -151,26 +149,22 @@ msgid "Format of the Segmentation data"
 msgstr "セグメンテーションのデータフォーマット"
 
 #: ../../rsts/how_to_use_gui.rst:162
-#, fuzzy
 msgid ""
 "Segmentation require two kind of labels. ``PNG`` files and "
 "``class_map.txt``"
 msgstr "画像ファイル名と対応するラベルファイル名は同じでなければなりません。例えば、画像ファイルの名前がimage01.jpgの場合、対応するラベルの名前はimage01.xmlでなければなりません。"
 
 #: ../../rsts/how_to_use_gui.rst:167
-#, fuzzy
 msgid ""
 "**Format of label files** : ReNomIMG only accepts ``txt`` and ``PNG`` "
 "formatted label files. The format of txt file is bellow."
 msgstr "**ラベルの形式** : ReNomIMG は ``txt`` 形式のラベルのみを受け付けます。"
 
 #: ../../rsts/how_to_use_gui.rst:170
-#, fuzzy
 msgid "Please Save as class_map.txt."
 msgstr "ファイル名は ``target.txt`` で保存してください。"
 
 #: ../../rsts/how_to_use_gui.rst:172
-#, fuzzy
 msgid ""
 "**Put file here**:``<ReNomIMG "
 "dir>/datasrc/label/segmentation/class_map.txt``"
@@ -180,38 +174,37 @@ msgstr ""
 
 #: ../../rsts/how_to_use_gui.rst:174
 msgid "Good example"
-msgstr ""
+msgstr "良いファイル例"
 
 #: ../../rsts/how_to_use_gui.rst:176
 msgid "Class number id must be start 0 and  set background."
-msgstr ""
+msgstr "クラス番号は0始まりでなければなりません。0 に対応するクラスは必ず背景を設定してください。"
 
 #: ../../rsts/how_to_use_gui.rst:177
 msgid "Class munber id must be serial number."
-msgstr ""
+msgstr "クラス番号は必ず連番でなければなりません。"
 
 #: ../../rsts/how_to_use_gui.rst:212
 msgid ":red:`Bad example`"
-msgstr ""
+msgstr "悪いファイル例"
 
 #: ../../rsts/how_to_use_gui.rst:214
 msgid "Class number id is not start 0."
-msgstr ""
+msgstr "クラス番号が0で始めっていません。"
 
 #: ../../rsts/how_to_use_gui.rst:215
 msgid "Class name dose not have background."
-msgstr ""
+msgstr "クラス名に背景が設定されていません。"
 
 #: ../../rsts/how_to_use_gui.rst:216
 msgid "Class munber id is fall apart. that not serial number."
-msgstr ""
+msgstr "クラス番号は連番でないです。"
 
 #: ../../rsts/how_to_use_gui.rst:242
 msgid "Sample of Segementation  PNG label file"
-msgstr ""
+msgstr "セグメンテーションの ``PNG`` ファイル 教師データです。"
 
 #: ../../rsts/how_to_use_gui.rst:255
-#, fuzzy
 msgid ""
 "The name of image file and corresponded label file name have to be same. "
 "For example, the image file name is ``image01.jpg``, corresponded label "
@@ -264,17 +257,16 @@ msgid "Then following page will be appeared."
 msgstr "そうしましたら、以下のページが表れます。"
 
 #: ../../rsts/how_to_use_gui.rst:290
-#, fuzzy
 msgid ""
 "As you can see, you can specify the ``dataset name``, ``description`` and"
 " ``ratio of training data``."
-msgstr "ご覧のように``dataset name``、``description``と``学習データ割合``を指定することが出来ます。"
+msgstr "ご覧のように ``dataset name`` 、``description`` と ``学習データ割合`` を指定することが出来ます。"
 
 #: ../../rsts/how_to_use_gui.rst:292
 msgid ""
 "After filling all forms, please push the ``confirm`` button to confirm "
 "the content that the dataset includes."
-msgstr "すべての入力フォームを埋めた後, ``confirm``ボタンを押してください."
+msgstr "すべての入力フォームを埋めた後, ``confirm`` ボタンを押してください."
 
 #: ../../rsts/how_to_use_gui.rst:297
 msgid ""
@@ -286,13 +278,13 @@ msgstr ""
 
 #: ../../rsts/how_to_use_gui.rst:300
 msgid "At last, for saving the dataset, please push the ``submit`` button."
-msgstr "データセットの内容を確認した後, データセットを保存する場合は``save``ボタンを押してください."
+msgstr "データセットの内容を確認した後, データセットを保存する場合は ``submit`` ボタンを押してください."
 
 #: ../../rsts/how_to_use_gui.rst:302
 msgid ""
 "You can confirm created datasets in the dataset page. For going to the "
 "dataset page, please follow the figure below."
-msgstr "作成したデータセットは, ``Dataset``ページから確認することができます.以下の図にしたがってDatasetページへ移動してください."
+msgstr "作成したデータセットは, ``Dataset`` ページから確認することができます.以下の図にしたがってDatasetページへ移動してください."
 
 #: ../../rsts/how_to_use_gui.rst:309
 msgid "In the above figure, 2 datasets are already created."
@@ -302,7 +294,7 @@ msgstr ""
 
 #: ../../rsts/how_to_use_gui.rst:313 ../../rsts/how_to_use_gui.rst:342
 msgid "Detection, Segmentation and Classification task are same process"
-msgstr ""
+msgstr "オブジェクト検出、セグメンテーション、画像分類、全てのタスクは同じ手順で実行出来ます。"
 
 #: ../../rsts/how_to_use_gui.rst:316
 msgid "Hyper parameter setting"
@@ -313,8 +305,8 @@ msgid ""
 "So far you got all the materials, let's build a model and run training. "
 "For creating a model please push the button ``Add New Model``."
 msgstr ""
-"ここまでで全て材料がそろいました。それでは、モデルの作成して訓練させましょう。モデルを作成するために、'Add New "
-"Model'ボタンを押してください。"
+"ここまでで全て材料がそろいました。それでは、モデルの作成して訓練させましょう。モデルを作成するために、``New`` "
+"ボタンを押してください。"
 
 #: ../../rsts/how_to_use_gui.rst:323
 msgid "Then you can see a hyper parameter setting modal like following figure."
@@ -326,39 +318,35 @@ msgstr "上の図から分かりますように、以下のパラメータを指
 
 #: ../../rsts/how_to_use_gui.rst:329
 msgid "**Dataset Name** ... Select the dataset for training."
-msgstr "Dataset Name ... 訓練用のデータセットを選択してください。"
+msgstr "**Dataset Name** ... 訓練用のデータセットを選択してください。"
 
 #: ../../rsts/how_to_use_gui.rst:330
 msgid "**CNN architecture** ... Select the object detection algorithm."
-msgstr "CNN architecture ... 物体認識アルゴリズムを選択してください。"
+msgstr "**CNN architecture** ... 物体認識アルゴリズムを選択してください。"
 
 #: ../../rsts/how_to_use_gui.rst:331
 msgid ""
 "**Batch Size** ... Set higher number, the learning speed become **fast**."
 " Set lower number, the behavior  become like **Stochastic Gradient "
 "Descent(or just SGD)**"
-msgstr ""
+msgstr "**Batch Size** ...数値が高いほど学習速度は早くなり、1に近いほど振る舞いが確率的勾配降下法に近くなります。"
 
 #: ../../rsts/how_to_use_gui.rst:332
 msgid ""
 "**Total Eopch** ... Training your network on each item of the set once is"
 " an epoch."
-msgstr ""
+msgstr "**Total Eopch** ...各データに対する学習回数の設定です。10を設定しますと各データを10回学習します。"
 
 #: ../../rsts/how_to_use_gui.rst:333
-#, fuzzy
 msgid ""
 "**Train Whole network** ... If this is  checked, whole network weight "
 "will be trained."
-msgstr "Train Whole network ... もしこの項目がTrueでしたら、全ネットワークの重みが訓練されます。"
+msgstr "**Train Whole network** ... もしこの項目にチェックを入れましたらで、全ネットワークの重みが訓練されます。"
 
 #: ../../rsts/how_to_use_gui.rst:334
 msgid "**Image size** ... Image size for training."
-msgstr "Image size ... 訓練用画像のサイズ"
+msgstr "**Image size** ... 訓練用画像のサイズ"
 
-#: ../../rsts/how_to_use_gui.rst:335
-msgid "**Training loop setting** ... Number of training and batch size."
-msgstr "Training loop setting ... トレーニング数とバッチサイズ"
 
 #: ../../rsts/how_to_use_gui.rst:338
 msgid ""
@@ -367,9 +355,8 @@ msgid ""
 msgstr "GPUデバイスによりましては、サイズの大きい画像や大きなバッチサイズによりメモリがオーバーフローします。"
 
 #: ../../rsts/how_to_use_gui.rst:345
-#, fuzzy
 msgid "Create Classification Model"
-msgstr "画像分類のデータフォーマット"
+msgstr "分類モデルの作成"
 
 #: ../../rsts/how_to_use_gui.rst:348
 msgid "Training Model"

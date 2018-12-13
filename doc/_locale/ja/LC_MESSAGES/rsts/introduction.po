@@ -90,29 +90,29 @@ msgstr ""
 
 #: ../../rsts/introduction.rst:49
 msgid "3. ReNomIMG overview"
-msgstr ""
+msgstr "3. ReNomIMG 概要"
 
 #: ../../rsts/introduction.rst:51
 msgid ""
 "ReNomIMG is service for image classification.Image classification has "
 "three types"
-msgstr ""
+msgstr "ReNomIMG は画像認識のサービスです。以下3つの機能を持ちます。"
 
 #: ../../rsts/introduction.rst:53
 msgid "Object Detection(or just detection)."
-msgstr ""
+msgstr "オブジェクト検出"
 
 #: ../../rsts/introduction.rst:54
 msgid "Semantic Segmentation(or just Segmentation)."
-msgstr ""
+msgstr "セマンティックセグメンテーション( 以下セグメンテーション )"
 
 #: ../../rsts/introduction.rst:55
 msgid "Image Classification(or just classification)."
-msgstr ""
+msgstr "画像分類"
 
 #: ../../rsts/introduction.rst:57
 msgid "ReNomIMG can do these three kind of tasks. Not only one job"
-msgstr ""
+msgstr "これら３つの機能を全て提供します。"
 
 #: ../../rsts/introduction.rst:59
 msgid ""
@@ -120,19 +120,19 @@ msgid ""
 "classification. You can also to use own data and splitting, model "
 "comparing, to see how to learning data and export model then use another "
 "services."
-msgstr ""
+msgstr "ReNomIMG は単にオブジェクト検出、セグメンテーション、画像分類を提供するだけではありません。自分のデータを使ってデータ分割、作成したモデルの比較、学習進捗、学習曲線の可視化、さらには作成したモデルのエクスポートできそれらを別のサービスに使用することが出来ます。"
 
 #: ../../rsts/introduction.rst:64
 msgid "4. ReNomIMG Algorithms"
-msgstr ""
+msgstr "4. ReNomIMG が提供するアルゴリズム"
 
 #: ../../rsts/introduction.rst:66
 msgid "You can use these algorithms."
-msgstr ""
+msgstr "ReNomIMG では以下のアルゴリズムでモデルを作成することができます。"
 
 #: ../../rsts/introduction.rst:68
 msgid "detection"
-msgstr ""
+msgstr "オブジェクト検出"
 
 #: ../../rsts/introduction.rst:70
 msgid "Yolo v1"
@@ -148,7 +148,7 @@ msgstr ""
 
 #: ../../rsts/introduction.rst:74
 msgid "segmentation"
-msgstr ""
+msgstr "セグメンテーション"
 
 #: ../../rsts/introduction.rst:76
 msgid "U-Net"
@@ -164,7 +164,7 @@ msgstr ""
 
 #: ../../rsts/introduction.rst:80
 msgid "classification"
-msgstr ""
+msgstr "画像分類"
 
 #: ../../rsts/introduction.rst:82
 msgid "ResNet"

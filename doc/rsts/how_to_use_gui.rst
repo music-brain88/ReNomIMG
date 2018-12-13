@@ -316,7 +316,7 @@ Hyper parameter setting
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 So far you got all the materials, let's build a model and run training.
-For creating a model please push the button ``Add New Model``.
+For creating a model please push the button ``New``.
 
 .. image:: /_static/image/how_to_use_gui_model_create01.png
 
@@ -332,7 +332,6 @@ As you can see in above figure, you can specify following parameters.
 * **Total Eopch** ... Training your network on each item of the set once is an epoch.
 * **Train Whole network** ... If this is  checked, whole network weight will be trained.
 * **Image size** ... Image size for training.
-* **Training loop setting** ... Number of training and batch size.
 .. note::
 
     Depending on your GPU device, larger image size or batch size causes memory overflow.
