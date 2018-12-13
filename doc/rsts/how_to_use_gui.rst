@@ -308,10 +308,6 @@ For going to the dataset page, please follow the figure below.
 
 In the above figure, 2 datasets are already created. 
 
-.. note::
-
-  Detection, Segmentation and Classification task are same process
-
 Hyper parameter setting
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -336,12 +332,6 @@ As you can see in above figure, you can specify following parameters.
 
     Depending on your GPU device, larger image size or batch size causes memory overflow.
 
-.. note::
-
-  Detection, Segmentation and Classification task are same process
-
-Create Classification Model
-----------------------
 
 Training Model
 ~~~~~~~~~~~~~~
@@ -352,6 +342,9 @@ If the training starts, model will be appeared in model list and progress bar wi
 
 .. image:: /_static/image/how_to_use_gui_model_create03.png
 
+.. note::
+
+  Detection, Segmentation and Classification task are same process
 
 Uninstall ReNomIMG
 ------------------

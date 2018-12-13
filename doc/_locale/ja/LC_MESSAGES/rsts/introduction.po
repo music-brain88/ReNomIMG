@@ -112,7 +112,7 @@ msgstr "画像分類"
 
 #: ../../rsts/introduction.rst:57
 msgid "ReNomIMG can do these three kind of tasks. Not only one job"
-msgstr "ReNomIM はこれら３つの機能を全て提供します。"
+msgstr "ReNomIM はこれら３種類を全て提供します。"
 
 #: ../../rsts/introduction.rst:59
 msgid ""
@@ -120,7 +120,7 @@ msgid ""
 "classification. You can also to use own data and splitting, model "
 "comparing, to see how to learning data and export model then use another "
 "services."
-msgstr "ReNomIMG は単にオブジェクト検出、セグメンテーション、画像分類を提供するだけではありません。自分のデータを使ってデータ分割、作成したモデルの比較、学習進捗、学習曲線の可視化、さらには作成したモデルのエクスポートできそれらを別のサービスに使用することが出来ます。"
+msgstr "さらにReNomIMG は単にオブジェクト検出、セグメンテーション、画像分類を提供するだけではありません。自分のデータを使ってデータ分割、作成したモデルの比較、学習進捗、学習曲線の可視化、さらには作成したモデルのエクスポートできそれらを別のサービスに使用することが出来ます。"
 
 #: ../../rsts/introduction.rst:64
 msgid "4. ReNomIMG Algorithms"
