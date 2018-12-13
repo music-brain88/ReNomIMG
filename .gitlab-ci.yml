@@ -15,7 +15,7 @@ before_script:
   - apt-get install -y virtualenv virtualenvwrapper
   - virtualenv --no-site-packages -p /usr/local/bin/python3.5 py35
   - wget https://bootstrap.pypa.io/get-pip.py
-  - /usr/local/bin/python get-pip.py
+  - /usr/local/bin/python3.6 get-pip.py
   - virtualenv --no-site-packages -p /usr/local/bin/python3.6 py36
   - source py35/bin/activate
   - pip install -r requirements.txt
