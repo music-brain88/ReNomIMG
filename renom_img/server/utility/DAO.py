@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from renom_img.server import DB_DIR
 
-DATABASE = os.path.join('sqlite:///', DB_DIR, 'new_storage.db')
+DATABASE = os.path.join('sqlite:///', DB_DIR, 'renom-imgv2_storage.db')
 engine = create_engine(
     DATABASE,
     encoding="utf-8",
