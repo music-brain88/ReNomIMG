@@ -13,13 +13,21 @@ before_script:
   - ./configure; make; make install
   - apt-get install -y virtualenv virtualenvwrapper
   - virtualenv --no-site-packages -p /usr/local/bin/python3.5 py35
-  - virtualenv --no-site-packages -p /usr/local/bin/python3.6 py36
+  - virtualenv --no-site-packages --no-pip -p /usr/local/bin/python3.6 py36
+  - source py35/bin/activate
+  - pip install -r requirements.txt
+  - source py36/bin/activate
+  - wget https://bootstrap.pypa.io/get-pip.py
+  - python get-pip.py
+  - pip install -r requirements.txt
   
 
 pages:
   script:
-    - python35 setup.py bdist_wheel sdist
-    - python36 setup.py bdist_wheel sdist
+    - source py35/bin/activate
+    - python setup.py bdist_wheel sdist
+    - source py36/bin/activate
+    - python setup.py bdist_wheel sdist
     - mkdir -p public/bin
     - cp dist/* public/bin
     - ls public/bin
