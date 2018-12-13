@@ -16,7 +16,7 @@ before_script:
   - tar Jxfv Python-3.6.0.tar.xz
   - cd Python-3.6.0
   - ./configure; make; make install
-  - alias python36='python3.5'; alias pip36='pip3.6'
+  - alias python36='python3.6'; alias pip36='pip3.6'
   - cd ..
   - pip36 install --upgrade pip
   - pip36 install wheel Cython
