@@ -41,7 +41,6 @@ def parse_xml_detection(xml_path_list, num_thread=8):
     class_map = {}
 
     def load_thread(path_list):
-        print(path_list)
         local_annotation_list = []
         for filename in path_list:
             tree = ElementTree.parse(filename)
@@ -68,10 +67,10 @@ def parse_xml_detection(xml_path_list, num_thread=8):
             local_annotation_list.append(image_data)
         return local_annotation_list
     N = len(xml_path_list)
-    print("N:", N)
     if N > num_thread:
-        batch = int(N % num_thread)
+        batch = int(N / num_thread)
         print("batch", batch)
+        print("calc", batch * num_thread)
         with Executor(max_workers=num_thread + int(N % num_thread > 0)) as exc:
             ret = exc.map(load_thread, [xml_path_list[batch * i:batch * (i + 1)]
                                         for i in range(num_thread + int(N % num_thread > 0))])
