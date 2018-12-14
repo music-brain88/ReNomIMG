@@ -83,7 +83,7 @@ Then a docker image will be created.
 **Run docker image**
 
 For running ReNomIMG server on Docker image, 
-please use the script `run.sh`.
+please use the script run.sh.
 
 .. code-block:: shell
 

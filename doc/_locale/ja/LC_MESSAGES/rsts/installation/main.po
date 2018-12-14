@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-14 14:33+0900\n"
+"POT-Creation-Date: 2018-12-14 14:50+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,8 +48,8 @@ msgid ""
 "This is ``linux OS`` only. If your OS is windows or MAC that are not "
 "recommended system, please install ReNomIMG from binary code."
 msgstr ""
-"この方法はlinux OSのみ利用できます. 推奨環境ではありませんが, "
-"WindowsかMacをご利用の場合は, バイナリコードからインストールして下さい. "
+"この方法はlinux OSのみ利用できます. 推奨環境ではありませんが, WindowsかMacをご利用の場合は, "
+"バイナリコードからインストールして下さい. "
 
 #: ../../rsts/installation/main.rst:31
 msgid "If you have following error,"
@@ -100,10 +100,8 @@ msgid "**Run docker image**"
 msgstr "**Deckerイメージの実行**"
 
 #: ../../rsts/installation/main.rst:85
-msgid ""
-"For running ReNomIMG server on Docker image, please use the script "
-"`run.sh`."
-msgstr "Dockerイメージ上でReNomIMGサーバを起動するためには, `run.sh`スクリプトを利用して下さい. "
+msgid "For running ReNomIMG server on Docker image, please use the script run.sh."
+msgstr "Dockerイメージ上でReNomIMGサーバを起動するためには, run.sh スクリプトを利用して下さい. "
 
 #: ../../rsts/installation/main.rst:93
 msgid "The script accept some arguments."
@@ -119,7 +117,9 @@ msgstr "-d: データソースのディレクトリへのパス. このディレ
 msgid ""
 "-s : Path to the data storage directory. Sqlite DB, trained weight and "
 "pretrained weight will be arranged into this directory."
-msgstr "-s : データストレージのディレクトリへのパス. Sqlite DBと学習済み重み, そしれ事前学習済みの重みがこのフォルダには用意されています. "
+msgstr ""
+"-s : データストレージのディレクトリへのパス. Sqlite DBと学習済み重み, "
+"そしれ事前学習済みの重みがこのフォルダには用意されています. "
 
 #: ../../rsts/installation/main.rst:97
 msgid "-p : The port number."
@@ -134,7 +134,9 @@ msgid ""
 "If no arguments are passed, directories named ``datasrc`` and ``storage``"
 " will be created in current directory, and the application uses ``8080`` "
 "port."
-msgstr "引数を指定しない場合には, datasrcとstorageという名前のディレクトリがカレントディレクトリに作成されます. アプリケーションは8080ポートを利用します. "
+msgstr ""
+"引数を指定しない場合には, datasrcとstorageという名前のディレクトリがカレントディレクトリに作成されます. "
+"アプリケーションは8080ポートを利用します. "
 
 #: ../../rsts/installation/main.rst:110
 msgid "This requires nvidia-docker."
