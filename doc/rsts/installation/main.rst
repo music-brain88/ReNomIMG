@@ -25,8 +25,8 @@ For python3.6
 
     .. note::
 
-        This is ``linux OS`` only. If your OS is windows or MAC, please install ReNomIMG
-        from binary code.
+        This is ``linux OS`` only. If your OS is windows or MAC that are not recommended system, 
+        please install ReNomIMG from binary code.
 
         If you have following error,
         
@@ -49,7 +49,7 @@ Install from binary.
 
     .. code-block:: shell
 
-        git clone ~~
+        git clone https://github.com/ReNom-dev-team/ReNomIMG.git
         cd ReNomIMG/
         pip install -r requirements.txt
         python setup.py build
@@ -108,3 +108,11 @@ current directory, and the application uses ``8080`` port.
 .. note ::
 
     This requires nvidia-docker.
+
+**Requirements**
+
+  - OS : Ubuntu 16.04
+  - python : >=3.5
+  - `ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : >= 2.6
+
+For required python packages, please refer to the `requirements.txt <https://github.com/ReNom-dev-team/ReNomIMG/blob/release/1.0/requirements.txt>`_ .
