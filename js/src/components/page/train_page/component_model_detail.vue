@@ -2,8 +2,12 @@
   <component-frame :width-weight="6" :height-weight="4">
     <template slot="header-slot">
       Model Detail
-      <div id="deploy-button" @click="deployModel(model)" :disabled="model && model.isDeployable()">
-        <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Deploy
+      <div id="deploy-button" @click="undeploy"
+        v-if="getDeployedModel && getDeployedModel === getSelectedModel">
+          <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Un Deploy
+      </div>
+      <div id="deploy-button" @click="deploy" v-else>
+          <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Deploy
       </div>
     </template>
     <div id="model-detail">
@@ -55,10 +59,13 @@ export default {
     'component-frame': ComponentFrame
   },
   computed: {
-    ...mapGetters(['getSelectedModel',
+    ...mapGetters([
+      'getSelectedModel',
       'getAlgorithmTitleFromId',
       'getDatasetFromId',
-      'getAlgorithmParamList']),
+      'getAlgorithmParamList',
+      'getDeployedModel'
+    ]),
     model: function () {
       const model = this.getSelectedModel
       if (model) {
@@ -80,8 +87,30 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['setDeployedModel', 'unDeployModel']),
-    ...mapActions(['deployModel'])
+    ...mapMutations([
+      'setDeployedModel',
+      'showConfirm',
+    ]),
+    ...mapActions([
+      'deployModel',
+      'unDeployModel',
+    ]),
+    deploy: function () {
+      const model = this.getSelectedModel
+      const func = this.deployModel
+      this.showConfirm({
+        message: 'Are you sure deploy this model?',
+        callback: function () { func(model) }
+      })
+    },
+    undeploy: function () {
+      const model = this.getDeployedModel
+      const func = this.unDeployModel
+      this.showConfirm({
+        message: 'Are you sure undeploy this model?',
+        callback: function () { func(model) }
+      })
+    }
   }
 }
 </script>

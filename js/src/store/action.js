@@ -521,6 +521,14 @@ export default {
 
     }, error_handler_creator(context))
   },
+  async unDeployModel (context, payload) {
+    let task_id = context.getters.getCurrentTask
+    let url = '/api/renom_img/v2/model/undeploy/' + task_id
+    this.commit('unDeployModel')
+    return axios.get(url).then(() => {
+
+    }, error_handler_creator(context))
+  },
   async loadDeployedModel (context, payload) {
     let task_id = context.getters.getCurrentTask
     let url = '/api/renom_img/v2/model/load/deployed/task/' + task_id

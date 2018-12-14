@@ -239,6 +239,13 @@ def model_deploy(id):
     return {"status": "ok"}
 
 
+@route("/api/renom_img/v2/model/undeploy/<task_id:int>", method="GET")
+@json_handler
+def model_undeploy(task_id):
+    storage.undeploy_model(task_id)
+    return {"status": "ok"}
+
+
 @route("/api/renom_img/v2/model/load/deployed/task/<id:int>", method="GET")
 @json_handler
 def model_load_id_deployed_of_task(id):
