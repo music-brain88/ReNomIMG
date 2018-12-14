@@ -344,7 +344,9 @@ def dataset_confirm():
                       if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         img_files = [str(img_dir / name) for name in file_names]
         xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
+        print("xml",len(xml_files))
         parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
+        print(len(parsed_target))
 
     elif task_id == Task.SEGMENTATION.value:
         segmentation_label_dir = label_dir / "segmentation"
@@ -391,10 +393,12 @@ def dataset_confirm():
         valid_tag_list = []
 
         for i in range(len(train_target)):
-            train_tag_list.append(train_target[i][0].get('class'))
+            for j in range(len(train_target[i])):
+                train_tag_list.append(train_target[i][j].get('class'))
 
         for i in range(len(valid_target)):
-            valid_tag_list.append(valid_target[i][0].get('class'))
+            for j in range(len(valid_target[i])):
+                valid_tag_list.append(valid_target[i][j].get('class'))
 
         train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))
