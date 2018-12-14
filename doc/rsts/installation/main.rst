@@ -1,7 +1,7 @@
 Install ReNomIMG
 =================
 
-ReNomIMG requires following python modules.
+There are 3 ways for installing ReNomIMG.
 
 
 Install by pip.
