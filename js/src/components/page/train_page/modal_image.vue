@@ -78,7 +78,9 @@
           </div>
         </div>
         <div id="seg-result" class="result" v-else-if="isTaskSegmentation">
-            <span>{{ prediction }}</span>
+          <div v-for="item in prediction_of_segmentation">
+            <span>{{ item }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -187,6 +189,14 @@ export default {
           return result
         }
       }
+    },
+    prediction_of_segmentation: function () {
+      const index = this.modal_index
+      const target = this.dataset.getValidTarget(index)
+      const pred = this.prediction
+      const recall = pred.recall
+      const precision = pred.precision
+      this.getSegmentationStyle(target)
     },
     dataset: function () {
       const model = this.model
