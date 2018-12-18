@@ -3,7 +3,7 @@ import requests
 import urllib.request
 import numpy as np
 import os
-from renom_img.server import ALG_YOLOV1, ALG_YOLOV2, ALG_SSD
+from renom_img.server import Algorithm
 from renom_img.api.utility.misc.download import download
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2
@@ -19,7 +19,6 @@ class Detector(object):
     """
 
     def __init__(self, url="http://localhost", port='8080'):
-        self._pj_id = 1
         self._url = url
         self._port = port
         self._model = None
@@ -41,8 +40,8 @@ class Detector(object):
 
         """
         url = self._url + ':' + self._port
-        download_weight_api = "/api/renom_img/v1/projects/{}/deployed_model".format(self._pj_id)
-        download_param_api = "/api/renom_img/v1/projects/{}/deployed_model_info".format(self._pj_id)
+        download_weight_api = "/api/renom_img/v2/deployed_model/task/1"
+        download_param_api = "/api/renom_img/v2/deployed_model_info/task/1"
         download_weight_api = url + download_weight_api
         download_param_api = url + download_param_api
 
@@ -52,24 +51,24 @@ class Detector(object):
         if not os.path.exists(filename):
             download(download_weight_api, filename)
 
-        if ret["algorithm"] == ALG_YOLOV1:
+        if ret["algorithm_id"] == Algorithm.YOLOV1.value:
             self._alg_name = "Yolov1"
-            img_w = ret["hyper_parameters"]["image_width"]
-            img_h = ret["hyper_parameters"]["image_height"]
+            img_w = ret["hyper_parameters"]["imsize_w"]
+            img_h = ret["hyper_parameters"]["imsize_h"]
             self._model = Yolov1(imsize=(img_h, img_w))
             self._model.load(filename)
 
-        elif ret["algorithm"] == ALG_YOLOV2:
+        elif ret["algorithm_id"] == Algorithm.YOLOV2.value:
             self._alg_name = "Yolov2"
-            img_w = ret["hyper_parameters"]["image_width"]
-            img_h = ret["hyper_parameters"]["image_height"]
+            img_w = ret["hyper_parameters"]["imsize_w"]
+            img_h = ret["hyper_parameters"]["imsize_h"]
             self._model = Yolov2(imsize=(img_h, img_w))
             self._model.load(filename)
 
-        elif ret["algorithm"] == ALG_SSD:
+        elif ret["algorithm_id"] == Algorithm.SSD.value:
             self._alg_name = "SSD"
-            img_w = ret["hyper_parameters"]["image_width"]
-            img_h = ret["hyper_parameters"]["image_height"]
+            img_w = ret["hyper_parameters"]["imsize_w"]
+            img_h = ret["hyper_parameters"]["imsize_h"]
             self._model = SSD(imsize=(img_h, img_w))
             self._model.load(filename)
             self._model._network.num_class = self._model.num_class

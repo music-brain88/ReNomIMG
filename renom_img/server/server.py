@@ -845,6 +845,40 @@ def polling_prediction():
     return
 
 
+@route("/api/renom_img/v2/deployed_model/task/<task_id:int>", method="GET")
+def pull_deployed_model(task_id):
+    # This method will be called from python script.
+    try:
+        ret = storage.fetch_deployed_model(task_id)
+        if ret is None:
+            raise Exception("No model deployed.")
+        file_name = ret['best_epoch_weight']
+        return static_file(file_name, root=".", download='deployed_model.h5')
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
+
+
+@route("/api/renom_img/v2/deployed_model_info/task/<task_id:int>", method="GET")
+@json_handler
+def get_deployed_model_info(task_id):
+    # This method will be called from python script.
+    saved_model = storage.fetch_deployed_model(task_id)
+    if saved_model is None:
+        raise Exception("No model deployed.")
+
+    return {
+        "state": saved_model["state"],
+        "running_state": saved_model["running_state"],
+        "total_epoch": saved_model["total_epoch"],
+        "algorithm_id": saved_model["algorithm_id"],
+        "hyper_parameters": saved_model["hyper_parameters"],
+        "filename": saved_model["best_epoch_weight"],
+    }
+
+
 def main():
     # Parser settings.
     parser = argparse.ArgumentParser(description='ReNomIMG')

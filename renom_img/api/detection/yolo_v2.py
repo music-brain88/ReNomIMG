@@ -79,8 +79,9 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
             loss += minimum_distance
 
         for n in range(n_anchor):
-            new_centroid[n][2] /= len(group[n])
-            new_centroid[n][3] /= len(group[n])
+            if (len(group[n])) > 0:
+                new_centroid[n][2] /= len(group[n])
+                new_centroid[n][3] /= len(group[n])
         return new_centroid, loss
 
     # Perform k-means.
