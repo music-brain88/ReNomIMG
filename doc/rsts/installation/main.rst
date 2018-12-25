@@ -1,7 +1,7 @@
 Install ReNomIMG
 =================
 
-ReNomIMG requires following python modules.
+There are 3 ways for installing ReNomIMG.
 
 
 Install by pip.
@@ -9,16 +9,37 @@ Install by pip.
 
 You can install ReNomIMG by ``pip`` command. This is the simplest way for installation.
 
+For python3.5
 
     .. code-block:: shell
 
-        pip install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-0.9b0-cp35-cp35m-linux_x86_64.whl
+        pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-1.0.7-cp35-cp35m-linux_x86_64.whl
+
+For python3.6
+
+    .. code-block:: shell
+
+        pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-1.0.7-cp36-cp36m-linux_x86_64.whl
+
 
 
     .. note::
 
-        This is ``linux OS`` only. If your OS is windows or MAC, please install ReNomIMG
-        from binary code.
+        This is ``linux OS`` only. If your OS is windows or MAC that are not recommended system, 
+        please install ReNomIMG from binary code.
+
+        If you have following error,
+        
+        .. code-block:: shell
+
+            ImportError: No module named '_tkinter', please install the python3-tk package
+
+        please install python3-tk using following command.
+
+        .. code-block:: shell
+
+            sudo apt-get install python3-tk
+
 
 
 Install from binary.
@@ -28,8 +49,9 @@ Install from binary.
 
     .. code-block:: shell
 
-        git clone ~~
+        git clone https://github.com/ReNom-dev-team/ReNomIMG.git
         cd ReNomIMG/
+        pip install -r requirements.txt
         python setup.py build
         pip install -e .
 
@@ -61,7 +83,7 @@ Then a docker image will be created.
 **Run docker image**
 
 For running ReNomIMG server on Docker image, 
-please use the script `run.sh`.
+please use the script run.sh.
 
 .. code-block:: shell
 
@@ -86,3 +108,11 @@ current directory, and the application uses ``8080`` port.
 .. note ::
 
     This requires nvidia-docker.
+
+**Requirements**
+
+  - OS : Ubuntu 16.04
+  - python : >=3.5
+  - `ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : >= 2.6
+
+For required python packages, please refer to the `requirements.txt <https://github.com/ReNom-dev-team/ReNomIMG/blob/release/1.0/requirements.txt>`_ .
