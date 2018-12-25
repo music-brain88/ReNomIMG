@@ -8,7 +8,7 @@ cpdef get_segmentation_metrics(pred_list, gt_list, n_class=None, round_off=3, ig
     if isinstance(ignore_class, int):
         ignore_class = [ignore_class]
     assert len(pred_list)==len(gt_list)
-    class_num = len(pred_list)
+    class_num = len(np.unique(np.array(gt_list)))
 
     tp = defaultdict(int)
     true_sum = defaultdict(int)
@@ -18,7 +18,7 @@ cpdef get_segmentation_metrics(pred_list, gt_list, n_class=None, round_off=3, ig
     for i in tqdm.trange(len(pred_list)):
         pred = pred_list[i]
         gt = gt_list[i]
-        for c in range(class_num+1):
+        for c in range(class_num):
             if c in ignore_class:
                 continue
             pred_sum[c] += np.sum(np.where(pred==c, True, False))
@@ -34,7 +34,7 @@ cpdef get_segmentation_metrics(pred_list, gt_list, n_class=None, round_off=3, ig
     mean_f1 = 0
     mean_precision = 0
     mean_recall = 0
-    for c in range(class_num+1):
+    for c in range(class_num):
         if c in ignore_class:
             continue
         area = true_sum[c] + pred_sum[c] - tp[c]
