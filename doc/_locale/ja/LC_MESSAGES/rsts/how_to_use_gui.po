@@ -181,7 +181,7 @@ msgid "Class number id must be start 0 and  set background."
 msgstr "クラス番号は0始まりでなければなりません。0 に対応するクラスは必ず背景を設定してください。"
 
 #: ../../rsts/how_to_use_gui.rst:177
-msgid "Class munber id must be serial number."
+msgid "Class number id must be serial number."
 msgstr "クラス番号は必ず連番でなければなりません。"
 
 #: ../../rsts/how_to_use_gui.rst:212
@@ -189,20 +189,20 @@ msgid ":red:`Bad example`"
 msgstr "悪いファイル例"
 
 #: ../../rsts/how_to_use_gui.rst:214
-msgid "Class number id is not start 0."
-msgstr "クラス番号が0で始めっていません。"
+msgid "Class number id does not start 0."
+msgstr "クラス番号が0スタートでありません。"
 
 #: ../../rsts/how_to_use_gui.rst:215
-msgid "Class name dose not have background."
+msgid "Class name does not have background."
 msgstr "クラス名に背景が設定されていません。"
 
 #: ../../rsts/how_to_use_gui.rst:216
-msgid "Class munber id is fall apart. that not serial number."
-msgstr "クラス番号は連番でないです。"
+msgid "Class number does not have serial number."
+msgstr "クラス番号が歯抜けになっており、連番でないです。"
 
 #: ../../rsts/how_to_use_gui.rst:242
 msgid "Sample of Segementation  PNG label file"
-msgstr "セグメンテーションの ``PNG`` ファイル 教師データです。"
+msgstr "セグメンテーションの PNG教師データファイル の例"
 
 #: ../../rsts/how_to_use_gui.rst:255
 msgid ""
@@ -273,7 +273,7 @@ msgid ""
 "Then following graph will be appeared. You can confirm what classes are "
 "included in the dataset and how many tags are they."
 msgstr ""
-"ボタン押下後, 以下のうようなデータセット確認画面が表示されます.こちらの画面では, データセット内に含まれる画像の枚数や, "
+"ボタン押下後, 以下のようなデータセット確認画面が表示されます.こちらの画面では, データセット内に含まれる画像の枚数や, "
 "各クラスの教師データ数が表示されます."
 
 #: ../../rsts/how_to_use_gui.rst:300
@@ -322,7 +322,7 @@ msgstr "**Dataset Name** ... 訓練用のデータセットを選択してくだ
 
 #: ../../rsts/how_to_use_gui.rst:330
 msgid "**CNN architecture** ... Select the object detection algorithm."
-msgstr "**CNN architecture** ... 物体認識アルゴリズムを選択してください。"
+msgstr "**CNN architecture** ... 使用したいアルゴリズムを選択してください。"
 
 #: ../../rsts/how_to_use_gui.rst:331
 msgid ""
@@ -353,10 +353,6 @@ msgid ""
 "Depending on your GPU device, larger image size or batch size causes "
 "memory overflow."
 msgstr "GPUデバイスによりましては、サイズの大きい画像や大きなバッチサイズによりメモリがオーバーフローします。"
-
-#: ../../rsts/how_to_use_gui.rst:345
-msgid "Create Classification Model"
-msgstr "分類モデルの作成"
 
 #: ../../rsts/how_to_use_gui.rst:348
 msgid "Training Model"
