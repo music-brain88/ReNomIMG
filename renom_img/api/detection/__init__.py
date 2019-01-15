@@ -156,7 +156,7 @@ class Detection(Base):
             ...     valid_annot_list,
             ...     epoch=8,
             ...     batch_size=8)
-            >>> 
+            >>>
 
         Following arguments will be given to the function ``callback_end_epoch``.
 
@@ -213,7 +213,7 @@ class Detection(Base):
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
                 avg_valid_loss = display_loss / (i + 1)
-                avg_valid_loss_list.append(avg_train_loss)
+                avg_valid_loss_list.append(avg_valid_loss)
                 bar.set_description("Epoch:{:03d} Avg Train Loss:{:5.3f} Avg Valid Loss:{:5.3f}".format(
                     e, avg_train_loss, avg_valid_loss))
             else:
