@@ -247,6 +247,7 @@ class Storage:
             dict_result.append(res_dict)
         return dict_result
 
+
 global storage
 storage = Storage()
 # if not storage.is_poject_exists():

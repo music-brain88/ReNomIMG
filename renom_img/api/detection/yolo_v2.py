@@ -124,7 +124,7 @@ class Yolov2(Detection):
 
     # Anchor information will be serialized by 'save' method.
     SERIALIZED = ("anchor", "num_anchor", "anchor_size",  *Base.SERIALIZED)
-    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Yolov2.h5"
+    WEIGHT_URL = "https://docs.renom.jp/downloads/weights/YOLO/Yolov2.h5"
 
     def __init__(self, class_map=None, anchor=None,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
