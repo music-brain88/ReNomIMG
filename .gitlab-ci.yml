@@ -1,20 +1,38 @@
 image: node:10.1
 
 before_script:
-  - apt -y update
+  - apt-get update
+  - apt-get -y upgrade
+  - wget https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tar.xz
+  - tar Jxfv Python-3.5.0.tar.xz
+  - cd Python-3.5.0
+  - ./configure; make; make install
+  - cd ../
   - wget https://www.python.org/ftp/python/3.6.0/Python-3.6.0.tar.xz
   - tar Jxfv Python-3.6.0.tar.xz
   - cd Python-3.6.0
   - ./configure; make; make install
-  - alias python3='python3.6'; alias pip3='pip3.6'
-  - cd ..
-  - pip3 install --upgrade pip
-  - pip3 install wheel Cython
-  - pip3 install -r requirements.txt
+  - cd ../
+  - wget https://bootstrap.pypa.io/get-pip.py
+  - /usr/local/bin/python3.6 get-pip.py
+  - pip install virtualenv
+  - pip install virtualenvwrapper
+  - virtualenv --no-site-packages -p /usr/local/bin/python3.6 py36
+  - virtualenv --no-site-packages -p /usr/local/bin/python3.5 py35
+  - source py35/bin/activate
+  - pip install -r requirements.txt
+  - pip install wheel Cython
+  - source py36/bin/activate
+  - pip install -r requirements.txt
+  - pip install wheel Cython
+  
 
 pages:
   script:
-    - python3 setup.py bdist_wheel sdist
+    - source py35/bin/activate
+    - python setup.py bdist_wheel sdist
+    - source py36/bin/activate
+    - python setup.py bdist_wheel sdist
     - mkdir -p public/bin
     - cp dist/* public/bin
     - ls public/bin
