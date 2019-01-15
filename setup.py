@@ -56,7 +56,7 @@ class BuildNPM(distutils.command.build.build):
 
 setup(
     name="renom_img",
-    version="1.0.7",
+    version="2.0.0",
     entry_points=entry_points,
     packages=['renom_img'],
     install_requires=requires,

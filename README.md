@@ -1,4 +1,4 @@
-# ReNomIMG v1.0
+# ReNomIMG v2.0
 
 ReNom IMG is model developing tool for object detection.
 
