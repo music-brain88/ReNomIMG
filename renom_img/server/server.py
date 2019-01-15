@@ -34,6 +34,8 @@ from renom_img.server.train_thread import TrainThread
 from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.utility.storage import storage
 from renom_img.server import State, RunningState, Task
+from renom_img.server import DATASET_IMG_DIR, DATASET_LABEL_CLASSIFICATION_DIR, \
+    DATASET_LABEL_DETECTION_DIR, DATASET_LABEL_SEGMENTATION_DIR
 
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
@@ -334,7 +336,7 @@ def dataset_confirm():
     if task_id == Task.CLASSIFICATION.value:
 
         start_t = time.time()
-        classification_label_dir = label_dir / "classification"
+        classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
         target_file_list = list(target.keys())
 
@@ -346,7 +348,7 @@ def dataset_confirm():
         print(time.time() - start_t)
 
     elif task_id == Task.DETECTION.value:
-        detection_label_dir = label_dir / "detection"
+        detection_label_dir = DATASET_LABEL_DETECTION_DIR
         file_names = [p for p in file_names
                       if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         img_files = [str(img_dir / name) for name in file_names]
@@ -354,7 +356,7 @@ def dataset_confirm():
         parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
 
     elif task_id == Task.SEGMENTATION.value:
-        segmentation_label_dir = label_dir / "segmentation"
+        segmentation_label_dir = DATASET_LABEL_SEGMENTATION_DIR
         file_names = [p for p in file_names if (img_dir / p).is_file() and
                       any([((segmentation_label_dir / p.name).with_suffix(suf)).is_file()
                            for suf in [".jpg", ".png"]])]
@@ -566,7 +568,7 @@ def test_dataset_confirm():
     n_imgs = 0
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
-        classification_label_dir = label_dir / "classification"
+        classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
         target_file_list = list(target.keys())
 
@@ -581,7 +583,7 @@ def test_dataset_confirm():
         parsed_target = [target[name.name] for name in file_names]
 
     elif task_id == Task.DETECTION.value:
-        detection_label_dir = label_dir / "detection"
+        detection_label_dir = DATASET_LABEL_DETECTION_DIR
         file_names = [p for p in file_names
                       if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         n_imgs = len(file_names)
@@ -652,7 +654,7 @@ def test_dataset_create():
 
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
-        classification_label_dir = label_dir / "classification"
+        classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
         target_file_list = list(target.keys())
 
@@ -667,7 +669,7 @@ def test_dataset_create():
         parsed_target = [target[name.name] for name in file_names]
 
     elif task_id == Task.DETECTION.value:
-        detection_label_dir = label_dir / "detection"
+        detection_label_dir = DATASET_LABEL_DETECTION_DIR
         file_names = [p for p in file_names
                       if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         n_imgs = len(file_names)
