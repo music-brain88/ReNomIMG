@@ -7,6 +7,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime, text
 from sqlalchemy import ForeignKey, BLOB, CLOB, TEXT, NUMERIC
 from sqlalchemy.orm import relationship
 from renom_img.server.utility.DAO import Base
+from renom_img.server import DB_DIR_TRAINED_WEIGHT
 
 
 class Task(Base):
@@ -134,9 +135,9 @@ class Model(Base):
         # Register path.
         super(Model, self).__init__(*arg, **kwargs)
         unixtime = datetime.now().strftime('%s')
-        last_weight_name = "last_model_{}.h5".format(unixtime)
+        last_weight_name = str(DB_DIR_TRAINED_WEIGHT / "last_model_{}.h5".format(unixtime))
         self.last_weight = last_weight_name
-        best_weight_name = "best_model_{}.h5".format(unixtime)
+        best_weight_name = str(DB_DIR_TRAINED_WEIGHT / "best_model_{}.h5".format(unixtime))
         self.best_epoch_weight = best_weight_name
 
     def __repr__(self):
