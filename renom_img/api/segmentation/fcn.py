@@ -5,19 +5,72 @@ import renom as rm
 from tqdm import tqdm
 from renom_img.api import adddoc
 from renom_img.api.segmentation import SemanticSegmentation
-from renom_img.api.classification.vgg import VGG16
 from renom.utility.initializer import Initializer
 from renom.config import precision
+from renom.layers.function.pool2d import pool_base, max_pool2d
+from renom.layers.function.utils import tuplize
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
+MEAN_BGR = np.array([104.00698793, 116.66876762, 122.67891434])
 
 
-def layer_factory(channel=32, conv_layer_num=2):
+class PoolBase(object):
+
+    def __init__(self, filter=3,
+                 padding=0, stride=1, ceil_mode=False):
+        self._padding, self._stride, self._kernel = (tuplize(x) for x in (padding, stride, filter))
+        self._ceil_mode = ceil_mode
+
+    def __call__(self, x):
+        assert len(x.shape) == 4, "The dimension of input array must be 4. Actual dim is {}".format(x.ndim)
+        assert all([s > 0 for s in x.shape[2:]]), \
+            "The shape of input array {} is too small. Please give an array which size is lager than 0.".format(
+                x.shape)
+        return self.forward(x)
+
+
+class MaxPool2d(PoolBase):
+    '''Max pooling function.
+    In the case of int input, filter, padding, and stride, the shape will be symmetric.
+
+    Args:
+        filter (tuple,int): Filter size of the convolution kernel.
+        padding (tuple,int): Size of the zero-padding around the image.
+        stride (tuple,int): Stride-size of the convolution.
+        ceil_mode (bool): output size is larger (smaller) of two possible sizes when true (false)
+                   ceiling mode is used in maxpool2d layers in official Caffe FCN implementation
+
+    Example:
+        >>> import numpy as np
+        >>> import renom as rm
+        >>>
+        >>> x = np.random.rand(3, 3, 31, 31)
+        >>> layer = MaxPool2d(filter=3, stride=2)
+        >>> z = layer(x)
+        >>> z.shape
+        (3, 3, 15, 15)
+        >>> layer = MaxPool2d(filter=3, stride=2, ceil_mode=True)
+        >>> z = layer(x)
+        >>> z.shape
+        (3, 3, 16, 16)
+
+    '''
+
+    def forward(self, x):
+        return max_pool2d(x, self._kernel, self._stride, self._padding, self._ceil_mode)
+
+
+def layer_factory(channel=64, conv_layer_num=2, first=None):
     layers = []
     for _ in range(conv_layer_num):
-        layers.append(rm.Conv2d(channel=channel, padding=1, filter=3))
-        layers.append(rm.Relu())
-    layers.append(rm.MaxPool2d(filter=2, stride=2))
+        if first is not None:
+            layers.append(rm.Conv2d(channel=channel, padding=100, filter=3))
+            layers.append(rm.Relu())
+            first = None
+        else:
+            layers.append(rm.Conv2d(channel=channel, padding=1, filter=3))
+            layers.append(rm.Relu())
+    layers.append(MaxPool2d(filter=2, stride=2, ceil_mode=True))
     return rm.Sequential(layers)
 
 
@@ -52,18 +105,7 @@ class FCN_Base(SemanticSegmentation):
                 [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            if current_loss is not None and current_loss > 50:
-                self._opt._lr *= 0.1
-                return self._opt
-
-            if current_epoch < 1:
-                self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
-            elif current_epoch < 100:
-                self._opt._lr = 1e-3
-            elif current_epoch == 100:
-                self._opt._lr = 1e-4
-            elif current_epoch == 150:
-                self._opt._lr = 1e-5
+            self._opt._lr = 1e-10
             return self._opt
 
     def preprocess(self, x):
@@ -77,21 +119,39 @@ class FCN_Base(SemanticSegmentation):
             x_{blue} -= 103.939
 
         """
+        x = x[:, ::-1, :, :]  # RGB -> BGR
+        x[:, 0, :, :] -= MEAN_BGR[0]  # B
+        x[:, 1, :, :] -= MEAN_BGR[1]  # G
+        x[:, 2, :, :] -= MEAN_BGR[2]  # R
 
-        x[:, 0, :, :] -= 123.68  # R
-        x[:, 1, :, :] -= 116.779  # G
-        x[:, 2, :, :] -= 103.939  # B
         return x
+
+    def loss(self, x, y, class_weight=None):
+        """
+        Use un-normalized per-pixel softmax cross entropy loss
+        This un-normalized loss was used in original FCN paper
+        Original paper does not use class_weight, but we provide this option here for user
+        """
+        if class_weight is not None:
+            mask = np.concatenate(
+                [np.ones((y.shape[0], 1, y.shape[2], y.shape[3])) * c for c in class_weight], axis=1)
+            loss = rm.softmax_cross_entropy(x, y, reduce_sum=False)
+            loss *= mask.astype(y.dtype)
+            loss = rm.sum(loss) / float(len(x))
+        else:
+            loss = rm.softmax_cross_entropy(x, y)
+        return loss
 
 
 class FCN32s(FCN_Base):
-    """ Fully convolutional network (21s) for semantic segmentation
+    """ Fully convolutional network (32s) for semantic segmentation
 
     Args:
         class_map(array): Array of class names
         imsize(int or tuple): Input image size
         load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
         train_whole_network(bool): True if the overall model is trained, otherwise False
+        train_final_upscore(bool): True if final upscore layer is trainable, otherwise False
 
     Example:
         >>> import renom as rm
@@ -112,23 +172,20 @@ class FCN32s(FCN_Base):
 
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/FCN/FCN32s.h5"
 
-    def __init__(self, class_map=None, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
-        self.decay_rate = 1e-5
-        self._opt = rm.Sgd(0.001, 0.9)
-        vgg16 = VGG16()
+        self.decay_rate = 5e-4
+        self._opt = rm.Sgd(1e-10, 0.99)
+        self._train_final_upscore = train_final_upscore
+        self._model = CNN_FCN32s(1)
 
         super(FCN32s, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, load_target=vgg16)
-
-        self._model = CNN_FCN32s(self.num_class)
-        self._model.block1 = vgg16._model.block1
-        self._model.block2 = vgg16._model.block2
-        self._model.block3 = vgg16._model.block3
-        self._model.block4 = vgg16._model.block4
-        self._model.block5 = vgg16._model.block5
+                                     load_pretrained_weight, train_whole_network, load_target=self._model)
+        self._model.score_fr._channel = self.num_class
+        self._model.upscore._channel = self.num_class
+        self._freeze()
 
     def _freeze(self):
         self._model.block1.set_auto_update(self.train_whole_network)
@@ -136,6 +193,7 @@ class FCN32s(FCN_Base):
         self._model.block3.set_auto_update(self.train_whole_network)
         self._model.block4.set_auto_update(self.train_whole_network)
         self._model.block5.set_auto_update(self.train_whole_network)
+        self._model.upscore.set_auto_update(self._train_final_upscore)
 
 
 class FCN16s(FCN_Base):
@@ -166,23 +224,23 @@ class FCN16s(FCN_Base):
 
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/FCN/FCN16s.h5"
 
-    def __init__(self, class_map=None, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
-        self._opt = rm.Sgd(0.001, 0.9)
-        self.decay_rate = 1e-5
+        self.decay_rate = 5e-4
+        self._opt = rm.Sgd(1e-10, 0.99)
+        self._train_final_upscore = train_final_upscore
+        self._model = CNN_FCN16s(1)
 
-        vgg16 = VGG16()
         super(FCN16s, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, load_target=vgg16)
+                                     load_pretrained_weight, train_whole_network, load_target=self._model)
 
-        self._model = CNN_FCN16s(self.num_class)
-        self._model.block1 = vgg16._model.block1
-        self._model.block2 = vgg16._model.block2
-        self._model.block3 = vgg16._model.block3
-        self._model.block4 = vgg16._model.block4
-        self._model.block5 = vgg16._model.block5
+        self._model.score_fr._channel = self.num_class
+        self._model.score_pool4._channel = self.num_class
+        self._model.upscore2._channel = self.num_class
+        self._model.upscore16._channel = self.num_class
+        self._freeze()
 
     def _freeze(self):
         self._model.block1.set_auto_update(self.train_whole_network)
@@ -190,6 +248,7 @@ class FCN16s(FCN_Base):
         self._model.block3.set_auto_update(self.train_whole_network)
         self._model.block4.set_auto_update(self.train_whole_network)
         self._model.block5.set_auto_update(self.train_whole_network)
+        self._model.upscore16.set_auto_update(self._train_final_upscore)
 
 
 class FCN8s(FCN_Base):
@@ -220,160 +279,98 @@ class FCN8s(FCN_Base):
 
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
+    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/FCN/FCN8s.h5"
 
-    def __init__(self, class_map=None, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        self.decay_rate = 1e-5
-        self._opt = rm.Sgd(0.001, 0.9)
+    def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
-        vgg16 = VGG16()
+        self.decay_rate = 5e-4
+        self._opt = rm.Sgd(1e-10, 0.99)
+        self._train_final_upscore = train_final_upscore
+        self._model = CNN_FCN8s(1)
+
         super(FCN8s, self).__init__(class_map, imsize,
-                                    load_pretrained_weight, train_whole_network, load_target=vgg16)
+                                    load_pretrained_weight, train_whole_network, load_target=self._model)
 
-        self._model = CNN_FCN8s(self.num_class)
-        self._model.block1 = vgg16._model.block1
-        self._model.block2 = vgg16._model.block2
-        self._model.block3 = vgg16._model.block3
-        self._model.block4 = vgg16._model.block4
-        self._model.block5 = vgg16._model.block5
+        self._model.score_fr._channel = self.num_class
+        self._model.score_pool3._channel = self.num_class
+        self._model.score_pool4._channel = self.num_class
+        self._model.upscore2._channel = self.num_class
+        self._model.upscore_pool4._channel = self.num_class
+        self._model.upscore8._channel = self.num_class
+        self._freeze()
 
     def _freeze(self):
-        self._model.conv1_1.set_auto_update(self.train_whole_network)
-        self._model.conv1_2.set_auto_update(self.train_whole_network)
-        self._model.conv2_1.set_auto_update(self.train_whole_network)
-        self._model.conv2_2.set_auto_update(self.train_whole_network)
-        self._model.conv3_1.set_auto_update(self.train_whole_network)
-        self._model.conv3_2.set_auto_update(self.train_whole_network)
-        self._model.conv3_3.set_auto_update(self.train_whole_network)
-        self._model.conv4_1.set_auto_update(self.train_whole_network)
-        self._model.conv4_2.set_auto_update(self.train_whole_network)
-        self._model.conv4_3.set_auto_update(self.train_whole_network)
-        self._model.conv5_1.set_auto_update(self.train_whole_network)
-        self._model.conv5_2.set_auto_update(self.train_whole_network)
-        self._model.conv5_3.set_auto_update(self.train_whole_network)
+        self._model.block1.set_auto_update(self.train_whole_network)
+        self._model.block2.set_auto_update(self.train_whole_network)
+        self._model.block3.set_auto_update(self.train_whole_network)
+        self._model.block4.set_auto_update(self.train_whole_network)
+        self._model.block5.set_auto_update(self.train_whole_network)
+        self._model.upscore8.set_auto_update(self._train_final_upscore)
 
 
 class CNN_FCN8s(rm.Model):
     def __init__(self, num_class):
-
-        self.conv1_1 = rm.Conv2d(64, filter=3, stride=1, padding=100)
-        self.conv1_2 = rm.Conv2d(64, filter=3, stride=1, padding=1)
-
-        self.conv2_1 = rm.Conv2d(128, filter=3, stride=1, padding=1)
-        self.conv2_2 = rm.Conv2d(128, filter=3, stride=1, padding=1)
-
-        self.conv3_1 = rm.Conv2d(256, filter=3, stride=1, padding=1)
-        self.conv3_2 = rm.Conv2d(256, filter=3, stride=1, padding=1)
-        self.conv3_3 = rm.Conv2d(256, filter=3, stride=1, padding=1)
-
-        self.conv4_1 = rm.Conv2d(512, filter=3, stride=1, padding=1)
-        self.conv4_2 = rm.Conv2d(512, filter=3, stride=1, padding=1)
-        self.conv4_3 = rm.Conv2d(512, filter=3, stride=1, padding=1)
-
-        self.conv5_1 = rm.Conv2d(512, filter=3, stride=1, padding=1)
-        self.conv5_2 = rm.Conv2d(512, filter=3, stride=1, padding=1)
-        self.conv5_3 = rm.Conv2d(512, filter=3, stride=1, padding=1)
+        init_deconv = DeconvInitializer()
+        self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
+        self.block2 = layer_factory(channel=128, conv_layer_num=2)
+        self.block3 = layer_factory(channel=256, conv_layer_num=3)
+        self.block4 = layer_factory(channel=512, conv_layer_num=3)
+        self.block5 = layer_factory(channel=512, conv_layer_num=3)
 
         self.fc6 = rm.Conv2d(4096, filter=7, stride=1, padding=0)
         self.dr1 = rm.Dropout(dropout_ratio=0.5)
         self.fc7 = rm.Conv2d(4096, filter=1, stride=1, padding=0)
         self.dr2 = rm.Dropout(dropout_ratio=0.5)
 
-        self.score_fr = rm.Conv2d(num_class, filter=1, stride=1, padding=0)
+        self.score_fr = rm.Conv2d(num_class, filter=1, stride=1, padding=0)  # n_classes
+        self.score_pool3 = rm.Conv2d(num_class, filter=1, padding=0)
+        self.score_pool4 = rm.Conv2d(num_class, filter=1, padding=0)
 
-        self.upscore2 = rm.Deconv2d(
-            num_class, filter=4, stride=2, padding=0, ignore_bias=True)
-
-        self.upscore8 = rm.Deconv2d(
-            num_class, filter=16, stride=8, padding=0, ignore_bias=True)
-
-        self.score_pool3 = rm.Conv2d(num_class, filter=1, stride=1, padding=0)
-        self.score_pool4 = rm.Conv2d(num_class, filter=1, stride=1, padding=0)
-
+        self.upscore2 = rm.Deconv2d(num_class, filter=4, stride=2, padding=0,
+                                    ignore_bias=True, initializer=init_deconv)  # n_classes
         self.upscore_pool4 = rm.Deconv2d(
-            num_class, filter=4, stride=2, padding=0, ignore_bias=True)
+            num_class, filter=4, stride=2, padding=0, ignore_bias=True, initializer=init_deconv)
+        self.upscore8 = rm.Deconv2d(num_class, filter=16, stride=8,
+                                    padding=0, ignore_bias=True, initializer=init_deconv)
 
     def forward(self, x):
         t = x
-
-        t = self.conv1_1(t)
-        t = rm.relu(t)
-        t = self.conv1_2(t)
-        t = rm.relu(t)
-        t = rm.max_pool2d(t, filter=2, stride=2)
-        pool1 = t
-
-        t = self.conv2_1(t)
-        t = rm.relu(t)
-        t = self.conv2_2(t)
-        t = rm.relu(t)
-        t = rm.max_pool2d(t, filter=2, stride=2)
-        pool2 = t
-
-        t = self.conv3_1(t)
-        t = rm.relu(t)
-        t = self.conv3_2(t)
-        t = rm.relu(t)
-        t = self.conv3_3(t)
-        t = rm.relu(t)
-        t = rm.max_pool2d(t, filter=2, stride=2)
+        t = self.block1(t)
+        t = self.block2(t)
+        t = self.block3(t)
         pool3 = t
-
-        t = self.conv4_1(t)
-        t = rm.relu(t)
-        t = self.conv4_2(t)
-        t = rm.relu(t)
-        t = self.conv4_3(t)
-        t = rm.relu(t)
-        t = rm.max_pool2d(t, filter=2, stride=2)
+        t = self.block4(t)
         pool4 = t
-
-        t = self.conv5_1(t)
-        t = rm.relu(t)
-        t = self.conv5_2(t)
-        t = rm.relu(t)
-        t = self.conv5_3(t)
-        t = rm.relu(t)
-        t = rm.max_pool2d(t, filter=2, stride=2)
-        pool5 = t
+        t = self.block5(t)
 
         t = rm.relu(self.fc6(t))
         t = self.dr1(t)
-        fc6 = t
-
         t = rm.relu(self.fc7(t))
         t = self.dr2(t)
-        fc7 = t
 
         t = self.score_fr(t)
-        score_fr = t
+        t = self.upscore2(t)
+        upscore2 = t
 
-        t = self.score_pool3(pool3)
-        score_pool3 = t
-
+        pool4 = 0.01*pool4
         t = self.score_pool4(pool4)
         score_pool4 = t
 
-        t = self.upscore2(score_fr)
-        upscore2 = t
-
-        t = score_pool4[:, :, 5:5 + upscore2.shape[2],
-                        5:5 + upscore2.shape[3]]
-        score_pool4c = t
-
+        score_pool4c = score_pool4[:, :, 5:5+upscore2.shape[2], 5:5+upscore2.shape[3]]
         t = upscore2 + score_pool4c
-        fuse_pool4 = t
 
+        fuse_pool4 = t
         t = self.upscore_pool4(fuse_pool4)
         upscore_pool4 = t
 
-        t = score_pool3[:, :, 9:9 + upscore_pool4.shape[2],
-                        9:9 + upscore_pool4.shape[3]]
-        score_pool3c = t
+        pool3 = 0.0001*pool3
+        t = self.score_pool3(pool3)
+        score_pool3 = t
 
+        score_pool3c = score_pool3[:, :, 9:9+upscore_pool4.shape[2], 9:9+upscore_pool4.shape[3]]
         t = upscore_pool4 + score_pool3c
-        fuse_pool3 = t
 
+        fuse_pool3 = t
         t = self.upscore8(fuse_pool3)
         upscore8 = t
 
@@ -386,20 +383,25 @@ class CNN_FCN8s(rm.Model):
 
 class CNN_FCN16s(rm.Model):
     def __init__(self, num_class):
-        self.block1 = layer_factory(channel=64, conv_layer_num=2)
+        init_deconv = DeconvInitializer()
+        self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=3)
         self.block4 = layer_factory(channel=512, conv_layer_num=3)
         self.block5 = layer_factory(channel=512, conv_layer_num=3)
 
-        self.fc6 = rm.Conv2d(4096, filter=7, padding=3)
-        self.fc7 = rm.Conv2d(4096, filter=1)
+        self.fc6 = rm.Conv2d(4096, filter=7, stride=1, padding=0)
+        self.dr1 = rm.Dropout(dropout_ratio=0.5)
+        self.fc7 = rm.Conv2d(4096, filter=1, stride=1, padding=0)
+        self.dr2 = rm.Dropout(dropout_ratio=0.5)
 
-        self.score_fr = rm.Conv2d(num_class, filter=1)
-        self.score_pool4 = rm.Conv2d(num_class, filter=1)
+        self.score_fr = rm.Conv2d(num_class, filter=1, stride=1, padding=0)  # n_classes
+        self.score_pool4 = rm.Conv2d(num_class, filter=1, padding=0)
 
-        self.upscore2 = rm.Deconv2d(num_class, filter=2, stride=2, padding=0)
-        self.upscore16 = rm.Deconv2d(num_class, filter=16, stride=16, padding=0)
+        self.upscore2 = rm.Deconv2d(num_class, filter=4, stride=2, padding=0,
+                                    ignore_bias=True, initializer=init_deconv)  # n_classes
+        self.upscore16 = rm.Deconv2d(num_class, filter=32, stride=16,
+                                     padding=0, ignore_bias=True, initializer=init_deconv)  # n_classes
 
     def forward(self, x):
         t = x
@@ -411,38 +413,48 @@ class CNN_FCN16s(rm.Model):
         t = self.block5(t)
 
         t = rm.relu(self.fc6(t))
-
+        t = self.dr1(t)
         t = rm.relu(self.fc7(t))
+        t = self.dr2(t)
 
         t = self.score_fr(t)
 
         t = self.upscore2(t)
         upscore2 = t
 
+        pool4 = 0.01*pool4
         t = self.score_pool4(pool4)
         score_pool4 = t
 
-        t = upscore2 + score_pool4
+        score_pool4c = score_pool4[:, :, 5:5+upscore2.shape[2], 5:5+upscore2.shape[3]]
+        t = upscore2 + score_pool4c
         fuse_pool4 = t
         t = self.upscore16(fuse_pool4)
         upscore16 = t
+
+        t = t[:, :, 27:27 + x.shape[2], 27:27 + x.shape[3]]
+        score = t
 
         return t
 
 
 class CNN_FCN32s(rm.Model):
     def __init__(self, num_class):
-        self.block1 = layer_factory(channel=64, conv_layer_num=2)
+        init_deconv = DeconvInitializer()
+        self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=3)
         self.block4 = layer_factory(channel=512, conv_layer_num=3)
         self.block5 = layer_factory(channel=512, conv_layer_num=3)
 
-        self.fc6 = rm.Conv2d(4096, filter=7, padding=3)
-        self.fc7 = rm.Conv2d(4096, filter=1)
+        self.fc6 = rm.Conv2d(4096, filter=7, stride=1, padding=0)
+        self.dr1 = rm.Dropout(dropout_ratio=0.5)
+        self.fc7 = rm.Conv2d(4096, filter=1, stride=1, padding=0)
+        self.dr2 = rm.Dropout(dropout_ratio=0.5)
 
-        self.score_fr = rm.Conv2d(num_class, filter=1)  # n_classes
-        self.upscore = rm.Deconv2d(num_class, stride=32, padding=0, filter=32)  # n_classes
+        self.score_fr = rm.Conv2d(num_class, filter=1, stride=1, padding=0)  # n_classes
+        self.upscore = rm.Deconv2d(num_class, filter=64, stride=32, padding=0,
+                                   ignore_bias=True, initializer=init_deconv)  # n_classes
 
     def forward(self, x):
         t = x
@@ -453,12 +465,14 @@ class CNN_FCN32s(rm.Model):
         t = self.block5(t)
 
         t = rm.relu(self.fc6(t))
-        fc6 = t
-
+        t = self.dr1(t)
         t = rm.relu(self.fc7(t))
-        fc7 = t
+        t = self.dr2(t)
 
         t = self.score_fr(t)
-        score_fr = t
         t = self.upscore(t)
+
+        t = t[:, :, 19:19 + x.shape[2], 19:19 + x.shape[3]]
+        score = t
+
         return t
