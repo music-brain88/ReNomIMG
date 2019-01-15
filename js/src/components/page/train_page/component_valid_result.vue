@@ -7,7 +7,7 @@
       <div id="valid-prediction-button-area" tabindex="0"
         v-on:keyup.right="nextPage" v-on:keyup.left="prevPage">
         <!--
-          Only if Segmentation, show image toggle will be shown.
+          Only if Segmentation, "show image toggle" will be shown.
         -->
         <label v-if="isTaskSegmentation">
           <input class="checkbox" type="checkbox"

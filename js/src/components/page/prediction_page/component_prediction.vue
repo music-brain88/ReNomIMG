@@ -1,35 +1,44 @@
 <template>
   <component-frame :width-weight="8" :height-weight="9">
+
+    <!--Header Contents-------------->
     <template slot="header-slot">
       Prediction Result
-      <div id="prediction-button-area"
-        v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
+      <div id="prediction-button-area" tabindex="0"
+        v-on:keyup.right="nextPage" v-on:keyup.left="prevPage">
+        <!--Check Box. Switch of showing image and predicted box.------>
         <label>
           <input class="checkbox" type="checkbox"
-          id="prediction-show-button" v-model="show_image" :disabled="!isTaskSegmentation">
+            id="prediction-show-button" v-model="show_image" :disabled="!isTaskSegmentation">
           Image
         </label>
+
         <label>
-          <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction">
+          <input class="checkbox" type="checkbox"
+            id="prediction-show-button" v-model="show_prediction">
           Prediction
         </label>
       </div>
+
     </template>
     <div id="prediction-area">
       <div id="pager" v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
         <div class="pager-arrow" @click="prevPage">
           <i class="fa fa-caret-left" aria-hidden="true"></i>
         </div>
-        <div class="pager-number" v-for="item in pageList()" @click="setPageNum(item)" :style="pagerStyle(item)">
+        <div class="pager-number" v-for="item in pageList()"
+          @click="setPageNum(item)" :style="pagerStyle(item)">
           {{ item }}
         </div>
         <div class="pager-arrow" @click="nextPage">
           <i class="fa fa-caret-right" aria-hidden="true"></i>
         </div>
       </div>
+
       <div id="img-container" ref="container">
         <!--<transition-group name="fade">-->
-        <div v-for="(item, index) in getImages" :style="getImgSize(item)" @click="showImageModal(item)">
+        <div v-for="(item, index) in getImages" :style="getImgSize(item)"
+          @click="showImageModal(item)">
           <img :src="item.img" v-if="showImage"/>
           <!--Change following div for each task-->
           <div id="cls" v-if='isTaskClassification'
@@ -37,6 +46,7 @@
           </div>
           <div id="box" v-else-if='isTaskDetection'
             :style="getBoxStyle(box)" v-for="box in getResult(item)">
+            <div id="box-label" v-if="box" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
           </div>
           <div id="seg" v-else-if='isTaskSegmentation'>
             <canvas :id="'canvas-' + index"/>
@@ -77,14 +87,13 @@ export default {
     ...mapGetters([
       'getCurrentTask',
       'getImagePageOfPrediction',
-      'gestDeployedModel'
+      'getDeployedModel'
     ]),
     model: function () {
       const model = this.getDeployedModel
       if (model) {
         return model
       } else {
-
       }
     },
     showImage: function () {
@@ -297,6 +306,11 @@ export default {
         width: box.box[2] * 100 + '%',
         height: box.box[3] * 100 + '%',
         border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
+      }
+    },
+    getBoxLabelColor: function (class_id) {
+      return {
+        'background-color': getTagColor(class_id) + 'bb'
       }
     },
     getSegmentationStyle: function (item, index) {
