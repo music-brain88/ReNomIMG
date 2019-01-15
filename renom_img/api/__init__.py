@@ -7,6 +7,7 @@ import numpy as np
 import renom as rm
 from tqdm import tqdm
 
+from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 
 
@@ -36,6 +37,48 @@ def adddoc(cls):
 class Base(rm.Model):
     """Base class of all ReNomIMG algorithm api.
     """
+
+    SERIALIZED = ("imsize", "class_map", "num_class")
+    WEIGHT_URL = None
+
+    def __init__(self, class_map=None, imsize=(224, 224),
+                 load_pretrained_weight=False, train_whole_network=False, load_target=None):
+
+        # 1. Cast class_map to list and encodes the class names to ascii.
+        if class_map is None:
+            self.class_map = []
+        else:
+            if isinstance(class_map, list):
+                self.class_map = [c.encode("ascii", "ignore") for i, c in enumerate(class_map)]
+            elif isinstance(class_map, dict):
+                self.class_map = [k.encode("ascii", "ignore") for k, v in class_map.items()]
+
+        # Determines last layer's unit size according to the class number.
+        self.num_class = len(self.class_map)
+        self.set_last_layer_unit(self.num_class)
+
+        # 2. Accepts imsize both tuple and int.
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
+        self.imsize = imsize
+
+        # Train whole or not.
+        self.train_whole_network = train_whole_network
+
+        # 4. Load pretrained weight.
+        self.load_pretrained_weight = load_pretrained_weight
+        if load_pretrained_weight and load_target is not None:
+            assert self.WEIGHT_URL, \
+                "The class '{}' has no pretrained weight.".format(self.__class__.__name__)
+
+            if isinstance(load_pretrained_weight, bool):
+                weight_path = self.__class__.__name__ + '.h5'
+            elif isinstance(load_pretrained_weight, str):
+                weight_path = load_pretrained_weight
+
+            if not os.path.exists(weight_path):
+                download(self.WEIGHT_URL, weight_path)
+            load_target.load(weight_path)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
         """
@@ -69,7 +112,7 @@ class Base(rm.Model):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return self.decay_rate * reg / 2
+        return (self.decay_rate / 2) * reg
 
     def preprocess(self, x):
         """Performs preprocess for a given array.
@@ -77,7 +120,7 @@ class Base(rm.Model):
         Args:
             x(ndarray, Node): Image array for preprocessing.
         """
-        pass
+        return x
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
@@ -133,7 +176,6 @@ class Base(rm.Model):
             display_loss = 0
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
-                train_x = self.preprocess(train_x)
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
@@ -154,7 +196,6 @@ class Base(rm.Model):
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)
-                    valid_x = self.preprocess(valid_x)
                     loss = self.loss(self(valid_x), valid_y)
                     try:
                         loss = loss.as_ndarray()[0]
@@ -212,3 +253,7 @@ class Base(rm.Model):
         """
         self._freeze()
         return self._model(x)
+
+    def set_last_layer_unit(self, unit_size):
+        assert False, "The method 'set_last_layer_unit' needs to be " + \
+            "overridden for determine output size."

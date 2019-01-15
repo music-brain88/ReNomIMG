@@ -24,14 +24,17 @@ def layer_factory(channel=32, conv_layer_num=2):
 @adddoc
 class VGGBase(Classification):
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
+    SERIALIZED = Base.SERIALIZED
+
+    def set_last_layer_unit(self, unit_size):
+        self._model.fc3._output_size = unit_size
+
+    def get_optimizer(self, current_loss=None, current_epoch=None,
+                      total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
+        if any([num is None for num in [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            avg_valid_loss_list = kwargs['avg_valid_loss_list']
-            if len(avg_valid_loss_list) >= 2 and avg_valid_loss_list[-1] > avg_valid_loss_list[-2] and current_batch == 0:
-                self._opt._lr = self._opt._lr / 10.
-            elif current_epoch == 0:
+            if current_epoch == 0:
                 self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch / total_batch
             return self._opt
 
@@ -55,11 +58,11 @@ class VGGBase(Classification):
         return x
 
     def _freeze(self):
-        self._model.block1.set_auto_update(self._train_whole_network)
-        self._model.block2.set_auto_update(self._train_whole_network)
-        self._model.block3.set_auto_update(self._train_whole_network)
-        self._model.block4.set_auto_update(self._train_whole_network)
-        self._model.block5.set_auto_update(self._train_whole_network)
+        self._model.block1.set_auto_update(self.train_whole_network)
+        self._model.block2.set_auto_update(self.train_whole_network)
+        self._model.block3.set_auto_update(self.train_whole_network)
+        self._model.block4.set_auto_update(self.train_whole_network)
+        self._model.block5.set_auto_update(self.train_whole_network)
 
     def forward(self, x):
         """
@@ -104,34 +107,21 @@ class VGG11(VGGBase):
 
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG11.h5"
+    WEIGHT_URL = None
 
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
+    def __init__(self, class_map=None, imsize=(224, 224),
+                 load_pretrained_weight=False, train_whole_network=False):
 
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self._model = CNN_VGG11(self.num_class)
-        self._train_whole_network = train_whole_network
+        self._model = CNN_VGG11()
+        super(VGG11, self).__init__(class_map, imsize, load_pretrained_weight,
+                                    train_whole_network, self._model)
+
         self._opt = rm.Sgd(0.01, 0.9)
         self.decay_rate = 0.0005
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc1.params = {}
-            self._model.fc2.params = {}
-            self._model.fc3.params = {}
-
-        assert not load_pretrained_weight, "Currently pretrained weight of %s is not prepared. Please set False to `load_pretrained_weight` flag." % self.__class__.___name__
+        self._model.fc1.params = {}
+        self._model.fc2.params = {}
+        self._model.fc3.params = {}
 
 
 @adddoc
@@ -161,57 +151,39 @@ class VGG16(VGGBase):
 
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Vgg16.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
+    def __init__(self, class_map=None, imsize=(224, 224),
+                 load_pretrained_weight=False, train_whole_network=False):
 
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [str(c).encode("ascii", "ignore") for c in class_map]
-        self._model = CNN_VGG16(self.num_class)
-        self._train_whole_network = train_whole_network
-        self._opt = rm.Sgd(0.001, 0.9)
+        self._model = CNN_VGG16()
+        super(VGG16, self).__init__(class_map, imsize, load_pretrained_weight,
+                                    train_whole_network, self._model)
+
+        self._opt = rm.Sgd(0.01, 0.9)
         self.decay_rate = 0.0005
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc1.params = {}
-            self._model.fc2.params = {}
-            self._model.fc3.params = {}
+        self._model.fc1.params = {}
+        self._model.fc2.params = {}
+        self._model.fc3.params = {}
 
 
 class VGG16_NODENSE(VGGBase):
 
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
+    def __init__(self, class_map=None, imsize=(224, 224),
+                 load_pretrained_weight=False, train_whole_network=False):
 
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [str(c).encode("ascii", "ignore") for c in class_map]
-        self._model = CNN_VGG16_NODENSE(self.num_class)
-        self._train_whole_network = train_whole_network
+        self._model = CNN_VGG16_NODENSE()
+        super(VGG16, self).__init__(class_map, imsize, load_pretrained_weight,
+                                    train_whole_network, self._model, load_target=self._model)
+
+        self.train_whole_network = train_whole_network
         self._opt = rm.Sgd(0.001, 0.9)
         self.decay_rate = 0.0005
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc1.params = {}
-            self._model.fc2.params = {}
-            self._model.fc3.params = {}
+        self._model.fc1.params = {}
+        self._model.fc2.params = {}
+        self._model.fc3.params = {}
 
 
 @adddoc
@@ -241,37 +213,26 @@ class VGG19(VGGBase):
 
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Vgg19.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
+    def __init__(self, class_map=None, imsize=(224, 224),
+                 load_pretrained_weight=False, train_whole_network=False):
 
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self._model = CNN_VGG19(self.num_class)
-        self._train_whole_network = train_whole_network
+        self._model = CNN_VGG19()
+        super(VGG19, self).__init__(class_map, imsize,
+                                    load_pretrained_weight, train_whole_network, self._model)
+
         self._opt = rm.Sgd(0.01, 0.9)
         self.decay_rate = 0.0005
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc1.params = {}
-            self._model.fc2.params = {}
-            self._model.fc3.params = {}
+        self._model.fc1.params = {}
+        self._model.fc2.params = {}
+        self._model.fc3.params = {}
 
 
 class CNN_VGG19(rm.Model):
 
-    def __init__(self, num_class):
+    def __init__(self, num_class=1000):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=4)
@@ -300,7 +261,7 @@ class CNN_VGG19(rm.Model):
 
 class CNN_VGG16(rm.Model):
 
-    def __init__(self, num_class):
+    def __init__(self, num_class=1000):
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=3)
@@ -329,7 +290,7 @@ class CNN_VGG16(rm.Model):
 
 class CNN_VGG16_NODENSE(rm.Model):
 
-    def __init__(self, num_class):
+    def __init__(self, num_class=1000):
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
         self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
         self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
@@ -373,7 +334,7 @@ class CNN_VGG16_NODENSE(rm.Model):
 
 class CNN_VGG11(rm.Model):
 
-    def __init__(self, num_class):
+    def __init__(self, num_class=1000):
         self.block1 = layer_factory(channel=64, conv_layer_num=1)
         self.block2 = layer_factory(channel=128, conv_layer_num=1)
         self.block3 = layer_factory(channel=256, conv_layer_num=2)

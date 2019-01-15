@@ -3,17 +3,13 @@
     <div class="modal-mask">
       <div class="modal-wrapper">
         <div class="modal-container">
-
           <slot name="contents">
             {{$store.state.error_msg}}
           </slot>
-
           <div class="modal-footer">
             <slot name="footer">
               <slot name="okbutton">
-                <button class="modal-default-button" @click="hide">
-                  OK
-                </button>
+                <input type="button" class="modal-default-button" @click="hide" value="OK">
               </slot>
             </slot>
           </div>
@@ -29,7 +25,7 @@ export default {
   name: 'AlertModal',
   methods: {
     hide: function () {
-      this.$store.commit('setAlertModalFlag', {'flag': false})
+      this.$store.commit('hideAlert')
     }
   }
 }

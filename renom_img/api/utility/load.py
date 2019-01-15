@@ -3,6 +3,7 @@ import numpy as np
 from xml.etree import ElementTree
 from concurrent.futures import ThreadPoolExecutor as Executor
 from PIL import Image
+from renom_img.api.utility.misc.display import draw_segment
 
 
 def parse_xml_detection(xml_path_list, num_thread=8):
@@ -65,7 +66,6 @@ def parse_xml_detection(xml_path_list, num_thread=8):
                     {'box': bounding_box, 'name': class_name, 'size': (width, height)})
             local_annotation_list.append(image_data)
         return local_annotation_list
-
     N = len(xml_path_list)
     if N > num_thread:
         batch = int(N / num_thread)
@@ -105,9 +105,98 @@ def prepare_detection_data(img_path_list, annotation_list, imsize):
     return np.asarray(img_list).transpose(0, 3, 1, 2).astype(np.float32), label_list
 
 
+def parse_txt_classification(path, separator=" "):
+    """
+    filename separator class_name
+    """
+    class_dict = {}
+    filename_list = []
+    annotation_list = []
+    with open(path, "r") as reader:
+        for line in list(reader.readlines()):
+            filename, classname = line.split(separator)[:2]
+            filename = filename.strip()
+            classname = classname.strip()
+            class_dict[classname] = 1
+            filename_list.append(filename)
+            annotation_list.append(classname)
+    class_map = [k for k, v in sorted(class_dict.items(), key=lambda x: x[0])]
+    annotation = {f: class_map.index(a)
+                  for a, f in zip(annotation_list, filename_list)}
+    return annotation, class_map
+
+
 def load_img(img_path, imsize=None):
     img = Image.open(img_path)
     img = img.convert('RGB')
     if imsize is not None:
         img = img.resize(imsize, Image.BILINEAR)
     return np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+
+
+def parse_classmap_file(class_map_file, separator=" "):
+    """extract txt must be Pascal VOC format.
+
+    Args: 
+        file_path (poxis path): txt-file path.
+
+    Returns:
+        (list): This returns list of segmentation class list.
+        Each segmentation has a list of dictionary which includes keys 'id' and 'value'.
+
+    .. code-block :: python
+
+        # An example of returned list.
+        [
+            [ # Objects of 1st line.
+                {'id': index(int), 'value': class_name(string)}
+            ],
+            [ # Objects of 2nd line.
+                {'id': index(int), 'value': class_name(string)}
+            ]
+        ]
+
+    """
+    class_map = {}
+    with open(str(class_map_file)) as reader:
+        for line in reader.readlines():
+            class_name, id = line.split(separator)[:2]
+            class_name = class_name.strip()
+            id = int(id.strip())
+            class_map[id] = class_name
+    class_map = [c for k, c in sorted(class_map.items(), key=lambda x: x[0])]
+    return class_map
+
+
+def parse_image_segmentation(annotation_list, class_num, num_thread=8):
+
+    def load(path):
+        img = Image.open(path)
+        size_ratio = np.prod(img.size) / (128**2)
+        img = np.array(img).flatten().astype(np.uint8)
+        hist, edge = np.histogram(img, bins=list(range(256)))
+        return np.array(hist) / size_ratio
+
+    with Executor(max_workers=num_thread) as exc:
+        ret = exc.map(load, annotation_list)
+    ret = np.array(list(ret))
+    ret = np.sum(ret, axis=0)
+    ret = ret[ret > 0]
+    ret[0] += np.sum(ret[class_num:])
+    return ret[:-1]
+
+
+def parce_class_id_segmentation(annotation_list):
+    class_id_dict = {}
+
+    def func(path):
+        annot = np.array(Image.open(path))
+        hist, _ = np.histogram(annot, bins=list(range(256)))
+        hist = np.array(hist > 0).astype(np.int)
+        return hist
+
+    with Executor(max_workers=8) as e:
+        ret = e.map(func, annotation_list)
+    data = np.sum(np.array(list(ret)), axis=0)
+    print(np.sum(data > 0))
+    return data

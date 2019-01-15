@@ -44,12 +44,18 @@ The ``datasrc`` directory has following folder structure.
 
     datasrc/
       ├── img   # Set training img files here.
-      ├── label # Set training label files here.
+      ├── label 
+      │   ├── classification # Set classification training label files here
+      │   ├── detection	     # Set detection training label files here
+      │   └── segmentation   # Set segmentation training label files here
       └── prediction_set
             ├── img     # Set prediction img files here.
             └── output  # Prediction result will be output here.
-                  ├── csv
-                  └── xml
+            	  ├── classofication # Set classofication training label files here.
+            	  ├── detection      # Set detection training label files here.
+            	  │     ├── csv
+                  │     └── xml
+            	  └── segmentation   # Set segmentation training label files here.
 
 As written in the above comments, please set training image data to ``datasrc/img``,
 set training label data to ``datasrc/label``.
@@ -61,13 +67,15 @@ set training label data to ``datasrc/label``.
     have to be ``image01.xml``.
 
 
-Format of the data
+Format of the Detection data
 ~~~~~~~~~~~~~~~~~~~
 
 **Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` formatted image files.
 
 **Format of label files** : ReNomIMG only accepts ``xml`` formatted label files.
 The format of xml file is bellow.
+
+**put xml files here**:``<ReNomIMG dir>datasrc/label/detection/<sample.xml>``
 
 .. code-block :: shell
 
@@ -93,9 +101,162 @@ ReNomIMG accepts PASCAL VOC formatted object detection data.
 | **The PASCAL Visual Object Classes**
 | http://host.robots.ox.ac.uk/pascal/VOC/
 | 
-| 
+|
 
-   
+Format of the Classification data
+~~~~~~~~~~~~~~~~~~~
+
+**Format of label files** : ReNomIMG only accepts ``txt`` formatted label files.
+The format of text file is bellow.
+
+Please Save as ``target.txt``
+
+**put here**:``<ReNomIMG dir>datasrc/label/classification/target.txt``
+
+.. code-block :: shell
+
+    crayfish_image_0035.jpg crayfish
+    crayfish_image_0065.jpg crayfish
+    crayfish_image_0037.jpg crayfish
+    crayfish_image_0032.jpg crayfish
+    crayfish_image_0028.jpg crayfish
+    crayfish_image_0051.jpg crayfish
+    wrench_image_0035.jpg wrench
+    wrench_image_0037.jpg wrench
+    wrench_image_0032.jpg wrench
+    wrench_image_0028.jpg wrench
+    wrench_image_0019.jpg wrench
+    wrench_image_0031.jpg wrench
+    ...
+    ...
+    ...
+    ...
+    ...
+    pigeon_image_0035.jpg pigeon
+    pigeon_image_0037.jpg pigeon
+    pigeon_image_0032.jpg pigeon
+    pigeon_image_0028.jpg pigeon
+    pigeon_image_0019.jpg pigeon
+    pigeon_image_0031.jpg pigeon
+    pigeon_image_0012.jpg pigeon
+    pigeon_image_0002.jpg pigeon
+    pigeon_image_0015.jpg pigeon
+    pigeon_image_0042.jpg pigeon
+    pigeon_image_0036.jpg pigeon
+    pigeon_image_0022.jpg pigeon
+    pigeon_image_0021.jpg pigeon
+    pigeon_image_0029.jpg pigeon
+
+ 
+ReNomIMG accepts PASCAL VOC formatted object detection data.
+
+| **The PASCAL Visual Object Classes**
+| http://host.robots.ox.ac.uk/pascal/VOC/
+| 
+|
+
+Format of the Segmentation data
+~~~~~~~~~~~~~~~~~~~
+
+.. warning::
+    Segmentation require two kind of labels. 
+    ``PNG`` files and ``class_map.txt`` 
+
+**Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` formatted image files.
+
+**Format of label files** : ReNomIMG only accepts ``txt`` and ``PNG`` formatted label files.
+The format of txt file is bellow.
+
+Please Save as ``class_map.txt.``
+
+**Put file here**:``<ReNomIMG dir>/datasrc/label/segmentation/class_map.txt``
+
+Good example
+
+* Class number id must be start 0 and  set background.
+* Class munber id must be serial number.
+
+.. code-block :: shell
+
+       background 0
+       airplane 1
+       bicycle 2
+       bird 3
+       boat 4
+       bottle 5
+       bus 6
+       car 7
+       cat 8
+       chair 8
+       cow 10
+       diningtable 11
+       dog 12
+       horse 13
+       motorbike 14
+       person 15
+       potted plant 16
+       sheep 17
+       sofa 18
+       train 19
+       tv/monitor 20
+
+
+----
+
+.. raw:: html
+
+  <style>.red {color:red} </style>
+
+.. role:: red
+
+:red:`Bad example`
+
+* Class number id is not start 0.
+* Class name dose not have background.
+* Class munber id is fall apart. that not serial number.
+
+.. code-block :: shell
+
+      
+       airplane 1
+       bicycle 10
+       bird 50
+       boat 100
+       bottle 150
+       bus 200
+       car 250
+       cat 300
+       chair 350
+       cow 400
+       diningtable 450
+       dog 500
+       horse 550
+       motorbike 600
+       person 700
+       potted plant 750
+       sheep 800
+       sofa 900
+       train 950
+       tv/monitor 1000
+
+Sample of Segementation  PNG label file
+
+.. image:: /_static/image/009592.png
+
+
+ReNomIMG accepts PASCAL VOC formatted object detection data.
+
+| **The PASCAL Visual Object Classes**
+| http://host.robots.ox.ac.uk/pascal/VOC/
+| 
+|
+
+.. note:: 
+    The name of image file and corresponded label file name have to be same.
+    For example, the image file name is ``image01.jpg``, corresponded label file name
+    have to be ``image01.png``.
+
+
 Create Detection Model
 ----------------------
 
@@ -126,7 +287,7 @@ Then following page will be appeared.
 
 .. image:: /_static/image/how_to_use_gui_dataset_create_button02.png
 
-As you can see, you can specify the ``dataset name``, ''description'' and ``ratio of training data``.
+As you can see, you can specify the ``dataset name``, ``description`` and ``ratio of training data``.
 
 After filling all forms, please push the ``confirm`` button to confirm the content that 
 the dataset includes.
@@ -136,7 +297,7 @@ the dataset includes.
 Then following graph will be appeared. You can confirm what classes are included 
 in the dataset and how many tags are they.
 
-At last, for saving the dataset, please push the ``save`` button.
+At last, for saving the dataset, please push the ``submit`` button.
 
 You can confirm created datasets in the dataset page.
 For going to the dataset page, please follow the figure below.
@@ -147,12 +308,15 @@ For going to the dataset page, please follow the figure below.
 
 In the above figure, 2 datasets are already created. 
 
+.. note::
+
+  Detection, Segmentation and Classification task are same process
 
 Hyper parameter setting
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 So far you got all the materials, let's build a model and run training.
-For creating a model please push the button ``Add New Model``.
+For creating a model please push the button ``New``.
 
 .. image:: /_static/image/how_to_use_gui_model_create01.png
 
@@ -164,13 +328,20 @@ As you can see in above figure, you can specify following parameters.
 
 * **Dataset Name** ... Select the dataset for training.
 * **CNN architecture** ... Select the object detection algorithm.
-* **Train Whole network** ... If this is set to True, whole network weight will be trained.
+* **Batch Size** ... Set higher number, the learning speed become **fast**. Set lower number, the behavior  become like **Stochastic Gradient Descent(or just SGD)**
+* **Total Eopch** ... Training your network on each item of the set once is an epoch.
+* **Train Whole network** ... If this is  checked, whole network weight will be trained.
 * **Image size** ... Image size for training.
-* **Training loop setting** ... Number of training and batch size.
-
 .. note::
 
     Depending on your GPU device, larger image size or batch size causes memory overflow.
+
+.. note::
+
+  Detection, Segmentation and Classification task are same process
+
+Create Classification Model
+----------------------
 
 Training Model
 ~~~~~~~~~~~~~~
@@ -190,3 +361,5 @@ You can uninstall ReNomIMG by following pip command.
 .. code-block :: shell
 
     pip uninstall renom_img
+
+~~~~~~~~~~~~~~~~~~~

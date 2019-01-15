@@ -25,7 +25,9 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'camelcase': 'off',
     'no-new': 0,
-    'handle-callback-err': 0
+    'handle-callback-err': 0,
+    // ignore comma-dangle
+    'comma-dangle': 0
   },
   "globals": {
     "d3": false

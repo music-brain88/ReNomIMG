@@ -1,58 +1,38 @@
 <template>
-  <div id="prediction-page" class="row">
-    <div class="col-md-3">
-      <model-detail></model-detail>
-    </div>
-    <div class="col-md-9">
-      <prediction-result></prediction-result>
-    </div>
-    <!-- <div class="model-detail-area">
-      <model-detail></model-detail>
-    </div>
-    <div class="prediction-result-area">
-      <prediction-result></prediction-result>
-    </div> -->
-
-    <image-modal v-if="$store.state.image_modal_show_flag"></image-modal>
+  <div id="prediction-page">
+    <component-detail/>
+    <component-prediction/>
   </div>
 </template>
 
 <script>
-import ModelDetail from './model_detail.vue'
-import PredictionResult from './prediction_result.vue'
-import ImageModal from './image_modal.vue'
+import { mapGetters } from 'vuex'
+import ComponentPrediction from '@/components/page/prediction_page/component_prediction.vue'
+import ComponentDetail from '@/components/page/prediction_page/component_detail.vue'
 
 export default {
   name: 'PredictionPage',
   components: {
-    'model-detail': ModelDetail,
-    'prediction-result': PredictionResult,
-    'image-modal': ImageModal
+    'component-prediction': ComponentPrediction,
+    'component-detail': ComponentDetail
+  },
+  computed: {
+
   },
   created: function () {
-    this.$store.dispatch('initData', {'project_id': 1})
-    this.$store.dispatch('loadDatasetInfov0')
-    this.$store.dispatch('loadClassMap')
+
+  },
+  methods: {
+
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang='scss'>
 #prediction-page {
-  // display: flex;
-  // display: -webkit-flex;
-  // flex-direction: column;
-  // -webkit-flex-direction: column;
-  
-  width: 100%;
-  // padding-bottom: 64px;
-
-  // .model-detail-area {
-  //   width: 100%;
-  // }
-  //
-  // .prediction-result-area {
-  //   width: 100%;
-  // }
+  display: flex;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  height: calc(#{$app-window-height} - #{$footer-height} - 70px);
 }
 </style>

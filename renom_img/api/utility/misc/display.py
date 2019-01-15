@@ -29,7 +29,7 @@ default_color_list = [
 ]
 
 
-def draw_box(img, prediction, font_path=None, color_list=None):
+def draw_box(img, prediction, show_size=None, font_path=None, color_list=None):
     """Function for describing bounding box, class name and socre for an input image.
 
     Args:
@@ -72,7 +72,11 @@ def draw_box(img, prediction, font_path=None, color_list=None):
     elif isinstance(img, np.ndarray):
         img = Image.fromarray(img.transpose(1, 2, 0).astype(np.uint8)).convert("RGBA")
 
-    w, h = img.size
+    if show_size is None:
+        w, h = img.size
+    else:
+        img = img.resize(show_size)
+        w, h = img.size
     canvas = Image.new("RGBA", (w, h), "#00000000")
     draw = ImageDraw.Draw(canvas)
 

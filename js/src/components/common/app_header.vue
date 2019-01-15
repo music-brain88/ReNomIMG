@@ -1,95 +1,140 @@
 <template>
-<header>
-  <div class="global-menu-button" @click="toggleMenu">
-    <img id="menu-toggle" :src="url" aria-hidden="true">
-  </div>
+  <div id="app-header">
+    <div id="menu-title">
+      <div id="header-menu">
+        <i class="fa fa-bars" aria-hidden="true" @click="showSlideMenu(!getShowSlideMenu)"></i>
+      </div>
+      <div id="title">
+        <span id="product-title" class="header-title">ReNomIMG</span>
+        <span class="header-title"> > </span>
+        <span id="task-title" class="header-title"> {{ getCurrentTaskTitle }} </span>
+        <span class="header-title"> > </span>
+        <span id="page-title" class="header-title"> {{ getCurrentPageTitle }} </span>
+      </div>
+    </div>
+    <div id="task-buttons">
+      <div id="classification-button" :class="{selectedTask: getCurrentTask === TASK.DETECTION}"
+          @click="() => {setCurrentTask(TASK.DETECTION); init();}">
+        Detection
+      </div>  
+      <div id="classification-button" :class="{selectedTask: getCurrentTask === TASK.SEGMENTATION}"
+          @click="() => {setCurrentTask(TASK.SEGMENTATION); init();}">
+        Segmentation
+      </div>  
+      <div id="classification-button" :class="{selectedTask: getCurrentTask === TASK.CLASSIFICATION}"
+          @click="() => { setCurrentTask(TASK.CLASSIFICATION); init();}">
+        Classification
+      </div>  
 
-  <div id="soft-symbol">
-    <span class="renom">ReNom&nbsp;&nbsp;</span>
-    <span class="current-page">IMG &gt; {{ currentPage }}</span>
-  </div>
-
-</header>
+    </div>  
+  </div>  
 </template>
 
 <script>
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import { TASK_ID } from '@/const.js'
+
 export default {
   name: 'AppHeader',
-  data: function () {
-    return {
-      url: require('../../../static/img/han.png')
+  computed: {
+    ...mapGetters([
+      'getCurrentTask',
+      'getShowSlideMenu',
+      'getCurrentTaskTitle',
+      'getCurrentPageTitle']),
+    TASK: function () {
+      return TASK_ID
     }
   },
-  computed: {
-    currentPage () {
-      return this.$store.state.page_name
-    }
+  created: function () {
+
   },
   methods: {
-    toggleMenu: function () {
-      this.$store.commit('setNavigationBarShowFlag', {
-        flag: !this.$store.state.navigation_bar_shown_flag
-      })
-    }
+    ...mapActions(['init']),
+    ...mapMutations(['showSlideMenu', 'setCurrentTask']),
   }
 }
 </script>
 
-
-<style lang="scss" scoped>
-header {
-
-  display: flex;
+<style lang='scss'>
+#app-header {
   position: fixed;
-  top:0;
+  top: 0;
+  z-index: 1000;
   width: 100%;
-  height: $application-header-hight;
-  margin: 0;
-  padding: 0;
+  height: $header-height;
+  min-height: $header-min-height;
+  background-color: $header-background-color;
+  color: $header-font-color;
+  display: flex;
+  justify-content: space-between;
 
-  background-color: $header-color;
-  z-index: 999;
-
-  .global-menu-button {
-    margin-left: calc(#{$content-top-heder-horizonral-margin}*2);
-    line-height: $application-header-hight;
-    vertical-align: middle;
-
-    #menu-toggle{
-      color: #bbbbbb;
+  #task-buttons {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    div {
+      margin-right: $header-title-margin-left;
       cursor: pointer;
-      vertical-align: middle;
-      height:$header-product-name-font-size;
+    }
+    div:hover {
+      color: gray;
+    }
+    .selectedTask {
+      border-bottom: solid 1.5px white;
+    }
+    .selectedTask:hover {
+      border-bottom: solid 1.5px gray;
     }
   }
 
-  .help-menu-button {
-    margin-left: auto;
-    margin-right: calc(#{$content-top-heder-horizonral-margin}*4);
-    line-height: $application-header-hight;
-    vertical-align: middle;
-  }
-
-  #soft-symbol {
-    margin: 0;
-    text-align: left;
-    color: $font-color;
-
-    .renom, .current-page {
-      line-height: $application-header-hight;
-      vertical-align: middle;
-    }
-    .renom {
-      margin-left: $content-top-heder-horizonral-margin;
-      font-family:$header-product-name-font-family;
-      font-size: $header-product-name-font-size;
+  #menu-title {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    #header-menu {
+      width: 20px;
+      height: 100%;
+      margin-left: $header-title-margin-left;
+      display: inline-flex;
+      font-size: 150%;
+      align-items: center;
     }
 
-    .current-page {
-      font-family:$header-title-font-family;
-      font-size: $header-title-font-size;
+    #header-menu:hover {
+      cursor: pointer;
+      color: gray;
     }
 
+    #title {
+      height: 100%;
+      margin: 0 0 0 $header-title-margin-left;
+  
+      .header-title {
+        height: $header-height;
+        min-height: $header-min-height;
+        display: inline-flex;
+        align-items: center;
+      }
+  
+      #product-title {
+        font-family: $header-product-name-font-family;
+        font-size: $header-product-name-font-size;
+      }
+    
+      #task-title {
+        font-family: $header-title-font-family;
+        font-size: $header-title-font-size;
+        font-weight: bold;
+      }
+  
+      #page-title {
+        font-family: $header-title-font-family;
+        font-size: $header-title-font-size;
+      }
+    }
   }
 }
 </style>

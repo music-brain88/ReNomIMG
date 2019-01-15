@@ -1,15 +1,17 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import DetectionPage from '../components/page/detection_page/page.vue'
+import DebugPage from '../components/page/debug_page/page.vue'
 import PredictionPage from '../components/page/prediction_page/page.vue'
-import DatasetsPage from '../components/page/datasets_page/page.vue'
+import TrainPage from '../components/page/train_page/page.vue'
+import DatasetPage from '../components/page/dataset_page/page.vue'
 
 Vue.use(Router)
 const router = new Router({
   routes: [
-    { path: '/', name: 'Training', component: DetectionPage },
-    { path: '/prediction', name: 'Prediction', component: PredictionPage },
-    { path: '/datasets', name: 'Datasets', component: DatasetsPage }
+    { path: '/', component: TrainPage },
+    { path: '/debug', component: DebugPage },
+    { path: '/predict', component: PredictionPage },
+    { path: '/dataset', component: DatasetPage },
   ]
 })
 

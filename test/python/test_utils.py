@@ -5,7 +5,9 @@ import pytest
 import numpy as np
 import inspect
 from PIL import Image
+from renom_img.api.utility.evaluate import EvaluatorClassification
 from renom_img.api.utility.evaluate import EvaluatorDetection
+from renom_img.api.utility.evaluate import EvaluatorSegmentation
 from renom_img.api.utility.augmentation.process import contrast_norm
 from renom_img.api.utility.augmentation.process import shift
 from renom_img.api.utility.augmentation.process import rotate, flip, white_noise

@@ -1,245 +1,404 @@
 import os
+import sys
 import time
-import numpy as np
+import json
+import weakref
 import traceback
-import csv
-import xml.etree.ElementTree as et
-from PIL import Image
 from threading import Event
-from renom.cuda import set_cuda_active, release_mem_pool
+from PIL import Image
+sys.setrecursionlimit(10000)
+import numpy as np
 
+from renom.cuda import set_cuda_active, release_mem_pool, use_device
+from renom_img.api.classification.vgg import VGG11, VGG16, VGG19
+from renom_img.api.classification.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
+from renom_img.api.classification.resnext import ResNeXt50, ResNeXt101
+from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
+from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
 from renom_img.api.detection.yolo_v1 import Yolov1
-from renom_img.api.detection.yolo_v2 import Yolov2
+from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.detection.ssd import SSD
-from renom_img.api.utility.load import parse_xml_detection
-from renom_img.api.utility.distributor.distributor import ImageDistributor
-from renom_img.api.utility.augmentation.process import Shift
+from renom_img.api.segmentation.unet import UNet
+from renom_img.api.segmentation.fcn import FCN8s, FCN16s, FCN32s
 
-from renom_img.server import ALG_YOLOV1, ALG_YOLOV2, ALG_SSD
-from renom_img.server import DB_DIR_TRAINED_WEIGHT
-from renom_img.server import DATASRC_PREDICTION_IMG, DATASRC_PREDICTION_OUT, \
-    DATASRC_PREDICTION_OUT_CSV, DATASRC_PREDICTION_OUT_XML
-from renom_img.server import STATE_RUNNING
-from renom_img.server import RUN_STATE_TRAINING, RUN_STATE_VALIDATING, \
-    RUN_STATE_PREDICTING, RUN_STATE_STARTING, RUN_STATE_STOPPING
-
+from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
 from renom_img.server.utility.storage import storage
+from renom_img.server import State, RunningState, MAX_THREAD_NUM, Algorithm, Task
 
 
 class PredictionThread(object):
 
-    def __init__(self, thread_id, model_id, hyper_parameters,
-                 algorithm, algorithm_params, weight_name, class_map):
+    jobs = weakref.WeakValueDictionary()
+    semaphore = EventSemaphore(MAX_THREAD_NUM)  # Cancellable semaphore.
+    # semaphore = Semaphore(MAX_THREAD_NUM)
 
+    def __new__(cls, model_id):
+        ret = super(PredictionThread, cls).__new__(cls)
+        cls.jobs[model_id] = ret
+        return ret
+
+    def set_future(self, future_obj):
+        self.future = future_obj
+
+    def __init__(self, model_id):
+        # Thread attrs.
+        set_cuda_active(True)
+        self.model = None
+        self.stop_event = Event()
         self.model_id = model_id
+        self.state = State.PRED_CREATED
+        self.running_state = RunningState.PREPARING
+        self.sync_state()
 
-        # State of thread.
-        # The variable _running_state has setter and getter.
-        self._running_state = RUN_STATE_STARTING
-        self.nth_batch = 0
-        self.total_batch = 0
-        self.last_batch_loss = 0
+        # If any value (train_loss or ...) is changed, this will be True.
+        self.updated = True
 
-        # Error message caused in thread.
+        # This will be changed from web API.
         self.error_msg = None
 
-        # hyperparameters
-        self.batch_size = int(hyper_parameters["batch_size"])
-        self.imsize = (int(hyper_parameters["image_width"]),
-                       int(hyper_parameters["image_height"]))
-        self.stop_event = Event()
+        # Data path
+        self.img_dir = os.path.join("datasrc", "prediction_set", "img")
 
-        # Prepare dataset
-        self.predict_files = [os.path.join(DATASRC_PREDICTION_IMG, path)
-                              for path in sorted(os.listdir(DATASRC_PREDICTION_IMG))]
-
-        # File name of trainded model's weight
-        self.weight_name = weight_name
-
-        # Algorithm
-        # Pretrained weights are must be prepared.
-        self.algorithm = algorithm
-        path = os.path.join(DB_DIR_TRAINED_WEIGHT,  self.weight_name)
-        if algorithm == ALG_YOLOV1:
-            # Algorithm params are saved to h5.
-            cell_size = int(algorithm_params["cells"])
-            num_bbox = int(algorithm_params["bounding_box"])
-            self.model = Yolov1(class_map, cell_size, num_bbox, imsize=self.imsize)
-            self.model.load(path)
-        elif algorithm == ALG_YOLOV2:
-            self.model = Yolov2(class_map, [], imsize=self.imsize)
-            self.model.load(path)
-        elif algorithm == ALG_SSD:
-            self.model = SSD(class_map, imsize=self.imsize)
-            self.model.load(path)
-        else:
-            self.error_msg = "{} is not supported algorithm id.".format(algorithm)
-
-        # Result set of prediction
-        self.predict_results = {}
-
-        # File name of prediction result
-        self.csv_filename = ''
-
-    @property
-    def running_state(self):
-        return self._running_state
-
-    @running_state.setter
-    def running_state(self, state):
-        """
-        If thread's state becomes RUN_STATE_STOPPING once, 
-        state will never be changed.
-        """
-        if self._running_state != RUN_STATE_STOPPING:
-            self._running_state = state
+        # Define attr
+        self.total_batch = 0
+        self.nth_batch = 0
+        self.need_pull = False
+        self.prediction_result = []
 
     def __call__(self):
-        # This func works as thread.
-        batch_size = self.batch_size
-
         try:
-            i = 0
-            set_cuda_active(True)
-            release_mem_pool()
-            self.model.set_models(inference=True)
-            result = []
-            # Prediction
-            self.running_state = RUN_STATE_PREDICTING
-            if self.is_stopped():
+            self.state = State.PRED_RESERVED
+            self.sync_state()
+
+            # This guarantees the state information returns immediately.
+            self.updated = True
+
+            PredictionThread.semaphore.acquire(self.stop_event)
+            if self.stop_event.is_set():
+                # Watch stop event
+                self.updated = True
                 return
-            display_loss = 0
-            self.total_batch = int(np.ceil(len(self.predict_files) / float(self.batch_size)))
-            for i in range(0, self.total_batch):
-                self.nth_batch = i
-                batch = self.predict_files[i * self.batch_size:(i + 1) * batch_size]
-                batch_result = self.model.predict(batch)
-                result.extend(batch_result)
 
-            # Set result.
-            predict_list = []
-            for img_path in self.predict_files:
-                img = Image.open(img_path)
-                height = img.size[1]
-                width = img.size[0]
-                predict_list.append({
-                    "path": img_path,
-                    "height": height,
-                    "width": width,
-                })
-
-            self.predict_results = {
-                "prediction_file_list": predict_list,
-                "bbox_list": result
-            }
-
-            self.save_predict_result_to_csv()
-            self.save_predict_result_to_xml()
-        # Store epoch data tp DB.
-
+            self.state = State.PRED_STARTED
+            self._prepare_params()
+            self._prepare_model()
+            release_mem_pool()
+            self.running_state = RunningState.STARTING
+            assert self.model is not None
+            self.sync_state()
+            self.run()
         except Exception as e:
             traceback.print_exc()
-            self.error_msg = str(e)
+            self.error_msg = e
             self.model = None
+        finally:
             release_mem_pool()
+            PredictionThread.semaphore.release()
+            self.state = State.STOPPED
+            self.running_state = RunningState.STOPPING
+            self.sync_state()
 
-    def get_running_info(self):
-        return {
-            "model_id": self.model_id,
-            "total_batch": self.total_batch,
-            "nth_batch": self.nth_batch,
-            "last_batch_loss": self.last_batch_loss,
-            "running_state": self.running_state,
+    def returned2client(self):
+        self.updated = False
+
+    def consume_error(self):
+        if self.error_msg is not None:
+            e = self.error_msg
+            self.error_msg = None
+            raise e
+
+    def run(self):
+        model = self.model
+        self.state = State.STARTED
+        self.running_state = RunningState.TRAINING
+
+        if self.stop_event.is_set():
+            # Watch stop event
+            self.updated = True
+            return
+        names = list(os.listdir(self.img_dir))
+        N = len(names)
+        results = []
+        sizes = []
+        imgs = []
+        self.total_batch = N
+        for i, p in enumerate(names):
+            self.nth_batch = i
+            path = os.path.join(self.img_dir, p)
+            pred = self.model.predict(path)
+            if not isinstance(pred, list):
+                pred = pred.tolist()
+            results.append(pred)
+            sizes.append(Image.open(path).size)
+            imgs.append(path)
+            self.updated = True
+
+        if self.task_id == Task.CLASSIFICATION.value:
+            results = [{"class": r} for r in results]
+        elif self.task_id == Task.DETECTION.value:
+            pass
+        elif self.task_id == Task.SEGMENTATION.value:
+            results = [{"class": r} for r in results]
+
+        self.prediction_result = {
+            "img": imgs,
+            "size": sizes,
+            "prediction": results,
         }
+        self.need_pull = True
+        self.sync_result()
+        return
 
     def stop(self):
-        # Thread can be canceled only if it have not been started.
-        # This method is for stopping running thread.
         self.stop_event.set()
-        self.running_state = RUN_STATE_STOPPING
+        self.running_state = RunningState.STOPPING
 
-    def is_stopped(self):
-        return self.stop_event.is_set()
+    def sync_state(self):
+        storage.update_model(self.model_id, state=self.state.value,
+                             running_state=self.running_state.value)
 
-    def save_predict_result_to_csv(self):
-        try:
-            # modelのcsvを保存する
-            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-            CSV_DIR = os.path.join(BASE_DIR, DATASRC_PREDICTION_OUT, 'csv')
-            if not os.path.isdir(CSV_DIR):
-                os.makedirs(CSV_DIR)
+    def sync_result(self):
+        storage.update_model(self.model_id, last_prediction_result=self.prediction_result)
 
-            self.csv_filename = '{}.csv'.format(int(time.time()))
-            filepath = os.path.join(CSV_DIR, self.csv_filename)
-            with open(filepath, 'w') as f:
-                writer = csv.writer(f, lineterminator="\n")
-                for i in range(len(self.predict_results["prediction_file_list"])):
-                    row = []
-                    row.append(self.predict_results["prediction_file_list"][i]["path"])
-                    if isinstance(self.predict_results, list) and len(self.predict_results["bbox_list"]) != 0:
-                        for j in range(len(self.predict_results["bbox_list"][i])):
-                            b = self.predict_results["bbox_list"][i][j]
-                            row.append(b["class"])
-                            row.append(b["box"])
-                    else:
-                        row.append(None)
-                        row.append(None)
+    def _prepare_params(self):
+        if self.stop_event.is_set():
+            # Watch stop event
+            self.updated = True
+            return
 
-                    writer.writerow(row)
-        except Exception as e:
-            traceback.print_exc()
-            self.error_msg = e.args[0]
+        params = storage.fetch_model(self.model_id)
+        self.task_id = int(params["task_id"])
+        self.dataset_id = int(params["dataset_id"])
+        self.algorithm_id = int(params["algorithm_id"])
+        self.hyper_parameters = params["hyper_parameters"]
+        self.last_weight_path = params["last_weight"]
+        self.best_weight_path = params["best_epoch_weight"]
 
-    def save_predict_result_to_xml(self):
-        try:
-            for i in range(len(self.predict_results["prediction_file_list"])):
-                img_path = self.predict_results["prediction_file_list"][i]["path"]
-                filename = img_path.split("/")[-1]
-                xml_filename = '{}.xml'.format(filename.split(".")[0])
-                filepath = os.path.join(DATASRC_PREDICTION_OUT_XML, xml_filename)
-                img_path = os.path.join(DATASRC_PREDICTION_IMG, filename)
-                im = Image.open(img_path)
-                width, height = im.size
+        dataset = storage.fetch_dataset(self.dataset_id)
+        self.class_map = dataset["class_map"]
 
-                annotation = et.Element("annotation")
-                name = et.SubElement(annotation, "filename")
-                name.text = filename
+        self.common_params = [
+            'total_epoch',
+            'batch_size',
+            'imsize_w',
+            'imsize_h',
+            'train_whole',
+            'load_pretrained_weight'
+        ]
 
-                for j in range(len(self.predict_results["bbox_list"][i])):
-                    b = self.predict_results["bbox_list"][i][j]
-                    obj = et.SubElement(annotation, "object")
-                    bbox_class = et.SubElement(obj, "class")
-                    bbox_class.text = str(b["class"])
+        assert all([k in self.hyper_parameters.keys() for k in self.common_params])
 
-                    bbox_position = et.SubElement(obj, "bndbox")
-                    bbox_xmax = et.SubElement(bbox_position, "xmax")
-                    xmax = width * b["box"][0] + (width * b["box"][2] / 2.)
-                    bbox_xmax.text = str(xmax)
+        # Training States
+        # TODO: Need getter for json decoding.
+        self.load_pretrained_weight = False
+        self.train_whole = bool(self.hyper_parameters["train_whole"])
+        self.imsize = (int(self.hyper_parameters["imsize_w"]),
+                       int(self.hyper_parameters["imsize_h"]))
+        self.batch_size = int(self.hyper_parameters["batch_size"])
 
-                    bbox_xmin = et.SubElement(bbox_position, "xmin")
-                    xmin = width * b["box"][0] - (width * b["box"][2] / 2.)
-                    bbox_xmin.text = str(xmin)
+    def _prepare_model(self):
+        if self.stop_event.is_set():
+            # Watch stop event
+            self.updated = True
+            return
 
-                    bbox_ymax = et.SubElement(bbox_position, "ymax")
-                    ymax = height * b["box"][1] + height * b["box"][3] / 2.
-                    bbox_ymax.text = str(ymax)
+        if self.algorithm_id == Algorithm.RESNET.value:
+            self._setting_resnet()
+        elif self.algorithm_id == Algorithm.RESNEXT.value:
+            self._setting_resnext()
+        elif self.algorithm_id == Algorithm.DENSENET.value:
+            self._setting_densenet()
+        elif self.algorithm_id == Algorithm.VGG.value:
+            self._setting_vgg()
+        elif self.algorithm_id == Algorithm.INCEPTION.value:
+            self._setting_inception()
 
-                    bbox_ymin = et.SubElement(bbox_position, "ymin")
-                    ymin = height * b["box"][1] - height * b["box"][3] / 2.
-                    bbox_ymin.text = str(ymin)
+        elif self.algorithm_id == Algorithm.YOLOV1.value:
+            self._setting_yolov1()
+        elif self.algorithm_id == Algorithm.YOLOV2.value:
+            self._setting_yolov2()
+        elif self.algorithm_id == Algorithm.SSD.value:
+            self._setting_ssd()
 
-                    bbox_score = et.SubElement(obj, "score")
-                    bbox_score.text = str(b["score"])
+        elif self.algorithm_id == Algorithm.FCN.value:
+            self._setting_fcn()
+        elif self.algorithm_id == Algorithm.UNET.value:
+            self._setting_unet()
+        else:
+            assert False
+        self.model.load(self.best_weight_path)
 
-                size = et.SubElement(annotation, "size")
-                size_h = et.SubElement(size, "height")
-                size_h.text = str(height)
-                size_w = et.SubElement(size, "width")
-                size_w.text = str(width)
+    # Detection Algorithm
+    def _setting_yolov1(self):
+        required_params = ['cell', 'box']
+        # check hyper parameters value are set
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == Task.DETECTION.value, self.task_id
+        self.model = Yolov1(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            train_whole_network=self.train_whole,
+            load_pretrained_weight=self.load_pretrained_weight)
 
-                tree = et.ElementTree(annotation)
+    def _setting_yolov2(self):
+        required_params = ['anchor']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == Task.DETECTION.value, self.task_id
+        self.model = Yolov2(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            train_whole_network=self.train_whole,
+            load_pretrained_weight=self.load_pretrained_weight
+        )
 
-                tree.write(filepath)
-        except Exception as e:
-            traceback.print_exc()
-            self.error_msg = e.args[0]
+    def _setting_ssd(self):
+        assert all([self.hyper_parameters.keys()])
+        assert self.task_id == Task.DETECTION.value, self.task_id
+        self.model = SSD(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            train_whole_network=self.train_whole,
+            load_pretrained_weight=self.load_pretrained_weight,
+        )
+
+    # Classification Algorithm
+    def _setting_resnet(self):
+        required_params = ['layer', 'plateau']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        num_layer = int(self.hyper_parameters['layer'])
+        assert num_layer in [18, 34, 50, 101, 152], "Not supported layer num. - ResNet"
+
+        if num_layer == 18:
+            ResNet = ResNet18
+        elif num_layer == 34:
+            ResNet = ResNet34
+        elif num_layer == 50:
+            ResNet = ResNet50
+        elif num_layer == 101:
+            ResNet = ResNet101
+        elif num_layer == 152:
+            ResNet = ResNet152
+
+        self.model = ResNet(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            train_whole_network=self.train_whole,
+            load_pretrained_weight=self.load_pretrained_weight,
+            plateau=self.hyper_parameters["plateau"]
+        )
+
+    def _setting_resnext(self):
+        required_params = ['layer', 'plateau']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        num_layer = int(self.hyper_parameters['layer'])
+        assert num_layer in [50, 101], "Not supported layer num. - ResNeXt"
+
+        if num_layer == 50:
+            ResNeXt = ResNeXt50
+        elif num_layer == 101:
+            ResNeXt = ResNeXt101
+
+        self.model = ResNeXt(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            train_whole_network=self.train_whole,
+            load_pretrained_weight=self.load_pretrained_weight,
+            plateau=self.hyper_parameters["plateau"]
+        )
+
+    def _setting_densenet(self):
+        required_params = ['layer']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        num_layer = int(self.hyper_parameters['layer'])
+        assert num_layer in [121, 169, 201], "Not supported layer num. - DenseNet"
+
+        if num_layer == 121:
+            DenseNet = DenseNet121
+        elif num_layer == 169:
+            DenseNet = DenseNet169
+        elif num_layer == 201:
+            DenseNet = DenseNet201
+
+        self.model = DenseNet(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+
+    def _setting_vgg(self):
+        required_params = ['layer']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        num_layer = int(self.hyper_parameters['layer'])
+        assert num_layer in [11, 16, 19], "Not supported layer num. - Vgg"
+
+        if num_layer == 11:
+            VGG = VGG11
+        elif num_layer == 16:
+            VGG = VGG16
+        elif num_layer == 19:
+            VGG = VGG19
+
+        self.model = VGG(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+
+    def _setting_inception(self):
+        required_params = ['version']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == Task.CLASSIFICATION.value, self.task_id
+        version_num = int(self.hyper_parameters['version'])
+        assert version_num in [1, 2, 3, 4], "Not supported version number. - InceptionNet"
+
+        if version_num == 1:
+            Inception = InceptionV1
+        elif num_layer == 2:
+            Inception = InceptionV2
+        elif num_layer == 3:
+            Inception = InceptionV3
+        elif num_layer == 4:
+            Inception = InceptionV4
+
+        self.model = Inception(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+
+    def _setting_fcn(self):
+        required_params = ['layer']
+        assert all([k in self.hyper_parameters.keys() for k in required_params])
+        assert self.task_id == Task.SEGMENTATION.value, self.task_id
+        num_layer = int(self.hyper_parameters['layer'])
+        assert num_layer in [8, 16, 32], "Not supported layer num. - FCN"
+
+        if num_layer == 8:
+            FCN = FCN8s
+        elif num_layer == 16:
+            FCN = FCN16s
+        elif num_layer == 32:
+            FCN = FCN32s
+
+        self.model = FCN(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+
+    def _setting_unet(self):
+        assert self.task_id == Task.SEGMENTATION.value, self.task_id
+        self.model = UNet(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )

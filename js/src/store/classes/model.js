@@ -1,75 +1,154 @@
+import { TASK_ID, STATE, RUNNING_STATE } from '@/const.js'
+
 export default class Model {
-  constructor (model_id, project_id, dataset_def_id,
-    hyper_parameters, algorithm, algorithm_params,
-    state, best_epoch_validation_result, last_epoch,
-    last_batch, total_batch, last_train_loss, running_state) {
+  constructor (algorithm_id, task_id, hyper_parameters, dataset_id) {
     // (Integer) ID of Model. This will defined by database.
-    this.model_id = model_id
-
-    // (Integer) Project ID which this model belongs with.
-    this.project_id = project_id
-
-    // (Integer) Dataset ID. Temporarily, "dataset_def" is used.
-    this.dataset_def_id = dataset_def_id
-
-    // (Object) Hyperparameter of training.
-    // This is common item in any object detection algorithm.
+    this.id = -1
+    this.dataset_id = dataset_id
+    this.task_id = task_id
+    this.algorithm_id = algorithm_id
     this.hyper_parameters = hyper_parameters
 
-    // (Integer) Algorithm of object detection.
-    this.algorithm = algorithm
+    // States.
+    this.state = STATE.CREATED
+    this.running_state = RUNNING_STATE.STARTING
 
-    // (Object) Algorithm specific parameters.
-    this.algorithm_params = algorithm_params
+    this.total_epoch = 0
+    this.nth_epoch = 0
 
-    // (Integer) Model state. States are defined in js/src/constant.js
-    // 'Created':0
-    // 'Returned':1
-    // 'Finished':2
-    // 'Deleted':3
-    // 'Reserved':4
-    this.state = state
+    this.total_batch = 0
+    this.nth_batch = 0
+    this.last_batch_loss = 0
 
-    // (Array) Training loss list.
+    this.total_prediction_batch = 0
+    this.nth_prediction_batch = 0
+
     this.train_loss_list = []
+    this.valid_loss_list = []
 
-    // (Array) Validation loss list. This must be same length as 'train_loss_list'.
-    this.validation_loss_list = []
+    this.best_epoch_valid_result = null
+    this.prediction_result = null
 
-    // (Float) Best validation loss.
-    this.best_epoch = 0
+    this.model_list = []
+  }
+  isDeployable () {
+    return (this.state !== STATE.STOPPED)
+  }
+  isTraining () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.TRAINING)
+  }
+  isValidating () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.VALIDATING)
+  }
+  isStopping () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.STOPPING)
+  }
+  isWeightDownloading () {
+    return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.WEIGHT_DOWNLOADING)
+  }
+  getBestLoss () {
+    let loss = null
+    if (this.best_epoch_valid_result) {
+      if (this.best_epoch_valid_result.loss) { loss = this.best_epoch_valid_result.loss }
+    }
+    return loss
+  }
+  getResultOfMetric1 () {
+    let m1 = '-'
+    if (this.task_id === TASK_ID.CLASSIFICATION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.recall !== undefined) {
+          m1 = this.best_epoch_valid_result.recall.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Recall',
+        value: m1
+      }
+    } else if (this.task_id === TASK_ID.DETECTION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.mAP !== undefined) {
+          m1 = this.best_epoch_valid_result.mAP.toFixed(2)
+        }
+      }
+      return {
+        metric: 'mAP',
+        value: m1
+      }
+    } else if (this.task_id === TASK_ID.SEGMENTATION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.recall !== undefined) {
+          m1 = this.best_epoch_valid_result.recall.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Recall',
+        value: m1
+      }
+    }
+  }
+  getResultOfMetric2 () {
+    let m2 = '-'
+    if (this.task_id === TASK_ID.CLASSIFICATION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.precision !== undefined) {
+          m2 = this.best_epoch_valid_result.precision.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Precision',
+        value: m2
+      }
+    } else if (this.task_id === TASK_ID.DETECTION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.IOU !== undefined) {
+          m2 = this.best_epoch_valid_result.IOU.toFixed(2)
+        }
+      }
+      return {
+        metric: 'IOU',
+        value: m2
+      }
+    } else if (this.task_id === TASK_ID.SEGMENTATION) {
+      if (this.best_epoch_valid_result) {
+        if (this.best_epoch_valid_result.precision !== undefined) {
+          m2 = this.best_epoch_valid_result.precision.toFixed(2)
+        }
+      }
+      return {
+        metric: 'Precision',
+        value: m2
+      }
+    }
+  }
+  getValidResult (index) {
+    const task = this.task_id
+    const ret = this.best_epoch_valid_result
+    if (!ret) return
+    const pred = ret.prediction
+    if (!pred) return
 
-    // (Float) Iou at the best validation loss.
-    this.best_epoch_iou = 0
+    if (task === TASK_ID.CLASSIFICATION) {
+      return pred[index]
+    } else if (task === TASK_ID.DETECTION) {
+      return pred[index]
+    } else if (task === TASK_ID.SEGMENTATION) {
+      return pred[index]
+    }
+  }
+  getPredictionResult (index) {
+    const task = this.task_id
+    const ret = this.prediction_result
+    if (!ret) return
+    const pred = ret.prediction
+    if (!pred) return
 
-    // (Float) mAP at the best validation loss.
-    this.best_epoch_map = 0
-
-    // (Array) Predicted bounding box at the best validation loss.
-    this.best_epoch_validation_result = best_epoch_validation_result
-
-    // (Bool) This is a flag whether updateProgress(action.js) has been run or not.
-    this.has_executed_progress_api = false
-
-    // ### Following stores real time informations. ###
-    // (Integer) Epoch count for synchronizing display to server.
-    this.last_epoch = last_epoch
-
-    // (Integer) Counts nth batch.
-    this.last_batch = last_batch
-
-    // (Integer) Total number of batch.
-    this.total_batch = total_batch
-
-    // (Integer) Train loss of last batch.
-    this.last_train_loss = last_train_loss
-
-    // (Integer) This represents state of training.
-    // 'Training': 0
-    // 'Validating': 1
-    // 'Predicting': 2
-    // 'Starting': 3
-    // 'Stopping': 4
-    this.running_state = running_state
+    if (task === TASK_ID.CLASSIFICATION) {
+      return pred[index]
+    } else if (task === TASK_ID.DETECTION) {
+      return pred[index]
+    } else if (task === TASK_ID.SEGMENTATION) {
+      return pred[index]
+    }
   }
 }

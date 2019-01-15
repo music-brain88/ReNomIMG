@@ -1,135 +1,254 @@
+@import url('http://fonts.googleapis.com/css?family=Open+Sans');
 
-$max-width:1280px;
-$modal-content-width: 0.8;
-$modal-content-height:535px;
+// App window size settings.
+$app-window-width: 1280px;
+// $app-window-width: calc(100vw - 20px);
+$app-window-height: 100vh;
 
-$header-color: #063662;
-$panel-bg-color:#006ea1;
-$panel-bg-color-hover:#0A7BB1;
-$tooltips-color:#02294C;
-$body-color:#f3f3f1;
-$panel-height: 35px;
+// App footer
+$footer-height: 72px;
+$footer-background: #063662;
+$footer-background-dark: #02294c;
 
-$tab-bg-color:#063662;
-$tab-figure-font-size:11pt;
-$font-color-label:#666666;
-$table-hover-color:#CCCCCC;
-$table-hover-font-color:#666666;
-
-$content-deploy-model-detail-text-margin:8px;
-
-$table-selected-font-color:#0063a1;
-// button color
-$push-button:#006ea1;
-$push-cancel:#CCCCCC;
-$push-button-size:25px;
-$push-button-font-size:10.5pt;
-
-$font-size: 15pt;
-$font-color: #ffffff;
-$content-margin: 32px;
-
-
-$content-header-color: #1e264b;
-$footer-height:153px;
-$footer-color: #063662;
-$footer-copyright-color:#02294C;
-
-
-// Application header
-$application-header-hight:40px;
-
+//// App header Settings.
+// $header-height: calc(100vh * 0.04);
+// $header-height: 40px;
+$header-height: 40px;
+$header-min-height: 40px;
+$header-background-color: #063662;
 $header-product-name-font-family: Open Sans Regular;
 $header-product-name-font-size: 15pt;
-
-// header title
 $header-title-font-family: Open Sans Regular;
-$header-title-font-size:15pt;
+$header-title-font-size: 15pt;
+$header-title-margin-left: 15pt;
+$header-font-color: #ffffff;
 
-//component style setteing
-$component-margin-top: 20px;
-$component-inner-horizontal-margin:15px;
+//// Slide window Settings.
+$slide-window-mask-color: rgba(0, 0, 0, 0.6);
+$slide-window-background-color: #063662;
+$slide-window-width-min: 150px;
 
-// Content header
-$content-top-header-hight:35px;
-$content-top-header-width:600px;
-$content-top-heder-horizonral-margin:25px;
-$content-top-margin:10px;
-$content-top-header-font-family: Open Sans Regular;
-$content-top-header-font-size: 12pt;
+//// Page Tab Settings.
+$tab-content-height: calc(#{$header-height} * 0.7);
+$tab-content-min-height: $header-min-height;
+$tab-content-width: calc(#{$app-window-width}/4.5);
 
-// contents Height Width
-$content-dashboard-height: 320px;
-$content-dashboard-width: 600px;
+//// App Page Container Settings.
+$app-container-padding-top: 10px;
+$app-container-padding-bottom: 10px;
+$app-container-padding-left: 10px;
+$app-container-padding-right: 10px;
 
-$content-dashboard-modelmap-width:400px;
+//// Component Frame Settings
+// $component-header-height: calc(#{$header-height}*0.85);
+$component-header-height: 32px;
+$component-header-min-height: 32px;
+$component-header-margin-bottom: 10px;
+$component-header-background-color: #063662;
+// $component-header-font-family: Open Sans Regular;
+$component-header-font-family: Open Sans, sans-serif;
+$component-header-font-color: #ffffff;
+$component-header-font-size: 0.9rem;
+$component-header-sub-color: #026699;
+$component-header-sub-color-hover: #01517a;
+// $component-font-family: Open Sans Lite;
+$component-font-family: Open Sans, sans-serif;
+$component-font-size: 0.9rem;
+$component-font-size-small: 0.8rem;
+$component-font-color-title: #999;
+$component-font-color: #555;
 
-$content-detail-height:240px;
-$content-prediction-height:570px;
-$content-taglist-hegiht:160px;
+$component-block-margin: 5px;
+$component-block-padding-left: 16px;
+$component-block-padding-right: 5px;
+$component-block-width: calc(#{$app-window-width} / 12);
+$component-block-height: calc(
+  (#{$app-window-height}
+   - #{$header-height}
+   - #{$tab-content-height}) / 12);
+$component-block-height-min: 70px;
+$component-background-color: #ffffff;
 
-$content-bg-color: #ffffff;
-$content-border-color: #ffffff;
-$content-inner-header-font-family: Open Sans light;
-$content-inner-header-font-size: 12pt;
-
-$content-inner-box-font-family: Open Sans light;
-$content-inner-box-font-size: 11pt;
-
-$content-modellist-font-family: Open Sans light;
-$content-modellist-font-size: 11pt;
-
-$content-setting-modal-font-color:#666666;
-$content-setting-modal-error-color:#DC3545;
-
-$content-taglist-tagbox-font-family: Open Sans Regular;
-$content-taglist-tagbox-font-color:#666666;
-$content-taglist-tagbox-font-size:11pt;
-
-$content-top-padding:30px;
-$content-bottom-padding:25px;
-$content-large-padding:45px;
-$content-horizontal-padding:35px;
-
-$content-parts-margin:15px;
-
-// Figure
-$content-figure-font-famly: Open Sans light;
-$content-figure-font-color:#666666;
-$content-figure-font-size: 8pt;
-
-$content-footer-margin-top:20px;
-
-$content-predictionpage-content-predict-result-height:660px;
-
-// algorithm color
-$grape: #903e84;
-$nightblue: #423885;
-$lightblue: #136eab;
-$green: #009453;
-$lightgreen: #93b447;
-$yellow: #dfd238;
-
-$train-color:#0762ad;
-$validation-color:#ef8200;
-
-// Model status colors
-$status-running: #0099ce;
-$status-reserve: #cccccc;
+//// Component Progress Bar Area Settings.
+$total-model-title-padding-bottom: 10px;
+$total-model-padding-left-right: 40px;
+$total-model-legend-box-width: 10px;
+$total-model-legend-box-margin-left: 3px;
+$total-model-legend-item-margin-left: 15px;
+// Progress bar
+$progress-bar-area-margin-top: 40px;
+$progress-bar-height: 20px;
+$progress-bar-margin-bottom: 2px;
+$progress-bar-stop-button-font-size: 1.1rem;
+$progress-bar-stop-button-color: #ddd;
+$progress-bar-stop-button-color-hover: #999;
+$progress-bar-background-color: #ddd;
+$progress-bar-margin: 5px;
 
 
+// Component Scatter model plot Settings.
+$scatter-padding: 20px;
+$scatter-grid-color: #ddd;
+$scatter-circle-radius: 10;
 
-::-webkit-scrollbar{
-  width: 10px;
+// Component Model Detail
+$model-detail-margin: 15px;
+$model-detail-item-margin-right: 50px;
+$model-detail-item-margin-bottom: 15px;
+
+//// Modal Settings.
+$modal-mask-color: rgba(0, 0, 0, 0.6);
+$modal-content-padding: 10px;
+
+// Model Filter Item Settings.
+$model-filter-margin: 5px;
+$model-filter-height: calc(#{$component-block-height}*0.65);
+$model-filter-min-height: calc(#{$component-block-height-min}*0.65);
+
+// Model Llist Settings.
+$model-list-margin: 5px;
+$model-list-add-button-background-color: #3498DB;
+
+// Model Item Settings.
+$model-item-height: calc(#{$component-block-height} * 0.65);
+$model-item-height-min: calc(#{$component-block-height-min} * 0.65);
+$model-item-margin: 5px;
+
+// Model Item Button Settings.
+$model-item-remove-button-color: #BF360C;
+
+// Model Item Reaction colors.
+$model-item-hover-color: #E5E7E9;
+
+// Both Modal Settings.
+$modal-tab-color-not-selected: #063662;
+
+
+//// Dataset page Setting.
+$dataset-table-padding: 10px;
+$dataset-table-id-width: 10%;
+$dataset-table-name-width: 20%;
+$dataset-table-test-dataset-id-width: 10%;
+$dataset-table-valid-data-width: 15%;
+$dataset-table-item-height: 25px;
+
+// Class Colors
+.color-created {
+  background-color: #F1C40F;
 }
-::-webkit-scrollbar-track{
-  background: $body-color;
+
+.color-reserved {
+  background-color: #F1C40F;
+}
+
+$color-train:#0762AD;
+
+$color-valid:#EF8200;
+
+$color-best-epoch: red;
+
+// The color is specified by algorithm ID(0 ~ 9).
+.color-0 {
+  background-color: #903e84;
+}
+.color-1 {
+  background-color: #423885;
+}
+.color-2 {
+  background-color: #136eab;
+}
+.color-3 {
+  background-color: #009453;
+}
+.color-4 {
+  background-color: #92b447;
+}
+.color-5 {
+  background-color: #dfd238;
+}
+.color-6 {
+  background-color: black;
+}
+.color-7 {
+  background-color: black;
+}
+.color-8 {
+  background-color: black;
+}
+.color-9 {
+  background-color: black;
+}
+
+
+//// Animation Settings
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .2s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+// Modal
+.modal-enter-active, .modal-leave-active {
+  transition: opacity .3s;
+}
+.modal-enter, .modal-leave-to {
+  opacity: 0;
+}
+
+//// Scroll bar setting
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-track {
+  border-radius: 5px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, .1);
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(70, 70, 70, .5);
+  border-radius: 5px;
+  box-shadow:0 0 0 1px rgba(255, 255, 255, .3);
+}
+.scrollbar-container{
+  width: 100%;
+  overflow: auto;
+}
+
+// Button Setting
+
+input[type='button'] {
+  height: 28px;
+  background-color: $component-header-sub-color;
+  color: white;
   border: none;
-  border-radius: 6px;
-}
+  padding: 5px;
+  width: 100px;
+  cursor: pointer;
 
-::-webkit-scrollbar-thumb{
-  background: #aaa;
-  border-radius: 6px;
-  box-shadow: none;
+  // Style Default
+  &:hover {
+    background-color: $component-header-sub-color-hover;
+  }
+  &:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  &:active {
+    background-color: #02669999;
+  }
+
+  // Style Cancel
+  &.cancel {
+    background-color: #999;
+    &:hover {
+      background-color: #777;
+    }
+    &:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    &:active {
+      background-color: #bbb;
+    }
+  }
 }

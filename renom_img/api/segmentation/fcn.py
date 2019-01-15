@@ -43,7 +43,10 @@ class DeconvInitializer(Initializer):
 @adddoc
 class FCN_Base(SemanticSegmentation):
 
-    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def set_last_layer_unit(self, unit_size):
+        pass
+
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
 
         if any([num is None for num in
                 [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
@@ -109,35 +112,30 @@ class FCN32s(FCN_Base):
 
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self._model = CNN_FCN32s(self.num_class)
-        self._train_whole_network = train_whole_network
+    def __init__(self, class_map=None, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+
         self.decay_rate = 1e-5
         self._opt = rm.Sgd(0.001, 0.9)
+        vgg16 = VGG16()
 
-        if load_pretrained_weight:
-            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
-                          train_whole_network=train_whole_network)
-            self._model.block1 = vgg16._model.block1
-            self._model.block2 = vgg16._model.block2
-            self._model.block3 = vgg16._model.block3
-            self._model.block4 = vgg16._model.block4
-            self._model.block5 = vgg16._model.block5
+        super(FCN32s, self).__init__(class_map, imsize,
+                                     load_pretrained_weight, train_whole_network, load_target=vgg16)
+
+        self._model = CNN_FCN32s(self.num_class)
+        self._model.block1 = vgg16._model.block1
+        self._model.block2 = vgg16._model.block2
+        self._model.block3 = vgg16._model.block3
+        self._model.block4 = vgg16._model.block4
+        self._model.block5 = vgg16._model.block5
 
     def _freeze(self):
-        self._model.block1.set_auto_update(self._train_whole_network)
-        self._model.block2.set_auto_update(self._train_whole_network)
-        self._model.block3.set_auto_update(self._train_whole_network)
-        self._model.block4.set_auto_update(self._train_whole_network)
-        self._model.block5.set_auto_update(self._train_whole_network)
+        self._model.block1.set_auto_update(self.train_whole_network)
+        self._model.block2.set_auto_update(self.train_whole_network)
+        self._model.block3.set_auto_update(self.train_whole_network)
+        self._model.block4.set_auto_update(self.train_whole_network)
+        self._model.block5.set_auto_update(self.train_whole_network)
 
 
 class FCN16s(FCN_Base):
@@ -168,35 +166,30 @@ class FCN16s(FCN_Base):
 
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self._model = CNN_FCN16s(self.num_class)
-        self._train_whole_network = train_whole_network
+    def __init__(self, class_map=None, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+
         self._opt = rm.Sgd(0.001, 0.9)
         self.decay_rate = 1e-5
 
-        if load_pretrained_weight:
-            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
-                          train_whole_network=train_whole_network)
-            self._model.block1 = vgg16._model.block1
-            self._model.block2 = vgg16._model.block2
-            self._model.block3 = vgg16._model.block3
-            self._model.block4 = vgg16._model.block4
-            self._model.block5 = vgg16._model.block5
+        vgg16 = VGG16()
+        super(FCN16s, self).__init__(class_map, imsize,
+                                     load_pretrained_weight, train_whole_network, load_target=vgg16)
+
+        self._model = CNN_FCN16s(self.num_class)
+        self._model.block1 = vgg16._model.block1
+        self._model.block2 = vgg16._model.block2
+        self._model.block3 = vgg16._model.block3
+        self._model.block4 = vgg16._model.block4
+        self._model.block5 = vgg16._model.block5
 
     def _freeze(self):
-        self._model.block1.set_auto_update(self._train_whole_network)
-        self._model.block2.set_auto_update(self._train_whole_network)
-        self._model.block3.set_auto_update(self._train_whole_network)
-        self._model.block4.set_auto_update(self._train_whole_network)
-        self._model.block5.set_auto_update(self._train_whole_network)
+        self._model.block1.set_auto_update(self.train_whole_network)
+        self._model.block2.set_auto_update(self.train_whole_network)
+        self._model.block3.set_auto_update(self.train_whole_network)
+        self._model.block4.set_auto_update(self.train_whole_network)
+        self._model.block5.set_auto_update(self.train_whole_network)
 
 
 class FCN8s(FCN_Base):
@@ -227,43 +220,37 @@ class FCN8s(FCN_Base):
 
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://docs.renom.jp/downloads/weights/VGG16.h5"
 
-    def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [str(c).encode("ascii", "ignore") for c in class_map]
-        self._model = CNN_FCN8s(self.num_class)
-        self._train_whole_network = train_whole_network
+    def __init__(self, class_map=None, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         self.decay_rate = 1e-5
         self._opt = rm.Sgd(0.001, 0.9)
 
-        if load_pretrained_weight:
-            vgg16 = VGG16(class_map, load_pretrained_weight=load_pretrained_weight,
-                          train_whole_network=train_whole_network)
-            self._model.block1 = vgg16._model.block1
-            self._model.block2 = vgg16._model.block2
-            self._model.block3 = vgg16._model.block3
-            self._model.block4 = vgg16._model.block4
-            self._model.block5 = vgg16._model.block5
+        vgg16 = VGG16()
+        super(FCN8s, self).__init__(class_map, imsize,
+                                    load_pretrained_weight, train_whole_network, load_target=vgg16)
+
+        self._model = CNN_FCN8s(self.num_class)
+        self._model.block1 = vgg16._model.block1
+        self._model.block2 = vgg16._model.block2
+        self._model.block3 = vgg16._model.block3
+        self._model.block4 = vgg16._model.block4
+        self._model.block5 = vgg16._model.block5
 
     def _freeze(self):
-        self._model.conv1_1.set_auto_update(self._train_whole_network)
-        self._model.conv1_2.set_auto_update(self._train_whole_network)
-        self._model.conv2_1.set_auto_update(self._train_whole_network)
-        self._model.conv2_2.set_auto_update(self._train_whole_network)
-        self._model.conv3_1.set_auto_update(self._train_whole_network)
-        self._model.conv3_2.set_auto_update(self._train_whole_network)
-        self._model.conv3_3.set_auto_update(self._train_whole_network)
-        self._model.conv4_1.set_auto_update(self._train_whole_network)
-        self._model.conv4_2.set_auto_update(self._train_whole_network)
-        self._model.conv4_3.set_auto_update(self._train_whole_network)
-        self._model.conv5_1.set_auto_update(self._train_whole_network)
-        self._model.conv5_2.set_auto_update(self._train_whole_network)
-        self._model.conv5_3.set_auto_update(self._train_whole_network)
+        self._model.conv1_1.set_auto_update(self.train_whole_network)
+        self._model.conv1_2.set_auto_update(self.train_whole_network)
+        self._model.conv2_1.set_auto_update(self.train_whole_network)
+        self._model.conv2_2.set_auto_update(self.train_whole_network)
+        self._model.conv3_1.set_auto_update(self.train_whole_network)
+        self._model.conv3_2.set_auto_update(self.train_whole_network)
+        self._model.conv3_3.set_auto_update(self.train_whole_network)
+        self._model.conv4_1.set_auto_update(self.train_whole_network)
+        self._model.conv4_2.set_auto_update(self.train_whole_network)
+        self._model.conv4_3.set_auto_update(self.train_whole_network)
+        self._model.conv5_1.set_auto_update(self.train_whole_network)
+        self._model.conv5_2.set_auto_update(self.train_whole_network)
+        self._model.conv5_3.set_auto_update(self.train_whole_network)
 
 
 class CNN_FCN8s(rm.Model):

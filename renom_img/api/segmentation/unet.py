@@ -11,8 +11,6 @@ from renom_img.api.utility.load import load_img
 from renom_img.api.utility.target import DataBuilderSegmentation
 from renom_img.api.segmentation import SemanticSegmentation
 
-DIR = os.path.split(os.path.abspath(__file__))[0]
-
 
 @adddoc
 class UNet(SemanticSegmentation):
@@ -43,18 +41,21 @@ class UNet(SemanticSegmentation):
 
     """
 
-    def __init__(self, class_map=[], imsize=(512, 512), load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(256, 256), load_pretrained_weight=False, train_whole_network=False):
+
         assert not load_pretrained_weight, "Currently pretrained weight of %s is not prepared. Please set False to `load_pretrained_weight` flag." % self.__class__.__name__
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self._model = CNN_UNet(self.num_class)
-        self._train_whole_network = train_whole_network
+
+        super(UNet, self).__init__(class_map, imsize,
+                                   load_pretrained_weight, train_whole_network, None)
+        self._model = CNN_UNet(len(self.class_map))
+
         self._opt = rm.Sgd(1e-2, 0.9)
         self.decay_rate = 0.00002
         self._freeze()
+
+    def set_last_layer_unit(self, unit_size):
+        # the settings of last layers unit size is done in __init__.
+        pass
 
     def preprocess(self, x):
         """Image preprocess for U-Net.
@@ -66,7 +67,7 @@ class UNet(SemanticSegmentation):
         """
         return x / 255.
 
-    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
         if any([num is None for num in
                 [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
@@ -80,20 +81,21 @@ class UNet(SemanticSegmentation):
             return self._opt
 
     def _freeze(self):
-        self._model.conv1_1.set_auto_update(self._train_whole_network)
-        self._model.conv1_2.set_auto_update(self._train_whole_network)
-        self._model.conv2_1.set_auto_update(self._train_whole_network)
-        self._model.conv2_2.set_auto_update(self._train_whole_network)
-        self._model.conv3_1.set_auto_update(self._train_whole_network)
-        self._model.conv3_2.set_auto_update(self._train_whole_network)
-        self._model.conv4_1.set_auto_update(self._train_whole_network)
-        self._model.conv4_2.set_auto_update(self._train_whole_network)
-        self._model.conv5_1.set_auto_update(self._train_whole_network)
-        self._model.conv5_2.set_auto_update(self._train_whole_network)
+        self._model.conv1_1.set_auto_update(self.train_whole_network)
+        self._model.conv1_2.set_auto_update(self.train_whole_network)
+        self._model.conv2_1.set_auto_update(self.train_whole_network)
+        self._model.conv2_2.set_auto_update(self.train_whole_network)
+        self._model.conv3_1.set_auto_update(self.train_whole_network)
+        self._model.conv3_2.set_auto_update(self.train_whole_network)
+        self._model.conv4_1.set_auto_update(self.train_whole_network)
+        self._model.conv4_2.set_auto_update(self.train_whole_network)
+        self._model.conv5_1.set_auto_update(self.train_whole_network)
+        self._model.conv5_2.set_auto_update(self.train_whole_network)
 
 
 class CNN_UNet(rm.Model):
-    def __init__(self, num_class):
+
+    def __init__(self, num_class=1):
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
         self.bn1_1 = rm.BatchNormalize(mode='feature')
         self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)

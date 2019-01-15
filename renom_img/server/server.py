@@ -1,10 +1,8 @@
 # coding: utf-8
 
 import os
-import json
 import time
 import base64
-import threading
 import pkg_resources
 import argparse
 import urllib
@@ -13,48 +11,48 @@ import posixpath
 import traceback
 import pathlib
 import random
+from datetime import datetime
 from collections import OrderedDict
 import xmltodict
+import simplejson as json
+from PIL import Image
 
-import PIL
 import numpy as np
+from threading import Thread, Semaphore
 from concurrent.futures import ThreadPoolExecutor as Executor
 from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures import CancelledError
-from signal import signal, SIGPIPE, SIG_DFL, SIG_IGN
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
 from renom.cuda import release_mem_pool
-from renom_img.server import create_dirs
-create_dirs()
-
 from renom_img.api.utility.load import parse_xml_detection
+from renom_img.api.utility.load import parse_txt_classification
+from renom_img.api.utility.load import parse_classmap_file
+from renom_img.api.utility.load import parse_image_segmentation
+from renom_img.server import wsgi_server
 from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread
 from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.utility.storage import storage
+from renom_img.server import State, RunningState, Task
 
-# Constants
-from renom_img.server import MAX_THREAD_NUM, DB_DIR_TRAINED_WEIGHT, GPU_NUM
-from renom_img.server import DATASRC_IMG, DATASRC_LABEL, DATASRC_DIR, DATASRC_PREDICTION_OUT
-from renom_img.server import STATE_FINISHED, STATE_RUNNING, STATE_DELETED, STATE_RESERVED
-from renom_img.server import WEIGHT_EXISTS, WEIGHT_CHECKING, WEIGHT_DOWNLOADING
-
-executor = Executor(max_workers=MAX_THREAD_NUM)
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
+executor = Executor(max_workers=2)
 train_thread_pool = {}
 prediction_thread_pool = {}
+respopnse_cache = {}
 
-confirm_dataset = OrderedDict()
+# temporary stored dataset
+# {hash: dataset}
+temp_dataset = {}
 
 
 def get_train_thread_count():
     return len([th for th in train_thread_pool.values() if th[0].running()])
 
 
-def create_response(body):
-    r = HTTPResponse(status=200, body=body)
+def create_response(body, status=200):
+    r = HTTPResponse(status=status, body=body)
     r.set_header('Content-Type', 'application/json')
     return r
 
@@ -84,6 +82,39 @@ def _get_resource(path, filename):
     return HTTPResponse(body, **headers)
 
 
+def json_encoder(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+
+
+def json_handler(func):
+    def wrapped(*args, **kwargs):
+        global respopnse_cache
+        try:
+            ret = func(*args, **kwargs)
+            if ret is None:
+                ret = {}
+
+            if respopnse_cache.get(func.__name__, None) == ret and False:
+                # If server will return same value as last response, return 204.
+                body = json.dumps({}, ignore_nan=True, default=json_encoder)
+                return create_response(body, 204)
+            else:
+                assert isinstance(ret, dict),\
+                    "The returned object of the API '{}' is not a dictionary.".format(func.__name__)
+                respopnse_cache[func.__name__] = ret
+                body = json.dumps(ret, ignore_nan=True, default=json_encoder)
+                return create_response(body)
+
+        except Exception as e:
+            release_mem_pool()
+            traceback.print_exc()
+            body = json.dumps({"error_msg": "{}: {}".format(type(e).__name__, str(e))})
+            ret = create_response(body, 500)
+            return ret
+    return wrapped
+
+
 @route("/")
 def index():
     return _get_resource('', 'index.html')
@@ -106,9 +137,8 @@ def font(file_name):
 
 @error(404)
 def error404(error):
-    print(error)
     body = json.dumps({"error_msg": "Page Not Found"})
-    ret = create_response(body)
+    ret = create_response(body, status=404)
     return ret
 
 
@@ -118,645 +148,712 @@ def datasrc(folder_name, file_name):
     return static_file(file_name, root=file_dir, mimetype='image/*')
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>", method="GET")
-def get_project(project_id):
-    try:
-        kwargs = {}
-        kwargs["fields"] = "project_id,project_name,project_comment,deploy_model_id"
-
-        data = storage.fetch_project(project_id, **kwargs)
-        data['gpu_num'] = GPU_NUM or 1
-        body = json.dumps(data)
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-
-    ret = create_response(body)
-    return ret
+@route("/api/target/segmentation", method="POST")
+@json_handler
+def segmentation_target_mask():
+    size = json.loads(request.params.size)
+    path = request.params.name
+    path = pathlib.Path(path)
+    file_dir = path.with_suffix('.png').relative_to('datasrc/img')
+    file_dir = 'datasrc/label/segmentation' / file_dir
+    img = np.array(Image.open(file_dir).resize(size)).astype(np.uint8)
+    img[img == 255] = 0
+    img = img.tolist()
+    return {"class": img}
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>", method="GET")
-def get_model(project_id, model_id):
-    try:
-        kwargs = {}
-        if request.params.fields != '':
-            kwargs["fields"] = request.params.fields
-
-        data = storage.fetch_model(project_id, model_id, **kwargs)
-        body = json.dumps(data)
-
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-
-    ret = create_response(body)
-    return ret
+# WEB APIs
+@route("/api/renom_img/v2/model/create", method="POST")
+@json_handler
+def model_create():
+    req_params = request.params
+    hyper_params = json.loads(req_params.hyper_params)
+    hyper_params = json.loads(req_params.hyper_params)
+    algorithm_id = json.loads(req_params.algorithm_id)
+    dataset_id = req_params.dataset_id
+    task_id = req_params.task_id
+    new_id = storage.register_model(
+        int(task_id), int(dataset_id), int(algorithm_id), hyper_params)
+    return {"id": new_id}
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models", method="GET")
-def get_models(project_id):
-    """
-
-    Args:
-
-    Return:
-        Success:
-            Json string
-            {
-              :
-
-            }
-    """
-
-    try:
-        data = storage.fetch_models(project_id)
-        body = json.dumps(data)
-        ret = create_response(body)
-        return ret
-
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+@route("/api/renom_img/v2/model/load/task/<task_id:int>", method="GET")
+@json_handler
+def models_load_of_task(task_id):
+    models = storage.fetch_models_of_task(task_id)
+    # Remove best_valid_changed because it is very large.
+    models = [
+        {k: v if k not in [
+            "best_epoch_valid_result",
+            "last_prediction_result"] else {} for k, v in m.items()}
+        for m in models
+    ]
+    return {'model_list': models}
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/model/create", method="POST")
-def create_model(project_id):
-    try:
-        model_id = storage.register_model(
-            project_id=project_id,
-            dataset_def_id=json.loads(request.params.dataset_def_id),
-            hyper_parameters=json.loads(request.params.hyper_parameters),
-            algorithm=request.params.algorithm,
-            algorithm_params=json.loads(request.params.algorithm_params)
-        )
-
-        if get_train_thread_count() >= MAX_THREAD_NUM:
-            storage.update_model_state(model_id, STATE_RESERVED)
-        else:
-            storage.update_model_state(model_id, STATE_RUNNING)
-
-        data = {"model_id": model_id}
-        body = json.dumps(data)
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-    ret = create_response(body)
-    return ret
+@route("/api/renom_img/v2/model/thread/run/<id:int>", method="GET")
+@json_handler
+def model_thread_run(id):
+    # TODO: Confirm if the model is already trained.
+    thread = TrainThread(id)
+    th = executor.submit(thread)
+    thread.set_future(th)
+    return {"status": "ok"}
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run", method="GET")
-def run_model(project_id, model_id):
-    """
-    Create thread(Future object) and submit it to executor.
-    The thread is stored to train_thread_pool as a pair of thread_id and thread.
-    """
-    try:
-        fields = 'hyper_parameters,algorithm,algorithm_params,dataset_def_id'
-        data = storage.fetch_model(project_id, model_id, fields=fields)
-        thread_id = "{}_{}".format(project_id, model_id)
-        th = TrainThread(thread_id, project_id, model_id,
-                         data['dataset_def_id'],
-                         data["hyper_parameters"],
-                         data['algorithm'], data['algorithm_params'])
-        ft = executor.submit(th)
-        train_thread_pool[thread_id] = [ft, th]
-
-        try:
-            # This will wait for end of thread.
-            ft.result()
-            ft.cancel()
-        except CancelledError as ce:
-            # If the model is deleted or stopped,
-            # program reaches here.
-            pass
-        error_msg = th.error_msg
-        del train_thread_pool[thread_id]
-        ft = None
-        th = None
-
-        model = storage.fetch_model(project_id, model_id, fields='state')
-        if model['state'] != STATE_DELETED:
-            storage.update_model_state(model_id, STATE_FINISHED)
-        release_mem_pool()
-
-        if error_msg is not None:
-            body = json.dumps({"error_msg": error_msg})
-            ret = create_response(body)
-            return ret
-        body = json.dumps({"dummy": ""})
-        ret = create_response(body)
-        return ret
-
-    except Exception as e:
-        release_mem_pool()
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+@route("/api/renom_img/v2/model/thread/prediction/run/<id:int>", method="GET")
+@json_handler
+def model_prediction_thread_run(id):
+    # TODO: Confirm if the model is already trained.
+    thread = PredictionThread(id)
+    th = executor.submit(thread)
+    thread.set_future(th)
+    return {"status": "ok"}
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/progress", method="POST")
-def progress_model(project_id, model_id):
-    try:
-        try:
-            req_last_batch = request.params.get("last_batch", None)
-            req_last_batch = int(req_last_batch) if req_last_batch is not None else 0
-            req_last_epoch = request.params.get("last_epoch", None)
-            req_last_epoch = int(req_last_epoch) if req_last_epoch is not None else 0
-            req_running_state = request.params.get("running_state", None)
-            req_running_state = int(req_running_state) if req_running_state is not None else 0
-        except Exception as e:
-            req_last_batch = 0
-            req_last_epoch = 0
-            req_running_state = 0
-
-        thread_id = "{}_{}".format(project_id, model_id)
-        for j in range(1800):
-            time.sleep(0.75)
-            th = train_thread_pool.get(thread_id, None)
-            model_state = storage.fetch_model(project_id, model_id, fields="state")["state"]
-            if th is not None:
-                th = th[1]
-                # If thread status updated, return response.
-                if isinstance(th, TrainThread) and th.nth_epoch != req_last_epoch and th.valid_loss_list:
-                    try:
-                        map_list = np.array(th.valid_map_list)
-                        occurences = np.where(map_list == map_list.max())[0]
-                        best_epoch = int(occurences[-1])
-                        body = {
-                            "total_batch": th.total_batch,
-                            "last_batch": th.nth_batch,
-                            "last_epoch": th.nth_epoch,
-                            "batch_loss": th.last_batch_loss,
-                            "running_state": th.running_state,
-                            "state": model_state,
-                            "validation_loss_list": th.valid_loss_list,
-                            "train_loss_list": th.train_loss_list,
-                            "best_epoch": best_epoch,
-                            "best_epoch_iou": th.valid_iou_list[best_epoch],
-                            "best_epoch_map": th.valid_map_list[best_epoch],
-                            "best_epoch_validation_result": th.valid_predict_box[best_epoch]
-                        }
-                        body = json.dumps(body)
-                        ret = create_response(body)
-                        return ret
-                    except Exception as e:
-                        traceback.print_exc()
-                        import pdb
-                        pdb.set_trace()
-
-                elif isinstance(th, TrainThread) and (th.nth_batch != req_last_batch or
-                                                      th.running_state != req_running_state or
-                                                      th.weight_existance == WEIGHT_DOWNLOADING):
-                    body = {
-                        "total_batch": th.total_batch,
-                        "last_batch": th.nth_batch,
-                        "last_epoch": th.nth_epoch,
-                        "batch_loss": th.last_batch_loss,
-                        "running_state": th.running_state,
-                        "state": model_state,
-                        "validation_loss_list": [],
-                        "train_loss_list": [],
-                        "best_epoch": 0,
-                        "best_epoch_iou": 0,
-                        "best_epoch_map": 0,
-                        "best_epoch_validation_result": []
-                    }
-                    body = json.dumps(body)
-                    ret = create_response(body)
-                    return ret
-
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+@route("/api/renom_img/v2/model/stop/<id:int>", method="GET")
+@json_handler
+def model_stop(id):
+    thread = TrainThread.jobs.get(id, None)
+    if thread is not None:
+        thread.stop()
+    return {"status": "ok"}
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/stop", method="GET")
-def stop_model(project_id, model_id):
-    try:
-        thread_id = "{}_{}".format(project_id, model_id)
-
-        th = train_thread_pool.get(thread_id, None)
-        if th is not None:
-            if not th[0].cancel():
-                th[1].stop()
-                th[0].result()  # Same as join.
-            storage.update_model_state(model_id, STATE_FINISHED)
-
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+@route("/api/renom_img/v2/model/remove/<id:int>", method="GET")
+@json_handler
+def model_remove(id):
+    threads = TrainThread.jobs
+    active_train_thread = threads.get(id, None)
+    if active_train_thread is not None:
+        active_train_thread.stop()
+        active_train_thread.future.result()
+    storage.remove_model(id)
+    return
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>", method="DELETE")
-def delete_model(project_id, model_id):
-    try:
-        thread_id = "{}_{}".format(project_id, model_id)
-        storage.update_model_state(model_id, STATE_DELETED)
-        th = train_thread_pool.get(thread_id, None)
-        if th is not None:
-            if not th[0].cancel():
-                th[1].stop()
-                th[0].result()
-
-        ret = storage.fetch_model(project_id, model_id, "best_epoch_weight")
-        file_name = ret.get('best_epoch_weight', None)
-        if file_name is not None:
-            weight_path = os.path.join(DB_DIR_TRAINED_WEIGHT, file_name)
-            if os.path.exists(weight_path):
-                os.remove(weight_path)
-
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+@route("/api/renom_img/v2/model/deploy/<id:int>", method="GET")
+@json_handler
+def model_deploy(id):
+    storage.deploy_model(id)
+    return {"status": "ok"}
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/update/state", method="GET")
-def update_models_state(project_id):
-    try:
-        # set running model information for polling
-        for _ in range(60):
-            body = {}
-            models = storage.fetch_models(project_id)
-            reserved_count = 0
-            running_count = 0
-            for k in list(models.keys()):
-                model_id = models[k]["model_id"]
-                running_state = models[k]["running_state"]
-                state = models[k]['state']
-                body[model_id] = {
-                    'running_state': running_state,
-                    'state': state
-                }
-                if state == STATE_RESERVED:
-                    reserved_count += 1
-                if state == STATE_RUNNING:
-                    running_count += 1
-
-            if reserved_count > 0 and running_count < MAX_THREAD_NUM:
-                time.sleep(2)
-            else:
-                break
-
-        body = json.dumps(body)
-        ret = create_response(body)
-        return ret
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+@route("/api/renom_img/v2/model/undeploy/<task_id:int>", method="GET")
+@json_handler
+def model_undeploy(task_id):
+    storage.undeploy_model(task_id)
+    return {"status": "ok"}
 
 
-@route("/api/renom_img/v1/dataset_defs", method="GET")
-def get_datasets():
-    try:
-        recs = storage.fetch_dataset_defs()
-        ret = []
-        for rec in recs:
-            missing_image_path = ""
-            id, name, ratio, description, train_imgs, valid_imgs, class_map, class_tag_list, created, updated = rec
-            valid_img_names = [os.path.join("datasrc/img/", path) for path in valid_imgs]
-            valid_imgs = []
-            for img_name in valid_img_names:
-                try:
-                    im = PIL.Image.open(img_name)
-                    width, height = im.size
-                except Exception:
-                    missing_image_path = img_name
-                    traceback.print_exc()
-                    width = height = 50
-                    break
-                valid_imgs.append(dict(filename=img_name, width=width, height=height))
-
-            if not missing_image_path:
-                for img_name in train_imgs:
-                    path = os.path.join("datasrc/img/", img_name)
-                    if not os.path.exists(path):
-                        missing_image_path = path
-                        break
-
-            if missing_image_path:
-                raise Exception("Image '{}' included in the dataset '{}' does not exist.".format(
-                    missing_image_path, name))
-
-            ret.append(dict(id=id,
-                            name=name,
-                            ratio=ratio,
-                            description=description,
-                            train_imgs=len(train_imgs),
-                            valid_imgs=valid_imgs,
-                            class_map=class_map,
-                            class_tag_list=class_tag_list,
-                            created=created,
-                            updated=updated
-                            )
-                       )
-        return create_response(json.dumps({'dataset_defs': ret}))
-
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+@route("/api/renom_img/v2/model/load/deployed/task/<id:int>", method="GET")
+@json_handler
+def model_load_id_deployed_of_task(id):
+    dep_model = storage.fetch_deployed_model(id)
+    if dep_model:
+        return {"deployed_id": dep_model["id"]}
+    else:
+        return {"deployed_id": None}
 
 
-@route("/api/renom_img/v1/load_dataset_split_detail", method=['POST', 'GET'])
-def load_dataset_split_detail():
+@route("/api/renom_img/v2/model/load/best/result/<id:int>", method="GET")
+@json_handler
+def model_load_best_result(id):
+    thread = TrainThread.jobs.get(id, None)
+    if thread is None:
+        saved_model = storage.fetch_model(id)
+        if saved_model is None:
+            return
+        # If the state == STOPPED, client will never throw request.
+        if saved_model["state"] != State.STOPPED.value:
+            storage.update_model(id, state=State.STOPPED.value,
+                                 running_state=RunningState.STOPPING.value)
+            saved_model = storage.fetch_model(id)
+        return {"best_result": saved_model['best_epoch_valid_result']}
+    else:
+        thread.returned_best_result2client()
+        return {"best_result": thread.best_epoch_valid_result}
+
+
+@route("/api/renom_img/v2/model/load/prediction/result/<id:int>", method="GET")
+@json_handler
+def model_load_prediction_result(id):
+    thread = PredictionThread.jobs.get(id, None)
+    if thread is None:
+        saved_model = storage.fetch_model(id)
+        if saved_model is None:
+            raise Exception("Model id {} is not found".format(id))
+        # If the state == STOPPED, client will never throw request.
+        if saved_model["state"] != State.STOPPED.value:
+            storage.update_model(id, state=State.STOPPED.value,
+                                 running_state=RunningState.STOPPING.value)
+            saved_model = storage.fetch_model(id)
+        return {"result": saved_model['last_prediction_result']}
+    else:
+        thread.need_pull = False
+        return {"result": thread.prediction_result}
+
+
+@route("/api/renom_img/v2/dataset/confirm", method="POST")
+@json_handler
+def dataset_confirm():
+    global temp_dataset
+    req_params = request.params
+    dataset_hash = req_params.hash
+    # Receive params here.
+    ratio = float(req_params.ratio)
+    # Correspondence for multi byte input data
+    dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
+    test_dataset_id = int(
+        req_params.test_dataset_id
+        if req_params.test_dataset_id != '' else '-1')
+    task_id = int(req_params.task_id)
+    description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
+    #
+
+    root = pathlib.Path('datasrc')
+    img_dir = root / 'img'
+    label_dir = root / 'label'
+
+    assert img_dir.exists(), \
+        "The directory 'datasrc/img' is\
+         not found in current working directory."
+
+    file_names = set([name.relative_to(img_dir) for name in img_dir.iterdir()
+                      if name.is_file()])
+
+    if test_dataset_id > 0:
+        test_dataset = storage.fetch_test_dataset(test_dataset_id)
+        test_dataset = set([pathlib.Path(test_path).relative_to(img_dir)
+                            for test_path in test_dataset['data']['img']])
+
+        # Remove test files.
+        file_names = file_names - test_dataset
     import time
-    try:
-        start_t = time.time()
-        datasrc = pathlib.Path(DATASRC_DIR)
-        imgdirname = pathlib.Path("img")
-        xmldirname = pathlib.Path("label")
-
-        imgdir = (datasrc / imgdirname)
-        xmldir = (datasrc / xmldirname)
-
-        name = urllib.parse.unquote(request.params.name, encoding='utf-8')
-        ratio = float(request.params.ratio)
-        client_id = request.params.u_id
-        description = urllib.parse.unquote(request.params.description, encoding='utf-8')
+    # For Detection
+    if task_id == Task.CLASSIFICATION.value:
 
         start_t = time.time()
+        classification_label_dir = label_dir / "classification"
+        target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
+        target_file_list = list(target.keys())
 
-        # if 2nd time delete confirmdataset id
-        if request.params.delete_id:
-            del confirm_dataset[request.params.delete_id]
+        file_names = [p for p in file_names
+                      if (img_dir / p).is_file() and (p.name in target_file_list)]
 
-        # old cofirm_dataset delete
-        if len(confirm_dataset) > 100:
-            confirm_dataset.popitem(False)
+        img_files = [str(img_dir / name) for name in file_names]
+        parsed_target = [target[name.name] for name in file_names]
+        print(time.time() - start_t)
 
-        # search image files
-        imgs = (p.relative_to(imgdir) for p in imgdir.iterdir() if p.is_file())
+    elif task_id == Task.DETECTION.value:
+        detection_label_dir = label_dir / "detection"
+        file_names = [p for p in file_names
+                      if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
+        img_files = [str(img_dir / name) for name in file_names]
+        xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
+        parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
 
-        # remove images without label
-        imgs = set([img for img in imgs if (xmldir / img).with_suffix('.xml').is_file()])
-        assert len(imgs) > 0, "Image not found in directory. Please set images to 'datasrc/img' directory and xml files to 'datasrc/label' directory."
+    elif task_id == Task.SEGMENTATION.value:
+        segmentation_label_dir = label_dir / "segmentation"
+        file_names = [p for p in file_names if (img_dir / p).is_file() and
+                      any([((segmentation_label_dir / p.name).with_suffix(suf)).is_file()
+                           for suf in [".jpg", ".png"]])]
+        img_files = [str(img_dir / name) for name in file_names]
+        parsed_target = [str(segmentation_label_dir / name.with_suffix(".png"))
+                         for name in file_names]
+        class_map = parse_classmap_file(str(segmentation_label_dir / "class_map.txt"))
 
-        # split files into trains and validations
-        n_imgs = len(imgs)
+    # Split into train and valid.
+    n_imgs = len(file_names)
+    perm = np.random.permutation(n_imgs)
 
-        trains = set(random.sample(imgs, int(ratio * n_imgs)))
-        valids = imgs - trains
+    train_img, valid_img = np.split(np.array([img_files[index] for index in perm]),
+                                    [int(ratio * n_imgs)])
+    train_img = train_img.tolist()
+    valid_img = valid_img.tolist()
+    valid_img_size = [list(Image.open(i).size) for i in valid_img]
+
+    train_target, valid_target = np.split(np.array([parsed_target[index] for index in perm]),
+                                          [int(ratio * n_imgs)])
+    train_target = train_target.tolist()
+    valid_target = valid_target.tolist()
+
+    # Load test Dataset if exists.
+    if test_dataset_id > 0:
+        test_dataset = storage.fetch_test_dataset(test_dataset_id)
+        test_ratio = []
+    else:
+        test_ratio = []
+
+    # Dataset Information
+    if task_id == Task.CLASSIFICATION.value:
 
         start_t = time.time()
-        # build filename of images and labels
-        train_imgs = [str(img) for img in trains]
-        valid_imgs = [str(img) for img in valids]
+        train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map) + 1)))
+        valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map) + 1)))
 
-        perm = np.random.permutation(int(n_imgs))
-        perm_train, perm_valid = np.split(perm, [int(n_imgs * ratio)])
-        imgs = list(imgs)
+        print(time.time() - start_t)
+    elif task_id == Task.DETECTION.value:
+        train_tag_list = []
+        valid_tag_list = []
 
-        parsed_train_imgs = []
-        parsed_valid_imgs = []
+        for i in range(len(train_target)):
+            train_tag_list.append(train_target[i][0].get('class'))
 
-        parsed_train_img_names = [str(imgs[perm]).split('.')[0] for perm in perm_train]
-        parsed_valid_img_names = [str(imgs[perm]).split('.')[0] for perm in perm_valid]
+        for i in range(len(valid_target)):
+            valid_tag_list.append(valid_target[i][0].get('class'))
 
-        start_t = time.time()
+        train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
+        valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))
+    elif task_id == Task.SEGMENTATION.value:
+        train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
+        valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
 
-        parsed_train, train_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
-            path).split('/')[-1].split('.')[0] in parsed_train_img_names], num_thread=8)
+    class_info = {
+        "class_map": class_map,
+        "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
+        "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+        "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+        "test_ratio": test_ratio,
+        "train_img_num": len(train_img),
+        "valid_img_num": len(valid_img),
+        "test_img_num": 1,
+    }
 
-        parsed_valid, valid_class_map = parse_xml_detection([str(path) for path in xmldir.iterdir() if str(
-            path).split('/')[-1].split('.')[0] in parsed_valid_img_names], num_thread=8)
+    # Register
+    train_data = {
+        'img': train_img,
+        'target': train_target
+    }
+    valid_data = {
+        'img': valid_img,
+        'target': valid_target,
+        'size': valid_img_size,
+    }
 
-        start_t = time.time()
-        # Insert detailed informations
-        train_num = len(train_imgs)
-        valid_num = len(valid_imgs)
-        class_tag_list = []
+    dataset = {
+        "task_id": task_id,
+        "dataset_name": dataset_name,
+        "description": description,
+        "ratio": ratio,
+        "train_data": train_data,
+        "valid_data": valid_data,
+        "class_map": class_map,
+        "test_dataset_id": test_dataset_id,
+        "class_info": class_info
+    }
+    temp_dataset[dataset_hash] = dataset
 
-        train_tag_count = {}
-        for i in range(len(parsed_train)):
-            for j in range(len(train_class_map)):
-                if parsed_train[i][0].get('name') == train_class_map[j]:
-                    if train_class_map[j] not in train_tag_count:
-                        train_tag_count[train_class_map[j]] = 1
-                    else:
-                        train_tag_count[train_class_map[j]] += 1
-
-        valid_tag_count = {}
-        for i in range(len(parsed_valid)):
-            for j in range(len(valid_class_map)):
-                if parsed_valid[i][0].get('name') == valid_class_map[j]:
-                    if valid_class_map[j] not in valid_tag_count:
-                        valid_tag_count[valid_class_map[j]] = 1
-                    else:
-                        valid_tag_count[valid_class_map[j]] += 1
-
-        for tags in sorted(train_tag_count.keys()):
-            class_tag_list.append({
-                "tags": tags,
-                "train": train_tag_count.get(tags),
-                "valid": valid_tag_count.get(tags)
-            })
-
-        # save datasplit setting
-        confirm_dataset[client_id] = {
-            "name": name,
-            "ratio": ratio,
-            "description": description,
-            "train_imgs": train_imgs,
-            "valid_imgs": valid_imgs,
-            "class_maps": train_class_map,
-            "class_tag_list": class_tag_list
-        }
-
-        body = json.dumps(
-            {"total": n_imgs,
-             "id": client_id,
-             "description": description,
-             "train_image_num": train_num,
-             "valid_image_num": valid_num,
-             "class_tag_list": class_tag_list,
-             "train_imgs": train_imgs,
-             "valid_imgs": valid_imgs,
-             })
-
-        ret = create_response(body)
-        return ret
-
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+    # Client doesn't need 'train_data'
+    return_dataset = {
+        "task_id": task_id,
+        "dataset_name": dataset_name,
+        "description": description,
+        "ratio": ratio,
+        # "train_data": train_data,
+        "valid_data": valid_data,
+        "class_map": class_map,
+        "test_dataset_id": test_dataset_id,
+        "class_info": class_info
+    }
+    return return_dataset
 
 
-@route("/api/renom_img/v1/weights/progress/<progress_num:int>", method="GET")
-def weight_download_progress(progress_num):
-    try:
-        for i in range(60):
-            for th in train_thread_pool.values():
-                if isinstance(th, TrainThread) and th[1].weight_existance == WEIGHT_CHECKING:
-                    pass
-                elif th[1].weight_existance == WEIGHT_EXISTS:
-                    body = json.dumps({"progress": 100})
-                    ret = create_response(body)
-                    return ret
-                elif th[1].weight_existance == WEIGHT_DOWNLOADING:
-                    if th[1].percentage > 10 * progress_num:
-                        body = json.dumps({"progress": th[1].percentage})
-                        ret = create_response(body)
-                        return ret
-            time.sleep(1)
+@route("/api/renom_img/v2/dataset/create", method="POST")
+@json_handler
+def dataset_create():
+    """
+    dataset_confirm => dataset_create.
 
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+    Note: User can rename the dataset name and description.
+    If the hash equals to the dataset in the temp_dataset but
+    the requested ratio and saved ratio is not same, raise Exception.
 
+    """
+    global temp_dataset
 
-@route("/api/renom_img/v1/dataset_defs/", method="POST")
-def create_dataset_def():
-    try:
-        # register dataset
-        client_id = request.params.u_id
-        name = urllib.parse.unquote(request.params.name, encoding='utf-8')
-        description = urllib.parse.unquote(request.params.description, encoding='utf-8')
+    # Request params.
+    req_params = request.params
+    dataset_hash = req_params.hash
+    request_dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
+    request_dataset_description = str(urllib.parse.unquote(
+        req_params.description, encoding='utf-8'))
+    request_dataset_ratio = float(req_params.ratio)
+    request_test_dataset_id = int(req_params.test_dataset_id)
 
-        id = storage.register_dataset_def(
-            name,
-            confirm_dataset[client_id].get('ratio'),
-            description,
-            confirm_dataset[client_id].get('train_imgs'),
-            confirm_dataset[client_id].get('valid_imgs'),
-            confirm_dataset[client_id].get('class_maps'),
-            confirm_dataset[client_id].get('class_tag_list')
-        )
+    # Saved params.
+    dataset = temp_dataset.get(dataset_hash, False)
+    assert dataset, "Requested dataset does not exist."
 
-        # Insert detailed informations
+    task_id = dataset.get('task_id')
+    dataset_name = dataset.get('dataset_name')
+    description = dataset.get('description')
+    ratio = dataset.get('ratio')
+    train_data = dataset.get('train_data')
+    valid_data = dataset.get('valid_data')
+    class_map = dataset.get('class_map')
+    class_info = dataset.get('class_info')
+    test_dataset_id = dataset.get('test_dataset_id')
 
-        del confirm_dataset[client_id]
+    assert ratio == request_dataset_ratio, \
+        "Requested ratio and saved one is not same. {}, {}".format(ratio, request_dataset_ratio)
+    assert test_dataset_id == request_test_dataset_id, "Requested test_dataset_id and saved one is not same."
 
-        body = json.dumps({"id": id})
-        ret = create_response(body)
-        return ret
+    dataset_id = storage.register_dataset(
+        task_id,
+        dataset_name,
+        description,
+        ratio,
+        train_data,
+        valid_data,
+        class_map,
+        class_info,
+        test_dataset_id
+    )
 
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+    temp_dataset = {}  # Release
+    return {'dataset_id': dataset_id}
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/run_prediction", method="GET")
-def run_prediction(project_id, model_id):
-    # 学習データ読み込み
-    try:
-        thread_id = "{}_{}".format(project_id, model_id)
-        fields = 'hyper_parameters,algorithm,algorithm_params,best_epoch_weight,dataset_def_id'
-        data = storage.fetch_model(project_id, model_id, fields=fields)
-        (id, name, ratio, train_imgs, valid_imgs, class_map, created,
-         updated) = storage.fetch_dataset_def(data['dataset_def_id'])
-        # weightのh5ファイルのパスを取得して予測する
-        with Executor(max_workers=MAX_THREAD_NUM) as prediction_executor:
-            th = PredictionThread(thread_id, model_id, data["hyper_parameters"], data["algorithm"],
-                                  data["algorithm_params"], data["best_epoch_weight"], class_map)
-            ft = prediction_executor.submit(th)
-            prediction_thread_pool[thread_id] = [ft, th]
-        ft.result()
-
-        if th.error_msg is not None:
-            body = json.dumps({"error_msg": th.error_msg})
-        else:
-            data = {
-                "predict_results": th.predict_results,
-                "csv": th.csv_filename,
+@route("/api/renom_img/v2/dataset/load/task/<id:int>", method="GET")
+@json_handler
+def dataset_load_of_task(id):
+    # TODO: Remember last sent value and cache it.
+    datasets = storage.fetch_datasets_of_task(id)
+    return {
+        "dataset_list": [
+            {
+                'id': d["id"],
+                'name': d["name"],
+                'class_map': d["class_map"],
+                'task_id': d["task_id"],
+                'valid_data': d["valid_data"],
+                'ratio': d["ratio"],
+                'description': d["description"],
+                'test_dataset_id': d["test_dataset_id"],
+                'class_info': d["class_info"],
             }
-            body = json.dumps(data)
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-
-    ret = create_response(body)
-    return ret
+            for d in datasets
+        ]
+    }
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/prediction_info", method="GET")
-def prediction_info(project_id, model_id):
-    try:
-        # 学習データ読み込み
-        thread_id = "{}_{}".format(project_id, model_id)
-        while True:
-            if thread_id in prediction_thread_pool:
-                _, th = prediction_thread_pool[thread_id]
-                break
+@route("/api/renom_img/v2/test_dataset/confirm", method="POST")
+@json_handler
+def test_dataset_confirm():
+    req_params = request.params
+    # Receive params here.
+    ratio = float(req_params.ratio)
+    dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
+    task_id = int(req_params.task_id)
+    description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
+    print(dataset_name)
+    print(description)
+    ##
+    root = pathlib.Path('datasrc')
+    img_dir = root / 'img'
+    label_dir = root / 'label'
+
+    assert img_dir.exists(), \
+        "The directory 'datasrc/img' is not found in current working directory."
+    assert label_dir.exists(), \
+        "The directory 'datasrc/label/detection' is not found in current working directory."
+
+    file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
+                  if name.is_file()]
+
+    class_map = {}
+    n_imgs = 0
+    # For Detection
+    if task_id == Task.CLASSIFICATION.value:
+        classification_label_dir = label_dir / "classification"
+        target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
+        target_file_list = list(target.keys())
+
+        file_names = [p for p in file_names
+                      if (img_dir / p).is_file() and (p.name in target_file_list)]
+
+        n_imgs = len(file_names)
+        perm = np.random.permutation(n_imgs)
+        file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]
+
+        img_files = [str(img_dir / name) for name in file_names]
+        parsed_target = [target[name.name] for name in file_names]
+
+    elif task_id == Task.DETECTION.value:
+        detection_label_dir = label_dir / "detection"
+        file_names = [p for p in file_names
+                      if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
+        n_imgs = len(file_names)
+        perm = np.random.permutation(n_imgs)
+        file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]
+
+        img_files = [str(img_dir / name) for name in file_names]
+        xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
+        parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
+    elif task_id == Task.SEGMENTATION.value:
+        pass
+
+    test_data = {
+        "img": img_files,
+        "target": parsed_target,
+    }
+    # test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, test_data)
+    test_tag_num = []
+    if task_id == Task.DETECTION.value:
+        test_tag_list = []
+
+        for i in range(len(parsed_target)):
+            test_tag_list.append(parsed_target[i][0].get('class'))
+        #print([i for i in test_tag_list])
+
+        test_tag_num, _ = np.histogram(test_tag_list, bins=list(range(len(class_map) + 1)))
+
+    print(test_tag_num)
+    class_info = {
+        "test_dataset_name": dataset_name,
+        "class_map": class_map,
+        "other_imgs": (n_imgs - len(img_files)),
+        "test_imgs": len(img_files),
+        "class_ratio": test_tag_num.tolist(),
+        "test_ratio": ratio,
+    }
+
+    #   "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
+    #   "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+    #   "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+    #   "test_ratio": test_ratio,
+    # }
+
+    return class_info
+
+
+@route("/api/renom_img/v2/test_dataset/create", method="POST")
+@json_handler
+def test_dataset_create():
+    req_params = request.params
+    # Receive params here.
+    ratio = float(req_params.ratio)
+    dataset_name = str(req_params.name)
+    task_id = int(req_params.task_id)
+    description = str(req_params.description)
+    ##
+    root = pathlib.Path('datasrc')
+    img_dir = root / 'img'
+    label_dir = root / 'label'
+
+    assert img_dir.exists(), \
+        "The directory 'datasrc/img' is not found in current working directory."
+    assert label_dir.exists(), \
+        "The directory 'datasrc/label/detection' is not found in current working directory."
+
+    file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
+                  if name.is_file()]
+
+    # For Detection
+    if task_id == Task.CLASSIFICATION.value:
+        classification_label_dir = label_dir / "classification"
+        target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
+        target_file_list = list(target.keys())
+
+        file_names = [p for p in file_names
+                      if (img_dir / p).is_file() and (p.name in target_file_list)]
+
+        n_imgs = len(file_names)
+        perm = np.random.permutation(n_imgs)
+        file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]
+
+        img_files = [str(img_dir / name) for name in file_names]
+        parsed_target = [target[name.name] for name in file_names]
+
+    elif task_id == Task.DETECTION.value:
+        detection_label_dir = label_dir / "detection"
+        file_names = [p for p in file_names
+                      if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
+        n_imgs = len(file_names)
+        perm = np.random.permutation(n_imgs)
+        file_names = [file_names[index] for index in perm[:int(n_imgs * ratio)]]
+
+        img_files = [str(img_dir / name) for name in file_names]
+        xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
+        parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
+    elif task_id == Task.SEGMENTATION.value:
+        pass
+
+    test_data = {
+        "img": img_files,
+        "target": parsed_target,
+    }
+    test_dataset_id = storage.register_test_dataset(task_id, dataset_name, description, test_data)
+    return {
+        'id': test_dataset_id,
+        'test_data': test_data,
+        'class_map': class_map,
+    }
+
+
+@route("/api/renom_img/v2/polling/train/model/<id:int>", method="GET")
+@json_handler
+def polling_train(id):
+    """
+
+    Cations:
+        This function is possible to return empty dictionary.
+    """
+    threads = TrainThread.jobs
+    active_train_thread = threads.get(id, None)
+    if active_train_thread is None:
+        saved_model = storage.fetch_model(id)
+        if saved_model is None:
+            return
+
+        # If the state == STOPPED, client will never throw request.
+        if saved_model["state"] != State.STOPPED.value:
+            storage.update_model(id, state=State.STOPPED.value,
+                                 running_state=RunningState.STOPPING.value)
+            saved_model = storage.fetch_model(id)
+
+        return {
+            "state": saved_model["state"],
+            "running_state": saved_model["running_state"],
+            "total_epoch": saved_model["total_epoch"],
+            "nth_epoch": saved_model["nth_epoch"],
+            "total_batch": saved_model["total_batch"],
+            "nth_batch": saved_model["nth_batch"],
+            "last_batch_loss": saved_model["last_batch_loss"],
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": False,
+            "train_loss_list": saved_model["train_loss_list"],
+            "valid_loss_list": saved_model["valid_loss_list"],
+        }
+    elif active_train_thread.state == State.RESERVED or \
+            active_train_thread.state == State.CREATED:
+
+        for _ in range(60):
+            if active_train_thread.state == State.RESERVED or \
+                    active_train_thread.state == State.CREATED:
+                time.sleep(1)
+                if active_train_thread.updated:
+                    active_train_thread.returned2client()
+                    break
             else:
                 time.sleep(1)
-        time.sleep(1)
-        data = {
-            "predict_total_batch": th.total_batch,
-            "predict_last_batch": th.nth_batch,
+                break
+
+        active_train_thread.consume_error()
+        return {
+            "state": active_train_thread.state.value,
+            "running_state": active_train_thread.running_state.value,
+            "total_epoch": 0,
+            "nth_epoch": 0,
+            "total_batch": 0,
+            "nth_batch": 0,
+            "last_batch_loss": 0,
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": False,
+            "train_loss_list": [],
+            "valid_loss_list": [],
         }
-        body = json.dumps(data)
-        ret = create_response(body)
-        return ret
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-
-    ret = create_response(body)
-    return ret
-
-
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/export_csv/<filename>", method="GET")
-def export_csv(project_id, model_id, filename):
-    try:
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        csv_dir = os.path.join(BASE_DIR, DATASRC_PREDICTION_OUT, 'csv')
-        return static_file(filename, root=csv_dir, download=True)
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
-
-
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/deploy", method="GET")
-def deploy_model(project_id, model_id):
-    try:
-        storage.update_project_deploy(project_id, model_id)
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+    else:
+        for _ in range(10):
+            time.sleep(0.5)  # Avoid many request.
+            if active_train_thread.updated:
+                break
+            active_train_thread.consume_error()
+        active_train_thread.returned2client()
+        return {
+            "state": active_train_thread.state.value,
+            "running_state": active_train_thread.running_state.value,
+            "total_epoch": active_train_thread.total_epoch,
+            "nth_epoch": active_train_thread.nth_epoch,
+            "total_batch": active_train_thread.total_batch,
+            "nth_batch": active_train_thread.nth_batch,
+            "last_batch_loss": active_train_thread.last_batch_loss,
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": active_train_thread.best_valid_changed,
+            "train_loss_list": active_train_thread.train_loss_list,
+            "valid_loss_list": active_train_thread.valid_loss_list,
+        }
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/models/<model_id:int>/undeploy", method="GET")
-def undeploy_model(project_id, model_id):
-    try:
-        storage.update_project_deploy(project_id, None)
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+@route("/api/renom_img/v2/polling/prediction/model/<id:int>", method="GET")
+@json_handler
+def polling_prediction(id):
+    """
+    Cations:
+        This function is possible to return empty dictionary.
+    """
+    threads = PredictionThread.jobs
+    active_prediction_thread = threads.get(id, None)
+    if active_prediction_thread is None:
+        time.sleep(0.5)  # Avoid many request.
+        return {
+            "need_pull": False,
+            "state": State.STOPPED.value,
+            "running_state": RunningState.STOPPING.value,
+            "total_batch": 0,
+            "nth_batch": 0,
+        }
+    elif active_prediction_thread.state == State.PRED_RESERVED or \
+            active_prediction_thread.state == State.PRED_CREATED:
+        time.sleep(0.5)  # Avoid many request.
+        return {
+            "need_pull": active_prediction_thread.need_pull,
+            "state": active_prediction_thread.state.value,
+            "running_state": active_prediction_thread.running_state.value,
+            "total_batch": active_prediction_thread.total_batch,
+            "nth_batch": active_prediction_thread.nth_batch,
+        }
+    else:
+        for _ in range(10):
+            time.sleep(0.5)  # Avoid many request.
+            if active_prediction_thread.updated:
+                break
+            active_prediction_thread.consume_error()
+        active_prediction_thread.returned2client()
+        return {
+            "need_pull": active_prediction_thread.need_pull,
+            "state": active_prediction_thread.state.value,
+            "running_state": active_prediction_thread.running_state.value,
+            "total_batch": active_prediction_thread.total_batch,
+            "nth_batch": active_prediction_thread.nth_batch,
+        }
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/deployed_model", method="GET")
-def pull_deployed_model(project_id):
+@route("/api/renom_img/v2/test_dataset/load/task/<id:int>", method="GET")
+@json_handler
+def test_dataset_load_of_task(id):
+    # TODO: Remember last sent value and cache it.
+    datasets = storage.fetch_test_datasets_of_task(id)
+    return {
+        "test_dataset_list": datasets
+    }
+
+
+@route("/api/renom_img/v2/polling/weight/download", method="GET")
+@json_handler
+def polling_weight_download():
+    return
+
+
+@route("/api/renom_img/v2/polling/prediction", method="GET")
+@json_handler
+def polling_prediction():
+    return
+
+
+@route("/api/renom_img/v2/deployed_model/task/<task_id:int>", method="GET")
+def pull_deployed_model(task_id):
     # This method will be called from python script.
     try:
-        deployed_id = storage.fetch_deployed_model_id(project_id)[0]['deploy_model_id']
-        ret = storage.fetch_model(project_id, deployed_id, "best_epoch_weight")
+        ret = storage.fetch_deployed_model(task_id)
+        if ret is None:
+            raise Exception("No model deployed.")
         file_name = ret['best_epoch_weight']
-        path = DB_DIR_TRAINED_WEIGHT
-        return static_file(file_name, root=path, download='deployed_model.h5')
+        return static_file(file_name, root=".", download='deployed_model.h5')
     except Exception as e:
         traceback.print_exc()
         body = json.dumps({"error_msg": e.args[0]})
@@ -764,49 +861,30 @@ def pull_deployed_model(project_id):
         return ret
 
 
-@route("/api/renom_img/v1/projects/<project_id:int>/deployed_model_info", method="GET")
-def get_deployed_model_info(project_id):
+@route("/api/renom_img/v2/deployed_model_info/task/<task_id:int>", method="GET")
+@json_handler
+def get_deployed_model_info(task_id):
     # This method will be called from python script.
-    try:
-        deployed_id = storage.fetch_deployed_model_id(project_id)[0]['deploy_model_id']
-        ret = storage.fetch_model(project_id, deployed_id, "best_epoch_weight")
-        file_name = ret['best_epoch_weight']
-        ret = storage.fetch_model(project_id, deployed_id,
-                                  "algorithm,algorithm_params,hyper_parameters")
-        ret["filename"] = file_name
-        body = json.dumps(ret)
-        ret = create_response(body)
-        return ret
-    except Exception as e:
-        traceback.print_exc()
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+    saved_model = storage.fetch_deployed_model(task_id)
+    if saved_model is None:
+        raise Exception("No model deployed.")
 
-
-@route("/api/renom_img/v1/projects/<project_id:int>/class_map", method="GET")
-def get_class_map(project_id):
-    try:
-        ret = storage.fetch_class_map()
-        body = json.dumps({"class_map": ret["class_map"]})
-        ret = create_response(body)
-        return ret
-    except Exception as e:
-        body = json.dumps({"error_msg": e.args[0]})
-        ret = create_response(body)
-        return ret
+    return {
+        "state": saved_model["state"],
+        "running_state": saved_model["running_state"],
+        "total_epoch": saved_model["total_epoch"],
+        "algorithm_id": saved_model["algorithm_id"],
+        "hyper_parameters": saved_model["hyper_parameters"],
+        "filename": saved_model["best_epoch_weight"],
+    }
 
 
 def main():
-    # Creates directory only if server starts.
-    create_dirs()
     # Parser settings.
     parser = argparse.ArgumentParser(description='ReNomIMG')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
     parser.add_argument('--port', default='8080', help='Server port')
-
     args = parser.parse_args()
-
     wsgiapp = default_app()
     httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
     httpd.serve_forever()

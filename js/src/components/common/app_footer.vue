@@ -1,83 +1,66 @@
 <template lang="html">
 <footer>
-  <div class="row">
-    <div class="col-md-12 footer-content">
-      <div class="row">
-        <div class="col-md-3">
-          <div class="media-wrapper">
-            <img :src="url">
-            <div class="content-margin-top">
-                ReNom_IMG {{version}}
-            </div>
-          </div>
-        </div>
-        <div class="col-md-9">
-          <!--none -->
-        </div>
-      </div>
+  <div class="footer-content">
+    <div class="logo-and-version">
+      <img class="logo-img" src="/static/img/renomlogo.png">
+      <div class="version">{{version}}</div>
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-12 copyright align-middle">
-      <div class="copyright-text">
-        <small>&copy; 2018 GRID INC. ALL rights reserved.</small>
-      </div>
-    </div>
+  <div class="copyright-bar">
+    <div class="copyright">©︎2018 GRID INC. ALL rights reserved.</div>
   </div>
 </footer>
 </template>
 
 <script>
-
 export default {
-  data () {
-    return {
-      version: 'ver 1.0.7',
-      url: require('../../../static/img/renomlogo.png')
-    }
-  }
+  name: 'AppFooter',
+  data: function () { return { 'version': '2.0.0' } }
 }
 </script>
 
 <style lang="scss" scoped>
-@import '@/../node_modules/bootstrap/scss/bootstrap.scss';
 footer {
-  display: block;
+  position: relative;
   width: 100%;
-  height:$footer-height;
-  padding: 0;
-  margin:0;
-  background: $footer-color;
-  margin-top: $component-margin-top;
-  z-index: 99999;
-  .row {
-    margin-left: 0px;
-    margin-right: 0px;
+  height: $footer-height;
+  background: $footer-background;
+  z-index: 1;
+  .footer-content {
+    max-width: $app-window-width;
+    margin: 0 auto;
+    .logo-and-version {
+      display: flex;
+      position: relative;
+      .logo-img {
+        height: 24px;
+        margin: 16px;
+        margin-left: 0;
+      }
+      .version {
+        height: 20px;
+        line-height: 20px;
+        margin-top: 24px;
+        color: white;
+        font-size: 0.8rem;
+      }
+    }
   }
-  .footer-content{
-    padding-left: 3%;
-    background: $footer-color;
-    height:118px;
-  }
-  .copyright{
-    background: $footer-copyright-color;
-    margin-top: 0;
-    height:35px;
-    .copyright-text{
-      line-height: 35px;
-      padding-left: 3%;
+  .copyright-bar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 20px;
+    background: $footer-background-dark;
+    .copyright {
+      max-width: $app-window-width;
+      height: 20px;
+      margin: 0 auto;
+      line-height: 20px;
+      color: white;
+      font-size: 0.6rem;
     }
   }
 }
-.content-margin-top{
-  margin-top: 15px;
-}
-.media-wrapper{
-  margin-top: $content-margin;
-}
-.test{
-  margin-top: 5%;
-  font-family: $content-inner-header-font-family;
-  font-size: $content-inner-header-font-size;
-}
 </style>
+

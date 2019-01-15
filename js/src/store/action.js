@@ -1,490 +1,543 @@
+import Model from './classes/model'
 import axios from 'axios'
+import { STATE } from '@/const.js'
+import { Dataset, TestDataset } from './classes/dataset'
+
+function error_handler_creator (context, callback = undefined) {
+  return function (error) {
+    const status = error.response.status
+    if (status === 500) {
+      const message = error.response.data.error_msg
+      context.commit('showAlert', message)
+    }
+    if (callback) {
+      callback()
+    }
+  }
+}
 
 export default {
-  /**
-   * This is called when the browser refreshed. This loads model list and dataset according to given project id.
-   *
-   * @param {Integer} payload.project_id : Current project id.
+  /*****
    *
    */
-  async initData (context, payload) {
-    await context.dispatch('loadProject', {'project_id': payload.project_id})
-    await context.dispatch('loadModels', {'project_id': payload.project_id})
-    await context.dispatch('loadDatasetDef', {'project_id': payload.project_id})
+  async init (context, payload) {
+    context.commit('showLoadingMask', true)
+    // context.commit('resetState')
+    context.commit('flushFilter')
+    context.dispatch('loadDatasetsOfCurrentTask')
+    context.dispatch('loadTestDatasetsOfCurrentTask')
+    await context.dispatch('loadModelsOfCurrentTask')
+    await context.dispatch('loadDeployedModel')
+    context.commit('showLoadingMask', false)
+    context.dispatch('startAllPolling')
   },
 
-  /**
-   * This loads project's name and comment.
-   *
-   * @param {Integer} payload.project_id : Current project id.
+  /*****
    *
    */
-  async loadProject (context, payload) {
-    const url = '/api/renom_img/v1/projects/' + payload.project_id
+  async loadModelsOfCurrentTask (context, payload) {
+    let task = context.getters.getCurrentTask
+    const url = '/api/renom_img/v2/model/load/task/' + task
     return axios.get(url)
       .then(function (response) {
-        if (response.data.error_msg) {
-          context.commit('setAlertModalFlag', {'flag': true})
-          context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-          return
+        if (response.status === 204) return
+        let model_list = response.data.model_list
+        for (let m of model_list) {
+          let algorithm_id = m.algorithm_id
+          let task_id = m.task_id
+          let state = m.state
+          let id = m.id
+          let hyper_params = m.hyper_parameters
+          let dataset_id = m.dataset_id
+          let model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
+
+          model.id = id
+          model.state = state
+          model.total_epoch = m.total_epoch
+          model.nth_epoch = m.nth_epoch
+          model.total_batch = m.total_batch
+          model.nth_batch = m.nth_batch
+          model.train_loss_list = m.train_loss_list
+          model.valid_loss_list = m.valid_loss_list
+          model.best_epoch_valid_result = m.best_epoch_valid_result
+          model.last_batch_loss = m.last_batch_loss
+
+          context.commit('addModel', model)
+          context.dispatch('loadBestValidResult', id)
         }
-        context.commit('setProject', {
-          'project_id': response.data.project_id,
-          'project_name': response.data.project_name,
-          'project_comment': response.data.project_comment,
-          'deploy_model_id': response.data.deploy_model_id,
-          'gpu_num': response.data.gpu_num
-        })
-      })
+      }, error_handler_creator(context))
   },
 
-  /**
-   * This will load model list according to project_id.
-   *
-   * @param {Integer} payload.project_id : Current project id.
+  /*****
    *
    */
-  async loadModels (context, payload) {
-    // This API calls "get_models"
-    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models'
-    return axios.get(url).then(function (response) {
-      if (response.data.error_msg) {
-        context.commit('setAlertModalFlag', {'flag': true})
-        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-        return
-      }
-      context.commit('setModels', {'models': response.data})
-    })
+  async loadDatasetsOfCurrentTask (context) {
+    const task_id = context.getters.getCurrentTask
+    const url = '/api/renom_img/v2/dataset/load/task/' + task_id
+    return axios.get(url)
+      .then(function (response) {
+        if (response.status === 204) return
+        for (let ds of response.data.dataset_list) {
+          const id = ds.id
+          const class_map = ds.class_map
+          const valid_data = ds.valid_data
+          const task = ds.task_id
+          const name = ds.name
+          const ratio = ds.ratio
+          const description = ds.description
+          const test_dataset_id = ds.test_dataset_id
+          const class_info = ds.class_info
+          const loaded_dataset = new Dataset(task, name, ratio, description, test_dataset_id)
+          loaded_dataset.id = id
+          loaded_dataset.class_map = class_map
+          loaded_dataset.valid_data = valid_data
+          loaded_dataset.class_info = class_info
+          context.commit('addDataset', loaded_dataset)
+        }
+      }, error_handler_creator(context))
   },
 
-  /**
-   * This will check model's pretrained weight download progress.
-   *
-   * @param {Integer} payload.i : This is number of progress. If the downloading process done 15%, i should be 1.
+  /*****
    *
    */
-  async checkWeightDownloadProgress (context, payload) {
-    if (!context.state.weight_exists) {
-      let url = '/api/renom_img/v1/weights/progress/' + payload.i
-      return axios.get(url)
-        .then(function (response) {
-          if (response.data.error_msg) {
-            context.commit('setAlertModalFlag', {'flag': true})
-            context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-            return
-          }
-          if (response.data.progress) {
-            context.commit('setWeightDownloadModal', {'weight_downloading_modal': true})
-            context.commit('setWeightDownloadProgress', {'progress': response.data.progress})
-          }
-          if (response.data.progress >= 100) {
-            context.commit('setWeightExists', {'weight_exists': true})
-            context.commit('setWeightDownloadModal', {'weight_downloading_modal': false})
-          }
-        })
-    }
+  async loadTestDatasetsOfCurrentTask (context) {
+    const task_id = context.getters.getCurrentTask
+    const url = '/api/renom_img/v2/test_dataset/load/task/' + task_id
+    return axios.get(url)
+      .then(function (response) {
+        if (response.status === 204) return
+        for (let ds of response.data.test_dataset_list) {
+          const id = ds.id
+          const class_map = ds.class_map
+          const test_data = ds.test_data
+          const task = ds.task_id
+          const name = ds.name
+          const ratio = ds.ratio
+          const description = ds.description
+          const loaded_dataset = new TestDataset(task, name, ratio, description)
+          loaded_dataset.id = id
+          loaded_dataset.class_map = class_map
+          loaded_dataset.test_data = test_data
+          context.commit('addTestDataset', loaded_dataset)
+        }
+      }, error_handler_creator(context))
   },
 
-  /**
-   * This will creates new model and registers it to database.
-   *
-   * @param {Integer} payload.project_id : Current project id.
-   * @param {Integer} payload.algorithm : Constant of algorithm given by user.
-   * @param {Integer} payload.algorithm_params : Algorithm specified parameters given by user.
-   * @param {Integer} payload.hyper_parameters : Training hyper parameters given by user.
-   * @param {Integer} payload.dataset_def_id : Dataset id given by user.
+  /*****
    *
    */
-  // create model before run model
   async createModel (context, payload) {
-    // add fd model data
-    let fd = new FormData()
-    fd.append('dataset_def_id', payload.dataset_def_id)
-    fd.append('hyper_parameters', payload.hyper_parameters)
-    fd.append('algorithm', payload.algorithm)
-    fd.append('algorithm_params', payload.algorithm_params)
-    let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/model/create'
-    return axios.post(url, fd)
-  },
+    const url = '/api/renom_img/v2/model/create'
+    const hyper_params = payload.hyper_params
+    const algorithm_id = payload.algorithm_id
+    const dataset_id = payload.dataset_id
+    const task_id = payload.task_id
+    const param = new FormData()
+    const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
+    context.commit('addModel', model)
+    model.state = STATE.CREATED
 
-  /**
-   * This will run specified model. This calls the function 'createModel'.
-   * And this runs weight existence check function.
-   *
-   * @param {Integer} payload.project_id : Current project id.
-   * @param {Integer} payload.algorithm : Constant number of algorithm given by user.
-   * @param {Integer} payload.algorithm_params : Algorithm specified parameters given by user.
-   * @param {Integer} payload.hyper_parameters : Training hyper parameters given by user.
-   * @param {Integer} payload.dataset_def_id : Dataset id given by user.
+    // Append params.
+    param.append('hyper_params', JSON.stringify(hyper_params))
+    param.append('dataset_id', dataset_id)
+    param.append('task_id', task_id)
+    param.append('algorithm_id', algorithm_id)
+
+    return axios.post(url, param)
+      .then(function (response) {
+        if (response.status === 204) return
+        let id = response.data.id
+        model.id = id
+        model.state = STATE.RESERVED
+        context.dispatch('runTrainThread', id)
+      }, error_handler_creator(context))
+  },
+  /*****
    *
    */
-  async runModel (context, payload) {
-    const dataset_def_id = JSON.stringify(payload.dataset_def_id)
-    const hyper_parameters = JSON.stringify(payload.hyper_parameters)
-    const algorithm_params = JSON.stringify(payload.algorithm_params)
-    const result = await context.dispatch('createModel', {
-      'dataset_def_id': dataset_def_id,
-      'hyper_parameters': hyper_parameters,
-      'algorithm': payload.algorithm,
-      'algorithm_params': algorithm_params
-    })
-    if (result.data.error_msg) {
-      context.commit('setAlertModalFlag', {'flag': true})
-      context.commit('setErrorMsg', {'error_msg': result.data.error_msg})
-      context.dispatch('loadModels', {'project_id': payload.project_id})
+  async removeModel (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/remove/' + model_id
+    return axios.get(url)
+      .then(function (response) {
+        if (response.status === 204) return
+        context.commit('rmModel', model_id)
+      }, error_handler_creator(context))
+  },
+
+  /*****
+   *
+   */
+  async runTrainThread (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/thread/run/' + model_id
+    return axios.get(url)
+      .then(function (response) {
+        let model = context.getters.getModelById(model_id)
+        model.state = STATE.CREATED // TODO: Remove this line.
+        context.dispatch('startAllPolling')
+      }, error_handler_creator(context))
+  },
+
+  /*****
+   *
+   */
+  async pollingTrain (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/polling/train/model/' + model_id
+    const request_source = {'train': model_id}
+    const current_requests = context.state.polling_request_jobs.train
+
+    // If polling for the model is already performed, do nothing.
+    if (current_requests.indexOf(model_id) >= 0) {
       return
     }
-    const model_id = result.data.model_id
-    context.commit('addModelTemporarily', {
-      'model_id': model_id,
-      'project_id': context.state.project.project_id,
-      'dataset_def_id': payload.dataset_def_id,
-      'hyper_parameters': payload.hyper_parameters,
-      'algorithm': payload.algorithm,
-      'algorithm_params': payload.algorithm_params,
-      'state': 0,
-      'best_epoch_validation_result': [],
-      'last_epoch': '-',
-      'last_batch': '-',
-      'total_batch': '-',
-      'last_train_loss': '-',
-      'running_state': 0
-    })
-    await context.dispatch('updateModelsState')
-    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + model_id + '/run'
-    axios.get(url)
-      .then(function (response) {
-        if (response.data.error_msg) {
-          context.commit('setAlertModalFlag', {'flag': true})
-          context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-        }
-        context.dispatch('updateModelsState')
-      })
-    for (let i = 1; i <= 10; i++) {
-      await context.dispatch('checkWeightDownloadProgress', {'i': i})
-    }
-  },
 
-  /**
-   * This will delete model. This will remove trained weight and all of its information from database.
-   *
-   * @param {Integer} payload.project_id : Current project id.
-   * @param {Integer} payload.model_id : Model id which will be deleted.
-   *
-   */
-  deleteModel (context, payload) {
-    let url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id
-    return axios.delete(url)
-      .then(function (response) {
-        if (response.data.error_msg) {
-          context.commit('setAlertModalFlag', {'flag': true})
-          context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-        }
-        if (payload.is_selected_model) {
-          context.commit('setSelectedModel', {'model_id': undefined})
-        }
-        context.dispatch('updateModelsState')
-        context.dispatch('loadModels')
-      })
-  },
-
-  /**
-   * This will stop model training progress. This will remove trained weight and all of its information from database.
-   *
-   * @param {Integer} payload.project_id : Current project id.
-   * @param {Integer} payload.model_id : Model id which will be stopped.
-   *
-   */
-  stopModel (context, payload) {
-    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/stop'
-    axios.get(url)
-      .then(function (response) {
-        if (response.data.error_msg) {
-          context.commit('setAlertModalFlag', {'flag': true})
-          context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-        }
-        context.dispatch('updateModelsState')
-      })
-  },
-
-  /**
-   * This function checks the model's state. This function will be called recursively.
-   *
-   * @param {Integer} payload.project_id : Current project id.
-   *
-   */
-  updateModelsState (context, payload) {
-    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/update/state'
-    return axios.get(url, {
-      timeout: 120 * 1000
-    }).then(function (response) {
-      context.commit('updateModelsState', response.data)
-    })
-  },
-
-  /**
-   * This function updates training model's progress bar state.
-   *
-   * @param {Integer} payload.project_id : Current project id.
-   * @param {Integer} payload.model_id : Model id whose progress will be checked.
-   *
-   */
-  updateProgress (context, payload) {
-    // // Called from model_progress.vue.
-    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/progress'
-
-    let fd = new FormData()
-    let model = context.getters.getModelFromId(payload.model_id)
-    fd.append('last_batch', model.last_batch)
-    fd.append('last_epoch', model.last_epoch)
-    fd.append('running_state', model.running_state)
-
-    return axios.post(url, fd, {
-      timeout: 600000
-    }).then(function (response) {
-      if (response.data.error_msg) {
-        context.commit('setAlertModalFlag', {'flag': true})
-        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-        return
-      }
-      context.commit('updateProgress', {
-        'model_id': payload.model_id,
-        'total_batch': response.data.total_batch,
-        'last_batch': response.data.last_batch,
-        'last_epoch': response.data.last_epoch,
-        'batch_loss': response.data.batch_loss,
-        'running_state': response.data.running_state,
-
-        // Following variables are possible to be empty list.
-        // Then update will not be performed.
-        'validation_loss_list': response.data.validation_loss_list,
-        'train_loss_list': response.data.train_loss_list,
-        'best_epoch': response.data.best_epoch,
-        'best_epoch_iou': response.data.best_epoch_iou,
-        'best_epoch_map': response.data.best_epoch_map,
-        'best_epoch_validation_result': response.data.best_epoch_validation_result
-      })
-
-      // updata progress if state is not finished or deleted
-      if (response.data.state === 1 || response.data.state === 4) { // If model is running
-        context.dispatch('updateProgress', {'model_id': payload.model_id})
-      } else {
-        context.dispatch('updateModelsState')
-      }
-    }).catch(function (error) {
-
-    })
-  },
-
-  /**
-   * This function sets the model be deployed.
-   *
-   * @param {Integer} payload.project_id : Current project id.
-   * @param {Integer} payload.model_id : Model id which will be deployed.
-   *
-   */
-  deployModel (context, payload) {
-    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/deploy'
-    axios.get(url)
-      .then(function (response) {
-        if (response.data.error_msg) {
-          context.commit('setAlertModalFlag', {'flag': true})
-          context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-          return
-        }
-
-        context.commit('setDeployModelId', {
-          'model_id': payload.model_id
-        })
-      })
-  },
-
-  /**
-   * This function sets the model be undeployed.
-   *
-   * @param {Integer} payload.project_id : Current project id.
-   * @param {Integer} payload.model_id : Model id which will be undeployed.
-   *
-   */
-  undeployModel (context, payload) {
-    const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + payload.model_id + '/undeploy'
-    axios.get(url)
-      .then(function (response) {
-        if (response.data.error_msg) {
-          context.commit('setAlertModalFlag', {'flag': true})
-          context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-          return
-        }
-
-        context.commit('setDeployModelId', {
-          'model_id': undefined
-        })
-      })
-  },
-
-  /**
-   * This function runs prediction thread using deployed model.
-   *
-   * @param {Integer} payload.project_id : Current project id.
-   * @param {Integer} payload.deploy_model_id : Model id which will be used for prediction.
-   *
-   */
-  runPrediction (context, payload) {
-    if (context.state.project) {
-      context.commit('setPredictRunningFlag', {'flag': true})
-      const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + context.state.project.deploy_model_id + '/run_prediction'
-      axios.get(url)
-        .then(function (response) {
-          if (response.data.error_msg) {
-            context.commit('setAlertModalFlag', {'flag': true})
-            context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-            context.commit('setPredictRunningFlag', {'flag': false})
-            return
-          }
-
-          context.commit('setPredictResult', {
-            'predict_results': response.data.predict_results,
-            'csv': response.data.csv
-          })
-        })
-    }
-  },
-
-  /**
-   * This updates prediction progress.
-   * This function can be run without payload params.
-   *
-   */
-  updatePredictionInfo (context, payload) {
-    if (context.state.project) {
-      const url = '/api/renom_img/v1/projects/' + context.state.project.project_id + '/models/' + context.state.project.deploy_model_id + '/prediction_info'
-      axios.get(url)
-        .then(function (response) {
-          if (response.data.error_msg) {
-            context.commit('setAlertModalFlag', {'flag': true})
-            context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-            return
-          }
-          context.commit('setPredictInfo', {
-            'predict_total_batch': response.data.predict_total_batch,
-            'predict_last_batch': response.data.predict_last_batch
-          })
-          if (context.state.predict_running_flag) {
-            context.dispatch('updatePredictionInfo')
-          }
-        }).catch(function (error) {
-          if (context.state.predict_running_flag) {
-            context.dispatch('upadtePredictionInfo')
-          }
-        })
-    }
-  },
-
-  /**
-   * This function registers dataset to database.
-   *
-   * @param {Integer} payload.ratio : Dataset will be divided by this ratio. Train:Valid = ratio:(1-ratio).
-   * @param {Integer} payload.name : Dataset name given by user.
-   *
-   */
-  async registerDatasetDef (context, payload) {
-    // add fd model data
-    let fd = new FormData()
-    fd.append('ratio', payload.ratio)
-    fd.append('name', encodeURIComponent(payload.name))
-    fd.append('u_id', payload.u_id)
-    fd.append('description', encodeURIComponent(payload.description))
-    let url = '/api/renom_img/v1/dataset_defs/'
-
-    context.commit('setDatasetSavingFlag', true)
-
-    await axios.post(url, fd).then(function (response) {
-      if (response.data.error_msg) {
-        context.commit('setAlertModalFlag', {'flag': true})
-        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-        context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
-      }
-    })
-
-    await context.dispatch('loadDatasetDef').then(() => {
-      context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
-      context.commit('setDataSplitDetail', [])
-    })
-  },
-
-  /**
-   * This function loads all of datasets from database.
-   *
-   */
-  async loadDatasetDef (context, payload) {
-    let url = '/api/renom_img/v1/dataset_defs'
+    // Register request.
+    context.commit('addPollingJob', request_source)
     return axios.get(url).then(function (response) {
-      if (response.data.error_msg) {
-        context.commit('setAlertModalFlag', {'flag': true})
-        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-      } else {
-        context.commit('setDatasetDefs', {
-          'dataset_defs': response.data.dataset_defs
-        })
-        context.commit('setDatasetSavingFlag', false)
+      // This 'response' can be empty.
+
+      // Check and run other model's polling.
+      context.dispatch('startAllPolling', payload)
+
+      // Remove finished request.
+      context.commit('rmPollingJob', request_source)
+
+      // Need to confirm the model is not removed.
+      const model = context.getters.getModelById(model_id)
+      if (model) {
+        let r = response.data
+        let state = r.state
+        let load_best = response.data.best_result_changed
+
+        // Update model.
+        model.state = r.state
+        model.running_state = r.running_state
+        model.total_epoch = r.total_epoch
+        model.nth_epoch = r.nth_epoch
+        model.total_batch = r.total_batch
+        model.nth_batch = r.nth_batch
+        model.last_batch_loss = r.last_batch_loss
+        model.train_loss_list = (r.train_loss_list) ? r.train_loss_list : []
+        model.valid_loss_list = (r.valid_loss_list) ? r.valid_loss_list : []
+
+        if (state === STATE.STOPPED) {
+
+        } else {
+          context.dispatch('pollingTrain', model_id)
+        }
+        if (load_best) {
+          context.dispatch('loadBestValidResult', model_id)
+        }
       }
-    })
+    }, error_handler_creator(context, function () {
+      // Need to reload Model State.
+    }))
   },
-  /**
-   * This function use at view datasets detail
+  /*****
    *
    */
-  async loadDatasetSplitDetail (context, payload) {
-    let url = '/api/renom_img/v1/load_dataset_split_detail'
-
-    context.commit('setLoadingflg', true)
-
-    let fd = new FormData()
-    fd.append('ratio', payload.ratio)
-    fd.append('name', encodeURIComponent(payload.name))
-    fd.append('u_id', payload.u_id)
-    fd.append('description', encodeURIComponent(payload.description))
-
-    if (payload.delete_id) {
-      fd.append('delete_id', payload.delete_id)
-    }
-
-    context.commit('setDatasetCreateModal', {'dataset_creating_modal': true})
-
-    return axios.post(url, fd).then(function (response) {
-      if (response.data.error_msg) {
-        context.commit('setAlertModalFlag', {'flag': true})
-        context.commit('setErrorMsg', {'error_msg': response.data.error_msg})
-        context.commit('setDatasetCreateModal', {'dataset_creating_modal': false})
-        context.commit('setLoadingflg', false)
-      } else {
-        context.commit('setLoadingflg', false)
-        context.commit('setDataSplitDetail', response.data)
-      }
-    })
-  },
-
-  /**
-   * This function loads class map.
-   *
-   */
-  async loadClassMap (context, payload) {
-    let pj = context.state.project
-    let id = 1
-    if (pj !== undefined) {
-      id = pj.project_id
-    }
-    let url = '/api/renom_img/v1/projects/' + id + '/class_map'
+  async loadBestValidResult (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/load/best/result/' + model_id
     return axios.get(url).then(function (response) {
-      const error_msg = response.data.error_msg
-      if (error_msg) {
-        context.commit('setAlertModalFlag', {'flag': true})
-        context.commit('setErrorMsg', {'error_msg': error_msg})
-      } else {
-        context.commit('setDatasetInfov0', {
-          'class_names': response.data.class_map
-        })
+      const model = context.getters.getModelById(model_id)
+      if (model) {
+        const r = response.data
+        const best_result = r.best_result
+        model.best_epoch_valid_result = best_result
+        context.commit('forceUpdateModelList')
+        context.commit('forceUpdatePredictionPage')
       }
-    })
+    }, error_handler_creator(context))
+  },
+
+  async runPredictionThread (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/thread/prediction/run/' + model_id
+    return axios.get(url)
+      .then(function (response) {
+        let model = context.getters.getModelById(model_id)
+        model.state = STATE.PRED_CREATED // TODO: Remove this line.
+        context.dispatch('startAllPolling')
+      }, error_handler_creator(context))
+  },
+
+  async pollingPrediction (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/polling/prediction/model/' + model_id
+    const request_source = {'prediction': model_id}
+    const current_requests = context.state.polling_request_jobs.prediction
+
+    // If polling for the model is already performed, do nothing.
+    if (current_requests.indexOf(model_id) >= 0) {
+      return
+    }
+
+    // Register request.
+    context.commit('addPollingJob', request_source)
+    return axios.get(url).then(function (response) {
+      // This 'response' can be empty.
+
+      // Check and run other model's polling.
+      context.dispatch('startAllPolling', payload)
+
+      // Remove finished request.
+      context.commit('rmPollingJob', request_source)
+
+      // Need to confirm the model is not removed.
+      const model = context.getters.getModelById(model_id)
+      if (model) {
+        let r = response.data
+        let state = r.state
+        let need_pull = response.data.need_pull
+
+        // Update model.
+        model.state = r.state
+        model.running_state = r.running_state
+        model.total_prediction_batch = r.total_batch
+        model.nth_prediction_batch = r.nth_batch
+
+        if (state === STATE.STOPPED) {
+
+        } else {
+          context.dispatch('pollingPrediction', model_id)
+        }
+        if (need_pull) {
+          context.dispatch('loadPredictionResult', model_id)
+        }
+      }
+    }, error_handler_creator(context, function () {
+      // Need to reload Model State.
+    }))
+  },
+
+  async loadPredictionResult (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/load/prediction/result/' + model_id
+    return axios.get(url).then(function (response) {
+      const model = context.getters.getModelById(model_id)
+      if (model) {
+        const r = response.data
+        const result = r.result
+        model.prediction_result = result
+        context.commit('forceUpdatePredictionPage')
+      }
+    }, error_handler_creator(context))
+  },
+
+  /*****
+   *
+   */
+  async startWeightDownload (context, payload) {
+
+  },
+
+  /*****
+   *
+   */
+  async pollingWeightDownload (context, payload) {
+
+  },
+
+  /*****
+   *
+   */
+  async stopModelTrain (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/model/stop/' + model_id
+    return axios.get(url).then(function (response) {
+    }, error_handler_creator(context))
+  },
+
+  /*****
+   *
+   */
+  async startAllPolling (context, payload) {
+    const model_list = context.state.models.filter(m => m.id >= 0)
+    const current_train_requests = context.state.polling_request_jobs.train
+    const current_prediction_requests = context.state.polling_request_jobs.prediction
+
+    for (let m of model_list) {
+      if (
+        m.state === STATE.CREATED ||
+        m.state === STATE.RESERVED ||
+        m.state === STATE.STARTED
+      ) {
+        let need_run_request = true
+        for (let model_id in current_train_requests) {
+          if (model_id === m.id) {
+            need_run_request = false
+          }
+        }
+        if (need_run_request) {
+          context.dispatch('pollingTrain', m.id)
+        }
+      } else if (
+        m.state === STATE.PRED_CREATED ||
+        m.state === STATE.PRED_RESERVED ||
+        m.state === STATE.PRED_STARTED
+      ) {
+        let need_run_request = true
+        for (let model_id in current_prediction_requests) {
+          if (model_id === m.id) {
+            need_run_request = false
+          }
+        }
+        if (need_run_request) {
+          context.dispatch('pollingPrediction', m.id)
+        }
+      }
+    }
+  },
+
+  /*****
+   *
+   */
+  async createDataset (context, payload) {
+    const url = '/api/renom_img/v2/dataset/create'
+    const param = new FormData()
+    const name = encodeURIComponent(payload.name)
+    const hash = payload.hash
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = encodeURIComponent(payload.description)
+    const test_dataset_id = payload.test_dataset_id
+
+    param.append('name', name)
+    param.append('hash', hash)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+    param.append('test_dataset_id', test_dataset_id)
+
+    return axios.post(url, param).then(function (response) {
+      if (response.status === 204) return
+      const dataset = context.state.confirming_dataset
+      dataset.id = response.data.dataset_id
+      context.commit('addDataset', dataset)
+    }, error_handler_creator(context))
+  },
+
+  /*****
+   *
+   */
+  async createTestDataset (context, payload) {
+    const url = '/api/renom_img/v2/test_dataset/confirm'
+    const name = payload.name
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = 'test'
+
+    const test_dataset = new TestDataset(task_id, name, ratio, description)
+
+    const param = new FormData()
+    param.append('name', name)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+
+    context.commit('addTestDataset', test_dataset)
+    return axios.post(url, param).then(function (response) {
+      if (response.status === 204) return
+      const id = response.data.id
+      const class_map = response.data.class_map
+      const test_data = response.data.test_data
+      test_dataset.id = id
+      test_dataset.class_map = class_map
+      test_dataset.test_data = test_data
+    }, error_handler_creator(context))
+  },
+  async confirmDataset (context, payload) {
+    const url = '/api/renom_img/v2/dataset/confirm'
+    const hash = payload.hash
+    const name = encodeURIComponent(payload.name)
+    const test_dataset_id = payload.test_dataset_id
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = encodeURIComponent(payload.description)
+    const param = new FormData()
+
+    param.append('name', name)
+    param.append('hash', hash)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+    param.append('test_dataset_id', test_dataset_id)
+
+    return axios.post(url, param).then(function (response) {
+      if (response.status === 204) return
+      const class_map = response.data.class_map
+      const valid_data = response.data.valid_data
+      const class_info = response.data.class_info
+
+      // The dataset id will be available when the dataset registered to DB.
+      // So tentatively, insert -1.
+      const dataset = new Dataset(task_id, name, ratio, description, test_dataset_id)
+      dataset.class_map = class_map
+      dataset.valid_data = valid_data
+      dataset.class_info = class_info
+      context.commit('setConfirmingDataset', dataset)
+      context.commit('setConfirmingFlag', false)
+    }, error_handler_creator(context, () => {
+      context.commit('setConfirmingFlag', false)
+    }))
+  },
+  async confirmTestDataset (context, payload) {
+    const url = '/api/renom_img/v2/test_dataset/confirm'
+    const name = encodeURIComponent(payload.name)
+    const ratio = payload.ratio
+    const task_id = context.getters.getCurrentTask
+    const description = encodeURIComponent(payload.description)
+    const param = new FormData()
+    param.append('name', name)
+    param.append('ratio', ratio)
+    param.append('task_id', task_id)
+    param.append('description', description)
+    return axios.post(url, param).then(function (response) {
+      if (response.status === 204) return
+      const class_info = response.data
+      context.commit('setConfirmTestDataset', class_info)
+    }, error_handler_creator(context))
+  },
+  async loadSegmentationTargetArray (context, payload) {
+    let url = '/api/target/segmentation'
+    const name = payload.name
+    const size = payload.size
+    const callback = payload.callback
+    const param = new FormData()
+    param.append('size', JSON.stringify(size))
+    param.append('name', name)
+    return axios.post(url, param).then(response => {
+      callback(response)
+    }, error_handler_creator(context))
+  },
+  async deployModel (context, payload) {
+    let model = payload
+    let url = '/api/renom_img/v2/model/deploy/' + model.id
+    this.commit('setDeployedModel', model)
+    return axios.get(url).then(() => {
+
+    }, error_handler_creator(context))
+  },
+  async unDeployModel (context, payload) {
+    let task_id = context.getters.getCurrentTask
+    let url = '/api/renom_img/v2/model/undeploy/' + task_id
+    this.commit('unDeployModel')
+    return axios.get(url).then(() => {
+    }, error_handler_creator(context))
+  },
+  async loadDeployedModel (context, payload) {
+    let task_id = context.getters.getCurrentTask
+    let url = '/api/renom_img/v2/model/load/deployed/task/' + task_id
+    return axios.get(url).then((response) => {
+      const id = response.data.deployed_id
+      if (id) {
+        const model = context.getters.getModelById(id)
+        this.commit('setDeployedModel', model)
+        this.dispatch('loadPredictionResult', model.id)
+      }
+    }, error_handler_creator(context))
   }
 }
