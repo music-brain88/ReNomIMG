@@ -69,7 +69,7 @@ def parse_xml_detection(xml_path_list, num_thread=8):
     N = len(xml_path_list)
     if N > num_thread:
         batch = int(N / num_thread)
-        total_batch = int(np.ceil( N / batch))
+        total_batch = int(np.ceil(N / batch))
         with Executor(max_workers=num_thread + int(N % num_thread > 0)) as exc:
             ret = exc.map(load_thread, [xml_path_list[batch * i:batch * (i + 1)]
                                         for i in range(total_batch)])
