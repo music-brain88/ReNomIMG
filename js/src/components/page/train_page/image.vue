@@ -247,7 +247,7 @@ export default {
       } else if (this.showPredict) {
         draw_item = this.result.predict
         if (draw_item === undefined) return
-        this.$worker.run(render_segmentation, [draw_item.class]).then((ret) => {
+        this.$worker.run(render_segmentation, [draw_item]).then((ret) => {
           var canvas = this.$refs.canvas
           var cxt = canvas.getContext('bitmaprenderer')
           cxt.transferFromImageBitmap(ret)
@@ -264,6 +264,7 @@ export default {
           ],
           callback: (response) => {
             this.$worker.run(render_segmentation, [response.data]).then((ret) => {
+              console.log(ret)
               var canvas = this.$refs.canvas
               var cxt = canvas.getContext('bitmaprenderer')
               cxt.transferFromImageBitmap(ret)

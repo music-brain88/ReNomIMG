@@ -70,9 +70,6 @@
           </div>
         </div>
         <div id="seg-result" class="result" v-else-if="isTaskSegmentation">
-          <div v-for="item in prediction_of_segmentation">
-            <span>{{ item }}</span>
-          </div>
         </div>
       </div>
     </div>
@@ -145,55 +142,6 @@ export default {
         return model
       }
       return null
-    },
-    target: function () {
-      const index = this.modal_index
-      const dataset = this.dataset
-      const model = this.model
-      const target = dataset.getValidTarget(index)
-      // 'This is not used but needed for reacting to the change of checkbox'
-      const _ = this.show_target
-      if (!dataset || !model) return
-      if (this.isTaskSegmentation) {
-        this.loadSegmentationTargetArray({
-          name: target.name,
-          size: [
-            parseInt(model.hyper_parameters.imsize_w),
-            parseInt(model.hyper_parameters.imsize_h)],
-          callback: (response) => {
-            const item = response.data
-            this.getSegmentationStyle(item)
-          }
-        })
-        return
-      }
-      return target
-    },
-    prediction: function () {
-      const model = this.getSelectedModel
-      // 'This is not used but needed for reacting to the change of checkbox'
-      const _ = this.show_prediction
-      if (model) {
-        const result = model.getValidResult(this.modal_index)
-        if (result) {
-          if (this.isTaskSegmentation) {
-            this.getSegmentationStyle(result)
-            return {
-              recall: result.recall,
-              precision: result.precision,
-            }
-          }
-          return result
-        }
-      }
-    },
-    prediction_of_segmentation: function () {
-      const index = this.modal_index
-      const target = this.dataset.getValidTarget(index)
-      const pred = this.prediction
-      const recall = pred.recall
-      const precision = pred.precision
-      this.getSegmentationStyle(target)
     },
     dataset: function () {
       const model = this.model
