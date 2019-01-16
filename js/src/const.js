@@ -267,7 +267,7 @@ export const ALGORITHM = {
         ...override('LOAD_PRETRAINED_WEIGHT', {
           title: 'Load pretrain weight',
           key: 'load_pretrained_weight',
-          disabled: true,
+          disabled: false,
           default: false,
           type: 'checkbox'
         }),
