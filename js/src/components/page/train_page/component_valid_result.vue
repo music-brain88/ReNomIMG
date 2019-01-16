@@ -142,9 +142,6 @@ export default {
       'showModal',
       'setImageModalData' // This will set index of image for show in modal.
     ]),
-    ...mapActions([
-      'loadSegmentationTargetArray' // Get segmentation target from server.
-    ]),
     onChangePredictionCheckBox: function (e) {
       this.show_prediction = e.target.checked
       this.show_target = (!this.show_prediction || this.isTaskDetection) && this.show_target

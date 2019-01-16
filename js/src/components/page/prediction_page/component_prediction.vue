@@ -22,37 +22,22 @@
 
     </template>
     <div id="prediction-area">
-      <div id="pager" v-on:keyup.right="nextPage" v-on:keyup.left="prevPage" tabindex="0">
-        <div class="pager-arrow" @click="prevPage">
-          <i class="fa fa-caret-left" aria-hidden="true"></i>
-        </div>
-        <div class="pager-number" v-for="item in pageList()"
-          @click="setPageNum(item)" :style="pagerStyle(item)">
-          {{ item }}
-        </div>
-        <div class="pager-arrow" @click="nextPage">
-          <i class="fa fa-caret-right" aria-hidden="true"></i>
-        </div>
-      </div>
-
+      <pager
+        :page-max="page.length"
+        :onSetPage="setImagePageOfPrediction"
+      />
       <div id="img-container" ref="container">
-        <!--<transition-group name="fade">-->
-        <div v-for="(item, index) in getImages" :style="getImgSize(item)"
-          @click="showImageModal(item)">
-          <img :src="item.img" v-if="showImage"/>
-          <!--Change following div for each task-->
-          <div id="cls" v-if='isTaskClassification'
-            :style="getClassificationStyle(getResult(item))">
-          </div>
-          <div id="box" v-else-if='isTaskDetection'
-            :style="getBoxStyle(box)" v-for="box in getResult(item)">
-            <div id="box-label" v-if="box" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
-          </div>
-          <div id="seg" v-else-if='isTaskSegmentation'>
-            <canvas :id="'canvas-' + index"/>
-          </div>
-        </div>
-        <!--</transition-group>-->
+        <image-frame v-for="(item, index) in getImages"
+          :callback="() => {showImageModal(item)}"
+          :show-target="show_target"
+          :show-predict="show_prediction"
+          :show-image="show_image"
+          :width="item.size[0]" :height="item.size[1]"
+          :maxHeight="$refs.container.clientHeight/3"
+          :img="item.img"
+          :result="getResult(item)"
+          :model="model"
+        />
       </div>
     </div>
   </component-frame>
@@ -63,11 +48,15 @@ import { TASK_ID } from '@/const.js'
 import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
+import ImageCanvas from '@/components/page/train_page/image.vue'
+import Pager from '@/components/page/train_page/pager.vue'
 
 export default {
   name: 'ComponentPrediction',
   components: {
-    'component-frame': ComponentFrame
+    'component-frame': ComponentFrame,
+    'image-frame': ImageCanvas,
+    'pager': Pager
   },
   data: function () {
     return {
@@ -87,7 +76,10 @@ export default {
     ...mapGetters([
       'getCurrentTask',
       'getImagePageOfPrediction',
-      'getDeployedModel'
+      'getDeployedModel',
+      'isTaskClassification',
+      'isTaskDetection',
+      'isTaskSegmentation',
     ]),
     model: function () {
       const model = this.getDeployedModel
@@ -119,128 +111,22 @@ export default {
       }
       return []
     },
-    isTaskClassification: function () {
-      return this.getCurrentTask === TASK_ID.CLASSIFICATION
-    },
-    isTaskDetection: function () {
-      return this.getCurrentTask === TASK_ID.DETECTION
-    },
-    isTaskSegmentation: function () {
-      return this.getCurrentTask === TASK_ID.SEGMENTATION
-    }
-  },
-  beforeUpdate: function () {
-    this.$nextTick(function () {
-      if (this.isTaskSegmentation) {
-        let index = 0
-        if (!this.getImages) return
-        for (let item of this.getImages) {
-          this.getSegmentationStyle(this.getResult(item), index)
-          index += 1
-        }
-      }
-    })
-  },
-  created: function () {
-
   },
   methods: {
     ...mapMutations(['setImagePageOfPrediction', 'showModal', 'setImageModalData']),
-    ...mapActions(['loadSegmentationTargetArray']),
     showImageModal: function (item) {
-      let pred = null
-      let targ = null
-      if (this.isTaskClassification) {
-        pred = this.getClassificationList(item)
-      } else if (this.isTaskDetection) {
-        pred = this.getBoxList(item)
-      } else if (this.isTaskSegmentation) {
-        pred = this.getClassificationList(item)
-      }
-      this.setImageModalData({
-        'img': item.img,
-        'prediction': pred,
-        'target': targ,
-      })
+      this.setImageModalData(item.index)
       this.showModal({'show_image': true})
     },
-    pagerStyle: function (index) {
-      const current_page = this.getImagePageOfPrediction
-      if (current_page === index) {
-        return {
-          'background-color': '#063662',
-          'color': 'white',
-        }
-      }
-    },
-    setPageNum: function (index) {
-      if (index === '...') return
-
-      const page = this.page
-      if (!page) return
-
-      const max_page_num = page.length - 1
-      const current_page = this.getImagePageOfPrediction
-      if (index === current_page) return
-      this.setImagePageOfPrediction(Math.min(index, max_page_num))
-    },
-    nextPage: function () {
-      const page = this.page
-      if (!page) return
-
-      const max_page_num = page.length - 1
-      const current_page = this.getImagePageOfPrediction
-      this.setImagePageOfPrediction(Math.min(current_page + 1, max_page_num))
-    },
-    prevPage: function () {
-      const page = this.page
-      if (!page) return
-
-      const max_page_num = page.length - 1
-      const current_page = this.getImagePageOfPrediction
-      this.setImagePageOfPrediction(Math.max(current_page - 1, 0))
-    },
-    pageList: function () {
-      const model = this.model
-      if (!model) return []
-
-      const page = this.page
-      if (!page) return []
-
-      const current_page = Math.max(this.getImagePageOfPrediction, 0)
-      const max_page_num = Math.max(page.length - 1, 0)
-
-      if (max_page_num > 5) {
-        if (current_page < 4) {
-          return [...[...Array(Math.max(current_page, 5)).keys()], '...', max_page_num]
-        } else if (current_page > max_page_num - 4) {
-          return [0, '...', ...[...Array(Math.max(max_page_num - current_page, 5)).keys()].reverse().map(i => max_page_num - i)]
-        } else {
-          return [0, '...', ...[...Array(5).keys()].reverse().map(i => current_page - i + 2), '...', max_page_num]
-        }
-      } else {
-        return Array(max_page_num).keys()
-      }
-    },
     vh: function (v) {
-      var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      var h = Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0)
       return (v * h) / 100
     },
     vw: function (v) {
-      var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+      var w = Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0)
       return (v * w) / 100
-    },
-    getImgSize: function (item) {
-      const parent_div = this.$refs.container
-      if (!parent_div) return {}
-      const parent_height = parent_div.clientHeight
-      const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
-      const height = (parent_height - child_margin * 6) / 3
-      const width = item.size[0] / item.size[1] * height
-      return {
-        height: height + 'px',
-        width: width + 'px',
-      }
     },
     setUpImages: function () {
       const parent_div = this.$refs.container
@@ -263,76 +149,16 @@ export default {
         })
     },
     getResult: function (item) {
-      if (item.index < 0) return
       const index = item.index
       const model = this.model
-      if (!model) return []
-      let result = []
-
-      if (this.show_prediction) {
-        if (this.isTaskClassification) {
-          result = model.getPredictionResult(index)
-        } else if (this.isTaskDetection) {
-          result = result.concat(model.getPredictionResult(index))
-        } else if (this.isTaskSegmentation) {
-          result = model.getPredictionResult(index)
-        }
-      }
-      return result
-    },
-    getClassificationStyle: function (cls) {
-      if (!cls) {
-        return {}
-      }
-      if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {
-        const class_id = cls.class
-        return {
-          border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
-        }
-      } else {
-        const class_id = cls
-        return {
-          border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
-        }
-      }
-    },
-    getBoxStyle: function (box) {
-      const class_id = box.class
-      const x1 = (box.box[0] - box.box[2] / 2) * 100
-      const y1 = (box.box[1] - box.box[3] / 2) * 100
+      if (!model) return
+      const pred = model.getValidResult(index)
       return {
-        top: y1 + '%',
-        left: x1 + '%',
-        width: box.box[2] * 100 + '%',
-        height: box.box[3] * 100 + '%',
-        border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
+        index: index,
+        target: undefined,
+        predict: pred
       }
     },
-    getBoxLabelColor: function (class_id) {
-      return {
-        'background-color': getTagColor(class_id) + 'bb'
-      }
-    },
-    getSegmentationStyle: function (item, index) {
-      if (!item || !this.show_prediction) {
-        // Clear canvas
-        var canvas = document.getElementById('canvas-' + String(index))
-        var cxt = canvas.getContext('bitmaprenderer')
-        var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
-        var offCxt = offCanvas.getContext('2d')
-        offCxt.clearRect(0, 0, canvas.width, canvas.height)
-        cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
-        return
-      }
-      this.$worker.run(render_segmentation, [item]).then((ret) => {
-        var canvas = document.getElementById('canvas-' + String(index))
-        var cxt = canvas.getContext('bitmaprenderer')
-        cxt.transferFromImageBitmap(ret)
-      })
-    },
-    getSegmentationTargetArray: function (src) {
-      let arr = this.loadSegmentationTargetArray(src)
-    }
   }
 }
 </script>
@@ -389,71 +215,6 @@ export default {
     height: 95%;
     display: flex;
     flex-wrap: wrap;
-      div {
-      display: inline-block;
-      flex-grow: 1;
-      flex-shrink: 1;
-      overflow: hidden;
-      position: relative;
-      margin: 0.25vmin;
-      img {
-        width: 100%;
-        height: 100%;
-      }
-      #box {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-      }
-      #cls {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        top: -0.25vmin;
-        left: -0.25vmin;
-      }
-      #seg {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        top: -0.25vmin;
-        left: -0.25vmin;
-        canvas {
-          height: 100%;
-          width: 100%;
-        }
-      }
-    }
-  }
-  #pager {
-    width: 100%;
-    height: 5%;
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 5px;
-    align-items: center;
-    .pager-arrow {
-      font-size: 150%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      margin-left: 5px;
-      margin-right: 5px;
-      cursor: pointer;
-      i {
-      }
-    }
-    .pager-number {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 75%;
-      height: calc(100% - 2px);
-      width: 3%;
-      cursor: pointer;
-      letter-spacing: -1px;
-      transition: all 0.1s
-    }
   }
 }
 </style>
