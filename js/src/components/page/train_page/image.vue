@@ -91,6 +91,36 @@ export default {
       }
     })
   },
+  watch: {
+    showPredict: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+    showTarget: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+    showImage: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+    model: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+  },
   computed: {
     ...mapState([
       'datasets',
@@ -133,8 +163,8 @@ export default {
         h = this.height * r
       }
       return {
-        width: w + 'px',
-        height: h + 'px',
+        width: 'calc(' + w + 'px' + ' - 0.4vmin)',
+        height: 'calc(' + h + 'px' + ' - 0.4vmin)',
       }
     },
     box: function () {
@@ -236,7 +266,7 @@ export default {
     },
     drawSeg: function () {
       let draw_item
-      if (!this.showPredict && !this.showTarget) {
+      if ((!this.showPredict && !this.showTarget) || (!this.result.predict && !this.result.target)) {
         var canvas = this.$refs.canvas
         if (!canvas) return
         var cxt = canvas.getContext('bitmaprenderer')
@@ -284,6 +314,7 @@ export default {
   flex-shrink: 1;
   overflow: hidden;
   position: relative;
+  margin: 0.2vmin;
   canvas {
     position: absolute;
     width: 100%;
