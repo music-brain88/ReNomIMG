@@ -336,22 +336,22 @@ class CNN_FCN8s(rm.Model):
         t = self.upscore2(t)
         upscore2 = t
 
-        pool4 = 0.01*pool4
+        pool4 = 0.01 * pool4
         t = self.score_pool4(pool4)
         score_pool4 = t
 
-        score_pool4c = score_pool4[:, :, 5:5+upscore2.shape[2], 5:5+upscore2.shape[3]]
+        score_pool4c = score_pool4[:, :, 5:5 + upscore2.shape[2], 5:5 + upscore2.shape[3]]
         t = upscore2 + score_pool4c
 
         fuse_pool4 = t
         t = self.upscore_pool4(fuse_pool4)
         upscore_pool4 = t
 
-        pool3 = 0.0001*pool3
+        pool3 = 0.0001 * pool3
         t = self.score_pool3(pool3)
         score_pool3 = t
 
-        score_pool3c = score_pool3[:, :, 9:9+upscore_pool4.shape[2], 9:9+upscore_pool4.shape[3]]
+        score_pool3c = score_pool3[:, :, 9:9 + upscore_pool4.shape[2], 9:9 + upscore_pool4.shape[3]]
         t = upscore_pool4 + score_pool3c
 
         fuse_pool3 = t
@@ -406,11 +406,11 @@ class CNN_FCN16s(rm.Model):
         t = self.upscore2(t)
         upscore2 = t
 
-        pool4 = 0.01*pool4
+        pool4 = 0.01 * pool4
         t = self.score_pool4(pool4)
         score_pool4 = t
 
-        score_pool4c = score_pool4[:, :, 5:5+upscore2.shape[2], 5:5+upscore2.shape[3]]
+        score_pool4c = score_pool4[:, :, 5:5 + upscore2.shape[2], 5:5 + upscore2.shape[3]]
         t = upscore2 + score_pool4c
         fuse_pool4 = t
         t = self.upscore16(fuse_pool4)

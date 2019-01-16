@@ -33,7 +33,7 @@ export function render_segmentation (item) {
   if (!item.hasOwnProperty('class')) return
   const height = item.class.length
   const width = item.class[0].length
-  const d = 2 // Resample drawing pixel.
+  const d = 1 // Resample drawing pixel.
   var canvas = new OffscreenCanvas(width / d, height / d)
   var cxt = canvas.getContext('2d')
   var imageData = cxt.getImageData(0, 0, width / d, height / d)
