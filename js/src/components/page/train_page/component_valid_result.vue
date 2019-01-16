@@ -7,7 +7,7 @@
       <div id="valid-prediction-button-area" tabindex="0"
         v-on:keyup.right="nextPage" v-on:keyup.left="prevPage">
         <!--
-          Only if Segmentation, show image toggle will be shown.
+          Only if Segmentation, "show image toggle" will be shown.
         -->
         <label v-if="isTaskSegmentation">
           <input class="checkbox" type="checkbox"
@@ -45,6 +45,7 @@
     <!--Image list--------------->
     <div id="img-container" ref="container">
       <image-frame v-for="item in getValidImages"
+        :callback="() => {showImageModal(item)}"
         :show-target="show_target"
         :show-predict="show_prediction"
         :show-image="show_image"
@@ -140,9 +141,6 @@ export default {
       'setImagePageOfValid', // Set current page number.
       'showModal',
       'setImageModalData' // This will set index of image for show in modal.
-    ]),
-    ...mapActions([
-      'loadSegmentationTargetArray' // Get segmentation target from server.
     ]),
     onChangePredictionCheckBox: function (e) {
       this.show_prediction = e.target.checked

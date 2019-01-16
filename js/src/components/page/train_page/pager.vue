@@ -80,7 +80,7 @@ export default {
         Go to previous page.
       */
       const index = this.pageIndex
-      const max_page_num = dataset.page.length - 1
+      const max_page_num = this.pageMax - 1
       this.pageIndex = Math.max((Math.min(index - 1, max_page_num)), 0)
       if (this.onSetPage !== undefined) {
         this.onSetPage(this.pageIndex)

@@ -72,6 +72,9 @@ export function render_segmentation (item) {
 }
 
 export function setup_image_list (dataset, parent_width, parent_height, margin) {
+  /**
+    This
+   */
   const brank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
   const pages = []
   const img_list = dataset.img

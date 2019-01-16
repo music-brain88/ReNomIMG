@@ -277,6 +277,14 @@ export const ALGORITHM = {
           type: 'checkbox',
           default: true,
         }),
+        ...override('BATCH_SIZE', {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 1,
+          min: 1,
+          max: 4,
+        }),
         LAYER: {
           title: 'Number of Layers',
           key: 'layer',

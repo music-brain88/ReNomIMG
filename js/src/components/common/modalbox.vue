@@ -8,6 +8,7 @@
         <add-dataset v-if="show_modal.add_dataset"/>
         <add-filter v-if="show_modal.add_filter"/>
         <show-image v-if="show_modal.show_image"/>
+        <show-prediction-image v-if="show_modal.show_prediction_image"/>
       </div>
     </div>
   </transition>
@@ -19,6 +20,7 @@ import ModalAddBoth from '@/components/page/train_page/modal_add_both.vue'
 import ModalAddDataset from '@/components/page/train_page/modal_add_dataset.vue'
 import ModalAddFilter from '@/components/page/train_page/modal_add_filter.vue'
 import ModalImage from '@/components/page/train_page/modal_image.vue'
+import PredictionModalImage from '@/components/page/prediction_page/prediction_modal_image.vue'
 
 export default {
   name: 'Modal',
@@ -26,7 +28,8 @@ export default {
     'add-both': ModalAddBoth,
     'add-dataset': ModalAddDataset,
     'add-filter': ModalAddFilter,
-    'show-image': ModalImage
+    'show-image': ModalImage,
+    'show-prediction-image': PredictionModalImage
   },
   computed: {
     ...mapState(['show_modal']),
