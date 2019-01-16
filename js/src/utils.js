@@ -89,9 +89,10 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
 
   for (let i = 0; i < size_list.length; i++) {
     let size = size_list[i]
-    let ratio = ((size[0] + 2 * margin) / (size[1] + 2 * margin))
+    let ratio = ((size[0]) / (size[1]))
     accumurated_ratio += ratio
-    if (accumurated_ratio <= max_ratio || one_page.length === 0) {
+
+    if (accumurated_ratio < max_ratio || one_page.length === 0) {
       one_page.push({index: i, img: img_list[i], size: size_list[i]})
     } else {
       if (nth_line_in_page >= 3) {
