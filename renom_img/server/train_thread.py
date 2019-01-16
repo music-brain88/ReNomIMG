@@ -149,7 +149,7 @@ class TrainThread(object):
                     return
                 self.sync_count()
 
-                if len(train_x) != 1:
+                if len(train_x) > 0:
                     with model.train():
                         loss = model.loss(model(train_x), train_y)
                         reg_loss = loss + model.regularize()
