@@ -6,7 +6,6 @@
     <div id="image-result">
       <div class="header">
         <span style="width: 50%">Prediction Result &nbsp;&nbsp; {{modal_index+1}} / {{length}}</span>
-
         <div id="checkbox-area">
           <label>
             <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction"
@@ -55,15 +54,12 @@
           </div>
         </div>
         <div id="box-result" class="result" v-else-if="isTaskDetection">
-          <div v-for="(r, index) in prediction"
-            @mouseenter="hoverBox=index + target.length*((show_target)? 1:0)"
-            @mouseleave="hoverBox=null"
-            :class="{'selected-box-item': index + target.length * ((show_target)? 1:0) === hoverBox}">
+          <div v-for="(r, index) in getPredictedBox">
             <span>{{index}}</span>
             <span>{{r.score.toFixed(2)}}</span>
             <span>{{r.name}}</span>
           </div>
-          <div v-if="!prediction || prediction.length === 0">
+          <div v-if="getPredictedBox.length === 0">
             <span></span>
             <span>No Prediction</span>
             <span></span>
@@ -169,9 +165,11 @@ export default {
       return this.dataset.valid_data.img.length
     },
     getClassificationTop3: function () {
+      const model = this.model
       const map = this.class_map
-      if (!this.prediction) return
-      const score = this.prediction.score.map((s, index) => {
+      if (!model) return
+      const prediction = model.getValidResult(this.modal_index)
+      const score = prediction.score.map((s, index) => {
         return {
           index: map[index],
           score: (s * 100)
@@ -186,6 +184,13 @@ export default {
       }).slice(0, 5)
       return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
     },
+    getPredictedBox: function () {
+      const model = this.model
+      const map = this.class_map
+      if (!model) return
+      const prediction = model.getValidResult(this.modal_index)
+      return prediction
+    }
   },
   methods: {
     ...mapMutations(['setImageModalData']),

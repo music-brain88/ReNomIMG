@@ -6,17 +6,11 @@
     <div id="image-result">
       <div class="header">
         <span style="width: 50%">Prediction Result &nbsp;&nbsp; {{modal_index+1}} / {{length}}</span>
-
         <div id="checkbox-area">
           <label>
             <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction"
               v-on:change="onChangePredictionCheckBox">
             Prediction
-          </label>
-          <label>
-            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target"
-              v-on:change="onChangeTargetCheckBox">
-            Target
           </label>
         </div>
       </div>
@@ -59,9 +53,6 @@
           </div>
         </div>
         <div id="seg-result" class="result" v-else-if="isTaskSegmentation">
-          <div v-for="item in prediction_of_segmentation">
-            <span>{{ item }}</span>
-          </div>
         </div>
       </div>
     </div>
@@ -137,7 +128,6 @@ export default {
     },
     prediction: function () {
       const index = this.modal_index
-      console.log(this.prediction_dataset.prediction[index])
       return this.prediction_dataset.prediction[index]
     },
     dataset: function () {
