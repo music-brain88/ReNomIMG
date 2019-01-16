@@ -9,7 +9,7 @@ from renom_img.api.utility.misc.display import draw_segment
 def parse_xml_detection(xml_path_list, num_thread=8):
     """XML format must be Pascal VOC format.
 
-    Args: 
+    Args:
         xml_path_list (list): List of xml-file's path.
         num_thread (int): Number of thread for parsing xml files.
 
@@ -69,9 +69,10 @@ def parse_xml_detection(xml_path_list, num_thread=8):
     N = len(xml_path_list)
     if N > num_thread:
         batch = int(N / num_thread)
+        total_batch = int(np.ceil( N / batch))
         with Executor(max_workers=num_thread + int(N % num_thread > 0)) as exc:
             ret = exc.map(load_thread, [xml_path_list[batch * i:batch * (i + 1)]
-                                        for i in range(num_thread + int(N % num_thread > 0))])
+                                        for i in range(total_batch)])
 
         for r in ret:
             annotation_list += r
@@ -137,7 +138,7 @@ def load_img(img_path, imsize=None):
 def parse_classmap_file(class_map_file, separator=" "):
     """extract txt must be Pascal VOC format.
 
-    Args: 
+    Args:
         file_path (poxis path): txt-file path.
 
     Returns:
