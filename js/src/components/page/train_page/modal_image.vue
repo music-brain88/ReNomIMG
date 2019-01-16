@@ -20,34 +20,26 @@
           </label>
         </div>
       </div>
-      <div id="image-container">
-        <div id="image-wrapper" :style="getSize">
-          <img :src="img"/>
-  
-          <div id="cls" v-if="isTaskClassification"
-            :style="getClassificationStyle(result)">
-          </div>
-
-          <div id="box" v-else-if="isTaskDetection"
-            :class="{'selected-box': index === hoverBox}"
-            @mouseenter="hoverBox=index"
-            @mouseleave="hoverBox=null"
-            :style="getBoxStyle(box)" v-for="(box, index) in result">
-            <div id="box-label" :style="getBoxLabelColor(box.class)">&nbsp&nbsp{{box.name}}</div>
-          </div>
-
-          <div id="seg" v-if="isTaskSegmentation">
-            <canvas id="canvas-modal"/>
-          </div>
-
-        </div>
+      <div id="image-container" ref="imageContainer">
+        <image-canvas
+          :show-target="show_target"
+          :show-predict="show_prediction"
+          :show-image="show_image"
+          :img="img"
+          :width="size[0]"
+          :height="size[1]"
+          :maxWidth="canvas_width"
+          :maxHeight="canvas_height"
+          :model="getSelectedModel"
+          :result="getResult()"
+        />
       </div>
     </div>
     <div id="result">
       <div class="header">
         <span>No.</span>
-        <span>Score</span>
         <span>Name</span>
+        <span>Score</span>
       </div>
       <div id="result-container">
         <div id="cls-result" class="result" v-if="isTaskClassification">
@@ -56,7 +48,7 @@
             <span>{{ item.index }}</span>
             <span>{{ item.score }}%</span>
           </div>
-          <div v-if="!result">
+          <div v-if="!getClassificationTop3">
             <span></span>
             <span>No prediction</span>
             <span></span>
@@ -92,14 +84,18 @@ import { TASK_ID } from '@/const.js'
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
+import ImageCanvas from '@/components/page/train_page/image.vue'
 
 export default {
   name: 'ModalImage',
+  components: {
+    'image-canvas': ImageCanvas,
+  },
   mounted: function () {
     this.$refs.container.focus()
-    if (this.isTaskSegmentation) {
-      let a = this.result
-    }
+    const el = this.$refs.imageContainer
+    this.canvas_width = el.clientWidth
+    this.canvas_height = el.clientHeight
   },
   data: function () {
     return {
@@ -122,9 +118,11 @@ export default {
                 show_target:   true     false      true    false
             show_prediction:  false      true     false     true
       */
-      show_image: false, // Show image or not.
+      show_image: true, // Show image or not.
       show_target: false, // Show target or not.
-      show_prediction: true // Show prediction result or not.
+      show_prediction: true, // Show prediction result or not.
+      canvas_width: 0,
+      canvas_height: 0,
     }
   },
   computed: {
@@ -172,7 +170,7 @@ export default {
       return target
     },
     prediction: function () {
-      const model = this.model
+      const model = this.getSelectedModel
       // 'This is not used but needed for reacting to the change of checkbox'
       const _ = this.show_prediction
       if (model) {
@@ -222,24 +220,6 @@ export default {
     length: function () {
       return this.dataset.valid_data.img.length
     },
-    getSize: function () {
-      const size = this.size
-      let w = size[0]
-      let h = size[1]
-      let parentW = (this.vw(60) - 40) * 0.65
-      let parentH = this.vh(60) - 40 - 40 - 10
-      if (parentW - w < parentH - h) {
-        w = parentW
-        h = parentW * h / w
-      } else {
-        w = parentH * w / h
-        h = parentH
-      }
-      return {
-        width: w + 'px',
-        height: h + 'px',
-      }
-    },
     getClassificationTop3: function () {
       const map = this.class_map
       if (!this.prediction) return
@@ -258,36 +238,6 @@ export default {
       }).slice(0, 5)
       return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
     },
-    result: function () {
-      if (this.isTaskDetection) {
-        let result = []
-        if (this.show_target) {
-          result = [...this.target]
-        }
-        if (this.show_prediction) {
-          if (this.prediction) {
-            result = [...result, ...this.prediction]
-          } else {
-            result = [...result]
-          }
-        }
-        return result
-      } else {
-        if (this.show_target) {
-          return this.target
-        } else if (this.show_prediction) {
-          return this.prediction
-        }
-      }
-      return []
-    }
-  },
-  watch: {
-    modal_index: function () {
-      if (this.isTaskSegmentation) {
-        this.result
-      }
-    },
   },
   methods: {
     ...mapMutations(['setImageModalData']),
@@ -295,12 +245,10 @@ export default {
     onChangePredictionCheckBox: function (e) {
       this.show_prediction = e.target.checked
       this.show_target = (!this.show_prediction || this.isTaskDetection) && this.show_target
-      const a = this.result
     },
     onChangeTargetCheckBox: function (e) {
       this.show_target = e.target.checked
       this.show_prediction = (!this.show_target || this.isTaskDetection) && this.show_prediction
-      const a = this.result
     },
     nextPage: function () {
       this.setImageModalData(Math.min(this.length - 1,
@@ -311,67 +259,18 @@ export default {
       this.setImageModalData(Math.max(0, this.modal_index - 1))
       this.hoverBox = null
     },
-    vh: function (v) {
-      var h = Math.max(document.documentElement.clientHeight,
-        window.innerHeight || 0)
-      return (v * h) / 100
-    },
-    vw: function (v) {
-      var w = Math.max(document.documentElement.clientWidth,
-        window.innerWidth || 0)
-      return (v * w) / 100
-    },
-    getClassificationStyle: function (cls) {
-      if (!cls) {
-        return {}
-      }
-      if (cls.hasOwnProperty('score') && cls.hasOwnProperty('class')) {
-        const class_id = cls.class
-        return {
-          border: 'solid 3px' + getTagColor(class_id) + 'bb'
-        }
-      } else {
-        const class_id = cls
-        return {
-          border: 'solid 3px' + getTagColor(class_id) + 'bb'
-        }
-      }
-    },
-    getBoxStyle: function (box) {
-      if (!box) return
-      const class_id = box.class
-      const x1 = (box.box[0] - box.box[2] / 2) * 100
-      const y1 = (box.box[1] - box.box[3] / 2) * 100
+    getResult: function () {
+      const index = this.modal_index
+      const model = this.getSelectedModel
+      const dataset = this.dataset
+      if (!model || !dataset) return
+      const pred = model.getValidResult(index)
+      const targ = dataset.getValidTarget(index)
       return {
-        top: y1 + '%',
-        left: x1 + '%',
-        width: box.box[2] * 100 + '%',
-        height: box.box[3] * 100 + '%',
-        border: 'solid 2.5px' + getTagColor(class_id) + 'bb'
+        index: index,
+        target: targ,
+        predict: pred
       }
-    },
-    getBoxLabelColor: function (class_id) {
-      return {
-        'background-color': getTagColor(class_id) + 'bb'
-      }
-    },
-    getSegmentationStyle: function (item) {
-      if (!item) return
-      if (!item) {
-        // Clear canvas
-        var canvas = document.getElementById('canvas-modal')
-        var cxt = canvas.getContext('bitmaprenderer')
-        var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
-        var offCxt = offCanvas.getContext('2d')
-        offCxt.clearRect(0, 0, canvas.width, canvas.height)
-        cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
-        return
-      }
-      this.$worker.run(render_segmentation, [item]).then((ret) => {
-        var canvas = document.getElementById('canvas-modal')
-        var cxt = canvas.getContext('bitmaprenderer')
-        cxt.transferFromImageBitmap(ret)
-      })
     },
   },
 }
@@ -396,50 +295,6 @@ export default {
       justify-content: center;
       width: 100%;
       height: calc(100% - 40px - 10px);
-      #image-wrapper {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        img {
-          width: 100%;
-          height: 100%;
-        }
-        #cls {
-          top: 0;
-          left: 0;
-          position: absolute;
-          height: 100%;
-          width: 100%;
-        }
-        #box {
-          position: absolute;
-          height: 100%;
-          width: 100%;
-          #box-label {
-            display: flex;
-            min-width: 100%;
-            height: calc(20px - 2.5px);
-            position: relative;
-            background-color: white;
-            color: white;
-            font-size: 0.8rem;
-          }
-        }
-        #seg {
-          top: 0;
-          left: 0;
-          position: absolute;
-          height: 100%;
-          width: 100%;
-          canvas {
-            height: 100%;
-            width: 100%;
-          }
-        }
-        .selected-box {
-          background-color: rgba(255, 255, 255, 0.4);
-        }
-      }
     }
   }
   #result {

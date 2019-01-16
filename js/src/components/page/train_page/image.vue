@@ -1,7 +1,11 @@
 <template>
-  <div id="image-frame" :width="modifiedWidth" :height="modifiedHeight" ref="wrapper">
+  <div id="image-frame" v-on:click="onImageClick()"
+    :style="modifiedSize" ref="wrapper">
     <canvas id="seg" v-if="isTaskSegmentation" ref="canvas"/>
-    <div id="box" v-if="isTaskDetection" :style="styleBox(b)" v-for="b in box">
+    <div id="box" v-if="isTaskDetection"
+      @mouseenter="boxEnter(b)"
+      @mouseleave="boxLeave(b)"
+      :style="styleBox(b)" v-for="b in box">
       <div id="box-label" :style="styleBoxLabel(b)">
         {{b.name}}
       </div>
@@ -11,7 +15,7 @@
         {{ cls }}
       </div>
     </div>
-    <img :src="img" :width="image_width" :height="image_height" v-if="showImage"/>
+    <img :src="img" :style="modifiedSize" v-if="showImage"/>
   </div>
 </template>
 
@@ -51,6 +55,15 @@ export default {
       type: Object,
       default: undefined
     },
+    callback: {
+      default: (result) => {}
+    },
+    boxEnterCallback: {
+      default: (result) => {}
+    },
+    boxLeaveCallback: {
+      default: (result) => {}
+    },
     // Followings are Object of predicted and target data.
     result: {
       index: -1,
@@ -67,13 +80,6 @@ export default {
       default: true
     }
   },
-  data: function () {
-    return {
-      image_width: this.modifiedWidth,
-      image_height: this.modifiedHeight,
-    }
-  },
-
   beforeUpdate: function () {
     /**
       If the task is segmentation, drawing function will be called in
@@ -100,21 +106,36 @@ export default {
       const model = this.model
       if (model) return this.datasets.find(d => d.id === model.dataset_id)
     },
-    modifiedWidth: function () {
-      let maxW = (this.maxWidth !== 0) ? Math.min(this.maxWidth, this.width) : this.width
-      let maxH = (this.maxHeight !== 0) ? Math.min(this.maxHeight, this.height) : this.height
-      let rW = this.width / maxW
-      let rH = this.height / maxH
-      let r = (Math.abs(rW - 1) < Math.abs(rH - 1)) ? rH : rW
-      return this.width / r + 'px'
-    },
-    modifiedHeight: function () {
-      let maxW = (this.maxWidth !== 0) ? Math.min(this.maxWidth, this.width) : this.width
-      let maxH = (this.maxHeight !== 0) ? Math.min(this.maxHeight, this.height) : this.height
-      let rW = this.width / maxW
-      let rH = this.height / maxH
-      let r = (Math.abs(rW - 1) < Math.abs(rH - 1)) ? rH : rW
-      return this.height / r + 'px'
+    modifiedSize: function () {
+      let w, h
+      if (this.maxWidth === 0) {
+        if (this.maxHeight == 0) {
+          w = this.width
+          h = this.height
+        } else {
+          let r = this.maxHeight / this.height
+          w = this.width * r
+          h = this.height * r
+        }
+      } else if (this.maxHeight === 0) {
+        if (this.maxWidth == 0) {
+          // Never reach here
+        } else {
+          let r = this.maxWidth / this.width
+          w = this.width * r
+          h = this.height * r
+        }
+      } else {
+        let wr = this.maxWidth / this.width
+        let hr = this.maxHeight / this.height
+        let r = (wr < hr) ? wr : hr
+        w = this.width * r
+        h = this.height * r
+      }
+      return {
+        width: w + 'px',
+        height: h + 'px',
+      }
     },
     box: function () {
       if (!this.isTaskDetection) return
@@ -153,6 +174,21 @@ export default {
     ...mapActions([
       'loadSegmentationTargetArray' // Get segmentation target from server.
     ]),
+    onImageClick: function () {
+      if (this.callback) {
+        this.callback(this.result)
+      }
+    },
+    boxEnter: function (box) {
+      if (this.boxEnterCallback) {
+        this.boxEnterCallback()
+      }
+    },
+    boxLeave: function () {
+      if (this.boxLeaveCallback) {
+        this.boxLeaveCallback(this.result)
+      }
+    },
     clamp: function (val, max, min) {
       return Math.max(Math.min(val, max), min)
     },

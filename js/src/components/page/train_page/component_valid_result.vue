@@ -45,6 +45,7 @@
     <!--Image list--------------->
     <div id="img-container" ref="container">
       <image-frame v-for="item in getValidImages"
+        :callback="() => {showImageModal(item)}"
         :show-target="show_target"
         :show-predict="show_prediction"
         :show-image="show_image"
