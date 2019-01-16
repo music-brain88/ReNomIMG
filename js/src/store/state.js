@@ -60,6 +60,7 @@ export default {
     add_both: false,
     add_filter: false,
     show_image: false,
+    show_prediction_image: false,
   },
 
   // Loading Mask

@@ -116,7 +116,7 @@ export default {
     ...mapMutations(['setImagePageOfPrediction', 'showModal', 'setImageModalData']),
     showImageModal: function (item) {
       this.setImageModalData(item.index)
-      this.showModal({'show_image': true})
+      this.showModal({'show_prediction_image': true})
     },
     vh: function (v) {
       var h = Math.max(document.documentElement.clientHeight,
@@ -152,7 +152,7 @@ export default {
       const index = item.index
       const model = this.model
       if (!model) return
-      const pred = model.getValidResult(index)
+      const pred = model.prediction_result.prediction[index]
       return {
         index: index,
         target: undefined,
