@@ -105,7 +105,7 @@ class FCN_Base(SemanticSegmentation):
                 [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
-            self._opt._lr = 1e-10
+            self._opt._lr = 1e-5
             return self._opt
 
     def preprocess(self, x):
@@ -125,22 +125,6 @@ class FCN_Base(SemanticSegmentation):
         x[:, 2, :, :] -= MEAN_BGR[2]  # R
 
         return x
-
-    def loss(self, x, y, class_weight=None):
-        """
-        Use un-normalized per-pixel softmax cross entropy loss
-        This un-normalized loss was used in original FCN paper
-        Original paper does not use class_weight, but we provide this option here for user
-        """
-        if class_weight is not None:
-            mask = np.concatenate(
-                [np.ones((y.shape[0], 1, y.shape[2], y.shape[3])) * c for c in class_weight], axis=1)
-            loss = rm.softmax_cross_entropy(x, y, reduce_sum=False)
-            loss *= mask.astype(y.dtype)
-            loss = rm.sum(loss) / float(len(x))
-        else:
-            loss = rm.softmax_cross_entropy(x, y)
-        return loss
 
 
 class FCN32s(FCN_Base):
@@ -177,7 +161,7 @@ class FCN32s(FCN_Base):
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
         self.decay_rate = 5e-4
-        self._opt = rm.Sgd(1e-10, 0.99)
+        self._opt = rm.Sgd(1e-5, 0.9)
         self._train_final_upscore = train_final_upscore
         self._model = CNN_FCN32s(1)
 
@@ -229,7 +213,7 @@ class FCN16s(FCN_Base):
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
         self.decay_rate = 5e-4
-        self._opt = rm.Sgd(1e-10, 0.99)
+        self._opt = rm.Sgd(1e-5, 0.9)
         self._train_final_upscore = train_final_upscore
         self._model = CNN_FCN16s(1)
 
@@ -284,7 +268,7 @@ class FCN8s(FCN_Base):
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
         self.decay_rate = 5e-4
-        self._opt = rm.Sgd(1e-10, 0.99)
+        self._opt = rm.Sgd(1e-5, 0.9)
         self._train_final_upscore = train_final_upscore
         self._model = CNN_FCN8s(1)
 
