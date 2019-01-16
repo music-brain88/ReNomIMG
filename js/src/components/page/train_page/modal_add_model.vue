@@ -20,7 +20,7 @@
       </div>
     </div>
     <div id="params">
-      <div class="title">Hyper parameters</div>
+      <div class="title" id="hyper-params">Hyper parameters</div>
       <div v-for="item in getAlgorithmParamList(selectedAlgorithm)">
         <div class="hyper-param">{{ item.title }} 
           <input :type="item.type" v-if="item.type !== 'select'"
@@ -133,6 +133,7 @@ export default {
   #params {
     width: 50%;
     height: calc(100% - 10px);
+    overflow: auto auto;
     .hyper-param {
       display: flex;
       align-items: center;
