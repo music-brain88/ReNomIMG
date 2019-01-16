@@ -11,7 +11,8 @@
         -->
         <label v-if="isTaskSegmentation">
           <input class="checkbox" type="checkbox"
-          id="prediction-show-button" v-model="show_image" :disabled="!isTaskSegmentation">
+            id="prediction-show-button"
+            v-model="show_image" :disabled="!isTaskSegmentation">
           Image
         </label>
 
@@ -35,36 +36,22 @@
     </template>
     <!---------------Header Contents-->
 
-
     <!--Pager Settings--------------->
-    <div id="pager" tabindex="0"
-      v-on:keyup.right="nextPage" v-on:keyup.left="prevPage">
-
-      <!--Left Arrow-->
-      <div class="pager-arrow" @click="prevPage">
-        <i class="fa fa-caret-left" aria-hidden="true"></i>
-      </div>
-
-      <!--Number-->
-      <div v-for="item in pageList()" class="pager-number" 
-        :class="{number: item !== '...'}"  @click="setPageNum(item)" :style="pagerStyle(item)">
-        {{ item }}
-      </div>
-
-      <!--Right Arrow-->
-      <div class="pager-arrow" @click="nextPage">
-        <i class="fa fa-caret-right" aria-hidden="true"></i>
-      </div>
-    </div>
+    <pager :page-max="pageMax"
+      :onSetPage="setImagePageOfValid"
+    />
     <!---------------Pager Settings-->
 
+    <!--Image list--------------->
     <div id="img-container" ref="container">
       <image-frame v-for="item in getValidImages"
+        :show-target="show_target"
+        :show-predict="show_prediction"
+        :show-image="show_image"
         :width="item.size[0]" :height="item.size[1]"
         :maxHeight="$refs.container.clientHeight/3"
         :img="item.img" :result="getResult(item)" :model="getSelectedModel"/>
     </div>
-    <!--Image list--------------->
     <!---------------Image list-->
   </component-frame>
 </template>
@@ -75,12 +62,14 @@ import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ImageCanvas from '@/components/page/train_page/image.vue'
+import Pager from '@/components/page/train_page/pager.vue'
 
 export default {
   name: 'ComponentValidResult',
   components: {
     'component-frame': ComponentFrame,
-    'image-frame': ImageCanvas
+    'image-frame': ImageCanvas,
+    'pager': Pager
   },
   data: function () {
     return {
@@ -140,6 +129,11 @@ export default {
       current_page = this.getImagePageOfValid
       return dataset.page[current_page]
     },
+    pageMax: function () {
+      if (this.dataset && this.dataset.page.length > 0) {
+        return this.dataset.page.length
+      }
+    }
   },
   methods: {
     ...mapMutations([
@@ -167,82 +161,14 @@ export default {
       this.setImageModalData(item.index)
       this.showModal({'show_image': true})
     },
-    pagerStyle: function (index) {
-      /**
-        This returns pager number style.
-        The current page number will be emphasized.
-      */
-      const current_page = this.getImagePageOfValid
-      if (current_page === index) {
-        return {
-          'background-color': '#063662',
-          'color': 'white',
-        }
-      }
-    },
-    setPageNum: function (index) {
-      /**
-        If the pushed pager button is number,
-        set current page number as new number.
-      */
-      if (index === '...') return
-      const dataset = this.dataset
-      if (!dataset) return
-
-      const max_page_num = dataset.page.length - 1
-      const current_page = this.getImagePageOfValid
-      if (index === current_page) return
-      this.setImagePageOfValid(Math.min(index, max_page_num))
-    },
-    nextPage: function () {
-      /**
-        Go to next page.
-      */
-      const dataset = this.dataset
-      if (!dataset) return
-      const max_page_num = dataset.page.length - 1
-      const current_page = this.getImagePageOfValid
-      this.setImagePageOfValid(Math.min(current_page + 1, max_page_num))
-    },
-    prevPage: function () {
-      /**
-        Go to previous page.
-      */
-      const dataset = this.dataset
-      if (!dataset) return
-      const max_page_num = dataset.page.length - 1
-      const current_page = this.getImagePageOfValid
-      this.setImagePageOfValid(Math.max(current_page - 1, 0))
-    },
-    pageList: function () {
-      /**
-        Get the pager list.
-      */
-      const dataset = this.dataset
-      if (!dataset) return
-      if (!dataset.page) return
-
-      const current_page = Math.max(this.getImagePageOfValid, 0)
-      const max_page_num = Math.max(dataset.page.length - 1, 0)
-
-      if (max_page_num > 5) {
-        if (current_page < 5) {
-          return [...[...Array(Math.max(current_page, 7)).keys()], '...', max_page_num]
-        } else if (current_page > max_page_num - 5) {
-          return [0, '...', ...[...Array(Math.max(max_page_num - current_page, 7)).keys()].reverse().map(i => max_page_num - i)]
-        } else {
-          return [0, '...', ...[...Array(5).keys()].reverse().map(i => current_page - i + 2), '...', max_page_num]
-        }
-      } else {
-        return Array(max_page_num).keys()
-      }
-    },
     vh: function (v) {
-      var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      var h = Math.max(document.documentElement.clientHeight,
+        window.innerHeight || 0)
       return (v * h) / 100
     },
     vw: function (v) {
-      var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+      var w = Math.max(document.documentElement.clientWidth,
+        window.innerWidth || 0)
       return (v * w) / 100
     },
     setUpValidImages: function () {
@@ -265,7 +191,8 @@ export default {
 
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
-      this.$worker.run(setup_image_list, [dataset.valid_data, parent_width, parent_height, child_margin])
+      this.$worker.run(setup_image_list,
+        [dataset.valid_data, parent_width, parent_height, child_margin])
         .then((ret) => {
           dataset.page = ret
         })
@@ -337,47 +264,5 @@ export default {
   height: 95%;
   display: flex;
   flex-wrap: wrap;
-}
-#pager {
-  width: 100%;
-  height: 5%;
-  display: flex;
-  justify-content: flex-end;
-  padding-right: 5px;
-  align-items: center;
-  .pager-arrow {
-    font-size: 150%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    margin-left: 5px;
-    margin-right: 5px;
-    cursor: pointer;
-    color: lightgray;
-    transition: all 0.02s;
-    i {
-    }
-    &:hover {
-      color: gray;
-    }
-  }
-  .pager-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 75%;
-    height: calc(100% - 3px);
-    margin-top: 2px;
-    width: 3%;
-    letter-spacing: -1px;
-    color: gray;
-  }
-  .number {
-    transition: all 0.1s;
-    cursor: pointer;
-    &:hover {
-      color: black;
-    }
-  }
 }
 </style>

@@ -11,7 +11,7 @@
         {{ cls }}
       </div>
     </div>
-    <img :src="img" :width="image_width" :height="image_height" v-if="show_image"/>
+    <img :src="img" :width="image_width" :height="image_height" v-if="showImage"/>
   </div>
 </template>
 
@@ -56,17 +56,24 @@ export default {
       index: -1,
       target: undefined,
       predict: undefined,
+    },
+    showPredict: {
+      default: false
+    },
+    showTarget: {
+      default: true
+    },
+    showImage: {
+      default: true
     }
   },
   data: function () {
     return {
-      show_predict: false,
-      show_target: true,
-      show_image: true,
       image_width: this.modifiedWidth,
       image_height: this.modifiedHeight,
     }
   },
+
   beforeUpdate: function () {
     /**
       If the task is segmentation, drawing function will be called in
@@ -113,10 +120,10 @@ export default {
       if (!this.isTaskDetection) return
       let pred = this.result.predict
       let targ = this.result.target
-      if (targ === undefined || !this.show_target) {
+      if (targ === undefined || !this.showTarget) {
         targ = []
       }
-      if (pred === undefined || !this.show_predict) {
+      if (pred === undefined || !this.showPredict) {
         pred = []
       }
       return pred.concat(targ)
@@ -125,11 +132,11 @@ export default {
       const dataset = this.dataset
       if (!this.isTaskClassification || !dataset) return
       const class_map = dataset.class_map
-      if (this.show_target) {
+      if (this.showTarget) {
         const targ = this.result.target
         if (!targ) return
         return class_map[targ]
-      } else if (this.show_predict) {
+      } else if (this.showPredict) {
         const pred = this.result.predict
         if (!pred) return
         return class_map[pred.class]
@@ -151,9 +158,9 @@ export default {
     },
     styleCls: function () {
       let cls
-      if (this.show_target) {
+      if (this.showTarget) {
         cls = this.result.target
-      } else if (this.show_predict) {
+      } else if (this.showPredict) {
         cls = this.result.predict.class
       }
       return {
@@ -162,9 +169,9 @@ export default {
     },
     styleClsLabel: function () {
       let cls
-      if (this.show_target) {
+      if (this.showTarget) {
         cls = this.result.target
-      } else if (this.show_predict) {
+      } else if (this.showPredict) {
         cls = this.result.predict.class
       }
       return {
@@ -193,7 +200,7 @@ export default {
     },
     drawSeg: function () {
       let draw_item
-      if (!this.show_predict && !this.show_target) {
+      if (!this.showPredict && !this.showTarget) {
         var canvas = this.$refs.canvas
         if (!canvas) return
         var cxt = canvas.getContext('bitmaprenderer')
@@ -201,7 +208,7 @@ export default {
         var offCxt = offCanvas.getContext('2d')
         offCxt.clearRect(0, 0, canvas.width, canvas.height)
         cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
-      } else if (this.show_predict) {
+      } else if (this.showPredict) {
         draw_item = this.result.predict
         if (draw_item === undefined) return
         this.$worker.run(render_segmentation, [draw_item.class]).then((ret) => {
@@ -209,7 +216,7 @@ export default {
           var cxt = canvas.getContext('bitmaprenderer')
           cxt.transferFromImageBitmap(ret)
         })
-      } else if (this.show_target) {
+      } else if (this.showTarget) {
         const model = this.model
         draw_item = this.result.target
         if (!model || draw_item.name === undefined) return
