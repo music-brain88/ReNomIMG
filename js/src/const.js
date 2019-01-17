@@ -229,6 +229,7 @@ export const ALGORITHM = {
     },
   },
   SEGMENTATION: {
+    /*
     Unet: {
       id: 60,
       key: 'unet',
@@ -258,6 +259,7 @@ export const ALGORITHM = {
         }),
       }
     },
+    */
     Fcn: {
       id: 61,
       key: 'fcn',
@@ -294,6 +296,7 @@ export const ALGORITHM = {
         }
       }
     },
+    /*
     TernousNet: {
       id: 64,
       key: 'ternousnet',
@@ -310,6 +313,7 @@ export const ALGORITHM = {
         })
       }
     },
+    */
   }
 }
 
