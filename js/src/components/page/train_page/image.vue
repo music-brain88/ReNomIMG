@@ -304,7 +304,6 @@ export default {
           ],
           callback: (response) => {
             this.$worker.run(render_segmentation, [response.data]).then((ret) => {
-              console.log(ret)
               var canvas = this.$refs.canvas
               var cxt = canvas.getContext('bitmaprenderer')
               cxt.transferFromImageBitmap(ret)

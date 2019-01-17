@@ -104,7 +104,6 @@ export default {
     }
   },
   beforeMount: function () {
-    console.log('AS')
     this.reset()
   },
   computed: {
@@ -163,7 +162,6 @@ export default {
       ])
     },
     train_num_style: function () {
-      console.log('called')
       if (this.total_num <= 0) return
       return {
         width: (this.train_num / this.total_num) * 100 + '%',
