@@ -49,6 +49,13 @@ At last, build extension modules.
 
 `python setup.py build`
 
+## Start with example data.
+Following command setups example dataset[PASCAL VOC].
+You can immediately try ReNomIMG with this example dataset.
+
+`renom_img setup_example`
+
+This command will create `datasrc` and `storage` directory.
 
 ## How to start
 
