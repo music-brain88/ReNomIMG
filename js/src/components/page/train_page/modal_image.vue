@@ -34,7 +34,7 @@
         />
       </div>
     </div>
-    <div id="result">
+    <div id="result" v-if="isTaskClassification || isTaskDetection">
       <div class="header">
         <span>No.</span>
         <span>Name</span>
@@ -187,9 +187,9 @@ export default {
     getPredictedBox: function () {
       const model = this.model
       const map = this.class_map
-      if (!model) return
+      if (!model) return []
       const prediction = model.getValidResult(this.modal_index)
-      return prediction
+      return (prediction) || []
     }
   },
   methods: {
