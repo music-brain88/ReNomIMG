@@ -30,13 +30,14 @@ export default {
       type: Number,
       default: 0
     },
-    pageIndex: {
-      type: Number,
-      default: 0
-    },
     onSetPage: {
       default: undefined,
     },
+  },
+  data: function () {
+    return {
+      pageIndex: 0
+    }
   },
   computed: {
   },

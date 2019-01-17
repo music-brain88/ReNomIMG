@@ -62,7 +62,7 @@ export class Dataset {
     } else if (task === TASK_ID.DETECTION) {
       const size_list = vd.size[index]
       let box_list = vd.target[index]
-
+      if (box_list === undefined) return
       box_list = box_list.map((b, index) => {
         const ow = size_list[0]
         const oh = size_list[1]
@@ -80,7 +80,6 @@ export class Dataset {
           }
         }, {}))
       })
-
       return box_list
     } else if (task === TASK_ID.SEGMENTATION) {
       return {
