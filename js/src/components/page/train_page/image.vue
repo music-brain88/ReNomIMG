@@ -227,7 +227,12 @@ export default {
       if (this.showTarget) {
         cls = this.result.target
       } else if (this.showPredict) {
-        cls = this.result.predict.class
+        cls = this.result.predict
+        if (cls) {
+          cls = cls.class
+        } else {
+          cls = []
+        }
       }
       return {
         border: 'solid 2px' + getTagColor(cls) + 'bb'
@@ -238,7 +243,12 @@ export default {
       if (this.showTarget) {
         cls = this.result.target
       } else if (this.showPredict) {
-        cls = this.result.predict.class
+        cls = this.result.predict
+        if (cls) {
+          cls = cls.class
+        } else {
+          cls = ''
+        }
       }
       return {
         'background-color': getTagColor(cls) + 'bb'

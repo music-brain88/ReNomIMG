@@ -36,6 +36,7 @@ from renom_img.server.utility.storage import storage
 from renom_img.server import State, RunningState, Task
 from renom_img.server import DATASET_IMG_DIR, DATASET_LABEL_CLASSIFICATION_DIR, \
     DATASET_LABEL_DETECTION_DIR, DATASET_LABEL_SEGMENTATION_DIR
+from renom_img.server.utility.setup_example import setup_example
 
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
@@ -345,7 +346,6 @@ def dataset_confirm():
 
         img_files = [str(img_dir / name) for name in file_names]
         parsed_target = [target[name.name] for name in file_names]
-        print(time.time() - start_t)
 
     elif task_id == Task.DETECTION.value:
         detection_label_dir = DATASET_LABEL_DETECTION_DIR
@@ -394,7 +394,6 @@ def dataset_confirm():
         train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map) + 1)))
 
-        print(time.time() - start_t)
     elif task_id == Task.DETECTION.value:
         train_tag_list = []
         valid_tag_list = []
@@ -549,8 +548,6 @@ def test_dataset_confirm():
     dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
     task_id = int(req_params.task_id)
     description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
-    print(dataset_name)
-    print(description)
     ##
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
@@ -607,11 +604,9 @@ def test_dataset_confirm():
 
         for i in range(len(parsed_target)):
             test_tag_list.append(parsed_target[i][0].get('class'))
-        #print([i for i in test_tag_list])
 
         test_tag_num, _ = np.histogram(test_tag_list, bins=list(range(len(class_map) + 1)))
 
-    print(test_tag_num)
     class_info = {
         "test_dataset_name": dataset_name,
         "class_map": class_map,
@@ -886,7 +881,13 @@ def main():
     parser = argparse.ArgumentParser(description='ReNomIMG')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
     parser.add_argument('--port', default='8080', help='Server port')
+    subparsers = parser.add_subparsers()
+    parser_add = subparsers.add_parser('setup_example', help='Setup example dataset.')
+    parser_add.set_defaults(handler=setup_example)
     args = parser.parse_args()
+    if hasattr(args, 'handler'):
+        args.handler()
+        return
     wsgiapp = default_app()
     httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
     httpd.serve_forever()

@@ -169,6 +169,7 @@ export default {
       const map = this.class_map
       if (!model) return
       const prediction = model.getValidResult(this.modal_index)
+      if (!prediction) return
       const score = prediction.score.map((s, index) => {
         return {
           index: map[index],
