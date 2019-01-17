@@ -49,7 +49,9 @@ export default class Model {
   getBestLoss () {
     let loss = null
     if (this.best_epoch_valid_result) {
-      if (this.best_epoch_valid_result.loss) { loss = this.best_epoch_valid_result.loss }
+      if (this.best_epoch_valid_result.loss) {
+        loss = this.best_epoch_valid_result.loss
+      }
     }
     return loss
   }

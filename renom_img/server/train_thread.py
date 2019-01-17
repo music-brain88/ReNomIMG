@@ -233,6 +233,7 @@ class TrainThread(object):
             n_valid = min(len(valid_prediction), len(valid_target))
 
             # Depends on each task.
+            loss = self.valid_loss_list[-1]
             if self.task_id == Task.CLASSIFICATION.value:
                 pred = np.argmax(valid_prediction, axis=1)
                 targ = np.argmax(valid_target, axis=1)
