@@ -50,7 +50,7 @@
         :show-predict="show_prediction"
         :show-image="show_image"
         :width="item.size[0]" :height="item.size[1]"
-        :maxHeight="$refs.container.clientHeight/3"
+        :maxHeight="image_cell_height"
         :img="item.img" :result="getResult(item)" :model="getSelectedModel"/>
     </div>
     <!---------------Image list-->
@@ -79,7 +79,14 @@ export default {
       // The state of the checkbox which represents weather target is shown.
       show_target: false,
       // The state of the checkbox which represents weather prediction is shown.
-      show_prediction: true
+      show_prediction: true,
+      image_cell_height: 0
+    }
+  },
+  mounted: function () {
+    const el = this.$refs.container
+    if (el) {
+      this.image_cell_height = el.clientHeight / 3
     }
   },
   beforeUpdate: function () {
@@ -134,7 +141,7 @@ export default {
       if (this.dataset && this.dataset.page.length > 0) {
         return this.dataset.page.length
       }
-    }
+    },
   },
   methods: {
     ...mapMutations([

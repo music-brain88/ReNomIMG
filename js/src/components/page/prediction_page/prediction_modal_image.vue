@@ -29,7 +29,7 @@
         />
       </div>
     </div>
-    <div id="result">
+    <div id="result" v-if="isTaskDetection">
       <div class="header">
         <span>No.</span>
         <span>Name</span>
