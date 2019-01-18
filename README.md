@@ -34,12 +34,13 @@ You can install the wheel package with pip3 command::
 `pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.0.0-cp36-cp36m-linux_x86_64.whl`
 
 
-## Install from source
+### Install from source
 For installing ReNomIMG, download the repository from following url.
 
 `git clone https://github.com/ReNom-dev-team/ReNomIMG.git`
 
 And move into ReNomIMG directory.
+
 `cd ReNomIMG`
 
 Then install all required packages.
@@ -72,7 +73,7 @@ You can immediately try ReNomIMG with this example dataset.
 
 This command will create `datasrc` and `storage` directory.
 
-## Quck start - How to start
+### Quck start - How to start
 
 1.Type following command in ReNomIMG directory.
 
