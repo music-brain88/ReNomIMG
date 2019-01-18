@@ -3,7 +3,6 @@ import sys
 import numpy as np
 import renom as rm
 
-
 class Darknet(rm.Sequential):
     WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Darknet.h5"
 
@@ -90,7 +89,6 @@ class Darknet(rm.Sequential):
             rm.AveragePool2d(filter=7),
             rm.Softmax()
         ])
-
         if load_pretrained_weight:
             if isinstance(load_pretrained_weight, bool):
                 load_pretrained_weight = self.__class__.__name__ + '.h5'
@@ -99,7 +97,6 @@ class Darknet(rm.Sequential):
                 download(self.WEIGHT_URL, load_pretrained_weight)
 
             self.load(load_pretrained_weight)
-
 
 # Darknet19
 
@@ -175,9 +172,9 @@ class Darknet19Base(rm.Model):
 
 class Darknet19(rm.Model):
 
-    WEIGHT_URL = "Darknet19"
+    WEIGHT_URL = "https://docs.renom.jp/downloads/weights/Darknet/Darknet19.h5"
 
-    def __init__(self, num_class=1000):
+    def __init__(self, num_class=1000, load_pretrained_weight=False):
         self._num_class = num_class
         self._base = Darknet19Base()
         self._last = rm.Conv2d(num_class, filter=1)
@@ -185,6 +182,16 @@ class Darknet19(rm.Model):
             "w": rm.Variable(self._last._initializer((num_class, 1024, 1, 1)), auto_update=True),
             "b": rm.Variable(self._last._initializer((1, num_class, 1, 1)), auto_update=False),
         }
+        super(Darknet19, self).__init__()
+
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self.load(load_pretrained_weight)
 
     def forward(self, x):
         N = len(x)
