@@ -199,5 +199,4 @@ def parce_class_id_segmentation(annotation_list):
     with Executor(max_workers=8) as e:
         ret = e.map(func, annotation_list)
     data = np.sum(np.array(list(ret)), axis=0)
-    print(np.sum(data > 0))
     return data

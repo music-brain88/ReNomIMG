@@ -114,7 +114,6 @@ class ResNetBase(Classification):
                     if self._counter > self._patience and new_lr > self._min_lr:
                         self._opt._lr = new_lr
                         self._counter = 0
-                    print(self._opt._lr)
                 else:
                     self._counter = 0
 
