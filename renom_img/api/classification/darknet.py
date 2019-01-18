@@ -5,9 +5,9 @@ import renom as rm
 
 
 class Darknet(rm.Sequential):
-    WEIGHT_URL = "Darknet"
+    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Darknet.h5"
 
-    def __init__(self):
+    def __init__(self, num_class=1000, load_pretrained_weight=False):
 
         super(Darknet, self).__init__([
             # 1st Block
@@ -85,11 +85,21 @@ class Darknet(rm.Sequential):
             rm.LeakyRelu(slope=0.1),
 
             # layers for ImageNet
-            rm.Conv2d(channel=1000, filter=1),
+            rm.Conv2d(channel=num_class, filter=1),
             rm.LeakyRelu(slope=0.1),
             rm.AveragePool2d(filter=7),
             rm.Softmax()
         ])
+
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self.load(load_pretrained_weight)
+
 
 # Darknet19
 
