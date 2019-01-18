@@ -20,11 +20,11 @@ before_script:
   - virtualenv --no-site-packages -p /usr/local/bin/python3.6 py36
   - virtualenv --no-site-packages -p /usr/local/bin/python3.5 py35
   - source py35/bin/activate
+  - pip install wheel Cython numpy
   - pip install -r requirements.txt
-  - pip install wheel Cython
   - source py36/bin/activate
+  - pip install wheel Cython numpy
   - pip install -r requirements.txt
-  - pip install wheel Cython
   
 
 pages:
