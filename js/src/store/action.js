@@ -256,10 +256,10 @@ export default {
   async runPredictionThread (context, payload) {
     const model_id = payload
     const url = '/api/renom_img/v2/model/thread/prediction/run/' + model_id
+    let model = context.getters.getModelById(model_id)
+    model.state = STATE.PRED_CREATED // TODO: Remove this line.
     return axios.get(url)
       .then(function (response) {
-        let model = context.getters.getModelById(model_id)
-        model.state = STATE.PRED_CREATED // TODO: Remove this line.
         context.dispatch('startAllPolling')
       }, error_handler_creator(context))
   },

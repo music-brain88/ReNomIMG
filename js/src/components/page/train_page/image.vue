@@ -231,7 +231,7 @@ export default {
         if (cls) {
           cls = cls.class
         } else {
-          cls = []
+          return
         }
       }
       return {
@@ -247,7 +247,7 @@ export default {
         if (cls) {
           cls = cls.class
         } else {
-          cls = ''
+          return
         }
       }
       return {
@@ -286,7 +286,16 @@ export default {
         cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
       } else if (this.showPredict) {
         draw_item = this.result.predict
-        if (draw_item === undefined) return
+        if (draw_item === undefined) {
+          var canvas = this.$refs.canvas
+          if (!canvas) return
+          var cxt = canvas.getContext('bitmaprenderer')
+          var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
+          var offCxt = offCanvas.getContext('2d')
+          offCxt.clearRect(0, 0, canvas.width, canvas.height)
+          cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
+          returun
+        }
         this.$worker.run(render_segmentation, [draw_item]).then((ret) => {
           var canvas = this.$refs.canvas
           var cxt = canvas.getContext('bitmaprenderer')

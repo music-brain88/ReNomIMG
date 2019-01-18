@@ -2,7 +2,7 @@
   <component-frame :width-weight="3" :height-weight="9">
     <template slot="header-slot">
       Model Detail
-      <div id="prediction-run-button" :disabled="!model"
+      <div id="prediction-run-button" :class="{disabled: !isRunnable}"
         @click="runPredictionThread(model.id)">
         <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Run Prediction
       </div>
@@ -54,6 +54,12 @@ export default {
       } else {
         return false
       }
+    },
+    isRunnable () {
+      return (this.model) && (this.model.isStopped())
+    },
+    showAnimation () {
+      return (this.model !== false)
     }
   },
   created: function () {
@@ -76,6 +82,13 @@ export default {
   width: 45%;
   background-color: $component-header-sub-color;
   cursor: pointer;
+  &:hover {
+    background-color: $component-header-sub-color-hover;
+  }
+  &.disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
 }
 
 #deployed-model-datail {

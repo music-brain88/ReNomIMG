@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-01 11:10+0900\n"
+"POT-Creation-Date: 2019-01-18 09:05+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: ../../rst/how_to_use_api.rst:2
+#: ../../rsts/how_to_use_api.rst:2
 msgid "How to Use ReNomIMG API"
 msgstr "ReNomIMG APIの利用方法"
+
+#: ../../rsts/how_to_use_api.rst:4
+msgid "(Coming soon ....)"
+msgstr ""
 

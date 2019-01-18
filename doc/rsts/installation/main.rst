@@ -22,7 +22,6 @@ For python3.6
         pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-1.0.8-cp36-cp36m-linux_x86_64.whl
 
 
-
     .. note::
 
         This is ``linux OS`` only. If your OS is windows or MAC that are not recommended system, 
@@ -113,6 +112,6 @@ current directory, and the application uses ``8080`` port.
 
   - OS : Ubuntu 16.04
   - python : >=3.5
-  - `ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : >= 2.6
+  - `ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : >= 2.7
 
 For required python packages, please refer to the `requirements.txt <https://github.com/ReNom-dev-team/ReNomIMG/blob/release/1.0/requirements.txt>`_ .
