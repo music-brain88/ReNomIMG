@@ -830,18 +830,6 @@ def test_dataset_load_of_task(id):
     }
 
 
-@route("/api/renom_img/v2/polling/weight/download", method="GET")
-@json_handler
-def polling_weight_download():
-    return
-
-
-@route("/api/renom_img/v2/polling/prediction", method="GET")
-@json_handler
-def polling_prediction():
-    return
-
-
 @route("/api/renom_img/v2/deployed_model/task/<task_id:int>", method="GET")
 def pull_deployed_model(task_id):
     # This method will be called from python script.

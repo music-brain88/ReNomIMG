@@ -7,4 +7,4 @@ How to Use
 
     quick_start
     how_to_use_gui
-    how_to_use_api
+    .. how_to_use_api

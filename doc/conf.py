@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'ReNomIMG'
-copyright = '2018, Grid'
+copyright = '2019, Grid'
 author = 'Grid'
 
 # The short X.Y version

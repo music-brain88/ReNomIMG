@@ -73,9 +73,9 @@ You can use these algorithms.
 
 * segmentation
 
-  - U-Net
+  .. - U-Net
   - FCN
-  - TernousNet
+  .. - TernousNet
 
 * classification
 
