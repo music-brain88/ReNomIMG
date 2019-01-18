@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-13 18:47+0900\n"
+"POT-Creation-Date: 2018-08-31 20:48+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,43 +21,52 @@ msgstr ""
 msgid "renom\\_img.api.inference"
 msgstr ""
 
-#~ msgid "renom\\_img.api.inference.inference"
-#~ msgstr ""
+#: of renom_img.api.inference.detector.Detector:1
+msgid "Bases: :class:`object`"
+msgstr ""
 
-#~ msgid "Bases: :class:`object`"
-#~ msgstr ""
+#: of renom_img.api.inference.detector.Detector:1
+msgid "This class allows you to pull model which trained on ReNomIMG GUI Tool."
+msgstr ""
+"Detectorクラスは, "
+"ReNomIMGが提供するGUIツールにて作成された学習済みニューラルネットワーク重みをダウンロードして使用する機能を提供します."
 
-#~ msgid "This class allows you to pull model which trained on ReNomIMG GUI Tool."
-#~ msgstr ""
-#~ "Detectorクラスは, "
-#~ "ReNomIMGが提供するGUIツールにて作成された学習済みニューラルネットワーク重みをダウンロードして使用する機能を提供します."
+#: of renom_img.api.inference.detector.Detector
+#: renom_img.api.inference.detector.Detector.predict
+msgid "Parameters"
+msgstr ""
 
-#~ msgid "Parameters"
-#~ msgstr ""
+#: of renom_img.api.inference.detector.Detector:3
+msgid "The url ReNomIMG server running."
+msgstr "ReNomIMGアプリケーションサーバのurl"
 
-#~ msgid "The url ReNomIMG server running."
-#~ msgstr "ReNomIMGアプリケーションサーバのurl"
+#: of renom_img.api.inference.detector.Detector:5
+msgid "The port number ReNomIMG server running."
+msgstr "ReNomIMGアプリケーションサーバのポート番"
 
-#~ msgid "The port number ReNomIMG server running."
-#~ msgstr "ReNomIMGアプリケーションサーバのポート番"
+#: of renom_img.api.inference.detector.Detector.model_info:1
+msgid "This function returns information of pulled model."
+msgstr "ダウンロードしたモデルの情報を表示します."
 
-#~ msgid "This function returns information of pulled model."
-#~ msgstr "ダウンロードしたモデルの情報を表示します."
+#: of renom_img.api.inference.detector.Detector.model_info:4
+#: renom_img.api.inference.detector.Detector.predict:7
+#: renom_img.api.inference.detector.Detector.pull:5
+msgid "Example"
+msgstr ""
 
-#~ msgid "Example"
-#~ msgstr ""
+#: of renom_img.api.inference.detector.Detector.predict:1
+msgid "Perform prediction to given image."
+msgstr "与えられた画像ファイルに対するオブジェクト検出を実行します."
 
-#~ msgid "Perform prediction to given image."
-#~ msgstr "与えられた画像ファイルに対するオブジェクト検出を実行します."
+#: of renom_img.api.inference.detector.Detector.predict:3
+msgid "Path to the image, list of path or ndarray can be passed."
+msgstr "画像のパス, パスのリスもしくはndarrayオブジェクトを引数に与えることができます."
 
-#~ msgid "Path to the image, list of path or ndarray can be passed."
-#~ msgstr "画像のパス, パスのリスもしくはndarrayオブジェクトを引数に与えることができます."
-
-#~ msgid ""
-#~ "Pull trained weight from ReNomIMG "
-#~ "server. Trained weight will be "
-#~ "downloaded into current directory."
-#~ msgstr ""
-#~ "ReNomIMGサーバにおいてデプロイフラグが設定されたモデルをダウンロードします.デプロイ方法については, "
-#~ "ReNomIMG-How to useをご参照ください."
+#: of renom_img.api.inference.detector.Detector.pull:1
+msgid ""
+"Pull trained weight from ReNomIMG server. Trained weight will be "
+"downloaded into current directory."
+msgstr ""
+"ReNomIMGサーバにおいてデプロイフラグが設定されたモデルをダウンロードします.デプロイ方法については, "
+"ReNomIMG-How to useをご参照ください."
 

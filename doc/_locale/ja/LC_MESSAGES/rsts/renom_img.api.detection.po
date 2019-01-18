@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 11:45+0900\n"
+"POT-Creation-Date: 2019-01-18 09:05+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: ../../rst/renom_img.api.detection.rst:2
+#: ../../rsts/renom_img.api.detection.rst:2
 msgid "renom\\_img.api.detection"
 msgstr ""
 
@@ -104,7 +104,6 @@ msgstr "この関数はYolov1クラスでで指定された形式の入力デー
 #: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer
 #: renom_img.api.detection.yolo_v2.Yolov2.loss
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
-#: renom_img.api.detection.yolo_v2.Yolov2.preprocess
 msgid "Returns"
 msgstr "戻り値"
 
@@ -128,7 +127,6 @@ msgstr "入力データとターゲットデータを作成する関数を返却
 #: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer
 #: renom_img.api.detection.yolo_v2.Yolov2.loss
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
-#: renom_img.api.detection.yolo_v2.Yolov2.preprocess
 msgid "Return type"
 msgstr "戻り値の型"
 
@@ -144,7 +142,7 @@ msgstr "戻り値の型"
 #: renom_img.api.detection.yolo_v2.Yolov2.forward:13
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:2
 #: renom_img.api.detection.yolo_v2.Yolov2.loss:12
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:4
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:35
 #: renom_img.api.detection.yolo_v2.Yolov2.regularize:7
 msgid "Example"
 msgstr "例"
@@ -248,7 +246,7 @@ msgstr "ニューラルネットワークの結果得られた配列を出力し
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:3
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:5
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:12
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:5
 msgid ""
 "The threshold for confidence score. Predicted boxes which have lower "
 "confidence score than the threshold are discarderd. Defaults to 0.3"
@@ -256,14 +254,14 @@ msgstr "信頼スコアの閾値。予測さればボックスのうち、信頼
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:7
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:9
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:16
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:9
 msgid "The threshold for non maximum supression. Defaults to 0.4"
 msgstr "nmsの閾値。デファルト値は0.4。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:10
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:12
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:11
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:19
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:12
 msgid ""
 "List of predicted bbox, score and class of each image. The format of "
 "return value is bellow. Box coordinates and size will be returned as "
@@ -347,7 +345,7 @@ msgid "This method accepts either ndarray and list of image path."
 msgstr "このメソッドはndarrayか画像のパスのリストを受け取ります。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.predict:3
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:10
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:3
 msgid "Path to an image, list of path or ndarray."
 msgstr "画像へのパス、パスのリストもしくはndarray"
 
@@ -356,12 +354,10 @@ msgid "Image preprocess for Yolov1."
 msgstr "Yolov1用の前処理"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:3
-#: renom_img.api.detection.yolo_v2.Yolov2.preprocess:3
 msgid ":math:`x_{new} = x*2/255 - 1`"
 msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:8
-#: renom_img.api.detection.yolo_v2.Yolov2.preprocess:8
 msgid "Preprocessed data."
 msgstr "前処理済みデータ"
 
@@ -448,8 +444,12 @@ msgid "Loss function specified for yolov2."
 msgstr "Yolov2で指定された損失関数"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
-msgid "Image preprocess for Yolov2."
-msgstr "Yolov2用の前処理"
+msgid "Performs preprocess for a given array."
+msgstr ""
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.preprocess:3
+msgid "Image array for preprocessing."
+msgstr ""
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.regularize:4
 msgid "In Yolo v2, weight decay of 0.0005 will be added."
@@ -614,4 +614,7 @@ msgstr "Yolov2では重み減衰として0.0005が利用されます。"
 
 #~ msgid "Anchor list."
 #~ msgstr "アンカーのリスト"
+
+#~ msgid "Image preprocess for Yolov2."
+#~ msgstr "Yolov2用の前処理"
 

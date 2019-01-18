@@ -1,5 +1,5 @@
 
-ReNom IMG 1.0
+ReNom IMG 2.0
 ==================
 
 .. toctree::
