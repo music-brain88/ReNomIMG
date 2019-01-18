@@ -3,100 +3,93 @@ import sys
 import numpy as np
 import renom as rm
 
-from renom_img.api.utility.misc.download import download
-
 
 class Darknet(rm.Sequential):
     WEIGHT_URL = "Darknet"
 
-    def __init__(self, last_unit_size, load_weight_path=None):
-        # TODO: Passing last_unit_size is not good.
-        assert load_weight_path is None or isinstance(load_weight_path, str)
+    def __init__(self):
 
         super(Darknet, self).__init__([
             # 1st Block
-            rm.Conv2d(channel=64, filter=7, stride=2, padding=3),
+            rm.Conv2d(channel=64, filter=7, stride=2, padding=3, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
             rm.MaxPool2d(stride=2, filter=2),
 
             # 2nd Block
-            rm.Conv2d(channel=192, filter=3, padding=1),
+            rm.Conv2d(channel=192, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
             rm.MaxPool2d(stride=2, filter=2),
 
             # 3rd Block
-            rm.Conv2d(channel=128, filter=1),
+            rm.Conv2d(channel=128, filter=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=256, filter=3, padding=1),
+            rm.Conv2d(channel=256, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=256, filter=1),
+            rm.Conv2d(channel=256, filter=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=512, filter=3, padding=1),
+            rm.Conv2d(channel=512, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
             rm.MaxPool2d(stride=2, filter=2),
 
             # 4th Block
-            rm.Conv2d(channel=256, filter=1),
+            rm.Conv2d(channel=256, filter=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=512, filter=3, padding=1),
+            rm.Conv2d(channel=512, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=256, filter=1),
+            rm.Conv2d(channel=256, filter=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=512, filter=3, padding=1),
+            rm.Conv2d(channel=512, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=256, filter=1),
+            rm.Conv2d(channel=256, filter=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=512, filter=3, padding=1),
+            rm.Conv2d(channel=512, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=256, filter=1),
+            rm.Conv2d(channel=256, filter=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=512, filter=3, padding=1),
+            rm.Conv2d(channel=512, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=512, filter=1),
+            rm.Conv2d(channel=512, filter=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=1024, filter=3, padding=1),
+            rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
             rm.MaxPool2d(stride=2, filter=2),
 
             # 5th Block
-            rm.Conv2d(channel=512, filter=1),
+            rm.Conv2d(channel=512, filter=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=1024, filter=3, padding=1),
+            rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=512, filter=1),
+            rm.Conv2d(channel=512, filter=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=1024, filter=3, padding=1),
-            rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=1024, filter=3, padding=1),
-            rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=1024, filter=3, stride=2, padding=1),
-            rm.LeakyRelu(slope=0.1),
-
-            # 6th Block
-            rm.Conv2d(channel=1024, filter=3, padding=1),
-            rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=1024, filter=3, padding=1),
+            rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
             rm.LeakyRelu(slope=0.1),
 
-            # 7th Block
-            rm.Flatten(),
-            rm.Dense(1024),
+            # layers for ImageNet
+            rm.Conv2d(channel=1000, filter=1),
             rm.LeakyRelu(slope=0.1),
-            rm.Dense(4096),
-            rm.LeakyRelu(slope=0.1),
-            rm.Dropout(0.5),
-
-            # 8th Block
-            rm.Dense(last_unit_size),
+            rm.AveragePool2d(filter=7),
+            rm.Softmax()
         ])
-
-        if load_weight_path is not None:
-            # Call download method.
-            path, ext = os.path.splitext(load_weight_path)
-            if ext:
-                self.load(load_weight_path)
-            else:
-                self.load(path + '.h5')
 
 # Darknet19
 
@@ -172,9 +165,9 @@ class Darknet19Base(rm.Model):
 
 class Darknet19(rm.Model):
 
-    WEIGHT_URL = "https://docs.renom.jp/downloads/weights/Darknet/Darknet19.h5"
+    WEIGHT_URL = "Darknet19"
 
-    def __init__(self, num_class=1000, load_pretrained_weight=False):
+    def __init__(self, num_class=1000):
         self._num_class = num_class
         self._base = Darknet19Base()
         self._last = rm.Conv2d(num_class, filter=1)
@@ -182,16 +175,6 @@ class Darknet19(rm.Model):
             "w": rm.Variable(self._last._initializer((num_class, 1024, 1, 1)), auto_update=True),
             "b": rm.Variable(self._last._initializer((1, num_class, 1, 1)), auto_update=False),
         }
-        super(Darknet19, self).__init__()
-
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self.load(load_pretrained_weight)
 
     def forward(self, x):
         N = len(x)
