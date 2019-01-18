@@ -32,8 +32,8 @@
     <div id="result" v-if="isTaskDetection">
       <div class="header">
         <span>No.</span>
-        <span>Name</span>
         <span>Score</span>
+        <span>Name</span>
       </div>
       <div id="result-container">
         <div id="cls-result" class="result" v-if="isTaskClassification">

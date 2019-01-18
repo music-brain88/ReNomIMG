@@ -109,8 +109,8 @@ class PredictionThread(object):
 
     def run(self):
         model = self.model
-        self.state = State.STARTED
-        self.running_state = RunningState.TRAINING
+        self.state = State.PRED_STARTED
+        self.running_state = RunningState.PREDICTING
 
         if self.stop_event.is_set():
             # Watch stop event

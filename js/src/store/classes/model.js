@@ -34,11 +34,17 @@ export default class Model {
   isDeployable () {
     return (this.state !== STATE.STOPPED)
   }
+  isStopped () {
+    return (this.state === STATE.STOPPED)
+  }
   isTraining () {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.TRAINING)
   }
   isValidating () {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.VALIDATING)
+  }
+  isPredicting () {
+    return (this.state === STATE.PRED_STARTED) && (this.running_state === RUNNING_STATE.PREDICTING)
   }
   isStopping () {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.STOPPING)
