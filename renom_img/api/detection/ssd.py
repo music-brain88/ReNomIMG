@@ -10,7 +10,7 @@ import renom as rm
 from renom_img.api import Base, adddoc
 from renom_img.api.detection import Detection
 from renom_img.api.classification.vgg import VGG16
-from renom_img.api.utility.load import prepare_detection_data
+from renom_img.api.utility.load import prepare_detection_data, resize_detection_data
 from renom_img.api.utility.box import transform2xy12, calc_iou_xywh
 from renom_img.api.utility.load import parse_xml_detection, load_img
 from renom_img.api.utility.nms import nms
@@ -339,9 +339,10 @@ class SSD(Detection):
             """
             N = len(img_path_list)
             img_data, label_data = prepare_detection_data(img_path_list,
-                                                          annotation_list, self.imsize)
+                                                          annotation_list)
             if augmentation is not None:
                 img_data, label_data = augmentation(img_data, label_data, mode="detection")
+            img_data, label_data = resize_detection_data(img_data, label_data, self.imsize)
             targets = []
             for n in range(N):
                 bounding_boxes = []

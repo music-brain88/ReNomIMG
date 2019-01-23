@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw
 from renom_img.api import Base, adddoc
 from renom_img.api.detection import Detection
 from renom_img.api.classification.darknet import Darknet19, DarknetConv2dBN
-from renom_img.api.utility.load import prepare_detection_data, load_img
+from renom_img.api.utility.load import prepare_detection_data, load_img, resize_detection_data
 from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
@@ -439,10 +439,12 @@ class Yolov2(Detection):
             label = np.zeros(
                 (N, channel, imsize_list[size_index][1] // 32, imsize_list[size_index][0] // 32))
             img_list, label_list = prepare_detection_data(
-                img_path_list, annotation_list, imsize_list[size_index])
+                img_path_list, annotation_list)
 
             if augmentation is not None:
                 img_list, label_list = augmentation(img_list, label_list, mode="detection")
+
+            img_list, label_list = resize_detection_data(img_list, label_list, imsize_list[size_index])
 
             for n, annotation in enumerate(label_list):
                 # This returns resized image.
