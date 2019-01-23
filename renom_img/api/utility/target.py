@@ -36,6 +36,17 @@ class DataBuilderBase(object):
     def reverce_label(self, label_list):
         pass
 
+    def resize_img(self,img_list, label_list):
+        im_list = []
+
+        for img in img_list:
+            channel_last = img.transpose(1,2,0)
+            img = Image.fromarray(np.uint8(channel_last))
+            img = img.resize(imsize, RESIZE_METHOD).convert('RGB')
+            im_list.append(np.asarray(img))
+
+        return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(label_list)
+
     def load_img(self, path):
         """ Loads an image
 
@@ -50,7 +61,7 @@ class DataBuilderBase(object):
         img.load()
         w, h = img.size
         img = img.convert('RGB')
-        img = img.resize(self.imsize, RESIZE_METHOD)
+        # img = img.resize(self.imsize, RESIZE_METHOD)
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
@@ -90,10 +101,13 @@ class DataBuilderClassification(DataBuilderBase):
             img_list.append(img)
             one_hot[an_data] = 1.
             label_list.append(one_hot)
+
         if augmentation is not None:
-            return augmentation(np.array(img_list), np.array(label_list), mode="classification")
-        else:
-            return np.array(img_list), np.array(label_list)
+            img_list, label_list = augmentation(img_list, label_list, mode="classification")
+
+        img_list, label_list = self.resize_img(img_list, label_list)
+
+        return np.array(img_list), np.array(label_list)
 
 
 class DataBuilderDetection(DataBuilderBase):

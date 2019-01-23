@@ -51,18 +51,18 @@ class Flip(ProcessBase):
         super(Flip, self).__init__()
 
     def _transform_classification(self, x, y):
-        assert len(x.shape) == 4
-        n = x.shape[0]
-        new_x = np.empty_like(x)
-        flip_flag = np.random.randint(3, size=(n, ))
-        for i, f in enumerate(flip_flag):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            f = np.random.randint(3)
             if f == 0:
-                new_x[i, :, :, :] = x[i, :, :, :]
+                img_list.append(x[i][:, :, :])
             elif f == 1:
-                new_x[i, :, :, :] = x[i, :, :, ::-1]
+                img_list.append(x[i][:, :, ::-1])
             elif f == 2:
-                new_x[i, :, :, :] = x[i, :, ::-1, :]
-        return new_x, y
+                img_list.append(x[i][:, ::-1, :])
+        return img_list, y
 
     def _transform_detection(self, x, y):
         # assert len(x.shape) == 4
@@ -162,16 +162,16 @@ class HorizontalFlip(ProcessBase):
         super(HorizontalFlip, self).__init__()
 
     def _transform_classification(self, x, y):
-        assert len(x.shape) == 4
-        n = x.shape[0]
-        new_x = np.empty_like(x)
-        flip_flag = np.random.randint(2, size=(n, ))
-        for i, f in enumerate(flip_flag):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            f= np.random.randint(2)
             if f == 0:
-                new_x[i, :, :, :] = x[i, :, :, :]
+                img_list.append(x[i][:, :, :])
             elif f == 1:
-                new_x[i, :, :, :] = x[i, :, :, ::-1]
-        return new_x, y
+                img_list.append(x[i][:, :, ::-1])
+        return img_list, y
 
     def _transform_detection(self, x, y):
         """Yet to be implemented"""
