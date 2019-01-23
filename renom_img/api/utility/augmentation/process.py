@@ -689,8 +689,12 @@ class WhiteNoise(ProcessBase):
         self._std = std
 
     def _transform_classification(self, x, y):
-        assert len(x.shape) == 4
-        return x + self._std * np.random.randn(*x.shape), y
+        # assert len(x.shape) == 4
+        img_list = []
+        n = len(x)
+        for i in range(n):
+            img_list.append(x[i] + self._std * np.random.randn(*x[i].shape))
+        return img_list, y
 
     def _transform_detection(self, x, y):
         # assert len(x.shape) == 4
