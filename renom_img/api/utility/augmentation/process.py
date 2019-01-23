@@ -475,7 +475,7 @@ class Shift(ProcessBase):
             orig_max_x = np.minimum(-rand_h + w, w)
             orig_max_y = np.minimum(-rand_v + h, h)
 
-            new_x[ :, new_min_y[0] : new_max_y[0], new_min_x[0]:new_max_x[0]] = \
+            new_x[:, new_min_y[0] : new_max_y[0], new_min_x[0]:new_max_x[0]] = \
                  x[i][:, orig_min_y[0]:orig_max_y[0], orig_min_x[0]:orig_max_x[0]]
             ny = []
             for j, obj in enumerate(y[i]):
@@ -560,20 +560,20 @@ class Rotate(ProcessBase):
         super(Rotate, self).__init__()
 
     def _transform_classification(self, x, y):
-        assert len(x.shape) == 4
-        n, c, h, w = x.shape
-        new_x = np.empty_like(x)
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            if h == w:
+                # 0, 90, 180 or 270 degree.
+                r = np.random.randint(4)
+            else:
+                # 0 or 180 degree.
+                r = np.random.randint(2) * 2
 
-        if h == w:
-            # 0, 90, 180 or 270 degree.
-            rotate_frag = np.random.randint(4, size=(n, ))
-        else:
-            # 0 or 180 degree.
-            rotate_frag = np.random.randint(2, size=(n, )) * 2
+            img_list.append(np.rot90(x[i], r, axes=(1, 2)))
 
-        for i, r in enumerate(rotate_frag):
-            new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))
-        return new_x, y
+        return img_list, y
 
     def _transform_detection(self, x, y):
         # assert len(x.shape) == 4
