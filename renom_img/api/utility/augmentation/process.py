@@ -429,26 +429,29 @@ class Shift(ProcessBase):
         self._v = vertivcal
 
     def _transform_classification(self, x, y):
-        assert len(x.shape) == 4
-        n, c, h, w = x.shape
-        new_x = np.zeros_like(x)
-        rand_h = ((np.random.rand(n) * 2 - 1) * self._h).astype(np.int)
-        rand_v = ((np.random.rand(n) * 2 - 1) * self._v).astype(np.int)
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range():
+            c, h, w = x[i].shape
+            new_x = np.zeros_like(np.asarray(x[i]))
+            rand_h = ((np.random.rand(1) * 2 - 1) * self._h).astype(np.int)
+            rand_v = ((np.random.rand(1) * 2 - 1) * self._v).astype(np.int)
 
-        new_min_x = np.clip(rand_h, 0, w)
-        new_min_y = np.clip(rand_v, 0, h)
-        new_max_x = np.clip(rand_h + w, 0, w)
-        new_max_y = np.clip(rand_v + h, 0, h)
+            new_min_x = np.clip(rand_h, 0, w)
+            new_min_y = np.clip(rand_v, 0, h)
+            new_max_x = np.clip(rand_h + w, 0, w)
+            new_max_y = np.clip(rand_v + h, 0, h)
 
-        orig_min_x = np.maximum(-rand_h, 0)
-        orig_min_y = np.maximum(-rand_v, 0)
-        orig_max_x = np.minimum(-rand_h + w, w)
-        orig_max_y = np.minimum(-rand_v + h, h)
+            orig_min_x = np.maximum(-rand_h, 0)
+            orig_min_y = np.maximum(-rand_v, 0)
+            orig_max_x = np.minimum(-rand_h + w, w)
+            orig_max_y = np.minimum(-rand_v + h, h)
 
-        for i in range(n):
-            new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
-                x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-        return new_x, y
+            new_x[ :, new_min_y[0]:new_max_y[0], new_min_x[0]:new_max_x[0]] = \
+                x[i][:, orig_min_y[0]:orig_max_y[0], orig_min_x[0]:orig_max_x[0]]
+            img_list.append(np.asarray(new_x))
+        return img_list, y
 
     def _transform_detection(self, x, y):
         # assert len(x.shape) == 1
