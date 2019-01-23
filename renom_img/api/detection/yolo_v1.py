@@ -14,34 +14,39 @@ from renom_img.api.utility.load import prepare_detection_data, load_img
 
 
 def make_box(box):
-    x1 = box[:, :, :, 0] - box[:, :, :, 2] / 2.
-    y1 = box[:, :, :, 1] - box[:, :, :, 3] / 2.
-    x2 = box[:, :, :, 0] + box[:, :, :, 2] / 2.
-    y2 = box[:, :, :, 1] + box[:, :, :, 3] / 2.
+    x1 = box[0] - box[2] / 2.
+    y1 = box[1] - box[3] / 2.
+    x2 = box[0] + box[2] / 2.
+    y2 = box[1] + box[3] / 2.
     return [x1, y1, x2, y2]
 
 
 def calc_iou(box1, box2):
     b1_x1, b1_y1, b1_x2, b1_y2 = box1
     b2_x1, b2_y1, b2_x2, b2_y2 = box2
+
     area1 = (b1_x2 - b1_x1) * (b1_y2 - b1_y1)
     area2 = (b2_x2 - b2_x1) * (b2_y2 - b2_y1)
     xA = np.fmax(b1_x1, b2_x1)
     yA = np.fmax(b1_y1, b2_y1)
     xB = np.fmin(b1_x2, b2_x2)
     yB = np.fmin(b1_y2, b2_y2)
+
+    if (xB-xA) < 0 or (yB-yA) < 0:
+        return 0
     intersect = (xB - xA) * (yB - yA)
-    # case we are given two scalar boxes:
-    if intersect.shape == ():
-        if (xB < xA) or (yB < yA):
-            return 0
-    # case we are given an array of boxes:
-    else:
-        intersect[xB < xA] = 0.0
-        intersect[yB < yA] = 0.0
-    # 0.0001 to avoid dividing by zero
-    union = (area1 + area2 - intersect + 0.0001)
+    union = (area1 + area2 - intersect)
+
     return intersect / union
+
+def calc_rmse(box1, box2):
+
+    b1_x1, b1_y1, b1_x2, b1_y2 = box1
+    b2_x1, b2_y1, b2_x2, b2_y2 = box2
+
+    rmse = np.sqrt(((b1_x1-b2_x1)**2 + (b1_y1-b2_y1)**2 + (b1_x2-b2_x2)**2 + (b1_y2-b2_y2)**2))
+
+    return rmse
 
 
 class Yolov1(Detection):
@@ -57,49 +62,67 @@ class Yolov1(Detection):
           will be saved as given name.
 
     References:
-        | Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi  
+        | Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi
         | **You Only Look Once: Unified, Real-Time Object Detection**
-        | https://arxiv.org/abs/1506.02640  
-        | 
+        | https://arxiv.org/abs/1506.02640
+        |
 
     """
 
-    SERIALIZED = ("_cells", "_bbox", *Base.SERIALIZED)
+    SERIALIZED = ("_cells", "_bbox", "imsize", "class_map", "num_class", "_last_dense_size")
     WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Yolov1.h5"
 
-    def __init__(self, class_map=None, cells=7, bbox=2,
-                 imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=[], cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        num_class = len(class_map)
 
-        if isinstance(cells, int):
+        if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
-        elif isinstance(cells, (list, tuple)):
-            cells = cells
-        else:
-            assert False
+        if not hasattr(imsize, "__getitem__"):
+            imsize = (imsize, imsize)
 
-        # Algorithm params settings.
-        model = Darknet(1)
-        self._freezed_network = rm.Sequential(model[:-7])
-        self._network = rm.Sequential(model[-7:])
+        self.num_class = num_class
+        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._cells = cells
         self._bbox = bbox
-        self._opt = rm.Sgd(0.01, 0.9)
+        self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
+        model = Darknet()
+        self._train_whole_network = train_whole_network
 
-        # Load pretrained weights
-        super(Yolov1, self).__init__(class_map, imsize, load_pretrained_weight,
-                                     train_whole_network, load_target=self)
+        self.imsize = imsize
+        self._freezed_network = rm.Sequential(model[:-4])
+        self._network = rm.Sequential([
+            rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
+            rm.LeakyRelu(slope=0.1),
+            rm.Conv2d(channel=1024, filter=3, padding=1, stride=2, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
+            rm.LeakyRelu(slope=0.1),
+            rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
+            rm.LeakyRelu(slope=0.1),
+            rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
+            rm.BatchNormalize(mode='feature'),
+            rm.LeakyRelu(slope=0.1),
+            rm.Flatten(),
+            rm.Dense(4096),  # instead of locally connected layer, we are using Dense layer
+            rm.LeakyRelu(slope=0.1),
+            rm.Dropout(0.5),
+            rm.Dense(self._last_dense_size)
+        ])
 
-        # Reset last weights.
-        for layer in self._network.iter_models():
-            layer.params = {}
+        self._opt = rm.Sgd(0.0005, 0.9)
 
-    def set_last_layer_unit(self, unit_size):
-        # Reset last dense layer
-        unit_size = (unit_size + 5 * self._bbox) * self._cells[0] * self._cells[1]
-        self._network[-1]._output_size = unit_size
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
 
-    def get_optimizer(self, current_loss=None, current_epoch=None,
-                      total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            model.load(load_pretrained_weight)
+
+
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimizer for training Yolov1 algorithm.
 
         If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
@@ -123,16 +146,17 @@ class Yolov1(Detection):
                 self._opt._lr *= 0.1
                 return self._opt
 
-            ind1 = int(total_epoch * 0.5)
-            ind2 = int(total_epoch * 0.3)
-            ind3 = total_epoch - (ind1 + ind2 + 1)
-            lr_list = [0] + [0.01] * ind1 + [0.001] * ind2 + [0.0001] * ind3
-            if current_epoch == 0:
-                lr = 0.0001 + (0.01 - 0.0001) / float(total_batch) * current_batch
-            else:
-                lr = lr_list[current_epoch]
+            ind1 = int(total_epoch * total_batch * 0.005)
+            ind2 = int(total_epoch * total_batch * 0.012)
+            ind3 = int(total_epoch * total_batch * 0.017)
+            ind4 = int(total_epoch * total_batch * 0.55)
+            ind5 = (total_epoch*total_batch) - (ind1 + ind2 + ind3 + ind4)
 
+            lr_list = [0.0005] * ind1 + [0.00125] * ind2 + [0.0025] * ind3 + [0.005] * ind4 + [0.0005] * ind5
+
+            lr = lr_list[(current_epoch*total_batch)+current_batch]
             self._opt._lr = lr
+
             return self._opt
 
     def preprocess(self, x):
@@ -146,7 +170,7 @@ class Yolov1(Detection):
         Returns:
             (ndarray): Preprocessed data.
         """
-        return x / 255. * 2 - 1
+        return x / 255.
 
     def forward(self, x):
         """Performs forward propagation.
@@ -176,8 +200,10 @@ class Yolov1(Detection):
         assert len(self.class_map) > 0, \
             "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
             "Or, please load already trained model using the method 'load()'."
-        self._freezed_network.set_auto_update(self.train_whole_network)
-        return self._network(self._freezed_network(x))
+        self._freezed_network.set_auto_update(self._train_whole_network)
+        out = self._freezed_network(x)
+        out = self._network(out)
+        return out
 
     def regularize(self):
         """Regularize term. You can use this function to add regularize term to
@@ -199,7 +225,7 @@ class Yolov1(Detection):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.0005 / 2.) * reg
+        return (0.0005 / 2) * reg
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
@@ -263,7 +289,7 @@ class Yolov1(Detection):
             boxes[:, :, :, b, :] = yolo_format_out[:, :, :, b * 5 + 1:b * 5 + 5]
             boxes[:, :, :, b, 0] += offset
             boxes[:, :, :, b, 1] += offset.T
-            boxes[:, :, :, b, 2] = boxes[:, :, :, b, 2]**2
+            boxes[:, :, :, b, 2] = boxes[:, :, :, b, 2]**2 # because the output for width and height is square rooted
             boxes[:, :, :, b, 3] = boxes[:, :, :, b, 3]**2
         boxes[:, :, :, :, 0:2] /= float(cell)
 
@@ -355,6 +381,7 @@ class Yolov1(Detection):
                     one_hot = [0] * obj["class"] + [1] + [0] * (self.num_class - obj["class"] - 1)
                     target[n, int(ty), int(tx)] = \
                         np.concatenate(([1, tx % 1, ty % 1, tw, th] * num_bbox, one_hot))
+
             return self.preprocess(img_data), target.reshape(N, -1)
         return builder
 
@@ -376,28 +403,46 @@ class Yolov1(Detection):
         nd_x = x.as_ndarray()
         num_bbox = self._bbox
         target = y.reshape(N, self._cells[0], self._cells[1], 5 * num_bbox + self.num_class)
-        mask = np.ones_like(target)
+        mask = np.zeros_like(target)
         nd_x = nd_x.reshape(target.shape)
+        x = x.reshape(target.shape)
+        for i in range(N):
+            for j in range(self._cells[0]):
+                for k in range(self._cells[1]):
+                    is_obj = target[i, j, k, 0]
+                    for b in range(num_bbox):
+                        mask[i, j, k, b*5] = 0.5 # mask for noobject cell
+                    best_rmse = 20
+                    best_iou = 0
+                    best_index = num_bbox
+                    if is_obj == 0:
+                        continue
+                    target_box = make_box(target[i, j, k, 1:5])
+                    for b in range(num_bbox):
+                        predicted_box = make_box(nd_x[i, j, k, 1 + b * 5:(b + 1) * 5])
+                        iou = calc_iou(predicted_box, target_box)
+                        rmse = calc_rmse(predicted_box, target_box)
+                        if best_iou > 0 or iou > 0:
+                            if iou > best_iou:
+                                best_iou = iou
+                                best_index = b
+                        else:
+                            if rmse < best_rmse:
+                                best_rmse = rmse
+                                best_index=b
 
-        target_box = make_box(target[:, :, :, 1:5])
-        iou = np.zeros((*target.shape[:3], num_bbox))
-        no_obj_flag = np.where(target[:, :, :, 0] == 0)
-        obj_flag = np.where(target[:, :, :, 0] == 1)
+                    predicted_box = make_box(nd_x[i, j, k, 1 + best_index * 5:(best_index + 1) * 5])
+                    # IOU needed to be calculated again, cause best index can be selected based on rmse also
+                    iou = calc_iou(predicted_box, target_box)
+                    # mask for the confidence of selected box
+                    mask[i,j,k,5*best_index] = 1
+                    # changing the confidence of target to iou
+                    target[i,j,k,5*best_index] = iou
+                    # mask for the coordinates
+                    mask[i,j,k,1 + best_index * 5:(best_index + 1) * 5] = 5
+                    # mask for the class probabilities
+                    mask[i, j, k, 5*num_bbox:] = 1
 
-        mask[no_obj_flag[0], no_obj_flag[1], no_obj_flag[2], :] = 0
-        for b in range(num_bbox):
-            # No obj
-            mask[no_obj_flag[0], no_obj_flag[1], no_obj_flag[2], 5 * b] = 0.5
+        diff = target - x
 
-            # Search best iou target. 1:5, 6:10
-            predicted_box = make_box(nd_x[:, :, :, 1 + b * 5:(b + 1) * 5])
-            iou[:, :, :, b] = calc_iou(predicted_box, target_box)
-        iou_ind = np.argmax(iou, axis=3)
-        # Obj
-        for fn, fy, fx in zip(*obj_flag):
-            mask[fn, fy, fx, :5 * num_bbox] = 0
-            mask[fn, fy, fx, iou_ind[fn, fy, fx] * 5] = 1
-            mask[fn, fy, fx, 1 + iou_ind[fn, fy, fx] * 5:(iou_ind[fn, fy, fx] + 1) * 5] = 5
-
-        diff = (x - y)
-        return rm.sum(diff * diff * mask.reshape(N, -1)) / N / 2.
+        return rm.sum(diff * diff * mask) / N / 2.
