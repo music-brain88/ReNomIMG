@@ -441,6 +441,9 @@ class Yolov2(Detection):
             img_list, label_list = prepare_detection_data(
                 img_path_list, annotation_list, imsize_list[size_index])
 
+            if augmentation is not None:
+                img_list, label_list = augmentation(img_list, label_list, mode="detection")
+
             for n, annotation in enumerate(label_list):
                 # This returns resized image.
                 # Target processing
