@@ -432,7 +432,7 @@ class Shift(ProcessBase):
         # assert len(x.shape) == 4
         n = len(x)
         img_list = []
-        for i in range():
+        for i in range(n):
             c, h, w = x[i].shape
             new_x = np.zeros_like(np.asarray(x[i]))
             rand_h = ((np.random.rand(1) * 2 - 1) * self._h).astype(np.int)
@@ -564,6 +564,7 @@ class Rotate(ProcessBase):
         n = len(x)
         img_list = []
         for i in range(n):
+            c, h, w = x[i].shape
             if h == w:
                 # 0, 90, 180 or 270 degree.
                 r = np.random.randint(4)
