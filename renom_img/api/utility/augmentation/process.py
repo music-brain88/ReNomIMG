@@ -109,22 +109,22 @@ class Flip(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        assert len(x.shape) == 4
-        n = x.shape[0]
-        new_x = np.empty_like(x)
-        new_y = np.empty_like(y)
-        flip_flag = np.random.randint(3, size=(n, ))
-        for i, f in enumerate(flip_flag):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        new_y = []
+        for i in range(n):
+            f = np.random.randint(3)
             if f == 0:
-                new_x[i, :, :, :] = x[i, :, :, :]
-                new_y[i, :, :, :] = y[i, :, :, :]
+                img_list.append(x[i][:, :, :])
+                new_y.append(y[i][:, :, :])
             elif f == 1:
-                new_x[i, :, :, :] = x[i, :, :, ::-1]
-                new_y[i, :, :, :] = y[i, :, :, ::-1]
+                img_list.append(x[i][:, :, ::-1])
+                new_y.append(y[i][:, :, ::-1])
             elif f == 2:
-                new_x[i, :, :, :] = x[i, :, ::-1, :]
-                new_y[i, :, :, :] = y[i, :, ::-1, :]
-        return new_x, new_y
+                img_list.append(x[i][:, ::-1, :])
+                new_y.append(y[i][:, ::-1, :])
+        return img_list, new_y
 
 
 def flip(x, y=None, mode="classification"):
