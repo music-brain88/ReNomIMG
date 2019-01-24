@@ -117,6 +117,23 @@ class DataBuilderDetection(DataBuilderBase):
         class_map(array): Array of class names
         imsize(int or tuple): Input image size
     """
+    def resize_img(self, img_list, annotation_list):
+        im_list = []
+        label_list = []
+
+        for img, obj_list in zip(img_list, annotation_list):
+            channel_last = img.transpose(1,2,0)
+            img = Image.fromarray(np.uint8(channel_last))
+            w, h = img.size
+            sw, sh = imsize[0] / float(w), imsize[1] / float(h)
+            img = img.resize(imsize, Image.BILINEAR).convert('RGB')
+            new_obj_list = [{
+                "box": [obj["box"][0] * sw, obj["box"][1] * sh, obj["box"][2] * sw, obj["box"][3] * sh],
+                **{k: v for k, v in obj.items() if k != "box"}
+            } for obj in obj_list]
+            im_list.append(np.asarray(img))
+            label_list.append(new_obj_list)
+        return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), label_list
 
     def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
         """
@@ -145,10 +162,10 @@ class DataBuilderDetection(DataBuilderBase):
             new_annotation_list.append([
                 {
                     "box": [
-                        an["box"][0] * sw,
-                        an["box"][1] * sh,
-                        an["box"][2] * sw,
-                        an["box"][3] * sh,
+                        an["box"][0],
+                        an["box"][1],
+                        an["box"][2],
+                        an["box"][3],
                     ],
                     **{k: v for k, v in an.items() if k != 'box'}
                 }
@@ -157,8 +174,8 @@ class DataBuilderDetection(DataBuilderBase):
         if augmentation is not None:
             img_list, annotation_list = augmentation(
                 np.array(img_list), new_annotation_list, mode="detection")
-        else:
-            img_list, annotation_list = np.array(img_list), new_annotation_list
+
+        img_list, annotation_list = self.resize_img(img_list, annotation_list)
 
         # Get max number of objects in one image.
         dlt = 4 + 1
@@ -197,7 +214,7 @@ class DataBuilderSegmentation(DataBuilderBase):
         # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
         assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
         assert img.ndim == 2
-        return np.array(img), self.imsize[0] / float(w), self.imsize[1] / h
+        return np.array(img), float(w), float(h)
 
     def load_img(self, path):
         img = Image.open(path)
@@ -251,8 +268,8 @@ class DataBuilderSegmentation(DataBuilderBase):
             img, sw, sh = self.load_img(img_path)
             labels, asw, ash = self.load_annotation(an_path)
             img_list.append(img)
-            for i in range(self.imsize[0]):
-                for j in range(self.imsize[1]):
+            for i in range(asw):
+                for j in range(ash):
                     if int(labels[i][j]) >= n_class:
                         annot[n_class - 1, i, j] = 1
                     else:

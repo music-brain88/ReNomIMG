@@ -139,7 +139,8 @@ def parse_txt_classification(path, separator=" "):
                   for a, f in zip(annotation_list, filename_list)}
     return annotation, class_map
 
-
+# this function is called only from predict method of classification, detection and segmentation
+# so this method has nothing to do with augmentation processes
 def load_img(img_path, imsize=None):
     img = Image.open(img_path)
     img = img.convert('RGB')
