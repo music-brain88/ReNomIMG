@@ -125,8 +125,8 @@ class DataBuilderDetection(DataBuilderBase):
             channel_last = img.transpose(1,2,0)
             img = Image.fromarray(np.uint8(channel_last))
             w, h = img.size
-            sw, sh = imsize[0] / float(w), imsize[1] / float(h)
-            img = img.resize(imsize, Image.BILINEAR).convert('RGB')
+            sw, sh = self.imsize[0] / float(w), self.imsize[1] / float(h)
+            img = img.resize(self.imsize, Image.BILINEAR).convert('RGB')
             new_obj_list = [{
                 "box": [obj["box"][0] * sw, obj["box"][1] * sh, obj["box"][2] * sw, obj["box"][3] * sh],
                 **{k: v for k, v in obj.items() if k != "box"}
