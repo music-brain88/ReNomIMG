@@ -649,7 +649,7 @@ class Rotate(ProcessBase):
                 r = np.random.randint(4)
             else:
                 # 0 or 180 degree.
-                rotate_frag = np.random.randint(2) * 2
+                r = np.random.randint(2) * 2
             new_x.append(np.rot90(x[i], r, axes=(1, 2)))
             new_y.append(np.rot90(y[i], r, axes=(1, 2)))
         return new_x, new_y
