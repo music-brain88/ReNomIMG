@@ -875,20 +875,22 @@ class ContrastNorm(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        assert len(x.shape) == 4
-        n = x.shape[0]
-        new_x = np.empty_like(x)
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
         for i in range(n):
             if self._per_channel and isinstance(self._alpha, list):
-                channel = x.shape[1]
+                new_x = np.empty_like(x[i])
+                channel = x[i].shape[0]
                 alpha = self._draw_sample(size=channel)
                 for c in range(channel):
-                    new_x[i, c, :, :] = np.clip(alpha[c] * (x[i, c, :, :] - 128) + 128, 0, 255)
+                    new_x[c, :, :] = np.clip(alpha[c] * (x[i][c, :, :] - 128) + 128, 0, 255)
+                img_list.append(new_x)
             else:
                 alpha = self._draw_sample()
-                new_x[i] = np.clip(alpha * (x[i] - 128) + 128, 0, 255)
+                img_list.append(np.clip(alpha * (x[i] - 128) + 128, 0, 255))
 
-        return new_x, y
+        return img_list, y
 
 
 def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'):
