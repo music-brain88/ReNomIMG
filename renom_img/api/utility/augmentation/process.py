@@ -499,29 +499,35 @@ class Shift(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        assert len(x.shape) == 4
-        n, c, h, w = x.shape
-        new_x = np.zeros_like(x)
-        new_y = np.zeros_like(y)
-        rand_h = ((np.random.rand(n) * 2 - 1) * self._h).astype(np.int)
-        rand_v = ((np.random.rand(n) * 2 - 1) * self._v).astype(np.int)
-
-        new_min_x = np.clip(rand_h, 0, w)
-        new_min_y = np.clip(rand_v, 0, h)
-        new_max_x = np.clip(rand_h + w, 0, w)
-        new_max_y = np.clip(rand_v + h, 0, h)
-
-        orig_min_x = np.maximum(-rand_h, 0)
-        orig_min_y = np.maximum(-rand_v, 0)
-        orig_max_x = np.minimum(-rand_h + w, w)
-        orig_max_y = np.minimum(-rand_v + h, h)
-
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        label_list = []
         for i in range(n):
-            new_x[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
-                x[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-            new_y[i, :, new_min_y[i]:new_max_y[i], new_min_x[i]:new_max_x[i]] = \
-                y[i, :, orig_min_y[i]:orig_max_y[i], orig_min_x[i]:orig_max_x[i]]
-        return new_x, new_y
+            c, h, w = x[i].shape
+            new_x = np.zeros_like(np.asarray(x[i]))
+            new_y = np.zeros_like(np.asarray(y[i]))
+
+            rand_h = ((np.random.rand(1) * 2 - 1) * self._h).astype(np.int)
+            rand_v = ((np.random.rand(1) * 2 - 1) * self._v).astype(np.int)
+
+            new_min_x = np.clip(rand_h, 0, w)
+            new_min_y = np.clip(rand_v, 0, h)
+            new_max_x = np.clip(rand_h + w, 0, w)
+            new_max_y = np.clip(rand_v + h, 0, h)
+
+            orig_min_x = np.maximum(-rand_h, 0)
+            orig_min_y = np.maximum(-rand_v, 0)
+            orig_max_x = np.minimum(-rand_h + w, w)
+            orig_max_y = np.minimum(-rand_v + h, h)
+
+            new_x[:, new_min_y[0]:new_max_y[0], new_min_x[0]:new_max_x[0]] = \
+                x[i][:, orig_min_y[0]:orig_max_y[0], orig_min_x[0]:orig_max_x[0]]
+            new_y[:, new_min_y[0]:new_max_y[0], new_min_x[0]:new_max_x[0]] = \
+                y[i][:, orig_min_y[0]:orig_max_y[0], orig_min_x[0]:orig_max_x[0]]
+            img_list.append(np.asarray(new_x))
+            label_list.append(np.asarray(new_y))
+        return img_list, label_list
 
 
 def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
