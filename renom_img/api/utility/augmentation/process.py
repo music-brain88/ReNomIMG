@@ -593,8 +593,6 @@ class Rotate(ProcessBase):
             c, h, w = x[i].shape
             c_w = w // 2
             c_h = h // 2
-
-
             if w == h:
                 r = np.random.randint(4)
             else:
@@ -642,21 +640,20 @@ class Rotate(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        assert len(x.shape) == 4
-        n, c, h, w = x.shape
-        new_x = np.empty_like(x)
-        new_y = np.empty_like(y)
-
-        if h == w:
-            # 0, 90, 180 or 270 degree.
-            rotate_frag = np.random.randint(4, size=(n, ))
-        else:
-            # 0 or 180 degree.
-            rotate_frag = np.random.randint(2, size=(n, )) * 2
-
-        for i, r in enumerate(rotate_frag):
-            new_x[i, :, :, :] = np.rot90(x[i], r, axes=(1, 2))
-            new_y[i, :, :, :] = np.rot90(y[i], r, axes=(1, 2))
+        # assert len(x.shape) == 4
+        n= len(x)
+        new_x = []
+        new_y = []
+        for i in range(n):
+            c,h,w = x[i].shape
+            if h == w:
+                # 0, 90, 180 or 270 degree.
+                r = np.random.randint(4)
+            else:
+                # 0 or 180 degree.
+                rotate_frag = np.random.randint(2) * 2
+            new_x.append(np.rot90(x[i], r, axes=(1, 2)))
+            new_y.append(np.rot90(y[i], r, axes=(1, 2)))
         return new_x, new_y
 
 
