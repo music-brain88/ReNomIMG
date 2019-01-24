@@ -587,8 +587,6 @@ class Rotate(ProcessBase):
         n = len(x)
         img_list = []
         new_y = []
-
-
         for i in range(n):
             c, h, w = x[i].shape
             c_w = w // 2
@@ -709,8 +707,12 @@ class WhiteNoise(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        assert len(x.shape) == 4
-        return x + self._std * np.random.randn(*x.shape), y
+        # assert len(x.shape) == 4
+        img_list = []
+        n = len(x)
+        for i in range(n):
+            img_list.append(x[i] + self._std * np.random.randn(*x[i].shape))
+        return img_list, y
 
 
 def white_noise(x, y=None, std=0.01, mode="classification"):
