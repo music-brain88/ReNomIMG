@@ -2,9 +2,10 @@ import os
 import sys
 import numpy as np
 import renom as rm
+from renom_img.api.utility.misc.download import download
 
 class Darknet(rm.Sequential):
-    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Darknet.h5"
+    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/v2.0.1/classification/Darknet.h5"
 
     def __init__(self, num_class=1000, load_pretrained_weight=False):
 
