@@ -336,7 +336,6 @@ def dataset_confirm():
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
 
-        start_t = time.time()
         classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
         target_file_list = list(target.keys())
@@ -399,10 +398,12 @@ def dataset_confirm():
         valid_tag_list = []
 
         for i in range(len(train_target)):
-            train_tag_list.append(train_target[i][0].get('class'))
+            for j in range(len(train_target[i])):
+                train_tag_list.append(train_target[i][j].get('class'))
 
         for i in range(len(valid_target)):
-            valid_tag_list.append(valid_target[i][0].get('class'))
+            for j in range(len(valid_target[i])):
+                valid_tag_list.append(valid_target[i][j].get('class'))
 
         train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))
