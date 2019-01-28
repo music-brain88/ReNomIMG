@@ -10,7 +10,7 @@ from renom_img.api.utility.evaluate import EvaluatorDetection
 from renom_img.api.utility.evaluate import EvaluatorSegmentation
 from renom_img.api.utility.augmentation.process import contrast_norm
 from renom_img.api.utility.augmentation.process import shift
-from renom_img.api.utility.augmentation.process import rotate, flip, white_noise
+from renom_img.api.utility.augmentation.process import rotate, flip, white_noise, random_crop
 from renom_img.api.utility.target import DataBuilderClassification, DataBuilderDetection, DataBuilderSegmentation
 
 from renom_img.api.utility.misc.display import draw_box
@@ -31,6 +31,7 @@ def scope_session():
     [flip, {}],
     [white_noise, {"std": 10}],
     [contrast_norm, {"alpha": [0.5, 1.0]}],
+    [random_crop, {}],
 ])
 def test_augmentation_process_detection(method, kwargs):
     img = Image.open('./renom.png')
@@ -60,6 +61,7 @@ def test_augmentation_process_detection(method, kwargs):
     [flip, {}],
     [white_noise, {"std": 10}],
     [contrast_norm, {"alpha": [0.5, 1.0]}],
+    [random_crop,{}],
 ])
 def test_augmentation_process_classification(method, kwargs):
     img = Image.open('./renom.png')

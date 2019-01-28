@@ -211,214 +211,199 @@ def horizontalflip(x, y=None, mode="classification"):
     return HorizontalFlip()(x, y, mode=mode)
 
 
-# class RandomCrop(ProcessBase):
-#
-#     def __init__(self, padding=4):
-#         super(RandomCrop, self).__init__()
-#         self.padding = padding
-#
-#         self.sample_options = (
-#         None, # using entire original input image
-#         (0.1, None),
-#         (0.3, None),
-#         (0.7, None),
-#         (0.9, None),
-#         (None, None), # randomly sample a patch
-#         )
-#
-#     def _transform_classification(self, x, y): # according to the ResNet paper
-#         assert len(x.shape) == 4
-#         new_x = np.empty_like(x)
-#         h,w = x.shape[2],x.shape[3]
-#
-#         p = int(self.padding / 2)  # pad length of each side
-#         x = np.pad(x, pad_width=((0, 0), (0, 0), (p, p), (p, p)),
-#                    mode='constant', constant_values=0)
-#
-#         _h = x.shape[2]  # changed height
-#         _w = x.shape[3]  # changed width
-#         n = x.shape[0]  # number of batch images
-#
-#         rand_top = np.random.randint(0, _h - h, size=(n, ))
-#         rand_left = np.random.randint(0, _w - w, size=(n, ))
-#
-#         for i, (top, left) in enumerate(zip(rand_top, rand_left)):
-#             new_x[i, :, :, :] = x[i, :, top:top + h, left:left + w]
-#
-#         return new_x, y
-#
-#     def jaccard_overlap(self,b1_x1,b1_y1,b1_x2,b1_y2,b2_x1,b2_y1,b2_x2,b2_y2):
-#         area1 = (b1_x2 - b1_x1) * (b1_y2 - b1_y1)
-#         area2 = (b2_x2 - b2_x1) * (b2_y2 - b2_y1)
-#         xA = np.fmax(b1_x1, b2_x1)
-#         yA = np.fmax(b1_y1, b2_y1)
-#         xB = np.fmin(b1_x2, b2_x2)
-#         yB = np.fmin(b1_y2, b2_y2)
-#
-#         if (xB-xA) < 0 or (yB-yA) < 0:
-#             return 0
-#         intersect = (xB - xA) * (yB - yA)
-#         union = (area1 + area2 - intersect)
-#
-#         return intersect / union
-#
-#     def check_point(self, left, top, right, down, x, y):
-#         if x > left and x < right and y > top and y < down:
-#             return True
-#         else:
-#             return False
-#
-#     def upscaled(self,x,y,width,height):
-#         _y = []
-#         h,w = x.shape[1],x.shape[2]
-#         sw, sh = width / float(w), height / float(h)
-#         reduced = np.squeeze(x)
-#         channel_last = np.rollaxis(reduced,0,3)
-#         im = Image.fromarray(np.uint8(channel_last))
-#         resized = im.resize((width,height),Image.BILINEAR).convert('RGB')
-#
-#         arr = np.asarray(resized)
-#         arr = np.expand_dims(arr,0)
-#         arr = np.rollaxis(arr,3,1)
-#         for j, obj in enumerate(y):
-#             _y.append({
-#                 "box": [obj["box"][0] * sw, obj["box"][1] * sh, obj["box"][2] * sw, obj["box"][3] * sh],
-#                 **{k: v for k, v in obj.items() if k != 'box'}
-#             })
-#         return arr, _y
-#
-#     def _transform_detection(self, x, y): # according to ssd paper
-#         assert len(x.shape) == 4
-#         n, c, h, w = x.shape
-#         new_x = np.empty_like(x)
-#         new_y = []
-#         for i in range(n):
-#             # considering the following choice for whole batch can speed the calculation
-#             choice = np.random.choice(self.sample_options)
-#             if choice == None:
-#                 # return the original input image
-#                 new_x [i, :, :, :] = x[i, :, :, :]
-#                 new_y.append(y[i])
-#             elif choice[0] is not None:
-#                 # do cal iou case
-#                 # act_w = y[i]["size"][0]
-#                 # act_h = y[i]["size"][1]
-#                 temp_y = []
-#                 min = choice[0]
-#                 success = False
-#                 while (not success):
-#                     sw = int(np.random.uniform(0.3*act_w, act_w))
-#                     sh = int(np.random.uniform(0.3*act_h, act_h))
-#                     if sh / sw < 0.5 or sh / sw > 2:
-#                         continue
-#                     left = int(np.random.uniform(w - sw))
-#                     top = int(np.random.uniform(h - sh))
-#                     # print('cropped for :',i)
-#                     # print('cropped:',left+(sw/2),top+(sh/2),sw,sh)
-#                     for j, obj in enumerate(y[i]):
-#                         ox,oy,ow,oh = obj["box"]
-#                         # print('truth:',ox,oy,ow,oh)
-#                         if self.check_point(left,top,left+sw,top+sh,ox,oy):
-#                             overlap = self.jaccard_overlap(left,top,left+sw,top+sh,\
-#                             ox-(ow/2),oy-(oh/2),ox+(ow/2),oy+(oh/2))
-#                             # print('iou case overlap = ',overlap)
-#                             # print('minimum = ',min)
-#                             if overlap > min:
-#                                 pw = np.clip(ox+(ow/2),0,left+sw)
-#                                 ph = np.clip(oy+(oh/2),0,top+sh)
-#                                 temp_y.append({
-#                                     "box": [ox, oy, pw, ph],
-#                                     **{k: v for k, v in obj.items() if k != 'box'}
-#                                 })
-#                     if len(temp_y) > 0:
-#                         # ar, y = self.upscaled(x[i,:,left:left+sw,top:top+sh],temp_y,w,h)
-#                         new_x [i,:,:,:], _y = self.upscaled(x[i,:,left:left+sw,top:top+sh],temp_y,w,h)
-#                         new_y.append(_y)
-#                         success = True
-#
-#
-#             else:# randomly sample case
-#                 temp_y = []
-#                 success = False
-#                 while (not success):
-#                     sw = int(np.random.uniform(0.3*w, w))
-#                     sh = int(np.random.uniform(0.3*h, h))
-#
-#                     if sh / sw < 0.5 or sh / sw > 2:
-#                         continue
-#                     left = int(np.random.uniform(w - sw))
-#                     top = int(np.random.uniform(h - sh))
-#
-#                     for j, obj in enumerate(y[i]):
-#                         ox,oy,ow,oh = obj["box"]
-#                         if self.check_point(left,top,left+sw,top+sh,ox,oy):
-#                             pw = np.clip(ox+(ow/2),0,left+sw)
-#                             ph = np.clip(oy+(oh/2),0,top+sh)
-#                             temp_y.append({
-#                                 "box": [ox, oy, pw, ph],
-#                                 **{k: v for k, v in obj.items() if k != 'box'}
-#                             })
-#                     if len(temp_y) > 0:
-#                         # ar, y = self.upscaled(x[i,:,left:left+sw,top:top+sh],temp_y,w,h)
-#                         new_x [i,:,:,:], _y = self.upscaled(x[i,:,left:left+sw,top:top+sh],temp_y,w,h)
-#                         new_y.append(_y)
-#                         success = True
-#
-#         return new_x, new_y
-#
-#
-#     def _transform_segmentation(self, x, y):
-#
-#         assert len(x.shape) == 4
-#         new_x = np.empty_like(x)
-#         new_y = np.empty_like(y)
-#         w,h = x.shape[2],x.shape[3]
-#
-#         p = int(self.padding / 2)  # pad length of each side
-#         x = np.pad(x, pad_width=((0, 0), (0, 0), (p, p), (p, p)),
-#                    mode='constant', constant_values=0)
-#
-#         _w = x.shape[2]  # changed height
-#         _h = x.shape[3]  # changed width
-#         n = x.shape[0]  # number of batch images
-#
-#         rand_top = np.random.randint(0, _w - w, size=(n, ))
-#         rand_left = np.random.randint(0, _h - h, size=(n, ))
-#
-#         for i, (top, left) in enumerate(zip(rand_top, rand_left)):
-#             new_x[i, :, :, :] = x[i, :, top:top + w, left:left + h]
-#             new_y[i, :, :, :] = y[i, :, top:top + w, left:left + h]
-#
-#         return new_x, new_y
-#
-#
-# def random_crop(x, y=None, padding=4, mode="classification"):
-#     """crop image randomly.
-#
-#     Args:
-#         x (list of str): List of path of images.
-#         y (list of annotation): list of annotation for x. It is only used when prediction.
-#
-#     Returns:
-#         tupple: list of transformed images and list of annotation for x.
-#
-#     .. code-block :: python
-#
-#         [
-#             x (list of numpy.ndarray), # List of transformed images.
-#             y (list of annotation) # list of annotation for x.
-#         ]
-#
-#     Examples:
-#         >>> from renom_img.api.utility.augmentation.process import RandomCrop
-#         >>> from PIL import Image
-#         >>>
-#         >>> img1 = Image.open(img_path1)
-#         >>> img2 = Image.open(img_path2)
-#         >>> img_list = np.array([img1, img2])
-#         >>> cropped_img = random_crop(img_list)
-#     """
-#     return RandomCrop(padding)(x, y, mode=mode)
+class RandomCrop(ProcessBase):
+
+    def __init__(self, padding=4):
+        super(RandomCrop, self).__init__()
+        self.padding = padding
+
+        self.sample_options = (
+        None, # using entire original input image
+        (0.1, None),
+        (0.3, None),
+        (0.7, None),
+        (0.9, None),
+        (None, None), # randomly sample a patch
+        )
+
+    def _transform_classification(self, x, y): # according to the ResNet paper
+        # assert len(x.shape) == 4
+        img_list = []
+        n = len(x)
+        for i in range(n):
+            h,w = x[i].shape[1],x[i].shape[2]
+
+            p = int(self.padding / 2)  # pad length of each side
+            x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
+                       mode='constant', constant_values=0)
+            _h = x.shape[1]  # changed height
+            _w = x.shape[2]  # changed width
+            top = np.random.randint(0, _h - h)
+            left = np.random.randint(0, _w - w)
+
+            img_list.append(x[:, top:top + h, left:left + w])
+
+        return img_list, y
+
+    def jaccard_overlap(self,b1_x1,b1_y1,b1_x2,b1_y2,b2_x1,b2_y1,b2_x2,b2_y2):
+        area1 = (b1_x2 - b1_x1) * (b1_y2 - b1_y1)
+        area2 = (b2_x2 - b2_x1) * (b2_y2 - b2_y1)
+        xA = np.fmax(b1_x1, b2_x1)
+        yA = np.fmax(b1_y1, b2_y1)
+        xB = np.fmin(b1_x2, b2_x2)
+        yB = np.fmin(b1_y2, b2_y2)
+
+        if (xB-xA) < 0 or (yB-yA) < 0:
+            return 0
+        intersect = (xB - xA) * (yB - yA)
+        union = (area1 + area2 - intersect)
+
+        return intersect / union
+
+    def check_point(self, left, top, right, down, x, y):
+        if x > left and x < right and y > top and y < down:
+            return True
+        else:
+            return False
+
+    def _transform_detection(self, x, y): # according to ssd paper
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        new_y = []
+        for i in range(n):
+            # considering the following choice for whole batch can speed the calculation
+            choice = np.random.choice(self.sample_options)
+            c, h, w = x[i].shape
+            if choice == None:
+                img_list.append(x[i])
+                new_y.append(y[i])
+            elif choice[0] is not None:
+                count = 0
+                hist = {}
+                temp_y = []
+                hi = []
+                min = choice[0]
+                success = False
+                while (not success):
+                    sw = int(np.random.uniform(0.1*w, w))
+                    sh = int(np.random.uniform(0.1*h, h))
+                    if sw / sh < 0.5 or sw / sh > 2:
+                        continue
+                    left = int(np.random.uniform(w - sw))
+                    top = int(np.random.uniform(h - sh))
+                    for j, obj in enumerate(y[i]):
+                        ox,oy,ow,oh = obj["box"]
+                        if self.check_point(left,top,left+sw,top+sh,ox,oy):
+                            overlap = self.jaccard_overlap(left,top,left+sw,top+sh,\
+                            ox-(ow/2),oy-(oh/2),ox+(ow/2),oy+(oh/2))
+                            if overlap > min:
+                                pw = np.clip(ox+(ow/2),0,left+sw)
+                                ph = np.clip(oy+(oh/2),0,top+sh)
+                                temp_y.append({
+                                    "box": [ox, oy, pw, ph],
+                                    **{k: v for k, v in obj.items() if k != 'box'}
+                                })
+                            else:
+                                pw = np.clip(ox+(ow/2),0,left+sw)
+                                ph = np.clip(oy+(oh/2),0,top+sh)
+                                hi.append({
+                                    "box": [ox, oy, pw, ph],
+                                    **{k: v for k, v in obj.items() if k != 'box'}
+                                })
+                                hist[overlap] = [left,top,sw,sh,hi]
+                    count+= 1
+                    if len(temp_y) > 0:
+                        success = True
+                        img_list.append(x[i][:,left:left+sw,top:top+sh])
+                        new_y.append(temp_y)
+                    elif count > 80:
+                        success = True
+                        best_jo = sorted(hist.items(),key= lambda tt:tt[0],reverse=True)
+                        left, top, sw, sh, bbox = best_jo[0][1]
+                        # print('best jaccard overlap = ',best_jo[0][0])
+                        img_list.append(x[i][:,left:left+sw,top:top+sh])
+                        new_y.append(bbox)
+            else:#
+                temp_y = []
+                success = False
+                while (not success):
+                    sw = int(np.random.uniform(0.3*w, w))
+                    sh = int(np.random.uniform(0.3*h, h))
+
+                    if sw / sh < 0.5 or sw / sh > 2:
+                        continue
+                    left = int(np.random.uniform(w - sw))
+                    top = int(np.random.uniform(h - sh))
+
+                    for j, obj in enumerate(y[i]):
+                        ox,oy,ow,oh = obj["box"]
+                        if self.check_point(left,top,left+sw,top+sh,ox,oy):
+                            pw = np.clip(ox+(ow/2),0,left+sw)
+                            ph = np.clip(oy+(oh/2),0,top+sh)
+                            temp_y.append({
+                                "box": [ox, oy, pw, ph],
+                                **{k: v for k, v in obj.items() if k != 'box'}
+                            })
+                    if len(temp_y) > 0:
+                        success = True
+                        img_list.append(x[i][:,left:left+sw,top:top+sh])
+                        new_y.append(temp_y)
+
+        return img_list, new_y
+
+
+    def _transform_segmentation(self, x, y):
+        # assert len(x.shape) == 4
+        img_list = []
+        new_y = []
+        n = len(x)
+        for i in range(n):
+            h,w = x[i].shape[1],x[i].shape[2]
+
+            p = int(self.padding / 2)  # pad length of each side
+            x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
+                       mode='constant', constant_values=0)
+
+            _h = x.shape[1]  # changed height
+            _w = x.shape[2]  # changed width
+
+
+            top = np.random.randint(0, _h - h)
+            left = np.random.randint(0, _w - w)
+
+            img_list.append(x[:, top:top + h, left:left + w])
+            new_y.append(y[:, top:top + h, left:left + w])
+        return img_list, new_y
+
+
+def random_crop(x, y=None, padding=4, mode="classification"):
+    """crop image randomly.
+
+    Args:
+        x (list of str): List of path of images.
+        y (list of annotation): list of annotation for x. It is only used when prediction.
+
+    Returns:
+        tupple: list of transformed images and list of annotation for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import RandomCrop
+        >>> from PIL import Image
+        >>>
+        >>> img1 = Image.open(img_path1)
+        >>> img2 = Image.open(img_path2)
+        >>> img_list = np.array([img1, img2])
+        >>> cropped_img = random_crop(img_list)
+    """
+    return RandomCrop(padding)(x, y, mode=mode)
 
 
 class Shift(ProcessBase):
