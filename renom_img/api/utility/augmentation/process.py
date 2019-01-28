@@ -459,44 +459,48 @@ class Shift(ProcessBase):
         new_y = []
         n = len(x)
         for i in range(n):
-            c, h, w = x[i].shape
-            new_x = np.zeros_like(np.asarray(x[i]))
+            success = False
+            while (not success):
+                c, h, w = x[i].shape
+                new_x = np.zeros_like(np.asarray(x[i]))
 
-            rand_h = ((np.random.rand(1) * 2 - 1) * self._h).astype(np.int)
-            rand_v = ((np.random.rand(1) * 2 - 1) * self._v).astype(np.int)
+                rand_h = ((np.random.rand(1) * 2 - 1) * self._h).astype(np.int)
+                rand_v = ((np.random.rand(1) * 2 - 1) * self._v).astype(np.int)
 
-            new_min_x = np.clip(rand_h, 0, w)
-            new_min_y = np.clip(rand_v, 0, h)
-            new_max_x = np.clip(rand_h + w, 0, w)
-            new_max_y = np.clip(rand_v + h, 0, h)
+                new_min_x = np.clip(rand_h, 0, w)
+                new_min_y = np.clip(rand_v, 0, h)
+                new_max_x = np.clip(rand_h + w, 0, w)
+                new_max_y = np.clip(rand_v + h, 0, h)
 
-            orig_min_x = np.maximum(-rand_h, 0)
-            orig_min_y = np.maximum(-rand_v, 0)
-            orig_max_x = np.minimum(-rand_h + w, w)
-            orig_max_y = np.minimum(-rand_v + h, h)
+                orig_min_x = np.maximum(-rand_h, 0)
+                orig_min_y = np.maximum(-rand_v, 0)
+                orig_max_x = np.minimum(-rand_h + w, w)
+                orig_max_y = np.minimum(-rand_v + h, h)
 
-            new_x[:, new_min_y[0] : new_max_y[0], new_min_x[0]:new_max_x[0]] = \
-                 x[i][:, orig_min_y[0]:orig_max_y[0], orig_min_x[0]:orig_max_x[0]]
-            ny = []
-            for j, obj in enumerate(y[i]):
-                pw = obj["box"][2]
-                ph = obj["box"][3]
-                px1 = np.clip(obj["box"][0] - pw / 2. + rand_h[0], 0, w - 1)
-                py1 = np.clip(obj["box"][1] - ph / 2. + rand_v[0], 0, h - 1)
-                px2 = np.clip(obj["box"][0] + pw / 2. + rand_h[0], 0, w - 1)
-                py2 = np.clip(obj["box"][1] + ph / 2. + rand_v[0], 0, h - 1)
-                pw = px2 - px1
-                ph = py2 - py1
-                if pw == 0 or ph == 0:
-                    continue
-                px = px1 + pw / 2.
-                py = py1 + ph / 2.
-                ny.append({
-                    "box": [px, py, pw, ph],
-                    **{k: v for k, v in obj.items() if k != 'box'}
-                })
-            new_y.append(ny)
-            img_list.append(np.asarray(new_x))
+                new_x[:, new_min_y[0] : new_max_y[0], new_min_x[0]:new_max_x[0]] = \
+                     x[i][:, orig_min_y[0]:orig_max_y[0], orig_min_x[0]:orig_max_x[0]]
+                ny = []
+                for j, obj in enumerate(y[i]):
+                    pw = obj["box"][2]
+                    ph = obj["box"][3]
+                    px1 = np.clip(obj["box"][0] - pw / 2. + rand_h[0], 0, w - 1)
+                    py1 = np.clip(obj["box"][1] - ph / 2. + rand_v[0], 0, h - 1)
+                    px2 = np.clip(obj["box"][0] + pw / 2. + rand_h[0], 0, w - 1)
+                    py2 = np.clip(obj["box"][1] + ph / 2. + rand_v[0], 0, h - 1)
+                    pw = px2 - px1
+                    ph = py2 - py1
+                    if pw == 0 or ph == 0:
+                        continue
+                    px = px1 + pw / 2.
+                    py = py1 + ph / 2.
+                    ny.append({
+                        "box": [px, py, pw, ph],
+                        **{k: v for k, v in obj.items() if k != 'box'}
+                    })
+                if len(ny) > 0:
+                    success = True
+                    new_y.append(ny)
+                    img_list.append(np.asarray(new_x))
 
         return img_list, new_y
 

@@ -246,7 +246,7 @@ class Yolov2(Detection):
         assert len(self.class_map) > 0, \
             "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
             "Or, please load already trained model using the method 'load()'."
-
+        
         self._freezed_network.set_auto_update(self.train_whole_network)
         self._freezed_network.set_models(inference=(
             not self.train_whole_network or getattr(self, 'inference', False)))
@@ -452,8 +452,6 @@ class Yolov2(Detection):
                 boxces = np.array([a['box'] for a in annotation])
                 classes = np.array([[0] * a["class"] + [1] + [0] * (num_class - a["class"] - 1)
                                     for a in annotation])
-                if len(boxces.shape)<2:
-                    continue
                 # x, y
                 cell_x = (boxces[:, 0] // ratio_w).astype(np.int)
                 cell_y = (boxces[:, 1] // ratio_h).astype(np.int)
