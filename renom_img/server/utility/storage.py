@@ -127,6 +127,13 @@ class Storage:
                 task.deployed_model_id = model.id
         return
 
+    def undeploy_model(self, task_id):
+        with SessionContext() as session:
+            task = session.query(Task).filter(Task.id == task_id).first()
+            if task:
+                task.deployed_model_id = None
+        return
+
     def fetch_deployed_model(self, task_id):
         model = None
         with SessionContext() as session:

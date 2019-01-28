@@ -259,6 +259,7 @@ class DetectorNetwork(rm.Model):
 
 class SSD(Detection):
 
+    WEIGHT_URL = VGG16.WEIGHT_URL
     SERIALIZED = ("overlap_threshold", *Base.SERIALIZED)
 
     def __init__(self, class_map=None, imsize=(300, 300),
@@ -269,7 +270,7 @@ class SSD(Detection):
 
         vgg = VGG16()
         super(SSD, self).__init__(class_map, imsize,
-                                  load_pretrained_weight, train_whole_network, vgg)
+                                  load_pretrained_weight, train_whole_network, vgg._model)
 
         self.num_class = len(self.class_map) + 1
         self._network = DetectorNetwork(self.num_class, vgg)

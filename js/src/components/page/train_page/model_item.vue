@@ -24,7 +24,7 @@
     </div>
     <div id="model-buttons">
       <i class="fa fa-cog" aria-hidden="true"></i>
-      <i class="fa fa-times" aria-hidden="true" @click='removeModel(model.id)' v-if="!isDeployedModel"></i>
+      <i class="fa fa-times" aria-hidden="true" @click='rmModel(model.id)' v-if="!isDeployedModel"></i>
       <div id=deploy-icon v-else>
         Deployed
       </div>
@@ -93,10 +93,21 @@ export default {
 
   },
   methods: {
-    ...mapMutations(['showModal', 'setSelectedModel']),
+    ...mapMutations([
+      'showModal',
+      'setSelectedModel',
+      'showConfirm',
+    ]),
     ...mapActions(['removeModel']),
     isSortBy: function (key) {
       return this.sort_order === SORTBY[key]
+    },
+    rmModel: function (model) {
+      const func = this.removeModel
+      this.showConfirm({
+        message: "Are you sure to <span style='color: #f00;}'>remove</span> this model?",
+        callback: function () { func(model) }
+      })
     }
   }
 }

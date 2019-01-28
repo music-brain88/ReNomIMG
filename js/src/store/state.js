@@ -38,6 +38,8 @@ export default {
   show_alert_modal: false,
   show_confirm_modal: false,
 
+  confirm_modal_callback_function: undefined,
+
   // error msg from server
   error_msg: '',
 
@@ -58,6 +60,7 @@ export default {
     add_both: false,
     add_filter: false,
     show_image: false,
+    show_prediction_image: false,
   },
 
   // Loading Mask

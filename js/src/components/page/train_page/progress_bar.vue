@@ -127,9 +127,17 @@ export default {
   },
   methods: {
     ...mapActions(['stopModelTrain']),
+    ...mapMutations([
+      'showConfirm'
+    ]),
     onStop: function () {
       if (this.model) {
-        this.stopModelTrain(this.model.id)
+        const id = this.model.id
+        const func = this.stopModelTrain
+        this.showConfirm({
+          message: "Are you sure to <span style='color: #f00;}'>stop</span> this model?",
+          callback: function () { func(id) }
+        })
       }
     }
   }

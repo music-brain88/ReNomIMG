@@ -229,6 +229,7 @@ export const ALGORITHM = {
     },
   },
   SEGMENTATION: {
+    /*
     Unet: {
       id: 60,
       key: 'unet',
@@ -258,6 +259,7 @@ export const ALGORITHM = {
         }),
       }
     },
+    */
     Fcn: {
       id: 61,
       key: 'fcn',
@@ -267,7 +269,7 @@ export const ALGORITHM = {
         ...override('LOAD_PRETRAINED_WEIGHT', {
           title: 'Load pretrain weight',
           key: 'load_pretrained_weight',
-          disabled: true,
+          disabled: false,
           default: false,
           type: 'checkbox'
         }),
@@ -276,6 +278,14 @@ export const ALGORITHM = {
           key: 'train_whole',
           type: 'checkbox',
           default: true,
+        }),
+        ...override('BATCH_SIZE', {
+          title: 'Batch Size',
+          key: 'batch_size',
+          type: 'number',
+          default: 1,
+          min: 1,
+          max: 4,
         }),
         LAYER: {
           title: 'Number of Layers',
@@ -286,6 +296,7 @@ export const ALGORITHM = {
         }
       }
     },
+    /*
     TernousNet: {
       id: 64,
       key: 'ternousnet',
@@ -302,6 +313,7 @@ export const ALGORITHM = {
         })
       }
     },
+    */
   }
 }
 

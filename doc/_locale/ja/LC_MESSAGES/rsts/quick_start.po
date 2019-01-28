@@ -1,0 +1,89 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2018, Grid
+# This file is distributed under the same license as the ReNomIMG package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ReNomIMG \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-01-18 09:05+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../rsts/quick_start.rst:2
+msgid "Quick start with example dataset"
+msgstr "Example Dataを使ったクイックスタート"
+
+#: ../../rsts/quick_start.rst:4
+msgid "Let's use ReNomIMG with example dataset."
+msgstr "まずはExample Dataを使用してReNomIMGをお試しください."
+
+#: ../../rsts/quick_start.rst:6
+msgid "We use PASCAL VOC dataset as an example."
+msgstr "ここではExample Dataとして, PASCAL VOCデータセットを使用します."
+
+#: ../../rsts/quick_start.rst:8
+msgid "**The PASCAL Visual Object Classes (VOC) Challenge**"
+msgstr ""
+
+#: ../../rsts/quick_start.rst:9
+msgid ""
+"Everingham, M., Van Gool, L., Williams, C. K. I., Winn, J. and Zisserman,"
+" A."
+msgstr ""
+
+#: ../../rsts/quick_start.rst:10
+msgid "International Journal of Computer Vision, 88(2), 303-338, 2010"
+msgstr ""
+
+#: ../../rsts/quick_start.rst:11
+msgid "PDF: http://host.robots.ox.ac.uk/pascal/VOC/pubs/everingham10.pdf"
+msgstr ""
+
+#: ../../rsts/quick_start.rst:12
+msgid "Web site: http://host.robots.ox.ac.uk/pascal/VOC/"
+msgstr ""
+
+#: ../../rsts/quick_start.rst:17
+msgid "Prepare Dataset"
+msgstr "データの準備"
+
+#: ../../rsts/quick_start.rst:19
+msgid ""
+"First we need to prepare image dataset. Here we use ``Pascal VOC "
+"dataset`` . You can setup the data only running following command."
+msgstr "まずはデータセットを準備する必要があります. ここでは ``PASCAL VOC`` データセットを"
+"使いますが, ReNomIMGが提供する以下のコマンドを実行することで, 自動的にPASCAL VOCデータセットが"
+"使用可能になります."
+
+#: ../../rsts/quick_start.rst:28
+msgid ""
+"You will see the ``datasrc`` and ``storage`` directory that are created "
+"to current directory."
+msgstr "コマンドの実行終了後には, ``datasrc`` ディレクトリと ``storage`` ディレクトリが"
+"作成されています."
+
+#: ../../rsts/quick_start.rst:31
+msgid "Run ReNomIMG"
+msgstr "ReNomIMGを起動する"
+
+#: ../../rsts/quick_start.rst:33
+msgid ""
+"After the data preparation, run the ReNomIMG server. Following code runs "
+"ReNomIMG with port 8080."
+msgstr "上記のコマンドを実行してデータセットの準備が終了しました."
+"次に, ReNomIMGを起動する以下のコマンドを実行してください."
+"このコマンドは, ReNomIMGサーバを8080ポートで実行するためのコマンドです."
+
+#: ../../rsts/quick_start.rst:40
+msgid "Next, let's move on next settion \"How to use ReNomIMG GUI\"."
+msgstr "サーバが起動しましたら, 次の「ReNomIMG GUIツールの使い方」セクションで"
+"アプリケーションの使い方を確認し, 画像認識モデルを作成してみましょう."
+

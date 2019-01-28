@@ -1,6 +1,7 @@
 import os
 from itertools import chain
 import numpy as np
+import math
 import renom as rm
 import matplotlib.pyplot as plt
 from renom.cuda import release_mem_pool, is_cuda_active
@@ -79,8 +80,9 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
             loss += minimum_distance
 
         for n in range(n_anchor):
-            new_centroid[n][2] /= len(group[n])
-            new_centroid[n][3] /= len(group[n])
+            if (len(group[n])) > 0:
+                new_centroid[n][2] /= len(group[n])
+                new_centroid[n][3] /= len(group[n])
         return new_centroid, loss
 
     # Perform k-means.
@@ -122,7 +124,7 @@ class Yolov2(Detection):
 
     # Anchor information will be serialized by 'save' method.
     SERIALIZED = ("anchor", "num_anchor", "anchor_size",  *Base.SERIALIZED)
-    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Yolov2.h5"
+    WEIGHT_URL = "https://docs.renom.jp/downloads/weights/YOLO/Yolov2.h5"
 
     def __init__(self, class_map=None, anchor=None,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
@@ -131,6 +133,8 @@ class Yolov2(Detection):
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
               exp),imsize=(320, 320)."
 
+        self.flag = False  # This is used for modify loss function.
+        self.global_counter = 0
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
@@ -193,10 +197,12 @@ class Yolov2(Detection):
                 [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         else:
+            self.global_counter += 1
+            if self.global_counter > int(0.3 * (total_epoch * total_batch)):
+                self.flag = False
             if current_loss is not None and current_loss > 50:
                 self._opt._lr *= 0.1
                 return self._opt
-
             ind0 = int(total_epoch * 1 / 16.)
             ind1 = int(total_epoch * 5 / 16.)
             ind2 = int(total_epoch * 3 / 16.)
@@ -207,22 +213,9 @@ class Yolov2(Detection):
                 lr = 0.0001 + (0.001 - 0.0001) / float(total_batch) * current_batch
             else:
                 lr = lr_list[current_epoch]
-
             self._opt._lr = lr
+
             return self._opt
-
-    def preprocess(self, x):
-        """Image preprocess for Yolov2.
-
-        :math:`x_{new} = x*2/255 - 1`
-
-        Args:
-            x (ndarray):
-
-        Returns:
-            (ndarray): Preprocessed data.
-        """
-        return x / 255. * 2 - 1
 
     def forward(self, x):
         """Performs forward propagation.
@@ -261,10 +254,11 @@ class Yolov2(Detection):
         h, f = self._freezed_network(x)
         f = self._conv21(f)
         h = self._conv1(h)
+
         h = self._conv2(rm.concat(h,
                                   rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
-        out = self._last(h)
 
+        out = self._last(h)
         # Create yolo format.
         N, C, H, W = h.shape
 
@@ -491,17 +485,30 @@ class Yolov2(Detection):
         asw = W * 32 / self.anchor_size[0]
         ash = H * 32 / self.anchor_size[1]
         anchor = [[an[0] * asw, an[1] * ash] for an in self.anchor]
-
         num_anchor = self.num_anchor
         mask = np.zeros((N, C, H, W), dtype=np.float32)
         mask = mask.reshape(N, num_anchor, 5 + self.num_class, H, W)
-        mask[:, :, 1:5, ...] = 0.01
+        if self.inference == False:
+            if self.flag:
+                mask[:, :, 1:3, ...] = 1.0
+                mask[:, :, 3:5, ...] = 0.0
+            else:
+                mask[:, :, 1:5, ...] = 0.0
+        else:
+            mask[:, :, 1:5, ...] = 0.0
         mask = mask.reshape(N, C, H, W)
 
         target = np.zeros((N, C, H, W), dtype=np.float32)
         target = target.reshape(N, num_anchor, 5 + self.num_class, H, W)
-        target[:, :, 1:3, ...] = 0.5
-        target[:, :, 3:5, ...] = 1.0
+
+        if self.inference == False:
+            if self.flag:
+                target[:, :, 1:3, ...] = 0.5
+                target[:, :, 3:5, ...] = 0.0
+            else:
+                target[:, :, 1:5, ...] = 0.0
+        else:
+            target[:, :, 1:5, ...] = 0.0
         target = target.reshape(N, C, H, W)
 
         low_thresh = 0.6
@@ -531,9 +538,9 @@ class Yolov2(Detection):
 
                 # scale of noobject iou
                 if max_iou <= low_thresh:
-                    # mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
-                    mask[n, ind[0] * offset, ind[1], ind[2]] = nd_x[n,
-                                                                    ind[0] * offset, ind[1], ind[2]] * 1
+                    mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
+#                     mask[n, ind[0] * offset, ind[1], ind[2]] = nd_x[n,
+#                                                                     ind[0] * offset, ind[1], ind[2]] * 1
 
             # Create target and mask for cell that contains obj.
             for h, w in zip(*gt_index):
@@ -575,9 +582,9 @@ class Yolov2(Detection):
                     calc_iou_xywh([px, py, pw, ph], [tx, ty, tw, th])
 
                 # scale of obj iou
-                # mask[n, 0 + best_anc_ind * offset, h, w] = 5.
-                mask[n, 0 + best_anc_ind * offset, h,
-                     w] = (1 - nd_x[n, best_anc_ind * offset, h, w]) * 5
+                mask[n, 0 + best_anc_ind * offset, h, w] = 5.
+#                 mask[n, 0 + best_anc_ind * offset, h,
+#                      w] = (1 - nd_x[n, best_anc_ind * offset, h, w]) * 5
 
                 # scale of coordinate
                 mask[n, 1 + best_anc_ind * offset, h, w] = 1
@@ -650,7 +657,10 @@ class Yolov2(Detection):
 
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=8)
-        valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list, num_worker=8)
+        if valid_img_path_list is not None and valid_annotation_list is not None:
+            valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
+        else:
+            valid_dist = None
 
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
@@ -693,7 +703,6 @@ class Yolov2(Detection):
                         loss = float(loss.as_ndarray()[0])
                     except:
                         loss = float(loss.as_ndarray())
-
                     display_loss += loss
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)

@@ -1,6 +1,34 @@
 import os
 import enum
 import weakref
+from pathlib import Path
+
+DB_DIR = Path("storage")
+DB_DIR_TRAINED_WEIGHT = DB_DIR / "trained_weight"
+DB_DIR_PRETRAINED_WEIGHT = DB_DIR / "pretrained_weight"
+
+DATASET_DIR = Path("datasrc")
+DATASET_IMG_DIR = DATASET_DIR / "img"
+DATASET_LABEL_DIR = DATASET_DIR / "label"
+DATASET_LABEL_CLASSIFICATION_DIR = DATASET_LABEL_DIR / "classification"
+DATASET_LABEL_DETECTION_DIR = DATASET_LABEL_DIR / "detection"
+DATASET_LABEL_SEGMENTATION_DIR = DATASET_LABEL_DIR / "segmentation"
+
+DATASET_PREDICTION_DIR = DATASET_DIR / "prediction_set"
+DATASET_PREDICTION_IMG_DIR = DATASET_PREDICTION_DIR / "img"
+
+MAX_THREAD_NUM = 1
+
+
+def create_directories():
+    dirs = [
+        DB_DIR, DB_DIR_TRAINED_WEIGHT, DB_DIR_PRETRAINED_WEIGHT,
+        DATASET_IMG_DIR, DATASET_LABEL_DIR, DATASET_LABEL_CLASSIFICATION_DIR,
+        DATASET_LABEL_DETECTION_DIR, DATASET_LABEL_SEGMENTATION_DIR,
+        DATASET_PREDICTION_DIR, DATASET_PREDICTION_IMG_DIR
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
 
 class Task(enum.Enum):
@@ -43,10 +71,3 @@ class Algorithm(enum.Enum):
 
     UNET = 60
     FCN = 61
-
-
-DB_DIR = "storage"
-DB_DIR_TRAINED_WEIGHT = os.path.join(DB_DIR, "trained_weight")
-DB_DIR_PRETRAINED_WEIGHT = os.path.join(DB_DIR, "pretrained_weight")
-
-MAX_THREAD_NUM = 1

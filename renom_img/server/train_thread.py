@@ -27,10 +27,11 @@ from renom_img.api.utility.evaluate.segmentation import get_segmentation_metrics
 from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, WhiteNoise, ContrastNorm
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.misc.download import download
 
 from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
 from renom_img.server.utility.storage import storage
-from renom_img.server import State, RunningState, MAX_THREAD_NUM, Algorithm, Task
+from renom_img.server import State, RunningState, MAX_THREAD_NUM, Algorithm, Task, DB_DIR_PRETRAINED_WEIGHT
 
 
 class TrainThread(object):
@@ -148,7 +149,7 @@ class TrainThread(object):
                     return
                 self.sync_count()
 
-                if len(train_x) != 1:
+                if len(train_x) > 0:
                     with model.train():
                         loss = model.loss(model(train_x), train_y)
                         reg_loss = loss + model.regularize()
@@ -232,6 +233,7 @@ class TrainThread(object):
             n_valid = min(len(valid_prediction), len(valid_target))
 
             # Depends on each task.
+            loss = self.valid_loss_list[-1]
             if self.task_id == Task.CLASSIFICATION.value:
                 pred = np.argmax(valid_prediction, axis=1)
                 targ = np.argmax(valid_target, axis=1)
@@ -479,7 +481,17 @@ class TrainThread(object):
         self.sync_state()
         self.updated = True
 
+    def get_weight_path(self, cls):
+        """This function returns pretrained weight path or False value.
+        This modifies weight file path.
+        """
+        if self.load_pretrained_weight:
+            return str(DB_DIR_PRETRAINED_WEIGHT / "{}.h5".format(cls.__name__))
+        else:
+            return False
+
     # Detection Algorithm
+
     def _setting_yolov1(self):
         required_params = ['cell', 'box']
         # check hyper parameters value are set
@@ -489,7 +501,7 @@ class TrainThread(object):
             class_map=self.class_map,
             imsize=self.imsize,
             train_whole_network=self.train_whole,
-            load_pretrained_weight=self.load_pretrained_weight)
+            load_pretrained_weight=self.get_weight_path(Yolov1))
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,
@@ -510,8 +522,7 @@ class TrainThread(object):
             anchor=create_anchor(self.train_target, int(
                 self.hyper_parameters.get('anchor')), base_size=self.imsize),
             train_whole_network=self.train_whole,
-            load_pretrained_weight=self.load_pretrained_weight
-        )
+            load_pretrained_weight=self.get_weight_path(Yolov2))
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,
@@ -530,8 +541,7 @@ class TrainThread(object):
             class_map=self.class_map,
             imsize=self.imsize,
             train_whole_network=self.train_whole,
-            load_pretrained_weight=self.load_pretrained_weight,
-        )
+            load_pretrained_weight=self.get_weight_path(SSD))
         self.train_dist = ImageDistributor(
             self.train_img,
             self.train_target,
@@ -567,7 +577,7 @@ class TrainThread(object):
             class_map=self.class_map,
             imsize=self.imsize,
             train_whole_network=self.train_whole,
-            load_pretrained_weight=self.load_pretrained_weight,
+            load_pretrained_weight=self.get_weight_path(ResNet),
             plateau=self.hyper_parameters["plateau"]
         )
         self.train_dist = ImageDistributor(
@@ -598,7 +608,7 @@ class TrainThread(object):
             class_map=self.class_map,
             imsize=self.imsize,
             train_whole_network=self.train_whole,
-            load_pretrained_weight=self.load_pretrained_weight,
+            load_pretrained_weight=self.get_weight_path(ResNeXt),
             plateau=self.hyper_parameters["plateau"]
         )
         self.train_dist = ImageDistributor(
@@ -630,7 +640,7 @@ class TrainThread(object):
         self.model = DenseNet(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=self.load_pretrained_weight,
+            load_pretrained_weight=self.get_weight_path(DenseNet),
             train_whole_network=self.train_whole
         )
 
@@ -663,7 +673,7 @@ class TrainThread(object):
         self.model = VGG(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=self.load_pretrained_weight,
+            load_pretrained_weight=self.get_weight_path(VGG),
             train_whole_network=self.train_whole
         )
         self.train_dist = ImageDistributor(
@@ -697,7 +707,7 @@ class TrainThread(object):
         self.model = Inception(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=self.load_pretrained_weight,
+            load_pretrained_weight=self.get_weight_path(Inception),
             train_whole_network=self.train_whole
         )
         self.train_dist = ImageDistributor(
@@ -729,7 +739,7 @@ class TrainThread(object):
         self.model = FCN(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=self.load_pretrained_weight,
+            load_pretrained_weight=self.get_weight_path(FCN),
             train_whole_network=self.train_whole
         )
         self.train_dist = ImageDistributor(
@@ -749,7 +759,7 @@ class TrainThread(object):
         self.model = UNet(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=self.load_pretrained_weight,
+            load_pretrained_weight=self.get_weight_path(UNet),
             train_whole_network=self.train_whole
         )
         self.train_dist = ImageDistributor(

@@ -12,7 +12,8 @@ export default {
   },
   showConfirm (state, payload) {
     state.show_confirm_modal = true
-    state.modal_msg = payload
+    state.modal_msg = payload.message
+    state.confirm_modal_callback_function = payload.callback
   },
   hideAlert (state, payload) {
     state.show_alert_modal = false
@@ -21,6 +22,7 @@ export default {
   hideConfirm (state, payload) {
     state.show_confirm_modal = false
     state.error_msg = ''
+    state.confirm_modal_callback_function = undefined
   },
   setCurrentTask (state, payload) {
     const task = payload

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 09:52+0900\n"
+"POT-Creation-Date: 2019-01-18 09:05+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: ../../rst/renom_img.api.segmentation.rst:2
+#: ../../rsts/renom_img.api.segmentation.rst:2
 msgid "renom\\_img.api.segmentation"
 msgstr ""
 
@@ -99,7 +99,7 @@ msgstr "モデル全体の学習を行う場合はTrue、さもなければFalse
 #: of renom_img.api.segmentation.fcn.FCN16s:13
 #: renom_img.api.segmentation.fcn.FCN16s.fit:24
 #: renom_img.api.segmentation.fcn.FCN16s.regularize:4
-#: renom_img.api.segmentation.fcn.FCN32s:13
+#: renom_img.api.segmentation.fcn.FCN32s:15
 #: renom_img.api.segmentation.fcn.FCN32s.fit:24
 #: renom_img.api.segmentation.fcn.FCN32s.regularize:4
 #: renom_img.api.segmentation.fcn.FCN8s:13
@@ -115,7 +115,7 @@ msgid "Example"
 msgstr "例"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:25
-#: renom_img.api.segmentation.fcn.FCN32s:25
+#: renom_img.api.segmentation.fcn.FCN32s:27
 #: renom_img.api.segmentation.fcn.FCN8s:25
 #: renom_img.api.segmentation.ternausnet.TernausNet:25
 #: renom_img.api.segmentation.unet.UNet:25
@@ -123,19 +123,19 @@ msgid "References"
 msgstr "参照"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:26
-#: renom_img.api.segmentation.fcn.FCN32s:26
+#: renom_img.api.segmentation.fcn.FCN32s:28
 #: renom_img.api.segmentation.fcn.FCN8s:26
 msgid "Jonathan Long, Evan Shelhamer, Trevor Darrell"
 msgstr ""
 
 #: of renom_img.api.segmentation.fcn.FCN16s:27
-#: renom_img.api.segmentation.fcn.FCN32s:27
+#: renom_img.api.segmentation.fcn.FCN32s:29
 #: renom_img.api.segmentation.fcn.FCN8s:27
 msgid "**Fully Convolutional Networks for Semantic Segmentation**"
 msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:28
-#: renom_img.api.segmentation.fcn.FCN32s:28
+#: renom_img.api.segmentation.fcn.FCN32s:30
 #: renom_img.api.segmentation.fcn.FCN8s:28
 msgid "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
 msgstr ""
@@ -448,8 +448,14 @@ msgid "Regularization term to a loss function."
 msgstr "損失関数に追加する正則化項"
 
 #: of renom_img.api.segmentation.fcn.FCN32s:1
-msgid "Fully convolutional network (21s) for semantic segmentation"
+#, fuzzy
+msgid "Fully convolutional network (32s) for semantic segmentation"
 msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(21s)"
+
+#: of renom_img.api.segmentation.fcn.FCN32s:11
+#, fuzzy
+msgid "True if final upscore layer is trainable, otherwise False"
+msgstr "モデル全体の学習を行う場合はTrue、さもなければFalse"
 
 #: of renom_img.api.segmentation.fcn.FCN32s.forward:4
 msgid "Input to FCN32s."

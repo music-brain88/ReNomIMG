@@ -40,7 +40,7 @@ cpdef get_segmentation_metrics(pred_list, gt_list, n_class, round_off=3, ignore_
         total_area += float(area)
         total_tp += float(tp[c])
         if area == 0:
-            ious[c] == 0.
+            ious[c] = 0.
         else:
             ious[c] = float(tp[c]) / float(area)
 

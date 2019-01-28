@@ -3,6 +3,8 @@ import sys
 import numpy as np
 import renom as rm
 
+from renom_img.api.utility.misc.download import download
+
 
 class Darknet(rm.Sequential):
     WEIGHT_URL = "Darknet"
@@ -109,10 +111,10 @@ class DarknetConv2dBN(rm.Model):
                 "w": rm.Variable(self._conv._initializer((channel, prev_ch, filter, filter)), auto_update=True),
                 "b": rm.Variable(np.zeros((1, channel, 1, 1), dtype=np.float32), auto_update=False),
             }
-            self._bn = rm.BatchNormalize(mode='feature', momentum=0.99, epsilon=0.001)
+            self._bn = rm.BatchNormalize(mode='feature', momentum=0.99)
         else:
             self._conv = rm.Conv2d(channel=channel, filter=filter, padding=pad)
-            self._bn = rm.BatchNormalize(mode='feature', momentum=0.99, epsilon=0.001)
+            self._bn = rm.BatchNormalize(mode='feature', momentum=0.99)
 
     def forward(self, x):
         return rm.leaky_relu(self._bn(self._conv(x)), 0.1)
@@ -170,7 +172,7 @@ class Darknet19Base(rm.Model):
 
 class Darknet19(rm.Model):
 
-    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Darknet19.h5"
+    WEIGHT_URL = "https://docs.renom.jp/downloads/weights/Darknet/Darknet19.h5"
 
     def __init__(self, num_class=1000, load_pretrained_weight=False):
         self._num_class = num_class
@@ -181,6 +183,15 @@ class Darknet19(rm.Model):
             "b": rm.Variable(self._last._initializer((1, num_class, 1, 1)), auto_update=False),
         }
         super(Darknet19, self).__init__()
+
+        if load_pretrained_weight:
+            if isinstance(load_pretrained_weight, bool):
+                load_pretrained_weight = self.__class__.__name__ + '.h5'
+
+            if not os.path.exists(load_pretrained_weight):
+                download(self.WEIGHT_URL, load_pretrained_weight)
+
+            self.load(load_pretrained_weight)
 
     def forward(self, x):
         N = len(x)

@@ -12,11 +12,6 @@
               v-on:change="onChangePredictionCheckBox">
             Prediction
           </label>
-          <label>
-            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_target"
-              v-on:change="onChangeTargetCheckBox">
-            Target
-          </label>
         </div>
       </div>
       <div id="image-container" ref="imageContainer">
@@ -29,37 +24,29 @@
           :height="size[1]"
           :maxWidth="canvas_width"
           :maxHeight="canvas_height"
-          :model="getSelectedModel"
+          :model="getDeployedModel"
           :result="getResult()"
         />
       </div>
     </div>
-    <div id="result" v-if="isTaskClassification || isTaskDetection">
+    <div id="result" v-if="isTaskDetection">
       <div class="header">
         <span>No.</span>
-        <span>Name</span>
         <span>Score</span>
+        <span>Name</span>
       </div>
       <div id="result-container">
         <div id="cls-result" class="result" v-if="isTaskClassification">
-          <div v-for="(item, index) in getClassificationTop3">
-            <span>{{ index + 1 }}</span>
-            <span>{{ item.index }}</span>
-            <span>{{ item.score }}%</span>
-          </div>
-          <div v-if="!getClassificationTop3">
-            <span></span>
-            <span>No prediction</span>
-            <span></span>
-          </div>
         </div>
         <div id="box-result" class="result" v-else-if="isTaskDetection">
-          <div v-for="(r, index) in getPredictedBox">
+          <div v-for="(r, index) in prediction"
+            @mouseenter="hoverBox=index? 1:0"
+            @mouseleave="hoverBox=null">
             <span>{{index}}</span>
             <span>{{r.score.toFixed(2)}}</span>
             <span>{{r.name}}</span>
           </div>
-          <div v-if="getPredictedBox.length === 0">
+          <div v-if="!prediction || prediction.length === 0">
             <span></span>
             <span>No Prediction</span>
             <span></span>
@@ -80,7 +67,7 @@ import ComponentFrame from '@/components/common/component_frame.vue'
 import ImageCanvas from '@/components/page/train_page/image.vue'
 
 export default {
-  name: 'ModalImage',
+  name: 'PredictionModalImage',
   components: {
     'image-canvas': ImageCanvas,
   },
@@ -126,18 +113,22 @@ export default {
       'datasets'
     ]),
     ...mapGetters([
-      'getSelectedModel',
+      'getDeployedModel',
       'getCurrentTask',
       'isTaskClassification',
       'isTaskDetection',
       'isTaskSegmentation',
     ]),
     model: function () {
-      const model = this.getSelectedModel
+      const model = this.getDeployedModel
       if (model) {
         return model
       }
       return null
+    },
+    prediction: function () {
+      const index = this.modal_index
+      return this.prediction_dataset.prediction[index]
     },
     dataset: function () {
       const model = this.model
@@ -149,53 +140,30 @@ export default {
       }
       return null
     },
+    prediction_dataset: function () {
+      const model = this.model
+      if (model) {
+        return model.prediction_result
+      }
+    },
     class_map: function () {
       const map = this.dataset.class_map
       return map
     },
     img: function () {
       const index = this.modal_index
-      return this.dataset.valid_data.img[index]
+      return this.prediction_dataset.img[index]
     },
     size: function () {
       const index = this.modal_index
-      return this.dataset.valid_data.size[index]
+      return this.prediction_dataset.size[index]
     },
     length: function () {
-      return this.dataset.valid_data.img.length
+      return this.prediction_dataset.img.length
     },
-    getClassificationTop3: function () {
-      const model = this.model
-      const map = this.class_map
-      if (!model) return
-      const prediction = model.getValidResult(this.modal_index)
-      if (!prediction) return
-      const score = prediction.score.map((s, index) => {
-        return {
-          index: map[index],
-          score: (s * 100)
-        }
-      })
-      const top5 = score.sort((a, b) => {
-        if (a.score < b.score) {
-          return 1
-        } else {
-          return -1
-        }
-      }).slice(0, 5)
-      return top5.map(d => { return {index: d.index, score: d.score.toFixed(2)} })
-    },
-    getPredictedBox: function () {
-      const model = this.model
-      const map = this.class_map
-      if (!model) return []
-      const prediction = model.getValidResult(this.modal_index)
-      return (prediction) || []
-    }
   },
   methods: {
     ...mapMutations(['setImageModalData']),
-    ...mapActions(['loadSegmentationTargetArray']),
     onChangePredictionCheckBox: function (e) {
       this.show_prediction = e.target.checked
       this.show_target = (!this.show_prediction || this.isTaskDetection) && this.show_target
@@ -215,14 +183,10 @@ export default {
     },
     getResult: function () {
       const index = this.modal_index
-      const model = this.getSelectedModel
-      const dataset = this.dataset
-      if (!model || !dataset) return
-      const pred = model.getValidResult(index)
-      const targ = dataset.getValidTarget(index)
+      const pred = this.prediction
       return {
         index: index,
-        target: targ,
+        target: undefined,
         predict: pred
       }
     },

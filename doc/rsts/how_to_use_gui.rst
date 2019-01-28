@@ -174,7 +174,7 @@ Please Save as ``class_map.txt.``
 Good example
 
 * Class number id must be start 0 and  set background.
-* Class munber id must be serial number.
+* Class number id must be serial number.
 
 .. code-block :: shell
 
@@ -211,13 +211,12 @@ Good example
 
 :red:`Bad example`
 
-* Class number id is not start 0.
-* Class name dose not have background.
-* Class munber id is fall apart. that not serial number.
+* Class number id does not start 0.
+* Class name does not have background.
+* Class number does not have serial number.
 
 .. code-block :: shell
 
-      
        airplane 1
        bicycle 10
        bird 50
@@ -308,10 +307,6 @@ For going to the dataset page, please follow the figure below.
 
 In the above figure, 2 datasets are already created. 
 
-.. note::
-
-  Detection, Segmentation and Classification task are same process
-
 Hyper parameter setting
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -336,12 +331,6 @@ As you can see in above figure, you can specify following parameters.
 
     Depending on your GPU device, larger image size or batch size causes memory overflow.
 
-.. note::
-
-  Detection, Segmentation and Classification task are same process
-
-Create Classification Model
-----------------------
 
 Training Model
 ~~~~~~~~~~~~~~
@@ -352,6 +341,9 @@ If the training starts, model will be appeared in model list and progress bar wi
 
 .. image:: /_static/image/how_to_use_gui_model_create03.png
 
+.. note::
+
+  Detection, Segmentation and Classification task are same process
 
 Uninstall ReNomIMG
 ------------------

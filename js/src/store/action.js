@@ -256,10 +256,10 @@ export default {
   async runPredictionThread (context, payload) {
     const model_id = payload
     const url = '/api/renom_img/v2/model/thread/prediction/run/' + model_id
+    let model = context.getters.getModelById(model_id)
+    model.state = STATE.PRED_CREATED // TODO: Remove this line.
     return axios.get(url)
       .then(function (response) {
-        let model = context.getters.getModelById(model_id)
-        model.state = STATE.PRED_CREATED // TODO: Remove this line.
         context.dispatch('startAllPolling')
       }, error_handler_creator(context))
   },
@@ -398,18 +398,18 @@ export default {
   async createDataset (context, payload) {
     const url = '/api/renom_img/v2/dataset/create'
     const param = new FormData()
-    const name = encodeURIComponent(payload.name)
+    const name = payload.name
     const hash = payload.hash
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
-    const description = encodeURIComponent(payload.description)
+    const description = payload.description
     const test_dataset_id = payload.test_dataset_id
 
-    param.append('name', name)
+    param.append('name', encodeURIComponent(name))
     param.append('hash', hash)
     param.append('ratio', ratio)
     param.append('task_id', task_id)
-    param.append('description', description)
+    param.append('description', encodeURIComponent(description))
     param.append('test_dataset_id', test_dataset_id)
 
     return axios.post(url, param).then(function (response) {
@@ -433,10 +433,10 @@ export default {
     const test_dataset = new TestDataset(task_id, name, ratio, description)
 
     const param = new FormData()
-    param.append('name', name)
+    param.append('name', encodeURIComponent(name))
     param.append('ratio', ratio)
     param.append('task_id', task_id)
-    param.append('description', description)
+    param.append('description', encodeURIComponent(description))
 
     context.commit('addTestDataset', test_dataset)
     return axios.post(url, param).then(function (response) {
@@ -452,18 +452,18 @@ export default {
   async confirmDataset (context, payload) {
     const url = '/api/renom_img/v2/dataset/confirm'
     const hash = payload.hash
-    const name = encodeURIComponent(payload.name)
+    const name = payload.name
     const test_dataset_id = payload.test_dataset_id
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
-    const description = encodeURIComponent(payload.description)
+    const description = payload.description
     const param = new FormData()
 
-    param.append('name', name)
+    param.append('name', encodeURIComponent(name))
     param.append('hash', hash)
     param.append('ratio', ratio)
     param.append('task_id', task_id)
-    param.append('description', description)
+    param.append('description', encodeURIComponent(description))
     param.append('test_dataset_id', test_dataset_id)
 
     return axios.post(url, param).then(function (response) {
@@ -486,15 +486,15 @@ export default {
   },
   async confirmTestDataset (context, payload) {
     const url = '/api/renom_img/v2/test_dataset/confirm'
-    const name = encodeURIComponent(payload.name)
+    const name = payload.name
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
-    const description = encodeURIComponent(payload.description)
+    const description = payload.description
     const param = new FormData()
-    param.append('name', name)
+    param.append('name', encodeURIComponent(name))
     param.append('ratio', ratio)
     param.append('task_id', task_id)
-    param.append('description', description)
+    param.append('description', encodeURIComponent(description))
     return axios.post(url, param).then(function (response) {
       if (response.status === 204) return
       const class_info = response.data
@@ -519,6 +519,13 @@ export default {
     this.commit('setDeployedModel', model)
     return axios.get(url).then(() => {
 
+    }, error_handler_creator(context))
+  },
+  async unDeployModel (context, payload) {
+    let task_id = context.getters.getCurrentTask
+    let url = '/api/renom_img/v2/model/undeploy/' + task_id
+    this.commit('unDeployModel')
+    return axios.get(url).then(() => {
     }, error_handler_creator(context))
   },
   async loadDeployedModel (context, payload) {

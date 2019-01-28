@@ -7,7 +7,7 @@
     </div>
   </div>
   <div class="copyright-bar">
-    <div class="copyright">©︎2018 GRID INC. ALL rights reserved.</div>
+    <div class="copyright">©︎2019 GRID INC. ALL rights reserved.</div>
   </div>
 </footer>
 </template>

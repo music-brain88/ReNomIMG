@@ -4,12 +4,15 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <slot name="contents">
-            {{$store.state.error_msg}}
+            <span v-html="$store.state.modal_msg"></span>
           </slot>
           <div class="modal-footer">
             <slot name="footer">
               <slot name="okbutton">
-                <input type="button" class="modal-default-button" @click="hide" value="OK">
+                <input type="button" class="modal-default-button" @click="onClick" value="OK">
+              </slot>
+              <slot name="cancelbutton">
+                <input type="button" class="modal-default-button cancel" @click="hide" value="Cancel">
               </slot>
             </slot>
           </div>
@@ -26,6 +29,12 @@ export default {
   methods: {
     hide: function () {
       this.$store.commit('hideConfirm')
+    },
+    onClick: function () {
+      if (this.$store.state.confirm_modal_callback_function) {
+        this.$store.state.confirm_modal_callback_function()
+      }
+      this.hide()
     }
   }
 }

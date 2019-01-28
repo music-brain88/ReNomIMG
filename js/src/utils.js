@@ -33,7 +33,7 @@ export function render_segmentation (item) {
   if (!item.hasOwnProperty('class')) return
   const height = item.class.length
   const width = item.class[0].length
-  const d = 2 // Resample drawing pixel.
+  const d = 1 // Resample drawing pixel.
   var canvas = new OffscreenCanvas(width / d, height / d)
   var cxt = canvas.getContext('2d')
   var imageData = cxt.getImageData(0, 0, width / d, height / d)
@@ -72,6 +72,9 @@ export function render_segmentation (item) {
 }
 
 export function setup_image_list (dataset, parent_width, parent_height, margin) {
+  /**
+    This
+   */
   const brank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
   const pages = []
   const img_list = dataset.img
@@ -86,9 +89,10 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
 
   for (let i = 0; i < size_list.length; i++) {
     let size = size_list[i]
-    let ratio = ((size[0] + 2 * margin) / (size[1] + 2 * margin))
+    let ratio = ((size[0]) / (size[1]))
     accumurated_ratio += ratio
-    if (accumurated_ratio <= max_ratio || one_page.length === 0) {
+
+    if (accumurated_ratio < max_ratio || one_page.length === 0) {
       one_page.push({index: i, img: img_list[i], size: size_list[i]})
     } else {
       if (nth_line_in_page >= 3) {

@@ -34,6 +34,9 @@ from renom_img.server.train_thread import TrainThread
 from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.utility.storage import storage
 from renom_img.server import State, RunningState, Task
+from renom_img.server import DATASET_IMG_DIR, DATASET_LABEL_CLASSIFICATION_DIR, \
+    DATASET_LABEL_DETECTION_DIR, DATASET_LABEL_SEGMENTATION_DIR
+from renom_img.server.utility.setup_example import setup_example
 
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
@@ -239,6 +242,13 @@ def model_deploy(id):
     return {"status": "ok"}
 
 
+@route("/api/renom_img/v2/model/undeploy/<task_id:int>", method="GET")
+@json_handler
+def model_undeploy(task_id):
+    storage.undeploy_model(task_id)
+    return {"status": "ok"}
+
+
 @route("/api/renom_img/v2/model/load/deployed/task/<id:int>", method="GET")
 @json_handler
 def model_load_id_deployed_of_task(id):
@@ -326,7 +336,7 @@ def dataset_confirm():
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
 
-        classification_label_dir = label_dir / "classification"
+        classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
         target_file_list = list(target.keys())
 
@@ -337,7 +347,7 @@ def dataset_confirm():
         parsed_target = [target[name.name] for name in file_names]
 
     elif task_id == Task.DETECTION.value:
-        detection_label_dir = label_dir / "detection"
+        detection_label_dir = DATASET_LABEL_DETECTION_DIR
         file_names = [p for p in file_names
                       if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         img_files = [str(img_dir / name) for name in file_names]
@@ -345,7 +355,7 @@ def dataset_confirm():
         parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
 
     elif task_id == Task.SEGMENTATION.value:
-        segmentation_label_dir = label_dir / "segmentation"
+        segmentation_label_dir = DATASET_LABEL_SEGMENTATION_DIR
         file_names = [p for p in file_names if (img_dir / p).is_file() and
                       any([((segmentation_label_dir / p.name).with_suffix(suf)).is_file()
                            for suf in [".jpg", ".png"]])]
@@ -539,7 +549,6 @@ def test_dataset_confirm():
     dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
     task_id = int(req_params.task_id)
     description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
-
     ##
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
@@ -557,7 +566,7 @@ def test_dataset_confirm():
     n_imgs = 0
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
-        classification_label_dir = label_dir / "classification"
+        classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
         target_file_list = list(target.keys())
 
@@ -572,7 +581,7 @@ def test_dataset_confirm():
         parsed_target = [target[name.name] for name in file_names]
 
     elif task_id == Task.DETECTION.value:
-        detection_label_dir = label_dir / "detection"
+        detection_label_dir = DATASET_LABEL_DETECTION_DIR
         file_names = [p for p in file_names
                       if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         n_imgs = len(file_names)
@@ -596,7 +605,6 @@ def test_dataset_confirm():
 
         for i in range(len(parsed_target)):
             test_tag_list.append(parsed_target[i][0].get('class'))
-        #print([i for i in test_tag_list])
 
         test_tag_num, _ = np.histogram(test_tag_list, bins=list(range(len(class_map) + 1)))
 
@@ -642,7 +650,7 @@ def test_dataset_create():
 
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
-        classification_label_dir = label_dir / "classification"
+        classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
         target_file_list = list(target.keys())
 
@@ -657,7 +665,7 @@ def test_dataset_create():
         parsed_target = [target[name.name] for name in file_names]
 
     elif task_id == Task.DETECTION.value:
-        detection_label_dir = label_dir / "detection"
+        detection_label_dir = DATASET_LABEL_DETECTION_DIR
         file_names = [p for p in file_names
                       if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         n_imgs = len(file_names)
@@ -823,16 +831,38 @@ def test_dataset_load_of_task(id):
     }
 
 
-@route("/api/renom_img/v2/polling/weight/download", method="GET")
-@json_handler
-def polling_weight_download():
-    return
+@route("/api/renom_img/v2/deployed_model/task/<task_id:int>", method="GET")
+def pull_deployed_model(task_id):
+    # This method will be called from python script.
+    try:
+        ret = storage.fetch_deployed_model(task_id)
+        if ret is None:
+            raise Exception("No model deployed.")
+        file_name = ret['best_epoch_weight']
+        return static_file(file_name, root=".", download='deployed_model.h5')
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body)
+        return ret
 
 
-@route("/api/renom_img/v2/polling/prediction", method="GET")
+@route("/api/renom_img/v2/deployed_model_info/task/<task_id:int>", method="GET")
 @json_handler
-def polling_prediction():
-    return
+def get_deployed_model_info(task_id):
+    # This method will be called from python script.
+    saved_model = storage.fetch_deployed_model(task_id)
+    if saved_model is None:
+        raise Exception("No model deployed.")
+
+    return {
+        "state": saved_model["state"],
+        "running_state": saved_model["running_state"],
+        "total_epoch": saved_model["total_epoch"],
+        "algorithm_id": saved_model["algorithm_id"],
+        "hyper_parameters": saved_model["hyper_parameters"],
+        "filename": saved_model["best_epoch_weight"],
+    }
 
 
 def main():
@@ -840,7 +870,13 @@ def main():
     parser = argparse.ArgumentParser(description='ReNomIMG')
     parser.add_argument('--host', default='0.0.0.0', help='Server address')
     parser.add_argument('--port', default='8080', help='Server port')
+    subparsers = parser.add_subparsers()
+    parser_add = subparsers.add_parser('setup_example', help='Setup example dataset.')
+    parser_add.set_defaults(handler=setup_example)
     args = parser.parse_args()
+    if hasattr(args, 'handler'):
+        args.handler()
+        return
     wsgiapp = default_app()
     httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
     httpd.serve_forever()

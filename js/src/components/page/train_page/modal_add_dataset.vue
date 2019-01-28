@@ -7,14 +7,14 @@
       </div>
       <div id="title" v-else> Dataset Setting
       </div>
-      <div class='item'>
+      <div class='item' v-if="false">
         Create as Test Dataset
         <input type="checkbox" value="false" v-model="isTestDataset" placeholder="false">
       </div>
       <div class='item'>
         Name<input type="text" v-model="name" placeholder="dataset"/>
       </div>
-      <div class='item'>
+      <div class='item' v-if="false">
         Test Dataset
         <select v-model="test_dataset" :disabled="isTestDataset">
           <option disabled value="" selected>Select Test Dataset</option>
@@ -104,7 +104,6 @@ export default {
     }
   },
   beforeMount: function () {
-    console.log('AS')
     this.reset()
   },
   computed: {
@@ -163,7 +162,6 @@ export default {
       ])
     },
     train_num_style: function () {
-      console.log('called')
       if (this.total_num <= 0) return
       return {
         width: (this.train_num / this.total_num) * 100 + '%',
@@ -266,6 +264,7 @@ export default {
   #dataset-setting {
     height: 100%;
     width: 50%;
+    position: relative;
     .item {
       height: 10%;
       display: flex;
@@ -282,7 +281,8 @@ export default {
     input[type="button"] {
       width: 20%;
       margin-left: 74%;
-      margin-top: calc(45% - 56px);
+      bottom: 0;
+      position: absolute;
     }
   }
   #dataset-confirm {
