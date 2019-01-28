@@ -915,3 +915,56 @@ def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'
         >>> new_x, new_y = contrast_norm(x, alpha=0.4)
     """
     return ContrastNorm(alpha, per_channel)(x, y, mode=mode)
+
+
+class RandomBrightness(ProcessBase):
+    def __init__(self, delta=32):
+        super(RandomBrightness, self).__init__()
+        self._delta = delta
+
+    def _transform_classification(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            if np.random.randint(2):
+                delta = np.random.uniform(-self._delta,self._delta)
+                x[i] = x[i] + delta
+                img_list.append(np.clip(x[i],0,255))
+            else:
+                img_list.append(x[i])
+
+        return img_list, y
+
+    def _transform_detection(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            if np.random.randint(2):
+                delta = np.random.uniform(-self._delta,self._delta)
+                x[i] = x[i] + delta
+                img_list.append(np.clip(x[i],0,255))
+            else:
+                img_list.append(x[i])
+
+        return img_list, y
+
+    def _transform_segmentation(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            if np.random.randint(2):
+                delta = np.random.uniform(-self._delta,self._delta)
+                x[i] = x[i] + delta
+                img_list.append(np.clip(x[i],0,255))
+            else:
+                img_list.append(x[i])
+
+        return img_list, y
+
+
+def random_brightness(x, y=None, delta=32, mode='classification'):
+
+    return RandomBrightness(delta)(x, y, mode=mode)
