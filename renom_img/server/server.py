@@ -326,7 +326,6 @@ def dataset_confirm():
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
 
-        start_t = time.time()
         classification_label_dir = label_dir / "classification"
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
         target_file_list = list(target.keys())
@@ -336,7 +335,6 @@ def dataset_confirm():
 
         img_files = [str(img_dir / name) for name in file_names]
         parsed_target = [target[name.name] for name in file_names]
-        print(time.time() - start_t)
 
     elif task_id == Task.DETECTION.value:
         detection_label_dir = label_dir / "detection"
@@ -344,9 +342,7 @@ def dataset_confirm():
                       if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
         img_files = [str(img_dir / name) for name in file_names]
         xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
-        print("xml",len(xml_files))
         parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
-        print(len(parsed_target))
 
     elif task_id == Task.SEGMENTATION.value:
         segmentation_label_dir = label_dir / "segmentation"
@@ -387,7 +383,6 @@ def dataset_confirm():
         train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map) + 1)))
 
-        print(time.time() - start_t)
     elif task_id == Task.DETECTION.value:
         train_tag_list = []
         valid_tag_list = []
@@ -544,8 +539,7 @@ def test_dataset_confirm():
     dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
     task_id = int(req_params.task_id)
     description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
-    print(dataset_name)
-    print(description)
+
     ##
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
@@ -606,7 +600,6 @@ def test_dataset_confirm():
 
         test_tag_num, _ = np.histogram(test_tag_list, bins=list(range(len(class_map) + 1)))
 
-    print(test_tag_num)
     class_info = {
         "test_dataset_name": dataset_name,
         "class_map": class_map,
