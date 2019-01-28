@@ -452,7 +452,8 @@ class Yolov2(Detection):
                 boxces = np.array([a['box'] for a in annotation])
                 classes = np.array([[0] * a["class"] + [1] + [0] * (num_class - a["class"] - 1)
                                     for a in annotation])
-
+                if len(boxces.shape)<2:
+                    continue
                 # x, y
                 cell_x = (boxces[:, 0] // ratio_w).astype(np.int)
                 cell_y = (boxces[:, 1] // ratio_h).astype(np.int)
