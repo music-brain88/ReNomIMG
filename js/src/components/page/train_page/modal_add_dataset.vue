@@ -12,7 +12,8 @@
         <input type="checkbox" value="false" v-model="isTestDataset" placeholder="false">
       </div>
       <div class='item'>
-        Name<input type="text" v-model="name" placeholder="dataset"/>
+        Name<input type="text" ref="nameText" v-model="nameText" placeholder="dataset"
+              :class="{'show-short-period': notifyNameField}" :maxlength="nameMaxLength" v-on:keydown="nameInputNotify"/>
       </div>
       <div class='item' v-if="false">
         Test Dataset
@@ -23,7 +24,9 @@
         </select>
       </div>
       <div class='item'>
-        Description<textarea type="text" v-model="description" placeholder="description"/>
+        Description<textarea type="text" ref="descriptionText" :class="{'show-short-period': notifyDescriptionField}" 
+                    v-model="descriptionText" placeholder="description" :maxlength="descriptionMaxLength"
+                    v-on:keydown="descriptionInputNotify"/>
       </div>
       <div class='item'>
         Ratio<input type="number" v-model="ratio" placeholder="0.8" step="0.1" min="0" max="1"/>
@@ -82,6 +85,8 @@
 </template>
 
 <script>
+import { DATASET_NAME_MAX_LENGTH, DATASET_NAME_MIN_LENGTH,
+  DATASET_DESCRIPTION_MAX_LENGTH, DATASET_DESCRIPTION_MIN_LENGTH } from '@/const.js'
 import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 import BreakDownBar from '@/components/page/train_page/breakdown_ratio_bar.vue'
 import DatasetDetailBar from '@/components/page/train_page/dataset_detail_ratio_bar.vue'
@@ -100,7 +105,10 @@ export default {
       isTestDataset: false,
       test_dataset: '',
       timeStamp: '',
-      isHovering: false
+      isHovering: false,
+      notifyNameField: false,
+      notifyDescriptionField: false,
+      nameFieldTimeoutFunc: function () {}
     }
   },
   beforeMount: function () {
@@ -114,6 +122,24 @@ export default {
     ...mapGetters([
       'getFilteredTestDatasetList',
     ]),
+    nameMaxLength: function () { return DATASET_NAME_MAX_LENGTH },
+    nameMinLength: function () { return DATASET_NAME_MAX_LENGTH },
+    descriptionMaxLength: function () { return DATASET_DESCRIPTION_MAX_LENGTH },
+    descriptionMinLength: function () { return DATASET_DESCRIPTION_MIN_LENGTH },
+    nameText: {
+      get() { return this.name},
+      set(v) {
+        this.name = v
+        this.notifyNameField = (this.name.length == this.nameMaxLength && this.notifyNameField)
+      }
+    },
+    descriptionText: {
+      get() { return this.description},
+      set(v) {
+        this.description = v
+        this.notifyDescriptionField = (this.description.length == this.descriptionMaxLength && this.notifyDescriptionField)
+      }
+    },
     confirmable: function () {
       if (!this.name || this.ratio <= 0 || this.ratio >= 1 || this.confirming_flag) {
         return false
@@ -172,7 +198,15 @@ export default {
       return {
         width: (this.valid_num / this.total_num) * 100 + '%',
       }
-    }
+    },
+  },
+  mounted: function () {
+    this.$refs.nameText.addEventListener('animationend', () => {
+      this.notifyNameField = false
+    })
+    this.$refs.descriptionText.addEventListener('animationend', () => {
+      this.notifyDescriptionField = false
+    })
   },
   methods: {
     ...mapMutations([
@@ -185,6 +219,12 @@ export default {
       'confirmDataset',
       'confirmTestDataset'
     ]),
+    nameInputNotify: function (e) {
+      this.notifyNameField = (this.name.length == this.nameMaxLength)
+    },
+    descriptionInputNotify: function (e) {
+      this.notifyDescriptionField = (this.description.length == this.descriptionMaxLength)
+    },
     onConfirmDataset: function () {
       const date = new Date()
       this.timeStamp = date.getTime()
@@ -431,6 +471,17 @@ export default {
     100% {
       transform: translateX(0) scaleX(1);
     }
+  }
+  .show-short-period {
+    animation: notifyAnimation ease-in 3s;
+  }
+  @keyframes notifyAnimation {
+   0% {
+      outline-color: red;
+    }
+   80% {
+      outline-color: red;
+   }
   }
 }
 </style>
