@@ -15,11 +15,8 @@ if sys.version_info < (3, 4):
 
 DIR = str(pathlib.Path(__file__).resolve().parent)
 
-requires = [
-    "bs4", "bottle", "glob2", "lxml", "Pillow",
-    "PyYAML", "watchdog", "xmltodict", "tqdm"
-]
-
+with open("requirements.txt") as reader:
+    requires = [line for line in reader.readlines() if not line.startswith("git+")]
 
 entry_points = {
     'console_scripts': [
@@ -60,6 +57,7 @@ setup(
     entry_points=entry_points,
     packages=['renom_img'],
     install_requires=requires,
+    dependency_links=["git+https://github.com/ReNom-dev-team/ReNom.git#egg=renom"],
     include_package_data=True,
     zip_safe=True,
     cmdclass={
