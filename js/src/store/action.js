@@ -258,6 +258,8 @@ export default {
     const url = '/api/renom_img/v2/model/thread/prediction/run/' + model_id
     let model = context.getters.getModelById(model_id)
     model.state = STATE.PRED_CREATED // TODO: Remove this line.
+    model.total_prediction_batch = 0
+    model.nth_prediction_batch = 0
     return axios.get(url)
       .then(function (response) {
         context.dispatch('startAllPolling')
