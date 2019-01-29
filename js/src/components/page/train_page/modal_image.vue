@@ -35,18 +35,20 @@
       </div>
     </div>
     <div id="result" v-if="isTaskClassification || isTaskDetection">
-      <div class="header">
+      <div class="result-header">
         <span>No.</span>
         <span>Name</span>
         <span>Score</span>
       </div>
       <div id="result-container">
         <div id="cls-result" class="result" v-if="isTaskClassification">
+
           <div v-for="(item, index) in getClassificationTop3">
             <span>{{ index + 1 }}</span>
             <span>{{ item.index }}</span>
             <span>{{ item.score }}%</span>
           </div>
+
           <div v-if="!getClassificationTop3">
             <span></span>
             <span>No prediction</span>
@@ -56,8 +58,8 @@
         <div id="box-result" class="result" v-else-if="isTaskDetection">
           <div v-for="(r, index) in getPredictedBox">
             <span>{{index}}</span>
-            <span>{{r.score.toFixed(2)}}</span>
             <span>{{r.name}}</span>
+            <span>{{r.score.toFixed(2)}}</span>
           </div>
           <div v-if="getPredictedBox.length === 0">
             <span></span>
@@ -65,8 +67,10 @@
             <span></span>
           </div>
         </div>
+
         <div id="seg-result" class="result" v-else-if="isTaskSegmentation">
         </div>
+
       </div>
     </div>
   </div>
@@ -281,6 +285,7 @@ export default {
         width: 100%;
         height: 9%;
         border-bottom: solid 1px lightgray;
+        justify-content: space-between;;
         span {
           height: 100%;
           display: flex;
@@ -303,6 +308,30 @@ export default {
     .result {
       width: 100%;
       height: 100%;
+    }
+  }
+  .result-header {
+    height: 32px;
+    width: 100%;
+    background-color: $header-background-color;
+    margin-bottom: 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;;
+    span {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 33.3%;
+      padding-left: 20px;
+      &:nth-child(1) {
+        width: 25%;
+      }
+      &:nth-child(2) {
+        width: 31%;
+      }
     }
   }
   .header {
