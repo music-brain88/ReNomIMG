@@ -9,7 +9,6 @@
         <table-item :dataset="item" v-for='item in getFilteredDatasetList'/>
       </div>
       <div id="dataset-content">
-
       </div>
     </div>
   </component-frame>
