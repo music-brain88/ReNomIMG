@@ -340,6 +340,8 @@ class Shift(ProcessBase):
                 py2 = np.clip(obj["box"][1] + ph / 2. + rand_v[i], 0, h - 1)
                 pw = px2 - px1
                 ph = py2 - py1
+                if pw == 0 or ph == 0:
+                    continue
                 px = px1 + pw / 2.
                 py = py1 + ph / 2.
                 ny.append({
