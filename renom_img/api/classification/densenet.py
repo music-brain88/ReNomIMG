@@ -142,7 +142,8 @@ class DenseNet121(DenseNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/DenseNet.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/DenseNet.h5".format(
+        __version__)
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):
