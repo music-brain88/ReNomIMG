@@ -8,6 +8,7 @@ from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
 from PIL import Image, ImageDraw
 
+from renom_img import __version__
 from renom_img.api import Base, adddoc
 from renom_img.api.detection import Detection
 from renom_img.api.classification.darknet import Darknet19, DarknetConv2dBN
@@ -124,7 +125,7 @@ class Yolov2(Detection):
 
     # Anchor information will be serialized by 'save' method.
     SERIALIZED = ("anchor", "num_anchor", "anchor_size",  *Base.SERIALIZED)
-    WEIGHT_URL = "https://docs.renom.jp/downloads/weights/YOLO/Yolov2.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/Yolov2.h5".format(__version__)
 
     def __init__(self, class_map=None, anchor=None,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):

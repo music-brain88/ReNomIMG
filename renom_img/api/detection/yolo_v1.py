@@ -4,6 +4,7 @@ import renom as rm
 from tqdm import tqdm
 from PIL import Image
 
+from renom_img import __version__
 from renom_img.api import Base, adddoc
 from renom_img.api.detection import Detection
 from renom_img.api.classification.darknet import Darknet
@@ -65,7 +66,7 @@ class Yolov1(Detection):
     """
 
     SERIALIZED = ("_cells", "_bbox", *Base.SERIALIZED)
-    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Yolov1.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/Yolov1.h5".format(__version__)
 
     def __init__(self, class_map=None, cells=7, bbox=2,
                  imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
