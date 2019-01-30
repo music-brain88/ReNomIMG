@@ -153,7 +153,8 @@ class VGG16(VGGBase):
 
     """
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG16.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG16.h5".format(
+        __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
@@ -215,7 +216,8 @@ class VGG19(VGGBase):
 
     """
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG19.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG19.h5".format(
+        __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):

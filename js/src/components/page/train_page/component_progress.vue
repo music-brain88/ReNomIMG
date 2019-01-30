@@ -16,6 +16,20 @@
               {{alg.title}}
             </div>
           </div>
+          <div id="legend-item">
+            <div id="legend-box" class="color-reserved">
+            </div>
+            <div id="legend-title">
+              Reserved
+            </div>
+          </div>
+          <div id="legend-item">
+            <div id="legend-box" class="color-created">
+            </div>
+            <div id="legend-title">
+              Created
+            </div>
+          </div>
         </div>
       </div>
       <div id="model-bar" v-if="this.getFilteredModelList.length != 0"
@@ -104,6 +118,7 @@ export default {
       } else if (task === TASK_ID.SEGMENTATION) {
         arr = Object.values(ALGORITHM.SEGMENTATION)
       }
+      arr
       return arr.map(d => { return {title: d.title, key: d.key, id: d.id} })
     },
     getColorClass: function (alg_id) {
@@ -206,7 +221,7 @@ export default {
     }
   }
   #green {
-    background: #65d260;
+    background: #229954;
   }
 }
 </style>
