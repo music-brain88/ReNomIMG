@@ -10,7 +10,7 @@ from renom_img.api.utility.evaluate import EvaluatorDetection
 from renom_img.api.utility.evaluate import EvaluatorSegmentation
 from renom_img.api.utility.augmentation.process import contrast_norm
 from renom_img.api.utility.augmentation.process import shift
-from renom_img.api.utility.augmentation.process import rotate, flip, white_noise, random_crop
+from renom_img.api.utility.augmentation.process import *
 from renom_img.api.utility.target import DataBuilderClassification, DataBuilderDetection, DataBuilderSegmentation
 
 from renom_img.api.utility.misc.display import draw_box
@@ -32,6 +32,11 @@ def scope_session():
     [white_noise, {"std": 10}],
     [contrast_norm, {"alpha": [0.5, 1.0]}],
     [random_crop, {}],
+    [random_brightness,{}],
+    [random_hue,{}],
+    [random_saturation,{}],
+    [random_lighting,{}],
+    [random_expand,{}],
 ])
 def test_augmentation_process_detection(method, kwargs):
     img = Image.open('./renom.png')
@@ -49,7 +54,7 @@ def test_augmentation_process_detection(method, kwargs):
     rescale(y, (1, 1), img.size)
     x, y = method(x, y, mode="detection", **kwargs)
 
-    rescale(y, img.size, (1, 1))
+    rescale(y, (x[0].shape[2],x[0].shape[1]), (1, 1))
     draw_box(x[0], y[0]).save(
         './outputs/test_augmentation_detection_{}1.png'.format(method.__name__))
 
@@ -62,6 +67,11 @@ def test_augmentation_process_detection(method, kwargs):
     [white_noise, {"std": 10}],
     [contrast_norm, {"alpha": [0.5, 1.0]}],
     [random_crop,{}],
+    [random_hue,{}],
+    [random_brightness,{}],
+    [random_saturation,{}],
+    [random_lighting,{}],
+    [random_expand,{}],
 ])
 def test_augmentation_process_classification(method, kwargs):
     img = Image.open('./renom.png')

@@ -253,12 +253,11 @@ class RandomCrop(ProcessBase):
         xB = np.fmin(b1_x2, b2_x2)
         yB = np.fmin(b1_y2, b2_y2)
 
-        if (xB-xA) < 0 or (yB-yA) < 0:
-            return 0
         intersect = (xB - xA) * (yB - yA)
         union = (area1 + area2 - intersect)
+        iou = intersect/union
 
-        return intersect / union
+        return iou, (xB-((xB - xA)/2))-b1_x1,(yB-((yB-yA)/2))-b1_y1, xB - xA,yB - yA
 
     def check_point(self, left, top, right, down, x, y):
         if x > left and x < right and y > top and y < down:
@@ -276,18 +275,18 @@ class RandomCrop(ProcessBase):
             choice = np.random.choice(self.sample_options)
             c, h, w = x[i].shape
             if choice == None:
+                # print('original image')
                 img_list.append(x[i])
                 new_y.append(y[i])
             elif choice[0] is not None:
-                count = 0
-                hist = {}
+                # print('iou case')
                 temp_y = []
-                hi = []
                 min = choice[0]
                 success = False
+                counter = 0
                 while (not success):
-                    sw = int(np.random.uniform(0.1*w, w))
-                    sh = int(np.random.uniform(0.1*h, h))
+                    sw = int(np.random.uniform(0.3*w, w))
+                    sh = int(np.random.uniform(0.3*h, h))
                     if sw / sh < 0.5 or sw / sh > 2:
                         continue
                     left = int(np.random.uniform(w - sw))
@@ -295,36 +294,28 @@ class RandomCrop(ProcessBase):
                     for j, obj in enumerate(y[i]):
                         ox,oy,ow,oh = obj["box"]
                         if self.check_point(left,top,left+sw,top+sh,ox,oy):
-                            overlap = self.jaccard_overlap(left,top,left+sw,top+sh,\
+                            overlap,px,py,pw,ph = self.jaccard_overlap(left,top,left+sw,top+sh,\
                             ox-(ow/2),oy-(oh/2),ox+(ow/2),oy+(oh/2))
-                            if overlap > min:
-                                pw = np.clip(ox+(ow/2),0,left+sw)
-                                ph = np.clip(oy+(oh/2),0,top+sh)
+                            if overlap >= min:
+                                pw = np.clip(pw,0,left+sw)
+                                ph = np.clip(ph,0,top+sh)
                                 temp_y.append({
-                                    "box": [ox, oy, pw, ph],
+                                    "box": [px, py, pw, ph],
                                     **{k: v for k, v in obj.items() if k != 'box'}
                                 })
-                            else:
-                                pw = np.clip(ox+(ow/2),0,left+sw)
-                                ph = np.clip(oy+(oh/2),0,top+sh)
-                                hi.append({
-                                    "box": [ox, oy, pw, ph],
-                                    **{k: v for k, v in obj.items() if k != 'box'}
-                                })
-                                hist[overlap] = [left,top,sw,sh,hi]
-                    count+= 1
                     if len(temp_y) > 0:
+                        print('success')
                         success = True
                         img_list.append(x[i][:,left:left+sw,top:top+sh])
                         new_y.append(temp_y)
-                    elif count > 80:
+                    counter += 1
+                    if counter > 50 or np.random.rand() >= 0.85:
+                        img_list.append(x[i])
+                        new_y.append(y[i])
                         success = True
-                        best_jo = sorted(hist.items(),key= lambda tt:tt[0],reverse=True)
-                        left, top, sw, sh, bbox = best_jo[0][1]
-                        # print('best jaccard overlap = ',best_jo[0][0])
-                        img_list.append(x[i][:,left:left+sw,top:top+sh])
-                        new_y.append(bbox)
-            else:#
+
+            else:
+                # print('random case')
                 temp_y = []
                 success = False
                 while (not success):
@@ -339,10 +330,12 @@ class RandomCrop(ProcessBase):
                     for j, obj in enumerate(y[i]):
                         ox,oy,ow,oh = obj["box"]
                         if self.check_point(left,top,left+sw,top+sh,ox,oy):
-                            pw = np.clip(ox+(ow/2),0,left+sw)
-                            ph = np.clip(oy+(oh/2),0,top+sh)
+                            overlap,px,py,pw,ph = self.jaccard_overlap(left,top,left+sw,top+sh,\
+                            ox-(ow/2),oy-(oh/2),ox+(ow/2),oy+(oh/2))
+                            pw = np.clip(pw,0,left+sw)
+                            ph = np.clip(ph,0,top+sh)
                             temp_y.append({
-                                "box": [ox, oy, pw, ph],
+                                "box": [px, py, pw, ph],
                                 **{k: v for k, v in obj.items() if k != 'box'}
                             })
                     if len(temp_y) > 0:
@@ -968,3 +961,246 @@ class RandomBrightness(ProcessBase):
 def random_brightness(x, y=None, delta=32, mode='classification'):
 
     return RandomBrightness(delta)(x, y, mode=mode)
+
+
+class RandomHue(ProcessBase):
+    def __init__(self, max_delta=0.3):
+        super(RandomHue, self).__init__()
+        self.max_delta = max_delta
+        assert self.max_delta > 0 and self.max_delta <= 0.5, "max_delta must be in the interval [0, 0.5]."
+        self.tyiq = np.array([[0.299, 0.587, 0.114],
+                              [0.596, -0.274, -0.321],
+                              [0.211, -0.523, 0.311]])
+        self.ityiq = np.array([[1.0, 0.956, 0.621],
+                               [1.0, -0.272, -0.647],
+                               [1.0, -1.107, 1.705]])
+
+    def _transform_classification(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            alpha = np.random.uniform(-self.max_delta,self.max_delta)
+            u = np.cos(alpha * np.pi)
+            w = np.sin(alpha * np.pi)
+            bt = np.array([[1.0, 0.0, 0.0],
+                       [0.0, u, -w],
+                       [0.0, w, u]])
+            t = np.dot(np.dot(self.ityiq, bt), self.tyiq).T
+            src = np.dot(x[i].transpose(1,2,0), np.array(t))
+            img_list.append(src.transpose(2,0,1))
+        return img_list,y
+
+    def _transform_detection(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            alpha = np.random.uniform(-self.max_delta,self.max_delta)
+            u = np.cos(alpha * np.pi)
+            w = np.sin(alpha * np.pi)
+            bt = np.array([[1.0, 0.0, 0.0],
+                       [0.0, u, -w],
+                       [0.0, w, u]])
+            t = np.dot(np.dot(self.ityiq, bt), self.tyiq).T
+            src = np.dot(x[i].transpose(1,2,0), np.array(t))
+            img_list.append(src.transpose(2,0,1))
+        return img_list,y
+
+    def _transform_segmentation(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            alpha = np.random.uniform(-self.max_delta,self.max_delta)
+            u = np.cos(alpha * np.pi)
+            w = np.sin(alpha * np.pi)
+            bt = np.array([[1.0, 0.0, 0.0],
+                       [0.0, u, -w],
+                       [0.0, w, u]])
+            t = np.dot(np.dot(self.ityiq, bt), self.tyiq).T
+            src = np.dot(x[i].transpose(1,2,0), np.array(t))
+            img_list.append(src.transpose(2,0,1))
+        return img_list,y
+
+
+def random_hue(x, y=None, mode='classification'):
+    return RandomHue(max_delta=0.3)(x, y, mode=mode)
+
+class RandomSaturation(ProcessBase):
+    def __init__(self, ratio=0.4):
+        super(RandomSaturation, self).__init__()
+        self.ratio = ratio
+        assert self.ratio > 0 and self.ratio < 1, "ratio must be in the interval [0,1]."
+        self.coef = np.array([[[0.299, 0.587, 0.114]]])
+
+    def _transform_classification(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            alpha = 1.0 + np.random.uniform(-self.ratio, self.ratio)
+            gray = x[i].transpose(1,2,0) * self.coef
+            gray = np.sum(gray, axis=2, keepdims=True)
+            gray *= (1.0 - alpha)
+            img = x[i].transpose(1,2,0) * alpha
+            img += gray
+            img_list.append(img.transpose(2,0,1))
+        return img_list,y
+
+    def _transform_detection(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            alpha = 1.0 + np.random.uniform(-self.ratio, self.ratio)
+            gray = x[i].transpose(1,2,0) * self.coef
+            gray = np.sum(gray, axis=2, keepdims=True)
+            gray *= (1.0 - alpha)
+            img = x[i].transpose(1,2,0) * alpha
+            img += gray
+            img_list.append(img.transpose(2,0,1))
+        return img_list,y
+
+    def _transform_segmentation(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            alpha = 1.0 + np.random.uniform(-self.ratio, self.ratio)
+            gray = x[i].transpose(1,2,0) * self.coef
+            gray = np.sum(gray, axis=2, keepdims=True)
+            gray *= (1.0 - alpha)
+            img = x[i].transpose(1,2,0) * alpha
+            img += gray
+            img_list.append(img.transpose(2,0,1))
+        return img_list,y
+
+def random_saturation(x, y=None, mode='classification'):
+    return RandomSaturation(ratio=0.4)(x, y, mode=mode)
+
+class RandomLighting(ProcessBase):
+    def __init__(self):
+        super(RandomLighting, self).__init__()
+        self.choice = (None, (0, 2, 1),
+                      (1, 0, 2), (1, 2, 0),
+                      (2, 0, 1), (2, 1, 0))
+
+    def _transform_classification(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            choice = np.random.choice(self.choice)
+            if choice == None:
+                choice = (0,1,2)
+            new_x = np.empty_like(x[i])
+            new_x[choice[0],:,:] = x[i][0,:,:]
+            new_x[choice[1],:,:] = x[i][1,:,:]
+            new_x[choice[2],:,:] = x[i][2,:,:]
+            img_list.append(new_x)
+        return img_list,y
+
+    def _transform_detection(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            choice = np.random.choice(self.choice)
+            if choice == None:
+                choice = (0,1,2)
+            new_x = np.empty_like(x[i])
+            new_x[choice[0],:,:] = x[i][0,:,:]
+            new_x[choice[1],:,:] = x[i][1,:,:]
+            new_x[choice[2],:,:] = x[i][2,:,:]
+            img_list.append(new_x)
+        return img_list,y
+
+    def _transform_segmentation(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            choice = np.random.choice(self.choice)
+            if choice == None:
+                choice = (0,1,2)
+            new_x = np.empty_like(x[i])
+            new_x[choice[0],:,:] = x[i][0,:,:]
+            new_x[choice[1],:,:] = x[i][1,:,:]
+            new_x[choice[2],:,:] = x[i][2,:,:]
+            img_list.append(new_x)
+        return img_list,y
+
+def random_lighting(x, y=None, mode='classification'):
+    return RandomLighting()(x, y, mode=mode)
+
+class RandomExpand(ProcessBase):
+    def __init__(self):
+        super(RandomExpand, self).__init__()
+
+    def _transform_classification(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        for i in range(n):
+            c,h,w = x[i].shape
+            ratio = np.random.uniform(1,4)
+            left = np.random.uniform(0, w*ratio - w )
+            top = np.random.uniform(0, h*ratio - h )
+            expand_image = np.zeros((c,int(h*ratio),int(w*ratio)),dtype=x[i].dtype)
+            expand_image[:,:,:] = np.mean(x[i])
+            expand_image[:,int(top):int(top+h),
+                        int(left):int(left+w)] = x[i]
+            img_list.append(expand_image)
+        return img_list,y
+
+    def _transform_detection(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        new_y = []
+        for i in range(n):
+            ny = []
+            c,h,w = x[i].shape
+            ratio = np.random.uniform(1,4)
+            left = np.random.uniform(0, w*ratio - w )
+            top = np.random.uniform(0, h*ratio - h )
+            expand_image = np.zeros((c,int(h*ratio),int(w*ratio)),dtype=x[i].dtype)
+            expand_image[:,:,:] = np.mean(x[i])
+            expand_image[:,int(top):int(top+h),
+                        int(left):int(left+w)] = x[i]
+            img_list.append(expand_image)
+            for j, obj in enumerate(y[i]):
+                ox,oy,ow,oh = obj["box"]
+                ny.append({
+                    "box": [ox+int(left), oy+int(top),ow,oh],
+                    **{k: v for k, v in obj.items() if k != 'box'}
+                })
+            new_y.append(ny)
+        return img_list,new_y
+
+    def _transform_segmentation(self, x, y):
+        # assert len(x.shape) == 4
+        n = len(x)
+        img_list = []
+        new_y = []
+        for i in range(n):
+            c,h,w = x[i].shape
+            ratio = np.random.uniform(1,4)
+            left = np.random.uniform(0, w*ratio - w )
+            top = np.random.uniform(0, h*ratio - h )
+            expand_image = np.zeros((c,int(h*ratio),int(w*ratio)),dtype=x[i].dtype)
+            expand_label = np.zeros((c,int(h*ratio),int(w*ratio)),dtype=y[i].dtype)
+            expand_image[:,:,:] = np.mean(x[i])
+            expand_label[:,:,:] = np.mean(y[i])
+            expand_image[:,int(top):int(top+h),
+                        int(left):int(left+w)] = x[i]
+
+            expand_label[:,int(top):int(top+h),
+                        int(left):int(left+w)] = y[i]
+            img_list.append(expand_image)
+            new_y.append(expand_label)
+        return img_list,new_y
+
+def random_expand(x, y=None, mode='classification'):
+    return RandomExpand()(x, y, mode=mode)
