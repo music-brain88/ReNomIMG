@@ -77,7 +77,12 @@ export default {
       'getFilterList',
     ]),
     isDisabled: function () {
-      return this.threshold === ''
+      if (this.threshold === '') {
+        return true
+      } else if (this.itemObject.type === 'condition' && isNaN(this.threshold)) {
+        return true
+      }
+      return false
     }
   },
   data: function () {
