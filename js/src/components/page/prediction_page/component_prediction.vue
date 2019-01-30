@@ -50,7 +50,7 @@
               <div></div><div></div><div></div>
               <div></div><div></div>
             </div>
-            <span>Predicting ...</span>
+            <span>{{ pretidtionProgress }}</span>
           </div>
         </div>
       </div>
@@ -134,6 +134,18 @@ export default {
       const model = this.model
       if (!model) return false
       return model.isStopped()
+    },
+    pretidtionProgress () {
+      const model = this.model
+      if (model) {
+        let total = model.total_prediction_batch
+        let nth = model.nth_prediction_batch
+        if (total === 0) {
+          return "0.00 %"
+        }
+        return (nth/total*100).toFixed(2) + " %"
+      }
+      return "-"
     }
   },
   methods: {
@@ -258,6 +270,7 @@ export default {
       #predicting {
         display: flex;
         flex-direction: column;
+        text-align: center;
         .lds-roller {
           display: inline-block;
           position: relative;

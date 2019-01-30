@@ -4,6 +4,7 @@ import renom as rm
 import numpy as np
 from tqdm import tqdm
 
+from renom_img import __version__
 from renom_img.api import Base, adddoc
 from renom_img.api.utility.misc.download import download
 from renom_img.api.classification import Classification
@@ -149,6 +150,8 @@ class ResNetBase(Classification):
 
 class ResNet(rm.Model):
 
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet.h5".format(__version__)
+
     def __init__(self, num_classes, block, layers):
         self.inplanes = 64
         super(ResNet, self).__init__()
@@ -223,7 +226,7 @@ class ResNet18(ResNetBase):
         https://arxiv.org/abs/1512.03385
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet18.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet18.h5".format(__version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -266,7 +269,7 @@ class ResNet34(ResNetBase):
         https://arxiv.org/abs/1512.03385
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet34.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet34.h5".format(__version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -310,7 +313,7 @@ class ResNet50(ResNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet50.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet50.h5".format(__version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -353,7 +356,7 @@ class ResNet101(ResNetBase):
         https://arxiv.org/abs/1603.05027
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet101.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet50.h5".format(__version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -396,7 +399,7 @@ class ResNet152(ResNetBase):
         https://arxiv.org/abs/1603.05027
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNet/ResNet152.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet152.h5".format(__version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
