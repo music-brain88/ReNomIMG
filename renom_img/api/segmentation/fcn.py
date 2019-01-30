@@ -3,6 +3,8 @@ import sys
 import numpy as np
 import renom as rm
 from tqdm import tqdm
+
+from renom_img import __version__
 from renom_img.api import adddoc
 from renom_img.api.segmentation import SemanticSegmentation
 from renom.utility.initializer import Initializer
@@ -156,7 +158,7 @@ class FCN32s(FCN_Base):
 
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/FCN/FCN32s.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN32s.h5".format(__version__)
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
@@ -208,7 +210,7 @@ class FCN16s(FCN_Base):
 
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/FCN/FCN16s.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN16s.h5".format(__version__)
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
@@ -263,7 +265,7 @@ class FCN8s(FCN_Base):
 
     """
 
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/FCN/FCN8s.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN8s.h5".format(__version__)
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 

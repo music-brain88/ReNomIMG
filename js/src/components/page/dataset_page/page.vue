@@ -35,7 +35,7 @@
                 <span class="item">Ratio : {{ ratio }}</span>
               </div>
               <div class="col">
-                <div v-if="description">
+                <div v-if="description" id="description-field">
                   {{ description }}
                 </div>
                 <div v-else>
@@ -262,6 +262,7 @@ export default {
             padding-right: 20px;
             background-color: #eee;
             border: solid 1px #ddd;
+            overflow: auto;
           }
         }
       }

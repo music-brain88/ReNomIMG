@@ -488,9 +488,6 @@ class Shift(ProcessBase):
         img_list = []
         label_list = []
         for i in range(n):
-            c, h, w = x[i].shape
-            new_x = np.zeros_like(np.asarray(x[i]))
-            new_y = np.zeros_like(np.asarray(y[i]))
 
             rand_h = ((np.random.rand(1) * 2 - 1) * self._h).astype(np.int)
             rand_v = ((np.random.rand(1) * 2 - 1) * self._v).astype(np.int)
