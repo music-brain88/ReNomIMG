@@ -304,15 +304,15 @@ class RandomCrop(ProcessBase):
                                     **{k: v for k, v in obj.items() if k != 'box'}
                                 })
                     if len(temp_y) > 0:
-                        print('success')
                         success = True
                         img_list.append(x[i][:,left:left+sw,top:top+sh])
                         new_y.append(temp_y)
-                    counter += 1
-                    if counter > 50 or np.random.rand() >= 0.85:
-                        img_list.append(x[i])
-                        new_y.append(y[i])
-                        success = True
+                    else:
+                        counter += 1
+                        if counter > 50 or np.random.rand() >= 0.85:
+                            success = True
+                            img_list.append(x[i])
+                            new_y.append(y[i])
 
             else:
                 # print('random case')
