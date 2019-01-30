@@ -36,6 +36,7 @@ from renom_img.server.utility.storage import storage
 from renom_img.server import State, RunningState, Task
 from renom_img.server import DATASET_IMG_DIR, DATASET_LABEL_CLASSIFICATION_DIR, \
     DATASET_LABEL_DETECTION_DIR, DATASET_LABEL_SEGMENTATION_DIR
+from renom_img.server import DATASET_NAME_MAX_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH
 from renom_img.server.utility.setup_example import setup_example
 
 
@@ -312,7 +313,11 @@ def dataset_confirm():
         if req_params.test_dataset_id != '' else '-1')
     task_id = int(req_params.task_id)
     description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
-    #
+    assert len(dataset_name) <= DATASET_NAME_MAX_LENGTH, \
+        "Dataset name is too long. Please set the name length <= {}".format(DATASET_NAME_MAX_LENGTH)
+    assert len(description) <= DATASET_DESCRIPTION_MAX_LENGTH, \
+        "Dataset description is too long. Please set the description length <= {}".format(
+            DATASET_DESCRIPTION_MAX_LENGTH)
 
     root = pathlib.Path('datasrc')
     img_dir = root / 'img'
@@ -336,7 +341,6 @@ def dataset_confirm():
     # For Detection
     if task_id == Task.CLASSIFICATION.value:
 
-        start_t = time.time()
         classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
         target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
         target_file_list = list(target.keys())
@@ -399,10 +403,12 @@ def dataset_confirm():
         valid_tag_list = []
 
         for i in range(len(train_target)):
-            train_tag_list.append(train_target[i][0].get('class'))
+            for j in range(len(train_target[i])):
+                train_tag_list.append(train_target[i][j].get('class'))
 
         for i in range(len(valid_target)):
-            valid_tag_list.append(valid_target[i][0].get('class'))
+            for j in range(len(valid_target[i])):
+                valid_tag_list.append(valid_target[i][j].get('class'))
 
         train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))

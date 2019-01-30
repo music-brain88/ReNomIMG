@@ -30,7 +30,7 @@
       </div>
     </div>
     <div id="result" v-if="isTaskDetection">
-      <div class="header">
+      <div class="result-header">
         <span>No.</span>
         <span>Score</span>
         <span>Name</span>
@@ -267,6 +267,29 @@ export default {
     .result {
       width: 100%;
       height: 100%;
+    }
+  }
+  .result-header {
+    height: 32px;
+    width: 100%;
+    background-color: $header-background-color;
+    margin-bottom: 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+    span {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 33.3%;
+      padding-left: 20px;
+      &:nth-child(1) {
+        width: 25%;
+      }
+      &:nth-child(2) {
+        width: 31%;
+      }
     }
   }
   .header {
