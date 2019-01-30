@@ -53,6 +53,7 @@ export default {
       'getFilteredAndGroupedModelList',
       'getColorClass',
       'getAlgorithmColor',
+      'getAlgorithmTitleFromId',
       'getTitleMetric1',
       'getTitleMetric2',
       'getSelectedModel'
@@ -195,7 +196,8 @@ export default {
             .duration(200)
             .style('opacity', 0.9)
           ttip.html(
-            'Model ID : ' + m.id + '<br />' +
+            'ID : ' + m.id + '<br />' +
+            'Model: ' + this.getAlgorithmTitleFromId(m.algorithm_id) + '<br />' +
             metric1.metric + ' : ' + metric1.value + '<br />' +
             metric2.metric + ' : ' + metric2.value
           )
