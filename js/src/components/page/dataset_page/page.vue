@@ -282,7 +282,7 @@ export default {
       #dataset-class-bars{
         width: calc(100% - 40px);
         height: calc(72% - 20px);
-        overflow: auto;
+        overflow: hidden auto;
         margin-bottom: 20px;
         margin-left: 20px;
         margin-right: 20px;
