@@ -305,7 +305,7 @@ class RandomCrop(ProcessBase):
                                 })
                     if len(temp_y) > 0:
                         success = True
-                        img_list.append(x[i][:,left:left+sw,top:top+sh])
+                        img_list.append(x[i][:,top:top+sh, left:left+sw])
                         new_y.append(temp_y)
                     else:
                         counter += 1
@@ -340,7 +340,7 @@ class RandomCrop(ProcessBase):
                             })
                     if len(temp_y) > 0:
                         success = True
-                        img_list.append(x[i][:,left:left+sw,top:top+sh])
+                        img_list.append(x[i][:,top:top+sh,left:left+sw])
                         new_y.append(temp_y)
 
         return img_list, new_y
