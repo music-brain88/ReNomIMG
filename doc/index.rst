@@ -8,3 +8,4 @@ ReNom IMG 2.0
     rsts/introduction
     rsts/how_to_use
     rsts/renom_img
+    rsts/change
