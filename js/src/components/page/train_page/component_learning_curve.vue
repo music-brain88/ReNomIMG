@@ -344,7 +344,7 @@ export default {
         })
 
       d3.select('#learning-curve-canvas')
-        .on('contextmenu', resetZoom, { passive: true })
+        .on('contextmenu', resetZoom)
 
       function zoomed () {
         const move_x = margin.left + d3.event.transform.x
