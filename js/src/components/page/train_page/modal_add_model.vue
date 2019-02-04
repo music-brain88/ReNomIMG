@@ -10,7 +10,8 @@
               value=""
               selected>Select Dataset</option>
             <option
-              v-for="item in getFilteredDatasetList"
+              v-for="(item, key) in getFilteredDatasetList"
+              :key="key"
               :value="item.id"> {{ item.name }} </option>
           </select>
         </div>
@@ -24,7 +25,9 @@
             disabled
             value=""
             selected>Select Algorithm</option>
-          <option v-for="(item, index) in getAlgorithmList">{{ item }}</option>
+          <option
+            v-for="(item, index) in getAlgorithmList"
+            :key="index">{{ item }}</option>
         </select>
       </div>
     </div>
@@ -32,7 +35,9 @@
       <div
         id="hyper-params"
         class="title">Hyper parameters</div>
-      <div v-for="item in getAlgorithmParamList(selectedAlgorithm)">
+      <div
+        v-for="(item, key) in getAlgorithmParamList(selectedAlgorithm)"
+        :key="key">
         <div class="hyper-param">{{ item.title }}
           <input
             v-if="item.type !== 'select'"
@@ -46,7 +51,9 @@
             v-else
             v-model="parameters[item.key]"
             :selected="item.default">
-            <option v-for="opt of item.options">{{ opt }}</option>
+            <option
+              v-for="(opt, key) of item.options"
+              :key="key">{{ opt }}</option>
           </select>
         </div>
       </div>
@@ -66,7 +73,12 @@ import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 
 export default {
   name: 'ModalAddModel',
-  components: {
+  data: function () {
+    return {
+      selectedAlgorithm: '',
+      selectedDatasetId: '',
+      parameters: {},
+    }
   },
   computed: {
     ...mapState(['show_modal']),
@@ -84,13 +96,6 @@ export default {
       } else {
         return true
       }
-    }
-  },
-  data: function () {
-    return {
-      selectedAlgorithm: '',
-      selectedDatasetId: '',
-      parameters: {},
     }
   },
   created: function () {

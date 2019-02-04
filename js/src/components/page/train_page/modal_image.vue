@@ -60,7 +60,9 @@
           id="cls-result"
           class="result">
 
-          <div v-for="(item, index) in getClassificationTop3">
+          <div
+            v-for="(item, index) in getClassificationTop3"
+            :key="index">
             <span>{{ index + 1 }}</span>
             <span>{{ item.index }}</span>
             <span>{{ item.score }}%</span>
@@ -76,7 +78,9 @@
           v-else-if="isTaskDetection"
           id="box-result"
           class="result">
-          <div v-for="(r, index) in getPredictedBox">
+          <div
+            v-for="(r, index) in getPredictedBox"
+            :key="index">
             <span>{{ index }}</span>
             <span>{{ r.name }}</span>
             <span>{{ r.score.toFixed(2) }}</span>
@@ -99,10 +103,7 @@
 </template>
 
 <script>
-import { TASK_ID } from '@/const.js'
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
-import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
-import ComponentFrame from '@/components/common/component_frame.vue'
 import ImageCanvas from '@/components/page/train_page/image.vue'
 
 export default {
@@ -137,12 +138,6 @@ export default {
       canvas_width: 0,
       canvas_height: 0,
     }
-  },
-  mounted: function () {
-    this.$refs.container.focus()
-    const el = this.$refs.imageContainer
-    this.canvas_width = el.clientWidth
-    this.canvas_height = el.clientHeight
   },
   computed: {
     ...mapState([
@@ -213,12 +208,18 @@ export default {
     },
     getPredictedBox: function () {
       const model = this.model
-      const map = this.class_map
       if (!model) return []
       const prediction = model.getValidResult(this.modal_index)
       return (prediction) || []
     }
   },
+  mounted: function () {
+    this.$refs.container.focus()
+    const el = this.$refs.imageContainer
+    this.canvas_width = el.clientWidth
+    this.canvas_height = el.clientHeight
+  },
+
   methods: {
     ...mapMutations(['setImageModalData']),
     ...mapActions(['loadSegmentationTargetArray']),

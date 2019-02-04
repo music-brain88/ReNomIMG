@@ -9,7 +9,8 @@
           v-model="itemObject"
           @change="resetForm">
           <option
-            v-for="item of getFilterItemsOfCurrentTask"
+            v-for="(item, key) of getFilterItemsOfCurrentTask"
+            :key="key"
             :value="item">{{ item.title }}</option>
         </select>
       </div>
@@ -18,9 +19,9 @@
           v-if="itemObject.type !== 'select'"
           id="variable-condition"
           v-model="condition">
-          <option>>=</option>
+          <option>&gt;=</option>
           <option>==</option>
-          <option><=</option>
+          <option>&lt;=</option>
         </select>
         <select
           v-else
@@ -39,7 +40,8 @@
           v-else
           v-model="threshold">
           <option
-            v-for="opt in itemObject.options"
+            v-for="(opt, key) in itemObject.options"
+            :key="key"
             :value="opt">{{ opt.title }}</option>
         </select>
       </div>
@@ -52,8 +54,9 @@
     </div>
     <div id="filter-list">
       <div
-        v-for="filterItem in getFilterList"
-        id="filter-item">
+        v-for="(filterItem, key) in getFilterList"
+        id="filter-item"
+        :key="key">
         <div
           v-if="filterItem.item.type === 'select'"
           class="select-item">
@@ -101,11 +104,22 @@
 
 <script>
 import Filter from '@/store/classes/filter.js'
-import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'ModalAddFilter',
-  components: {
+  data: function () {
+    return {
+      condition: '==',
+      threshold: '',
+      itemObject: {
+        item: 'select',
+        type: 'condition',
+        options: [],
+        min: 0,
+        max: 1,
+      }
+    }
   },
   computed: {
     ...mapState([]),
@@ -120,19 +134,6 @@ export default {
         return true
       }
       return false
-    }
-  },
-  data: function () {
-    return {
-      condition: '==',
-      threshold: '',
-      itemObject: {
-        item: 'select',
-        type: 'condition',
-        options: [],
-        min: 0,
-        max: 1,
-      }
     }
   },
   created: function () {

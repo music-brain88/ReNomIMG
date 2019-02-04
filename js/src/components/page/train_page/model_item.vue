@@ -49,8 +49,9 @@
     </div>
     <div id="child-model">
       <model-item
-        v-for="item in getChildModelList"
+        v-for="(item, key) in getChildModelList"
         :model="item"
+        :key="key"
         :hierarchy="hierarchy+1"/>
     </div>
   </div>
@@ -58,7 +59,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions, mapState } from 'vuex'
-import { GROUPBY, SORTBY, SORT_DIRECTION } from '@/const.js'
+import { SORTBY } from '@/const.js'
 
 export default {
   name: 'ModelItem',
@@ -68,7 +69,8 @@ export default {
   props: {
     model: {
       type: Object,
-      require: true
+      require: true,
+      default: undefined
     },
     isAddButton: {
       type: Boolean,
@@ -76,9 +78,11 @@ export default {
     },
     isOpenChildModelList: {
       type: Boolean,
-      type: false,
+      default: false,
     },
-    hierarchy: 0,
+    hierarchy: {
+      type: Number,
+      default: 0 },
   },
   computed: {
     ...mapState([

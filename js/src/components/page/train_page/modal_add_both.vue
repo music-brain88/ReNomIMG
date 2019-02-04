@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 import ModalAddModel from '@/components/page/train_page/modal_add_model.vue'
 import ModalAddDataset from '@/components/page/train_page/modal_add_dataset.vue'
 

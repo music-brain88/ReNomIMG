@@ -44,7 +44,8 @@
             selected>Select Test Dataset</option>
           <option value="none">--none--</option>
           <option
-            v-for="item in getFilteredTestDatasetList"
+            v-for="(item, key) in getFilteredTestDatasetList"
+            :key="key"
             :value="item">{{ item.name }}</option>
         </select>
       </div>
@@ -119,9 +120,10 @@
           Loading Dataset...
         </div>
         <div
-          v-for="item in class_items"
+          v-for="(item, key) in class_items"
           v-else
-          id="class-ratio-bars">
+          id="class-ratio-bars"
+          :key="key">
           <span>{{ item[0] }}</span>
           <div
             :class="{'bar-anime': confirming_dataset}"
@@ -148,7 +150,7 @@
 </template>
 
 <script>
-import { DATASET_NAME_MAX_LENGTH, DATASET_NAME_MIN_LENGTH,
+import { DATASET_NAME_MAX_LENGTH,
   DATASET_DESCRIPTION_MAX_LENGTH, DATASET_DESCRIPTION_MIN_LENGTH } from '@/const.js'
 import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 import BreakDownBar from '@/components/page/train_page/breakdown_ratio_bar.vue'
@@ -174,9 +176,6 @@ export default {
       nameFieldTimeoutFunc: function () {}
     }
   },
-  beforeMount: function () {
-    this.reset()
-  },
   computed: {
     ...mapState([
       'confirming_flag',
@@ -193,14 +192,14 @@ export default {
       get () { return this.name },
       set (v) {
         this.name = v
-        this.notifyNameField = (this.name.length == this.nameMaxLength && this.notifyNameField)
+        this.notifyNameField = (this.name.length === this.nameMaxLength && this.notifyNameField)
       }
     },
     descriptionText: {
       get () { return this.description },
       set (v) {
         this.description = v
-        this.notifyDescriptionField = (this.description.length == this.descriptionMaxLength && this.notifyDescriptionField)
+        this.notifyDescriptionField = (this.description.length === this.descriptionMaxLength && this.notifyDescriptionField)
       }
     },
     confirmable: function () {
@@ -263,6 +262,9 @@ export default {
       }
     },
   },
+  beforeMount: function () {
+    this.reset()
+  },
   mounted: function () {
     this.$refs.nameText.addEventListener('animationend', () => {
       this.notifyNameField = false
@@ -283,10 +285,10 @@ export default {
       'confirmTestDataset'
     ]),
     nameInputNotify: function (e) {
-      this.notifyNameField = (this.name.length == this.nameMaxLength)
+      this.notifyNameField = (this.name.length === this.nameMaxLength)
     },
     descriptionInputNotify: function (e) {
-      this.notifyDescriptionField = (this.description.length == this.descriptionMaxLength)
+      this.notifyDescriptionField = (this.description.length === this.descriptionMaxLength)
     },
     onConfirmDataset: function () {
       const date = new Date()
