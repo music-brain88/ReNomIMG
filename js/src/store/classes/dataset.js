@@ -17,7 +17,7 @@ export class Dataset {
     this.page = []
 
     /**
-      This is a dictionary.
+      The variable 'class_info' is a dictionary.
       {
         // 'class_map' is a list of class name. This is same to this.class_map
         class_map: ['dog', 'cat', ...],
