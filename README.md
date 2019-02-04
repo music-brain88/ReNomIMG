@@ -4,6 +4,11 @@ ReNom IMG is model developing tool for image recognition tasks.
 
 ## Change v2.0.0 => v2.0.1
 - Fixed UI bugs.
+- Updated webpack@3.x => webpack@4.x
+- Modified eslint settings.
+- Modified Darknet architecture.
+    - Added BatchNormalization and removed bias term from convolution layer.
+- Modified Yolov1 loss function.
 
 
 ##### ReNomIMG - https://www.renom.jp/packages/renomimg/index.html
