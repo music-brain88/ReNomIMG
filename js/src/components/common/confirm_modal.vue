@@ -4,15 +4,23 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <slot name="contents">
-            <span v-html="$store.state.modal_msg"></span>
+            <span v-html="$store.state.modal_msg"/>
           </slot>
           <div class="modal-footer">
             <slot name="footer">
               <slot name="okbutton">
-                <input type="button" class="modal-default-button" @click="onClick" value="OK">
+                <input
+                  type="button"
+                  class="modal-default-button"
+                  value="OK"
+                  @click="onClick">
               </slot>
               <slot name="cancelbutton">
-                <input type="button" class="modal-default-button cancel" @click="hide" value="Cancel">
+                <input
+                  type="button"
+                  class="modal-default-button cancel"
+                  value="Cancel"
+                  @click="hide">
               </slot>
             </slot>
           </div>

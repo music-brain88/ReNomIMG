@@ -1,18 +1,26 @@
 <template>
-  <component-frame :width-weight="8" :height-weight="7">
+  <component-frame
+    :width-weight="8"
+    :height-weight="7">
 
     <!--Header Contents--------------->
     <template slot="header-slot">
       Prediction Result
-      <div id="valid-prediction-button-area" tabindex="0"
-        v-on:keyup.right="nextPage" v-on:keyup.left="prevPage">
+      <div
+        id="valid-prediction-button-area"
+        tabindex="0"
+        @keyup.right="nextPage"
+        @keyup.left="prevPage">
         <!--
           Only if Segmentation, "show image toggle" will be shown.
         -->
         <label v-if="isTaskSegmentation">
-          <input class="checkbox" type="checkbox"
+          <input
             id="prediction-show-button"
-            v-model="show_image" :disabled="!isTaskSegmentation">
+            v-model="show_image"
+            :disabled="!isTaskSegmentation"
+            class="checkbox"
+            type="checkbox">
           Image
         </label>
 
@@ -23,13 +31,21 @@
           - In segmentation, prediction or target can be on.
         -->
         <label>
-          <input class="checkbox" type="checkbox" id="prediction-show-button"
-            v-model="show_prediction" v-on:change="onChangePredictionCheckBox">
+          <input
+            id="prediction-show-button"
+            v-model="show_prediction"
+            class="checkbox"
+            type="checkbox"
+            @change="onChangePredictionCheckBox">
           Prediction
         </label>
         <label>
-          <input class="checkbox" type="checkbox" id="prediction-show-button"
-            v-model="show_target" v-on:change="onChangeTargetCheckBox">
+          <input
+            id="prediction-show-button"
+            v-model="show_target"
+            class="checkbox"
+            type="checkbox"
+            @change="onChangeTargetCheckBox">
           Target
         </label>
       </div>
@@ -37,21 +53,28 @@
     <!---------------Header Contents-->
 
     <!--Pager Settings--------------->
-    <pager :page-max="pageMax"
-      :onSetPage="setImagePageOfValid"
+    <pager
+      :page-max="pageMax"
+      :on-set-page="setImagePageOfValid"
     />
     <!---------------Pager Settings-->
 
     <!--Image list--------------->
-    <div id="img-container" ref="container">
-      <image-frame v-for="item in getValidImages"
+    <div
+      id="img-container"
+      ref="container">
+      <image-frame
+        v-for="item in getValidImages"
         :callback="() => {showImageModal(item)}"
         :show-target="show_target"
         :show-predict="show_prediction"
         :show-image="show_image"
-        :width="item.size[0]" :height="item.size[1]"
-        :maxHeight="image_cell_height"
-        :img="item.img" :result="getResult(item)" :model="getSelectedModel"/>
+        :width="item.size[0]"
+        :height="item.size[1]"
+        :max-height="image_cell_height"
+        :img="item.img"
+        :result="getResult(item)"
+        :model="getSelectedModel"/>
     </div>
     <!---------------Image list-->
   </component-frame>
@@ -164,7 +187,7 @@ export default {
         The image modal will appear.
       */
       this.setImageModalData(item.index)
-      this.showModal({'show_image': true})
+      this.showModal({ 'show_image': true })
     },
     vh: function (v) {
       var h = Math.max(document.documentElement.clientHeight,
@@ -230,7 +253,7 @@ export default {
     display: none;
     -webkit-appearance: none;
   }
-  label { 
+  label {
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -260,7 +283,7 @@ export default {
     background-color: gray;
   }
   input[type="checkbox"]:focus {
-      outline:none;  
+      outline:none;
   }
 }
 

@@ -1,13 +1,21 @@
 <template>
   <div id="filter-item">
-    <div id="filter-add" class="item" v-if="isAddButton" @click="showModal({add_filter: true})">
+    <div
+      v-if="isAddButton"
+      id="filter-add"
+      class="item"
+      @click="showModal({add_filter: true})">
       <div id="add">
-        <i class="fa fa-plus" aria-hidden="true"></i>
+        <i
+          class="fa fa-plus"
+          aria-hidden="true"/>
       </div>
     </div>
-    <div id="filter-content" class="item" v-else>
-      <div id="delete">
-      </div>
+    <div
+      v-else
+      id="filter-content"
+      class="item">
+      <div id="delete"/>
     </div>
   </div>
 </template>

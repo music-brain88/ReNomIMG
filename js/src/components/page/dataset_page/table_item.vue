@@ -19,13 +19,13 @@
     <div id="dataset-name">
       <span v-if="isTitle">Created</span>
       <span v-else>{{ Object.keys(dataset) }}</span>
-      {{dataset.class_map}}
+      {{ dataset.class_map }}
     </div>
   </div>
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import { mapGetters } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {

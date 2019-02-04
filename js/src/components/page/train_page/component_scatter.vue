@@ -1,5 +1,7 @@
 <template>
-  <component-frame :width-weight="4" :height-weight="4">
+  <component-frame
+    :width-weight="4"
+    :height-weight="4">
     <template slot="header-slot">
       Model Distribution
     </template>
@@ -10,8 +12,7 @@
       <div id="title-metric2">
         {{ getTitleMetric2 }} [%]
       </div>
-      <div id="scatter-canvas">
-      </div>
+      <div id="scatter-canvas"/>
     </div>
   </component-frame>
 </template>
@@ -87,7 +88,7 @@ export default {
       if (!this.getFilteredAndGroupedModelList) return
       d3.select('#scatter-canvas').select('svg').remove() // Remove SVG if it has been created.
 
-      const margin = {top: 15, left: 40, right: 20, bottom: 35}
+      const margin = { top: 15, left: 40, right: 20, bottom: 35 }
       const canvas = document.getElementById('scatter-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
@@ -189,8 +190,8 @@ export default {
             y -= 80
           }
 
-          let metric1 = m.getResultOfMetric1()
-          let metric2 = m.getResultOfMetric2()
+          const metric1 = m.getResultOfMetric1()
+          const metric2 = m.getResultOfMetric2()
           ttip.style('display', 'inline-block')
           ttip.transition()
             .duration(200)

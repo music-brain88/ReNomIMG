@@ -1,21 +1,40 @@
 <template>
-  <div id="image-frame" v-on:click="onImageClick()"
-    :style="modifiedSize" ref="wrapper">
-    <canvas id="seg" v-if="isTaskSegmentation" ref="canvas"/>
-    <div id="box" v-if="isTaskDetection"
+  <div
+    id="image-frame"
+    ref="wrapper"
+    :style="modifiedSize"
+    @click="onImageClick()">
+    <canvas
+      v-if="isTaskSegmentation"
+      id="seg"
+      ref="canvas"/>
+    <div
+      v-for="b in box"
+      v-if="isTaskDetection"
+      id="box"
+      :style="styleBox(b)"
       @mouseenter="boxEnter(b)"
-      @mouseleave="boxLeave(b)"
-      :style="styleBox(b)" v-for="b in box">
-      <div id="box-label" :style="styleBoxLabel(b)">
-        {{b.name}}
+      @mouseleave="boxLeave(b)">
+      <div
+        id="box-label"
+        :style="styleBoxLabel(b)">
+        {{ b.name }}
       </div>
     </div>
-    <div id="cls" v-if="isTaskClassification" :style="styleCls()">
-      <div id="cls-label" :style="styleClsLabel()">
+    <div
+      v-if="isTaskClassification"
+      id="cls"
+      :style="styleCls()">
+      <div
+        id="cls-label"
+        :style="styleClsLabel()">
         {{ cls }}
       </div>
     </div>
-    <img :src="img" :style="modifiedSize" v-if="showImage"/>
+    <img
+      v-if="showImage"
+      :src="img"
+      :style="modifiedSize">
   </div>
 </template>
 
@@ -80,17 +99,6 @@ export default {
       default: true
     }
   },
-  beforeUpdate: function () {
-    /**
-      If the task is segmentation, drawing function will be called in
-      each update.
-    */
-    this.$nextTick(function () {
-      if (this.isTaskSegmentation) {
-        this.drawSeg()
-      }
-    })
-  },
   watch: {
     showPredict: function () {
       this.$nextTick(function () {
@@ -121,6 +129,17 @@ export default {
       })
     },
   },
+  beforeUpdate: function () {
+    /**
+      If the task is segmentation, drawing function will be called in
+      each update.
+    */
+    this.$nextTick(function () {
+      if (this.isTaskSegmentation) {
+        this.drawSeg()
+      }
+    })
+  },
   computed: {
     ...mapState([
       'datasets',
@@ -143,7 +162,7 @@ export default {
           w = this.width
           h = this.height
         } else {
-          let r = this.maxHeight / this.height
+          const r = this.maxHeight / this.height
           w = this.width * r
           h = this.height * r
         }
@@ -151,14 +170,14 @@ export default {
         if (this.maxWidth == 0) {
           // Never reach here
         } else {
-          let r = this.maxWidth / this.width
+          const r = this.maxWidth / this.width
           w = this.width * r
           h = this.height * r
         }
       } else {
-        let wr = this.maxWidth / this.width
-        let hr = this.maxHeight / this.height
-        let r = (wr < hr) ? wr : hr
+        const wr = this.maxWidth / this.width
+        const hr = this.maxHeight / this.height
+        const r = (wr < hr) ? wr : hr
         w = this.width * r
         h = this.height * r
       }
@@ -195,7 +214,7 @@ export default {
     }
   },
   mounted: function () {
-    let container = this.$refs.wrapper
+    const container = this.$refs.wrapper
     if (!container) return
     this.image_width = this.modifiedWidth
     this.image_height = this.modifiedHeight

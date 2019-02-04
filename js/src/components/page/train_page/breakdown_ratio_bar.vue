@@ -1,16 +1,21 @@
 <template>
   <div id="class-info-area">
     <div class="item-name">
-      {{item_name}}
+      {{ item_name }}
     </div>
-    <div class="item-value"> 
-      <div class="bar" :style="'width:' + calc_width(item_class_ratio) + '%;'">
-        <section class="color-train" :style="'width:' + calc_width(item_train_ratio) + '%;background:#0762AD;'">
-        </section>
-        <section class="color-valid" :style="'width:' + calc_width(item_valid_ratio) + '%;background:#EF8200; '">
-        </section>
-        <section v-if="item_test_ratio" :style="'width:' + calc_width(item_test_ratio) + '%;background:red'">
-        </section>
+    <div class="item-value">
+      <div
+        :style="'width:' + calc_width(item_class_ratio) + '%;'"
+        class="bar">
+        <section
+          :style="'width:' + calc_width(item_train_ratio) + '%;background:#0762AD;'"
+          class="color-train"/>
+        <section
+          :style="'width:' + calc_width(item_valid_ratio) + '%;background:#EF8200; '"
+          class="color-valid"/>
+        <section
+          v-if="item_test_ratio"
+          :style="'width:' + calc_width(item_test_ratio) + '%;background:red'"/>
       </div>
     </div>
 
@@ -18,7 +23,7 @@
 </template>
 
 <script>
-import {RUNNING_STATE} from '@/const.js'
+import { RUNNING_STATE } from '@/const.js'
 import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 export default {
   name: 'ProgressBar',
@@ -112,7 +117,7 @@ export default {
   },
   methods: {
     calc_width: function (width) {
-      let percent = width * 100
+      const percent = width * 100
       return percent
     }
   }
@@ -159,6 +164,6 @@ export default {
     justify-content: flex-start;
     flex-wrap: nowrap;
   }
-  
+
 }
 </style>

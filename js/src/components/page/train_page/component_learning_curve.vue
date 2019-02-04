@@ -1,17 +1,25 @@
 <template>
-  <component-frame :width-weight="4" :height-weight="4">
+  <component-frame
+    :width-weight="4"
+    :height-weight="4">
     <template slot="header-slot">
       Learning Curve
     </template>
     <div id="learning-curve">
       <div id="legend">
-        <div id="train-switch" @click="switch_train_graph()"
-          class="train" v-bind:class="{'graph-off' : !this.train_graph_flg}">
-          <span class="box"></span>Train
-          </div>
-        <div id="valid-switch" @click="switch_valid_graph()"
-          class="valid" v-bind:class="{'graph-off' : !this.valid_graph_flg}">
-          <span class="box"></span>Valid
+        <div
+          id="train-switch"
+          :class="{'graph-off' : !this.train_graph_flg}"
+          class="train"
+          @click="switch_train_graph()">
+          <span class="box"/>Train
+        </div>
+        <div
+          id="valid-switch"
+          :class="{'graph-off' : !this.valid_graph_flg}"
+          class="valid"
+          @click="switch_valid_graph()">
+          <span class="box"/>Valid
         </div>
         <div class="best-epoch">
           <span class="legend-line">&mdash;</span>Best Epoch Line
@@ -23,8 +31,7 @@
       <div id="title-loss">
         Loss [-]
       </div>
-      <div id="learning-curve-canvas">
-      </div>
+      <div id="learning-curve-canvas"/>
     </div>
   </component-frame>
 </template>
@@ -58,17 +65,17 @@ export default {
       }
     }
   },
-  created: function () {
-    window.addEventListener('resize', this.draw, false)
-  },
-  mounted: function () {
-    this.draw()
-  },
   watch: {
     getTrainLossList: function () {
       // Watches the change of train_loss_list.
       this.draw()
     }
+  },
+  created: function () {
+    window.addEventListener('resize', this.draw, false)
+  },
+  mounted: function () {
+    this.draw()
   },
   beforeDestroy: function () {
     // Remove it.
@@ -105,7 +112,7 @@ export default {
     },
     draw: function () {
       d3.select('#learning-curve-canvas').select('svg').remove() // Remove SVG if it has been created.
-      const margin = {top: 15, left: 40, right: 20, bottom: 35}
+      const margin = { top: 15, left: 40, right: 20, bottom: 35 }
       const canvas = document.getElementById('learning-curve-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
@@ -132,7 +139,7 @@ export default {
       const learning_epoch = train_loss_list.length
       let maxX = Math.max(learning_epoch + 1, 10)
       maxX = Math.ceil(maxX / 5) * 5
-      let minX = 0
+      const minX = 0
       let maxY = Math.max((Math.max.apply(null, [...train_loss_list, ...valid_loss_list]) * 1.1), 1)
       maxY = Math.ceil(maxY)
       let minY = Math.min(Math.min.apply(null, [...train_loss_list, ...valid_loss_list]), 0)
@@ -176,7 +183,7 @@ export default {
 
       // Sublines.
       // Horizontal
-      let SubLineX = svg.append('g')
+      const SubLineX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('class', 'grid-line axis')
         .call(
@@ -189,7 +196,7 @@ export default {
         .style('stroke-dasharray', '2,2')
 
       // Vertical
-      let SubLineY = svg.append('g')
+      const SubLineY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('class', 'grid-line axis')
         .call(
@@ -203,20 +210,20 @@ export default {
 
       const axX = d3.axisBottom(scaleX).ticks(5)
       const axY = d3.axisLeft(scaleY).ticks(5)
-      let gX = svg.append('g')
+      const gX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, canvas_height - margin.bottom] + ')')
         .attr('class', 'axis')
         .call(axX)
 
-      let gY = svg.append('g')
+      const gY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('class', 'axis')
         .call(axY)
 
       // Line graph
-      let LineLayer = svg.append('g').attr('clip-path', 'url(#clip)')
+      const LineLayer = svg.append('g').attr('clip-path', 'url(#clip)')
 
-      let TrainLine = LineLayer.append('path')
+      const TrainLine = LineLayer.append('path')
         .attr('id', 'train-line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(train_loss_list)
@@ -229,7 +236,7 @@ export default {
           .curve(d3.curveLinear)
         )
 
-      let ValidLine = LineLayer.append('path')
+      const ValidLine = LineLayer.append('path')
         .attr('id', 'valid-line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .datum(valid_loss_list)
@@ -242,7 +249,7 @@ export default {
           .curve(d3.curveLinear)
         )
 
-      let BestEpoc = LineLayer.append('line')
+      const BestEpoc = LineLayer.append('line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('fill', 'none')
         .attr('stroke', 'red')
@@ -253,9 +260,9 @@ export default {
         .attr('y2', scaleY(minY))
 
       // Scatter graph
-      let ScatterLayer = svg.append('g').attr('clip-path', 'url(#clip)')
+      const ScatterLayer = svg.append('g').attr('clip-path', 'url(#clip)')
 
-      let TrainScatter = ScatterLayer.append('g')
+      const TrainScatter = ScatterLayer.append('g')
         .attr('id', 'train-scatter')
         .selectAll('circle')
         .data(train_loss_list)
@@ -297,7 +304,7 @@ export default {
           ttip.style('display', 'none')
         })
 
-      let ValidScatter = ScatterLayer.append('g')
+      const ValidScatter = ScatterLayer.append('g')
         .attr('id', 'valid-scatter')
         .selectAll('circle')
         .data(valid_loss_list)
@@ -341,8 +348,8 @@ export default {
         .on('contextmenu', resetZoom)
 
       function zoomed () {
-        let move_x = margin.left + d3.event.transform.x
-        let move_y = margin.top + d3.event.transform.y
+        const move_x = margin.left + d3.event.transform.x
+        const move_y = margin.top + d3.event.transform.y
         TrainLine.attr('transform', 'translate(' + [move_x, move_y] + ') scale(' + d3.event.transform.k + ')')
         ValidLine.attr('transform', 'translate(' + [move_x, move_y] + ') scale(' + d3.event.transform.k + ')')
         TrainScatter.attr('transform', 'translate(' + [move_x, move_y] + ') scale(' + d3.event.transform.k + ')')
@@ -437,7 +444,7 @@ export default {
       cursor: pointer;
       .box{
         background-color: $color-train;
-      } 
+      }
     }
     .valid {
       z-index: 10;

@@ -1,10 +1,17 @@
 <template>
-  <component-frame :width-weight="2" :height-weight="7">
+  <component-frame
+    :width-weight="2"
+    :height-weight="7">
     <template slot="header-slot">
       Tag List
     </template>
-    <div id="tag-list" class="scrollbar-container">
-      <tag-item v-for="(item, index) in getTagList" :tagName="item" :tagId="index"/>
+    <div
+      id="tag-list"
+      class="scrollbar-container">
+      <tag-item
+        v-for="(item, index) in getTagList"
+        :tag-name="item"
+        :tag-id="index"/>
     </div>
   </component-frame>
 </template>

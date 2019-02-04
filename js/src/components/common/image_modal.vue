@@ -1,10 +1,8 @@
 <template>
-  <div id="image-modal">
-  </div>
+  <div id="image-modal"/>
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
 
 export default {
   name: 'ImageModal',

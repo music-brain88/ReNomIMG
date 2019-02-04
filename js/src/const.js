@@ -68,7 +68,7 @@ const COMMON_PARAMS = {
 }
 
 function override (key, params) {
-  return {[key]: {...Object.assign({...COMMON_PARAMS[key]}, params)}}
+  return { [key]: { ...Object.assign({ ...COMMON_PARAMS[key] }, params) }}
 }
 
 export const ALGORITHM = {

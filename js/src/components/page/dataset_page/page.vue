@@ -1,27 +1,36 @@
 <template>
   <div id="dataset-page">
     <div id="components">
-      <component-frame :width-weight=12 :height-weight=9>
+      <component-frame
+        :width-weight="12"
+        :height-weight="9">
         <template slot="header-slot">
           Dataset
         </template>
         <div id="container">
           <div id="left-colmn">
-            <div class="dataset-item" style="color: #666;">
+            <div
+              class="dataset-item"
+              style="color: #666;">
               <span>Dataset ID</span>
               <span>Name</span>
               <span>Ratio</span>
             </div>
-            <div class="dataset-item" :class="{selected: current_dataset===item}"
-              v-for="item in datasets" @click="current_dataset=item">
+            <div
+              v-for="item in datasets"
+              :class="{selected: current_dataset===item}"
+              class="dataset-item"
+              @click="current_dataset=item">
               <span>{{ item.id }}</span>
               <span>{{ item.name }}</span>
               <span>{{ item.ratio }}</span>
             </div>
-            <div class="dataset-item" v-if="!datasets">
-              <span></span>
+            <div
+              v-if="!datasets"
+              class="dataset-item">
+              <span/>
               <span>No dataset</span>
-              <span></span>
+              <span/>
             </div>
           </div>
           <div id="right-colmn">
@@ -35,7 +44,9 @@
                 <span class="item">Ratio : {{ ratio }}</span>
               </div>
               <div class="col">
-                <div v-if="description" id="description-field">
+                <div
+                  v-if="description"
+                  id="description-field">
                   {{ description }}
                 </div>
                 <div v-else>
@@ -43,21 +54,38 @@
                 </div>
               </div>
             </div>
-            <div id="dataset-num-bar" class="bar" :class="{'bar-anime': current_dataset}"
-              @mouseenter="isHover=true" @mouseleave="isHover=false">
-              <section class="bar color-train" :style="train_style">
+            <div
+              id="dataset-num-bar"
+              :class="{'bar-anime': current_dataset}"
+              class="bar"
+              @mouseenter="isHover=true"
+              @mouseleave="isHover=false">
+              <section
+                :style="train_style"
+                class="bar color-train">
                 <span>Train</span>
               </section>
-              <section class="bar color-valid" :style="valid_style">
+              <section
+                :style="valid_style"
+                class="bar color-valid">
                 <span>Valid</span>
               </section>
             </div>
             <div id="dataset-class-bars">
-              <div id="item" v-for="item in class_items">
-                <span>{{item[0]}}</span>
-                <div class="bar" :class="{'bar-anime': current_dataset}" :style="{width: item[1] + item[2] + '%'}">
-                  <section class="color-train" :style="{width: item[1]/(item[1] + item[2])*100 + '%'}"/>
-                  <section class="color-valid" :style="{width: item[2]/(item[1] + item[2])*100 + '%'}"/>
+              <div
+                v-for="item in class_items"
+                id="item">
+                <span>{{ item[0] }}</span>
+                <div
+                  :class="{'bar-anime': current_dataset}"
+                  :style="{width: item[1] + item[2] + '%'}"
+                  class="bar">
+                  <section
+                    :style="{width: item[1]/(item[1] + item[2])*100 + '%'}"
+                    class="color-train"/>
+                  <section
+                    :style="{width: item[2]/(item[1] + item[2])*100 + '%'}"
+                    class="color-valid"/>
                 </div>
               </div>
             </div>
@@ -329,6 +357,6 @@ export default {
         }
       }
     }
-  }  
+  }
 }
 </style>

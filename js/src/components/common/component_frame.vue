@@ -1,12 +1,12 @@
 <template>
-  <div id="component-frame" :style="styles">
+  <div
+    id="component-frame"
+    :style="styles">
     <div id="component-header">
-      <slot name="header-slot">
-      </slot>
+      <slot name="header-slot"/>
     </div>
     <div id="frame-content">
-      <slot>
-      </slot>
+      <slot/>
     </div>
   </div>
 </template>
@@ -16,8 +16,14 @@
 export default {
   name: 'ComponentFrame',
   props: {
-    widthWeight: Number, // (Max 5, Min 1)
-    heightWeight: Number // (Max 5, Min 1)
+    widthWeight: { // (Max 5, Min 1)
+      type: Number,
+      default: 1,
+    },
+    heightWeight: { // (Max 5, Min 1)
+      type: Number,
+      default: 1,
+    }
   },
   computed: {
     styles () {
@@ -49,7 +55,7 @@ export default {
 
   margin: $component-block-margin;
 
-  #component-header { 
+  #component-header {
     width: 100%;
     height: $component-header-height;
     min-height: $component-header-min-height;
@@ -69,7 +75,7 @@ export default {
   }
 
   #frame-content{
-    background-color: $component-background-color; 
+    background-color: $component-background-color;
     height: calc(100% - #{$component-header-margin-bottom} - #{$component-header-height});
     width: 100%;
   }

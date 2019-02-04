@@ -1,16 +1,21 @@
 <template>
   <div id="modal-add-both">
     <div id="modal-tab">
-      <div id="add-model-tab" class="modal-tab"
-        v-bind:class="{selected: isAddModelShown}" @click="showAddModel">
+      <div
+        id="add-model-tab"
+        :class="{selected: isAddModelShown}"
+        class="modal-tab"
+        @click="showAddModel">
         Model
       </div>
-      <div id="add-dataset-tab" class="modal-tab"
-        v-bind:class="{selected: !isAddModelShown}" @click="showAddDataset">
+      <div
+        id="add-dataset-tab"
+        :class="{selected: !isAddModelShown}"
+        class="modal-tab"
+        @click="showAddDataset">
         Dataset
       </div>
-      <div id="space-tab">
-      </div>
+      <div id="space-tab"/>
     </div>
     <div id="add-component">
       <add-model v-if="isAddModelShown"/>

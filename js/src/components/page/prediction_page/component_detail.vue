@@ -1,28 +1,38 @@
 <template>
-  <component-frame :width-weight="3" :height-weight="9">
+  <component-frame
+    :width-weight="3"
+    :height-weight="9">
     <template slot="header-slot">
       Model Detail
-      <div id="prediction-run-button" :class="{disabled: !isRunnable}"
+      <div
+        id="prediction-run-button"
+        :class="{disabled: !isRunnable}"
         @click="runPredictionThread(model.id)">
-        <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Run Prediction
+        <i
+          class="fa fa-angle-right"
+          aria-hidden="true"/>&nbsp;Run Prediction
       </div>
     </template>
-      <div id="deployed-model-datail" v-if="model">
-        <div class="item">
-          <div class="item-title">Model ID :</div>
-          <div class="item-content">{{ model.id }}</div>
-        </div>
-        <div class="item">
-          <div class="item-title">Algorithm :</div>
-          <div class="item-content">{{ getAlgorithmTitleFromId(model.algorithm_id) }}</div>
-        </div>
-        <!--
+    <div
+      v-if="model"
+      id="deployed-model-datail">
+      <div class="item">
+        <div class="item-title">Model ID :</div>
+        <div class="item-content">{{ model.id }}</div>
+      </div>
+      <div class="item">
+        <div class="item-title">Algorithm :</div>
+        <div class="item-content">{{ getAlgorithmTitleFromId(model.algorithm_id) }}</div>
+      </div>
+      <!--
         <div class="item">
           <div class="item-title">Dataset :</div>
           <div class="item-content">{{ getDatasetName }}</div>
         </div>
         -->
-      <div class="item" v-for="param in getAlgorithmParamList(model.algorithm_id)">
+      <div
+        v-for="param in getAlgorithmParamList(model.algorithm_id)"
+        class="item">
         <div class="item-title">{{ param.title }} :</div>
         <div class="item-content">{{ model.hyper_parameters[param.key] }}</div>
       </div>
@@ -72,7 +82,6 @@ export default {
 </script>
 
 <style lang='scss'>
-
 
 #prediction-run-button {
   display: flex;

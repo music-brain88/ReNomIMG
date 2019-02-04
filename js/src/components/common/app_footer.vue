@@ -1,15 +1,17 @@
 <template lang="html">
-<footer>
-  <div class="footer-content">
-    <div class="logo-and-version">
-      <img class="logo-img" src="/static/img/renomlogo.png">
-      <div class="version">{{version}}</div>
+  <footer>
+    <div class="footer-content">
+      <div class="logo-and-version">
+        <img
+          class="logo-img"
+          src="/static/img/renomlogo.png">
+        <div class="version">{{ version }}</div>
+      </div>
     </div>
-  </div>
-  <div class="copyright-bar">
-    <div class="copyright">©︎2019 GRID INC. ALL rights reserved.</div>
-  </div>
-</footer>
+    <div class="copyright-bar">
+      <div class="copyright">©︎2019 GRID INC. ALL rights reserved.</div>
+    </div>
+  </footer>
 </template>
 
 <script>
