@@ -1,1 +1,1 @@
-nvidia-docker build -t renom_img_docker .
+docker build -t renom_img_docker .
