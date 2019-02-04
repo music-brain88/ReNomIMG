@@ -35,6 +35,7 @@
     <div id="model-buttons">
       <i
         class="fa fa-cog"
+        style="visibility: hidden"
         aria-hidden="true"/>
       <i
         v-if="!isDeployedModel"
