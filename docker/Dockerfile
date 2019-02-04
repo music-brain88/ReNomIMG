@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.1-cudnn7-devel-ubuntu16.04
+FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu16.04
 
 # update apt info & install packages
 RUN apt-get update && \
@@ -17,7 +17,7 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # install pip packages
-RUN pip3 install jupyter
+RUN pip3 install jupyter numpy cython
 
 # install n
 RUN npm install -g n
@@ -31,8 +31,8 @@ ENV CUDA_HOME="/usr/local/cuda"
 ENV RENOM_PRECISION=32
 
 # git clone ReNom Apps
-RUN git clone https://github.com/ReNom-dev-team/ReNom.git && cd ReNom && pip3 install -r requirements.txt && python3 setup.py build_ext -if && pip3 install -e .
-RUN git clone https://github.com/ReNom-dev-team/ReNomIMG.git && cd ReNomIMG && pip3 install -r requirements.txt && pip3 install -e . && cd js && npm install && npm run build
+RUN git clone https://github.com/ReNom-dev-team/ReNom.git && cd ReNom && pip3 install -r requirements.txt && python3 setup.py build_ext -if && pip3 install -e . && python3 renom/__init__.py
+RUN git clone https://github.com/ReNom-dev-team/ReNomIMG.git && cd ReNomIMG && pip3 install -r requirements.txt && pip3 install -e . && cd js && npm install && npm run build && cd ../renom_img/api && python3 __init__.py
 
 # mkdir data folders
 RUN mkdir /var/datasrc \
