@@ -167,7 +167,7 @@ export default {
       const zoom = d3.zoom()
         .scaleExtent([1, 2])
         .translateExtent([[0, 0], [canvas_width, canvas_height]])
-        .on('zoom', zoomed)
+        .on('zoom', zoomed, { passive: true })
 
       // Set size.
       svg.attr('width', canvas_width)
@@ -344,7 +344,7 @@ export default {
         })
 
       d3.select('#learning-curve-canvas')
-        .on('contextmenu', resetZoom)
+        .on('contextmenu', resetZoom, { passive: true })
 
       function zoomed () {
         const move_x = margin.left + d3.event.transform.x
