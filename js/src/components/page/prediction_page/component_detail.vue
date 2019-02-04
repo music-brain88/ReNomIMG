@@ -31,7 +31,8 @@
         </div>
         -->
       <div
-        v-for="param in getAlgorithmParamList(model.algorithm_id)"
+        v-for="(param, key) in getAlgorithmParamList(model.algorithm_id)"
+        :key="key"
         class="item">
         <div class="item-title">{{ param.title }} :</div>
         <div class="item-content">{{ model.hyper_parameters[param.key] }}</div>

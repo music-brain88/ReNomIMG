@@ -56,6 +56,7 @@
             :img="item.img"
             :result="getResult(item)"
             :model="model"
+            :key="index"
           />
         </div>
         <div
@@ -83,9 +84,9 @@
 </template>
 
 <script>
-import { TASK_ID } from '@/const.js'
-import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
-import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
+/* eslint vue/no-side-effects-in-computed-properties: 0 */
+import { setup_image_list } from '@/utils.js'
+import { mapGetters, mapState, mapMutations } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ImageCanvas from '@/components/page/train_page/image.vue'
 import Pager from '@/components/page/train_page/pager.vue'

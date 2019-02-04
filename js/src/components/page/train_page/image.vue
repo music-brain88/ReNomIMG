@@ -8,17 +8,19 @@
       v-if="isTaskSegmentation"
       id="seg"
       ref="canvas"/>
-    <div
-      v-for="b in box"
-      v-if="isTaskDetection"
-      id="box"
-      :style="styleBox(b)"
-      @mouseenter="boxEnter(b)"
-      @mouseleave="boxLeave(b)">
+    <div v-if="isTaskDetection">
       <div
-        id="box-label"
-        :style="styleBoxLabel(b)">
-        {{ b.name }}
+        v-for="(b, key) in box"
+        id="box"
+        :key="key"
+        :style="styleBox(b)"
+        @mouseenter="boxEnter(b)"
+        @mouseleave="boxLeave(b)">
+        <div
+          id="box-label"
+          :style="styleBoxLabel(b)">
+          {{ b.name }}
+        </div>
       </div>
     </div>
     <div
@@ -40,7 +42,6 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-import { TASK_ID } from '@/const.js'
 import { getTagColor, render_segmentation } from '@/utils.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -75,70 +76,40 @@ export default {
       default: undefined
     },
     callback: {
+      type: Function,
       default: (result) => {}
     },
     boxEnterCallback: {
+      type: Function,
       default: (result) => {}
     },
     boxLeaveCallback: {
+      type: Function,
       default: (result) => {}
     },
     // Followings are Object of predicted and target data.
     result: {
-      index: -1,
-      target: undefined,
-      predict: undefined,
+      type: Object,
+      default: function () {
+        return {
+          index: -1,
+          target: undefined,
+          predict: undefined,
+        }
+      }
     },
     showPredict: {
+      type: Boolean,
       default: false
     },
     showTarget: {
+      type: Boolean,
       default: true
     },
     showImage: {
+      type: Boolean,
       default: true
     }
-  },
-  watch: {
-    showPredict: function () {
-      this.$nextTick(function () {
-        if (this.isTaskSegmentation) {
-          this.drawSeg()
-        }
-      })
-    },
-    showTarget: function () {
-      this.$nextTick(function () {
-        if (this.isTaskSegmentation) {
-          this.drawSeg()
-        }
-      })
-    },
-    showImage: function () {
-      this.$nextTick(function () {
-        if (this.isTaskSegmentation) {
-          this.drawSeg()
-        }
-      })
-    },
-    model: function () {
-      this.$nextTick(function () {
-        if (this.isTaskSegmentation) {
-          this.drawSeg()
-        }
-      })
-    },
-  },
-  beforeUpdate: function () {
-    /**
-      If the task is segmentation, drawing function will be called in
-      each update.
-    */
-    this.$nextTick(function () {
-      if (this.isTaskSegmentation) {
-        this.drawSeg()
-      }
-    })
   },
   computed: {
     ...mapState([
@@ -158,7 +129,7 @@ export default {
     modifiedSize: function () {
       let w, h
       if (this.maxWidth === 0) {
-        if (this.maxHeight == 0) {
+        if (this.maxHeight === 0) {
           w = this.width
           h = this.height
         } else {
@@ -167,7 +138,7 @@ export default {
           h = this.height * r
         }
       } else if (this.maxHeight === 0) {
-        if (this.maxWidth == 0) {
+        if (this.maxWidth === 0) {
           // Never reach here
         } else {
           const r = this.maxWidth / this.width
@@ -213,6 +184,48 @@ export default {
       }
     }
   },
+  watch: {
+    showPredict: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+    showTarget: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+    showImage: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+    model: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+  },
+  beforeUpdate: function () {
+    /**
+      If the task is segmentation, drawing function will be called in
+      each update.
+    */
+    this.$nextTick(function () {
+      if (this.isTaskSegmentation) {
+        this.drawSeg()
+      }
+    })
+  },
+
   mounted: function () {
     const container = this.$refs.wrapper
     if (!container) return
@@ -295,29 +308,33 @@ export default {
     },
     drawSeg: function () {
       let draw_item
+      var canvas
+      var cxt
+      var offCanvas
+      var offCxt
       if ((!this.showPredict && !this.showTarget) || (!this.result.predict && !this.result.target)) {
-        var canvas = this.$refs.canvas
+        canvas = this.$refs.canvas
         if (!canvas) return
-        var cxt = canvas.getContext('bitmaprenderer')
-        var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
-        var offCxt = offCanvas.getContext('2d')
+        cxt = canvas.getContext('bitmaprenderer')
+        offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
+        offCxt = offCanvas.getContext('2d')
         offCxt.clearRect(0, 0, canvas.width, canvas.height)
         cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
       } else if (this.showPredict) {
         draw_item = this.result.predict
         if (draw_item === undefined) {
-          var canvas = this.$refs.canvas
+          canvas = this.$refs.canvas
           if (!canvas) return
-          var cxt = canvas.getContext('bitmaprenderer')
-          var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
-          var offCxt = offCanvas.getContext('2d')
+          cxt = canvas.getContext('bitmaprenderer')
+          offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
+          offCxt = offCanvas.getContext('2d')
           offCxt.clearRect(0, 0, canvas.width, canvas.height)
           cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
-          returun
+          return
         }
         this.$worker.run(render_segmentation, [draw_item]).then((ret) => {
-          var canvas = this.$refs.canvas
-          var cxt = canvas.getContext('bitmaprenderer')
+          canvas = this.$refs.canvas
+          cxt = canvas.getContext('bitmaprenderer')
           cxt.transferFromImageBitmap(ret)
         })
       } else if (this.showTarget) {

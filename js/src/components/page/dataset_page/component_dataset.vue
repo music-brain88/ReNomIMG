@@ -9,7 +9,8 @@
       <div id="dataset-list">
         <table-item :is-title="true"/>
         <table-item
-          v-for="item in getFilteredDatasetList"
+          v-for="(item, key) in getFilteredDatasetList"
+          :key="key"
           :dataset="item"/>
       </div>
       <div id="dataset-content"/>

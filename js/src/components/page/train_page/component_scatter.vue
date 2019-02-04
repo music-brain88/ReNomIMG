@@ -34,21 +34,6 @@ export default {
       tooltip: null
     }
   },
-  created: function () {
-    // Register function to window size listener
-    // TODO: Need to use lodash here.
-    window.addEventListener('resize', this.draw, false)
-  },
-  mounted: function () {
-    this.draw()
-  },
-  beforeDestroy: function () {
-    // Remove it.
-    window.removeEventListener('resize', this.draw, false)
-  },
-  updated: function () {
-    this.draw()
-  },
   computed: {
     ...mapGetters([
       'getFilteredAndGroupedModelList',
@@ -60,6 +45,7 @@ export default {
       'getSelectedModel'
     ])
   },
+
   watch: {
     getFilteredAndGroupedModelList: function () {
       this.draw()
@@ -81,6 +67,21 @@ export default {
           }
         })
     }
+  },
+  created: function () {
+    // Register function to window size listener
+    // TODO: Need to use lodash here.
+    window.addEventListener('resize', this.draw, false)
+  },
+  mounted: function () {
+    this.draw()
+  },
+  beforeDestroy: function () {
+    // Remove it.
+    window.removeEventListener('resize', this.draw, false)
+  },
+  updated: function () {
+    this.draw()
   },
   methods: {
     ...mapMutations(['setSelectedModel']),

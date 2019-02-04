@@ -10,7 +10,7 @@
     </div>
     <div id="test-dataset-id">
       <span v-if="isTitle">Test</span>
-      <span v-else>{{ this.checkTestDataset(dataset.test_dataset_id) }}</span>
+      <span v-else>{{ checkTestDataset(dataset.test_dataset_id) }}</span>
     </div>
     <div id="valid-data">
       <span v-if="isTitle">Valid</span>
@@ -25,8 +25,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
   name: 'DatasetTableItem',
@@ -34,7 +32,10 @@ export default {
 
   },
   props: {
-    dataset: Object,
+    dataset: {
+      type: Object,
+      default: undefined
+    },
     isTitle: {
       type: Boolean,
       default: false

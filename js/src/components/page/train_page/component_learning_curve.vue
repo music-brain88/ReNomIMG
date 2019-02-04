@@ -9,14 +9,14 @@
       <div id="legend">
         <div
           id="train-switch"
-          :class="{'graph-off' : !this.train_graph_flg}"
+          :class="{'graph-off' : !train_graph_flg}"
           class="train"
           @click="switch_train_graph()">
           <span class="box"/>Train
         </div>
         <div
           id="valid-switch"
-          :class="{'graph-off' : !this.valid_graph_flg}"
+          :class="{'graph-off' : !valid_graph_flg}"
           class="valid"
           @click="switch_valid_graph()">
           <span class="box"/>Valid
@@ -38,7 +38,6 @@
 
 <script>
 import * as d3 from 'd3'
-import * as utils from '@/utils.js'
 import { mapGetters } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -183,7 +182,7 @@ export default {
 
       // Sublines.
       // Horizontal
-      const SubLineX = svg.append('g')
+      svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('class', 'grid-line axis')
         .call(
@@ -196,7 +195,7 @@ export default {
         .style('stroke-dasharray', '2,2')
 
       // Vertical
-      const SubLineY = svg.append('g')
+      svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('class', 'grid-line axis')
         .call(

@@ -56,6 +56,7 @@
           class="result">
           <div
             v-for="(r, index) in prediction"
+            :key="index"
             @mouseenter="hoverBox=index? 1:0"
             @mouseleave="hoverBox=null">
             <span>{{ index }}</span>
@@ -78,10 +79,7 @@
 </template>
 
 <script>
-import { TASK_ID } from '@/const.js'
-import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
-import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
-import ComponentFrame from '@/components/common/component_frame.vue'
+import { mapGetters, mapState, mapMutations } from 'vuex'
 import ImageCanvas from '@/components/page/train_page/image.vue'
 
 export default {
@@ -116,12 +114,6 @@ export default {
       canvas_width: 0,
       canvas_height: 0,
     }
-  },
-  mounted: function () {
-    this.$refs.container.focus()
-    const el = this.$refs.imageContainer
-    this.canvas_width = el.clientWidth
-    this.canvas_height = el.clientHeight
   },
   computed: {
     ...mapState([
@@ -179,6 +171,12 @@ export default {
     length: function () {
       return this.prediction_dataset.img.length
     },
+  },
+  mounted: function () {
+    this.$refs.container.focus()
+    const el = this.$refs.imageContainer
+    this.canvas_width = el.clientWidth
+    this.canvas_height = el.clientHeight
   },
   methods: {
     ...mapMutations(['setImageModalData']),

@@ -64,7 +64,8 @@
       id="img-container"
       ref="container">
       <image-frame
-        v-for="item in getValidImages"
+        v-for="(item, key) in getValidImages"
+        :key="key"
         :callback="() => {showImageModal(item)}"
         :show-target="show_target"
         :show-predict="show_prediction"
@@ -81,9 +82,9 @@
 </template>
 
 <script>
-import { TASK_ID } from '@/const.js'
-import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
-import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
+/* eslint no-unused-vars: 0 */
+import { setup_image_list } from '@/utils.js'
+import { mapGetters, mapState, mapMutations } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ImageCanvas from '@/components/page/train_page/image.vue'
 import Pager from '@/components/page/train_page/pager.vue'
@@ -105,18 +106,6 @@ export default {
       show_prediction: true,
       image_cell_height: 0
     }
-  },
-  mounted: function () {
-    const el = this.$refs.container
-    if (el) {
-      this.image_cell_height = el.clientHeight / 3
-    }
-  },
-  beforeUpdate: function () {
-    /**
-      If the task is segmentation, drawing function will be called in
-      each update.
-    */
   },
   computed: {
     ...mapState([
@@ -166,6 +155,18 @@ export default {
       }
     },
   },
+  mounted: function () {
+    const el = this.$refs.container
+    if (el) {
+      this.image_cell_height = el.clientHeight / 3
+    }
+  },
+  beforeUpdate: function () {
+    /**
+      If the task is segmentation, drawing function will be called in
+      each update.
+    */
+  },
   methods: {
     ...mapMutations([
       'setImagePageOfValid', // Set current page number.
@@ -175,7 +176,7 @@ export default {
     onChangePredictionCheckBox: function (e) {
       this.show_prediction = e.target.checked
       this.show_target = (!this.show_prediction || this.isTaskDetection) && this.show_target
-      const a = this.result
+      const _ = this.result
     },
     onChangeTargetCheckBox: function (e) {
       this.show_target = e.target.checked

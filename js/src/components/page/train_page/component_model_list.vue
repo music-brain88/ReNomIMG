@@ -51,7 +51,7 @@
               class="fa fa-sort-asc"
               aria-hidden="true"/>
           </div>
-          &nbsp&nbsp&nbsp
+          &nbsp;&nbsp;&nbsp;
         </div>
         <div
           :class="{selected: isSortBy('ALG')}"
@@ -140,6 +140,7 @@
       <model-item
         v-for="(model, index) in getFilteredAndGroupedModelList"
         v-if="model !== getDeployedModel"
+        :key="index"
         :model="model"/>
     </div>
 
@@ -148,7 +149,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import { GROUPBY, SORTBY, SORT_DIRECTION } from '@/const.js'
+import { SORTBY, SORT_DIRECTION } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ModelItem from '@/components/page/train_page/model_item.vue'
 

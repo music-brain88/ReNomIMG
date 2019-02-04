@@ -16,21 +16,22 @@
 </template>
 
 <script>
-import { RUNNING_STATE } from '@/const.js'
-import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 export default {
   name: 'ProgressBar',
   props: {
-    item_test_ratio: Number,
-    item_train_ratio: Number,
-    item_valid_ratio: Number,
-    height: Number,
-    width: Number
-  },
-  data: function () {
-    return {
-
-    }
+    item_test_ratio: {
+      type: Number,
+      default: 0.0
+    },
+    item_train_ratio: {
+      type: Number,
+      default: 0.5,
+    },
+    item_valid_ratio: {
+      type: Number,
+      default: 0.5,
+    },
   },
   computed: {
     ...mapGetters([
@@ -141,7 +142,7 @@ export default {
     overflow: hidden;
   }
   .bar section {
-  	min-width: 10%;
+    min-width: 10%;
     height: 10px;
     line-height: 10px;
     text-align: center;

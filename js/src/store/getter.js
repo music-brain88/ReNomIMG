@@ -13,7 +13,6 @@ export default {
   getFilteredAndGroupedModelList (state, getters) {
     let array = []
     // Task
-    /* eslint no-unused-vars: 0 */
     const task = getters.getCurrentTask
     // Filtering
     const filtered_list = getters.getFilteredModelList

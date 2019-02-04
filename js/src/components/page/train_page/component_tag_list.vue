@@ -10,6 +10,7 @@
       class="scrollbar-container">
       <tag-item
         v-for="(item, index) in getTagList"
+        :key="index"
         :tag-name="item"
         :tag-id="index"/>
     </div>

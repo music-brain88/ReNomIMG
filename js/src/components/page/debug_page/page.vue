@@ -1,6 +1,6 @@
-<!-->
+<!--
   This is a page for debugging.
-<-->
+-->
 <template>
   <div id="debug-page">
     <div id="components">

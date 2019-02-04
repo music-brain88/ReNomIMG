@@ -17,8 +17,9 @@
               <span>Ratio</span>
             </div>
             <div
-              v-for="item in datasets"
+              v-for="(item, key) in datasets"
               :class="{selected: current_dataset===item}"
+              :key="key"
               class="dataset-item"
               @click="current_dataset=item">
               <span>{{ item.id }}</span>
@@ -73,8 +74,9 @@
             </div>
             <div id="dataset-class-bars">
               <div
-                v-for="item in class_items"
-                id="item">
+                v-for="(item, key) in class_items"
+                id="item"
+                :key="key">
                 <span>{{ item[0] }}</span>
                 <div
                   :class="{'bar-anime': current_dataset}"
@@ -97,8 +99,7 @@
 </template>
 
 <script>
-import { Dataset } from '@/store/classes/dataset.js'
-import { mapGetters, mapMutations, mapActions, mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {
@@ -110,11 +111,6 @@ export default {
     return {
       current_dataset: undefined,
       isHover: false
-    }
-  },
-  watch: {
-    getCurrentTask: function () {
-      this.reset()
     }
   },
   computed: {
@@ -197,6 +193,11 @@ export default {
         width: v / (t + v) * 100 + '%'
       }
     },
+  },
+  watch: {
+    getCurrentTask: function () {
+      this.reset()
+    }
   },
   methods: {
     reset: function () {
