@@ -32,19 +32,21 @@ def calc_iou(box1, box2):
     xB = np.fmin(b1_x2, b2_x2)
     yB = np.fmin(b1_y2, b2_y2)
 
-    if (xB-xA) < 0 or (yB-yA) < 0:
+    if (xB - xA) < 0 or (yB - yA) < 0:
         return 0
     intersect = (xB - xA) * (yB - yA)
     union = (area1 + area2 - intersect)
 
     return intersect / union
 
+
 def calc_rmse(box1, box2):
 
     b1_x1, b1_y1, b1_x2, b1_y2 = box1
     b2_x1, b2_y1, b2_x2, b2_y2 = box2
 
-    rmse = np.sqrt(((b1_x1-b2_x1)**2 + (b1_y1-b2_y1)**2 + (b1_x2-b2_x2)**2 + (b1_y2-b2_y2)**2))
+    rmse = np.sqrt(((b1_x1 - b2_x1)**2 + (b1_y1 - b2_y1)**2 +
+                    (b1_x2 - b2_x2)**2 + (b1_y2 - b2_y2)**2))
 
     return rmse
 
@@ -121,7 +123,6 @@ class Yolov1(Detection):
 
             model.load(load_pretrained_weight)
 
-
     def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
         """Returns an instance of Optimizer for training Yolov1 algorithm.
 
@@ -150,11 +151,12 @@ class Yolov1(Detection):
             ind2 = int(total_epoch * total_batch * 0.012)
             ind3 = int(total_epoch * total_batch * 0.017)
             ind4 = int(total_epoch * total_batch * 0.55)
-            ind5 = (total_epoch*total_batch) - (ind1 + ind2 + ind3 + ind4)
+            ind5 = (total_epoch * total_batch) - (ind1 + ind2 + ind3 + ind4)
 
-            lr_list = [0.0005] * ind1 + [0.00125] * ind2 + [0.0025] * ind3 + [0.005] * ind4 + [0.0005] * ind5
+            lr_list = [0.0005] * ind1 + [0.00125] * ind2 + \
+                [0.0025] * ind3 + [0.005] * ind4 + [0.0005] * ind5
 
-            lr = lr_list[(current_epoch*total_batch)+current_batch]
+            lr = lr_list[(current_epoch * total_batch) + current_batch]
             self._opt._lr = lr
 
             return self._opt
@@ -289,7 +291,8 @@ class Yolov1(Detection):
             boxes[:, :, :, b, :] = yolo_format_out[:, :, :, b * 5 + 1:b * 5 + 5]
             boxes[:, :, :, b, 0] += offset
             boxes[:, :, :, b, 1] += offset.T
-            boxes[:, :, :, b, 2] = boxes[:, :, :, b, 2]**2 # because the output for width and height is square rooted
+            # because the output for width and height is square rooted
+            boxes[:, :, :, b, 2] = boxes[:, :, :, b, 2]**2
             boxes[:, :, :, b, 3] = boxes[:, :, :, b, 3]**2
         boxes[:, :, :, :, 0:2] /= float(cell)
 
@@ -411,7 +414,7 @@ class Yolov1(Detection):
                 for k in range(self._cells[1]):
                     is_obj = target[i, j, k, 0]
                     for b in range(num_bbox):
-                        mask[i, j, k, b*5] = 0.5 # mask for noobject cell
+                        mask[i, j, k, b * 5] = 0.5  # mask for noobject cell
                     best_rmse = 20
                     best_iou = 0
                     best_index = num_bbox
@@ -429,19 +432,19 @@ class Yolov1(Detection):
                         else:
                             if rmse < best_rmse:
                                 best_rmse = rmse
-                                best_index=b
+                                best_index = b
 
                     predicted_box = make_box(nd_x[i, j, k, 1 + best_index * 5:(best_index + 1) * 5])
                     # IOU needed to be calculated again, cause best index can be selected based on rmse also
                     iou = calc_iou(predicted_box, target_box)
                     # mask for the confidence of selected box
-                    mask[i,j,k,5*best_index] = 1
+                    mask[i, j, k, 5 * best_index] = 1
                     # changing the confidence of target to iou
-                    target[i,j,k,5*best_index] = iou
+                    target[i, j, k, 5 * best_index] = iou
                     # mask for the coordinates
-                    mask[i,j,k,1 + best_index * 5:(best_index + 1) * 5] = 5
+                    mask[i, j, k, 1 + best_index * 5:(best_index + 1) * 5] = 5
                     # mask for the class probabilities
-                    mask[i, j, k, 5*num_bbox:] = 1
+                    mask[i, j, k, 5 * num_bbox:] = 1
 
         diff = target - x
 
