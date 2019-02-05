@@ -1,8 +1,9 @@
+import os
 import asyncio
 import requests
 import urllib.request
+from urllib3.exceptions import NewConnectionError
 import numpy as np
-import os
 from renom_img.server import Algorithm
 from renom_img.api.utility.misc.download import download
 from renom_img.api.detection.yolo_v1 import Yolov1
@@ -18,12 +19,21 @@ class Detector(object):
         port (string): The port number ReNomIMG server running.
     """
 
+    def error_handler(self, func):
+        try:
+            return func()
+        except Exception as ex:
+            raise Exception("Couldn't reach ReNomIMG server. Is the server running at {}:{}?".format(
+                self._url, self._port))
+
     def __init__(self, url="http://localhost", port='8080'):
         self._url = url
         self._port = port
         self._model = None
         self._alg_name = None
         self._model_info = {}
+        api = self._url + ':' + self._port + '/'
+        self.error_handler(lambda: requests.get(api))
 
     def __call__(self, x):
         assert self._model is not None, "Please pull trained weight first."
@@ -45,11 +55,14 @@ class Detector(object):
         download_weight_api = url + download_weight_api
         download_param_api = url + download_param_api
 
-        ret = requests.get(download_param_api).json()
-        filename = ret["filename"]
+        ret = self.error_handler(lambda: requests.get(download_param_api).json())
+        if ret.get('error_msg', False):
+            raise Exception(ret.get('error_msg'))
+
+        filename = os.path.basename(ret["filename"])
 
         if not os.path.exists(filename):
-            download(download_weight_api, filename)
+            self.error_handler(lambda: download(download_weight_api, filename))
 
         if ret["algorithm_id"] == Algorithm.YOLOV1.value:
             self._alg_name = "Yolov1"
