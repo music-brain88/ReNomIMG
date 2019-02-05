@@ -60,7 +60,11 @@
           @keydown="descriptionInputNotify"/>
       </div>
       <div class="item">
-        Ratio<input
+        Ratio
+        <span
+          v-if="ratio < 0 || ratio > 1"
+          class="warn">Ratio must be '0 &lt; Ratio &lt; 1'</span>
+        <input
           v-model="ratio"
           type="number"
           placeholder="0.8"
@@ -381,6 +385,10 @@ export default {
       }
       select {
         background-color: white;
+      }
+      .warn {
+        color: red;
+        font-size: 0.75rem;
       }
     }
     input[type="button"] {
