@@ -7,6 +7,8 @@ import sys
 import numpy as np
 import renom as rm
 from tqdm import tqdm
+
+from renom_img import __version__
 from renom_img.api.utility.misc.download import download
 from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
@@ -140,7 +142,8 @@ class DenseNet121(DenseNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/DenseNet121.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/DenseNet.h5".format(
+        __version__)
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         if not hasattr(imsize, "__getitem__"):

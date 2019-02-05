@@ -1,21 +1,33 @@
 <template>
-  <component-frame :width-weight="8" :height-weight="9">
+  <component-frame
+    :width-weight="8"
+    :height-weight="9">
 
     <!--Header Contents-------------->
     <template slot="header-slot">
       Prediction Result
-      <div id="prediction-button-area" tabindex="0"
-        v-on:keyup.right="nextPage" v-on:keyup.left="prevPage">
+      <div
+        id="prediction-button-area"
+        tabindex="0"
+        @keyup.right="nextPage"
+        @keyup.left="prevPage">
         <!--Check Box. Switch of showing image and predicted box.------>
         <label>
-          <input class="checkbox" type="checkbox"
-            id="prediction-show-button" v-model="show_image" :disabled="!isTaskSegmentation">
+          <input
+            id="prediction-show-button"
+            v-model="show_image"
+            :disabled="!isTaskSegmentation"
+            class="checkbox"
+            type="checkbox">
           Image
         </label>
 
         <label>
-          <input class="checkbox" type="checkbox"
-            id="prediction-show-button" v-model="show_prediction">
+          <input
+            id="prediction-show-button"
+            v-model="show_prediction"
+            class="checkbox"
+            type="checkbox">
           Prediction
         </label>
       </div>
@@ -24,33 +36,46 @@
     <div id="prediction-area">
       <pager
         :page-max="page.length"
-        :onSetPage="setImagePageOfPrediction"
+        :on-set-page="setImagePageOfPrediction"
       />
-      <div id="img-container" ref="container">
-        <div id="img-list" v-if="showResult">
-          <image-frame v-for="(item, index) in getImages"
+      <div
+        id="img-container"
+        ref="container">
+        <div
+          v-if="showResult"
+          id="img-list">
+          <image-frame
+            v-for="(item, index) in getImages"
             :callback="() => {showImageModal(item)}"
             :show-target="show_target"
             :show-predict="show_prediction"
             :show-image="show_image"
-            :width="item.size[0]" :height="item.size[1]"
-            :maxHeight="$refs.container.clientHeight/3"
+            :width="item.size[0]"
+            :height="item.size[1]"
+            :max-height="$refs.container.clientHeight/3"
             :img="item.img"
             :result="getResult(item)"
             :model="model"
+            :key="index"
           />
         </div>
-        <div id="progress-animation" v-else>
-          <div id="no-prediction" v-if="getImages.length===0">
+        <div
+          v-else
+          id="progress-animation">
+          <div
+            v-if="getImages.length===0"
+            id="no-prediction">
             No prediction
           </div>
-          <div id="predicting" v-else>
+          <div
+            v-else
+            id="predicting">
             <div class="lds-roller">
-              <div></div><div></div><div></div>
-              <div></div><div></div><div></div>
-              <div></div><div></div>
+              <div/><div/><div/>
+              <div/><div/><div/>
+              <div/><div/>
             </div>
-            <span>Predicting ...</span>
+            <span>{{ pretidtionProgress }}</span>
           </div>
         </div>
       </div>
@@ -59,9 +84,9 @@
 </template>
 
 <script>
-import { TASK_ID } from '@/const.js'
-import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
-import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
+/* eslint vue/no-side-effects-in-computed-properties: 0 */
+import { setup_image_list } from '@/utils.js'
+import { mapGetters, mapState, mapMutations } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ImageCanvas from '@/components/page/train_page/image.vue'
 import Pager from '@/components/page/train_page/pager.vue'
@@ -134,13 +159,25 @@ export default {
       const model = this.model
       if (!model) return false
       return model.isStopped()
+    },
+    pretidtionProgress () {
+      const model = this.model
+      if (model) {
+        const total = model.total_prediction_batch
+        const nth = model.nth_prediction_batch
+        if (total === 0) {
+          return '0.00 %'
+        }
+        return (nth / total * 100).toFixed(2) + ' %'
+      }
+      return '-'
     }
   },
   methods: {
     ...mapMutations(['setImagePageOfPrediction', 'showModal', 'setImageModalData']),
     showImageModal: function (item) {
       this.setImageModalData(item.index)
-      this.showModal({'show_prediction_image': true})
+      this.showModal({ 'show_prediction_image': true })
     },
     vh: function (v) {
       var h = Math.max(document.documentElement.clientHeight,
@@ -198,7 +235,7 @@ export default {
     display: none;
     -webkit-appearance: none;
   }
-  label { 
+  label {
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -227,7 +264,7 @@ export default {
     background-color: gray;
   }
   input[type="checkbox"]:focus {
-      outline:none;  
+      outline:none;
   }
 }
 
@@ -258,6 +295,7 @@ export default {
       #predicting {
         display: flex;
         flex-direction: column;
+        text-align: center;
         .lds-roller {
           display: inline-block;
           position: relative;

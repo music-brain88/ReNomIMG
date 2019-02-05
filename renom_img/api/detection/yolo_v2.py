@@ -8,6 +8,7 @@ from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
 from PIL import Image, ImageDraw
 
+from renom_img import __version__
 from renom_img.api import Base, adddoc
 from renom_img.api.detection import Detection
 from renom_img.api.classification.darknet import Darknet19, DarknetConv2dBN
@@ -124,7 +125,7 @@ class Yolov2(Detection):
 
     # Anchor information will be serialized by 'save' method.
     SERIALIZED = ("anchor", "num_anchor", "anchor_size",  *Base.SERIALIZED)
-    WEIGHT_URL = "https://docs.renom.jp/downloads/weights/YOLO/Yolov2.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/Yolov2.h5".format(__version__)
 
     def __init__(self, class_map=None, anchor=None,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
@@ -245,6 +246,9 @@ class Yolov2(Detection):
 
         assert len(self.class_map) > 0, \
             "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
+            "Or, please load already trained model using the method 'load()'."
+        assert self.num_anchor > 0, \
+            "Anchor list is empty. Please calculate anchor list using create_anchor function, before instantiate model class.  " +\
             "Or, please load already trained model using the method 'load()'."
 
         self._freezed_network.set_auto_update(self.train_whole_network)
@@ -441,13 +445,17 @@ class Yolov2(Detection):
             img_list, label_list = prepare_detection_data(
                 img_path_list, annotation_list, imsize_list[size_index])
 
+            if augmentation is not None:
+                img_list, label_list = augmentation(img_list, label_list, mode="detection")
+
             for n, annotation in enumerate(label_list):
                 # This returns resized image.
                 # Target processing
                 boxces = np.array([a['box'] for a in annotation])
                 classes = np.array([[0] * a["class"] + [1] + [0] * (num_class - a["class"] - 1)
                                     for a in annotation])
-
+                if len(boxces.shape) < 2:
+                    continue
                 # x, y
                 cell_x = (boxces[:, 0] // ratio_w).astype(np.int)
                 cell_y = (boxces[:, 1] // ratio_h).astype(np.int)

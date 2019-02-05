@@ -1,5 +1,7 @@
 <template>
-  <component-frame :width-weight="6" :height-weight="4">
+  <component-frame
+    :width-weight="6"
+    :height-weight="4">
     <template slot="header-slot">
       Train Progress
     </template>
@@ -9,35 +11,72 @@
           Total Models : {{ getFilteredModelList.length }}
         </div>
         <div id="legend">
-          <div id="legend-item" v-for="alg in getAlgorithList()">
-            <div id="legend-box" :class="getColorClass(alg.id)">
-            </div>
+          <div
+            v-for="(alg, key) in getAlgorithList()"
+            id="legend-item"
+            :key="key">
+            <div
+              id="legend-box"
+              :class="getColorClass(alg.id)"/>
             <div id="legend-title">
-              {{alg.title}}
+              {{ alg.title }}
+            </div>
+          </div>
+          <div id="legend-item">
+            <div
+              id="legend-box"
+              class="color-reserved"/>
+            <div id="legend-title">
+              Reserved
+            </div>
+          </div>
+          <div id="legend-item">
+            <div
+              id="legend-box"
+              class="color-created"/>
+            <div id="legend-title">
+              Created
             </div>
           </div>
         </div>
       </div>
-      <div id="model-bar" v-if="this.getFilteredModelList.length != 0"
-        @mouseenter="onHovering=true" @mouseleave="onHovering=false">
-        <section v-for="model in reduceModelList(this.getFilteredModelList)" :style="getStyle(model)">
+      <div
+        v-if="getFilteredModelList.length != 0"
+        id="model-bar"
+        @mouseenter="onHovering=true"
+        @mouseleave="onHovering=false">
+        <section
+          v-for="(model, key) in reduceModelList(getFilteredModelList)"
+          :key="key"
+          :style="getStyle(model)">
           <transition name="fade">
             <div v-if="onHovering">
-                {{ model[2] }}
+              {{ model[2] }}
             </div>
           </transition>
         </section>
       </div>
-      <div id="model-bar" v-else>
-        <section id="green" style="width: 100%">No Model</section>
+      <div
+        v-else
+        id="model-bar">
+        <section
+          id="green"
+          style="width: 100%">No Model</section>
       </div>
-      <div id="component-progress" class="scrollbar-container">
+      <div
+        id="component-progress"
+        class="scrollbar-container">
         <div id="progress-title">
           Running Progress
         </div>
         <div id="progress-bars">
-          <progress-bar :isTitle="true" v-if="getRunningModelList.length > 0"/>
-          <progress-bar v-for="item in getRunningModelList" :model="item"/>
+          <progress-bar
+            v-if="getRunningModelList.length > 0"
+            :is-title="true"/>
+          <progress-bar
+            v-for="(item, key) in getRunningModelList"
+            :key="key"
+            :model="item"/>
         </div>
       </div>
     </div>
@@ -47,7 +86,7 @@
 <script>
 
 import { mapGetters } from 'vuex'
-import { RUNNING_STATE, ALGORITHM, TASK_ID } from '@/const.js'
+import { ALGORITHM, TASK_ID } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ProgressBar from '@/components/page/train_page/progress_bar.vue'
 
@@ -104,7 +143,8 @@ export default {
       } else if (task === TASK_ID.SEGMENTATION) {
         arr = Object.values(ALGORITHM.SEGMENTATION)
       }
-      return arr.map(d => { return {title: d.title, key: d.key, id: d.id} })
+      arr
+      return arr.map(d => { return { title: d.title, key: d.key, id: d.id } })
     },
     getColorClass: function (alg_id) {
       const id = alg_id % 10
@@ -126,7 +166,7 @@ export default {
     width: 100%;
     height: 30%;
     #total-num {
-      width: 100%;    
+      width: 100%;
       height: 80%;
       display: flex;
       align-items: flex-end;
@@ -158,13 +198,13 @@ export default {
     }
   }
   #model-bar {
-  	width: 100%;
-  	height: 7%;
+    width: 100%;
+    height: 7%;
     display: flex;
-  	overflow: hidden;
+    overflow: hidden;
     section {
       height: 100%;
-    	min-width: 10%;
+      min-width: 10%;
       line-height: 30px;
       display: flex;
       align-items: center;
@@ -206,7 +246,7 @@ export default {
     }
   }
   #green {
-    background: #65d260;
+    background: #229954;
   }
 }
 </style>

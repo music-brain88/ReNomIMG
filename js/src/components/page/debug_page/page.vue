@@ -1,6 +1,6 @@
-<!-->
+<!--
   This is a page for debugging.
-<-->
+-->
 <template>
   <div id="debug-page">
     <div id="components">
@@ -61,7 +61,7 @@ export default {
     align-content: flex-start;
     flex-wrap: wrap;
     width: calc(10*#{$component-block-width});
-  }  
+  }
   #vertical-component {
     display: flex;
     align-content: flex-start;

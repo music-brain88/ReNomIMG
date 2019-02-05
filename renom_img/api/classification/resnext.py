@@ -4,6 +4,7 @@ import renom as rm
 import numpy as np
 from tqdm import tqdm
 
+from renom_img import __version__
 from renom_img.api.utility.misc.download import download
 from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
@@ -108,6 +109,9 @@ class ResNeXtBase(Classification):
 
 class ResNeXt(rm.Model):
 
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt.h5".format(
+        __version__)
+
     def __init__(self, num_classes, block, layers, cardinality):
         self.inplanes = 128
         self.cardinality = cardinality
@@ -186,7 +190,8 @@ class ResNeXt50(ResNeXtBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNeXt/ResNeXt50.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt50.h5".format(
+        __version__)
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
@@ -245,7 +250,8 @@ class ResNeXt101(ResNeXtBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/ResNeXt/ResNeXt101.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt101.h5".format(
+        __version__)
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 

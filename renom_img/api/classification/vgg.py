@@ -3,6 +3,8 @@ import os
 import numpy as np
 import renom as rm
 from tqdm import tqdm
+
+from renom_img import __version__
 from renom_img.api import Base, adddoc
 from renom_img.api.classification import Classification
 from renom_img.api.utility.misc.download import download
@@ -151,7 +153,8 @@ class VGG16(VGGBase):
 
     """
 
-    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Vgg16.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG16.h5".format(
+        __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
@@ -213,7 +216,8 @@ class VGG19(VGGBase):
 
     """
 
-    WEIGHT_URL = "https://renom.jp/docs/downloads/weights/Vgg19.h5"
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG19.h5".format(
+        __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):

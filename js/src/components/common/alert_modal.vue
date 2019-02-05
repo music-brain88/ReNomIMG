@@ -4,12 +4,16 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <slot name="contents">
-            {{$store.state.error_msg}}
+            {{ $store.state.error_msg }}
           </slot>
           <div class="modal-footer">
             <slot name="footer">
               <slot name="okbutton">
-                <input type="button" class="modal-default-button" @click="hide" value="OK">
+                <input
+                  type="button"
+                  class="modal-default-button"
+                  value="OK"
+                  @click="hide">
               </slot>
             </slot>
           </div>

@@ -5,45 +5,81 @@
     </div>
     <div id="add-filter">
       <div id="item">
-        <select v-model="itemObject" v-on:change="resetForm">
-          <option v-for="item of getFilterItemsOfCurrentTask" :value="item">{{item.title}}</option>
+        <select
+          v-model="itemObject"
+          @change="resetForm">
+          <option
+            v-for="(item, key) of getFilterItemsOfCurrentTask"
+            :key="key"
+            :value="item">{{ item.title }}</option>
         </select>
       </div>
       <div id="condition">
-        <select id="variable-condition" v-model="condition" v-if="itemObject.type !== 'select'">
-          <option>>=</option>
+        <select
+          v-if="itemObject.type !== 'select'"
+          id="variable-condition"
+          v-model="condition">
+          <option>&gt;=</option>
           <option>==</option>
-          <option><=</option>
+          <option>&lt;=</option>
         </select>
-        <select id="fixed-condition" v-model="condition" v-else disabled>
+        <select
+          v-else
+          id="fixed-condition"
+          v-model="condition"
+          disabled>
           <option selected>==</option>
         </select>
       </div>
       <div id="value">
-        <input type="text" v-if="itemObject.type !== 'select'" v-model="threshold">
-        <select v-else v-model="threshold">
-          <option v-for="opt in itemObject.options" :value="opt">{{opt.title}}</option>
+        <input
+          v-if="itemObject.type !== 'select'"
+          v-model="threshold"
+          type="text">
+        <select
+          v-else
+          v-model="threshold">
+          <option
+            v-for="(opt, key) in itemObject.options"
+            :key="key"
+            :value="opt">{{ opt.title }}</option>
         </select>
       </div>
-      <input id="add" type="button" value="Add" @click="createFilter" :disabled="isDisabled">
+      <input
+        id="add"
+        :disabled="isDisabled"
+        type="button"
+        value="Add"
+        @click="createFilter">
     </div>
     <div id="filter-list">
-      <div v-for="filterItem in getFilterList" id="filter-item">
-        <div v-if="filterItem.item.type === 'select'" class="select-item">
+      <div
+        v-for="(filterItem, key) in getFilterList"
+        id="filter-item"
+        :key="key">
+        <div
+          v-if="filterItem.item.type === 'select'"
+          class="select-item">
           <div id="item">
             {{ filterItem.item.title }}
           </div>
           <div id="condition">
-             == 
+            ==
           </div>
           <div id="threshold">
             {{ filterItem.threshold.title }}
           </div>
-          <div id="remove" @click="rmFilter(filterItem)">
-            <i class="fa fa-times" aria-hidden="true"></i>
+          <div
+            id="remove"
+            @click="rmFilter(filterItem)">
+            <i
+              class="fa fa-times"
+              aria-hidden="true"/>
           </div>
         </div>
-        <div v-if="filterItem.item.type === 'condition'" class="condition-item">
+        <div
+          v-if="filterItem.item.type === 'condition'"
+          class="condition-item">
           <div id="item">
             {{ filterItem.item.title }}
           </div>
@@ -53,8 +89,12 @@
           <div id="threshold">
             {{ filterItem.threshold }}
           </div>
-          <div id="remove" @click="rmFilter(filterItem)">
-            <i class="fa fa-times" aria-hidden="true"></i>
+          <div
+            id="remove"
+            @click="rmFilter(filterItem)">
+            <i
+              class="fa fa-times"
+              aria-hidden="true"/>
           </div>
         </div>
       </div>
@@ -64,22 +104,10 @@
 
 <script>
 import Filter from '@/store/classes/filter.js'
-import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'ModalAddFilter',
-  components: {
-  },
-  computed: {
-    ...mapState([]),
-    ...mapGetters([
-      'getFilterItemsOfCurrentTask',
-      'getFilterList',
-    ]),
-    isDisabled: function () {
-      return this.threshold === ''
-    }
-  },
   data: function () {
     return {
       condition: '==',
@@ -91,6 +119,21 @@ export default {
         min: 0,
         max: 1,
       }
+    }
+  },
+  computed: {
+    ...mapState([]),
+    ...mapGetters([
+      'getFilterItemsOfCurrentTask',
+      'getFilterList',
+    ]),
+    isDisabled: function () {
+      if (this.threshold === '') {
+        return true
+      } else if (this.itemObject.type === 'condition' && isNaN(this.threshold)) {
+        return true
+      }
+      return false
     }
   },
   created: function () {

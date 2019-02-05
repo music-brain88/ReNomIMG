@@ -1,27 +1,47 @@
 <template>
-  <div id="image-frame" v-on:click="onImageClick()"
-    :style="modifiedSize" ref="wrapper">
-    <canvas id="seg" v-if="isTaskSegmentation" ref="canvas"/>
-    <div id="box" v-if="isTaskDetection"
-      @mouseenter="boxEnter(b)"
-      @mouseleave="boxLeave(b)"
-      :style="styleBox(b)" v-for="b in box">
-      <div id="box-label" :style="styleBoxLabel(b)">
-        {{b.name}}
+  <div
+    id="image-frame"
+    ref="wrapper"
+    :style="modifiedSize"
+    @click="onImageClick()">
+    <canvas
+      v-if="isTaskSegmentation"
+      id="seg"
+      ref="canvas"/>
+    <div v-if="isTaskDetection">
+      <div
+        v-for="(b, key) in box"
+        id="box"
+        :key="key"
+        :style="styleBox(b)"
+        @mouseenter="boxEnter(b)"
+        @mouseleave="boxLeave(b)">
+        <div
+          id="box-label"
+          :style="styleBoxLabel(b)">
+          {{ b.name }}
+        </div>
       </div>
     </div>
-    <div id="cls" v-if="isTaskClassification" :style="styleCls()">
-      <div id="cls-label" :style="styleClsLabel()">
+    <div
+      v-if="isTaskClassification"
+      id="cls"
+      :style="styleCls()">
+      <div
+        id="cls-label"
+        :style="styleClsLabel()">
         {{ cls }}
       </div>
     </div>
-    <img :src="img" :style="modifiedSize" v-if="showImage"/>
+    <img
+      v-if="showImage"
+      :src="img"
+      :style="modifiedSize">
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-import { TASK_ID } from '@/const.js'
 import { getTagColor, render_segmentation } from '@/utils.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
@@ -56,70 +76,40 @@ export default {
       default: undefined
     },
     callback: {
+      type: Function,
       default: (result) => {}
     },
     boxEnterCallback: {
+      type: Function,
       default: (result) => {}
     },
     boxLeaveCallback: {
+      type: Function,
       default: (result) => {}
     },
     // Followings are Object of predicted and target data.
     result: {
-      index: -1,
-      target: undefined,
-      predict: undefined,
+      type: Object,
+      default: function () {
+        return {
+          index: -1,
+          target: undefined,
+          predict: undefined,
+        }
+      }
     },
     showPredict: {
+      type: Boolean,
       default: false
     },
     showTarget: {
+      type: Boolean,
       default: true
     },
     showImage: {
+      type: Boolean,
       default: true
     }
-  },
-  beforeUpdate: function () {
-    /**
-      If the task is segmentation, drawing function will be called in
-      each update.
-    */
-    this.$nextTick(function () {
-      if (this.isTaskSegmentation) {
-        this.drawSeg()
-      }
-    })
-  },
-  watch: {
-    showPredict: function () {
-      this.$nextTick(function () {
-        if (this.isTaskSegmentation) {
-          this.drawSeg()
-        }
-      })
-    },
-    showTarget: function () {
-      this.$nextTick(function () {
-        if (this.isTaskSegmentation) {
-          this.drawSeg()
-        }
-      })
-    },
-    showImage: function () {
-      this.$nextTick(function () {
-        if (this.isTaskSegmentation) {
-          this.drawSeg()
-        }
-      })
-    },
-    model: function () {
-      this.$nextTick(function () {
-        if (this.isTaskSegmentation) {
-          this.drawSeg()
-        }
-      })
-    },
   },
   computed: {
     ...mapState([
@@ -139,26 +129,26 @@ export default {
     modifiedSize: function () {
       let w, h
       if (this.maxWidth === 0) {
-        if (this.maxHeight == 0) {
+        if (this.maxHeight === 0) {
           w = this.width
           h = this.height
         } else {
-          let r = this.maxHeight / this.height
+          const r = this.maxHeight / this.height
           w = this.width * r
           h = this.height * r
         }
       } else if (this.maxHeight === 0) {
-        if (this.maxWidth == 0) {
+        if (this.maxWidth === 0) {
           // Never reach here
         } else {
-          let r = this.maxWidth / this.width
+          const r = this.maxWidth / this.width
           w = this.width * r
           h = this.height * r
         }
       } else {
-        let wr = this.maxWidth / this.width
-        let hr = this.maxHeight / this.height
-        let r = (wr < hr) ? wr : hr
+        const wr = this.maxWidth / this.width
+        const hr = this.maxHeight / this.height
+        const r = (wr < hr) ? wr : hr
         w = this.width * r
         h = this.height * r
       }
@@ -194,8 +184,50 @@ export default {
       }
     }
   },
+  watch: {
+    showPredict: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+    showTarget: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+    showImage: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+    model: function () {
+      this.$nextTick(function () {
+        if (this.isTaskSegmentation) {
+          this.drawSeg()
+        }
+      })
+    },
+  },
+  beforeUpdate: function () {
+    /**
+      If the task is segmentation, drawing function will be called in
+      each update.
+    */
+    this.$nextTick(function () {
+      if (this.isTaskSegmentation) {
+        this.drawSeg()
+      }
+    })
+  },
+
   mounted: function () {
-    let container = this.$refs.wrapper
+    const container = this.$refs.wrapper
     if (!container) return
     this.image_width = this.modifiedWidth
     this.image_height = this.modifiedHeight
@@ -276,29 +308,33 @@ export default {
     },
     drawSeg: function () {
       let draw_item
+      var canvas
+      var cxt
+      var offCanvas
+      var offCxt
       if ((!this.showPredict && !this.showTarget) || (!this.result.predict && !this.result.target)) {
-        var canvas = this.$refs.canvas
+        canvas = this.$refs.canvas
         if (!canvas) return
-        var cxt = canvas.getContext('bitmaprenderer')
-        var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
-        var offCxt = offCanvas.getContext('2d')
+        cxt = canvas.getContext('bitmaprenderer')
+        offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
+        offCxt = offCanvas.getContext('2d')
         offCxt.clearRect(0, 0, canvas.width, canvas.height)
         cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
       } else if (this.showPredict) {
         draw_item = this.result.predict
         if (draw_item === undefined) {
-          var canvas = this.$refs.canvas
+          canvas = this.$refs.canvas
           if (!canvas) return
-          var cxt = canvas.getContext('bitmaprenderer')
-          var offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
-          var offCxt = offCanvas.getContext('2d')
+          cxt = canvas.getContext('bitmaprenderer')
+          offCanvas = new OffscreenCanvas(canvas.width, canvas.height)
+          offCxt = offCanvas.getContext('2d')
           offCxt.clearRect(0, 0, canvas.width, canvas.height)
           cxt.transferFromImageBitmap(offCanvas.transferToImageBitmap())
-          returun
+          return
         }
         this.$worker.run(render_segmentation, [draw_item]).then((ret) => {
-          var canvas = this.$refs.canvas
-          var cxt = canvas.getContext('bitmaprenderer')
+          canvas = this.$refs.canvas
+          cxt = canvas.getContext('bitmaprenderer')
           cxt.transferFromImageBitmap(ret)
         })
       } else if (this.showTarget) {

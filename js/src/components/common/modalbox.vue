@@ -1,8 +1,11 @@
 <template>
   <transition name="modal">
-    <div id="modal" v-if="show">
-      <div id="modal-mask" @click="toggle">
-      </div>
+    <div
+      v-if="show"
+      id="modal">
+      <div
+        id="modal-mask"
+        @click="toggle"/>
       <div id="modal-content">
         <add-both v-if="show_modal.add_both"/>
         <add-dataset v-if="show_modal.add_dataset"/>
@@ -41,7 +44,7 @@ export default {
   methods: {
     ...mapMutations(['showModal']),
     toggle: function () {
-      this.showModal({'all': false})
+      this.showModal({ 'all': false })
     },
   }
 }

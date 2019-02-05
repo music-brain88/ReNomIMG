@@ -1,23 +1,38 @@
 <template>
-  <component-frame :width-weight="6" :height-weight="4">
+  <component-frame
+    :width-weight="6"
+    :height-weight="4">
     <template slot="header-slot">
       Model Detail
-      <div id="deploy-button" @click="undeploy"
-        v-if="getDeployedModel && getDeployedModel === getSelectedModel">
-          <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Un Deploy
+      <div
+        v-if="getDeployedModel && getDeployedModel === getSelectedModel"
+        id="deploy-button"
+        @click="undeploy">
+        <i
+          class="fa fa-angle-right"
+          aria-hidden="true"/>&nbsp;Un Deploy
       </div>
-      <div id="deploy-button" @click="deploy" v-else>
-          <i class="fa fa-angle-right" aria-hidden="true"></i>&nbsp;Deploy
+      <div
+        v-else
+        id="deploy-button"
+        @click="deploy">
+        <i
+          class="fa fa-angle-right"
+          aria-hidden="true"/>&nbsp;Deploy
       </div>
     </template>
     <div id="model-detail">
-      <div class="col" v-if="model">
+      <div
+        v-if="model"
+        class="col">
         <div class="item">
           <div class="item-title">Model ID</div>
           <div class="item-content">{{ model.id }}</div>
         </div>
       </div>
-      <div class="col" v-if="model">
+      <div
+        v-if="model"
+        class="col">
         <div class="item">
           <div class="item-title">Algorithm</div>
           <div class="item-content">{{ getAlgorithmTitleFromId(model.algorithm_id) }}</div>
@@ -27,7 +42,7 @@
           <div class="item-content">{{ getDatasetName }}</div>
         </div>
 
-        <div class="item"></div>
+        <div class="item"/>
 
         <div class="item">
           <div class="item-title">{{ model.getResultOfMetric1().metric }}</div>
@@ -38,8 +53,13 @@
           <div class="item-content">{{ model.getResultOfMetric2().value }}</div>
         </div>
       </div>
-      <div class="col" v-if="model">
-        <div class="item" v-for="param in getAlgorithmParamList(model.algorithm_id)">
+      <div
+        v-if="model"
+        class="col">
+        <div
+          v-for="(param, key) in getAlgorithmParamList(model.algorithm_id)"
+          :key="key"
+          class="item">
           <div class="item-title">{{ param.title }}</div>
           <div class="item-content">{{ model.hyper_parameters[param.key] }}</div>
         </div>
@@ -50,7 +70,6 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
-import { ALGORITHM } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 
 export default {

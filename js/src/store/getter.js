@@ -1,4 +1,6 @@
 import { SORT_DIRECTION, FILTER, GROUPBY, STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
+
+/* eslint no-unused-vars: 0 */
 import Model from './classes/model'
 
 export default {
@@ -148,11 +150,11 @@ export default {
   getFilterItemsOfCurrentTask (state, getters) {
     let key = ''
     const task = getters.getCurrentTask
-    if (task == TASK_ID.CLASSIFICATION) {
+    if (task === TASK_ID.CLASSIFICATION) {
       key = 'CLASSIFICATION'
-    } else if (task == TASK_ID.DETECTION) {
+    } else if (task === TASK_ID.DETECTION) {
       key = 'DETECTION'
-    } else if (task == TASK_ID.SEGMENTATION) {
+    } else if (task === TASK_ID.SEGMENTATION) {
       key = 'SEGMENTATION'
     } else {
       return {}
@@ -164,7 +166,7 @@ export default {
     let filtered = []
     const task_filtered_model_list = state.models.filter(m => m.task_id === getters.getCurrentTask)
     filtered = task_filtered_model_list
-    for (let flt of state.filters) {
+    for (const flt of state.filters) {
       filtered = flt.filter(filtered)
     }
     return filtered
@@ -179,7 +181,7 @@ export default {
   },
   getModelById (state, getters) {
     return function (id) {
-      let model = state.models.find(m => m.id === id)
+      const model = state.models.find(m => m.id === id)
       return model
     }
   },
@@ -227,18 +229,18 @@ export default {
     return state.show_slide_menu
   },
   getSortTitle (state, getters) {
-    let task = getters.getCurrentTask
+    const task = getters.getCurrentTask
     if (task in Object.values(TASK_ID)) {
-      let key = getKeyByValue(TASK_ID, task)
+      const key = getKeyByValue(TASK_ID, task)
       return Object.values(SORTBY[key]).map((item) => { return item.title })
     } else {
       throw new Error('Not supported task.')
     }
   },
   getAlgorithmList (state, getters) {
-    let task = getters.getCurrentTask
+    const task = getters.getCurrentTask
     if (task in Object.values(TASK_ID)) {
-      let key = getKeyByValue(TASK_ID, task)
+      const key = getKeyByValue(TASK_ID, task)
       return Object.values(ALGORITHM[key]).map((item) => { return item.title })
     } else {
       throw new Error('Not supported task.')
@@ -246,10 +248,10 @@ export default {
   },
   getAlgorithmIdFromTitle (state, getters) {
     return function (algorithm_title) {
-      let task = getters.getCurrentTask
+      const task = getters.getCurrentTask
       if (task in Object.values(TASK_ID)) {
-        let task_key = getKeyByValue(TASK_ID, task)
-        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_title)
+        const task_key = getKeyByValue(TASK_ID, task)
+        const key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_title)
         return ALGORITHM[task_key][key].id
       } else {
         throw new Error(algorithm_title + ' is not supported task.')
@@ -258,10 +260,10 @@ export default {
   },
   getAlgorithmTitleFromId (state, getters) {
     return function (algorithm_id) {
-      let task = getters.getCurrentTask
+      const task = getters.getCurrentTask
       if (task in Object.values(TASK_ID)) {
-        let task_key = getKeyByValue(TASK_ID, task)
-        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_id)
+        const task_key = getKeyByValue(TASK_ID, task)
+        const key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_id)
         return ALGORITHM[task_key][key].title
       } else {
         throw new Error(algorithm_id + 'is not supported id.')
@@ -275,9 +277,8 @@ export default {
    */
   getColorClass (state, getters) {
     return function (model) {
-      let task = getters.getCurrentTask
-      let state = model.state
-      let running_state = model.running_state
+      const task = getters.getCurrentTask
+      const state = model.state
 
       if (state === STATE.CREATED) {
         return 'color-created'
@@ -286,21 +287,21 @@ export default {
       }
 
       if (task in Object.values(TASK_ID)) {
-        let task_key = getKeyByValue(TASK_ID, task)
-        let key = getKeyByValueIncludes(ALGORITHM[task_key], model.algorithm_id)
+        const task_key = getKeyByValue(TASK_ID, task)
+        const key = getKeyByValueIncludes(ALGORITHM[task_key], model.algorithm_id)
         return 'color-' + Number(ALGORITHM[task_key][key].id) % 10
       } else {
-        throw new Error(algorithm_id + 'is not supported id.')
+        throw new Error(model.algorithm_id + 'is not supported id.')
       }
     }
   },
   getAlgorithmParamList (state, getters) {
     return function (algorithm_title) {
-      let task = getters.getCurrentTask
+      const task = getters.getCurrentTask
       if (task in Object.values(TASK_ID)) {
-        let task_key = getKeyByValue(TASK_ID, task)
-        let key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_title)
-        let alg = ALGORITHM[task_key][key]
+        const task_key = getKeyByValue(TASK_ID, task)
+        const key = getKeyByValueIncludes(ALGORITHM[task_key], algorithm_title)
+        const alg = ALGORITHM[task_key][key]
         if (alg && alg.params) {
           return alg.params
         } else {

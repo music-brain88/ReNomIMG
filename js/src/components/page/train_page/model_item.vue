@@ -1,11 +1,21 @@
 <template>
-  <div id="model-item" v-if="model" v-bind:class="{ isSelected: model === getSelectedModel}">
-    <div id="model-color" v-bind:class='getColorClass(model)'>
-    </div>
-    <div id="model-add-button" v-if="isAddButton" @click="showModal({add_both: true})">
+  <div
+    v-if="model"
+    id="model-item"
+    :class="{ isSelected: model === getSelectedModel}">
+    <div
+      id="model-color"
+      :class="getColorClass(model)"/>
+    <div
+      v-if="isAddButton"
+      id="model-add-button"
+      @click="showModal({add_both: true})">
       ADD
     </div>
-    <div id="model-id"  @click='setSelectedModel(model)' v-else>
+    <div
+      v-else
+      id="model-id"
+      @click="setSelectedModel(model)">
       <div class="info-row">
         <span class="info-title">ID:</span>
         <span :class="{'sorted-item': isSortBy('ID')}">{{ model.id }}</span>
@@ -23,21 +33,34 @@
       </div>
     </div>
     <div id="model-buttons">
-      <i class="fa fa-cog" aria-hidden="true"></i>
-      <i class="fa fa-times" aria-hidden="true" @click='rmModel(model.id)' v-if="!isDeployedModel"></i>
-      <div id=deploy-icon v-else>
+      <i
+        class="fa fa-cog"
+        style="visibility: hidden"
+        aria-hidden="true"/>
+      <i
+        v-if="!isDeployedModel"
+        class="fa fa-times"
+        aria-hidden="true"
+        @click="rmModel(model.id)"/>
+      <div
+        v-else
+        id="deploy-icon">
         Deployed
       </div>
     </div>
     <div id="child-model">
-      <model-item v-for="item in getChildModelList" :model="item" :hierarchy="hierarchy+1"/>
+      <model-item
+        v-for="(item, key) in getChildModelList"
+        :model="item"
+        :key="key"
+        :hierarchy="hierarchy+1"/>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapActions, mapState } from 'vuex'
-import { GROUPBY, SORTBY, SORT_DIRECTION } from '@/const.js'
+import { SORTBY } from '@/const.js'
 
 export default {
   name: 'ModelItem',
@@ -47,7 +70,8 @@ export default {
   props: {
     model: {
       type: Object,
-      require: true
+      require: true,
+      default: undefined
     },
     isAddButton: {
       type: Boolean,
@@ -55,9 +79,11 @@ export default {
     },
     isOpenChildModelList: {
       type: Boolean,
-      type: false,
+      default: false,
     },
-    hierarchy: 0,
+    hierarchy: {
+      type: Number,
+      default: 0 },
   },
   computed: {
     ...mapState([

@@ -5,7 +5,7 @@
       <slide-menu/>
       <div id="container">
         <transition name="fade">
-          <router-view></router-view> 
+          <router-view/>
         </transition>
       </div>
     </div>
@@ -13,13 +13,15 @@
     <confirm-modal v-if="$store.state.show_confirm_modal"/>
     <modal/>
     <transition name="fade">
-      <div id="loading-whole-mask" v-if="show_loading_mask">
+      <div
+        v-if="show_loading_mask"
+        id="loading-whole-mask">
         <div id="loader-container">
-          <div class="loader"></div>
-          <div class="loader"></div>
-          <div class="loader"></div>
-          <div class="loader"></div>
-          <div class="loader"></div>
+          <div class="loader"/>
+          <div class="loader"/>
+          <div class="loader"/>
+          <div class="loader"/>
+          <div class="loader"/>
           <div class="message">Synchronizing to Server...</div>
         </div>
       </div>
@@ -29,7 +31,6 @@
 </template>
 
 <script>
-import { PAGE_ID } from '@/const.js'
 import AlertModal from '@/components/common/alert_modal.vue'
 import ConfirmModal from '@/components/common/confirm_modal.vue'
 import AppHeader from '@/components/common/app_header.vue'

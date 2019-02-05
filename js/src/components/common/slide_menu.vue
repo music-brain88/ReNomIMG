@@ -1,25 +1,37 @@
 <template>
   <transition name="fade">
-  <div id='slide-menu' v-if='getShowSlideMenu'>
-      <div id='menu-list'>
-        <div class='task-button'
+    <div
+      v-if="getShowSlideMenu"
+      id="slide-menu">
+      <div id="menu-list">
+        <div
+          class="task-button"
           @click="onItemClick('train')">
-          <i class="fa fa-home" aria-hidden="true"></i>
+          <i
+            class="fa fa-home"
+            aria-hidden="true"/>
           Train
         </div>
-        <div class='task-button'
+        <div
+          class="task-button"
           @click="onItemClick('predict')">
-          <i class="fa fa-area-chart" aria-hidden="true"></i>
+          <i
+            class="fa fa-area-chart"
+            aria-hidden="true"/>
           Predict
         </div>
-        <div class='task-button'
+        <div
+          class="task-button"
           @click="onItemClick('dataset')">
-          <i class="fa fa-database" aria-hidden="true"></i>
+          <i
+            class="fa fa-database"
+            aria-hidden="true"/>
           Dataset
         </div>
       </div>
-      <div id='slide-mask' @click="showSlideMenu(false)" >
-      </div>
+      <div
+        id="slide-mask"
+        @click="showSlideMenu(false)" />
     </div>
   </transition>
 </template>
@@ -51,16 +63,16 @@ export default {
     onItemClick: function (page_name) {
       this.init()
       if (page_name === 'train') {
-        this.$router.push({path: '/'})
+        this.$router.push({ path: '/' })
         this.setCurrentPage(PAGE_ID.TRAIN)
       } else if (page_name === 'predict') {
-        this.$router.push({path: '/predict'})
+        this.$router.push({ path: '/predict' })
         this.setCurrentPage(PAGE_ID.PREDICT)
       } else if (page_name === 'dataset') {
-        this.$router.push({path: '/dataset'})
+        this.$router.push({ path: '/dataset' })
         this.setCurrentPage(PAGE_ID.DATASET)
       } else if (page_name === 'debug') {
-        this.$router.push({path: '/debug'})
+        this.$router.push({ path: '/debug' })
         this.setCurrentPage(PAGE_ID.DEBUG)
       } else {
         console.log(page_name + 'is not supported page name.')

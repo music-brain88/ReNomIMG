@@ -1,5 +1,7 @@
 <template>
-  <component-frame :width-weight="4" :height-weight="4">
+  <component-frame
+    :width-weight="4"
+    :height-weight="4">
     <template slot="header-slot">
       Model Distribution
     </template>
@@ -10,8 +12,7 @@
       <div id="title-metric2">
         {{ getTitleMetric2 }} [%]
       </div>
-      <div id="scatter-canvas">
-      </div>
+      <div id="scatter-canvas"/>
     </div>
   </component-frame>
 </template>
@@ -33,31 +34,18 @@ export default {
       tooltip: null
     }
   },
-  created: function () {
-    // Register function to window size listener
-    // TODO: Need to use lodash here.
-    window.addEventListener('resize', this.draw, false)
-  },
-  mounted: function () {
-    this.draw()
-  },
-  beforeDestroy: function () {
-    // Remove it.
-    window.removeEventListener('resize', this.draw, false)
-  },
-  updated: function () {
-    this.draw()
-  },
   computed: {
     ...mapGetters([
       'getFilteredAndGroupedModelList',
       'getColorClass',
       'getAlgorithmColor',
+      'getAlgorithmTitleFromId',
       'getTitleMetric1',
       'getTitleMetric2',
       'getSelectedModel'
     ])
   },
+
   watch: {
     getFilteredAndGroupedModelList: function () {
       this.draw()
@@ -80,13 +68,28 @@ export default {
         })
     }
   },
+  created: function () {
+    // Register function to window size listener
+    // TODO: Need to use lodash here.
+    window.addEventListener('resize', this.draw, false)
+  },
+  mounted: function () {
+    this.draw()
+  },
+  beforeDestroy: function () {
+    // Remove it.
+    window.removeEventListener('resize', this.draw, false)
+  },
+  updated: function () {
+    this.draw()
+  },
   methods: {
     ...mapMutations(['setSelectedModel']),
     draw: function () {
       if (!this.getFilteredAndGroupedModelList) return
       d3.select('#scatter-canvas').select('svg').remove() // Remove SVG if it has been created.
 
-      const margin = {top: 15, left: 40, right: 20, bottom: 35}
+      const margin = { top: 15, left: 40, right: 20, bottom: 35 }
       const canvas = document.getElementById('scatter-canvas')
       const canvas_width = canvas.clientWidth
       const canvas_height = canvas.clientHeight
@@ -188,14 +191,15 @@ export default {
             y -= 80
           }
 
-          let metric1 = m.getResultOfMetric1()
-          let metric2 = m.getResultOfMetric2()
+          const metric1 = m.getResultOfMetric1()
+          const metric2 = m.getResultOfMetric2()
           ttip.style('display', 'inline-block')
           ttip.transition()
             .duration(200)
             .style('opacity', 0.9)
           ttip.html(
-            'Model ID : ' + m.id + '<br />' +
+            'ID : ' + m.id + '<br />' +
+            'Model: ' + this.getAlgorithmTitleFromId(m.algorithm_id) + '<br />' +
             metric1.metric + ' : ' + metric1.value + '<br />' +
             metric2.metric + ' : ' + metric2.value
           )

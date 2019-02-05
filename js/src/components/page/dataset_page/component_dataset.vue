@@ -1,16 +1,19 @@
 <template>
-  <component-frame :width-weight="12" :height-weight="9">
+  <component-frame
+    :width-weight="12"
+    :height-weight="9">
     <template slot="header-slot">
       Dataset
     </template>
     <div id="dataset">
       <div id="dataset-list">
-        <table-item :isTitle="true"/>
-        <table-item :dataset="item" v-for='item in getFilteredDatasetList'/>
+        <table-item :is-title="true"/>
+        <table-item
+          v-for="(item, key) in getFilteredDatasetList"
+          :key="key"
+          :dataset="item"/>
       </div>
-      <div id="dataset-content">
-
-      </div>
+      <div id="dataset-content"/>
     </div>
   </component-frame>
 </template>

@@ -15,8 +15,6 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
-import ComponentFrame from '@/components/common/component_frame.vue'
 import ComponentProgress from '@/components/page/train_page/component_progress.vue'
 import ComponentScatter from '@/components/page/train_page/component_scatter.vue'
 import ComponentModelList from '@/components/page/train_page/component_model_list.vue'
@@ -60,7 +58,7 @@ export default {
     align-content: flex-start;
     flex-wrap: wrap;
     width: calc(10*#{$component-block-width});
-  }  
+  }
   #vertical-component {
     display: flex;
     align-content: flex-start;

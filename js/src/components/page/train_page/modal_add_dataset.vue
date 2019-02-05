@@ -3,35 +3,79 @@
 
     <!--Left page of creating dataset---------->
     <div id="dataset-setting">
-      <div id="title" v-if="isTestDataset"> Test Dataset Setting
+      <div
+        v-if="isTestDataset"
+        id="title"> Test Dataset Setting
       </div>
-      <div id="title" v-else> Dataset Setting
+      <div
+        v-else
+        id="title"> Dataset Setting
       </div>
-      <div class='item' v-if="false">
+      <div
+        v-if="false"
+        class="item">
         Create as Test Dataset
-        <input type="checkbox" value="false" v-model="isTestDataset" placeholder="false">
+        <input
+          v-model="isTestDataset"
+          type="checkbox"
+          value="false"
+          placeholder="false">
       </div>
-      <div class='item'>
-        Name<input type="text" v-model="name" placeholder="dataset"/>
+      <div class="item">
+        Name<input
+          ref="nameText"
+          v-model="nameText"
+          :class="{'show-short-period': notifyNameField}"
+          :maxlength="nameMaxLength"
+          type="text"
+          placeholder="dataset"
+          @keydown="nameInputNotify">
       </div>
-      <div class='item' v-if="false">
+      <div
+        v-if="false"
+        class="item">
         Test Dataset
-        <select v-model="test_dataset" :disabled="isTestDataset">
-          <option disabled value="" selected>Select Test Dataset</option>
+        <select
+          v-model="test_dataset"
+          :disabled="isTestDataset">
+          <option
+            disabled
+            value=""
+            selected>Select Test Dataset</option>
           <option value="none">--none--</option>
-          <option :value="item" v-for="item in getFilteredTestDatasetList">{{item.name}}</option>
+          <option
+            v-for="(item, key) in getFilteredTestDatasetList"
+            :key="key"
+            :value="item">{{ item.name }}</option>
         </select>
       </div>
-      <div class='item'>
-        Description<textarea type="text" v-model="description" placeholder="description"/>
+      <div class="item">
+        Description<textarea
+          ref="descriptionText"
+          :class="{'show-short-period': notifyDescriptionField}"
+          v-model="descriptionText"
+          :maxlength="descriptionMaxLength"
+          type="text"
+          placeholder="description"
+          @keydown="descriptionInputNotify"/>
       </div>
-      <div class='item'>
-        Ratio<input type="number" v-model="ratio" placeholder="0.8" step="0.1" min="0" max="1"/>
+      <div class="item">
+        Ratio<input
+          v-model="ratio"
+          type="number"
+          placeholder="0.8"
+          step="0.1"
+          min="0"
+          max="1">
       </div>
-      <input type="button" value="Confirm" @click="onConfirmDataset" :disabled="!confirmable">
+      <input
+        :disabled="!confirmable"
+        type="button"
+        value="Confirm"
+        @click="onConfirmDataset">
     </div>
     <!----------Left page of creating dataset-->
-    
+
     <!--Right page of creating dataset---------->
     <div id="dataset-confirm">
       <div id="title">
@@ -52,36 +96,62 @@
         </div>
       </div>
 
-      <div id="dataset-ratio-bar" :class="{'bar-anime': confirming_dataset}"
-        @mouseenter="isHovering=true" @mouseleave="isHovering=false">
-        <section class="color-train" :style="train_num_style">
+      <div
+        id="dataset-ratio-bar"
+        :class="{'bar-anime': confirming_dataset}"
+        @mouseenter="isHovering=true"
+        @mouseleave="isHovering=false">
+        <section
+          :style="train_num_style"
+          class="color-train">
           <span>Train</span>
         </section>
-        <section class="color-valid" :style="valid_num_style">
+        <section
+          :style="valid_num_style"
+          class="color-valid">
           <span>Valid</span>
         </section>
       </div>
       <div id="breakdown">
-        <div id="load-progress" v-if="confirming_flag">
-          <div class="lds-ripple"><div></div><div></div></div>
+        <div
+          v-if="confirming_flag"
+          id="load-progress">
+          <div class="lds-ripple"><div/><div/></div>
           Loading Dataset...
         </div>
-        <div id="class-ratio-bars" v-else v-for="item in class_items">
-          <span>{{item[0]}}</span>
-          <div class="bar" :class="{'bar-anime': confirming_dataset}" :style="{width: item[1] + item[2] + '%'}">
-            <section class="color-train" :style="{width: item[1]/(item[1] + item[2])*100 + '%'}"/>
-            <section class="color-valid" :style="{width: item[2]/(item[1] + item[2])*100 + '%'}"/>
+        <div
+          v-for="(item, key) in class_items"
+          v-else
+          id="class-ratio-bars"
+          :key="key">
+          <span>{{ item[0] }}</span>
+          <div
+            :class="{'bar-anime': confirming_dataset}"
+            :style="{width: item[1] + item[2] + '%'}"
+            class="bar">
+            <section
+              :style="{width: item[1]/(item[1] + item[2])*100 + '%'}"
+              class="color-train"/>
+            <section
+              :style="{width: item[2]/(item[1] + item[2])*100 + '%'}"
+              class="color-valid"/>
           </div>
         </div>
       </div>
-      <input id="submit-button" type="button"
-        value="submit" @click="onAddDataset" :disabled="!submitable">
+      <input
+        id="submit-button"
+        :disabled="!submitable"
+        type="button"
+        value="submit"
+        @click="onAddDataset">
     </div>
     <!----------Right page of creating dataset-->
   </div>
 </template>
 
 <script>
+import { DATASET_NAME_MAX_LENGTH,
+  DATASET_DESCRIPTION_MAX_LENGTH, DATASET_DESCRIPTION_MIN_LENGTH } from '@/const.js'
 import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 import BreakDownBar from '@/components/page/train_page/breakdown_ratio_bar.vue'
 import DatasetDetailBar from '@/components/page/train_page/dataset_detail_ratio_bar.vue'
@@ -100,11 +170,11 @@ export default {
       isTestDataset: false,
       test_dataset: '',
       timeStamp: '',
-      isHovering: false
+      isHovering: false,
+      notifyNameField: false,
+      notifyDescriptionField: false,
+      nameFieldTimeoutFunc: function () {}
     }
-  },
-  beforeMount: function () {
-    this.reset()
   },
   computed: {
     ...mapState([
@@ -114,6 +184,24 @@ export default {
     ...mapGetters([
       'getFilteredTestDatasetList',
     ]),
+    nameMaxLength: function () { return DATASET_NAME_MAX_LENGTH },
+    nameMinLength: function () { return DATASET_NAME_MAX_LENGTH },
+    descriptionMaxLength: function () { return DATASET_DESCRIPTION_MAX_LENGTH },
+    descriptionMinLength: function () { return DATASET_DESCRIPTION_MIN_LENGTH },
+    nameText: {
+      get () { return this.name },
+      set (v) {
+        this.name = v
+        this.notifyNameField = (this.name.length === this.nameMaxLength && this.notifyNameField)
+      }
+    },
+    descriptionText: {
+      get () { return this.description },
+      set (v) {
+        this.description = v
+        this.notifyDescriptionField = (this.description.length === this.descriptionMaxLength && this.notifyDescriptionField)
+      }
+    },
     confirmable: function () {
       if (!this.name || this.ratio <= 0 || this.ratio >= 1 || this.confirming_flag) {
         return false
@@ -172,7 +260,18 @@ export default {
       return {
         width: (this.valid_num / this.total_num) * 100 + '%',
       }
-    }
+    },
+  },
+  beforeMount: function () {
+    this.reset()
+  },
+  mounted: function () {
+    this.$refs.nameText.addEventListener('animationend', () => {
+      this.notifyNameField = false
+    })
+    this.$refs.descriptionText.addEventListener('animationend', () => {
+      this.notifyDescriptionField = false
+    })
   },
   methods: {
     ...mapMutations([
@@ -185,6 +284,12 @@ export default {
       'confirmDataset',
       'confirmTestDataset'
     ]),
+    nameInputNotify: function (e) {
+      this.notifyNameField = (this.name.length === this.nameMaxLength)
+    },
+    descriptionInputNotify: function (e) {
+      this.notifyDescriptionField = (this.description.length === this.descriptionMaxLength)
+    },
     onConfirmDataset: function () {
       const date = new Date()
       this.timeStamp = date.getTime()
@@ -431,6 +536,17 @@ export default {
     100% {
       transform: translateX(0) scaleX(1);
     }
+  }
+  .show-short-period {
+    animation: notifyAnimation ease-in 3s;
+  }
+  @keyframes notifyAnimation {
+   0% {
+      outline-color: red;
+    }
+   80% {
+      outline-color: red;
+   }
   }
 }
 </style>

@@ -2,36 +2,51 @@
   <div id="app-header">
     <div id="menu-title">
       <div id="header-menu">
-        <i class="fa fa-bars" aria-hidden="true" @click="showSlideMenu(!getShowSlideMenu)"></i>
+        <i
+          class="fa fa-bars"
+          aria-hidden="true"
+          @click="showSlideMenu(!getShowSlideMenu)"/>
       </div>
       <div id="title">
-        <span id="product-title" class="header-title">ReNomIMG</span>
+        <span
+          id="product-title"
+          class="header-title">ReNomIMG</span>
         <span class="header-title"> > </span>
-        <span id="task-title" class="header-title"> {{ getCurrentTaskTitle }} </span>
+        <span
+          id="task-title"
+          class="header-title"> {{ getCurrentTaskTitle }} </span>
         <span class="header-title"> > </span>
-        <span id="page-title" class="header-title"> {{ getCurrentPageTitle }} </span>
+        <span
+          id="page-title"
+          class="header-title"> {{ getCurrentPageTitle }} </span>
       </div>
     </div>
     <div id="task-buttons">
-      <div id="classification-button" :class="{selectedTask: getCurrentTask === TASK.DETECTION}"
-          @click="() => {setCurrentTask(TASK.DETECTION); init();}">
+      <div
+        id="classification-button"
+        :class="{selectedTask: getCurrentTask === TASK.DETECTION}"
+        @click="() => {setCurrentTask(TASK.DETECTION); init();}">
         Detection
-      </div>  
-      <div id="classification-button" :class="{selectedTask: getCurrentTask === TASK.SEGMENTATION}"
-          @click="() => {setCurrentTask(TASK.SEGMENTATION); init();}">
+      </div>
+      <div
+        id="classification-button"
+        :class="{selectedTask: getCurrentTask === TASK.SEGMENTATION}"
+        @click="() => {setCurrentTask(TASK.SEGMENTATION); init();}">
         Segmentation
-      </div>  
-      <div id="classification-button" :class="{selectedTask: getCurrentTask === TASK.CLASSIFICATION}"
-          @click="() => { setCurrentTask(TASK.CLASSIFICATION); init();}">
+      </div>
+      <div
+        id="classification-button"
+        :class="{selectedTask: getCurrentTask === TASK.CLASSIFICATION}"
+        @click="() => { setCurrentTask(TASK.CLASSIFICATION); init();}">
         Classification
-      </div>  
+      </div>
 
-    </div>  
-  </div>  
+    </div>
+  </div>
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import { TASK_ID } from '@/const.js'
 
 export default {
@@ -111,25 +126,25 @@ export default {
     #title {
       height: 100%;
       margin: 0 0 0 $header-title-margin-left;
-  
+
       .header-title {
         height: $header-height;
         min-height: $header-min-height;
         display: inline-flex;
         align-items: center;
       }
-  
+
       #product-title {
         font-family: $header-product-name-font-family;
         font-size: $header-product-name-font-size;
       }
-    
+
       #task-title {
         font-family: $header-title-font-family;
         font-size: $header-title-font-size;
         font-weight: bold;
       }
-  
+
       #page-title {
         font-family: $header-title-font-family;
         font-size: $header-title-font-size;

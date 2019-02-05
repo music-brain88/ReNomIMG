@@ -12,9 +12,11 @@ from renom_img.api.detection.ssd import SSD
 
 from renom_img.api.classification.vgg import VGG16, VGG19
 from renom_img.api.classification.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
+from renom_img.api.classification.resnext import ResNeXt50, ResNeXt101
 from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
 from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
 
+from renom_img.api.segmentation.fcn import FCN8s, FCN16s, FCN32s
 from renom_img.api.segmentation.unet import UNet
 
 from renom_img.api.utility.augmentation import Augmentation
@@ -35,6 +37,11 @@ set_cuda_active(True)
     ResNet50,
     ResNet101,
     ResNet152,
+    ResNeXt50,
+    ResNeXt101,
+    FCN8s,
+    FCN16s,
+    FCN32s
 ])
 def test_weight_download(algo):
     path = algo.__name__ + ".h5"

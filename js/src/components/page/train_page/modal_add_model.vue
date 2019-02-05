@@ -5,38 +5,65 @@
         <div class="title">Dataset</div>
         <div class="subtitle">Dataset Name
           <select v-model="selectedDatasetId">
-            <option disabled value="" selected>Select Dataset</option>
-            <option v-for="item in getFilteredDatasetList" :value=item.id> {{ item.name }} </option>
+            <option
+              disabled
+              value=""
+              selected>Select Dataset</option>
+            <option
+              v-for="(item, key) in getFilteredDatasetList"
+              :key="key"
+              :value="item.id"> {{ item.name }} </option>
           </select>
         </div>
       </div>
       <div class="title">Algorithm</div>
       <div class="subtitle">{{ getCurrentTaskTitle }} Algorithm
-        <select v-model="selectedAlgorithm"
-          v-on:change="setDefaultValue(getAlgorithmParamList(selectedAlgorithm))">
-          <option disabled value="" selected>Select Algorithm</option>
-          <option v-for="(item, index) in getAlgorithmList">{{ item }}</option>
+        <select
+          v-model="selectedAlgorithm"
+          @change="setDefaultValue(getAlgorithmParamList(selectedAlgorithm))">
+          <option
+            disabled
+            value=""
+            selected>Select Algorithm</option>
+          <option
+            v-for="(item, index) in getAlgorithmList"
+            :key="index">{{ item }}</option>
         </select>
       </div>
     </div>
     <div id="params">
-      <div class="title" id="hyper-params">Hyper parameters</div>
-      <div v-for="item in getAlgorithmParamList(selectedAlgorithm)">
-        <div class="hyper-param">{{ item.title }} 
-          <input :type="item.type" v-if="item.type !== 'select'"
+      <div
+        id="hyper-params"
+        class="title">Hyper parameters</div>
+      <div
+        v-for="(item, key) in getAlgorithmParamList(selectedAlgorithm)"
+        :key="key">
+        <div class="hyper-param">{{ item.title }}
+          <input
+            v-if="item.type !== 'select'"
+            :type="item.type"
             :placeholder="item.default"
             v-model="parameters[item.key]"
             :disabled="item.disabled"
             :min="item.min"
             :max="item.max">
-          <select v-else v-model="parameters[item.key]" :selected="item.default">
-            <option v-for="opt of item.options">{{ opt }}</option>
+          <select
+            v-else
+            v-model="parameters[item.key]"
+            :selected="item.default">
+            <option
+              v-for="(opt, key) of item.options"
+              :key="key">{{ opt }}</option>
           </select>
         </div>
       </div>
     </div>
     <div id="button-area">
-      <input type="button" @click="onCreateModel" :disabled="isRunnable" value="Create">
+      <input
+        :disabled="isRunnable"
+        type="button"
+        value="Create"
+        @click="onCreateModel">
     </div>
   </div>
 </template>
@@ -46,7 +73,12 @@ import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
 
 export default {
   name: 'ModalAddModel',
-  components: {
+  data: function () {
+    return {
+      selectedAlgorithm: '',
+      selectedDatasetId: '',
+      parameters: {},
+    }
   },
   computed: {
     ...mapState(['show_modal']),
@@ -66,13 +98,6 @@ export default {
       }
     }
   },
-  data: function () {
-    return {
-      selectedAlgorithm: '',
-      selectedDatasetId: '',
-      parameters: {},
-    }
-  },
   created: function () {
 
   },
@@ -83,10 +108,10 @@ export default {
       // Reset if selected algorithm is changed.
       this.parameters =
         Object.keys(params).reduce((obj, x) =>
-          Object.assign(obj, {[params[x].key]: params[x].default}), {})
+          Object.assign(obj, { [params[x].key]: params[x].default }), {})
     },
     onCreateModel: function () {
-      this.showModal({'all': false})
+      this.showModal({ 'all': false })
       // Perform action 'createModel' with specified params.
       this.createModel({
         hyper_params: this.parameters,

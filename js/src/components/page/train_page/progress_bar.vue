@@ -2,45 +2,54 @@
   <div id="progress-bar">
     <div id="model-id-area">
       <span v-if="isTitle">Model</span>
-      <span v-else>{{ this.model_id }}</span>
+      <span v-else>{{ model_id }}</span>
     </div>
     <div id="epoch-area">
       <span v-if="isTitle">Epoch</span>
-      <span v-else>{{ this.current_epoch }} / {{ this.total_epoch }}</span>
+      <span v-else>{{ current_epoch }} / {{ total_epoch }}</span>
     </div>
     <div id="batch-area">
       <span v-if="isTitle">Batch</span>
-      <span v-else>{{ this.current_batch }} / {{ this.total_batch }}</span>
+      <span v-else>{{ current_batch }} / {{ total_batch }}</span>
     </div>
     <div id="loss-area">
       <span v-if="isTitle">Loss</span>
-      <span v-else-if="model.isTraining()">{{ this.loss }}</span>
+      <span v-else-if="model.isTraining()">{{ loss }}</span>
       <span v-else-if="model.isValidating()">Validating</span>
       <span v-else-if="model.isStopping()">Stopping</span>
       <span v-else-if="model.isWeightDownloading()">Weight Downloading</span>
     </div>
     <div id="bar-area">
-      <span v-if="isTitle"></span>
-      <div id="bar-background" v-else>
-        <div id="bar-front"
+      <span v-if="isTitle"/>
+      <div
+        v-else
+        id="bar-background">
+        <div
+          id="bar-front"
           :style="getWidthOfBar"
-          :class="[getColorClass(model), getBarClass]">
-        </div>
+          :class="[getColorClass(model), getBarClass]"/>
       </div>
     </div>
-    <div id="button-stop-area" v-if="!isTitle">
-      <i class="fa fa-stop-circle-o" aria-hidden="true" @click="onStop"></i>
+    <div
+      v-if="!isTitle"
+      id="button-stop-area">
+      <i
+        class="fa fa-stop-circle-o"
+        aria-hidden="true"
+        @click="onStop"/>
     </div>
   </div>
 </template>
 
 <script>
-import { RUNNING_STATE } from '@/const.js'
-import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 export default {
   name: 'ProgressBar',
   props: {
-    model: Object,
+    model: {
+      type: Object,
+      default: undefined
+    },
     isTitle: {
       type: Boolean,
       default: false
@@ -192,7 +201,7 @@ export default {
     #bar-background {
       width: 100%;
       height: calc(100% - #{$progress-bar-margin}*2);
-      background-color: $progress-bar-background-color; 
+      background-color: $progress-bar-background-color;
       #bar-front.training {
         position: relative;
         top: 0;
@@ -206,7 +215,7 @@ export default {
         left: 0;
         height: 100%;
         // transition: width 300ms;
-        
+
         animation: move-bar 1.5s;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
@@ -217,10 +226,10 @@ export default {
       @keyframes move-bar {
         0% {
           transform: translateX(-50%) scaleX(0);
-        } 
+        }
         20% {
           transform: translateX(0%) scaleX(1);
-        } 
+        }
         80% {
           transform: translateX(400%) scaleX(1);
         }
