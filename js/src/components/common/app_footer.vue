@@ -17,7 +17,7 @@
 <script>
 export default {
   name: 'AppFooter',
-  data: function () { return { 'version': '2.0.1' } }
+  data: function () { return { 'version': '2.0.2' } }
 }
 </script>
 
