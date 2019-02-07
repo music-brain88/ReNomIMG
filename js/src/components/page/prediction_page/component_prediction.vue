@@ -63,7 +63,7 @@
           v-else
           id="progress-animation">
           <div
-            v-if="getImages.length===0"
+            v-if="!isPredicting"
             id="no-prediction">
             No prediction
           </div>
@@ -155,10 +155,16 @@ export default {
       this.page = []
       return []
     },
-    showResult () {
+    isPredicting: function () {
       const model = this.model
       if (!model) return false
-      return model.isStopped()
+      return model.isPredicting()
+    },
+    showResult () {
+      const images = this.getImages
+      const model = this.model
+      if (!model || !images) return false
+      return model.isStopped() && (images.length > 0)
     },
     pretidtionProgress () {
       const model = this.model

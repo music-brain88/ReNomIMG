@@ -62,12 +62,13 @@
       <div class="item">
         Ratio
         <span
-          v-if="ratio < 0 || ratio > 1"
+          v-if="ratio < 0 || ratio >= 1"
           class="warn">Ratio must be '0 &lt; Ratio &lt; 1'</span>
         <input
           v-model="ratio"
           type="number"
           placeholder="0.8"
+          maxlength="2"
           step="0.1"
           min="0"
           max="1">
@@ -87,6 +88,8 @@
       </div>
       <div id="dataset-params">
         <span> Name : {{ name }} </span>
+      </div>
+      <div id="dataset-params">
         <span> Ratio : {{ ratio }} </span>
       </div>
       <div id="dataset-numbers">
@@ -290,6 +293,9 @@ export default {
     ]),
     nameInputNotify: function (e) {
       this.notifyNameField = (this.name.length === this.nameMaxLength)
+      if (this.name.length > this.nameMaxLength) {
+        this.name = this.name.substring(this.nameMaxLength)
+      }
     },
     descriptionInputNotify: function (e) {
       this.notifyDescriptionField = (this.description.length === this.descriptionMaxLength)
@@ -388,7 +394,7 @@ export default {
       }
       .warn {
         color: red;
-        font-size: 0.75rem;
+        font-size: 0.4rem;
       }
     }
     input[type="button"] {
@@ -424,7 +430,7 @@ export default {
       margin-top: 3%;
       margin-left: 3%;
       span {
-        width: calc(30%);
+        width: calc(55%);
       }
     }
     #dataset-numbers {
@@ -446,7 +452,7 @@ export default {
     #breakdown {
       width: 100%;
       margin-top: 2%;
-      height: calc(100% - 5% - 3% - 1.6rem - 6% - 20px - 2% - 40px - 2%);
+      height: calc(100% - 5% - 3% - 1.6rem - 3% - 1.6rem - 6% - 20px - 2% - 40px - 2%);
       overflow: auto;
       #class-ratio-bars {
         height: 18px;
