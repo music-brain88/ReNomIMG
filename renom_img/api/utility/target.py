@@ -210,18 +210,17 @@ class DataBuilderSegmentation(DataBuilderBase):
         img = Image.open(path)
         img.load()
         w, h = img.size
-        img = np.array(img)
-        # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
+        img = np.array(img.resize(self.imsize, RESIZE_METHOD))
         assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
         assert img.ndim == 2
-        return np.array(img), w, h
+        return np.array(img), self.imsize[0] / float(w), self.imsize[1] / h
 
     def load_img(self, path):
         img = Image.open(path)
         img.load()
         w, h = img.size
         img = img.convert('RGB')
-        # img = img.resize(self.imsize, RESIZE_METHOD)
+        img = img.resize(self.imsize, RESIZE_METHOD)
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
@@ -230,22 +229,6 @@ class DataBuilderSegmentation(DataBuilderBase):
         left, upper = (image.width - size) // 2, (image.height - size) // 2
         right, bottom = (image.width + size) // 2, (image.height + size) // 2
         return image.crop((left, upper, right, bottom))
-
-    def resize_img(self, img_list, label_list):
-        im_list = []
-        annot_list = []
-        for img1,img2 in zip(img_list,label_list):
-            channel_last1 = img1.transpose(1,2,0)
-            channel_last2 = img2.transpose(1,2,0)
-            img1 = Image.fromarray(np.uint8(channel_last1))
-            img2 = Image.fromarray(np.uint8(channel_last2))
-            img1 = img1.resize(self.imsize, RESIZE_METHOD).convert('RGB')
-            img2 = img2.resize(self.imsize, RESIZE_METHOD).convert('RGB')
-            im_list.append(np.asarray(img1))
-            annot_list.append(np.asarray(img2))
-
-        return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(annot_list).transpose(0, 3, 1, 2).astype(np.float32)
-
 
     def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
         """
@@ -263,26 +246,19 @@ class DataBuilderSegmentation(DataBuilderBase):
 
         img_list = []
         label_list = []
-        #-------------------------------------------------------------
-        # Work here, for segmentation. At first both images should be augmented
-        # similarly. then we will create resize the image first then creat mask from
-        # that resized image in resize_img method. 
-        #--------------------------------------------------------------
         for img_path, an_path in zip(img_path_list, annotation_list):
+            annot = np.zeros((n_class, self.imsize[0], self.imsize[1]))
             img, sw, sh = self.load_img(img_path)
             labels, asw, ash = self.load_annotation(an_path)
-            annot = np.zeros((n_class, ash, asw))
             img_list.append(img)
-            for i in range(ash):
-                for j in range(asw):
+            for i in range(self.imsize[0]):
+                for j in range(self.imsize[1]):
                     if int(labels[i][j]) >= n_class:
                         annot[n_class - 1, i, j] = 1
                     else:
                         annot[int(labels[i][j]), i, j] = 1
             label_list.append(annot)
         if augmentation is not None:
-            img_list, label_list = augmentation(np.array(img_list), np.array(label_list), mode="segmentation")
-
-        img_list, label_list = self.resize_img(img_list,label_list)
-
-        return np.array(img_list), np.array(label_list)
+            return augmentation(np.array(img_list), np.array(label_list), mode="segmentation")
+        else:
+            return np.array(img_list), np.array(label_list)
