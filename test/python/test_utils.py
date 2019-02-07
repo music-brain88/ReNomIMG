@@ -37,6 +37,11 @@ def scope_session():
     [random_saturation,{}],
     [random_lighting,{}],
     [random_expand,{}],
+    [shear,{}],
+    [horizontalflip,{}],
+    [verticalflip,{}],
+    [center_crop,{}],
+    [distortion,{}],
 ])
 def test_augmentation_process_detection(method, kwargs):
     img = Image.open('./renom.png')
@@ -44,8 +49,8 @@ def test_augmentation_process_detection(method, kwargs):
     x = np.array(img).transpose(2, 0, 1).astype(np.float)
     x = np.expand_dims(x, axis=0)
     y = [[
-        {"box": [100, 60, 40, 50], "class":0, "name": "test1"},
-        {"box": [40, 60, 100, 50], "class":1, "name": "test2"}
+        {"box": [380, 180, 40, 50], "class":0, "name": "test1"},
+        {"box": [60, 80, 130, 70], "class":1, "name": "test2"}
     ]]
     rescale(y, img.size, (1, 1))
     draw_box(x[0], y[0]).save(
@@ -72,6 +77,9 @@ def test_augmentation_process_detection(method, kwargs):
     [random_saturation,{}],
     [random_lighting,{}],
     [random_expand,{}],
+    [shear,{}],
+    [center_crop,{}],
+    [distortion,{}],
 ])
 def test_augmentation_process_classification(method, kwargs):
     img = Image.open('./renom.png')
