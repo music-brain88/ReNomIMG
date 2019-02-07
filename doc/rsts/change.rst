@@ -1,6 +1,9 @@
 Change Log
 ===========
 
+**v2.0.3**
+- Fix UI Bugs.
+
 **v2.0.2**
 
 - Add warning to dataset create modal(GUI) when illegal train valid ratio is inputted.
