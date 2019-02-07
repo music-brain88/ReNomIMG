@@ -1,4 +1,4 @@
-import { TASK_ID, STATE, RUNNING_STATE } from '@/const.js'
+import { TASK_ID } from '@/const.js'
 
 export class Dataset {
   constructor (task_id, name, ratio, description, test_dataset_id) {
@@ -17,7 +17,7 @@ export class Dataset {
     this.page = []
 
     /**
-      This is a dictionary.
+      The variable 'class_info' is a dictionary.
       {
         // 'class_map' is a list of class name. This is same to this.class_map
         class_map: ['dog', 'cat', ...],
@@ -70,13 +70,13 @@ export class Dataset {
         const y = b.box[1] / oh
         const w = b.box[2] / ow
         const h = b.box[3] / oh
-        return Object.assign({box: [
+        return Object.assign({ box: [
           x, y, w, h
-        ]}, Object.keys(b).reduce((obj, k) => {
+        ] }, Object.keys(b).reduce((obj, k) => {
           if (k === 'box') {
             return obj
           } else {
-            return Object.assign(obj, {[k]: b[k]})
+            return Object.assign(obj, { [k]: b[k] })
           }
         }, {}))
       })

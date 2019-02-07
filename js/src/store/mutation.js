@@ -1,4 +1,4 @@
-import { SORT_DIRECTION, GROUPBY, PAGE_ID, getKeyByValue, TASK_ID, SORTBY, getKeyByValueIncludes } from '@/const.js'
+import { SORT_DIRECTION, PAGE_ID, TASK_ID, SORTBY } from '@/const.js'
 
 export default {
   resetState (state, payload) {
@@ -33,34 +33,34 @@ export default {
     }
   },
   setGoupBy (state, payload) {
-    let key = payload
+    const key = payload
     state.group_by = key
   },
   setSelectedModel (state, payload) {
     const task_id = state.current_task
-    state.selected_model = Object.assign({...state.selected_model}, {[task_id]: payload})
+    state.selected_model = Object.assign({ ...state.selected_model }, { [task_id]: payload })
   },
   setDeployedModel (state, payload) {
     const task_id = state.current_task
     const model_task_id = payload.task_id
     if (task_id === model_task_id) {
-      state.deployed_model = Object.assign({...state.deployed_model}, {[task_id]: payload})
+      state.deployed_model = Object.assign({ ...state.deployed_model }, { [task_id]: payload })
     }
   },
   unDeployModel (state, payload) {
     const task_id = state.current_task
-    state.deployed_model = Object.assign(...state.deployed_model, {[task_id]: undefined})
+    state.deployed_model = Object.assign(...state.deployed_model, { [task_id]: undefined })
   },
   forceUpdateModelList (state, payload) {
     state.models = [...state.models]
   },
   forceUpdatePredictionPageSample (state, payload) {
     const page = state.nth_image_page
-    state.nth_image_page = {...page}
+    state.nth_image_page = { ...page }
   },
   forceUpdatePredictionPage (state, payload) {
     const page = state.nth_prediction_image_page
-    state.nth_prediction_image_page = {...page}
+    state.nth_prediction_image_page = { ...page }
   },
   setCurrentPage (state, payload) {
     const page = payload
@@ -100,7 +100,7 @@ export default {
     }
   },
   addFilter (state, payload) {
-    if (state.filters.find(f => f == payload) === undefined) {
+    if (state.filters.find(f => f === payload) === undefined) {
       state.filters = [...state.filters, payload]
     }
   },
@@ -111,21 +111,21 @@ export default {
     state.filters = state.filters.filter(f => f !== payload)
   },
   addPollingJob (state, payload) {
-    let key = Object.keys(payload)[0]
-    let model_id = payload[key]
+    const key = Object.keys(payload)[0]
+    const model_id = payload[key]
     state.polling_request_jobs[key] = [...state.polling_request_jobs[key], model_id]
   },
   rmPollingJob (state, payload) {
-    let key = Object.keys(payload)[0]
-    let model_id = payload[key]
+    const key = Object.keys(payload)[0]
+    const model_id = payload[key]
     state.polling_request_jobs[key] = state.polling_request_jobs[key].filter(n => n !== model_id)
   },
   showSlideMenu (state, payload) {
     state.show_slide_menu = payload
   },
   showModal (state, payload) {
-    let key = Object.keys(payload)[0]
-    for (let k in state.show_modal) {
+    const key = Object.keys(payload)[0]
+    for (const k in state.show_modal) {
       if (k === key) {
         state.show_modal[k] = payload[key]
       } else {
@@ -140,7 +140,7 @@ export default {
     state.modal_index = payload
   },
   setSortOrder (state, payload) {
-    let task = state.current_task // Need access through getter.
+    const task = state.current_task // Need access through getter.
     if (task in Object.values(TASK_ID)) {
       state.sort_order = SORTBY[payload]
     } else {
@@ -148,7 +148,7 @@ export default {
     }
   },
   toggleSortOrder (state, payload) {
-    let task = state.current_task // Need access through getter.
+    const task = state.current_task // Need access through getter.
     if (task in Object.values(TASK_ID)) {
       if (state.sort_order_direction === SORT_DIRECTION.DESCENDING) {
         state.sort_order_direction = SORT_DIRECTION.ASCENDING
@@ -170,25 +170,25 @@ export default {
   selectNextModel (state, payload) {
     const task = state.current_task
     const mlist = state.models.filter(m => m.task_id === task)
-    let current = state.selected_model[task]
+    const current = state.selected_model[task]
     let index = 0
     if (current) {
       index = mlist.indexOf(current) + 1
     }
     if (mlist.length > index) {
-      state.selected_model = Object.assign(...state.selected_model, {[task]: mlist[index]})
+      state.selected_model = Object.assign(...state.selected_model, { [task]: mlist[index] })
     }
   },
   selectPrevModel (state, payload) {
     const task = state.current_task
     const mlist = state.models.filter(m => m.task_id === task)
-    let current = state.selected_model[task]
+    const current = state.selected_model[task]
     let index = 0
     if (current) {
       index = mlist.indexOf(current) - 1
     }
     if (index >= 0) {
-      state.selected_model = Object.assign(...state.selected_model, {[task]: mlist[index]})
+      state.selected_model = Object.assign(...state.selected_model, { [task]: mlist[index] })
     }
   }
 }

@@ -3,7 +3,6 @@
 from __future__ import division
 import numpy as np
 from PIL import Image
-from sklearn.feature_extraction.image import extract_patches
 
 
 """Naming Rule.

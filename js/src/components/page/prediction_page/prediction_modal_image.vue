@@ -1,20 +1,28 @@
 <template>
-  <div id="image-modal" ref="container"
-    v-on:keyup.right="nextPage"
-    v-on:keyup.left="prevPage"
-    tabindex="0">
+  <div
+    id="image-modal"
+    ref="container"
+    tabindex="0"
+    @keyup.right="nextPage"
+    @keyup.left="prevPage">
     <div id="image-result">
       <div class="header">
-        <span style="width: 50%">Prediction Result &nbsp;&nbsp; {{modal_index+1}} / {{length}}</span>
+        <span style="width: 50%">Prediction Result &nbsp;&nbsp; {{ modal_index+1 }} / {{ length }}</span>
         <div id="checkbox-area">
           <label>
-            <input class="checkbox" type="checkbox" id="prediction-show-button" v-model="show_prediction"
-              v-on:change="onChangePredictionCheckBox">
+            <input
+              id="prediction-show-button"
+              v-model="show_prediction"
+              class="checkbox"
+              type="checkbox"
+              @change="onChangePredictionCheckBox">
             Prediction
           </label>
         </div>
       </div>
-      <div id="image-container" ref="imageContainer">
+      <div
+        id="image-container"
+        ref="imageContainer">
         <image-canvas
           :show-target="show_target"
           :show-predict="show_prediction"
@@ -22,60 +30,62 @@
           :img="img"
           :width="size[0]"
           :height="size[1]"
-          :maxWidth="canvas_width"
-          :maxHeight="canvas_height"
+          :max-width="canvas_width"
+          :max-height="canvas_height"
           :model="getDeployedModel"
           :result="getResult()"
         />
       </div>
     </div>
-    <div id="result" v-if="isTaskDetection">
+    <div
+      v-if="isTaskDetection"
+      id="result">
       <div class="result-header">
         <span>No.</span>
         <span>Score</span>
         <span>Name</span>
       </div>
       <div id="result-container">
-        <div id="cls-result" class="result" v-if="isTaskClassification">
-        </div>
-        <div id="box-result" class="result" v-else-if="isTaskDetection">
-          <div v-for="(r, index) in prediction"
+        <div
+          v-if="isTaskClassification"
+          id="cls-result"
+          class="result"/>
+        <div
+          v-else-if="isTaskDetection"
+          id="box-result"
+          class="result">
+          <div
+            v-for="(r, index) in prediction"
+            :key="index"
             @mouseenter="hoverBox=index? 1:0"
             @mouseleave="hoverBox=null">
-            <span>{{index}}</span>
-            <span>{{r.score.toFixed(2)}}</span>
-            <span>{{r.name}}</span>
+            <span>{{ index }}</span>
+            <span>{{ r.score.toFixed(2) }}</span>
+            <span>{{ r.name }}</span>
           </div>
           <div v-if="!prediction || prediction.length === 0">
-            <span></span>
+            <span/>
             <span>No Prediction</span>
-            <span></span>
+            <span/>
           </div>
         </div>
-        <div id="seg-result" class="result" v-else-if="isTaskSegmentation">
-        </div>
+        <div
+          v-else-if="isTaskSegmentation"
+          id="seg-result"
+          class="result"/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { TASK_ID } from '@/const.js'
-import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
-import { getTagColor, render_segmentation, setup_image_list } from '@/utils.js'
-import ComponentFrame from '@/components/common/component_frame.vue'
+import { mapGetters, mapState, mapMutations } from 'vuex'
 import ImageCanvas from '@/components/page/train_page/image.vue'
 
 export default {
   name: 'PredictionModalImage',
   components: {
     'image-canvas': ImageCanvas,
-  },
-  mounted: function () {
-    this.$refs.container.focus()
-    const el = this.$refs.imageContainer
-    this.canvas_width = el.clientWidth
-    this.canvas_height = el.clientHeight
   },
   data: function () {
     return {
@@ -161,6 +171,12 @@ export default {
     length: function () {
       return this.prediction_dataset.img.length
     },
+  },
+  mounted: function () {
+    this.$refs.container.focus()
+    const el = this.$refs.imageContainer
+    this.canvas_width = el.clientWidth
+    this.canvas_height = el.clientHeight
   },
   methods: {
     ...mapMutations(['setImageModalData']),
@@ -321,7 +337,7 @@ export default {
       justify-content: flex-end;
       height: 100%;
       width: 50%;
-      label { 
+      label {
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -355,7 +371,7 @@ export default {
         background-color: gray;
       }
       input[type="checkbox"]:focus {
-          outline:none;  
+          outline:none;
       }
     }
   }

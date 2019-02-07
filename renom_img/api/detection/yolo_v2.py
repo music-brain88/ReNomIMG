@@ -247,6 +247,9 @@ class Yolov2(Detection):
         assert len(self.class_map) > 0, \
             "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
             "Or, please load already trained model using the method 'load()'."
+        assert self.num_anchor > 0, \
+            "Anchor list is empty. Please calculate anchor list using create_anchor function, before instantiate model class.  " +\
+            "Or, please load already trained model using the method 'load()'."
 
         self._freezed_network.set_auto_update(self.train_whole_network)
         self._freezed_network.set_models(inference=(

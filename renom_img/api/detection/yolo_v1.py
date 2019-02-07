@@ -82,25 +82,20 @@ class Yolov1(Detection):
     """
 
     SERIALIZED = ("_cells", "_bbox", *Base.SERIALIZED)
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/Yolov1.h5".format(__version__)
+    WEIGHT_URL = Darknet.WEIGHT_URL
 
-    def __init__(self, class_map=[], cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        num_class = len(class_map)
+    def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
 
-        self.num_class = num_class
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
         self._cells = cells
         self._bbox = bbox
-        self._last_dense_size = (num_class + 5 * bbox) * cells[0] * cells[1]
         model = Darknet()
-        self._train_whole_network = train_whole_network
+        super(Yolov1, self).__init__(class_map, imsize,
+                                     load_pretrained_weight, train_whole_network, model)
 
-        self.imsize = imsize
+        self._last_dense_size = (self.num_class + 5 * bbox) * cells[0] * cells[1]
         self._freezed_network = rm.Sequential(model[:-4])
         self._network = rm.Sequential([
             rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
@@ -121,17 +116,10 @@ class Yolov1(Detection):
             rm.Dropout(0.5),
             rm.Dense(self._last_dense_size)
         ])
-
         self._opt = rm.Sgd(0.0005, 0.9)
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            model.load(load_pretrained_weight)
+    def set_last_layer_unit(self, unit_size):
+        pass
 
 
     def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_train_loss_list=None):
@@ -213,7 +201,7 @@ class Yolov1(Detection):
         assert len(self.class_map) > 0, \
             "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
             "Or, please load already trained model using the method 'load()'."
-        self._freezed_network.set_auto_update(self._train_whole_network)
+        self._freezed_network.set_auto_update(self.train_whole_network)
         out = self._freezed_network(x)
         out = self._network(out)
         return out

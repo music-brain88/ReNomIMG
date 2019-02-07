@@ -2,16 +2,20 @@
 
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
+  parser: "vue-eslint-parser",
   parserOptions: {
-    sourceType: 'module'
+    sourceType: 'module',
+    jsx: true,
+    ecmaVersion: 2018,
+    ecmaFeatures: {
+      experimentalObjectRestSpread: true
+    }
   },
   env: {
     browser: true,
   },
   // https://github.com/standard/standard/blob/master/docs/RULES-en.md
-  extends: 'standard',
-  // required to lint *.vue files
+  extends: ['vue', 'plugin:vue/recommended'],
   plugins: [
     'html'
   ],

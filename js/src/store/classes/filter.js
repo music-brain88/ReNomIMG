@@ -1,5 +1,3 @@
-import { STATE, RUNNING_STATE } from '@/const.js'
-
 export default class Filter {
   constructor (item, condition = null, threshold = null) {
     this.item = item
@@ -7,7 +5,7 @@ export default class Filter {
     this.threshold = threshold
   }
   filter (task_filtered_model_list) {
-    /// /// model list needs to be filtered by task.
+    // / /// model list needs to be filtered by task.
 
     const item = this.item
     const condition = this.condition
@@ -28,7 +26,7 @@ export default class Filter {
         } else if (condition === '==') { // Equan
           if (model_value) {
             const value = model_value[key]
-            if (value) return value == parseFloat(threshold)
+            if (value) return value === parseFloat(threshold)
             else return false
           } else {
             return false

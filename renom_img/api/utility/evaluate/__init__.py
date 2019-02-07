@@ -3,7 +3,6 @@ from .detection import get_prec_and_rec, get_ap_and_map, get_mean_iou
 from .classification import precision_score, recall_score, f1_score, accuracy_score
 from .segmentation import segmentation_iou, segmentation_precision, segmentation_recall, segmentation_f1, get_segmentation_metrics
 from collections import defaultdict
-from sklearn.utils.multiclass import unique_labels
 
 
 class EvaluatorBase(object):

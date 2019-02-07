@@ -1,12 +1,14 @@
 <template>
-  <div id="class-info-area"> 
-    <div class="item-value"> 
+  <div id="class-info-area">
+    <div class="item-value">
       <div class="bar">
-        <section class="color-train" :style="'width:' + calc_width(item_train_ratio) + '%;background:#0762AD;'">
-        </section>
-        <section class="color-valid" :style="'width:' + calc_width(item_valid_ratio) + '%;background:#EF8200; '">
-        </section>
-        
+        <section
+          :style="'width:' + calc_width(item_train_ratio) + '%;background:#0762AD;'"
+          class="color-train"/>
+        <section
+          :style="'width:' + calc_width(item_valid_ratio) + '%;background:#EF8200; '"
+          class="color-valid"/>
+
       </div>
     </div>
 
@@ -14,21 +16,22 @@
 </template>
 
 <script>
-import {RUNNING_STATE} from '@/const.js'
-import { mapGetters, mapMutations, mapState, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 export default {
   name: 'ProgressBar',
   props: {
-    item_test_ratio: Number,
-    item_train_ratio: Number,
-    item_valid_ratio: Number,
-    height: Number,
-    width: Number
-  },
-  data: function () {
-    return {
-
-    }
+    item_test_ratio: {
+      type: Number,
+      default: 0.0
+    },
+    item_train_ratio: {
+      type: Number,
+      default: 0.5,
+    },
+    item_valid_ratio: {
+      type: Number,
+      default: 0.5,
+    },
   },
   computed: {
     ...mapGetters([
@@ -106,7 +109,7 @@ export default {
   },
   methods: {
     calc_width: function (width) {
-      let percent = width * 100
+      const percent = width * 100
       return percent
     }
   }
@@ -133,13 +136,13 @@ export default {
     justify-content: center;
   }
   .bar {
-    display: flex; 
+    display: flex;
     width: 80%;
     height: 10px;
     overflow: hidden;
   }
   .bar section {
-  	min-width: 10%;
+    min-width: 10%;
     height: 10px;
     line-height: 10px;
     text-align: center;
@@ -149,6 +152,6 @@ export default {
     justify-content: flex-start;
     flex-wrap: nowrap;
   }
-  
+
 }
 </style>

@@ -34,4 +34,8 @@ echo "PORT: " $PORT
 echo "DATA PATH: " $DATA_PATH
 echo "STORAGE PATH: " $STORAGE_PATH
 
-nvidia-docker run $RUN_MODE -p $PORT:8080 -v $DATA_PATH:/var/datasrc -v $STORAGE_PATH:/var/storage renom_img_docker
+echo "Starting renom_img_docker..."
+
+docker run $RUN_MODE --runtime=nvidia -p $PORT:8080 -v $DATA_PATH:/var/datasrc -v $STORAGE_PATH:/var/storage renom_img_docker
+
+echo "Done"

@@ -360,7 +360,7 @@ class ResNet101(ResNetBase):
         https://arxiv.org/abs/1603.05027
     """
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet50.h5".format(
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet101.h5".format(
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):

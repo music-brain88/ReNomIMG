@@ -50,10 +50,13 @@ class BuildNPM(distutils.command.build.build):
 
         super().run()
 
+version = {}
+with open("renom_img/__init__.py") as fp:
+    exec(fp.read(), version)
 
 setup(
     name="renom_img",
-    version="2.0.0",
+    version=version['__version__'],
     entry_points=entry_points,
     packages=['renom_img'],
     install_requires=requires,

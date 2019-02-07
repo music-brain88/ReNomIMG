@@ -1,5 +1,3 @@
-import * as d3 from 'd3'
-
 export function round (v, round_off) {
   return Math.round(v * round_off) / round_off
 }
@@ -41,7 +39,7 @@ export function render_segmentation (item) {
 
   for (let i = 0; i < width; i += d) {
     for (let j = 0; j < height; j += d) {
-      let n = item.class[i][j]
+      const n = item.class[i][j]
       let c
 
       if (n % 10 === 0) c = 'E7009A'
@@ -60,7 +58,7 @@ export function render_segmentation (item) {
       var g = (bigint >> 8) & 255
       var b = bigint & 255
 
-      let img_index = (Math.floor(width * i / d / d) + Math.floor(j / d)) * 4
+      const img_index = (Math.floor(width * i / d / d) + Math.floor(j / d)) * 4
       imageData.data[img_index + 0] = r
       imageData.data[img_index + 1] = g
       imageData.data[img_index + 2] = b
@@ -82,36 +80,34 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
   const last_index = img_list.length - 1
 
   let one_page = []
-  let nth_page = 0
   let nth_line_in_page = 1
   let accumurated_ratio = 0
-  let max_ratio = (parent_width / (parent_height / 3))
+  const max_ratio = (parent_width / (parent_height / 3))
 
   for (let i = 0; i < size_list.length; i++) {
-    let size = size_list[i]
-    let ratio = ((size[0]) / (size[1]))
+    const size = size_list[i]
+    const ratio = ((size[0]) / (size[1]))
     accumurated_ratio += ratio
 
     if (accumurated_ratio < max_ratio || one_page.length === 0) {
-      one_page.push({index: i, img: img_list[i], size: size_list[i]})
+      one_page.push({ index: i, img: img_list[i], size: size_list[i] })
     } else {
       if (nth_line_in_page >= 3) {
         pages.push(one_page)
-        nth_page++
-        one_page = [{index: i, img: img_list[i], size: size_list[i]}]
+        one_page = [{ index: i, img: img_list[i], size: size_list[i] }]
         accumurated_ratio = ratio
         nth_line_in_page = 1
       } else {
-        one_page.push({index: i, img: img_list[i], size: size_list[i]})
+        one_page.push({ index: i, img: img_list[i], size: size_list[i] })
         accumurated_ratio = ratio
         nth_line_in_page++
       }
     }
     if (i === last_index) {
       // Add white image to empty space.
-      one_page.push({index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1]})
+      one_page.push({ index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1] })
       for (let j = nth_line_in_page; j <= 2; j++) {
-        one_page.push({index: -1, img: brank, size: [max_ratio, 1]})
+        one_page.push({ index: -1, img: brank, size: [max_ratio, 1] })
       }
     }
   }

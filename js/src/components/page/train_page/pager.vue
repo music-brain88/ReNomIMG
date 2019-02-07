@@ -1,27 +1,42 @@
 <template>
-  <div id="pager" tabindex="0"
-    v-on:keyup.right="nextPage" v-on:keyup.left="prevPage">
+  <div
+    id="pager"
+    tabindex="0"
+    @keyup.right="nextPage"
+    @keyup.left="prevPage">
 
     <!--Left Arrow-->
-    <div class="pager-arrow" @click="prevPage">
-      <i class="fa fa-caret-left" aria-hidden="true"></i>
+    <div
+      class="pager-arrow"
+      @click="prevPage">
+      <i
+        class="fa fa-caret-left"
+        aria-hidden="true"/>
     </div>
 
     <!--Number-->
-    <div v-for="item in pageList()" class="pager-number" 
-      :class="{number: item !== '...'}"  @click="setPageNum(item)" :style="pagerStyle(item)">
+    <div
+      v-for="(item, key) in pageList()"
+      :class="{number: item !== '...'}"
+      :style="pagerStyle(item)"
+      :key="key"
+      class="pager-number"
+      @click="setPageNum(item)">
       {{ item }}
     </div>
 
     <!--Right Arrow-->
-    <div class="pager-arrow" @click="nextPage">
-      <i class="fa fa-caret-right" aria-hidden="true"></i>
+    <div
+      class="pager-arrow"
+      @click="nextPage">
+      <i
+        class="fa fa-caret-right"
+        aria-hidden="true"/>
     </div>
   </div>
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
 
 export default {
   name: 'Pager',
@@ -31,6 +46,7 @@ export default {
       default: 0
     },
     onSetPage: {
+      type: Function,
       default: undefined,
     },
   },

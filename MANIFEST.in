@@ -1,1 +1,1 @@
-recursive-include renom_img = *.py *.css *.eot *.html *.js *.svg *.ttf *.woff *.woff
+recursive-include renom_img = *.py *.css *.eot *.html *.js *.svg *.ttf *.woff *.woff *.png

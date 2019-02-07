@@ -17,7 +17,7 @@ function error_handler_creator (context, callback = undefined) {
 }
 
 export default {
-  /*****
+  /** ***
    *
    */
   async init (context, payload) {
@@ -32,24 +32,24 @@ export default {
     context.dispatch('startAllPolling')
   },
 
-  /*****
+  /** ***
    *
    */
   async loadModelsOfCurrentTask (context, payload) {
-    let task = context.getters.getCurrentTask
+    const task = context.getters.getCurrentTask
     const url = '/api/renom_img/v2/model/load/task/' + task
     return axios.get(url)
       .then(function (response) {
         if (response.status === 204) return
-        let model_list = response.data.model_list
-        for (let m of model_list) {
-          let algorithm_id = m.algorithm_id
-          let task_id = m.task_id
-          let state = m.state
-          let id = m.id
-          let hyper_params = m.hyper_parameters
-          let dataset_id = m.dataset_id
-          let model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
+        const model_list = response.data.model_list
+        for (const m of model_list) {
+          const algorithm_id = m.algorithm_id
+          const task_id = m.task_id
+          const state = m.state
+          const id = m.id
+          const hyper_params = m.hyper_parameters
+          const dataset_id = m.dataset_id
+          const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
 
           model.id = id
           model.state = state
@@ -68,7 +68,7 @@ export default {
       }, error_handler_creator(context))
   },
 
-  /*****
+  /** ***
    *
    */
   async loadDatasetsOfCurrentTask (context) {
@@ -77,7 +77,7 @@ export default {
     return axios.get(url)
       .then(function (response) {
         if (response.status === 204) return
-        for (let ds of response.data.dataset_list) {
+        for (const ds of response.data.dataset_list) {
           const id = ds.id
           const class_map = ds.class_map
           const valid_data = ds.valid_data
@@ -97,7 +97,7 @@ export default {
       }, error_handler_creator(context))
   },
 
-  /*****
+  /** ***
    *
    */
   async loadTestDatasetsOfCurrentTask (context) {
@@ -106,7 +106,7 @@ export default {
     return axios.get(url)
       .then(function (response) {
         if (response.status === 204) return
-        for (let ds of response.data.test_dataset_list) {
+        for (const ds of response.data.test_dataset_list) {
           const id = ds.id
           const class_map = ds.class_map
           const test_data = ds.test_data
@@ -123,7 +123,7 @@ export default {
       }, error_handler_creator(context))
   },
 
-  /*****
+  /** ***
    *
    */
   async createModel (context, payload) {
@@ -146,13 +146,13 @@ export default {
     return axios.post(url, param)
       .then(function (response) {
         if (response.status === 204) return
-        let id = response.data.id
+        const id = response.data.id
         model.id = id
         model.state = STATE.RESERVED
         context.dispatch('runTrainThread', id)
       }, error_handler_creator(context))
   },
-  /*****
+  /** ***
    *
    */
   async removeModel (context, payload) {
@@ -165,7 +165,7 @@ export default {
       }, error_handler_creator(context))
   },
 
-  /*****
+  /** ***
    *
    */
   async runTrainThread (context, payload) {
@@ -173,19 +173,19 @@ export default {
     const url = '/api/renom_img/v2/model/thread/run/' + model_id
     return axios.get(url)
       .then(function (response) {
-        let model = context.getters.getModelById(model_id)
+        const model = context.getters.getModelById(model_id)
         model.state = STATE.CREATED // TODO: Remove this line.
         context.dispatch('startAllPolling')
       }, error_handler_creator(context))
   },
 
-  /*****
+  /** ***
    *
    */
   async pollingTrain (context, payload) {
     const model_id = payload
     const url = '/api/renom_img/v2/polling/train/model/' + model_id
-    const request_source = {'train': model_id}
+    const request_source = { 'train': model_id }
     const current_requests = context.state.polling_request_jobs.train
 
     // If polling for the model is already performed, do nothing.
@@ -207,9 +207,9 @@ export default {
       // Need to confirm the model is not removed.
       const model = context.getters.getModelById(model_id)
       if (model) {
-        let r = response.data
-        let state = r.state
-        let load_best = response.data.best_result_changed
+        const r = response.data
+        const state = r.state
+        const load_best = response.data.best_result_changed
 
         // Update model.
         model.state = r.state
@@ -235,7 +235,7 @@ export default {
       // Need to reload Model State.
     }))
   },
-  /*****
+  /** ***
    *
    */
   async loadBestValidResult (context, payload) {
@@ -256,7 +256,7 @@ export default {
   async runPredictionThread (context, payload) {
     const model_id = payload
     const url = '/api/renom_img/v2/model/thread/prediction/run/' + model_id
-    let model = context.getters.getModelById(model_id)
+    const model = context.getters.getModelById(model_id)
     model.state = STATE.PRED_CREATED // TODO: Remove this line.
     model.total_prediction_batch = 0
     model.nth_prediction_batch = 0
@@ -269,7 +269,7 @@ export default {
   async pollingPrediction (context, payload) {
     const model_id = payload
     const url = '/api/renom_img/v2/polling/prediction/model/' + model_id
-    const request_source = {'prediction': model_id}
+    const request_source = { 'prediction': model_id }
     const current_requests = context.state.polling_request_jobs.prediction
 
     // If polling for the model is already performed, do nothing.
@@ -291,9 +291,9 @@ export default {
       // Need to confirm the model is not removed.
       const model = context.getters.getModelById(model_id)
       if (model) {
-        let r = response.data
-        let state = r.state
-        let need_pull = response.data.need_pull
+        const r = response.data
+        const state = r.state
+        const need_pull = response.data.need_pull
 
         // Update model.
         model.state = r.state
@@ -329,21 +329,21 @@ export default {
     }, error_handler_creator(context))
   },
 
-  /*****
+  /** ***
    *
    */
   async startWeightDownload (context, payload) {
 
   },
 
-  /*****
+  /** ***
    *
    */
   async pollingWeightDownload (context, payload) {
 
   },
 
-  /*****
+  /** ***
    *
    */
   async stopModelTrain (context, payload) {
@@ -353,7 +353,7 @@ export default {
     }, error_handler_creator(context))
   },
 
-  /*****
+  /** ***
    *
    */
   async startAllPolling (context, payload) {
@@ -361,14 +361,14 @@ export default {
     const current_train_requests = context.state.polling_request_jobs.train
     const current_prediction_requests = context.state.polling_request_jobs.prediction
 
-    for (let m of model_list) {
+    for (const m of model_list) {
       if (
         m.state === STATE.CREATED ||
         m.state === STATE.RESERVED ||
         m.state === STATE.STARTED
       ) {
         let need_run_request = true
-        for (let model_id in current_train_requests) {
+        for (const model_id in current_train_requests) {
           if (model_id === m.id) {
             need_run_request = false
           }
@@ -382,7 +382,7 @@ export default {
         m.state === STATE.PRED_STARTED
       ) {
         let need_run_request = true
-        for (let model_id in current_prediction_requests) {
+        for (const model_id in current_prediction_requests) {
           if (model_id === m.id) {
             need_run_request = false
           }
@@ -394,7 +394,7 @@ export default {
     }
   },
 
-  /*****
+  /** ***
    *
    */
   async createDataset (context, payload) {
@@ -422,7 +422,7 @@ export default {
     }, error_handler_creator(context))
   },
 
-  /*****
+  /** ***
    *
    */
   async createTestDataset (context, payload) {
@@ -504,7 +504,7 @@ export default {
     }, error_handler_creator(context))
   },
   async loadSegmentationTargetArray (context, payload) {
-    let url = '/api/target/segmentation'
+    const url = '/api/target/segmentation'
     const name = payload.name
     const size = payload.size
     const callback = payload.callback
@@ -516,23 +516,23 @@ export default {
     }, error_handler_creator(context))
   },
   async deployModel (context, payload) {
-    let model = payload
-    let url = '/api/renom_img/v2/model/deploy/' + model.id
+    const model = payload
+    const url = '/api/renom_img/v2/model/deploy/' + model.id
     this.commit('setDeployedModel', model)
     return axios.get(url).then(() => {
 
     }, error_handler_creator(context))
   },
   async unDeployModel (context, payload) {
-    let task_id = context.getters.getCurrentTask
-    let url = '/api/renom_img/v2/model/undeploy/' + task_id
+    const task_id = context.getters.getCurrentTask
+    const url = '/api/renom_img/v2/model/undeploy/' + task_id
     this.commit('unDeployModel')
     return axios.get(url).then(() => {
     }, error_handler_creator(context))
   },
   async loadDeployedModel (context, payload) {
-    let task_id = context.getters.getCurrentTask
-    let url = '/api/renom_img/v2/model/load/deployed/task/' + task_id
+    const task_id = context.getters.getCurrentTask
+    const url = '/api/renom_img/v2/model/load/deployed/task/' + task_id
     return axios.get(url).then((response) => {
       const id = response.data.deployed_id
       if (id) {

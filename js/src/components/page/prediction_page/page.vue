@@ -6,7 +6,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import ComponentPrediction from '@/components/page/prediction_page/component_prediction.vue'
 import ComponentDetail from '@/components/page/prediction_page/component_detail.vue'
 
