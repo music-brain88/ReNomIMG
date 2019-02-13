@@ -5,8 +5,8 @@ ReNom IMG is model developing tool for image recognition tasks.
 ### ReNomIMG - https://www.renom.jp/packages/renomimg/index.html
 
 
-## Change v2.0.2 => v2.0.3
-- Fix UI Bugs
+## Change v2.0.3 => v2.0.4
+- Updated dependencies.
 
 
 ## Recommended Environment

@@ -1,7 +1,12 @@
 Change Log
 ===========
 
+**v2.0.4**
+
+- Update dependencies.
+
 **v2.0.3**
+
 - Fix UI Bugs.
 
 **v2.0.2**
