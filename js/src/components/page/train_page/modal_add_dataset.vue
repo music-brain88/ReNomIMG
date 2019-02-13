@@ -62,16 +62,16 @@
       <div class="item">
         Ratio
         <span
-          v-if="ratio < 0 || ratio >= 1"
-          class="warn">Ratio must be '0 &lt; Ratio &lt; 1'</span>
+          v-if="ratio < 0.01 || ratio > 0.99"
+          class="warn">Ratio must be '0.01 &lt;= Ratio &lt;= 0.99'</span>
         <input
           v-model="ratio"
           type="number"
           placeholder="0.8"
-          maxlength="2"
+          maxlength="3"
           step="0.1"
-          min="0"
-          max="1">
+          min="0.01"
+          max="0.99">
       </div>
       <input
         :disabled="!confirmable"
