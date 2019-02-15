@@ -122,7 +122,7 @@ class Yolov1(Detection):
         pass
 
 
-    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_train_loss_list=None):
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
         """Returns an instance of Optimizer for training Yolov1 algorithm.
 
         If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
