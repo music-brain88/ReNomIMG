@@ -716,7 +716,9 @@ class Shift(ProcessBase):
         img_list = []
         label_list = []
         for i in range(n):
-
+            c , h, w = x[i].shape
+            new_x = np.zeros_like(np.asarray(x[i]))
+            new_y = np.zeros_like(np.asarray(y[i]))
             rand_h = ((np.random.rand(1) * 2 - 1) * self._h).astype(np.int)
             rand_v = ((np.random.rand(1) * 2 - 1) * self._v).astype(np.int)
 
@@ -1705,7 +1707,7 @@ class Shear(ProcessBase):
                                                 Image.AFFINE,
                                                 transform_matrix,
                                                 Image.BICUBIC)
-                        new_label.append(img)
+                        new_label.append(np.array(img))
                 new_y.append(np.array(new_label))
             else:
                 # print('y axis')
@@ -1736,7 +1738,7 @@ class Shear(ProcessBase):
                                                 Image.AFFINE,
                                                 transform_matrix,
                                                 Image.BICUBIC)
-                        new_label.append(img)
+                        new_label.append(np.array(img))
                 new_y.append(np.array(new_label))
 
         return new_x,new_y

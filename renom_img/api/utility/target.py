@@ -197,6 +197,25 @@ class DataBuilderSegmentation(DataBuilderBase):
         imsize(int or tuple): Input image size
     """
 
+    def resize(self,img_list, label_list):
+        x_list = []
+        y_list = []
+        for i,(img, label) in enumerate(zip(img_list, label_list)):
+            channel_last = img.transpose(1,2,0)
+            img = Image.fromarray(np.uint8(channel_last))
+            img = img.resize(self.imsize, RESIZE_METHOD).convert('RGB')
+            x_list.append(np.asarray(img))
+            c,h,w = label.shape
+            l = []
+            for z in range(c):
+                select = label[z,:,:]
+                im = Image.fromarray(select)
+                resized = im.resize(self.imsize,RESIZE_METHOD)
+                l.append(np.array(resized))
+            y_list.append(np.array(l))
+
+        return np.asarray(x_list).transpose(0, 3, 1, 2).astype(np.float32),np.asarray(y_list)
+
     def load_annotation(self, path):
         """ Loads annotation data
 
@@ -214,7 +233,7 @@ class DataBuilderSegmentation(DataBuilderBase):
         img = np.array(img)
         assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
         assert img.ndim == 2
-        return np.array(img), w, h
+        return img, img.shape[0],img.shape[1]
 
     def load_img(self, path):
         img = Image.open(path)
@@ -250,10 +269,10 @@ class DataBuilderSegmentation(DataBuilderBase):
         for img_path, an_path in zip(img_path_list, annotation_list):
             img, sw, sh = self.load_img(img_path)
             labels, asw, ash = self.load_annotation(an_path)
-            annot = np.zeros((n_class, sw, sh))
+            annot = np.zeros((n_class, asw, ash))
             img_list.append(img)
-            for i in range(sw):
-                for j in range(sh):
+            for i in range(asw):
+                for j in range(ash):
                     if int(labels[i][j]) >= n_class:
                         annot[n_class - 1, i, j] = 1
                     else:
@@ -261,6 +280,6 @@ class DataBuilderSegmentation(DataBuilderBase):
             label_list.append(annot)
         if augmentation is not None:
             img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
-            return np.array(img_list), np.array(label_list)
+            return self.resize(img_list, label_list)
         else:
-            return np.array(img_list), np.array(label_list)
+            return self.resize(img_list, label_list)
