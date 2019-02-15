@@ -17,7 +17,7 @@
             :key="key">
             <div
               id="legend-box"
-              :class="getColorClass(alg.id)"/>
+              :class="getAlgColorClass(alg.id)"/>
             <div id="legend-title">
               {{ alg.title }}
             </div>
@@ -90,6 +90,9 @@ import { ALGORITHM, TASK_ID } from '@/const.js'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ProgressBar from '@/components/page/train_page/progress_bar.vue'
 
+const RESERVED = '-1'
+const CREATED = '-2'
+
 export default {
   name: 'ComponentProgress',
   components: {
@@ -108,6 +111,7 @@ export default {
       'getAlgorithmTitleFromId',
       'getAlgorithmColor',
       'getCurrentTask',
+      'getColorClass',
     ]),
   },
   created: function () {
@@ -117,7 +121,14 @@ export default {
     reduceModelList: function (model_list) {
       model_list = Object.entries(model_list.reduce(
         function (algs, model) {
-          const id = model.algorithm_id
+          var id = 0
+          if (model.isReserved()) {
+            id = RESERVED
+          } else if (model.isCreated()) {
+            id = CREATED
+          } else {
+            id = model.algorithm_id
+          }
           if (id in algs) {
             algs[id] += 1
           } else {
@@ -128,9 +139,21 @@ export default {
       return model_list
     },
     getStyle: function (model_info) {
-      return {
-        'width': model_info[1] * 100 + '%',
-        'background-color': this.getAlgorithmColor(model_info[0])
+      if (model_info[0] === CREATED) {
+        return {
+          'width': model_info[1] * 100 + '%',
+          'background-color': '#99A3A4'
+        }
+      } else if (model_info[0] === RESERVED) {
+        return {
+          'width': model_info[1] * 100 + '%',
+          'background-color': '#F1C40F'
+        }
+      } else {
+        return {
+          'width': model_info[1] * 100 + '%',
+          'background-color': this.getAlgorithmColor(model_info[0])
+        }
       }
     },
     getAlgorithList: function () {
@@ -146,7 +169,7 @@ export default {
       arr
       return arr.map(d => { return { title: d.title, key: d.key, id: d.id } })
     },
-    getColorClass: function (alg_id) {
+    getAlgColorClass: function (alg_id) {
       const id = alg_id % 10
       return 'color-' + id
     }

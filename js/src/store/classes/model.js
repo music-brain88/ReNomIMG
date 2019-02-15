@@ -44,13 +44,22 @@ export default class Model {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.VALIDATING)
   }
   isPredicting () {
-    return (this.state === STATE.PRED_STARTED) && (this.running_state === RUNNING_STATE.PREDICTING)
+    return ((this.state === STATE.PRED_STARTED) && (this.running_state === RUNNING_STATE.PREDICTING)) || this.state === STATE.PRED_CREATED
   }
   isStopping () {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.STOPPING)
   }
   isWeightDownloading () {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.WEIGHT_DOWNLOADING)
+  }
+  isRunning () {
+    return this.isTraining() || this.isStopping() || this.isValidating()
+  }
+  isCreated () {
+    return this.state === STATE.CREATED
+  }
+  isReserved () {
+    return this.state === STATE.RESERVED
   }
   getBestLoss () {
     let loss = null

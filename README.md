@@ -5,10 +5,8 @@ ReNom IMG is model developing tool for image recognition tasks.
 ### ReNomIMG - https://www.renom.jp/packages/renomimg/index.html
 
 
-## Change v2.0.1 => v2.0.2
-
-- Add warning to dataset create modal(GUI) when illegal train valid ratio is inputted.
-- Add error handler to renom_img.api.inference.detector.Detector
+## Change v2.0.3 => v2.0.4
+- Updated dependencies.
 
 
 ## Recommended Environment
@@ -35,10 +33,10 @@ The Wheel package is provided at:
 You can install the wheel package with pip3 command::
 
 - For Python3.5
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.0.2-cp35-cp35m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.0.4-cp35-cp35m-linux_x86_64.whl`
 
 - For Python3.6
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.0.2-cp36-cp36m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.0.4-cp36-cp36m-linux_x86_64.whl`
 
 
 ### Install from source

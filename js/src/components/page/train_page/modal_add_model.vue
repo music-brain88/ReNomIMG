@@ -92,14 +92,25 @@ export default {
     ]),
     isRunnable () {
       if (this.selectedDatasetId !== '' && this.selectedAlgorithm !== '') {
+        const alg = this.selectedAlgorithm
+        const params = this.getAlgorithmParamList(alg)
+        for (const p in params) {
+          const mn = params[p].min
+          const mx = params[p].max
+          const k = params[p].key
+          let val = this.parameters[k]
+          if (mn !== undefined && mx !== undefined && val !== undefined) {
+            val = Number(val)
+            if (mn > val || val > mx) {
+              return true
+            }
+          }
+        }
         return false
       } else {
         return true
       }
     }
-  },
-  created: function () {
-
   },
   methods: {
     ...mapActions(['createModel']),
