@@ -172,7 +172,7 @@ class DataBuilderDetection(DataBuilderBase):
 
         if augmentation is not None:
             img_list, annotation_list = augmentation(
-                np.array(img_list), new_annotation_list, mode="detection")
+                img_list, new_annotation_list, mode="detection")
 
         img_list, annotation_list = self.resize_img(img_list, annotation_list)
 
@@ -210,19 +210,20 @@ class DataBuilderSegmentation(DataBuilderBase):
         img = Image.open(path)
         img.load()
         w, h = img.size
-        img = np.array(img.resize(self.imsize, RESIZE_METHOD))
+        # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
+        img = np.array(img)
         assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
         assert img.ndim == 2
-        return np.array(img), self.imsize[0] / float(w), self.imsize[1] / h
+        return np.array(img), w, h
 
     def load_img(self, path):
         img = Image.open(path)
         img.load()
         w, h = img.size
         img = img.convert('RGB')
-        img = img.resize(self.imsize, RESIZE_METHOD)
+        # img = img.resize(self.imsize, RESIZE_METHOD)
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
-        return img, self.imsize[0] / float(w), self.imsize[1] / h
+        return img, w, h
 
     def crop_to_square(self, image):
         size = min(image.size)
@@ -247,18 +248,19 @@ class DataBuilderSegmentation(DataBuilderBase):
         img_list = []
         label_list = []
         for img_path, an_path in zip(img_path_list, annotation_list):
-            annot = np.zeros((n_class, self.imsize[0], self.imsize[1]))
             img, sw, sh = self.load_img(img_path)
             labels, asw, ash = self.load_annotation(an_path)
+            annot = np.zeros((n_class, sw, sh))
             img_list.append(img)
-            for i in range(self.imsize[0]):
-                for j in range(self.imsize[1]):
+            for i in range(sw):
+                for j in range(sh):
                     if int(labels[i][j]) >= n_class:
                         annot[n_class - 1, i, j] = 1
                     else:
                         annot[int(labels[i][j]), i, j] = 1
             label_list.append(annot)
         if augmentation is not None:
-            return augmentation(np.array(img_list), np.array(label_list), mode="segmentation")
+            img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
+            return np.array(img_list), np.array(label_list)
         else:
             return np.array(img_list), np.array(label_list)
