@@ -202,8 +202,18 @@ class HorizontalFlip(ProcessBase):
             return new_x,new_y
 
     def _transform_segmentation(self, x, y):
-        """Yet to be implemented"""
-        raise NotImplemented
+        n = len(x)
+        img_list = []
+        new_y = []
+        for i in range(n):
+            f= np.random.randint(2) if self.prob else 1
+            if f == 0:
+                img_list.append(x[i][:, :, :])
+                new_y.append(y[i][:,:,:])
+            elif f == 1:
+                img_list.append(x[i][:, :, ::-1])
+                new_y.append(y[i][:,:,::-1])
+        return img_list, new_y
 
 
 def horizontalflip(x, y=None, prob=True, mode="classification"):
@@ -278,8 +288,18 @@ class VerticalFlip(ProcessBase):
             return new_x,new_y
 
     def _transform_segmentation(self, x, y):
-        """Yet to be implemented"""
-        raise NotImplemented
+        n = len(x)
+        img_list = []
+        new_y = []
+        for i in range(n):
+            f= np.random.randint(2) if self.prob else 1
+            if f == 0:
+                img_list.append(x[i][:, :, :])
+                new_y.append(y[i][:,:,:])
+            elif f == 1:
+                img_list.append(x[i][:, ::-1, :])
+                new_y.append(y[i][:,::-1,:])
+        return img_list, new_y
 
 
 def verticalflip(x, y=None, prob=True, mode="classification"):
@@ -476,7 +496,8 @@ class RandomCrop(ProcessBase):
             p = int(self.padding / 2)  # pad length of each side
             x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
                        mode='constant', constant_values=0)
-
+            y = np.pad(y[i], pad_width=((0, 0), (p, p), (p, p)),
+                       mode='constant', constant_values=0)
             _h = x.shape[1]  # changed height
             _w = x.shape[2]  # changed width
 
@@ -585,7 +606,21 @@ class CenterCrop(ProcessBase):
         return new_x,new_y
 
     def _transform_segmentation(self,x,y):
-        raise NotImplemented
+        n = len(x)
+        new_x = []
+        new_y = []
+        for i in range(n):
+            c,h,w = x[i].shape
+            assert self.size[0] < w and self.size[1] < h, 'crop size should be smaller than original image size'
+            left = np.ceil((w-self.size[0])/2.).astype(int)
+            top = np.ceil((h-self.size[1])/2.).astype(int)
+            right = np.floor((w+self.size[0])/2.).astype(int)
+            bottom = np.floor((h+self.size[1])/2.).astype(int)
+            img = x[i][:,top:bottom,left:right]
+            label = y[i][:,top:bottom,left:right]
+            new_x.append(img)
+            new_y.append(label)
+        return new_x,new_y
 
 def center_crop(x,y,mode="classification"):
     return CenterCrop(size=(224,224))(x, y, mode=mode)
@@ -972,12 +1007,49 @@ class Distortion(ProcessBase):
                 indices = np.reshape(ay+dy, (-1, 1)), np.reshape(ax+dx, (-1, 1)), np.reshape(z, (-1, 1))
                 # print(indices[0].shape,indices[1].shape,indices[2].shape)
                 distorted_image = map_coordinates(img, indices, order=1, mode='reflect')
-                new_x.append(distorted_image.reshape(img.shape))
 
+                new_x.append(distorted_image.reshape(img.shape))
         return new_x,y
 
     def _transform_segmentation(self,x,y):
-        raise NotImplemented
+        n = len(x)
+        new_x = []
+        new_y = []
+        for i in range(n):
+            choice = np.random.choice(self.choice_list)
+            if choice is None:
+                # print('return original')
+                new_x.append(x[i])
+                new_y.append(y[i])
+            else:
+                # print('distorted')
+                self.alpha,self.sigma = choice[0],choice[1]
+                img = x[i]
+                shape = img.shape
+                dx = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
+                dy = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
+
+                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(shape[0]), np.arange(shape[2]))
+
+                indices = np.reshape(ay+dy, (-1, 1)), np.reshape(ax+dx, (-1, 1)), np.reshape(z, (-1, 1))
+                # print(indices[0].shape,indices[1].shape,indices[2].shape)
+                distorted_image = map_coordinates(img, indices, order=1, mode='reflect')
+
+                new_x.append(distorted_image.reshape(img.shape))
+
+                label = y[i]
+                shape = label.shape
+                dx = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
+                dy = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
+
+                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(shape[0]), np.arange(shape[2]))
+
+                indices = np.reshape(ay+dy, (-1, 1)), np.reshape(ax+dx, (-1, 1)), np.reshape(z, (-1, 1))
+                # print(indices[0].shape,indices[1].shape,indices[2].shape)
+                distorted_label = map_coordinates(label, indices, order=1, mode='reflect')
+
+                new_y.append(distorted_label.reshape(label.shape))
+        return new_x,new_y
 
 
 def distortion(x, y, mode='classification'):
@@ -1441,13 +1513,14 @@ class RandomExpand(ProcessBase):
         new_y = []
         for i in range(n):
             c,h,w = x[i].shape
+            c2,h2,w2 = y[i].shape
             ratio = np.random.uniform(1,4)
             left = np.random.uniform(0, w*ratio - w )
             top = np.random.uniform(0, h*ratio - h )
             expand_image = np.zeros((c,int(h*ratio),int(w*ratio)),dtype=x[i].dtype)
-            expand_label = np.zeros((c,int(h*ratio),int(w*ratio)),dtype=y[i].dtype)
+            expand_label = np.zeros((c2,int(h2*ratio),int(w2*ratio)),dtype=y[i].dtype)
             expand_image[:,:,:] = np.mean(x[i])
-            expand_label[:,:,:] = np.mean(y[i])
+            # expand_label[:,:,:] = np.mean(y[i])
             expand_image[:,int(top):int(top+h),
                         int(left):int(left+w)] = x[i]
 
@@ -1589,7 +1662,84 @@ class Shear(ProcessBase):
         return new_x,new_y
 
     def _transform_segmentation(self, x, y):
-        raise NotImplemented
+        n = len(x)
+        new_x = []
+        new_y = []
+        for i in range(n):
+            c,h,w = x[i].shape
+            angle_to_shear = int(np.random.uniform(-self.max_shear_factor,self.max_shear_factor))
+            angle = np.tan(np.radians(angle_to_shear))
+            choice =np.random.choice(self.choice_list)
+
+            if choice == 0:
+                # print('return original')
+                new_x.append(x[i])
+                new_y.append(y[i])
+            elif choice == 1:
+                # print('x axis')
+                channel_last = x[i].transpose(1,2,0)
+                img = Image.fromarray(np.uint8(channel_last))
+                shift_in_pixels = angle * h
+                if shift_in_pixels > 0:
+                    shift_in_pixels = np.ceil(shift_in_pixels)
+                else:
+                    shift_in_pixels = np.floor(shift_in_pixels)
+                offset = shift_in_pixels
+                if angle_to_shear <= 0:
+                    shift_in_pixels = abs(shift_in_pixels)
+                    offset = 0
+                    angle = abs(angle) * -1
+                transform_matrix = (1, angle, -offset,0, 1, 0)
+                img = img.transform((int(round(w + shift_in_pixels)), h),
+                                        Image.AFFINE,
+                                        transform_matrix,
+                                        Image.BICUBIC)
+                new_x.append(np.asarray(img).transpose(2,0,1))
+
+                num_class,_,_ = y[i].shape
+                new_label = []
+                for z in range(num_class):
+                        label = y[i][z,:,:]
+                        img = Image.fromarray(np.uint8(label))
+                        img = img.transform((int(round(w + shift_in_pixels)), h),
+                                                Image.AFFINE,
+                                                transform_matrix,
+                                                Image.BICUBIC)
+                        new_label.append(img)
+                new_y.append(np.array(new_label))
+            else:
+                # print('y axis')
+                channel_last = x[i].transpose(1,2,0)
+                img = Image.fromarray(np.uint8(channel_last))
+                shift_in_pixels = angle * w
+                offset = shift_in_pixels
+                if angle_to_shear <= 0:
+                    shift_in_pixels = abs(shift_in_pixels)
+                    offset = 0
+                    angle = abs(angle) * -1
+
+                transform_matrix = (1, 0, 0,angle, 1, -offset)
+
+                img = img.transform((w, int(round(h + shift_in_pixels))),
+                                        Image.AFFINE,
+                                        transform_matrix,
+                                        Image.BICUBIC)
+
+                new_x.append(np.asarray(img).transpose(2,0,1))
+
+                num_class,_,_ = y[i].shape
+                new_label = []
+                for z in range(num_class):
+                        label = y[i][z,:,:]
+                        img = Image.fromarray(np.uint8(label))
+                        img = img.transform((int(round(w + shift_in_pixels)), h),
+                                                Image.AFFINE,
+                                                transform_matrix,
+                                                Image.BICUBIC)
+                        new_label.append(img)
+                new_y.append(np.array(new_label))
+
+        return new_x,new_y
 
 
 def shear(x, y=None, mode='classification'):
