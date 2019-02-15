@@ -1,5 +1,7 @@
 <template>
-  <div id="app-header">
+  <div
+    id="app-header"
+    @click="toggle">
     <div id="menu-title">
       <div id="header-menu">
         <i
@@ -66,7 +68,10 @@ export default {
   },
   methods: {
     ...mapActions(['init']),
-    ...mapMutations(['showSlideMenu', 'setCurrentTask']),
+    ...mapMutations(['showSlideMenu', 'setCurrentTask', 'showModal']),
+    toggle: function () {
+      this.showModal({ 'all': false })
+    }
   }
 }
 </script>
