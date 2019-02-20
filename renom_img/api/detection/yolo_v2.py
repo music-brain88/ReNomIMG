@@ -12,7 +12,7 @@ from renom_img import __version__
 from renom_img.api import Base, adddoc
 from renom_img.api.detection import Detection
 from renom_img.api.classification.darknet import Darknet19, DarknetConv2dBN
-from renom_img.api.utility.load import prepare_detection_data, load_img
+from renom_img.api.utility.load import prepare_detection_data, load_img, resize_detection_data
 from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
@@ -443,7 +443,12 @@ class Yolov2(Detection):
             label = np.zeros(
                 (N, channel, imsize_list[size_index][1] // 32, imsize_list[size_index][0] // 32))
             img_list, label_list = prepare_detection_data(
-                img_path_list, annotation_list, imsize_list[size_index])
+                img_path_list, annotation_list)
+
+            if augmentation is not None:
+                img_list, label_list = augmentation(img_list, label_list, mode="detection")
+
+            img_list, label_list = resize_detection_data(img_list, label_list, imsize_list[size_index])
 
             if augmentation is not None:
                 img_list, label_list = augmentation(img_list, label_list, mode="detection")
@@ -454,8 +459,6 @@ class Yolov2(Detection):
                 boxces = np.array([a['box'] for a in annotation])
                 classes = np.array([[0] * a["class"] + [1] + [0] * (num_class - a["class"] - 1)
                                     for a in annotation])
-                if len(boxces.shape) < 2:
-                    continue
                 # x, y
                 cell_x = (boxces[:, 0] // ratio_w).astype(np.int)
                 cell_y = (boxces[:, 1] // ratio_h).astype(np.int)

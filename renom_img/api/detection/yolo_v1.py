@@ -11,7 +11,7 @@ from renom_img.api.classification.darknet import Darknet
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.box import transform2xy12
-from renom_img.api.utility.load import prepare_detection_data, load_img
+from renom_img.api.utility.load import prepare_detection_data, load_img, resize_detection_data
 
 
 def make_box(box):
@@ -39,6 +39,15 @@ def calc_iou(box1, box2):
     union = (area1 + area2 - intersect)
 
     return intersect / union
+
+def calc_rmse(box1, box2):
+
+    b1_x1, b1_y1, b1_x2, b1_y2 = box1
+    b2_x1, b2_y1, b2_x2, b2_y2 = box2
+
+    rmse = np.sqrt(((b1_x1-b2_x1)**2 + (b1_y1-b2_y1)**2 + (b1_x2-b2_x2)**2 + (b1_y2-b2_y2)**2))
+
+    return rmse
 
 
 def calc_rmse(box1, box2):
@@ -111,6 +120,7 @@ class Yolov1(Detection):
 
     def set_last_layer_unit(self, unit_size):
         pass
+
 
     def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
         """Returns an instance of Optimizer for training Yolov1 algorithm.
@@ -356,11 +366,12 @@ class Yolov1(Detection):
             target = np.zeros((N, self._cells[0], self._cells[1], 5 * num_bbox + self.num_class))
 
             img_data, label_data = prepare_detection_data(img_path_list,
-                                                          annotation_list, self.imsize)
+                                                          annotation_list)
 
             if augmentation is not None:
                 img_data, label_data = augmentation(img_data, label_data, mode="detection")
 
+            img_data, label_data = resize_detection_data(img_data, label_data, self.imsize)
             # Create target.
             cell_w, cell_h = self._cells
             img_w, img_h = self.imsize

@@ -10,7 +10,7 @@ from renom_img.api.utility.evaluate import EvaluatorDetection
 from renom_img.api.utility.evaluate import EvaluatorSegmentation
 from renom_img.api.utility.augmentation.process import contrast_norm
 from renom_img.api.utility.augmentation.process import shift
-from renom_img.api.utility.augmentation.process import rotate, flip, white_noise
+from renom_img.api.utility.augmentation.process import *
 from renom_img.api.utility.target import DataBuilderClassification, DataBuilderDetection, DataBuilderSegmentation
 
 from renom_img.api.utility.misc.display import draw_box
@@ -31,6 +31,17 @@ def scope_session():
     [flip, {}],
     [white_noise, {"std": 10}],
     [contrast_norm, {"alpha": [0.5, 1.0]}],
+    [random_crop, {}],
+    [random_brightness,{}],
+    [random_hue,{}],
+    [random_saturation,{}],
+    [random_lighting,{}],
+    [random_expand,{}],
+    [shear,{}],
+    [horizontalflip,{}],
+    [verticalflip,{}],
+    [center_crop,{}],
+    [distortion,{}],
 ])
 def test_augmentation_process_detection(method, kwargs):
     img = Image.open('./renom.png')
@@ -38,8 +49,8 @@ def test_augmentation_process_detection(method, kwargs):
     x = np.array(img).transpose(2, 0, 1).astype(np.float)
     x = np.expand_dims(x, axis=0)
     y = [[
-        {"box": [100, 60, 40, 50], "class":0, "name": "test1"},
-        {"box": [40, 60, 100, 50], "class":1, "name": "test2"}
+        {"box": [380, 180, 40, 50], "class":0, "name": "test1"},
+        {"box": [60, 80, 130, 70], "class":1, "name": "test2"}
     ]]
     rescale(y, img.size, (1, 1))
     draw_box(x[0], y[0]).save(
@@ -48,7 +59,7 @@ def test_augmentation_process_detection(method, kwargs):
     rescale(y, (1, 1), img.size)
     x, y = method(x, y, mode="detection", **kwargs)
 
-    rescale(y, img.size, (1, 1))
+    rescale(y, (x[0].shape[2],x[0].shape[1]), (1, 1))
     draw_box(x[0], y[0]).save(
         './outputs/test_augmentation_detection_{}1.png'.format(method.__name__))
 
@@ -60,6 +71,15 @@ def test_augmentation_process_detection(method, kwargs):
     [flip, {}],
     [white_noise, {"std": 10}],
     [contrast_norm, {"alpha": [0.5, 1.0]}],
+    [random_crop,{}],
+    [random_hue,{}],
+    [random_brightness,{}],
+    [random_saturation,{}],
+    [random_lighting,{}],
+    [random_expand,{}],
+    [shear,{}],
+    [center_crop,{}],
+    [distortion,{}],
 ])
 def test_augmentation_process_classification(method, kwargs):
     img = Image.open('./renom.png')
