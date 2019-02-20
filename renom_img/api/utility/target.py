@@ -35,11 +35,11 @@ class DataBuilderBase(object):
     def reverce_label(self, label_list):
         pass
 
-    def resize_img(self,img_list, label_list):
+    def resize_img(self, img_list, label_list):
         im_list = []
 
         for img in img_list:
-            channel_last = img.transpose(1,2,0)
+            channel_last = img.transpose(1, 2, 0)
             img = Image.fromarray(np.uint8(channel_last))
             img = img.resize(self.imsize, RESIZE_METHOD).convert('RGB')
             im_list.append(np.asarray(img))
@@ -116,12 +116,13 @@ class DataBuilderDetection(DataBuilderBase):
         class_map(array): Array of class names
         imsize(int or tuple): Input image size
     """
+
     def resize_img(self, img_list, annotation_list):
         im_list = []
         label_list = []
 
         for img, obj_list in zip(img_list, annotation_list):
-            channel_last = img.transpose(1,2,0)
+            channel_last = img.transpose(1, 2, 0)
             img = Image.fromarray(np.uint8(channel_last))
             w, h = img.size
             sw, sh = self.imsize[0] / float(w), self.imsize[1] / float(h)
@@ -197,24 +198,24 @@ class DataBuilderSegmentation(DataBuilderBase):
         imsize(int or tuple): Input image size
     """
 
-    def resize(self,img_list, label_list):
+    def resize(self, img_list, label_list):
         x_list = []
         y_list = []
-        for i,(img, label) in enumerate(zip(img_list, label_list)):
-            channel_last = img.transpose(1,2,0)
+        for i, (img, label) in enumerate(zip(img_list, label_list)):
+            channel_last = img.transpose(1, 2, 0)
             img = Image.fromarray(np.uint8(channel_last))
             img = img.resize(self.imsize, RESIZE_METHOD).convert('RGB')
             x_list.append(np.asarray(img))
-            c,h,w = label.shape
+            c, h, w = label.shape
             l = []
             for z in range(c):
-                select = label[z,:,:]
+                select = label[z, :, :]
                 im = Image.fromarray(select)
-                resized = im.resize(self.imsize,RESIZE_METHOD)
+                resized = im.resize(self.imsize, RESIZE_METHOD)
                 l.append(np.array(resized))
             y_list.append(np.array(l))
 
-        return np.asarray(x_list).transpose(0, 3, 1, 2).astype(np.float32),np.asarray(y_list)
+        return np.asarray(x_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(y_list)
 
     def load_annotation(self, path):
         """ Loads annotation data
@@ -233,7 +234,7 @@ class DataBuilderSegmentation(DataBuilderBase):
         img = np.array(img)
         assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
         assert img.ndim == 2
-        return img, img.shape[0],img.shape[1]
+        return img, img.shape[0], img.shape[1]
 
     def load_img(self, path):
         img = Image.open(path)

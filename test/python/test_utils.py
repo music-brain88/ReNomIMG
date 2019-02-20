@@ -32,16 +32,16 @@ def scope_session():
     [white_noise, {"std": 10}],
     [contrast_norm, {"alpha": [0.5, 1.0]}],
     [random_crop, {}],
-    [random_brightness,{}],
-    [random_hue,{}],
-    [random_saturation,{}],
-    [random_lighting,{}],
-    [random_expand,{}],
-    [shear,{}],
-    [horizontalflip,{}],
-    [verticalflip,{}],
-    [center_crop,{}],
-    [distortion,{}],
+    [random_brightness, {}],
+    [random_hue, {}],
+    [random_saturation, {}],
+    [random_lighting, {}],
+    [random_expand, {}],
+    [shear, {}],
+    [horizontalflip, {}],
+    [verticalflip, {}],
+    [center_crop, {}],
+    [distortion, {}],
 ])
 def test_augmentation_process_detection(method, kwargs):
     img = Image.open('./renom.png')
@@ -59,7 +59,7 @@ def test_augmentation_process_detection(method, kwargs):
     rescale(y, (1, 1), img.size)
     x, y = method(x, y, mode="detection", **kwargs)
 
-    rescale(y, (x[0].shape[2],x[0].shape[1]), (1, 1))
+    rescale(y, (x[0].shape[2], x[0].shape[1]), (1, 1))
     draw_box(x[0], y[0]).save(
         './outputs/test_augmentation_detection_{}1.png'.format(method.__name__))
 
@@ -71,15 +71,15 @@ def test_augmentation_process_detection(method, kwargs):
     [flip, {}],
     [white_noise, {"std": 10}],
     [contrast_norm, {"alpha": [0.5, 1.0]}],
-    [random_crop,{}],
-    [random_hue,{}],
-    [random_brightness,{}],
-    [random_saturation,{}],
-    [random_lighting,{}],
-    [random_expand,{}],
-    [shear,{}],
-    [center_crop,{}],
-    [distortion,{}],
+    [random_crop, {}],
+    [random_hue, {}],
+    [random_brightness, {}],
+    [random_saturation, {}],
+    [random_lighting, {}],
+    [random_expand, {}],
+    [shear, {}],
+    [center_crop, {}],
+    [distortion, {}],
 ])
 def test_augmentation_process_classification(method, kwargs):
     img = Image.open('./renom.png')

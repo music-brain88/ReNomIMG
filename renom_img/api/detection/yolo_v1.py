@@ -40,12 +40,14 @@ def calc_iou(box1, box2):
 
     return intersect / union
 
+
 def calc_rmse(box1, box2):
 
     b1_x1, b1_y1, b1_x2, b1_y2 = box1
     b2_x1, b2_y1, b2_x2, b2_y2 = box2
 
-    rmse = np.sqrt(((b1_x1-b2_x1)**2 + (b1_y1-b2_y1)**2 + (b1_x2-b2_x2)**2 + (b1_y2-b2_y2)**2))
+    rmse = np.sqrt(((b1_x1 - b2_x1)**2 + (b1_y1 - b2_y1)**2 +
+                    (b1_x2 - b2_x2)**2 + (b1_y2 - b2_y2)**2))
 
     return rmse
 
@@ -120,7 +122,6 @@ class Yolov1(Detection):
 
     def set_last_layer_unit(self, unit_size):
         pass
-
 
     def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
         """Returns an instance of Optimizer for training Yolov1 algorithm.

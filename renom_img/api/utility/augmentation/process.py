@@ -72,7 +72,6 @@ class Flip(ProcessBase):
         img_list = []
         new_y = []
 
-
         for i in range(n):
             f = np.random.randint(3)
             if f == 0:
@@ -160,7 +159,7 @@ def flip(x, y=None, mode="classification"):
 
 class HorizontalFlip(ProcessBase):
 
-    def __init__(self,prob=True):
+    def __init__(self, prob=True):
         super(HorizontalFlip, self).__init__()
         self.prob = prob
 
@@ -169,7 +168,7 @@ class HorizontalFlip(ProcessBase):
         n = len(x)
         img_list = []
         for i in range(n):
-            f= np.random.randint(2) if self.prob else 1
+            f = np.random.randint(2) if self.prob else 1
             if f == 0:
                 img_list.append(x[i][:, :, :])
             elif f == 1:
@@ -182,11 +181,11 @@ class HorizontalFlip(ProcessBase):
         new_y = []
         for i in range(n):
             f = np.random.randint(2) if self.prob else 1
-            if f ==0:
+            if f == 0:
                 new_x.append(x[i])
                 new_y.append(y[i])
             else:
-                new_x.append(x[i][:,:,::-1])
+                new_x.append(x[i][:, :, ::-1])
                 c_x = x[i].shape[2] // 2
                 new_y.append([
                     {
@@ -199,20 +198,20 @@ class HorizontalFlip(ProcessBase):
                         **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
-            return new_x,new_y
+            return new_x, new_y
 
     def _transform_segmentation(self, x, y):
         n = len(x)
         img_list = []
         new_y = []
         for i in range(n):
-            f= np.random.randint(2) if self.prob else 1
+            f = np.random.randint(2) if self.prob else 1
             if f == 0:
                 img_list.append(x[i][:, :, :])
-                new_y.append(y[i][:,:,:])
+                new_y.append(y[i][:, :, :])
             elif f == 1:
                 img_list.append(x[i][:, :, ::-1])
-                new_y.append(y[i][:,:,::-1])
+                new_y.append(y[i][:, :, ::-1])
         return img_list, new_y
 
 
@@ -244,9 +243,10 @@ def horizontalflip(x, y=None, prob=True, mode="classification"):
     """
     return HorizontalFlip(prob=prob)(x, y, mode=mode)
 
+
 class VerticalFlip(ProcessBase):
 
-    def __init__(self,prob=True):
+    def __init__(self, prob=True):
         super(VerticalFlip, self).__init__()
         self.prob = prob
 
@@ -255,7 +255,7 @@ class VerticalFlip(ProcessBase):
         n = len(x)
         img_list = []
         for i in range(n):
-            f= np.random.randint(2) if self.prob else 1
+            f = np.random.randint(2) if self.prob else 1
             if f == 0:
                 img_list.append(x[i][:, :, :])
             elif f == 1:
@@ -268,7 +268,7 @@ class VerticalFlip(ProcessBase):
         new_y = []
         for i in range(n):
             f = np.random.randint(2) if self.prob else 1
-            if f ==0:
+            if f == 0:
                 new_x.append(x[i])
                 new_y.append(y[i])
             else:
@@ -285,20 +285,20 @@ class VerticalFlip(ProcessBase):
                         **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
-            return new_x,new_y
+            return new_x, new_y
 
     def _transform_segmentation(self, x, y):
         n = len(x)
         img_list = []
         new_y = []
         for i in range(n):
-            f= np.random.randint(2) if self.prob else 1
+            f = np.random.randint(2) if self.prob else 1
             if f == 0:
                 img_list.append(x[i][:, :, :])
-                new_y.append(y[i][:,:,:])
+                new_y.append(y[i][:, :, :])
             elif f == 1:
                 img_list.append(x[i][:, ::-1, :])
-                new_y.append(y[i][:,::-1,:])
+                new_y.append(y[i][:, ::-1, :])
         return img_list, new_y
 
 
@@ -338,20 +338,20 @@ class RandomCrop(ProcessBase):
         self.padding = padding
 
         self.sample_options = (
-        None, # using entire original input image
-        (0.1, None),
-        (0.3, None),
-        (0.7, None),
-        (0.9, None),
-        (None, None), # randomly sample a patch
+            None,  # using entire original input image
+            (0.1, None),
+            (0.3, None),
+            (0.7, None),
+            (0.9, None),
+            (None, None),  # randomly sample a patch
         )
 
-    def _transform_classification(self, x, y): # according to the ResNet paper
+    def _transform_classification(self, x, y):  # according to the ResNet paper
         # assert len(x.shape) == 4
         img_list = []
         n = len(x)
         for i in range(n):
-            h,w = x[i].shape[1],x[i].shape[2]
+            h, w = x[i].shape[1], x[i].shape[2]
 
             p = int(self.padding / 2)  # pad length of each side
             x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
@@ -365,7 +365,7 @@ class RandomCrop(ProcessBase):
 
         return img_list, y
 
-    def jaccard_overlap(self,b1_x1,b1_y1,b1_x2,b1_y2,b2_x1,b2_y1,b2_x2,b2_y2):
+    def jaccard_overlap(self, b1_x1, b1_y1, b1_x2, b1_y2, b2_x1, b2_y1, b2_x2, b2_y2):
         area1 = (b1_x2 - b1_x1) * (b1_y2 - b1_y1)
         area2 = (b2_x2 - b2_x1) * (b2_y2 - b2_y1)
         xA = np.fmax(b1_x1, b2_x1)
@@ -375,9 +375,9 @@ class RandomCrop(ProcessBase):
 
         intersect = (xB - xA) * (yB - yA)
         union = (area1 + area2 - intersect)
-        iou = intersect/union
+        iou = intersect / union
 
-        return iou, (xB-((xB - xA)/2))-b1_x1,(yB-((yB-yA)/2))-b1_y1, xB - xA,yB - yA
+        return iou, (xB - ((xB - xA) / 2)) - b1_x1, (yB - ((yB - yA) / 2)) - b1_y1, xB - xA, yB - yA
 
     def check_point(self, left, top, right, down, x, y):
         if x > left and x < right and y > top and y < down:
@@ -385,7 +385,7 @@ class RandomCrop(ProcessBase):
         else:
             return False
 
-    def _transform_detection(self, x, y): # according to ssd paper
+    def _transform_detection(self, x, y):  # according to ssd paper
         # assert len(x.shape) == 4
         n = len(x)
         img_list = []
@@ -406,8 +406,8 @@ class RandomCrop(ProcessBase):
                 counter = 0
                 iou_counter = 0
                 while (not success):
-                    sw = int(np.random.uniform(0.3*w, w))
-                    sh = int(np.random.uniform(0.3*h, h))
+                    sw = int(np.random.uniform(0.3 * w, w))
+                    sh = int(np.random.uniform(0.3 * h, h))
                     if sw / sh < 0.5 or sw / sh > 2:
                         iou_counter += 1
                         if iou_counter > 20:
@@ -418,20 +418,20 @@ class RandomCrop(ProcessBase):
                     left = int(np.random.uniform(w - sw))
                     top = int(np.random.uniform(h - sh))
                     for j, obj in enumerate(y[i]):
-                        ox,oy,ow,oh = obj["box"]
-                        if self.check_point(left,top,left+sw,top+sh,ox,oy):
-                            overlap,px,py,pw,ph = self.jaccard_overlap(left,top,left+sw,top+sh,\
-                            ox-(ow/2),oy-(oh/2),ox+(ow/2),oy+(oh/2))
+                        ox, oy, ow, oh = obj["box"]
+                        if self.check_point(left, top, left + sw, top + sh, ox, oy):
+                            overlap, px, py, pw, ph = self.jaccard_overlap(left, top, left + sw, top + sh,
+                                                                           ox - (ow / 2), oy - (oh / 2), ox + (ow / 2), oy + (oh / 2))
                             if overlap >= min:
-                                pw = np.clip(pw,0,left+sw)
-                                ph = np.clip(ph,0,top+sh)
+                                pw = np.clip(pw, 0, left + sw)
+                                ph = np.clip(ph, 0, top + sh)
                                 temp_y.append({
                                     "box": [px, py, pw, ph],
                                     **{k: v for k, v in obj.items() if k != 'box'}
                                 })
                     if len(temp_y) > 0:
                         success = True
-                        img_list.append(x[i][:,top:top+sh, left:left+sw])
+                        img_list.append(x[i][:, top:top + sh, left:left + sw])
                         new_y.append(temp_y)
                     else:
                         counter += 1
@@ -447,8 +447,8 @@ class RandomCrop(ProcessBase):
                 counter = 0
                 random_counter = 0
                 while (not success):
-                    sw = int(np.random.uniform(0.3*w, w))
-                    sh = int(np.random.uniform(0.3*h, h))
+                    sw = int(np.random.uniform(0.3 * w, w))
+                    sh = int(np.random.uniform(0.3 * h, h))
 
                     if sw / sh < 0.5 or sw / sh > 2:
                         random_counter += 1
@@ -461,19 +461,19 @@ class RandomCrop(ProcessBase):
                     top = int(np.random.uniform(h - sh))
 
                     for j, obj in enumerate(y[i]):
-                        ox,oy,ow,oh = obj["box"]
-                        if self.check_point(left,top,left+sw,top+sh,ox,oy):
-                            overlap,px,py,pw,ph = self.jaccard_overlap(left,top,left+sw,top+sh,\
-                            ox-(ow/2),oy-(oh/2),ox+(ow/2),oy+(oh/2))
-                            pw = np.clip(pw,0,left+sw)
-                            ph = np.clip(ph,0,top+sh)
+                        ox, oy, ow, oh = obj["box"]
+                        if self.check_point(left, top, left + sw, top + sh, ox, oy):
+                            overlap, px, py, pw, ph = self.jaccard_overlap(left, top, left + sw, top + sh,
+                                                                           ox - (ow / 2), oy - (oh / 2), ox + (ow / 2), oy + (oh / 2))
+                            pw = np.clip(pw, 0, left + sw)
+                            ph = np.clip(ph, 0, top + sh)
                             temp_y.append({
                                 "box": [px, py, pw, ph],
                                 **{k: v for k, v in obj.items() if k != 'box'}
                             })
                     if len(temp_y) > 0:
                         success = True
-                        img_list.append(x[i][:,top:top+sh,left:left+sw])
+                        img_list.append(x[i][:, top:top + sh, left:left + sw])
                         new_y.append(temp_y)
                     else:
                         counter += 1
@@ -484,14 +484,13 @@ class RandomCrop(ProcessBase):
 
         return img_list, new_y
 
-
     def _transform_segmentation(self, x, y):
         # assert len(x.shape) == 4
         img_list = []
         new_y = []
         n = len(x)
         for i in range(n):
-            h,w = x[i].shape[1],x[i].shape[2]
+            h, w = x[i].shape[1], x[i].shape[2]
 
             p = int(self.padding / 2)  # pad length of each side
             x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
@@ -500,7 +499,6 @@ class RandomCrop(ProcessBase):
                        mode='constant', constant_values=0)
             _h = x.shape[1]  # changed height
             _w = x.shape[2]  # changed width
-
 
             top = np.random.randint(0, _h - h)
             left = np.random.randint(0, _w - w)
@@ -538,20 +536,21 @@ def random_crop(x, y=None, padding=4, mode="classification"):
     """
     return RandomCrop(padding)(x, y, mode=mode)
 
+
 class CenterCrop(ProcessBase):
 
-    def __init__(self, size=(224,224)):
+    def __init__(self, size=(224, 224)):
         super(CenterCrop, self).__init__()
         assert len(size) == 2, "crop size should be a tuple, for example (224,224)"
         self.size = size
 
-    def cal_overlap(self,b1_x1,b1_y1,b1_x2,b1_y2,b2_x1,b2_y1,b2_x2,b2_y2):
+    def cal_overlap(self, b1_x1, b1_y1, b1_x2, b1_y2, b2_x1, b2_y1, b2_x2, b2_y2):
         xA = np.fmax(b1_x1, b2_x1)
         yA = np.fmax(b1_y1, b2_y1)
         xB = np.fmin(b1_x2, b2_x2)
         yB = np.fmin(b1_y2, b2_y2)
 
-        return (xB-((xB - xA)/2))-b1_x1,(yB-((yB-yA)/2))-b1_y1, xB - xA,yB - yA
+        return (xB - ((xB - xA) / 2)) - b1_x1, (yB - ((yB - yA) / 2)) - b1_y1, xB - xA, yB - yA
 
     def check_point(self, left, top, right, down, x, y):
         if x > left and x < right and y > top and y < down:
@@ -563,68 +562,69 @@ class CenterCrop(ProcessBase):
         n = len(x)
         new_x = []
         for i in range(n):
-            c,h,w = x[i].shape
+            c, h, w = x[i].shape
             assert self.size[0] < w and self.size[1] < h, 'crop size should be smaller than original image size'
-            left = np.ceil((w-self.size[0])/2.).astype(int)
-            top = np.ceil((h-self.size[1])/2.).astype(int)
-            right = np.floor((w+self.size[0])/2.).astype(int)
-            bottom = np.floor((h+self.size[1])/2.).astype(int)
-            img = x[i][:,top:bottom,left:right]
+            left = np.ceil((w - self.size[0]) / 2.).astype(int)
+            top = np.ceil((h - self.size[1]) / 2.).astype(int)
+            right = np.floor((w + self.size[0]) / 2.).astype(int)
+            bottom = np.floor((h + self.size[1]) / 2.).astype(int)
+            img = x[i][:, top:bottom, left:right]
             new_x.append(img)
-        return new_x,y
+        return new_x, y
 
-    def _transform_detection(self,x,y):
+    def _transform_detection(self, x, y):
         n = len(x)
         new_x = []
         new_y = []
         for i in range(n):
-             c,h,w = x[i].shape
-             temp_y = []
-             assert self.size[0] < w and self.size[1] < h, 'crop size should be smaller than original image size'
-             left = np.ceil((w-self.size[0])/2.).astype(int)
-             top = np.ceil((h-self.size[1])/2.).astype(int)
-             right = np.floor((w+self.size[0])/2.).astype(int)
-             bottom = np.floor((h+self.size[1])/2.).astype(int)
-             img = x[i][:,top:bottom,left:right]
+            c, h, w = x[i].shape
+            temp_y = []
+            assert self.size[0] < w and self.size[1] < h, 'crop size should be smaller than original image size'
+            left = np.ceil((w - self.size[0]) / 2.).astype(int)
+            top = np.ceil((h - self.size[1]) / 2.).astype(int)
+            right = np.floor((w + self.size[0]) / 2.).astype(int)
+            bottom = np.floor((h + self.size[1]) / 2.).astype(int)
+            img = x[i][:, top:bottom, left:right]
 
-             for j, obj in enumerate(y[i]):
-                 ox,oy,ow,oh = obj["box"]
-                 # print(ox,oy,ow,oh)
-                 if self.check_point(left,top,right,bottom,ox,oy):
-                     px,py,pw,ph = self.cal_overlap(left,top,right,bottom,ox-ow/2,oy-oh/2,ox+ow/2,oy+oh/2)
-                     # print(px,py,pw,ph)
-                     temp_y.append({
-                         "box": [px, py, pw, ph],
-                         **{k: v for k, v in obj.items() if k != 'box'}
-                     })
-             if len(temp_y)>0:
+            for j, obj in enumerate(y[i]):
+                ox, oy, ow, oh = obj["box"]
+                # print(ox,oy,ow,oh)
+                if self.check_point(left, top, right, bottom, ox, oy):
+                    px, py, pw, ph = self.cal_overlap(
+                        left, top, right, bottom, ox - ow / 2, oy - oh / 2, ox + ow / 2, oy + oh / 2)
+                    # print(px,py,pw,ph)
+                    temp_y.append({
+                        "box": [px, py, pw, ph],
+                        **{k: v for k, v in obj.items() if k != 'box'}
+                    })
+            if len(temp_y) > 0:
                 new_x.append(img)
                 new_y.append(temp_y)
-             else:
+            else:
                 new_x.append(x[i])
                 new_y.append(y[i])
-        return new_x,new_y
+        return new_x, new_y
 
-    def _transform_segmentation(self,x,y):
+    def _transform_segmentation(self, x, y):
         n = len(x)
         new_x = []
         new_y = []
         for i in range(n):
-            c,h,w = x[i].shape
+            c, h, w = x[i].shape
             assert self.size[0] < w and self.size[1] < h, 'crop size should be smaller than original image size'
-            left = np.ceil((w-self.size[0])/2.).astype(int)
-            top = np.ceil((h-self.size[1])/2.).astype(int)
-            right = np.floor((w+self.size[0])/2.).astype(int)
-            bottom = np.floor((h+self.size[1])/2.).astype(int)
-            img = x[i][:,top:bottom,left:right]
-            label = y[i][:,top:bottom,left:right]
+            left = np.ceil((w - self.size[0]) / 2.).astype(int)
+            top = np.ceil((h - self.size[1]) / 2.).astype(int)
+            right = np.floor((w + self.size[0]) / 2.).astype(int)
+            bottom = np.floor((h + self.size[1]) / 2.).astype(int)
+            img = x[i][:, top:bottom, left:right]
+            label = y[i][:, top:bottom, left:right]
             new_x.append(img)
             new_y.append(label)
-        return new_x,new_y
+        return new_x, new_y
 
-def center_crop(x,y,mode="classification"):
-    return CenterCrop(size=(224,224))(x, y, mode=mode)
 
+def center_crop(x, y, mode="classification"):
+    return CenterCrop(size=(224, 224))(x, y, mode=mode)
 
 
 class Shift(ProcessBase):
@@ -654,7 +654,7 @@ class Shift(ProcessBase):
             orig_max_x = np.minimum(-rand_h + w, w)
             orig_max_y = np.minimum(-rand_v + h, h)
 
-            new_x[ :, new_min_y[0]:new_max_y[0], new_min_x[0]:new_max_x[0]] = \
+            new_x[:, new_min_y[0]:new_max_y[0], new_min_x[0]:new_max_x[0]] = \
                 x[i][:, orig_min_y[0]:orig_max_y[0], orig_min_x[0]:orig_max_x[0]]
             img_list.append(np.asarray(new_x))
         return img_list, y
@@ -683,8 +683,8 @@ class Shift(ProcessBase):
                 orig_max_x = np.minimum(-rand_h + w, w)
                 orig_max_y = np.minimum(-rand_v + h, h)
 
-                new_x[:, new_min_y[0] : new_max_y[0], new_min_x[0]:new_max_x[0]] = \
-                     x[i][:, orig_min_y[0]:orig_max_y[0], orig_min_x[0]:orig_max_x[0]]
+                new_x[:, new_min_y[0]: new_max_y[0], new_min_x[0]:new_max_x[0]] = \
+                    x[i][:, orig_min_y[0]:orig_max_y[0], orig_min_x[0]:orig_max_x[0]]
                 ny = []
                 for j, obj in enumerate(y[i]):
                     pw = obj["box"][2]
@@ -716,7 +716,7 @@ class Shift(ProcessBase):
         img_list = []
         label_list = []
         for i in range(n):
-            c , h, w = x[i].shape
+            c, h, w = x[i].shape
             new_x = np.zeros_like(np.asarray(x[i]))
             new_y = np.zeros_like(np.asarray(y[i]))
             rand_h = ((np.random.rand(1) * 2 - 1) * self._h).astype(np.int)
@@ -850,11 +850,11 @@ class Rotate(ProcessBase):
 
     def _transform_segmentation(self, x, y):
         # assert len(x.shape) == 4
-        n= len(x)
+        n = len(x)
         new_x = []
         new_y = []
         for i in range(n):
-            c,h,w = x[i].shape
+            c, h, w = x[i].shape
             if h == w:
                 # 0, 90, 180 or 270 degree.
                 r = np.random.randint(4)
@@ -954,18 +954,19 @@ def white_noise(x, y=None, std=0.01, mode="classification"):
     """
     return WhiteNoise(std)(x, y, mode)
 
+
 class Distortion(ProcessBase):
     def __init__(self, random_state=None):
         super(Distortion, self).__init__()
-        self.random_state= random_state
+        self.random_state = random_state
         self.choice_list = (None,
-                            (1201,10),
-                            (1501,12),
-                            (991,8))
+                            (1201, 10),
+                            (1501, 12),
+                            (991, 8))
         if self.random_state is None:
             self.random_state = np.random.RandomState(None)
 
-    def _transform_classification(self,x,y):
+    def _transform_classification(self, x, y):
         n = len(x)
         new_x = []
         for i in range(n):
@@ -973,22 +974,26 @@ class Distortion(ProcessBase):
             if choice is None:
                 new_x.append(x[i])
             else:
-                self.alpha,self.sigma = choice[0],choice[1]
+                self.alpha, self.sigma = choice[0], choice[1]
                 img = x[i]
                 shape = img.shape
-                dx = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
-                dy = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
+                dx = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
+                                     self.sigma, mode='constant', cval=0) * self.alpha
+                dy = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
+                                     self.sigma, mode='constant', cval=0) * self.alpha
 
-                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(shape[0]), np.arange(shape[2]))
+                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(
+                    shape[0]), np.arange(shape[2]))
 
-                indices = np.reshape(ay+dy, (-1, 1)), np.reshape(ax+dx, (-1, 1)), np.reshape(z, (-1, 1))
+                indices = np.reshape(ay + dy, (-1, 1)), np.reshape(ax +
+                                                                   dx, (-1, 1)), np.reshape(z, (-1, 1))
                 # print(indices[0].shape,indices[1].shape,indices[2].shape)
                 distorted_image = map_coordinates(img, indices, order=1, mode='reflect')
                 new_x.append(distorted_image.reshape(img.shape))
 
-        return new_x,y
+        return new_x, y
 
-    def _transform_detection(self,x,y):
+    def _transform_detection(self, x, y):
         n = len(x)
         new_x = []
         for i in range(n):
@@ -998,22 +1003,26 @@ class Distortion(ProcessBase):
                 new_x.append(x[i])
             else:
                 # print('distorted')
-                self.alpha,self.sigma = choice[0],choice[1]
+                self.alpha, self.sigma = choice[0], choice[1]
                 img = x[i]
                 shape = img.shape
-                dx = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
-                dy = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
+                dx = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
+                                     self.sigma, mode='constant', cval=0) * self.alpha
+                dy = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
+                                     self.sigma, mode='constant', cval=0) * self.alpha
 
-                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(shape[0]), np.arange(shape[2]))
+                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(
+                    shape[0]), np.arange(shape[2]))
 
-                indices = np.reshape(ay+dy, (-1, 1)), np.reshape(ax+dx, (-1, 1)), np.reshape(z, (-1, 1))
+                indices = np.reshape(ay + dy, (-1, 1)), np.reshape(ax +
+                                                                   dx, (-1, 1)), np.reshape(z, (-1, 1))
                 # print(indices[0].shape,indices[1].shape,indices[2].shape)
                 distorted_image = map_coordinates(img, indices, order=1, mode='reflect')
 
                 new_x.append(distorted_image.reshape(img.shape))
-        return new_x,y
+        return new_x, y
 
-    def _transform_segmentation(self,x,y):
+    def _transform_segmentation(self, x, y):
         n = len(x)
         new_x = []
         new_y = []
@@ -1025,15 +1034,19 @@ class Distortion(ProcessBase):
                 new_y.append(y[i])
             else:
                 # print('distorted')
-                self.alpha,self.sigma = choice[0],choice[1]
+                self.alpha, self.sigma = choice[0], choice[1]
                 img = x[i]
                 shape = img.shape
-                dx = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
-                dy = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
+                dx = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
+                                     self.sigma, mode='constant', cval=0) * self.alpha
+                dy = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
+                                     self.sigma, mode='constant', cval=0) * self.alpha
 
-                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(shape[0]), np.arange(shape[2]))
+                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(
+                    shape[0]), np.arange(shape[2]))
 
-                indices = np.reshape(ay+dy, (-1, 1)), np.reshape(ax+dx, (-1, 1)), np.reshape(z, (-1, 1))
+                indices = np.reshape(ay + dy, (-1, 1)), np.reshape(ax +
+                                                                   dx, (-1, 1)), np.reshape(z, (-1, 1))
                 # print(indices[0].shape,indices[1].shape,indices[2].shape)
                 distorted_image = map_coordinates(img, indices, order=1, mode='reflect')
 
@@ -1041,21 +1054,26 @@ class Distortion(ProcessBase):
 
                 label = y[i]
                 shape = label.shape
-                dx = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
-                dy = gaussian_filter((self.random_state.rand(*shape) * 2 -1),self.sigma,mode='constant',cval=0) * self.alpha
+                dx = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
+                                     self.sigma, mode='constant', cval=0) * self.alpha
+                dy = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
+                                     self.sigma, mode='constant', cval=0) * self.alpha
 
-                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(shape[0]), np.arange(shape[2]))
+                ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(
+                    shape[0]), np.arange(shape[2]))
 
-                indices = np.reshape(ay+dy, (-1, 1)), np.reshape(ax+dx, (-1, 1)), np.reshape(z, (-1, 1))
+                indices = np.reshape(ay + dy, (-1, 1)), np.reshape(ax +
+                                                                   dx, (-1, 1)), np.reshape(z, (-1, 1))
                 # print(indices[0].shape,indices[1].shape,indices[2].shape)
                 distorted_label = map_coordinates(label, indices, order=1, mode='reflect')
 
                 new_y.append(distorted_label.reshape(label.shape))
-        return new_x,new_y
+        return new_x, new_y
 
 
 def distortion(x, y, mode='classification'):
-    return Distortion()(x,y,mode=mode)
+    return Distortion()(x, y, mode=mode)
+
 
 class Jitter(ProcessBase):
 
@@ -1250,9 +1268,9 @@ class RandomBrightness(ProcessBase):
         img_list = []
         for i in range(n):
             if np.random.randint(2):
-                delta = np.random.uniform(-self._delta,self._delta)
+                delta = np.random.uniform(-self._delta, self._delta)
                 x[i] = x[i] + delta
-                img_list.append(np.clip(x[i],0,255))
+                img_list.append(np.clip(x[i], 0, 255))
             else:
                 img_list.append(x[i])
 
@@ -1264,9 +1282,9 @@ class RandomBrightness(ProcessBase):
         img_list = []
         for i in range(n):
             if np.random.randint(2):
-                delta = np.random.uniform(-self._delta,self._delta)
+                delta = np.random.uniform(-self._delta, self._delta)
                 x[i] = x[i] + delta
-                img_list.append(np.clip(x[i],0,255))
+                img_list.append(np.clip(x[i], 0, 255))
             else:
                 img_list.append(x[i])
 
@@ -1278,9 +1296,9 @@ class RandomBrightness(ProcessBase):
         img_list = []
         for i in range(n):
             if np.random.randint(2):
-                delta = np.random.uniform(-self._delta,self._delta)
+                delta = np.random.uniform(-self._delta, self._delta)
                 x[i] = x[i] + delta
-                img_list.append(np.clip(x[i],0,255))
+                img_list.append(np.clip(x[i], 0, 255))
             else:
                 img_list.append(x[i])
 
@@ -1309,52 +1327,53 @@ class RandomHue(ProcessBase):
         n = len(x)
         img_list = []
         for i in range(n):
-            alpha = np.random.uniform(-self.max_delta,self.max_delta)
+            alpha = np.random.uniform(-self.max_delta, self.max_delta)
             u = np.cos(alpha * np.pi)
             w = np.sin(alpha * np.pi)
             bt = np.array([[1.0, 0.0, 0.0],
-                       [0.0, u, -w],
-                       [0.0, w, u]])
+                           [0.0, u, -w],
+                           [0.0, w, u]])
             t = np.dot(np.dot(self.ityiq, bt), self.tyiq).T
-            src = np.dot(x[i].transpose(1,2,0), np.array(t))
-            img_list.append(src.transpose(2,0,1))
-        return img_list,y
+            src = np.dot(x[i].transpose(1, 2, 0), np.array(t))
+            img_list.append(src.transpose(2, 0, 1))
+        return img_list, y
 
     def _transform_detection(self, x, y):
         # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
-            alpha = np.random.uniform(-self.max_delta,self.max_delta)
+            alpha = np.random.uniform(-self.max_delta, self.max_delta)
             u = np.cos(alpha * np.pi)
             w = np.sin(alpha * np.pi)
             bt = np.array([[1.0, 0.0, 0.0],
-                       [0.0, u, -w],
-                       [0.0, w, u]])
+                           [0.0, u, -w],
+                           [0.0, w, u]])
             t = np.dot(np.dot(self.ityiq, bt), self.tyiq).T
-            src = np.dot(x[i].transpose(1,2,0), np.array(t))
-            img_list.append(src.transpose(2,0,1))
-        return img_list,y
+            src = np.dot(x[i].transpose(1, 2, 0), np.array(t))
+            img_list.append(src.transpose(2, 0, 1))
+        return img_list, y
 
     def _transform_segmentation(self, x, y):
         # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
-            alpha = np.random.uniform(-self.max_delta,self.max_delta)
+            alpha = np.random.uniform(-self.max_delta, self.max_delta)
             u = np.cos(alpha * np.pi)
             w = np.sin(alpha * np.pi)
             bt = np.array([[1.0, 0.0, 0.0],
-                       [0.0, u, -w],
-                       [0.0, w, u]])
+                           [0.0, u, -w],
+                           [0.0, w, u]])
             t = np.dot(np.dot(self.ityiq, bt), self.tyiq).T
-            src = np.dot(x[i].transpose(1,2,0), np.array(t))
-            img_list.append(src.transpose(2,0,1))
-        return img_list,y
+            src = np.dot(x[i].transpose(1, 2, 0), np.array(t))
+            img_list.append(src.transpose(2, 0, 1))
+        return img_list, y
 
 
 def random_hue(x, y=None, mode='classification'):
     return RandomHue(max_delta=0.3)(x, y, mode=mode)
+
 
 class RandomSaturation(ProcessBase):
     def __init__(self, ratio=0.4):
@@ -1369,13 +1388,13 @@ class RandomSaturation(ProcessBase):
         img_list = []
         for i in range(n):
             alpha = 1.0 + np.random.uniform(-self.ratio, self.ratio)
-            gray = x[i].transpose(1,2,0) * self.coef
+            gray = x[i].transpose(1, 2, 0) * self.coef
             gray = np.sum(gray, axis=2, keepdims=True)
             gray *= (1.0 - alpha)
-            img = x[i].transpose(1,2,0) * alpha
+            img = x[i].transpose(1, 2, 0) * alpha
             img += gray
-            img_list.append(img.transpose(2,0,1))
-        return img_list,y
+            img_list.append(img.transpose(2, 0, 1))
+        return img_list, y
 
     def _transform_detection(self, x, y):
         # assert len(x.shape) == 4
@@ -1383,13 +1402,13 @@ class RandomSaturation(ProcessBase):
         img_list = []
         for i in range(n):
             alpha = 1.0 + np.random.uniform(-self.ratio, self.ratio)
-            gray = x[i].transpose(1,2,0) * self.coef
+            gray = x[i].transpose(1, 2, 0) * self.coef
             gray = np.sum(gray, axis=2, keepdims=True)
             gray *= (1.0 - alpha)
-            img = x[i].transpose(1,2,0) * alpha
+            img = x[i].transpose(1, 2, 0) * alpha
             img += gray
-            img_list.append(img.transpose(2,0,1))
-        return img_list,y
+            img_list.append(img.transpose(2, 0, 1))
+        return img_list, y
 
     def _transform_segmentation(self, x, y):
         # assert len(x.shape) == 4
@@ -1397,23 +1416,25 @@ class RandomSaturation(ProcessBase):
         img_list = []
         for i in range(n):
             alpha = 1.0 + np.random.uniform(-self.ratio, self.ratio)
-            gray = x[i].transpose(1,2,0) * self.coef
+            gray = x[i].transpose(1, 2, 0) * self.coef
             gray = np.sum(gray, axis=2, keepdims=True)
             gray *= (1.0 - alpha)
-            img = x[i].transpose(1,2,0) * alpha
+            img = x[i].transpose(1, 2, 0) * alpha
             img += gray
-            img_list.append(img.transpose(2,0,1))
-        return img_list,y
+            img_list.append(img.transpose(2, 0, 1))
+        return img_list, y
+
 
 def random_saturation(x, y=None, mode='classification'):
     return RandomSaturation(ratio=0.4)(x, y, mode=mode)
+
 
 class RandomLighting(ProcessBase):
     def __init__(self):
         super(RandomLighting, self).__init__()
         self.choice = (None, (0, 2, 1),
-                      (1, 0, 2), (1, 2, 0),
-                      (2, 0, 1), (2, 1, 0))
+                       (1, 0, 2), (1, 2, 0),
+                       (2, 0, 1), (2, 1, 0))
 
     def _transform_classification(self, x, y):
         # assert len(x.shape) == 4
@@ -1422,13 +1443,13 @@ class RandomLighting(ProcessBase):
         for i in range(n):
             choice = np.random.choice(self.choice)
             if choice == None:
-                choice = (0,1,2)
+                choice = (0, 1, 2)
             new_x = np.empty_like(x[i])
-            new_x[choice[0],:,:] = x[i][0,:,:]
-            new_x[choice[1],:,:] = x[i][1,:,:]
-            new_x[choice[2],:,:] = x[i][2,:,:]
+            new_x[choice[0], :, :] = x[i][0, :, :]
+            new_x[choice[1], :, :] = x[i][1, :, :]
+            new_x[choice[2], :, :] = x[i][2, :, :]
             img_list.append(new_x)
-        return img_list,y
+        return img_list, y
 
     def _transform_detection(self, x, y):
         # assert len(x.shape) == 4
@@ -1437,13 +1458,13 @@ class RandomLighting(ProcessBase):
         for i in range(n):
             choice = np.random.choice(self.choice)
             if choice == None:
-                choice = (0,1,2)
+                choice = (0, 1, 2)
             new_x = np.empty_like(x[i])
-            new_x[choice[0],:,:] = x[i][0,:,:]
-            new_x[choice[1],:,:] = x[i][1,:,:]
-            new_x[choice[2],:,:] = x[i][2,:,:]
+            new_x[choice[0], :, :] = x[i][0, :, :]
+            new_x[choice[1], :, :] = x[i][1, :, :]
+            new_x[choice[2], :, :] = x[i][2, :, :]
             img_list.append(new_x)
-        return img_list,y
+        return img_list, y
 
     def _transform_segmentation(self, x, y):
         # assert len(x.shape) == 4
@@ -1452,16 +1473,18 @@ class RandomLighting(ProcessBase):
         for i in range(n):
             choice = np.random.choice(self.choice)
             if choice == None:
-                choice = (0,1,2)
+                choice = (0, 1, 2)
             new_x = np.empty_like(x[i])
-            new_x[choice[0],:,:] = x[i][0,:,:]
-            new_x[choice[1],:,:] = x[i][1,:,:]
-            new_x[choice[2],:,:] = x[i][2,:,:]
+            new_x[choice[0], :, :] = x[i][0, :, :]
+            new_x[choice[1], :, :] = x[i][1, :, :]
+            new_x[choice[2], :, :] = x[i][2, :, :]
             img_list.append(new_x)
-        return img_list,y
+        return img_list, y
+
 
 def random_lighting(x, y=None, mode='classification'):
     return RandomLighting()(x, y, mode=mode)
+
 
 class RandomExpand(ProcessBase):
     def __init__(self):
@@ -1472,16 +1495,16 @@ class RandomExpand(ProcessBase):
         n = len(x)
         img_list = []
         for i in range(n):
-            c,h,w = x[i].shape
-            ratio = np.random.uniform(1,4)
-            left = np.random.uniform(0, w*ratio - w )
-            top = np.random.uniform(0, h*ratio - h )
-            expand_image = np.zeros((c,int(h*ratio),int(w*ratio)),dtype=x[i].dtype)
-            expand_image[:,:,:] = np.mean(x[i])
-            expand_image[:,int(top):int(top+h),
-                        int(left):int(left+w)] = x[i]
+            c, h, w = x[i].shape
+            ratio = np.random.uniform(1, 4)
+            left = np.random.uniform(0, w * ratio - w)
+            top = np.random.uniform(0, h * ratio - h)
+            expand_image = np.zeros((c, int(h * ratio), int(w * ratio)), dtype=x[i].dtype)
+            expand_image[:, :, :] = np.mean(x[i])
+            expand_image[:, int(top):int(top + h),
+                         int(left):int(left + w)] = x[i]
             img_list.append(expand_image)
-        return img_list,y
+        return img_list, y
 
     def _transform_detection(self, x, y):
         # assert len(x.shape) == 4
@@ -1490,23 +1513,23 @@ class RandomExpand(ProcessBase):
         new_y = []
         for i in range(n):
             ny = []
-            c,h,w = x[i].shape
-            ratio = np.random.uniform(1,4)
-            left = np.random.uniform(0, w*ratio - w )
-            top = np.random.uniform(0, h*ratio - h )
-            expand_image = np.zeros((c,int(h*ratio),int(w*ratio)),dtype=x[i].dtype)
-            expand_image[:,:,:] = np.mean(x[i])
-            expand_image[:,int(top):int(top+h),
-                        int(left):int(left+w)] = x[i]
+            c, h, w = x[i].shape
+            ratio = np.random.uniform(1, 4)
+            left = np.random.uniform(0, w * ratio - w)
+            top = np.random.uniform(0, h * ratio - h)
+            expand_image = np.zeros((c, int(h * ratio), int(w * ratio)), dtype=x[i].dtype)
+            expand_image[:, :, :] = np.mean(x[i])
+            expand_image[:, int(top):int(top + h),
+                         int(left):int(left + w)] = x[i]
             img_list.append(expand_image)
             for j, obj in enumerate(y[i]):
-                ox,oy,ow,oh = obj["box"]
+                ox, oy, ow, oh = obj["box"]
                 ny.append({
-                    "box": [ox+int(left), oy+int(top),ow,oh],
+                    "box": [ox + int(left), oy + int(top), ow, oh],
                     **{k: v for k, v in obj.items() if k != 'box'}
                 })
             new_y.append(ny)
-        return img_list,new_y
+        return img_list, new_y
 
     def _transform_segmentation(self, x, y):
         # assert len(x.shape) == 4
@@ -1514,48 +1537,50 @@ class RandomExpand(ProcessBase):
         img_list = []
         new_y = []
         for i in range(n):
-            c,h,w = x[i].shape
-            c2,h2,w2 = y[i].shape
-            ratio = np.random.uniform(1,4)
-            left = np.random.uniform(0, w*ratio - w )
-            top = np.random.uniform(0, h*ratio - h )
-            expand_image = np.zeros((c,int(h*ratio),int(w*ratio)),dtype=x[i].dtype)
-            expand_label = np.zeros((c2,int(h2*ratio),int(w2*ratio)),dtype=y[i].dtype)
-            expand_image[:,:,:] = np.mean(x[i])
+            c, h, w = x[i].shape
+            c2, h2, w2 = y[i].shape
+            ratio = np.random.uniform(1, 4)
+            left = np.random.uniform(0, w * ratio - w)
+            top = np.random.uniform(0, h * ratio - h)
+            expand_image = np.zeros((c, int(h * ratio), int(w * ratio)), dtype=x[i].dtype)
+            expand_label = np.zeros((c2, int(h2 * ratio), int(w2 * ratio)), dtype=y[i].dtype)
+            expand_image[:, :, :] = np.mean(x[i])
             # expand_label[:,:,:] = np.mean(y[i])
-            expand_image[:,int(top):int(top+h),
-                        int(left):int(left+w)] = x[i]
+            expand_image[:, int(top):int(top + h),
+                         int(left):int(left + w)] = x[i]
 
-            expand_label[:,int(top):int(top+h),
-                        int(left):int(left+w)] = y[i]
+            expand_label[:, int(top):int(top + h),
+                         int(left):int(left + w)] = y[i]
             img_list.append(expand_image)
             new_y.append(expand_label)
-        return img_list,new_y
+        return img_list, new_y
+
 
 def random_expand(x, y=None, mode='classification'):
     return RandomExpand()(x, y, mode=mode)
 
+
 class Shear(ProcessBase):
     def __init__(self, max_shear_factor=5):
         super(Shear, self).__init__()
-        self.max_shear_factor=max_shear_factor
-        self.choice_list = [0,1]
+        self.max_shear_factor = max_shear_factor
+        self.choice_list = [0, 1]
 
     def _transform_classification(self, x, y):
         n = len(x)
         new_x = []
         for i in range(n):
-            c,h,w = x[i].shape
-            angle_to_shear = int(np.random.uniform(-self.max_shear_factor,self.max_shear_factor))
+            c, h, w = x[i].shape
+            angle_to_shear = int(np.random.uniform(-self.max_shear_factor, self.max_shear_factor))
             angle = np.tan(np.radians(angle_to_shear))
-            choice =np.random.choice(self.choice_list)
+            choice = np.random.choice(self.choice_list)
 
             if choice == 0:
                 # print('return original')
                 new_x.append(x[i])
             elif choice == 1:
                 # print('x axis')
-                channel_last = x[i].transpose(1,2,0)
+                channel_last = x[i].transpose(1, 2, 0)
                 img = Image.fromarray(np.uint8(channel_last))
                 shift_in_pixels = angle * h
                 if shift_in_pixels > 0:
@@ -1567,15 +1592,15 @@ class Shear(ProcessBase):
                     shift_in_pixels = abs(shift_in_pixels)
                     offset = 0
                     angle = abs(angle) * -1
-                transform_matrix = (1, angle, -offset,0, 1, 0)
+                transform_matrix = (1, angle, -offset, 0, 1, 0)
                 img = img.transform((int(round(w + shift_in_pixels)), h),
-                                        Image.AFFINE,
-                                        transform_matrix,
-                                        Image.BICUBIC)
-                new_x.append(np.asarray(img).transpose(2,0,1))
+                                    Image.AFFINE,
+                                    transform_matrix,
+                                    Image.BICUBIC)
+                new_x.append(np.asarray(img).transpose(2, 0, 1))
             else:
                 # print('y axis')
-                channel_last = x[i].transpose(1,2,0)
+                channel_last = x[i].transpose(1, 2, 0)
                 img = Image.fromarray(np.uint8(channel_last))
                 shift_in_pixels = angle * w
                 offset = shift_in_pixels
@@ -1584,33 +1609,33 @@ class Shear(ProcessBase):
                     offset = 0
                     angle = abs(angle) * -1
 
-                transform_matrix = (1, 0, 0,angle, 1, -offset)
+                transform_matrix = (1, 0, 0, angle, 1, -offset)
 
                 img = img.transform((w, int(round(h + shift_in_pixels))),
-                                        Image.AFFINE,
-                                        transform_matrix,
-                                        Image.BICUBIC)
+                                    Image.AFFINE,
+                                    transform_matrix,
+                                    Image.BICUBIC)
 
-                new_x.append(np.asarray(img).transpose(2,0,1))
-        return new_x,y
+                new_x.append(np.asarray(img).transpose(2, 0, 1))
+        return new_x, y
 
     def _transform_detection(self, x, y):
         n = len(x)
         new_x = []
         new_y = []
         for i in range(n):
-            c,h,w = x[i].shape
-            img,label = x[i],y[i]
-            angle_to_shear = int(np.random.uniform(-self.max_shear_factor,self.max_shear_factor))
+            c, h, w = x[i].shape
+            img, label = x[i], y[i]
+            angle_to_shear = int(np.random.uniform(-self.max_shear_factor, self.max_shear_factor))
             angle = np.tan(np.radians(angle_to_shear))
-            choice =np.random.choice(self.choice_list)
+            choice = np.random.choice(self.choice_list)
             if choice == 0:
                 # print('return original')
                 new_x.append(img)
                 new_y.append(label)
             elif choice == 1:
                 # print('x axis')
-                ny=[]
+                ny = []
                 shift_in_pixels = angle * h
                 if shift_in_pixels > 0:
                     shift_in_pixels = np.ceil(shift_in_pixels)
@@ -1622,56 +1647,56 @@ class Shear(ProcessBase):
                     offset = 0
                     angle = abs(angle) * -1.
                 else:
-                    tmp1, tmp2 = [],[]
+                    tmp1, tmp2 = [], []
                     tmp1.append(img)
                     tmp2.append(label)
-                    img,label = horizontalflip(tmp1,tmp2,prob=False,mode='detection')
+                    img, label = horizontalflip(tmp1, tmp2, prob=False, mode='detection')
                     img = np.asarray(img[0])
                     label = label[0]
-                channel_last = img.transpose(1,2,0)
+                channel_last = img.transpose(1, 2, 0)
                 img = Image.fromarray(np.uint8(channel_last))
-                transform_matrix = (1, angle, -offset,0, 1, 0)
+                transform_matrix = (1, angle, -offset, 0, 1, 0)
                 img = img.transform((int(round(w + shift_in_pixels)), h),
-                                        Image.AFFINE,
-                                        transform_matrix,
-                                        Image.BICUBIC)
+                                    Image.AFFINE,
+                                    transform_matrix,
+                                    Image.BICUBIC)
 
                 for j, obj in enumerate(label):
-                    ox,oy,ow,oh = obj["box"]
+                    ox, oy, ow, oh = obj["box"]
                     if angle == 0:
-                        px,pw =  ox,ow
+                        px, pw = ox, ow
                     else:
-                        px1 = ox-(ow/2) + (((oy-(oh/2))*abs(angle))).astype(int)
-                        px2 = ox+(ow/2) + (((oy+(oh/2))*abs(angle))).astype(int)
-                        pw = px2-px1
-                        px = px1 + pw/2
+                        px1 = ox - (ow / 2) + (((oy - (oh / 2)) * abs(angle))).astype(int)
+                        px2 = ox + (ow / 2) + (((oy + (oh / 2)) * abs(angle))).astype(int)
+                        pw = px2 - px1
+                        px = px1 + pw / 2
                     ny.append({
-                        "box": [px-(offset*angle), oy, pw, oh],
+                        "box": [px - (offset * angle), oy, pw, oh],
                         **{k: v for k, v in obj.items() if k != 'box'}
                     })
                 if angle_to_shear > 0:
-                    img = np.asarray(img).transpose(2,0,1)
-                    tmp1, tmp2 = [],[]
+                    img = np.asarray(img).transpose(2, 0, 1)
+                    tmp1, tmp2 = [], []
                     tmp1.append(img)
                     tmp2.append(ny)
-                    img,label = horizontalflip(tmp1,tmp2,prob=False,mode='detection')
+                    img, label = horizontalflip(tmp1, tmp2, prob=False, mode='detection')
                     new_x.append(np.asarray(img[0]))
                     new_y.append(label[0])
                 else:
-                    new_x.append(np.asarray(img).transpose(2,0,1))
+                    new_x.append(np.asarray(img).transpose(2, 0, 1))
                     new_y.append(ny)
 
-        return new_x,new_y
+        return new_x, new_y
 
     def _transform_segmentation(self, x, y):
         n = len(x)
         new_x = []
         new_y = []
         for i in range(n):
-            c,h,w = x[i].shape
-            angle_to_shear = int(np.random.uniform(-self.max_shear_factor,self.max_shear_factor))
+            c, h, w = x[i].shape
+            angle_to_shear = int(np.random.uniform(-self.max_shear_factor, self.max_shear_factor))
             angle = np.tan(np.radians(angle_to_shear))
-            choice =np.random.choice(self.choice_list)
+            choice = np.random.choice(self.choice_list)
 
             if choice == 0:
                 # print('return original')
@@ -1679,7 +1704,7 @@ class Shear(ProcessBase):
                 new_y.append(y[i])
             elif choice == 1:
                 # print('x axis')
-                channel_last = x[i].transpose(1,2,0)
+                channel_last = x[i].transpose(1, 2, 0)
                 img = Image.fromarray(np.uint8(channel_last))
                 shift_in_pixels = angle * h
                 if shift_in_pixels > 0:
@@ -1691,27 +1716,27 @@ class Shear(ProcessBase):
                     shift_in_pixels = abs(shift_in_pixels)
                     offset = 0
                     angle = abs(angle) * -1
-                transform_matrix = (1, angle, -offset,0, 1, 0)
+                transform_matrix = (1, angle, -offset, 0, 1, 0)
                 img = img.transform((int(round(w + shift_in_pixels)), h),
+                                    Image.AFFINE,
+                                    transform_matrix,
+                                    Image.BICUBIC)
+                new_x.append(np.asarray(img).transpose(2, 0, 1))
+
+                num_class, _, _ = y[i].shape
+                new_label = []
+                for z in range(num_class):
+                    label = y[i][z, :, :]
+                    img = Image.fromarray(np.uint8(label))
+                    img = img.transform((int(round(w + shift_in_pixels)), h),
                                         Image.AFFINE,
                                         transform_matrix,
                                         Image.BICUBIC)
-                new_x.append(np.asarray(img).transpose(2,0,1))
-
-                num_class,_,_ = y[i].shape
-                new_label = []
-                for z in range(num_class):
-                        label = y[i][z,:,:]
-                        img = Image.fromarray(np.uint8(label))
-                        img = img.transform((int(round(w + shift_in_pixels)), h),
-                                                Image.AFFINE,
-                                                transform_matrix,
-                                                Image.BICUBIC)
-                        new_label.append(np.array(img))
+                    new_label.append(np.array(img))
                 new_y.append(np.array(new_label))
             else:
                 # print('y axis')
-                channel_last = x[i].transpose(1,2,0)
+                channel_last = x[i].transpose(1, 2, 0)
                 img = Image.fromarray(np.uint8(channel_last))
                 shift_in_pixels = angle * w
                 offset = shift_in_pixels
@@ -1720,28 +1745,28 @@ class Shear(ProcessBase):
                     offset = 0
                     angle = abs(angle) * -1
 
-                transform_matrix = (1, 0, 0,angle, 1, -offset)
+                transform_matrix = (1, 0, 0, angle, 1, -offset)
 
                 img = img.transform((w, int(round(h + shift_in_pixels))),
+                                    Image.AFFINE,
+                                    transform_matrix,
+                                    Image.BICUBIC)
+
+                new_x.append(np.asarray(img).transpose(2, 0, 1))
+
+                num_class, _, _ = y[i].shape
+                new_label = []
+                for z in range(num_class):
+                    label = y[i][z, :, :]
+                    img = Image.fromarray(np.uint8(label))
+                    img = img.transform((int(round(w + shift_in_pixels)), h),
                                         Image.AFFINE,
                                         transform_matrix,
                                         Image.BICUBIC)
-
-                new_x.append(np.asarray(img).transpose(2,0,1))
-
-                num_class,_,_ = y[i].shape
-                new_label = []
-                for z in range(num_class):
-                        label = y[i][z,:,:]
-                        img = Image.fromarray(np.uint8(label))
-                        img = img.transform((int(round(w + shift_in_pixels)), h),
-                                                Image.AFFINE,
-                                                transform_matrix,
-                                                Image.BICUBIC)
-                        new_label.append(np.array(img))
+                    new_label.append(np.array(img))
                 new_y.append(np.array(new_label))
 
-        return new_x,new_y
+        return new_x, new_y
 
 
 def shear(x, y=None, mode='classification'):

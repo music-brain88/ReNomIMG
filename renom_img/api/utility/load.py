@@ -86,12 +86,13 @@ def parse_xml_detection(xml_path_list, num_thread=8):
 
     return annotation_list, class_map
 
+
 def resize_detection_data(img_list, annotation_list, imsize):
     im_list = []
     label_list = []
 
     for img, obj_list in zip(img_list, annotation_list):
-        channel_last = img.transpose(1,2,0)
+        channel_last = img.transpose(1, 2, 0)
         img = Image.fromarray(np.uint8(channel_last))
         w, h = img.size
         sw, sh = imsize[0] / float(w), imsize[1] / float(h)
@@ -104,6 +105,7 @@ def resize_detection_data(img_list, annotation_list, imsize):
         label_list.append(new_obj_list)
     return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), label_list
 
+
 def prepare_detection_data(img_path_list, annotation_list):
     img_list = []
     label_list = []
@@ -115,9 +117,10 @@ def prepare_detection_data(img_path_list, annotation_list):
             "box": [obj["box"][0], obj["box"][1], obj["box"][2], obj["box"][3]],
             **{k: v for k, v in obj.items() if k != "box"}
         } for obj in obj_list]
-        img_list.append(np.asarray(img).transpose(2,0,1))
+        img_list.append(np.asarray(img).transpose(2, 0, 1))
         label_list.append(new_obj_list)
     return img_list, label_list
+
 
 def parse_txt_classification(path, separator=" "):
     """
@@ -141,6 +144,8 @@ def parse_txt_classification(path, separator=" "):
 
 # this function is called only from predict method of classification, detection and segmentation
 # so this method has nothing to do with augmentation processes
+
+
 def load_img(img_path, imsize=None):
     img = Image.open(img_path)
     img = img.convert('RGB')
