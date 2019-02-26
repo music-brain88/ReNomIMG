@@ -154,7 +154,7 @@ class DataBuilderDetection(DataBuilderBase):
             for j, obj in enumerate(annotation):
                 target[i, j * dlt:(j + 1) * dlt - 1] = [obj['box'][0],
                                                         obj['box'][1], obj['box'][2], obj['box'][3]]
-                target[i, (j + 1) * dlt - 1] = self.class_map[obj['name']]
+                target[i, (j + 1) * dlt - 1] = obj['class']
         return img_list, target
 
 

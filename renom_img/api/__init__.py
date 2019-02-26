@@ -55,7 +55,6 @@ class Base(rm.Model):
 
         # Determines last layer's unit size according to the class number.
         self.num_class = len(self.class_map)
-        self.set_last_layer_unit(self.num_class)
 
         # 2. Accepts imsize both tuple and int.
         if not hasattr(imsize, "__getitem__"):

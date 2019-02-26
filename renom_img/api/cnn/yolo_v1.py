@@ -8,7 +8,7 @@ class CnnYolov1(CnnBase):
 
     WEIGHT_URL = "{}".format(__version__)
 
-    def __init__():
+    def __init__(self):
         super(CnnYolov1, self).__init__()
         # Following is a darknet. We define network in each algorithm files.
         # This may cause duplicate definition but ensures independence.
