@@ -6,6 +6,7 @@ from PIL import Image
 
 from renom_img import __version__
 from renom_img.api import Base, adddoc
+from renom_img.api.cnn.yolov1 import CnnYolov1
 from renom_img.api.detection import Detection
 from renom_img.api.classification.darknet import Darknet
 from renom_img.api.utility.distributor.distributor import ImageDistributor
@@ -72,8 +73,10 @@ class Yolov1(Detection):
 
     """
 
+    # Attributes here will be saved to hdf5 file.
+    # So if an algorithm has its own hyper parameter, you need to put it here.
     SERIALIZED = ("_cells", "_bbox", *Base.SERIALIZED)
-    WEIGHT_URL = Darknet.WEIGHT_URL
+    WEIGHT_URL = CnnYolov1.WEIGHT_URL
 
     def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
@@ -82,37 +85,14 @@ class Yolov1(Detection):
 
         self._cells = cells
         self._bbox = bbox
-        model = Darknet()
+        self.model = CnnYolov1()
         super(Yolov1, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, model)
-
-        self._last_dense_size = (self.num_class + 5 * bbox) * cells[0] * cells[1]
-        self._freezed_network = rm.Sequential(model[:-4])
-        self._network = rm.Sequential([
-            rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
-            rm.BatchNormalize(mode='feature'),
-            rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=1024, filter=3, padding=1, stride=2, ignore_bias=True),
-            rm.BatchNormalize(mode='feature'),
-            rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
-            rm.BatchNormalize(mode='feature'),
-            rm.LeakyRelu(slope=0.1),
-            rm.Conv2d(channel=1024, filter=3, padding=1, ignore_bias=True),
-            rm.BatchNormalize(mode='feature'),
-            rm.LeakyRelu(slope=0.1),
-            rm.Flatten(),
-            rm.Dense(4096),  # instead of locally connected layer, we are using Dense layer
-            rm.LeakyRelu(slope=0.1),
-            rm.Dropout(0.5),
-            rm.Dense(self._last_dense_size)
-        ])
+                                     load_pretrained_weight, train_whole_network, self.model)
+        self.model.set_output_size((self.num_class + 5 * bbox) * cells[0] * cells[1])
+        self.model.set_train_whole(train_whole_network)
         self._opt = rm.Sgd(0.0005, 0.9)
 
-    def set_last_layer_unit(self, unit_size):
-        pass
-
-    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
+    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_train_loss_list=None, avg_valid_loss_list=None):
         """Returns an instance of Optimizer for training Yolov1 algorithm.
 
         If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
@@ -162,39 +142,6 @@ class Yolov1(Detection):
             (ndarray): Preprocessed data.
         """
         return x / 255.
-
-    def forward(self, x):
-        """Performs forward propagation.
-        This function can be called using ``__call__`` method.
-        See following example of method usage.
-
-        Args:
-            x (ndarray, Node): Input image as an tensor.
-
-        Returns:
-            (Node): Returns raw output of yolo v1.
-            You can reform it to bounding box form using the method ``get_bbox``.
-
-        Example:
-            >>> import numpy as np
-            >>> from renom_img.api.detection.yolo_v1 import Yolov1
-            >>>
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> class_map = ["dog", "cat"]
-            >>> model = Yolov1(class_map)
-            >>> y = model.forward(x) # Forward propagation.
-            >>> y = model(x)  # Same as above result.
-            >>>
-            >>> bbox = model.get_bbox(y) # The output can be reformed using get_bbox method.
-
-        """
-        assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
-            "Or, please load already trained model using the method 'load()'."
-        self._freezed_network.set_auto_update(self.train_whole_network)
-        out = self._freezed_network(x)
-        out = self._network(out)
-        return out
 
     def regularize(self):
         """Regularize term. You can use this function to add regularize term to

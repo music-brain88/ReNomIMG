@@ -3,9 +3,20 @@ import threading
 import numpy as np
 from PIL import Image
 from queue import Queue
-from concurrent.futures import ThreadPoolExecutor as Executor
+from concurrent.futures import ProcessPoolExecutor as Executor
 
 from renom_img.api.utility.load import load_img
+
+
+class BuilderWrapper():
+
+    def __init__(self, builder, augmentation):
+        self.builder = builder
+        self.augmentation = augmentation
+
+    def __call__(self, args):
+        img_path_list, annotation_list, nth = args
+        return self.builder(img_path_list, annotation_list, augmentation=self.augmentation, nth=nth)
 
 
 class ImageDistributorBase(object):
@@ -71,6 +82,8 @@ class ImageDistributorBase(object):
         N = len(self)
         batch_loop = int(np.ceil(N / batch_size))
         builder = callback
+
+        # User can override builder giving 'callback' to this method.
         if builder is None:
             builder = self._builder
 
@@ -84,10 +97,6 @@ class ImageDistributorBase(object):
                 perm = np.random.randint(0, N, size=(N, ))
         else:
             perm = np.arange(N)
-
-        def build(args):
-            img_path_list, annotation_list, nth = args
-            return builder(img_path_list, annotation_list, augmentation=self._augmentation, nth=nth)
 
         with Executor(max_workers=self._num_worker) as exector:
             batch_perm = [perm[nth * batch_size:(nth + 1) * batch_size]
@@ -107,7 +116,8 @@ class ImageDistributorBase(object):
             work_thread = []
             while (iter_count - len(work_thread)) < len(arg):
                 for i in range(min(self._num_worker * 4 - len(work_thread), len(arg) - iter_count)):
-                    work_thread.append(exector.submit(build, arg[iter_count]))
+                    work_thread.append(exector.submit(BuilderWrapper(
+                        builder, self._augmentation), arg[iter_count]))
                     iter_count += 1
                 yield work_thread.pop(0).result()
 
