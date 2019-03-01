@@ -6,7 +6,9 @@ import sys
 import sqlite3
 import json
 import inspect
+import time
 import _pickle as pickle
+from sqlalchemy.orm import selectinload
 from renom_img.server import DB_DIR
 from renom_img.server.utility.DAO import Session
 from renom_img.server.utility.DAO import engine
@@ -153,30 +155,66 @@ class Storage:
                      last_prediction_result=None
                      ):
         with SessionContext() as session:
-            model = session.query(Model).filter(Model.id == id).first()
-            if model:
-                if state is not None:
+            # R/W of model information takes much time when task is 'segmentation'.
+            # Is it better to separate result from model?
+            def select(selector):
+                return session.query(Model).options(selectinload(selector)).filter_by(id=id)
+
+            if state is not None:
+                model = select(Model.state)
+                if model is not None:
                     model.state = state
-                if running_state is not None:
+
+            if running_state is not None:
+                model = select(Model.running_state)
+                if model is not None:
                     model.running_state = running_state
-                if total_epoch is not None:
+
+            if total_epoch is not None:
+                model = select(Model.total_epoch)
+                if model is not None:
                     model.total_epoch = total_epoch
-                if nth_epoch is not None:
+
+            if nth_epoch is not None:
+                model = select(Model.nth_epoch)
+                if model is not None:
                     model.nth_epoch = nth_epoch
-                if total_batch is not None:
+
+            if total_batch is not None:
+                model = select(Model.total_batch)
+                if model is not None:
                     model.total_batch = total_batch
-                if nth_batch is not None:
+
+            if nth_batch is not None:
+                model = select(Model.nth_batch)
+                if model is not None:
                     model.nth_batch = nth_batch
-                if last_batch_loss is not None:
+
+            if last_batch_loss is not None:
+                model = select(Model.last_batch_loss)
+                if model is not None:
                     model.last_batch_loss = last_batch_loss
-                if train_loss_list is not None:
+
+            if train_loss_list is not None:
+                model = select(Model.train_loss_list)
+                if model is not None:
                     model.train_loss_list = pickle_dump(train_loss_list)
-                if valid_loss_list is not None:
+
+            if valid_loss_list is not None:
+                model = select(Model.valid_loss_list)
+                if model is not None:
                     model.valid_loss_list = pickle_dump(valid_loss_list)
-                if best_epoch_valid_result is not None:
+
+            if best_epoch_valid_result is not None:
+                model = select(Model.best_epoch_valid_result)
+                if model is not None:
                     model.best_epoch_valid_result = pickle_dump(best_epoch_valid_result)
-                if last_prediction_result is not None:
+
+            if last_prediction_result is not None:
+                model = select(Model.last_prediction_result)
+                if model is not None:
                     model.last_prediction_result = pickle_dump(last_prediction_result)
+
             session.commit()
 
     def fetch_dataset(self, id):

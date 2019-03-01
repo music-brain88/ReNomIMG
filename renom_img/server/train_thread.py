@@ -136,9 +136,10 @@ class TrainThread(object):
 
             model.set_models(inference=False)
             temp_train_batch_loss_list = []
+
+            self.running_state = RunningState.TRAINING
+            self.sync_state()
             for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size), 1):
-                self.running_state = RunningState.TRAINING
-                self.sync_state()
                 if isinstance(self.model, Yolov2) and (b - 1) % 10 == 0 and (b - 1):
                     release_mem_pool()
 
