@@ -272,8 +272,8 @@ class DataBuilderSegmentation(DataBuilderBase):
             labels, asw, ash = self.load_annotation(an_path)
             annot = np.zeros((n_class, asw, ash))
             img_list.append(img)
-            for i in range(self.imsize[1]):
-                for j in range(self.imsize[0]):
+            for i in range(labels.shape[0]):
+                for j in range(labels.shape[1]):
                     if int(labels[i][j]) >= n_class:
                         annot[n_class - 1, i, j] = 1
                     else:
