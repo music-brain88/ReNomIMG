@@ -1,5 +1,7 @@
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import cm
 
 mean = [103.939, 116.779, 123.68]
 
@@ -22,7 +24,7 @@ def preprocess_img(img):
     return x
 
 
-def visualize(img, input_map, L, result, figsize=(16,16)):
+def visualize_grad_cam(img, input_map, L, result, figsize=(16,16)):
     fig = plt.figure(figsize = (16,16)) 
 
     ax1 = fig.add_subplot(141)

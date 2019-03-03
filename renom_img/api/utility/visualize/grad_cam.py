@@ -1,7 +1,13 @@
+import copy
+import numpy as np
+from scipy.ndimage import zoom
+import renom as rm
 from renom.layers.activation.relu import Relu
-from renom_img.api.utility.visualize import model_types, Relu_gb, convert_relus
-from renom_img.api.utility.visualize.tools import load_img, preprocess_img, visualize_grad_cam, visualize_comparison
-from renom_img.api.utility.visualize import vgg16_cam, resnet50_cam, resnext50_cam
+from renom.cuda import is_cuda_active
+from renom_img.api.utility.visualize import model_types, Relu_GB, convert_relus
+from renom_img.api.utility.visualize.tools import visualize_grad_cam, visualize_comparison
+from renom_img.api.utility.visualize import vgg_cam, resnet_cam, sequential_cam
+
 
 class Guided_Grad_Cam():
 
@@ -10,7 +16,8 @@ class Guided_Grad_Cam():
         self.model_cam = model_cam
         self._model_type = self.get_model_type(self.model_cam)
         assert self._model_type in model_types, "Model must be instance of {}".format(model_types)
-        self.model_gb = self.convert_relus(model_cam)
+#        self.model_gb = convert_relus(copy.deepcopy(self.model_cam))
+        self.model_gb = convert_relus(self.model_cam)
         self.model_cam.set_models(inference=True)
         self.model_gb.set_models(inference=True)
 
@@ -19,103 +26,100 @@ class Guided_Grad_Cam():
         return model_cam.__class__.__name__
 
 
-    def convert_relus(self, model):
-        model_dict = model.__dict__
-        for k, v in model_dict.items():
-            if isinstance(v, Relu):
-                model_dict[k] = Relu_gb()
-            else:
-                try:
-                    x = model_dict[k].__dict__
-                    if '_parameters' not in x.keys():
-                        convert_relus(x)
-                except:
-                    if isinstance(v, list):
-                        for e in v:
-                            convert_relus(e)
-        return model
+    def get_zoom_factor(self, size, L):
+        return int(size[0]/L.shape[0])
 
 
     # 1a. Forward pass (Grad-CAM)
     def forward_cam(self, x, class_id, mode):
-        if (self._model_type == 'VGG16'):
-            y_c, final_conv = vgg16_cam(self.model_cam, x, class_id, mode, flag='cam')
-        elif (self._model_type == 'ResNet50'):
-            y_c, final_conv = resnet50_cam(self.model_cam, x, class_id, mode, flag='cam')
-        elif (self._model_type == 'ResNeXt50'):
-            y_c, final_conv = resnext50_cam(self.model_cam, x, class_id, mode, flag='cam')
-        elif (self._model_type == 'Sequential'):
-            y_c, final_conv = sequential_cam(self.model_cam, x, class_id, mode, flag='cam', node=None)
-            # user-defined custom model
-            pass
+        if 'VGG' in self._model_type:
+            y_c, final_conv = vgg_cam(self.model_cam, x, class_id, mode)
+        elif 'ResNet' in self._model_type or 'ResNeXt' in self._model_type:
+            y_c, final_conv = resnet_cam(self.model_cam, x, class_id, mode)
+        elif self._model_type == 'Sequential':
+            y_c, final_conv = sequential_cam(self.model_cam, x, class_id, mode, node=None)
         else:
-            # error statement
-            pass
+            print("Error: Model must be of type VGG, ResNet, ResNeXt or rm.Sequential")
         return y_c, final_conv
 
 
     # 1b. Forward pass (Guided Backpropagation)
-    def forward_gb(self, x, class_id, mode):
-        # check model type
-        if (self._model_type = 'VGG16'):
-            y_gb = vgg16_cam(self.model_gb, x, class_id, mode, flag='gb')
-        elif (self._model_type = 'ResNet50'):
-            y_gb = resnet50_cam(self.model_gb, x, class_id, mode, flag='gb')
-        elif (self._model_type = 'ResNeXt50'):
-            y_gb = resnext50_cam(self.model_gb, x, class_id, mode, flag='gb')
-        elif (self._model_type = sequential):
-            # user-defined custom model
-            y_gb = sequential_cam(self.model_gb, x, class_id, mode, flag='gb') 
-        else:
-            # error message
-            pass
+    def forward_gb(self, x_gb, class_id, mode):
+        t_gb = self.model_gb(x_gb)
+        if mode == 'plus':
+            t_gb = rm.exp(t_gb)
+        t_gb = t_gb[:, class_id]
+        y_gb = rm.sum(t_gb)
         return y_gb
 
 
     def get_predicted_class(self, x):
-        return np.argmax(self.model_cam(x))
+        if is_cuda_active():
+           t = self.model_cam(x).as_ndarray()
+        else:
+           t = self.model_cam(x)
+        return np.argmax(t)
 
 
     def guided_backprop(self, x_gb, y_gb):
-        grad_gb = y_gb.grad()
-        input_map = np.squeeze(grad_gb.get(x_gb)) #ok
-        input_map = input_map[::-1,:,:] #ok
+        grad = y_gb.grad()
+        if is_cuda_active():
+            print('cuda_active, guided_backrop')
+            print(id(x_gb))
+            print(grad.__dict__['variables'])
+            grad_gb = grad.get(x_gb).as_ndarray()
+        else:
+            grad_gb = grad.get(x_gb)
+        print(np.min(grad_gb), np.max(grad_gb), np.mean(grad_gb))
+        input_map = np.squeeze(grad_gb)
+        #input_map = input_map[::-1,:,:]
         input_map = input_map.transpose(1,2,0)
         gb_viz = input_map.copy()
-        input_map -= np.min(gb_viz)
+        input_map -= np.min(input_map)
         input_map /= np.max(input_map)
-
+        print(np.min(input_map), np.max(input_map), np.mean(input_map))
         return gb_viz, input_map
 
 
-    def generate_map(self, y_c, final_conv, mode)
+    def generate_map(self, y_c, final_conv, gb_map, mode, size):
     # 3a. Grad-CAM (coefficients)
         grad = y_c.grad()
-        A = np.squeeze(final_conv)
-        dAk = np.squeeze(grad.get(final_conv))
+        if is_cuda_active():
+            A = np.squeeze(final_conv.as_ndarray())
+            dAk = np.squeeze(grad.get(final_conv).as_ndarray())
+        else:
+            A = np.squeeze(final_conv)
+            dAk = np.squeeze(grad.get(final_conv))
 
-        if mode='plus':
+        if mode == 'plus':
             alpha_new = (dAk * dAk)
-            denominator_1 = 2*dAk*dAk
-            denominator_2 = rm.sum(rm.sum(A, axis=2), axis=1)
-            denominator_2 = denominator_2[:, np.newaxis, np.newaxis]
-            denominator_2 *= dAk*dAk*dAk
-            alpha_new = alpha_new / (denominator_1 + denominator_2 + 1e-8)
+            term_1 = 2*dAk*dAk
+            term_2 = rm.sum(rm.sum(A, axis=2), axis=1)
+            if is_cuda_active():
+                term_2 = term_2.as_ndarray()
+            term_2 = term_2[:, np.newaxis, np.newaxis]
+            term_2 = term_2*dAk*dAk*dAk
+            alpha_new = alpha_new / (term_1 + term_2 + 1e-8)
             w = rm.sum(rm.sum(alpha_new*rm.relu(dAk), axis=2), axis=1)
+            if is_cuda_active():
+                w = w.as_ndarray()
             w = w[:, np.newaxis, np.newaxis]  
         else:
             w = rm.sum(rm.sum(dAk, axis=2), axis=1) / (dAk.shape[1]*dAk.shape[2])
+            if is_cuda_active():
+                w = w.as_ndarray()
             w = w[:,np.newaxis,np.newaxis]
 
         # 3b. Grad-CAM (saliency map)
-        L = rm.relu(rm.sum(w * A, axis=0))
-        #TODO: zoom_factor, not hard-coding
-        # L = scipy.ndimage.zoom(L, zoom_factor, order=1)
-        L = scipy.ndimage.zoom(L, 16, order=1)
+        L = rm.relu(rm.sum(w * A, axis=0)).as_ndarray()
+        zoom_factor = self.get_zoom_factor(size, L)
+        print(size, L.shape, zoom_factor)
+        L = zoom(L, zoom_factor, order=1)
+        #L = scipy.ndimage.zoom(L, 16, order=1)
         L_big = L[:, :, np.newaxis]
 
         # 4. Guided Grad-CAM
-        result = L_big * gb_viz
+        result = L_big * gb_map
         result -= np.min(result)
         result /= np.max(result)
 
@@ -123,11 +127,9 @@ class Guided_Grad_Cam():
 
 
     # function to actually run calculation
-    def __call__(img_path, size=(224,224), class_id=None, mode='normal'):
-        # move preprocessing over to user-side (before calling this)
-        #img = load_img(img_path, size)
-        #x = preprocess_img(img)
-        x_gb = x.copy()
+    def __call__(self, x, size=(224,224), class_id=None, mode='normal'):
+        x_gb = rm.Variable(x.copy())
+        x = rm.Variable(x)
 
         if not class_id:
             class_id = self.get_predicted_class(x)
@@ -135,7 +137,8 @@ class Guided_Grad_Cam():
         y, final_conv = self.forward_cam(x, class_id, mode)
 
         y_gb = self.forward_gb(x_gb, class_id, mode)
+        print(y_gb)
         gb_map, input_map = self.guided_backprop(x_gb, y_gb)
-        L, result = self.generate_map(y, final_conv, gb_map, mode) 
+        L, result = self.generate_map(y, final_conv, gb_map, mode, size) 
 
-        return img, input_map, L, result
+        return input_map, L, result

@@ -1,9 +1,11 @@
 import numpy as np
-
+import renom as rm
+import renom
 from renom_img.api.classification.vgg import VGGBase, VGG16
 from renom_img.api.classification.resnet import ResNetBase, ResNet50
 from renom_img.api.classification.resnext import ResNeXtBase, ResNeXt50 
 from renom.layers.activation.relu import Relu
+from renom.layers.function.parameterized import Sequential
 from renom.core import UnaryOp, Node
 from renom.debug_graph import showmark
 import renom.cuda as cu
@@ -12,6 +14,8 @@ if cu.has_cuda():
 
 from renom.cuda import set_cuda_active
 
+
+model_types = ['VGG16', 'VGG19', 'ResNet50', 'ResNeXt50']
 
 #Guided Back-propagation version of ReLU function
 @showmark
@@ -36,11 +40,12 @@ class relu_gb(UnaryOp):
         if isinstance(self.attrs._arg, Node):
             dx = get_gpu(self.attrs._arg).empty_like_me()
             cu.curelu_backard(get_gpu(self.attrs._arg), dx)
+            dy = dy.as_ndarray()
             dy = np.where(dy > 0, dy, 0)
             self.attrs._arg._update_diff(context, dx * get_gpu(dy), **kwargs)
 
 
-class Relu_gb:
+class Relu_GB:
     '''Modified Rectified Linear Unit activation function for Guided Backpropagation.
        Backward pass is modified according to reference below
 
@@ -69,7 +74,9 @@ class Relu_gb:
 
 
 def convert_relus(model):
-    if isinstance(model, Sequential):
+    if isinstance(model, Relu):
+        model = Relu_GB()
+    elif isinstance(model, Sequential):
         model_dict = model.__dict__
         for k, v in model_dict.items():
             if isinstance(v, Relu):
@@ -78,6 +85,8 @@ def convert_relus(model):
                 for i,e in enumerate(model_dict[k]):
                     if isinstance(e, Relu):
                         model_dict[k][i] = Relu_GB()
+                    else:
+                        convert_relus(model_dict[k][i])
             else:
                 convert_relus(model_dict[k])
     else:
@@ -98,22 +107,40 @@ def convert_relus(model):
     return model
 
 
-def vgg16_cam(model, x, class_id, mode, flag='cam'):
-    y1 = model._model.block1(x)
-    y2 = model._model.block2(y1)
-    y3 = model._model.block3(y2)
-    y4 = model._model.block4(y3)
-    relu5_3 = rm.Sequential(model._model.block5[:-1])(y4)
-    y5 = model._model.block5[-1](relu5_3)
-    t = rm.flatten(y5)
-    t = rm.relu(model._model.fc1(t))
-    t = rm.relu(model._model.fc2(t))
-    t = model._model.fc3(t)
+def vgg_cam(model, x, class_id, mode):
+    x = model._model.block1(x)
+    x = model._model.block2(x)
+    x = model._model.block3(x)
+    x = model._model.block4(x)
+    final_conv = rm.Sequential(model._model.block5[:-1])(x)
+    x = model._model.block5[-1](final_conv)
+    x = rm.flatten(x)
+    x = rm.relu(model._model.fc1(x))
+    x = rm.relu(model._model.fc2(x))
+    x = model._model.fc3(x)
     if mode == 'plus':
-        t = rm.exp(t)
-    t_c = t[:, class_id]
-    if flag == 'cam':
-        return rm.sum(t_c), relu5_3
-    return rm.sum(t_c)
+        x = rm.exp(x)
+    x_c = x[:, class_id]
+    return rm.sum(x_c), final_conv
 
 
+def resnet_cam(model, x, class_id, mode):
+    x = model._model.conv1(x)
+    x = model._model.bn1(x)
+    x = model._model.relu(x)
+    x = model._model.maxpool(x)
+    x = model._model.layer1(x)
+    x = model._model.layer2(x)
+    x = model._model.layer3(x)
+    final_conv = model._model.layer4(x)
+    x = rm.average_pool2d(final_conv, filter=(final_conv.shape[2],final_conv.shape[3]))
+    x = model._model.flat(x)
+    x = model._model.fc(x)
+    if mode == 'plus':
+        x = rm.exp(x)
+    x_c = x[:, class_id]
+    return rm.sum(x_c), final_conv
+
+
+def sequential_cam(model, x, class_id, mode, node):
+    pass
