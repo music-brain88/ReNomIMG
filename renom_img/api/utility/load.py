@@ -1,9 +1,19 @@
 import os
+import re
 import numpy as np
+import warnings
+from PIL import Image
 from xml.etree import ElementTree
 from concurrent.futures import ThreadPoolExecutor as Executor
-from PIL import Image
 from renom_img.api.utility.misc.display import draw_segment
+
+
+def check_class_name(cn):
+    pattern = re.compile("/[^%\n\s\t]/u")
+    assert not pattern.match(cn), \
+        "{} is an illegal class name.i ".format(cn) + \
+        "Class name must not contain '%', 'space', 'tab' and 'newline character'."
+    return cn
 
 
 def parse_xml_detection(xml_path_list, num_thread=8):
@@ -51,16 +61,19 @@ def parse_xml_detection(xml_path_list, num_thread=8):
             image_data = []
             for object_tree in root.findall('object'):
                 bounding_box = object_tree.find('bndbox')
-                xmin = float(bounding_box.find('xmin').text)
-                ymin = float(bounding_box.find('ymin').text)
-                xmax = float(bounding_box.find('xmax').text)
-                ymax = float(bounding_box.find('ymax').text)
+                # Clip width and height to fit the image size.
+                xmin = np.clip(float(bounding_box.find('xmin').text), 0, width)
+                ymin = np.clip(float(bounding_box.find('ymin').text), 0, height)
+                xmax = np.clip(float(bounding_box.find('xmax').text), 0, width)
+                ymax = np.clip(float(bounding_box.find('ymax').text), 0, height)
+
                 w = xmax - xmin
                 h = ymax - ymin
                 x = xmin + w / 2.
                 y = ymin + h / 2.
+
                 bounding_box = [x, y, w, h]
-                class_name = object_tree.find('name').text.strip()
+                class_name = check_class_name(object_tree.find('name').text.strip())
                 class_map[class_name] = 1
                 image_data.append(
                     {'box': bounding_box, 'name': class_name, 'size': (width, height)})
@@ -131,9 +144,17 @@ def parse_txt_classification(path, separator=" "):
     annotation_list = []
     with open(path, "r") as reader:
         for line in list(reader.readlines()):
+            splitted = line.split(separator)
+            assert len(splitted) == 2, \
+                "The format of the given file {} is not correct. ".format(path) + \
+                "\nPlease put pair of image file name and class name like below. " + \
+                "\n\nimage01.png dog" + \
+                "\nimage02.png cat" + \
+                "\n...\n"
             filename, classname = line.split(separator)[:2]
             filename = filename.strip()
-            classname = classname.strip()
+            classname = check_class_name(classname.strip())
+
             class_dict[classname] = 1
             filename_list.append(filename)
             annotation_list.append(classname)
@@ -181,7 +202,7 @@ def parse_classmap_file(class_map_file, separator=" "):
     with open(str(class_map_file)) as reader:
         for line in reader.readlines():
             class_name, id = line.split(separator)[:2]
-            class_name = class_name.strip()
+            class_name = check_class_name(class_name.strip())
             id = int(id.strip())
             class_map[id] = class_name
     class_map = [c for k, c in sorted(class_map.items(), key=lambda x: x[0])]
