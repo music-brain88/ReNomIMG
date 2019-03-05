@@ -394,12 +394,19 @@ def dataset_confirm():
 
         # Remove test files.
         file_names = file_names - test_dataset
-    import time
-    # For Detection
+
     if task_id == Task.CLASSIFICATION.value:
+        # Load data for Classification
+        # Checks
+        # 1. The class name file existence and format.
 
         classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
-        target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
+        class_labe_path = classification_label_dir / "target.txt"
+
+        assert classification_label_dir.exists(), \
+            "target.txt was not found in the directory {}".format(str(classification_label_dir))
+
+        target, class_map = parse_txt_classification(str(class_labe_path))
         target_file_list = list(target.keys())
 
         file_names = [p for p in file_names
@@ -451,7 +458,6 @@ def dataset_confirm():
     # Dataset Information
     if task_id == Task.CLASSIFICATION.value:
 
-        start_t = time.time()
         train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map) + 1)))
 
