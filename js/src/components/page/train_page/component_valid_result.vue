@@ -293,5 +293,8 @@ export default {
   height: 95%;
   display: flex;
   flex-wrap: wrap;
+  div:hover {
+    cursor: pointer;
+  }
 }
 </style>

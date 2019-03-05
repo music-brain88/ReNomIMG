@@ -541,5 +541,10 @@ export default {
         this.dispatch('loadPredictionResult', model.id)
       }
     }, error_handler_creator(context))
-  }
+  },
+  async downloadPredictionResult (context, payload) {
+    const model = payload
+    const url = '/api/renom_img/v2/model/' + model.id + '/export/'
+    window.open(url, '__blank')
+  },
 }

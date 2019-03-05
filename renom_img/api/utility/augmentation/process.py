@@ -355,7 +355,7 @@ class RandomCrop(ProcessBase):
 
             p = int(self.padding / 2)  # pad length of each side
             _x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
-                       mode='constant', constant_values=0)
+                        mode='constant', constant_values=0)
             _h = _x.shape[1]  # changed height
             _w = _x.shape[2]  # changed width
             top = np.random.randint(0, _h - h)
@@ -494,9 +494,9 @@ class RandomCrop(ProcessBase):
 
             p = int(self.padding / 2)  # pad length of each side
             _x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
-                       mode='constant', constant_values=0)
+                        mode='constant', constant_values=0)
             _y = np.pad(y[i], pad_width=((0, 0), (p, p), (p, p)),
-                       mode='constant', constant_values=0)
+                        mode='constant', constant_values=0)
             _h = _x.shape[1]  # changed height
             _w = _x.shape[2]  # changed width
 
