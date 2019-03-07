@@ -6,7 +6,7 @@ Change Log
 - Add new augmentation methods.
 - Add a function for downloading the prediction result as csv.
 - Modify image data preprocess pipeline.
-- Update Node.js dependencies.
+- Update Node.js and Python dependencies.
 - Fix UI Bugs.
 
 **v2.0.4**

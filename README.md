@@ -1,12 +1,16 @@
-# ReNomIMG v2.0
+# ReNomIMG v2.1.0 beta
 
 ReNom IMG is model developing tool for image recognition tasks.
 
 ### ReNomIMG - https://www.renom.jp/packages/renomimg/index.html
 
 
-## Change v2.0.3 => v2.0.4
-- Updated dependencies.
+## Change v2.0.4 => v2.1b0
+- Add new augmentation methods.
+- Add a function for downloading the prediction result as csv.
+- Modify image data preprocess pipeline.
+- Update node.js and python dependencies.
+- Fix UI Bugs.
 
 
 ## Recommended Environment
@@ -33,10 +37,10 @@ The Wheel package is provided at:
 You can install the wheel package with pip3 command::
 
 - For Python3.5
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.0.4-cp35-cp35m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b0-cp35-cp35m-linux_x86_64.whl`
 
 - For Python3.6
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.0.4-cp36-cp36m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b0-cp36-cp36m-linux_x86_64.whl`
 
 
 ### Install from source

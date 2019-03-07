@@ -528,6 +528,7 @@ class SSD(Detection):
         loc[:, :, :2] += loc[:, :, 2:] / 2.
 
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
+
         result_bbox = []
         conf = conf[:, :, 1:]
         conf[conf < score_threshold] = 0
