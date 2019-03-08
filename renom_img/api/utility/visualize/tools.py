@@ -33,7 +33,11 @@ def visualize_grad_cam(img, input_map, L, result, figsize=(16,16)):
 
     ax2 = fig.add_subplot(142)
     ax2.axis("off")
-    ax2.imshow(input_map)
+    if (input_map.shape[2] == 1):
+        input_map = np.squeeze(input_map)
+        ax2.imshow(input_map, cmap='gray')
+    else:
+        ax2.imshow(input_map)
 
     ax3 = fig.add_subplot(143)
     ax3.axis("off")
@@ -41,7 +45,10 @@ def visualize_grad_cam(img, input_map, L, result, figsize=(16,16)):
 
     ax4 = fig.add_subplot(144)
     ax4.axis("off")
-    ax4.imshow(result)
+    if len(result.shape) == 2:
+        ax4.imshow(result, cmap='gray')
+    else:
+        ax4.imshow(result)
 
 
 def visualize_comparison(img, result_cam, result_cam_pp, L_cam, L_cam_pp, figsize=(12,12)):

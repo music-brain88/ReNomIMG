@@ -15,7 +15,7 @@ if cu.has_cuda():
 from renom.cuda import set_cuda_active
 
 
-model_types = ['VGG16', 'VGG19', 'ResNet50', 'ResNeXt50']
+model_types = ['VGG16', 'VGG19', 'ResNet18', 'ResNet34', 'ResNet50', 'ResNet101', 'ResNet152', 'ResNeXt50', 'ResNeXt101', 'Sequential']
 
 #Guided Back-propagation version of ReLU function
 @showmark
@@ -40,9 +40,11 @@ class relu_gb(UnaryOp):
         if isinstance(self.attrs._arg, Node):
             dx = get_gpu(self.attrs._arg).empty_like_me()
             cu.curelu_backard(get_gpu(self.attrs._arg), dx)
-            dy = dy.as_ndarray()
-            dy = np.where(dy > 0, dy, 0)
-            self.attrs._arg._update_diff(context, dx * get_gpu(dy), **kwargs)
+#            dy = dy.as_ndarray()
+#            dy_new = np.where(dy > 0, dy, 0)
+            dy_new = get_gpu(dy).empty_like_me()
+            cu.curelu_foward(get_gpu(dy), dy_new)
+            self.attrs._arg._update_diff(context, dx * dy_new, **kwargs)
 
 
 class Relu_GB:
@@ -74,9 +76,7 @@ class Relu_GB:
 
 
 def convert_relus(model):
-    if isinstance(model, Relu):
-        model = Relu_GB()
-    elif isinstance(model, Sequential):
+    if isinstance(model, Sequential):
         model_dict = model.__dict__
         for k, v in model_dict.items():
             if isinstance(v, Relu):
@@ -92,10 +92,12 @@ def convert_relus(model):
     else:
         try:
             model_dict = model.__dict__
+            if '_model' in model_dict.keys():
+                convert_relus(model_dict['_model'])
             for k, v in model_dict.items():
                 if isinstance(v, Relu):
                     model_dict[k] = Relu_GB()
-                elif '_parameters' not in k:
+                elif k != '_parameters':
                     convert_relus(model_dict[k])
         except:
             if isinstance(model, list):
@@ -104,6 +106,8 @@ def convert_relus(model):
                         model[e] = Relu_GB()
                     else:
                         convert_relus(model[e])
+            elif isinstance(model, Relu):
+                model = Relu_GB()
     return model
 
 
@@ -139,8 +143,18 @@ def resnet_cam(model, x, class_id, mode):
     if mode == 'plus':
         x = rm.exp(x)
     x_c = x[:, class_id]
+    print(x_c)
     return rm.sum(x_c), final_conv
 
 
-def sequential_cam(model, x, class_id, mode, node):
-    pass
+def sequential_cam(model, x, class_id, mode, node_index):
+    for i in range(len(model._layers)):
+        x = model._layers[i](x)
+        if i == node_index:
+            final_conv = x
+    if mode == 'plus':
+        x = rm.exp(x)
+    print(x.shape, final_conv.shape)
+    print(x[:, class_id])
+    t_c = x[:, class_id]
+    return rm.sum(t_c), final_conv 
