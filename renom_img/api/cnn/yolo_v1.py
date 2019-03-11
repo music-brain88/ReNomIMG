@@ -1,7 +1,7 @@
 import renom as rm
 
 from renom_img import __version__
-from .base import CnnBase
+from renom_img.api.cnn import CnnBase
 
 
 class CnnYolov1(CnnBase):
@@ -89,3 +89,8 @@ class CnnYolov1(CnnBase):
         self.feature_extractor.set_auto_update(self.train_whole)
         h = self.feature_extractor(x)
         return self.classifier(h)
+
+    def reset_deeper_layer(self):
+        for layer in self.classifier.iter_models():
+            if isinstance(layer, rm.Parametrized):
+                layer.params = {}

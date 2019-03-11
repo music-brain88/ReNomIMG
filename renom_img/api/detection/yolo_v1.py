@@ -8,7 +8,6 @@ from renom_img import __version__
 from renom_img.api import Base, adddoc
 from renom_img.api.cnn.yolo_v1 import CnnYolov1
 from renom_img.api.detection import Detection
-from renom_img.api.classification.darknet import Darknet
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.optimizer import OptimizerYolov1
@@ -303,9 +302,9 @@ class Yolov1(Detection):
             >>> loss = model.loss(z, y)
         """
 
-        # This interface is required to use _builder with multiprocessing module.
+        # This interface is required to use builder with multiprocessing module.
         # We need to define function as top level.
-        # Please pass arguments to _builder through object attribute.
+        # Please pass arguments to builder through object attribute.
 
         # There are some cases that we want to change builder parameter in each epoch (ex Yolov2.
         # For this reason, there is a chance to modify builder in this function.

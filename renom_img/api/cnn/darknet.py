@@ -7,7 +7,7 @@ from renom_img import __version__
 from .base import CnnBase
 
 
-class Darknet(CnnBase):
+class CnnDarknet(CnnBase):
 
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/Darknet.h5".format(
         __version__)

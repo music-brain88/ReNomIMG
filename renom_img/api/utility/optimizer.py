@@ -51,3 +51,11 @@ class OptimizerYolov1(BaseOptimizer):
         super(OptimizerYolov1, self).set_information(
             nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
         self.opt._lr = self.schedule[int(nth_epoch * nth_batch)]
+
+
+class OptimizerCyclicSgd(BaseOptimizer):
+    pass
+
+
+class OptimizerScheduled(BaseOptimizer):
+    pass
