@@ -28,6 +28,7 @@ from renom_img.api.utility.augmentation.process import Shift, Rotate, Flip, Whit
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
+from renom_img.api.utility.optimizer import BaseOptimizer
 
 from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
 from renom_img.server.utility.storage import storage
@@ -116,6 +117,10 @@ class TrainThread(object):
 
     def run(self):
         model = self.model
+        opt = model.default_optimizer
+        if isinstance(opt, BaseOptimizer):
+            opt.setup(self.total_batch, self.total_epoch)
+
         self.state = State.STARTED
         self.running_state = RunningState.TRAINING
         if self.task_id == Task.DETECTION.value:
@@ -149,6 +154,11 @@ class TrainThread(object):
                     return
                 self.sync_count()
 
+                # Modify optimizer.
+                if isinstance(opt, BaseOptimizer):
+                    opt.set_information(self.nth_batch, self.nth_epoch,
+                                        self.train_loss_list, self.valid_loss_list)
+
                 if len(train_x) > 0:
                     with model.train():
                         loss = model.loss(model(train_x), train_y)
@@ -169,14 +179,7 @@ class TrainThread(object):
                         self.updated = True
                         return
 
-                    reg_loss.grad().update(model.get_optimizer(
-                        current_loss=loss,
-                        current_epoch=e,
-                        total_epoch=self.total_epoch,
-                        current_batch=b - 1,
-                        total_batch=self.total_batch,
-                        avg_valid_loss_list=self.valid_loss_list
-                    ))
+                    reg_loss.grad().update(opt)
 
                 # Thread value changed.
                 self.updated = True

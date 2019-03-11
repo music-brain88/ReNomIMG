@@ -11,6 +11,7 @@ from renom_img.api.detection import Detection
 from renom_img.api.classification.darknet import Darknet
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
+from renom_img.api.utility.optimizer import OptimizerYolov1
 from renom_img.api.utility.box import transform2xy12
 from renom_img.api.utility.load import prepare_detection_data, load_img
 
@@ -53,6 +54,58 @@ def calc_rmse(box1, box2):
     return rmse
 
 
+class TargetBuilderYolov1():
+
+    def __init__(self, class_map, cell, bbox, imsize):
+        self.class_map = class_map
+        self.cells = cell
+        self.bbox = bbox
+        self.imsize = imsize
+
+    def __call__(self, *args, **kwargs):
+        return self.build(*args, **kwargs)
+
+    def preprocess(self, x):
+        """Image preprocess for Yolov1.
+
+        :math:`x_{new} = x*2/255 - 1`
+
+        Args:
+            x (ndarray):
+
+        Returns:
+            (ndarray): Preprocessed data.
+        """
+        return x / 255.
+
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        N = len(img_path_list)
+        num_class = len(self.class_map)
+        num_bbox = self.bbox
+        cell_w, cell_h = self.cells
+        target = np.zeros((N, cell_w, cell_h, 5 * num_bbox + num_class))
+
+        img_data, label_data = prepare_detection_data(img_path_list,
+                                                      annotation_list, self.imsize)
+
+        if augmentation is not None:
+            img_data, label_data = augmentation(img_data, label_data, mode="detection")
+
+        # Create target.
+        img_w, img_h = self.imsize
+        for n in range(N):
+            for obj in label_data[n]:
+                tx = np.clip(obj["box"][0], 0, img_w) * .99 * cell_w / img_w
+                ty = np.clip(obj["box"][1], 0, img_h) * .99 * cell_h / img_h
+                tw = np.sqrt(np.clip(obj["box"][2], 0, img_w) / img_w)
+                th = np.sqrt(np.clip(obj["box"][3], 0, img_h) / img_h)
+                one_hot = [0] * obj["class"] + [1] + [0] * (num_class - obj["class"] - 1)
+                target[n, int(ty), int(tx)] = \
+                    np.concatenate(([1, tx % 1, ty % 1, tw, th] * num_bbox, one_hot))
+
+        return self.preprocess(img_data), target.reshape(N, -1)
+
+
 class Yolov1(Detection):
     """ Yolo object detection algorithm.
 
@@ -90,54 +143,7 @@ class Yolov1(Detection):
                                      load_pretrained_weight, train_whole_network, self.model)
         self.model.set_output_size((self.num_class + 5 * bbox) * cells[0] * cells[1])
         self.model.set_train_whole(train_whole_network)
-        self._opt = rm.Sgd(0.0005, 0.9)
-
-    def get_optimizer(self, current_epoch, total_epoch, current_batch, total_batch, avg_train_loss_list, avg_valid_loss_list):
-        """Returns an instance of Optimizer for training Yolov1 algorithm.
-
-        If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
-        an optimizer object which whose learning rate is modified according to the
-        number of training iteration. Otherwise, constant learning rate is set.
-
-        Args:
-            current_epoch (int): The number of current epoch.
-            total_epoch (int): The number of total epoch.
-            current_batch (int): The number of current batch.
-            total_batch (int): The number of total batch.
-
-        Returns:
-            (Optimizer): Optimizer object.
-        """
-        if current_loss is not None and current_loss > 50:
-            self._opt._lr *= 0.1
-            return self._opt
-
-        ind1 = int(total_epoch * total_batch * 0.005)
-        ind2 = int(total_epoch * total_batch * 0.012)
-        ind3 = int(total_epoch * total_batch * 0.017)
-        ind4 = int(total_epoch * total_batch * 0.55)
-        ind5 = (total_epoch * total_batch) - (ind1 + ind2 + ind3 + ind4)
-
-        lr_list = [0.0005] * ind1 + [0.00125] * ind2 + \
-            [0.0025] * ind3 + [0.005] * ind4 + [0.0005] * ind5
-
-        lr = lr_list[(current_epoch * total_batch) + current_batch]
-        self._opt._lr = lr
-
-        return self._opt
-
-    def preprocess(self, x):
-        """Image preprocess for Yolov1.
-
-        :math:`x_{new} = x*2/255 - 1`
-
-        Args:
-            x (ndarray):
-
-        Returns:
-            (ndarray): Preprocessed data.
-        """
-        return x / 255.
+        self.default_optimizer = OptimizerYolov1()
 
     def regularize(self):
         """Regularize term. You can use this function to add regularize term to
@@ -293,39 +299,7 @@ class Yolov1(Detection):
 
         # There are some cases that we want to change builder parameter in each epoch (ex Yolov2.
         # For this reason, there is a chance to modify builder in this function.
-        return self._builder
-
-    def _builder(self, img_path_list, annotation_list, augmentation=None, **kwargs):
-        """
-        Args:
-            x: Image path list.
-            y: Detection formatted label.
-        """
-        N = len(img_path_list)
-        num_bbox = self._bbox
-        cell_w, cell_h = self._cells
-        target = np.zeros((N, self._cells[0], self._cells[1], 5 * num_bbox + self.num_class))
-
-        img_data, label_data = prepare_detection_data(img_path_list,
-                                                      annotation_list, self.imsize)
-
-        if augmentation is not None:
-            img_data, label_data = augmentation(img_data, label_data, mode="detection")
-
-        # Create target.
-        cell_w, cell_h = self._cells
-        img_w, img_h = self.imsize
-        for n in range(N):
-            for obj in label_data[n]:
-                tx = np.clip(obj["box"][0], 0, img_w) * .99 * cell_w / img_w
-                ty = np.clip(obj["box"][1], 0, img_h) * .99 * cell_h / img_h
-                tw = np.sqrt(np.clip(obj["box"][2], 0, img_w) / img_w)
-                th = np.sqrt(np.clip(obj["box"][3], 0, img_h) / img_h)
-                one_hot = [0] * obj["class"] + [1] + [0] * (self.num_class - obj["class"] - 1)
-                target[n, int(ty), int(tx)] = \
-                    np.concatenate(([1, tx % 1, ty % 1, tw, th] * num_bbox, one_hot))
-
-        return self.preprocess(img_data), target.reshape(N, -1)
+        return TargetBuilderYolov1(self.class_map, self._cells, self._bbox, self.imsize)
 
     def loss(self, x, y):
         """Loss function specified for yolov1.

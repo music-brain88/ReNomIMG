@@ -10,9 +10,9 @@ class CnnBase(rm.Model):
         self.output_size = None
 
     def __call__(self, *args, **kwargs):
-        assert not ([self.train_whole, self.output_size] in None), \
+        assert not (None in [self.train_whole, self.output_size]), \
             "Please set attributes `train_whole` and 'output_size' before running __call__."
-        super(CnnBase, self).__call__(*args, **kwargs)
+        return super(CnnBase, self).__call__(*args, **kwargs)
 
     def set_output_size(self, output_size):
         raise NotImplemented

@@ -7,6 +7,7 @@ import numpy as np
 import renom as rm
 from tqdm import tqdm
 
+from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 
@@ -44,6 +45,9 @@ class Base(rm.Model):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False, load_target=None):
 
+        # 0. General setting.
+        self.default_optimizer = rm.Sgd(0.001, 0.9)
+
         # 1. Cast class_map to list and encodes the class names to ascii.
         if class_map is None:
             self.class_map = []
@@ -79,23 +83,6 @@ class Base(rm.Model):
                 download(self.WEIGHT_URL, weight_path)
             load_target.load(weight_path)
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """
-        Returns an instance of Optimizer for training ${class} algorithm.
-        If all argument(current_epoch, total_epoch, current_batch, total_batch) are given,
-        the learning rate is modified according to the number of training iterations or the constant learning rate is used.
-
-        Args:
-            current_epoch (int): The number of current epoch.
-            total_epoch (int): The number of total epoch.
-            current_batch (int): The number of current batch.
-            total_batch (int): The number of total batch.
-
-        Returns:
-            (Optimizer): Optimizer object.
-        """
-        pass
-
     def regularize(self):
         """
         Regularization term to a loss function.
@@ -129,7 +116,7 @@ class Base(rm.Model):
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
-            epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None):
+            epoch=136, batch_size=64, optimizer=None, augmentation=None, callback_end_epoch=None):
         """
         This function performs training with given data and hyper parameters.
 
@@ -169,26 +156,50 @@ class Base(rm.Model):
 
         """
 
+        # Train Logs.
+        avg_train_loss_list = []
+        avg_valid_loss_list = []
+
+        # Distributor setting.
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation)
         valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
 
+        # Number of batch iteration.
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
-        avg_train_loss_list = []
-        avg_valid_loss_list = []
+
+        # Optimizer settings.
+        if optimizer is None:
+            opt = self.default_optimizer
+        else:
+            opt = optimizer
+        assert opt is not None
+        if isinstance(opt, BaseOptimizer):
+            opt.setup(batch_loop, epoch)
+
+        # Training loop.
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
             display_loss = 0
+
+            # Batch loop.
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
+
+                # Modify optimizer.
+                if isinstance(opt, BaseOptimizer):
+                    opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list)
+
+                # Gradient descent.
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
-                reg_loss.grad().update(self.get_optimizer(e, epoch, i, batch_loop, avg_valid_loss_list=avg_valid_loss_list))
+                reg_loss.grad().update(opt)
                 try:
                     loss = loss.as_ndarray()[0]
                 except:
                     loss = loss.as_ndarray()
+
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
