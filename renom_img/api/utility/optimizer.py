@@ -21,7 +21,12 @@ class BaseOptimizer(object):
         self.nth_epoch_iteration = 0
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        assert self.total_epoch_iteration > nth_epoch and self.total_batch_iteration > nth_batch
+        assert self.total_epoch_iteration >= nth_epoch, \
+            "The max epoch iteration count is {} but set {}".format(
+                self.total_epoch_iteration, nth_epoch)
+        assert self.total_batch_iteration >= nth_batch, \
+            "The max batch iteration count is {} but set {}".format(
+                self.total_batch_iteration, nth_batch)
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
 

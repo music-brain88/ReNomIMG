@@ -16,7 +16,9 @@ from renom_img.api.utility.augmentation.process import Shift, Rotate, RandomCrop
 
 
 def create_detection_test_files(root_dir, imsize):
-    # Create test images.
+    '''
+    Create test images and xml data..
+    '''
     os.makedirs(root_dir, exist_ok=True)
     for i in range(80):
         img = Image.fromarray(np.random.randint(0, 255, size=(*imsize, 3)).astype(np.uint8))
@@ -65,11 +67,19 @@ imsize = (224 * 2, 224 * 2)
 
 
 @pytest.mark.parametrize("builder", [
+    # User defined builder.
     Builder().build_data(),
+    # General builder.
     DataBuilderDetection(class_map=['test'], imsize=imsize).build,
+    # Algorithm specific builder.
     Yolov1(class_map=['test'], imsize=imsize).build_data(),
 ])
-def test_distributor(builder):
+def test_distributor_for_detection(builder):
+    '''
+    1. Create image.
+    2. Create builder instance.
+    3. Verify the distributor's output using builder.
+    '''
     root_dir = 'text_dir'
     create_detection_test_files(root_dir, imsize)
 

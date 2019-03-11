@@ -55,6 +55,16 @@ def calc_rmse(box1, box2):
 
 
 class TargetBuilderYolov1():
+    '''
+    Target Builder for Yolov1.
+
+    Args:
+        class_map:
+        cell:
+        bbox:
+        imsize:
+
+    '''
 
     def __init__(self, class_map, cell, bbox, imsize):
         self.class_map = class_map
