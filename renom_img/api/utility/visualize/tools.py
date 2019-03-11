@@ -14,8 +14,8 @@ def load_img(img_path, size):
 
 def preprocess_img(img):
     x = np.asarray(img, dtype='float32')
-    x = x.transpose((2,0,1))
-    x = x[np.newaxis,...]
+    x = x.transpose((2, 0, 1))
+    x = x[np.newaxis, ...]
 
     x = x[:, ::-1, :, :]
     x[:, 0, :, :] -= mean[0]  # R
@@ -24,8 +24,8 @@ def preprocess_img(img):
     return x
 
 
-def visualize_grad_cam(img, input_map, L, result, figsize=(16,16)):
-    fig = plt.figure(figsize = (16,16)) 
+def visualize_grad_cam(img, input_map, L, result, figsize=(16, 16)):
+    fig = plt.figure(figsize=(16, 16))
 
     ax1 = fig.add_subplot(141)
     ax1.axis("off")
@@ -51,8 +51,8 @@ def visualize_grad_cam(img, input_map, L, result, figsize=(16,16)):
         ax4.imshow(result)
 
 
-def visualize_comparison(img, result_cam, result_cam_pp, L_cam, L_cam_pp, figsize=(12,12)):
-    fig = plt.figure(figsize = figsize) 
+def visualize_comparison(img, result_cam, result_cam_pp, L_cam, L_cam_pp, figsize=(12, 12)):
+    fig = plt.figure(figsize=figsize)
 
     ax1 = fig.add_subplot(151)
     ax1.axis("off")

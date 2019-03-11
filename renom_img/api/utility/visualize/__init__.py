@@ -1,23 +1,26 @@
+from renom.cuda import set_cuda_active
 import numpy as np
 import renom as rm
 import renom
 from renom_img.api.classification.vgg import VGGBase, VGG16
 from renom_img.api.classification.resnet import ResNetBase, ResNet50
-from renom_img.api.classification.resnext import ResNeXtBase, ResNeXt50 
+from renom_img.api.classification.resnext import ResNeXtBase, ResNeXt50
 from renom.layers.activation.relu import Relu
 from renom.layers.function.parameterized import Sequential
 from renom.core import UnaryOp, Node
+from renom.core.basic_ops import to_value
 from renom.debug_graph import showmark
 import renom.cuda as cu
 if cu.has_cuda():
     from renom.cuda.gpuvalue import get_gpu
 
-from renom.cuda import set_cuda_active
+
+model_types = ['VGG16', 'VGG19', 'ResNet18', 'ResNet34', 'ResNet50',
+               'ResNet101', 'ResNet152', 'ResNeXt50', 'ResNeXt101', 'Sequential']
+
+# Guided Back-propagation version of ReLU function
 
 
-model_types = ['VGG16', 'VGG19', 'ResNet18', 'ResNet34', 'ResNet50', 'ResNet101', 'ResNet152', 'ResNeXt50', 'ResNeXt101', 'Sequential']
-
-#Guided Back-propagation version of ReLU function
 @showmark
 class relu_gb(UnaryOp):
 
@@ -82,7 +85,7 @@ def convert_relus(model):
             if isinstance(v, Relu):
                 model_dict[k] = Relu_GB()
             elif k == '_layers':
-                for i,e in enumerate(model_dict[k]):
+                for i, e in enumerate(model_dict[k]):
                     if isinstance(e, Relu):
                         model_dict[k][i] = Relu_GB()
                     else:
@@ -137,13 +140,12 @@ def resnet_cam(model, x, class_id, mode):
     x = model._model.layer2(x)
     x = model._model.layer3(x)
     final_conv = model._model.layer4(x)
-    x = rm.average_pool2d(final_conv, filter=(final_conv.shape[2],final_conv.shape[3]))
+    x = rm.average_pool2d(final_conv, filter=(final_conv.shape[2], final_conv.shape[3]))
     x = model._model.flat(x)
     x = model._model.fc(x)
     if mode == 'plus':
         x = rm.exp(x)
     x_c = x[:, class_id]
-    print(x_c)
     return rm.sum(x_c), final_conv
 
 
@@ -154,7 +156,8 @@ def sequential_cam(model, x, class_id, mode, node_index):
             final_conv = x
     if mode == 'plus':
         x = rm.exp(x)
-    print(x.shape, final_conv.shape)
-    print(x[:, class_id])
-    t_c = x[:, class_id]
-    return rm.sum(t_c), final_conv 
+    if x.shape[1] > 1:
+        t_c = x[:, class_id]
+    else:
+        t_c = x
+    return rm.sum(t_c), final_conv
