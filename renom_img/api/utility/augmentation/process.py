@@ -354,14 +354,14 @@ class RandomCrop(ProcessBase):
             h, w = x[i].shape[1], x[i].shape[2]
 
             p = int(self.padding / 2)  # pad length of each side
-            x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
-                       mode='constant', constant_values=0)
-            _h = x.shape[1]  # changed height
-            _w = x.shape[2]  # changed width
+            _x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
+                        mode='constant', constant_values=0)
+            _h = _x.shape[1]  # changed height
+            _w = _x.shape[2]  # changed width
             top = np.random.randint(0, _h - h)
             left = np.random.randint(0, _w - w)
 
-            img_list.append(x[:, top:top + h, left:left + w])
+            img_list.append(_x[:, top:top + h, left:left + w])
 
         return img_list, y
 
@@ -493,18 +493,18 @@ class RandomCrop(ProcessBase):
             h, w = x[i].shape[1], x[i].shape[2]
 
             p = int(self.padding / 2)  # pad length of each side
-            x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
-                       mode='constant', constant_values=0)
-            y = np.pad(y[i], pad_width=((0, 0), (p, p), (p, p)),
-                       mode='constant', constant_values=0)
-            _h = x.shape[1]  # changed height
-            _w = x.shape[2]  # changed width
+            _x = np.pad(x[i], pad_width=((0, 0), (p, p), (p, p)),
+                        mode='constant', constant_values=0)
+            _y = np.pad(y[i], pad_width=((0, 0), (p, p), (p, p)),
+                        mode='constant', constant_values=0)
+            _h = _x.shape[1]  # changed height
+            _w = _x.shape[2]  # changed width
 
             top = np.random.randint(0, _h - h)
             left = np.random.randint(0, _w - w)
 
-            img_list.append(x[:, top:top + h, left:left + w])
-            new_y.append(y[:, top:top + h, left:left + w])
+            img_list.append(_x[:, top:top + h, left:left + w])
+            new_y.append(_y[:, top:top + h, left:left + w])
         return img_list, new_y
 
 

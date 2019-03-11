@@ -142,10 +142,12 @@ class DenseNet121(DenseNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/DenseNet.h5".format(
+    WEIGHT_URL = "".format(
         __version__)
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
+            __version__, self.__class__.__name__)
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
@@ -198,9 +200,11 @@ class DenseNet169(DenseNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/DenseNet169.h5"
+    WEIGHT_URL = ""
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
+            __version__, self.__class__.__name__)
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 
@@ -254,9 +258,11 @@ class DenseNet201(DenseNetBase):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "http://docs.renom.jp/downloads/weights/DenseNet201.h5"
+    WEIGHT_URL = ""
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
+            __version__, self.__class__.__name__)
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
 

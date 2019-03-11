@@ -32,6 +32,8 @@ server address to the address bar like this.
 Then the application will be appeared.
 
 
+.. _dir_structure:
+
 Place your dataset
 ------------------
 
@@ -343,7 +345,48 @@ If the training starts, model will be appeared in model list and progress bar wi
 
 .. note::
 
-  Detection, Segmentation and Classification task are same process
+  Detection, Segmentation and Classification task tage same process.
+
+
+Perform Prediction
+------------------
+
+After finishing the training, we can use the model for predicting new image data.
+
+In the 'Train Page' you can see `Deploy` button. The deployed model will be used for performing prediction.
+If any model is deployed you will see following view.
+
+.. image:: /_static/image/how_to_use_gui_prediction_deploy_button.png
+
+Then please move to 'Predict Page' using the side bar menu.
+The following picture is a 'Prediction Page'.
+
+.. image:: /_static/image/how_to_use_gui_prediction_button.png
+    :scale: 80 %
+
+
+You will see `Run Prediction` button. Pushing this button runs the prediction using deployed model.
+
+.. note::
+
+    The input image of the prediction will be the images that aligned to `datasrc/prediction_set/img`.
+    Required directory structure is described in :ref:`Place your dataset<dir_structure>` .
+
+
+After the prediction you will see the result on the screen like following picture.
+
+
+.. image:: /_static/image/how_to_use_gui_prediction_result.png
+    :scale: 80 %
+
+
+Also you can download the result as csv file. The button placed on the right top of the
+prediction result allows you to download the result.
+
+
+.. image:: /_static/image/how_to_use_gui_prediction_download_button.png
+    :scale: 70 %
+
 
 Uninstall ReNomIMG
 ------------------

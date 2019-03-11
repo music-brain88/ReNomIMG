@@ -30,8 +30,12 @@
             type="checkbox">
           Prediction
         </label>
+        <input
+          :disabled="!(!isPredicting && showResult)"
+          type="button"
+          value="Download"
+          @click="onDownload">
       </div>
-
     </template>
     <div id="prediction-area">
       <pager
@@ -86,7 +90,7 @@
 <script>
 /* eslint vue/no-side-effects-in-computed-properties: 0 */
 import { setup_image_list } from '@/utils.js'
-import { mapGetters, mapState, mapMutations } from 'vuex'
+import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import ComponentFrame from '@/components/common/component_frame.vue'
 import ImageCanvas from '@/components/page/train_page/image.vue'
 import Pager from '@/components/page/train_page/pager.vue'
@@ -125,7 +129,6 @@ export default {
       const model = this.getDeployedModel
       if (model) {
         return model
-      } else {
       }
     },
     showImage: function () {
@@ -181,6 +184,7 @@ export default {
   },
   methods: {
     ...mapMutations(['setImagePageOfPrediction', 'showModal', 'setImageModalData']),
+    ...mapActions(['downloadPredictionResult']),
     showImageModal: function (item) {
       this.setImageModalData(item.index)
       this.showModal({ 'show_prediction_image': true })
@@ -226,6 +230,14 @@ export default {
         predict: pred
       }
     },
+    onDownload: function () {
+      const page = this.page
+      if (!page) return
+      // Save and download csv here.
+      if (this.model) {
+        this.downloadPredictionResult(this.model)
+      }
+    }
   }
 }
 </script>
@@ -234,10 +246,10 @@ export default {
 #prediction-button-area {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   height: 100%;
-  width: 30%;
-  input {
+  width: 36%;
+  input[type="checkbox"] {
     display: none;
     -webkit-appearance: none;
   }
@@ -248,6 +260,11 @@ export default {
     justify-content: center;
     font-family: $component-header-font-family;
     font-size: 90%;
+  }
+  input[type="button"] {
+    height: 100%;
+    white-space: pre-line;
+    word-break: break-all;
   }
   input[type="checkbox"] {
     content: "";

@@ -145,3 +145,8 @@ class Model(Base):
             self.id,
             self.task_id
         )
+
+    def update_params(self, dict):
+        for name, value in dict.items():
+            if name in self.__dict__:
+                setattr(self, name, value)

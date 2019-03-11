@@ -5,12 +5,14 @@ import pytest
 import numpy as np
 import inspect
 from PIL import Image
+from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.evaluate import EvaluatorClassification
 from renom_img.api.utility.evaluate import EvaluatorDetection
 from renom_img.api.utility.evaluate import EvaluatorSegmentation
 from renom_img.api.utility.augmentation.process import contrast_norm
 from renom_img.api.utility.augmentation.process import shift
 from renom_img.api.utility.augmentation.process import *
+
 from renom_img.api.utility.target import DataBuilderClassification, DataBuilderDetection, DataBuilderSegmentation
 
 from renom_img.api.utility.misc.display import draw_box
@@ -200,3 +202,16 @@ def test_evaluator_iou(pred, gt):
     iou = evalDetection.iou()
     assert iou['dog'] == 0.662
     assert iou['cat'] == 0.667
+
+
+@pytest.mark.parametrize('path, error', [
+    ['voc.xml', False],
+    ['illiegal_voc.xml', True],
+])
+def test_parse_xml_detection(path, error):
+    try:
+        ret = parse_xml_detection([path], num_thread=1)
+        assert not error
+    except Exception as e:
+        print(e)
+        assert error

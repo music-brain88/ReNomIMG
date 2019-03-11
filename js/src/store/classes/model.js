@@ -44,7 +44,7 @@ export default class Model {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.VALIDATING)
   }
   isPredicting () {
-    return ((this.state === STATE.PRED_STARTED) && (this.running_state === RUNNING_STATE.PREDICTING)) || this.state === STATE.PRED_CREATED
+    return this.state === STATE.PRED_STARTED || this.running_state === RUNNING_STATE.PREDICTING || this.state === STATE.PRED_CREATED || this.state === STATE.PRED_RESERVED
   }
   isStopping () {
     return (this.state === STATE.STARTED) && (this.running_state === RUNNING_STATE.STOPPING)

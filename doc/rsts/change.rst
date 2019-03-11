@@ -1,6 +1,14 @@
 Change Log
 ===========
 
+**v2.1b0**
+
+- Add new augmentation methods.
+- Add a function for downloading the prediction result as csv.
+- Modify image data preprocess pipeline.
+- Update Node.js and Python dependencies.
+- Fix UI Bugs.
+
 **v2.0.4**
 
 - Update dependencies.

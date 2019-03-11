@@ -3,6 +3,7 @@ import numpy as np
 import inspect
 import pytest
 import types
+from pathlib import Path
 
 from renom.cuda import set_cuda_active, release_mem_pool
 
@@ -44,8 +45,10 @@ set_cuda_active(True)
     FCN32s
 ])
 def test_weight_download(algo):
-    path = algo.__name__ + ".h5"
+    path = Path(algo.__name__ + ".h5")
+    if path.exists():
+        path.unlink()
     model = algo(load_pretrained_weight=True)
-    model.save(path)
-    model.load(path)
-    os.remove(path)
+    model.save(str(path))
+    model.load(str(path))
+    path.unlink()

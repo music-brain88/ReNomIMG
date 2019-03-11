@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-18 09:05+0900\n"
+"POT-Creation-Date: 2019-03-07 09:23+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -539,8 +539,7 @@ msgstr ""
 msgid "Loss function of UNet algorithm."
 msgstr "U-Netの損失関数"
 
-#: of renom_img.api.segmentation.ternausnet.TernausNet.preprocess:6
-#: renom_img.api.segmentation.unet.UNet.preprocess:6
+#: of renom_img.api.segmentation.unet.UNet.preprocess:6
 msgid "Image preprocess for U-Net."
 msgstr "U-Netのための前処理"
 
@@ -592,8 +591,13 @@ msgstr ""
 msgid "Loss function of TernausNet algorithm."
 msgstr "TernausNetのための損失関数"
 
+#: of renom_img.api.segmentation.ternausnet.TernausNet.preprocess:6
+#, fuzzy
+msgid "Image preprocessing for TernausNet training."
+msgstr "U-Netのための前処理"
+
 #: of renom_img.api.segmentation.ternausnet.TernausNet.preprocess:8
-msgid ":math:`new_x = x/255.`"
+msgid ":math:`new_x = (x-mean)/(255*std).`"
 msgstr ""
 
 #~ msgid "renom\\_img.api.segmentation package"
@@ -665,5 +669,8 @@ msgstr ""
 #~ "Regularize term. You can use this "
 #~ "function to add regularize term to "
 #~ "loss function."
+#~ msgstr ""
+
+#~ msgid ":math:`new_x = x/255.`"
 #~ msgstr ""
 
