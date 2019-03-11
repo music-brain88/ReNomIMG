@@ -43,8 +43,6 @@ class relu_gb(UnaryOp):
         if isinstance(self.attrs._arg, Node):
             dx = get_gpu(self.attrs._arg).empty_like_me()
             cu.curelu_backard(get_gpu(self.attrs._arg), dx)
-#            dy = dy.as_ndarray()
-#            dy_new = np.where(dy > 0, dy, 0)
             dy_new = get_gpu(dy).empty_like_me()
             cu.curelu_foward(get_gpu(dy), dy_new)
             self.attrs._arg._update_diff(context, dx * dy_new, **kwargs)
