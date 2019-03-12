@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-07 09:23+0900\n"
+"POT-Creation-Date: 2019-03-12 09:17+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -107,7 +107,7 @@ msgid ""
 "dir>datasrc/label/detection/<sample.xml>``"
 msgstr ""
 "**ここにファイルを配置してください** : ``<ReNomIMG "
-"dir>datasrc/label/classification/target.txt``"
+"dir>datasrc/label/detection/<sample.xml>``"
 
 #: ../../rsts/how_to_use_gui.rst:101 ../../rsts/how_to_use_gui.rst:153
 #: ../../rsts/how_to_use_gui.rst:248
@@ -161,9 +161,8 @@ msgid ""
 msgstr "**ラベルの形式** : ReNomIMG は ``txt`` 形式のラベルのみを受け付けます。"
 
 #: ../../rsts/how_to_use_gui.rst:172
-#, fuzzy
-msgid "Please Save as ``class_map.txt.``"
-msgstr "ファイル名は ``target.txt`` で保存してください。"
+msgid "Please Save as ``class_map.txt`` ."
+msgstr "ファイル名は ``class_map.txt`` で保存してください。"
 
 #: ../../rsts/how_to_use_gui.rst:174
 msgid ""
@@ -171,7 +170,7 @@ msgid ""
 "dir>/datasrc/label/segmentation/class_map.txt``"
 msgstr ""
 "**ここにファイルを配置してください** : ``<ReNomIMG "
-"dir>datasrc/label/classification/target.txt``"
+"dir>datasrc/label/segmentation/class_map.txt``"
 
 #: ../../rsts/how_to_use_gui.rst:176
 msgid "Good example"
@@ -365,8 +364,7 @@ msgid ""
 msgstr "訓練が開始しましたら、モデルがモデル一覧に表示され、進捗バーが現れます。"
 
 #: ../../rsts/how_to_use_gui.rst:348
-#, fuzzy
-msgid "Detection, Segmentation and Classification task tage same process."
+msgid "Detection, Segmentation and Classification task take same process."
 msgstr "オブジェクト検出、セグメンテーション、画像分類、全てのタスクは同じ手順で実行出来ます。"
 
 #: ../../rsts/how_to_use_gui.rst:352
@@ -384,32 +382,30 @@ msgid ""
 "In the 'Train Page' you can see `Deploy` button. The deployed model will "
 "be used for performing prediction. If any model is deployed you will see "
 "following view."
-msgstr "'Train Page'において以下の画像内にある `Deploy` ボタンを押すことで, "
-"予測に使用するモデルを選択することができます. これをデプロイと呼びます."
+msgstr ""
+"'Train Page'において以下の画像内にある `Deploy` ボタンを押すことで, 予測に使用するモデルを選択することができます. "
+"これをデプロイと呼びます."
 
 #: ../../rsts/how_to_use_gui.rst:361
 msgid ""
 "Then please move to 'Predict Page' using the side bar menu. The following"
 " picture is a 'Prediction Page'."
-msgstr "モデルをデプロイしましたら, サイドバーメニューから 'Predict Page' に移動してください."
-"以下のような画面が表示されます."
+msgstr "モデルをデプロイしましたら, サイドバーメニューから 'Predict Page' に移動してください.以下のような画面が表示されます."
 
 #: ../../rsts/how_to_use_gui.rst:368
 msgid ""
 "You will see `Run Prediction` button. Pushing this button runs the "
 "prediction using deployed model."
-msgstr "ページには, `Run Prediction` ボタンがあります. このボタンを押すことで, "
-"画像に対する予測が実行されます."
+msgstr "ページには, `Run Prediction` ボタンがあります. このボタンを押すことで, 画像に対する予測が実行されます."
 
 #: ../../rsts/how_to_use_gui.rst:372
 msgid ""
 "The input image of the prediction will be the images that aligned to "
 "`datasrc/prediction_set/img`. Required directory structure is described "
 "in :ref:`Place your dataset<dir_structure>` ."
-msgstr "予測時に入力される画像は, `datasrc/prediction_set/img` ディレクトリから"
-"読み込まれます. どのようなディレクトリ構成が必要となるかについては, "
-":ref:`データの配置<dir_structure>` をご覧ください."
-
+msgstr ""
+"予測時に入力される画像は, `datasrc/prediction_set/img` ディレクトリから読み込まれます. "
+"どのようなディレクトリ構成が必要となるかについては, :ref:`データの配置<dir_structure>` をご覧ください."
 
 #: ../../rsts/how_to_use_gui.rst:376
 msgid ""
@@ -421,8 +417,7 @@ msgstr "予測が狩猟しますと, 以下のように結果が画面上に表�
 msgid ""
 "Also you can download the result as csv file. The button placed on the "
 "right top of the prediction result allows you to download the result."
-msgstr "この予測結果は, 左上のダウンロードボタンを押すことで, CSV形式で"
-"ダウンロードすることが可能です."
+msgstr "この予測結果は, 左上のダウンロードボタンを押すことで, CSV形式でダウンロードすることが可能です."
 
 #: ../../rsts/how_to_use_gui.rst:392
 msgid "Uninstall ReNomIMG"
