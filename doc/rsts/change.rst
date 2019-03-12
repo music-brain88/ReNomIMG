@@ -1,6 +1,11 @@
 Change Log
 ===========
 
+
+**v2.1b1**
+
+- Modify img loader to accept binary image.
+
 **v2.1b0**
 
 - Add new augmentation methods.

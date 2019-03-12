@@ -123,9 +123,9 @@ def prepare_detection_data(img_path_list, annotation_list):
     img_list = []
     label_list = []
     for path, obj_list in zip(img_path_list, annotation_list):
-        img = Image.open(path)
+        img = Image.open(path).convert('RGB')
         # sw, sh = imsize[0] / float(w), imsize[1] / float(h)
-        # img = img.resize(imsize, Image.BILINEAR).convert('RGB')
+        # img = img.resize(imsize, Image.BILINEAR)
         new_obj_list = [{
             "box": [obj["box"][0], obj["box"][1], obj["box"][2], obj["box"][3]],
             **{k: v for k, v in obj.items() if k != "box"}
