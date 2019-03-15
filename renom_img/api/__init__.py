@@ -81,7 +81,7 @@ class Base(rm.Model):
 
             if not os.path.exists(weight_path):
                 download(self.WEIGHT_URL, weight_path)
-            load_target.load(weight_path)
+            load_target.load_pretrained_weight(weight_path)
 
     def regularize(self):
         """

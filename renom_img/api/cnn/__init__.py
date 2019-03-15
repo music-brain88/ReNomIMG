@@ -22,3 +22,6 @@ class CnnBase(rm.Model):
 
     def reset_deeper_layer(self):
         pass
+
+    def load_pretrained_weight(self, path):
+        pass

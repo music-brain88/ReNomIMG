@@ -94,3 +94,6 @@ class CnnYolov1(CnnBase):
         for layer in self.classifier.iter_models():
             if isinstance(layer, rm.Parametrized):
                 layer.params = {}
+
+    def load_pretrained_weight(self, path):
+        self.feature_extractor.load(path)
