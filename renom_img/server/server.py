@@ -11,12 +11,14 @@ import posixpath
 import traceback
 import pathlib
 import random
+import pandas as pd
 from datetime import datetime
 from collections import OrderedDict
 import xmltodict
 import simplejson as json
 from PIL import Image
 
+from pandas.io.json import json_normalize
 import numpy as np
 from threading import Thread, Semaphore
 from concurrent.futures import ThreadPoolExecutor as Executor
@@ -150,6 +152,61 @@ def error404(error):
 def datasrc(folder_name, file_name):
     file_dir = os.path.join('datasrc', folder_name)
     return static_file(file_name, root=file_dir, mimetype='image/*')
+
+
+@route("/api/renom_img/v2/model/<model_id:int>/export/", method="GET")
+def export_csv(model_id):
+    try:
+        model = storage.fetch_model(model_id)
+        prediction = model["last_prediction_result"]
+        task_id = model["task_id"]
+        print(task_id)
+        ret = []
+        if task_id == Task.CLASSIFICATION.value:
+            img_path = prediction["img"]
+            sizes = prediction["size"]
+            prediction = prediction["prediction"]
+            for img, size, pred in zip(img_path, sizes, prediction):
+                ret.append({
+                    'path': img,
+                    'size': size,
+                    'predictions': pred["class"]
+                })
+
+        elif task_id == Task.DETECTION.value:
+            img_path = prediction["img"]
+            sizes = prediction["size"]
+            prediction = prediction["prediction"]
+            for img, size, pred in zip(img_path, sizes, prediction):
+                ret.append({
+                    'path': img,
+                    'size': size,
+                    'predictions': pred
+                })
+
+        elif task_id == Task.SEGMENTATION.value:
+            img_path = prediction["img"]
+            sizes = prediction["size"]
+            prediction = prediction["prediction"]
+            for img, size, pred in zip(img_path, sizes, prediction):
+                ret.append({
+                    'path': img,
+                    'size': size,
+                    'predictions': pred
+                })
+        else:
+            raise Exception("Not supported task id.")
+
+        df = pd.DataFrame.from_dict(json_normalize(ret), orient='columns')
+        df.to_csv('prediction.csv')
+        return static_file("prediction.csv", root='.', download=True)
+
+    except Exception as e:
+        release_mem_pool()
+        traceback.print_exc()
+        body = json.dumps({"error_msg": "{}: {}".format(type(e).__name__, str(e))})
+        ret = create_response(body, 500)
+        return ret
 
 
 @route("/api/target/segmentation", method="POST")
@@ -337,12 +394,19 @@ def dataset_confirm():
 
         # Remove test files.
         file_names = file_names - test_dataset
-    import time
-    # For Detection
+
     if task_id == Task.CLASSIFICATION.value:
+        # Load data for Classification
+        # Checks
+        # 1. The class name file existence and format.
 
         classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
-        target, class_map = parse_txt_classification(str(classification_label_dir / "target.txt"))
+        class_labe_path = classification_label_dir / "target.txt"
+
+        assert classification_label_dir.exists(), \
+            "target.txt was not found in the directory {}".format(str(classification_label_dir))
+
+        target, class_map = parse_txt_classification(str(class_labe_path))
         target_file_list = list(target.keys())
 
         file_names = [p for p in file_names
@@ -394,7 +458,6 @@ def dataset_confirm():
     # Dataset Information
     if task_id == Task.CLASSIFICATION.value:
 
-        start_t = time.time()
         train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map) + 1)))
 

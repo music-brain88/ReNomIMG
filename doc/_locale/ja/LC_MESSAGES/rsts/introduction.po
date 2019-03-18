@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-12 18:00+0900\n"
+"POT-Creation-Date: 2019-03-07 09:23+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -120,7 +120,9 @@ msgid ""
 "classification. You can also to use own data and splitting, model "
 "comparing, to see how to learning data and export model then use another "
 "services."
-msgstr "さらにReNomIMG は単にオブジェクト検出、セグメンテーション、画像分類を提供するだけではありません。自分のデータを使ってデータ分割、作成したモデルの比較、学習進捗、学習曲線の可視化、さらには作成したモデルのエクスポートできそれらを別のサービスに使用することが出来ます。"
+msgstr ""
+"さらにReNomIMG "
+"は単にオブジェクト検出、セグメンテーション、画像分類を提供するだけではありません。自分のデータを使ってデータ分割、作成したモデルの比較、学習進捗、学習曲線の可視化、さらには作成したモデルのエクスポートできそれらを別のサービスに使用することが出来ます。"
 
 #: ../../rsts/introduction.rst:64
 msgid "4. ReNomIMG Algorithms"
@@ -150,16 +152,8 @@ msgstr ""
 msgid "segmentation"
 msgstr "セグメンテーション"
 
-#: ../../rsts/introduction.rst:76
-msgid "U-Net"
-msgstr ""
-
 #: ../../rsts/introduction.rst:77
 msgid "FCN"
-msgstr ""
-
-#: ../../rsts/introduction.rst:78
-msgid "TernousNet"
 msgstr ""
 
 #: ../../rsts/introduction.rst:80
@@ -227,5 +221,11 @@ msgstr "VGG16モデルの作成"
 #~ msgstr "**少量のプログラミングによるモデルのビルド**"
 
 #~ msgid "Python API"
+#~ msgstr ""
+
+#~ msgid "U-Net"
+#~ msgstr ""
+
+#~ msgid "TernousNet"
 #~ msgstr ""
 

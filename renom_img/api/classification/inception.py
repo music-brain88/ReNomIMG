@@ -5,6 +5,7 @@ import renom as rm
 import numpy as np
 from tqdm import tqdm
 
+from renom_img import __version__
 from renom_img.api.utility.misc.download import download
 from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
@@ -109,9 +110,11 @@ class InceptionV1(Classification):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_URL = ""
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
+            __version__, self.__class__.__name__)
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.num_class = len(class_map)
@@ -449,9 +452,12 @@ class InceptionV3(Classification):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_URL = ""
 
     def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
+        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
+            __version__, self.__class__.__name__)
+
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.imsize = imsize
@@ -557,9 +563,11 @@ class InceptionV2(Classification):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_URL = ""
 
     def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
+        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
+            __version__, self.__class__.__name__)
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.imsize = imsize
@@ -926,9 +934,11 @@ class InceptionV4(Classification):
     """
 
     SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "https://app.box.com/shared/static/eovmxxgzyh5vg2kpcukjj8ypnxng4j5v.h5"
+    WEIGHT_URL = ""
 
     def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
+        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
+            __version__, self.__class__.__name__)
         if not hasattr(imsize, "__getitem__"):
             imsize = (imsize, imsize)
         self.imsize = imsize

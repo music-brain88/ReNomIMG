@@ -141,9 +141,11 @@ class TrainThread(object):
 
             model.set_models(inference=False)
             temp_train_batch_loss_list = []
+
+            self.running_state = RunningState.TRAINING
+            self.sync_state()
+
             for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size), 1):
-                self.running_state = RunningState.TRAINING
-                self.sync_state()
                 if isinstance(self.model, Yolov2) and (b - 1) % 10 == 0 and (b - 1):
                     release_mem_pool()
 
@@ -152,7 +154,6 @@ class TrainThread(object):
                     # Watch stop event
                     self.updated = True
                     return
-                self.sync_count()
 
                 # Modify optimizer.
                 if isinstance(opt, BaseOptimizer):
@@ -362,13 +363,9 @@ class TrainThread(object):
         storage.update_model(self.model_id, state=self.state.value,
                              running_state=self.running_state.value)
 
-    def sync_count(self):
-        storage.update_model(self.model_id,
-                             total_epoch=self.total_epoch, nth_epoch=self.nth_epoch,
-                             total_batch=self.total_batch, nth_batch=self.nth_batch)
-
     def sync_batch_result(self):
-        storage.update_model(self.model_id,
+        storage.update_model(self.model_id, total_epoch=self.total_epoch, nth_epoch=self.nth_epoch,
+                             total_batch=self.total_batch, nth_batch=self.nth_batch,
                              last_batch_loss=self.last_batch_loss)
 
     def sync_train_loss(self):

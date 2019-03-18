@@ -12,7 +12,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.optimizer import OptimizerYolov1
 from renom_img.api.utility.box import transform2xy12
-from renom_img.api.utility.load import prepare_detection_data, load_img
+from renom_img.api.utility.load import prepare_detection_data, load_img, resize_detection_data
 
 
 def make_box(box):
