@@ -95,10 +95,12 @@ class TargetBuilderYolov1():
         target = np.zeros((N, cell_w, cell_h, 5 * num_bbox + num_class))
 
         img_data, label_data = prepare_detection_data(img_path_list,
-                                                      annotation_list, self.imsize)
+                                                      annotation_list)
 
         if augmentation is not None:
             img_data, label_data = augmentation(img_data, label_data, mode="detection")
+
+        img_data, label_data = resize_detection_data(img_data, label_data, self.imsize)
 
         # Create target.
         img_w, img_h = self.imsize

@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import renom as rm
 from renom_img import __version__
-from .base import CnnBase
+from renom_img.api.cnn import CnnBase
 
 
 class DarknetConv2dBN(rm.Model):
@@ -105,38 +105,10 @@ class CnnYolov2(CnnBase):
                         "b": rm.Variable(np.zeros_like(layer.params.b), auto_update=True),
                     }
 
-    def forward(self, x):
-        assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
-            "Or, please load already trained model using the method 'load()'."
-            assert self.num_anchor > 0, \
-            "Anchor list is empty. Please calculate anchor list using create_anchor function, before instantiate model class.  " +\
-            "Or, please load already trained model using the method 'load()'."
-
-        self._feature_extractor.set_models(inference=(not self.train_whole or getattr(self, 'inference', False)))
-
-        h, f = self._feature_extractor(x)
-        f = self._conv21(f)
-        h = self._conv1(h)
-
-        h = self._conv2(rm.concat(h,rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
-
-        out = self._last(h)
-        # Create yolo format.
-        N, C, H, W = h.shape
-
-        reshaped = out.reshape(N, self.num_anchor, -1, W * H)
-        conf = rm.sigmoid(reshaped[:, :, 0:1]).transpose(0, 2, 1, 3)
-        px = rm.sigmoid(reshaped[:, :, 1:2]).transpose(0, 2, 1, 3)
-        py = rm.sigmoid(reshaped[:, :, 2:3]).transpose(0, 2, 1, 3)
-        pw = rm.exp(reshaped[:, :, 3:4]).transpose(0, 2, 1, 3)
-        ph = rm.exp(reshaped[:, :, 4:5]).transpose(0, 2, 1, 3)
-        cl = rm.softmax(reshaped[:, :, 5:].transpose(0, 2, 1, 3))
-        return rm.concat(conf, px, py, pw, ph, cl).transpose(0, 2, 1, 3).reshape(N, -1, H, W)
-
 
     def set_output_size(self,out_size):
         self.output_size = out_size
+        self._last._channel = out_size
 
 
     def load_pretrained_weight(self,path):
@@ -146,3 +118,6 @@ class CnnYolov2(CnnBase):
     def reset_deeper_layer(self):
         pass
 
+
+    def forward(self):
+        pass

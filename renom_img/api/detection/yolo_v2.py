@@ -99,7 +99,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
 
 
 class TargetBuilderYolov2():
-    '''
+    """
     Target Builder for Yolov2.
 
     Args:
@@ -107,16 +107,13 @@ class TargetBuilderYolov2():
         cell:
         bbox:
         imsize:
-
-    '''
-    def __init__(self, class_map, cell, bbox, imsize,size_n,perm,imsize_list):
+    """
+    def __init__(self, class_map,size_n,perm,imsize_list):
         self.class_map = class_map
-        self.cells = cell
-        self.bbox = bbox
-        self.imsize = imsize
         self.size_N = size_n
         self.perm = perm
         self.imsize_list = imsize_list
+        self.num_class=len(class_map)
 
     def __call__(self, *args, **kwargs):
         return self.build(*args, **kwargs)
@@ -124,15 +121,15 @@ class TargetBuilderYolov2():
     def preprocess(self, x):
         return x / 255.
 
-    def build(img_path_list, annotation_list, augmentation=None, nth=0, **kwargs):
-      """
-       These parameters will be given by distributor.
-       Args:
-           img_path_list (list): List of input image.
-           annotation_list (list): List of detection annotation.
-           augmentation (Augmentation): Augmentation object.
-           nth (int): Current batch index.
-      """
+    def build(self, img_path_list, annotation_list, augmentation=None, nth=0, **kwargs):
+        """
+        These parameters will be given by distributor.
+        Args:
+            img_path_list (list): List of input image.
+            annotation_list (list): List of detection annotation.
+            augmentation (Augmentation): Augmentation object.
+            nth (int): Current batch index.
+        """
         N = len(img_path_list)
         # This ratio is specific to Darknet19.
         ratio_w = 32.
@@ -149,7 +146,7 @@ class TargetBuilderYolov2():
         label = np.zeros(
                 (N, channel, self.imsize_list[size_index][1] // 32, self.imsize_list[size_index][0] // 32))
         img_list, label_list = prepare_detection_data(
-            img_path_list, annotation_list, self.imsize_list[size_index])
+            img_path_list, annotation_list)
 
         if augmentation is not None:
             img_list, label_list = augmentation(img_list, label_list, mode="detection")
@@ -223,7 +220,7 @@ class Yolov2(Detection):
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
-
+        self.class_map=class_map
         self.model = CnnYolov2()
         self.default_optimizer = OptimizerYolov2()
 
@@ -254,6 +251,42 @@ class Yolov2(Detection):
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return (0.0005 / 2.) * reg
+
+
+    def forward(self, x):
+        assert len(self.class_map) > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
+            "Or, please load already trained model using the method 'load()'."
+        assert self.num_anchor > 0, \
+            "Anchor list is empty. Please calculate anchor list using create_anchor function, before instantiate model class.  " +\
+            "Or, please load already trained model using the method 'load()'."
+
+        self.model._feature_extractor.set_models(inference=(not self.model.train_whole or getattr(self.model, 'inference', False)))
+        
+        h, f = self.model._feature_extractor(x)
+        f = self.model._conv21(f)
+        h = self.model._conv1(h)
+
+        h = self.model._conv2(rm.concat(h,rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
+
+        out = self.model._last(h)
+        # Create yolo format.
+        N, C, H, W = h.shape
+
+        reshaped = out.reshape(N, self.num_anchor, -1, W * H)
+        conf = rm.sigmoid(reshaped[:, :, 0:1]).transpose(0, 2, 1, 3)
+        px = rm.sigmoid(reshaped[:, :, 1:2]).transpose(0, 2, 1, 3)
+        py = rm.sigmoid(reshaped[:, :, 2:3]).transpose(0, 2, 1, 3)
+        pw = rm.exp(reshaped[:, :, 3:4]).transpose(0, 2, 1, 3)
+        ph = rm.exp(reshaped[:, :, 4:5]).transpose(0, 2, 1, 3)
+        cl = rm.softmax(reshaped[:, :, 5:].transpose(0, 2, 1, 3))
+        
+        return rm.concat(conf, px, py, pw, ph, cl).transpose(0, 2, 1, 3).reshape(N, -1, H, W)
+
+
+
+
+
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
@@ -377,7 +410,7 @@ class Yolov2(Detection):
         size_N = len(imsize_list)
         perm = np.random.permutation(size_N)
 
-        return TargetBuilderYolov2(self.class_map, self._cells, self._bbox,self.imsize,size_N,perm,imsize_list)
+        return TargetBuilderYolov2(self.class_map,size_N,perm,imsize_list)
 
     def loss(self, x, y):
         """Loss function specified for yolov2.
@@ -585,8 +618,8 @@ class Yolov2(Detection):
         else:
             opt = optimizer
         assert opt is not None
-            if isinstance(opt, BaseOptimizer):
-                opt.setup(batch_loop, epoch)
+        if isinstance(opt, BaseOptimizer):
+            opt.setup(batch_loop, epoch)
 
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
