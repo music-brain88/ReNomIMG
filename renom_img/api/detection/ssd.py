@@ -10,13 +10,13 @@ from renom_img import __version__
 import renom as rm
 from renom_img.api import Base, adddoc
 from renom_img.api.detection import Detection
-from renom_img.api.classification.vgg import VGG16
+from renom_img.api.cnn.ssd import CnnSSD
 from renom_img.api.utility.load import prepare_detection_data, resize_detection_data
 from renom_img.api.utility.box import transform2xy12, calc_iou_xywh
 from renom_img.api.utility.load import parse_xml_detection, load_img
 from renom_img.api.utility.nms import nms
 from renom_img.api.utility.distributor.distributor import ImageDistributor
-
+from renom_img.api.utility.optimizer import OptimizerSSD
 
 def calc_iou(prior, box):
     """
@@ -81,237 +81,19 @@ class PriorBox(object):
         return output
 
 
-class DetectorNetwork(rm.Model):
+class TargetBuilderSSD():
 
-    SERIALIZED = ("num_class")
-
-    def __init__(self, num_class, vgg):
-        self.num_class = num_class
-        block3 = vgg._model.block3
-        self.conv3_1 = block3._layers[0]
-        self.conv3_2 = block3._layers[2]
-        self.conv3_3 = block3._layers[4]
-        self.pool3 = rm.MaxPool2d(filter=2, stride=2, padding=1)
-
-        self.norm = rm.L2Norm(20)
-
-        block4 = vgg._model.block4
-        self.conv4_1 = block4._layers[0]
-        self.conv4_2 = block4._layers[2]
-        self.conv4_3 = block4._layers[4]
-        self.pool4 = rm.MaxPool2d(filter=2, stride=2)
-
-        block5 = vgg._model.block5
-        self.conv5_1 = block5._layers[0]
-        self.conv5_2 = block5._layers[2]
-        self.conv5_3 = block5._layers[4]
-        self.pool5 = rm.MaxPool2d(filter=3, stride=1, padding=1)
-
-        # =================================================
-        # THOSE ARE USED AFTER OUTPUS ARE NORMALIZED
-        self.fc6 = rm.Conv2d(channel=1024, filter=3, padding=6, dilation=6)  # relu
-        self.fc7 = rm.Conv2d(channel=1024, filter=1, padding=0)
-
-        self.conv8_1 = rm.Conv2d(channel=256, filter=1)
-        self.conv8_2 = rm.Conv2d(channel=512, stride=2, filter=3, padding=1)
-
-        self.conv9_1 = rm.Conv2d(channel=128, filter=1)
-        self.conv9_2 = rm.Conv2d(channel=256, stride=2, filter=3, padding=1)
-
-        self.conv10_1 = rm.Conv2d(channel=128, filter=1, padding=0)
-        self.conv10_2 = rm.Conv2d(channel=256, padding=0, stride=1, filter=3)
-
-        self.conv11_1 = rm.Conv2d(channel=128, filter=1, padding=0)
-        self.conv11_2 = rm.Conv2d(channel=256, padding=0, stride=1, filter=3)
-
-        num_priors = 4
-        self.conv4_3_mbox_loc = rm.Conv2d(num_priors * 4, padding=1, filter=3)
-        self.conv4_3_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        # =================================================
-
-        # =================================================
-        num_priors = 6
-        self.fc7_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
-        self.fc7_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        # =================================================
-
-        # =================================================
-        self.conv8_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1, filter=3)
-        self.conv8_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        # =================================================
-
-        # =================================================
-        self.conv9_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
-        self.conv9_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        # =================================================
-
-        # =================================================
-        num_priors = 4
-        self.conv10_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
-        self.conv10_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        # =================================================
-
-        # =================================================
-        num_priors = 4
-        self.conv11_2_mbox_loc = rm.Conv2d(num_priors * 4, padding=1)
-        self.conv11_2_mbox_conf = rm.Conv2d(num_priors * num_class, padding=1, filter=3)
-        # =================================================
-
-    def forward(self, x):
-        n = x.shape[0]
-        t = x
-        # Vgg 3rd Block
-        t = rm.relu(self.conv3_1(t))
-        t = rm.relu(self.conv3_2(t))
-        t = rm.relu(self.conv3_3(t))
-        t = self.pool3(t)
-
-        # Vgg 4th Block
-        t = rm.relu(self.conv4_1(t))
-        t = rm.relu(self.conv4_2(t))
-        t = rm.relu(self.conv4_3(t))
-
-        # Normalize and compute location, confidence and priorbox aspect ratio
-        conv4_norm = self.norm(t)
-
-        conv4_norm_loc = self.conv4_3_mbox_loc(conv4_norm)
-        conv4_norm_loc_flat = rm.flatten(conv4_norm_loc.transpose(0, 2, 3, 1))
-        conv4_norm_conf = self.conv4_3_mbox_conf(conv4_norm)
-        conv4_norm_conf_flat = rm.flatten(conv4_norm_conf.transpose(0, 2, 3, 1))
-
-        t = self.pool4(t)
-
-        # Vgg 5th Block
-        t = rm.relu(self.conv5_1(t))
-        t = rm.relu(self.conv5_2(t))
-        t = rm.relu(self.conv5_3(t))
-        t = self.pool5(t)
-
-        # Vgg 6, 7th Block
-        t = rm.relu(self.fc6(t))
-        t = rm.relu(self.fc7(t))
-        # Confirmed here.
-
-        # Normalize and compute location, confidence and priorbox aspect ratio
-        fc7_mbox_loc = self.fc7_mbox_loc(t)
-        fc7_mbox_loc_flat = rm.flatten(fc7_mbox_loc.transpose(0, 2, 3, 1))
-
-        fc7_mbox_conf = self.fc7_mbox_conf(t)
-        fc7_mbox_conf_flat = rm.flatten(fc7_mbox_conf.transpose(0, 2, 3, 1))
-
-        t = rm.relu(self.conv8_1(t))
-        t = rm.relu(self.conv8_2(t))
-        # Normalize and compute location, confidence and priorbox aspect ratio
-        conv8_mbox_loc = self.conv8_2_mbox_loc(t)
-        conv8_mbox_loc_flat = rm.flatten(conv8_mbox_loc.transpose(0, 2, 3, 1))
-
-        conv8_mbox_conf = self.conv8_2_mbox_conf(t)
-        conv8_mbox_conf_flat = rm.flatten(conv8_mbox_conf.transpose(0, 2, 3, 1))
-
-        t = rm.relu(self.conv9_1(t))
-        t = rm.relu(self.conv9_2(t))
-        # Normalize and compute location, confidence and priorbox aspect ratio
-        conv9_mbox_loc = self.conv9_2_mbox_loc(t)
-        conv9_mbox_loc_flat = rm.flatten(conv9_mbox_loc.transpose(0, 2, 3, 1))
-
-        conv9_mbox_conf = self.conv9_2_mbox_conf(t)
-        conv9_mbox_conf_flat = rm.flatten(conv9_mbox_conf.transpose(0, 2, 3, 1))
-
-        t = rm.relu(self.conv10_1(t))
-        t = rm.relu(self.conv10_2(t))
-
-        conv10_mbox_loc = self.conv10_2_mbox_loc(t)
-        conv10_mbox_loc_flat = rm.flatten(conv10_mbox_loc.transpose(0, 2, 3, 1))
-
-        conv10_mbox_conf = self.conv10_2_mbox_conf(t)
-        conv10_mbox_conf_flat = rm.flatten(conv10_mbox_conf.transpose(0, 2, 3, 1))
-
-        t = rm.relu(self.conv10_1(t))
-        t = rm.relu(self.conv10_2(t))
-
-        conv11_mbox_loc = self.conv11_2_mbox_loc(t)
-        conv11_mbox_loc_flat = rm.flatten(conv11_mbox_loc.transpose(0, 2, 3, 1))
-
-        conv11_mbox_conf = self.conv11_2_mbox_conf(t)
-        conv11_mbox_conf_flat = rm.flatten(conv11_mbox_conf.transpose(0, 2, 3, 1))
-
-        mbox_loc = rm.concat([conv4_norm_loc_flat,
-                              fc7_mbox_loc_flat,
-                              conv8_mbox_loc_flat,
-                              conv9_mbox_loc_flat,
-                              conv10_mbox_loc_flat,
-                              conv11_mbox_loc_flat])
-
-        mbox_conf = rm.concat([conv4_norm_conf_flat,
-                               fc7_mbox_conf_flat,
-                               conv8_mbox_conf_flat,
-                               conv9_mbox_conf_flat,
-                               conv10_mbox_conf_flat,
-                               conv11_mbox_conf_flat])
-
-        mbox_loc = mbox_loc.reshape((n, -1, 4))
-        mbox_conf = mbox_conf.reshape((n, -1, self.num_class))
-
-        predictions = rm.concat([
-            mbox_loc, mbox_conf
-        ], axis=2)
-        return predictions
-
-
-class SSD(Detection):
-
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/SSD.h5".format(__version__)
-    # WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/SSD.h5".format(__version__)
-    SERIALIZED = ("overlap_threshold", *Base.SERIALIZED)
-
-    def __init__(self, class_map=None, imsize=(300, 300),
-                 overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
-
-        assert imsize == (300, 300), \
-            "SSD of ReNomIMG v1.1 only accepts image size of (300, 300)."
-
-        vgg = VGG16()
-        super(SSD, self).__init__(class_map, imsize,
-                                  load_pretrained_weight, train_whole_network, vgg._model)
-
+    def __init__(self, class_map,imsize,prior,prior_box,num_prior, threshold):
+        self.class_map = class_map
         self.num_class = len(self.class_map) + 1
-        self._network = DetectorNetwork(self.num_class, vgg)
-        self._freezed_network = rm.Sequential([vgg._model.block1,
-                                               vgg._model.block2])
+        self.imsize = imsize
+        self.prior = prior
+        self.prior_box = prior_box
+        self.num_prior = num_prior
+        self.overlap_threshold = threshold 
 
-        self.prior = PriorBox()
-        self.prior_box = self.prior.create()
-        self.num_prior = len(self.prior_box)
-        self.overlap_threshold = overlap_threshold
-
-        self._opt = rm.Sgd(1e-3, 0.9)
-
-    def set_last_layer_unit(self, unit_size):
-        # Settings of last layer is done in __init__.
-        pass
-
-    def regularize(self):
-        """Regularize term. You can use this function to add regularize term to
-        loss function.
-
-        In SSD, weight decay of 0.0005 will be added.
-
-        Example:
-            >>> import numpy as np
-            >>> from renom_img.api.detection.ssd import SSD
-            >>> x = np.random.rand(1, 3, 300, 300)
-            >>> y = np.random.rand(1, 22, 8732)
-            >>> model = SSD()
-            >>> t = model(x)
-            >>> loss = model.loss(t, y)
-            >>> reg_loss = loss + model.regularize() # Adding weight decay term.
-        """
-
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.00004 / 2.) * reg
+    def __call__(self, *args, **kwargs):
+        return self.build(*args, **kwargs)
 
     def preprocess(self, x, reverse=False):
         """Image preprocess for SSD.
@@ -331,46 +113,6 @@ class SSD(Detection):
             x[:, 1, :, :] -= 116.779  # G
             x[:, 2, :, :] -= 103.939  # B
         return x
-
-    def build_data(self):
-        def builder(img_path_list, annotation_list, augmentation=None, **kwargs):
-            """
-            Args:
-                x: Image path list.
-                y: Detection formatted label.
-            """
-            N = len(img_path_list)
-            img_data, label_data = prepare_detection_data(img_path_list,
-                                                          annotation_list)
-            if augmentation is not None:
-                img_data, label_data = augmentation(img_data, label_data, mode="detection")
-            img_data, label_data = resize_detection_data(img_data, label_data, self.imsize)
-            targets = []
-            for n in range(N):
-                bounding_boxes = []
-                one_hot_classes = []
-                for obj in label_data[n]:
-                    one_hot = np.zeros(len(self.class_map))
-                    xmin, ymin, xmax, ymax = transform2xy12(obj['box'])
-
-                    # Divide by image size
-                    xmin /= self.imsize[0]
-                    xmax /= self.imsize[0]
-                    ymin /= self.imsize[1]
-                    ymax /= self.imsize[1]
-
-                    bounding_box = [xmin, ymin, xmax, ymax]
-                    bounding_boxes.append(bounding_box)
-                    one_hot[obj['class']] = 1
-                    one_hot_classes.append(one_hot)
-                bounding_boxes = np.asarray(bounding_boxes)
-                one_hot_classes = np.asarray(one_hot_classes)
-                boxes = np.hstack((bounding_boxes, one_hot_classes))
-                target = self.assign_boxes(boxes)
-                targets.append(target)
-            # target (N, class, prior box)
-            return self.preprocess(img_data), np.array(targets)
-        return builder
 
     def assign_boxes(self, boxes):
         # background is already included in self.num_class.
@@ -427,6 +169,100 @@ class SSD(Detection):
             box_wh / assigned_priors_wh + 1e-8) / self.prior.variance[1]
         return encoded_box.flatten()
 
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        """
+        Args:
+            x: Image path list.
+            y: Detection formatted label.
+        """
+        N = len(img_path_list)
+        img_data, label_data = prepare_detection_data(img_path_list,
+                                                      annotation_list)
+        if augmentation is not None:
+            img_data, label_data = augmentation(img_data, label_data, mode="detection")
+        img_data, label_data = resize_detection_data(img_data, label_data, self.imsize)
+        targets = []
+        for n in range(N):
+            bounding_boxes = []
+            one_hot_classes = []
+            for obj in label_data[n]:
+                one_hot = np.zeros(len(self.class_map))
+                xmin, ymin, xmax, ymax = transform2xy12(obj['box'])
+
+                # Divide by image size
+                xmin /= self.imsize[0]
+                xmax /= self.imsize[0]
+                ymin /= self.imsize[1]
+                ymax /= self.imsize[1]
+
+                bounding_box = [xmin, ymin, xmax, ymax]
+                bounding_boxes.append(bounding_box)
+                one_hot[obj['class']] = 1
+                one_hot_classes.append(one_hot)
+            bounding_boxes = np.asarray(bounding_boxes)
+            one_hot_classes = np.asarray(one_hot_classes)
+            boxes = np.hstack((bounding_boxes, one_hot_classes))
+            target = self.assign_boxes(boxes)
+            targets.append(target)
+        # target (N, class, prior box)
+        return self.preprocess(img_data), np.array(targets)
+ 
+
+
+
+class SSD(Detection):
+
+    WEIGHT_URL = CnnSSD.WEIGHT_URL
+    # WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/SSD.h5".format(__version__)
+    SERIALIZED = ("overlap_threshold", *Base.SERIALIZED)
+
+    def __init__(self, class_map=None, imsize=(300, 300),
+                 overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
+
+        assert imsize == (300, 300), \
+            "SSD of ReNomIMG v1.1 only accepts image size of (300, 300)."
+
+        self.model = CnnSSD()
+        super(SSD, self).__init__(class_map, imsize,
+                                  load_pretrained_weight, train_whole_network, self.model)
+
+        self.num_class = len(self.class_map) + 1
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network)
+
+        self.overlap_threshold = overlap_threshold
+        self.prior = PriorBox()
+        self.prior_box = self.prior.create()
+        self.num_prior = len(self.prior_box)
+        self.default_optimizer = OptimizerSSD()
+
+    def regularize(self):
+        """Regularize term. You can use this function to add regularize term to
+        loss function.
+
+        In SSD, weight decay of 0.0005 will be added.
+
+        Example:
+            >>> import numpy as np
+            >>> from renom_img.api.detection.ssd import SSD
+            >>> x = np.random.rand(1, 3, 300, 300)
+            >>> y = np.random.rand(1, 22, 8732)
+            >>> model = SSD()
+            >>> t = model(x)
+            >>> loss = model.loss(t, y)
+            >>> reg_loss = loss + model.regularize() # Adding weight decay term.
+        """
+
+        reg = 0
+        for layer in self.iter_models():
+            if hasattr(layer, "params") and hasattr(layer.params, "w"):
+                reg += rm.sum(layer.params.w * layer.params.w)
+        return (0.00004 / 2.) * reg
+
+    def build_data(self):
+
+       return TargetBuilderSSD(self.class_map, self.imsize, self.prior,self.prior_box, self.num_prior, self.overlap_threshold)
+
     def decode_box(self, loc):
         prior = self.prior_box
         prior_wh = prior[:, 2:] - prior[:, :2]
@@ -439,9 +275,6 @@ class SSD(Detection):
         boxes[:, 2:] += boxes[:, :2]
         return boxes
 
-    def forward(self, x):
-        self._freezed_network.set_auto_update(self.train_whole_network)
-        return self._network(self._freezed_network(x))
 
     def loss(self, x, y, neg_pos_ratio=3.0):
         pos_samples = (y[:, :, 5] == 0)[..., None]
@@ -526,6 +359,8 @@ class SSD(Detection):
         loc = np.clip(loc, 0, 1)
         loc[:, :, 2:] = loc[:, :, 2:] - loc[:, :, :2]
         loc[:, :, :2] += loc[:, :, 2:] / 2.
+#        print('shape: ',conf.shape)
+#       Exception: CUDA Error: #11|||b'invalid argument'
 
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
 
@@ -561,35 +396,6 @@ class SSD(Detection):
             result_bbox.append(nth_result)
         ret = nms(result_bbox, nms_threshold)
         return ret
-
-    def get_optimizer(self, current_loss=None, current_epoch=None,
-                      total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
-        """Returns an instance of Optimiser for training SSD algorithm.
-
-        Args:
-            current_epoch:
-            total_epoch:
-            current_batch:
-            total_epoch:
-        """
-        if any([num is None for num in
-                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
-            return self._opt
-        else:
-            if current_loss is not None and current_loss > 50:
-                self._opt._lr *= 0.1
-                return self._opt
-
-            if current_epoch < 1:
-                self._opt._lr = (1e-3 - 1e-5) / total_batch * current_batch + 1e-5
-            elif current_epoch < 60 / 160. * total_epoch:
-                self._opt._lr = 1e-3
-            elif current_epoch < 100 / 160. * total_epoch:
-                self._opt._lr = 1e-4
-            else:
-                self._opt._lr = 1e-5
-
-        return self._opt
 
 
 if __name__ == "__main__":

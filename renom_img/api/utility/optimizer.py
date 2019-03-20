@@ -32,11 +32,33 @@ class BaseOptimizer(object):
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
 
+class OptimizerSSD(BaseOptimizer):
+    def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
+        super(OptimizerSSD, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.opt = rm.Sgd(1e-3, 0.9)
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(OptimizerSSD, self).setup(total_batch_iteration, total_epoch_iteration)
+        
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+        super(OptimizerSSD, self).set_information(
+            nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
+        
+        if nth_epoch <1 :
+            self.opt._lr = (1e-3 - 1e-5) / self.total_batch_iteration * nth_batch + 1e-5
+        elif nth_epoch < 60 / 160. * self.total_epoch_iteration:
+            self.opt._lr = 1e-3
+        elif nth_epoch < 100 / 160. * self.total_epoch_iteration:
+            self.opt._lr = 1e-4
+        else:
+            self.opt._lr = 1e-5
+
+
 class OptimizerYolov2(BaseOptimizer):
 
     def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
         super(OptimizerYolov2, self).__init__(total_batch_iteration, total_epoch_iteration)
-        self.opt = rm.Sgd(0.0005, 0.9)
+        self.opt = rm.Sgd(1e-3, 0.9)
 
     def setup(self, total_batch_iteration, total_epoch_iteration):
         super(OptimizerYolov2, self).setup(total_batch_iteration, total_epoch_iteration)
