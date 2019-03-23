@@ -134,7 +134,7 @@ class Yolov2(Detection):
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
               exp),imsize=(320, 320)."
 
-        self.flag = False  # This is used for modify loss function.
+        self.flag = True  # This is used for modify loss function.
         self.global_counter = 0
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
