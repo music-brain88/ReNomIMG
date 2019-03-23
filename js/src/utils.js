@@ -37,8 +37,8 @@ export function render_segmentation (item) {
   var imageData = cxt.getImageData(0, 0, width / d, height / d)
   cxt.clearRect(0, 0, width / d, height / d)
 
-  for (let i = 0; i < width; i += d) {
-    for (let j = 0; j < height; j += d) {
+  for (let i = 0; i < height; i += d) {
+    for (let j = 0; j < width; j += d) {
       const n = item.class[i][j]
       let c
 
