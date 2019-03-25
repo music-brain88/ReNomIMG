@@ -90,6 +90,7 @@ class Bottleneck(rm.Model):
         return out
 
 
+@adddoc
 class ResNetBase(Classification):
 
     SERIALIZED = Base.SERIALIZED
@@ -150,9 +151,6 @@ class ResNetBase(Classification):
 
 class ResNet(rm.Model):
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet.h5".format(
-        __version__)
-
     def __init__(self, num_classes, block, layers):
         self.inplanes = 64
         super(ResNet, self).__init__()
@@ -204,6 +202,7 @@ class ResNet(rm.Model):
         self.fc._output_size = unit_size
 
 
+@adddoc
 class ResNet18(ResNetBase):
     """ResNet18 model.
 
@@ -248,6 +247,7 @@ class ResNet18(ResNetBase):
         self._model.fc.params = {}
 
 
+@adddoc
 class ResNet34(ResNetBase):
     """ResNet34 model.
 
@@ -292,6 +292,7 @@ class ResNet34(ResNetBase):
         self._model.fc.params = {}
 
 
+@adddoc
 class ResNet50(ResNetBase):
     """ResNet50 model.
 
@@ -315,7 +316,6 @@ class ResNet50(ResNetBase):
         https://arxiv.org/abs/1603.05027
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet50.h5".format(
         __version__)
 
@@ -337,6 +337,7 @@ class ResNet50(ResNetBase):
         self._model.fc.params = {}
 
 
+@adddoc
 class ResNet101(ResNetBase):
     """ResNet101 model.
 
@@ -381,6 +382,7 @@ class ResNet101(ResNetBase):
         self._model.fc.params = {}
 
 
+@adddoc
 class ResNet152(ResNetBase):
     """ResNet152 model.
 

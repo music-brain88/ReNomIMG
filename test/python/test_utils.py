@@ -19,6 +19,37 @@ from renom_img.api.utility.misc.display import draw_box
 from renom_img.api.utility.box import rescale
 
 
+def load_img(img_path):
+    img = Image.open(img_path)
+    img.convert('RGB')
+    x = np.array(img).transpose(2, 0, 1).astype(np.float)
+    x = np.expand_dims(x, axis=0)
+    return x, img
+
+
+def load_seg_label(label_path):
+    l = np.array(Image.open(label_path))
+    n_class = len(np.unique(l))
+    y = []
+    annot = np.zeros((n_class, l.shape[0], l.shape[1]))
+    for i in range(l.shape[0]):
+        for j in range(l.shape[1]):
+            if int(l[i][j]) >= n_class:
+                annot[n_class - 1, i, j] = 1
+            else:
+                annot[int(l[i][j]), i, j] = 1
+    y.append(annot)
+    return y, l
+
+
+def same_shape(x1, x2, transform):
+    assert x1.shape == x2.shape, "Shapes do not match for {} transformation".format(transform.__class__.__name__)
+
+
+def same_all(x1, x2, transform):
+    assert x1 == x2, "Items are not equal for {} transformation".format(transform.__class__.__name__)
+
+
 @pytest.fixture(scope='session', autouse=True)
 def scope_session():
     if os.path.exists('outputs'):
@@ -80,6 +111,8 @@ def test_augmentation_process_detection(method, kwargs):
     [random_lighting, {}],
     [random_expand, {}],
     [shear, {}],
+    [horizontalflip, {}],
+    [verticalflip, {}],
     [center_crop, {}],
     [distortion, {}],
 ])
@@ -94,6 +127,136 @@ def test_augmentation_process_classification(method, kwargs):
     x, y = method(x, y, mode="classification", **kwargs)
     Image.fromarray(x[0].transpose(1, 2, 0).astype(np.uint8)).save(
         './outputs/test_augmentation_classification_{}1.png'.format(method.__name__))
+
+
+# Test segmentation augmentation methods that should not affect label at all
+@pytest.mark.parametrize('method, kwargs', [
+    [WhiteNoise, {"std": 10}],
+    [ContrastNorm, {"alpha": [0.5, 1.0]}],
+    [RandomHue, {}],
+    [RandomBrightness, {}],
+    [RandomSaturation, {}],
+    [RandomLighting, {}]
+])
+def test_augmentation_process_segmentation_noise(method, kwargs):
+    x, img = load_img('./voc_01.jpg')
+    y, l = load_seg_label('./voc_01.png')
+
+    transform = method(**kwargs)
+    x_aug, y_aug = transform(x, y, mode="segmentation")
+
+    same_shape(x_aug[0], x[0], transform)
+    same_shape(y_aug[0], y[0], transform)
+    same_all(y_aug, y, transform)
+
+
+# Test segmentation augmentation shift method
+@pytest.mark.parametrize('method, kwargs', [
+    [Shift, {"horizontal": 10, "vertivcal": 10}],
+    [RandomCrop, {}]
+])
+def test_augmentation_process_segmentation_shift(method, kwargs):
+    x, img = load_img('./voc_01.jpg')
+    y, l = load_seg_label('./voc_01.png')
+
+    transform = method(**kwargs)
+    x_aug, y_aug = transform(x, y, mode="segmentation")
+
+    same_shape(x_aug[0], x[0], transform)
+    same_shape(y_aug[0], y[0], transform)
+    assert np.count_nonzero(y_aug[0]) <= np.count_nonzero(y[0])
+    assert (y_aug[0] == 0).sum() >= (y[0] == 0).sum()
+
+
+@pytest.mark.parametrize('method, kwargs', [
+    [CenterCrop, {"size":(112,112)}]
+])
+def test_augmentation_process_segmentation_centercrop(method, kwargs):
+    x, img = load_img('./voc_01.jpg')
+    y, l = load_seg_label('./voc_01.png')
+
+    transform = method(**kwargs)
+    x_aug, y_aug = transform(x, y, mode="segmentation")
+
+    assert x_aug[0].shape[1:] == y_aug[0].shape[1:], "Shapes do not match"
+    assert y_aug[0].shape[1:] == (112,112)
+    for i in np.unique(y_aug[0]):
+        assert (y_aug[0] == i).sum() <= (y[0] == i).sum()
+
+
+# Test segmentation augmentation shift method
+@pytest.mark.parametrize('method, kwargs', [
+    [RandomExpand, {}]
+])
+def test_augmentation_process_segmentation_randomexpand(method, kwargs):
+    x, img = load_img('./voc_01.jpg')
+    y, l = load_seg_label('./voc_01.png')
+
+    transform = method(**kwargs)
+    x_aug, y_aug = transform(x, y, mode="segmentation")
+
+    assert x_aug[0].shape[1:] == y_aug[0].shape[1:], "Shapes do not match"
+    assert np.count_nonzero(y_aug[0]) <= np.count_nonzero(y[0])
+    assert (y_aug[0] == 0).sum() >= (y[0] == 0).sum()
+
+
+@pytest.mark.parametrize('method, kwargs', [
+    [Shear, {}]
+])
+def test_augmentation_process_segmentation_shear(method, kwargs):
+    x, img = load_img('./voc_01.jpg')
+    y, l = load_seg_label('./voc_01.png')
+
+    transform = method(**kwargs)
+    x_aug, y_aug = transform(x, y, mode="segmentation")
+
+    assert x_aug[0].shape[1:] == y_aug[0].shape[1:], "Shapes do not match"
+
+
+@pytest.mark.parametrize('method, kwargs', [
+    [Rotate, {}],
+    [Distortion, {}]
+])
+def test_augmentation_process_segmentation_rotate(method, kwargs):
+    x, img = load_img('./voc_01.jpg')
+    y, l = load_seg_label('./voc_01.png')
+
+    transform = method(**kwargs)
+    x_aug, y_aug = transform(x, y, mode="segmentation")
+
+    same_shape(x_aug[0], x[0], transform)
+    same_shape(y_aug[0], y[0], transform)
+    for i in range(len(np.unique(y[0], return_counts=True))):
+        assert np.unique(y[0], return_counts=True)[i].all() == \
+        np.unique(y_aug[0], return_counts=True)[i].all(), \
+        "{} {} {}".format(i, np.unique(y[0], return_counts=True)[i], np.unique(y_aug[0], return_counts=True)[i])
+
+
+# Test segmentation augmentation methods that flip image and label
+@pytest.mark.parametrize('method, kwargs', [
+    [Flip, {}],
+    [HorizontalFlip, {}],
+    [VerticalFlip, {}]
+])
+def test_augmentation_process_segmentation_flip(method, kwargs):
+    x, img = load_img('./voc_01.jpg')
+    y, l = load_seg_label('./voc_01.png')
+
+    transform = method()
+    x_aug, y_aug = transform(x, y, mode="segmentation")
+
+    same_shape(x_aug[0], x[0], transform)
+    same_shape(y_aug[0], y[0], transform)
+
+    if isinstance(transform, Flip):
+        assert x_aug[0].all() == x[0][:,::-1,::-1].all()
+        assert y_aug[0].all() == y[0][:,::-1,::-1].all()
+    elif isinstance(transform, HorizontalFlip):
+        assert x_aug[0].all() == x[0][:,:,::-1].all()
+        assert y_aug[0].all() == y[0][:,:,::-1].all()
+    elif isinstance(transform, VerticalFlip):
+        assert x_aug[0].all() == x[0][:,::-1,:].all()
+        assert y_aug[0].all() == y[0][:,::-1,:].all()
 
 
 @pytest.mark.parametrize('method', [

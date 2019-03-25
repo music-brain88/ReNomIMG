@@ -566,8 +566,8 @@ class CenterCrop(ProcessBase):
             assert self.size[0] < w and self.size[1] < h, 'crop size should be smaller than original image size'
             left = np.ceil((w - self.size[0]) / 2.).astype(int)
             top = np.ceil((h - self.size[1]) / 2.).astype(int)
-            right = np.floor((w + self.size[0]) / 2.).astype(int)
-            bottom = np.floor((h + self.size[1]) / 2.).astype(int)
+            right = np.ceil((w + self.size[0]) / 2.).astype(int)
+            bottom = np.ceil((h + self.size[1]) / 2.).astype(int)
             img = x[i][:, top:bottom, left:right]
             new_x.append(img)
         return new_x, y
@@ -582,8 +582,8 @@ class CenterCrop(ProcessBase):
             assert self.size[0] < w and self.size[1] < h, 'crop size should be smaller than original image size'
             left = np.ceil((w - self.size[0]) / 2.).astype(int)
             top = np.ceil((h - self.size[1]) / 2.).astype(int)
-            right = np.floor((w + self.size[0]) / 2.).astype(int)
-            bottom = np.floor((h + self.size[1]) / 2.).astype(int)
+            right = np.ceil((w + self.size[0]) / 2.).astype(int)
+            bottom = np.ceil((h + self.size[1]) / 2.).astype(int)
             img = x[i][:, top:bottom, left:right]
 
             for j, obj in enumerate(y[i]):
@@ -614,8 +614,8 @@ class CenterCrop(ProcessBase):
             assert self.size[0] < w and self.size[1] < h, 'crop size should be smaller than original image size'
             left = np.ceil((w - self.size[0]) / 2.).astype(int)
             top = np.ceil((h - self.size[1]) / 2.).astype(int)
-            right = np.floor((w + self.size[0]) / 2.).astype(int)
-            bottom = np.floor((h + self.size[1]) / 2.).astype(int)
+            right = np.ceil((w + self.size[0]) / 2.).astype(int)
+            bottom = np.ceil((h + self.size[1]) / 2.).astype(int)
             img = x[i][:, top:bottom, left:right]
             label = y[i][:, top:bottom, left:right]
             new_x.append(img)
@@ -1054,16 +1054,12 @@ class Distortion(ProcessBase):
 
                 label = y[i]
                 shape = label.shape
-                dx = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
-                                     self.sigma, mode='constant', cval=0) * self.alpha
-                dy = gaussian_filter((self.random_state.rand(*shape) * 2 - 1),
-                                     self.sigma, mode='constant', cval=0) * self.alpha
 
                 ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(
                     shape[0]), np.arange(shape[2]))
 
-                indices = np.reshape(ay + dy, (-1, 1)), np.reshape(ax +
-                                                                   dx, (-1, 1)), np.reshape(z, (-1, 1))
+                indices = np.reshape(ay, (-1, 1)), np.reshape(ax
+                                                                , (-1, 1)), np.reshape(z, (-1, 1))
                 # print(indices[0].shape,indices[1].shape,indices[2].shape)
                 distorted_label = map_coordinates(label, indices, order=1, mode='reflect')
 

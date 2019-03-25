@@ -11,12 +11,15 @@ from renom_img.api.detection.ssd import SSD
 
 from renom_img.api.classification.vgg import VGG16, VGG19
 from renom_img.api.classification.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
+from renom_img.api.classification.resnext import ResNeXt50, ResNeXt101
 from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
 from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
 from renom_img.api.segmentation.unet import UNet
 from renom_img.api.segmentation.fcn import FCN16s, FCN8s, FCN32s
+from renom_img.api.segmentation.ternausnet import TernausNet
 
 from renom_img.api.utility.augmentation import Augmentation
+from renom_img.api.utility.augmentation.process import HorizontalFlip, ContrastNorm, WhiteNoise 
 from renom_img.api.utility.load import parse_xml_detection
 
 
@@ -76,6 +79,8 @@ def test_detection_model_implementation(algo):
         ],
         "build_data": [],
         "regularize": [],
+        "_freeze": [],
+        "set_last_layer_unit": ["unit_size"]
     }
 
     for k, v in method_list.items():
@@ -138,6 +143,8 @@ def test_detection_model_implementation(algo):
     ResNet50,
     ResNet101,
     ResNet152,
+    ResNeXt50,
+    ResNeXt101
     # InceptionV1,
     # InceptionV2,
     # InceptionV3,
@@ -190,6 +197,8 @@ def test_classification_model_implementation(algo):
             "x"
         ],
         "regularize": [],
+        "_freeze": [],
+        "set_last_layer_unit": ["unit_size"]
     }
 
     for k, v in method_list.items():
@@ -246,6 +255,7 @@ def test_classification_model_implementation(algo):
     FCN8s,
     FCN16s,
     FCN32s,
+    TernausNet
 ])
 def test_segmentation_model_implementation(algo):
     release_mem_pool()
@@ -291,6 +301,8 @@ def test_segmentation_model_implementation(algo):
             "x"
         ],
         "regularize": [],
+        "_freeze": [],
+        "set_last_layer_unit": ["unit_size"]
     }
 
     for k, v in method_list.items():
@@ -327,18 +339,20 @@ def test_segmentation_model_implementation(algo):
 
     # 4. Check fit function.
     test_imgs = [
-        "voc.jpg",
-        "voc.jpg",
+        "voc_01.jpg",
+        "voc_02.jpg",
     ]
     test_annotation = [
-        "segmentation_target.png",
-        "segmentation_target.png",
+        "voc_01.png",
+        "voc_02.png",
     ]
 
-    class_map = ["car"]
+    class_map = ["background", "airplane"]
+    aug = Augmentation([HorizontalFlip(), ContrastNorm(), WhiteNoise()])
     model = algo(class_map)
+    class_weight = model.build_class_weight(test_annotation) 
     model.fit(test_imgs, test_annotation, test_imgs, test_annotation,
-              batch_size=2, epoch=2)
+              batch_size=2, epoch=2, augmentation=aug, class_weight=class_weight)
 
     # Predict
     model.predict(test_imgs)
