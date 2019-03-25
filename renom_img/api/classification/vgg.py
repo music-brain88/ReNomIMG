@@ -3,42 +3,26 @@ import os
 import numpy as np
 import renom as rm
 from tqdm import tqdm
-
+from PIL import Image
 from renom_img import __version__
 from renom_img.api import Base, adddoc
 from renom_img.api.classification import Classification
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
-
-DIR = os.path.split(os.path.abspath(__file__))[0]
-
-
-def layer_factory(channel=32, conv_layer_num=2):
-    layers = []
-    for _ in range(conv_layer_num):
-        layers.append(rm.Conv2d(channel=channel, padding=1, filter=3))
-        layers.append(rm.Relu())
-    layers.append(rm.MaxPool2d(filter=2, stride=2))
-    return rm.Sequential(layers)
+from renom_img.api.cnn.vgg import CNN_VGG19, CNN_VGG16, CNN_VGG16_NODENSE, CNN_VGG11
+from renom_img.api.utility.optimizer import OptimizerVGG
 
 
-@adddoc
-class VGGBase(Classification):
+RESIZE_METHOD = Image.BILINEAR
 
-    SERIALIZED = Base.SERIALIZED
+class TargetBuilderVGG():
+    def __init__(self, class_map, imsize):
+        self.class_map = class_map
+        self.imsize = imsize
 
-    def set_last_layer_unit(self, unit_size):
-        self._model.fc3._output_size = unit_size
-
-    def get_optimizer(self, current_loss=None, current_epoch=None,
-                      total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
-        if any([num is None for num in [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
-            return self._opt
-        else:
-            if current_epoch == 0:
-                self._opt._lr = 0.00001 + (0.001 - 0.00001) * current_batch / total_batch
-            return self._opt
+    def __call__(self, *args, **kwargs):
+        return self.build(*args, **kwargs)
 
     def preprocess(self, x):
         """
@@ -59,34 +43,71 @@ class VGGBase(Classification):
         x[:, 2, :, :] -= 103.939  # B
         return x
 
-    def _freeze(self):
-        self._model.block1.set_auto_update(self.train_whole_network)
-        self._model.block2.set_auto_update(self.train_whole_network)
-        self._model.block3.set_auto_update(self.train_whole_network)
-        self._model.block4.set_auto_update(self.train_whole_network)
-        self._model.block5.set_auto_update(self.train_whole_network)
+    def resize_img(self, img_list, label_list):
+        im_list = []
 
-    def forward(self, x):
-        """
+        for img in img_list:
+            channel_last = img.transpose(1, 2, 0)
+            img = Image.fromarray(np.uint8(channel_last))
+            img = img.resize(self.imsize, RESIZE_METHOD).convert('RGB')
+            im_list.append(np.asarray(img))
+
+        return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(label_list)
+
+    def load_img(self, path):
+        """ Loads an image
+
+        Args:
+            path(str): A path of an image
+
         Returns:
-            (Node): Returns raw output of ${class}.
-
-        Example:
-            >>> import numpy as np
-            >>> from renom_img.api.classification.vgg import ${class}
-            >>>
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> class_map = ["dog", "cat"]
-            >>> model = ${class}(class_map)
-            >>> y = model.forward(x) # Forward propagation.
-            >>> y = model(x)  # Same as above result.
+            (tuple): Returns image(numpy.array), the ratio of the given width to the actual image width,
+                     and the ratio of the given height to the actual image height
         """
-        self._freeze()
-        return self._model(x)
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        img = img.convert('RGB')
+        # img = img.resize(self.imsize, RESIZE_METHOD)
+        img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+        return img, self.imsize[0] / float(w), self.imsize[1] / h
 
 
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        """ Builds an array of images and corresponding labels
+
+        Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): List of class id
+                                    [1, 4, 6 (int)]
+            augmentation(Augmentation): Instance of the augmentation class.
+
+        Returns:
+            (tuple): Batch of images and corresponding one hot labels for each image in a batch
+        """
+
+        # Check the class mapping.
+        n_class = len(self.class_map)
+
+        img_list = []
+        label_list = []
+        for img_path, an_data in zip(img_path_list, annotation_list):
+            one_hot = np.zeros(n_class)
+            img, sw, sh = self.load_img(img_path)
+            img_list.append(img)
+            one_hot[an_data] = 1.
+            label_list.append(one_hot)
+
+        if augmentation is not None:
+            img_list, label_list = augmentation(img_list, label_list, mode="classification")
+
+        img_list, label_list = self.resize_img(img_list, label_list)
+
+        return self.preprocess(np.array(img_list)), np.array(label_list)
+
+  
 @adddoc
-class VGG11(VGGBase):
+class VGG11(Classification):
     """VGG11 model.
 
     Args:
@@ -114,20 +135,26 @@ class VGG11(VGGBase):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
 
-        self._model = CNN_VGG11()
+        self.model = CNN_VGG11()
         super(VGG11, self).__init__(class_map, imsize, load_pretrained_weight,
-                                    train_whole_network, self._model)
+                                    train_whole_network, self.model)
 
-        self._opt = rm.Sgd(0.01, 0.9)
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network)
+
+        self.default_optimizer = OptimizerVGG()
         self.decay_rate = 0.0005
 
-        self._model.fc1.params = {}
-        self._model.fc2.params = {}
-        self._model.fc3.params = {}
+        self.model.fc1.params = {}
+        self.model.fc2.params = {}
+        self.model.fc3.params = {}
+
+    def build_data(self):
+        return TargetBuilderVGG(self.class_map, self.imsize)
 
 
 @adddoc
-class VGG16(VGGBase):
+class VGG16(Classification):
     """VGG16 model.
     If the argument load_weight is True, pretrained weight will be downloaded.
     The pretrained weight is trained using ILSVRC2012.
@@ -159,38 +186,50 @@ class VGG16(VGGBase):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
 
-        self._model = CNN_VGG16()
+        self.model = CNN_VGG16()
         super(VGG16, self).__init__(class_map, imsize, load_pretrained_weight,
-                                    train_whole_network, self._model)
+                                    train_whole_network, self.model)
 
-        self._opt = rm.Sgd(0.01, 0.9)
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network)
+
+        self.default_optimizer = OptimizerVGG()
         self.decay_rate = 0.0005
 
-        self._model.fc1.params = {}
-        self._model.fc2.params = {}
-        self._model.fc3.params = {}
+        self.model.fc1.params = {}
+        self.model.fc2.params = {}
+        self.model.fc3.params = {}
+
+    def build_data(self):
+        return TargetBuilderVGG(self.class_map, self.imsize)
 
 
-class VGG16_NODENSE(VGGBase):
+class VGG16_NODENSE(Classification):
 
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
 
-        self._model = CNN_VGG16_NODENSE()
+        self.model = CNN_VGG16_NODENSE()
         super(VGG16, self).__init__(class_map, imsize, load_pretrained_weight,
-                                    train_whole_network, self._model, load_target=self._model)
+                                    train_whole_network, self._model, load_target=self.model)
 
-        self.train_whole_network = train_whole_network
-        self._opt = rm.Sgd(0.001, 0.9)
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network)
+
+        self.default_optimizer = OptimizerVGG()
         self.decay_rate = 0.0005
 
-        self._model.fc1.params = {}
-        self._model.fc2.params = {}
-        self._model.fc3.params = {}
+        self.model.fc1.params = {}
+        self.model.fc2.params = {}
+        self.model.fc3.params = {}
+
+    def build_data(self):
+        return TargetBuilderVGG(self.class_map, self.imsize)
+
 
 
 @adddoc
-class VGG19(VGGBase):
+class VGG19(Classification):
     """VGG19 model.
 
     If the argument load_weight is True, pretrained weight will be downloaded.
@@ -222,144 +261,22 @@ class VGG19(VGGBase):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
 
-        self._model = CNN_VGG19()
+        self.model = CNN_VGG19()
         super(VGG19, self).__init__(class_map, imsize,
-                                    load_pretrained_weight, train_whole_network, self._model)
+                                    load_pretrained_weight, train_whole_network, self.model)
 
-        self._opt = rm.Sgd(0.01, 0.9)
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network)
+
+        self.default_optimizer = OptimizerVGG()
         self.decay_rate = 0.0005
 
-        self._model.fc1.params = {}
-        self._model.fc2.params = {}
-        self._model.fc3.params = {}
+        self.model.fc1.params = {}
+        self.model.fc2.params = {}
+        self.model.fc3.params = {}
+
+    def build_data(self):
+        return TargetBuilderVGG(self.class_map, self.imsize)
 
 
-class CNN_VGG19(rm.Model):
 
-    def __init__(self, num_class=1000):
-        self.block1 = layer_factory(channel=64, conv_layer_num=2)
-        self.block2 = layer_factory(channel=128, conv_layer_num=2)
-        self.block3 = layer_factory(channel=256, conv_layer_num=4)
-        self.block4 = layer_factory(channel=512, conv_layer_num=4)
-        self.block5 = layer_factory(channel=512, conv_layer_num=4)
-        self.fc1 = rm.Dense(4096)
-        self.dropout1 = rm.Dropout(dropout_ratio=0.5)
-        self.fc2 = rm.Dense(4096)
-        self.dropout2 = rm.Dropout(dropout_ratio=0.5)
-        self.fc3 = rm.Dense(num_class)
-
-    def forward(self, x):
-        t = self.block1(x)
-        t = self.block2(t)
-        t = self.block3(t)
-        t = self.block4(t)
-        t = self.block5(t)
-        t = rm.flatten(t)
-        t = rm.relu(self.fc1(t))
-        t = self.dropout1(t)
-        t = rm.relu(self.fc2(t))
-        t = self.dropout2(t)
-        t = self.fc3(t)
-        return t
-
-
-class CNN_VGG16(rm.Model):
-
-    def __init__(self, num_class=1000):
-        self.block1 = layer_factory(channel=64, conv_layer_num=2)
-        self.block2 = layer_factory(channel=128, conv_layer_num=2)
-        self.block3 = layer_factory(channel=256, conv_layer_num=3)
-        self.block4 = layer_factory(channel=512, conv_layer_num=3)
-        self.block5 = layer_factory(channel=512, conv_layer_num=3)
-        self.fc1 = rm.Dense(4096)
-        self.dropout1 = rm.Dropout(dropout_ratio=0.5)
-        self.fc2 = rm.Dense(4096)
-        self.dropout2 = rm.Dropout(dropout_ratio=0.5)
-        self.fc3 = rm.Dense(num_class)
-
-    def forward(self, x):
-        t = self.block1(x)
-        t = self.block2(t)
-        t = self.block3(t)
-        t = self.block4(t)
-        t = self.block5(t)
-        t = rm.flatten(t)
-        t = rm.relu(self.fc1(t))
-        t = self.dropout1(t)
-        t = rm.relu(self.fc2(t))
-        t = self.dropout2(t)
-        t = self.fc3(t)
-        return t
-
-
-class CNN_VGG16_NODENSE(rm.Model):
-
-    def __init__(self, num_class=1000):
-        self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
-        self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
-        self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
-        self.conv2_2 = rm.Conv2d(128, padding=1, filter=3)
-        self.conv3_1 = rm.Conv2d(256, padding=1, filter=3)
-        self.conv3_2 = rm.Conv2d(256, padding=1, filter=3)
-        self.conv3_3 = rm.Conv2d(256, padding=1, filter=3)
-        self.conv4_1 = rm.Conv2d(512, padding=1, filter=3)
-        self.conv4_2 = rm.Conv2d(512, padding=1, filter=3)
-        self.conv4_3 = rm.Conv2d(512, padding=1, filter=3)
-        self.conv5_1 = rm.Conv2d(512, padding=1, filter=3)
-        self.conv5_2 = rm.Conv2d(512, padding=1, filter=3)
-        self.conv5_3 = rm.Conv2d(512, padding=1, filter=3)
-
-    def forward(self, x):
-        t = rm.relu(self.conv1_1(x))
-        t = rm.relu(self.conv1_2(t))
-        t = rm.max_pool2d(t, filter=2, stride=2)
-
-        t = rm.relu(self.conv2_1(t))
-        t = rm.relu(self.conv2_2(t))
-        t = rm.max_pool2d(t, filter=2, stride=2)
-
-        t = rm.relu(self.conv3_1(t))
-        t = rm.relu(self.conv3_2(t))
-        t = rm.relu(self.conv3_3(t))
-        t = rm.max_pool2d(t, filter=2, stride=2)
-
-        t = rm.relu(self.conv4_1(t))
-        t = rm.relu(self.conv4_2(t))
-        t = rm.relu(self.conv4_3(t))
-        t = rm.max_pool2d(t, filter=2, stride=2)
-
-        t = rm.relu(self.conv5_1(t))
-        t = rm.relu(self.conv5_2(t))
-        t = rm.relu(self.conv5_3(t))
-        t = rm.max_pool2d(t, filter=2, stride=2)
-
-        return t
-
-
-class CNN_VGG11(rm.Model):
-
-    def __init__(self, num_class=1000):
-        self.block1 = layer_factory(channel=64, conv_layer_num=1)
-        self.block2 = layer_factory(channel=128, conv_layer_num=1)
-        self.block3 = layer_factory(channel=256, conv_layer_num=2)
-        self.block4 = layer_factory(channel=512, conv_layer_num=2)
-        self.block5 = layer_factory(channel=512, conv_layer_num=2)
-        self.fc1 = rm.Dense(4096)
-        self.dropout1 = rm.Dropout(dropout_ratio=0.5)
-        self.fc2 = rm.Dense(4096)
-        self.dropout2 = rm.Dropout(dropout_ratio=0.5)
-        self.fc3 = rm.Dense(num_class)
-
-    def forward(self, x):
-        t = self.block1(x)
-        t = self.block2(t)
-        t = self.block3(t)
-        t = self.block4(t)
-        t = self.block5(t)
-        t = rm.flatten(t)
-        t = rm.relu(self.fc1(t))
-        t = self.dropout1(t)
-        t = rm.relu(self.fc2(t))
-        t = self.dropout2(t)
-        t = self.fc3(t)
-        return t

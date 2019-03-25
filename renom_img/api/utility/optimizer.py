@@ -30,6 +30,24 @@ class BaseOptimizer(object):
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
 
+
+class OptimizerVGG(BaseOptimizer):
+    def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
+        super(OptimizerVGG, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.opt = rm.Sgd(0.01, 0.9)
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(OptimizerVGG, self).setup(total_batch_iteration, total_epoch_iteration)
+
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+        super(OptimizerVGG, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
+                                                     avg_valid_loss_list)
+
+        if nth_epoch == 0:
+            self.opt._lr = 0.00001 + (0.001 - 0.00001) * nth_batch / self.total_batch_iteration
+
+
+
 class OptimizerResNeXt(BaseOptimizer):
     def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
         super(OptimizerResNeXt, self).__init__(total_batch_iteration, total_epoch_iteration)

@@ -183,6 +183,10 @@ class ResNeXt101(Classification):
         self.model = CnnResNeXt(1, Bottleneck, [3, 4, 23, 3], self.cardinality)
         super(ResNeXt50, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
 
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network)
+ 
+
         self.default_optimizer = OptimizerResNeXt()
         self.decay_rate = 0.0001
         self.model.fc.params = {}
