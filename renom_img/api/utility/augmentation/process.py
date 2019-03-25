@@ -1058,8 +1058,7 @@ class Distortion(ProcessBase):
                 ax, ay, z = np.meshgrid(np.arange(shape[1]), np.arange(
                     shape[0]), np.arange(shape[2]))
 
-                indices = np.reshape(ay, (-1, 1)), np.reshape(ax
-                                                                , (-1, 1)), np.reshape(z, (-1, 1))
+                indices = np.reshape(ay, (-1, 1)), np.reshape(ax, (-1, 1)), np.reshape(z, (-1, 1))
                 # print(indices[0].shape,indices[1].shape,indices[2].shape)
                 distorted_label = map_coordinates(label, indices, order=1, mode='reflect')
 

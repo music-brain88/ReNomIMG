@@ -171,6 +171,7 @@ class ResNeXt(rm.Model):
     def set_last_layer_unit(self, unit_size):
         self.fc._output_size = unit_size
 
+
 @adddoc
 class ResNeXt50(ResNeXtBase):
     """ResNeXt50 model.
@@ -202,7 +203,8 @@ class ResNeXt50(ResNeXtBase):
     def __init__(self, class_map=None, imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         self._model = ResNeXt(1, Bottleneck, [3, 4, 6, 3], cardinality)
-        super(ResNeXt50, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
+        super(ResNeXt50, self).__init__(class_map, imsize,
+                                        load_pretrained_weight, train_whole_network, self._model)
 
         self._opt = rm.Sgd(0.1, 0.9)
         self.decay_rate = 0.0001
@@ -248,7 +250,8 @@ class ResNeXt101(ResNeXtBase):
     def __init__(self, class_map=None, imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
         self._model = ResNeXt(1, Bottleneck, [3, 4, 23, 3], cardinality)
-        super(ResNeXt101, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
+        super(ResNeXt101, self).__init__(class_map, imsize,
+                                         load_pretrained_weight, train_whole_network, self._model)
 
         self._opt = rm.Sgd(0.1, 0.9)
         self.decay_rate = 0.0001

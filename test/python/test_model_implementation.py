@@ -19,7 +19,7 @@ from renom_img.api.segmentation.fcn import FCN16s, FCN8s, FCN32s
 from renom_img.api.segmentation.ternausnet import TernausNet
 
 from renom_img.api.utility.augmentation import Augmentation
-from renom_img.api.utility.augmentation.process import HorizontalFlip, ContrastNorm, WhiteNoise 
+from renom_img.api.utility.augmentation.process import HorizontalFlip, ContrastNorm, WhiteNoise
 from renom_img.api.utility.load import parse_xml_detection
 
 
@@ -350,7 +350,7 @@ def test_segmentation_model_implementation(algo):
     class_map = ["background", "airplane"]
     aug = Augmentation([HorizontalFlip(), ContrastNorm(), WhiteNoise()])
     model = algo(class_map)
-    class_weight = model.build_class_weight(test_annotation) 
+    class_weight = model.build_class_weight(test_annotation)
     model.fit(test_imgs, test_annotation, test_imgs, test_annotation,
               batch_size=2, epoch=2, augmentation=aug, class_weight=class_weight)
 

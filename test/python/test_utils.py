@@ -43,11 +43,13 @@ def load_seg_label(label_path):
 
 
 def same_shape(x1, x2, transform):
-    assert x1.shape == x2.shape, "Shapes do not match for {} transformation".format(transform.__class__.__name__)
+    assert x1.shape == x2.shape, "Shapes do not match for {} transformation".format(
+        transform.__class__.__name__)
 
 
 def same_all(x1, x2, transform):
-    assert x1 == x2, "Items are not equal for {} transformation".format(transform.__class__.__name__)
+    assert x1 == x2, "Items are not equal for {} transformation".format(
+        transform.__class__.__name__)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -169,7 +171,7 @@ def test_augmentation_process_segmentation_shift(method, kwargs):
 
 
 @pytest.mark.parametrize('method, kwargs', [
-    [CenterCrop, {"size":(112,112)}]
+    [CenterCrop, {"size": (112, 112)}]
 ])
 def test_augmentation_process_segmentation_centercrop(method, kwargs):
     x, img = load_img('./voc_01.jpg')
@@ -179,7 +181,7 @@ def test_augmentation_process_segmentation_centercrop(method, kwargs):
     x_aug, y_aug = transform(x, y, mode="segmentation")
 
     assert x_aug[0].shape[1:] == y_aug[0].shape[1:], "Shapes do not match"
-    assert y_aug[0].shape[1:] == (112,112)
+    assert y_aug[0].shape[1:] == (112, 112)
     for i in np.unique(y_aug[0]):
         assert (y_aug[0] == i).sum() <= (y[0] == i).sum()
 
@@ -228,8 +230,9 @@ def test_augmentation_process_segmentation_rotate(method, kwargs):
     same_shape(y_aug[0], y[0], transform)
     for i in range(len(np.unique(y[0], return_counts=True))):
         assert np.unique(y[0], return_counts=True)[i].all() == \
-        np.unique(y_aug[0], return_counts=True)[i].all(), \
-        "{} {} {}".format(i, np.unique(y[0], return_counts=True)[i], np.unique(y_aug[0], return_counts=True)[i])
+            np.unique(y_aug[0], return_counts=True)[i].all(), \
+            "{} {} {}".format(i, np.unique(y[0], return_counts=True)[
+                              i], np.unique(y_aug[0], return_counts=True)[i])
 
 
 # Test segmentation augmentation methods that flip image and label
@@ -249,14 +252,14 @@ def test_augmentation_process_segmentation_flip(method, kwargs):
     same_shape(y_aug[0], y[0], transform)
 
     if isinstance(transform, Flip):
-        assert x_aug[0].all() == x[0][:,::-1,::-1].all()
-        assert y_aug[0].all() == y[0][:,::-1,::-1].all()
+        assert x_aug[0].all() == x[0][:, ::-1, ::-1].all()
+        assert y_aug[0].all() == y[0][:, ::-1, ::-1].all()
     elif isinstance(transform, HorizontalFlip):
-        assert x_aug[0].all() == x[0][:,:,::-1].all()
-        assert y_aug[0].all() == y[0][:,:,::-1].all()
+        assert x_aug[0].all() == x[0][:, :, ::-1].all()
+        assert y_aug[0].all() == y[0][:, :, ::-1].all()
     elif isinstance(transform, VerticalFlip):
-        assert x_aug[0].all() == x[0][:,::-1,:].all()
-        assert y_aug[0].all() == y[0][:,::-1,:].all()
+        assert x_aug[0].all() == x[0][:, ::-1, :].all()
+        assert y_aug[0].all() == y[0][:, ::-1, :].all()
 
 
 @pytest.mark.parametrize('method', [
