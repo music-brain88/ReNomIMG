@@ -3,84 +3,25 @@ import sys
 import renom as rm
 import numpy as np
 from tqdm import tqdm
-
+from PIL import Image
 from renom_img import __version__
 from renom_img.api.utility.misc.download import download
 from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.target import DataBuilderClassification
+from renom_img.api.cnn.resnext import CnnResNeXt, Bottleneck
+from renom_img.api.utility.optimizer import OptimizerResNeXt
 
-DIR = os.path.split(os.path.abspath(__file__))[0]
+RESIZE_METHOD = Image.BILINEAR
 
+class TargetBuilderResNeXt():
+    def __init__(self, class_map, imsize):
+        self.class_map = class_map
+        self.imsize = imsize
 
-class Bottleneck(rm.Model):
-    expansion = 2
-
-    def __init__(self, planes, stride=1, downsample=None, cardinality=32):
-        super(Bottleneck, self).__init__()
-        self.cardinality = cardinality
-        self.conv1 = rm.Conv2d(planes, filter=1, ignore_bias=True)
-        self.bn1 = rm.BatchNormalize(epsilon=0.00001, mode='feature')
-        self.conv2 = rm.GroupConv2d(planes, filter=3, stride=stride,
-                                    padding=1, ignore_bias=True, groups=self.cardinality)
-        self.bn2 = rm.BatchNormalize(epsilon=0.00001, mode='feature')
-        self.conv3 = rm.Conv2d(planes * self.expansion, filter=1, ignore_bias=True)
-        self.bn3 = rm.BatchNormalize(epsilon=0.00001, mode='feature')
-        self.relu = rm.Relu()
-        self.downsample = downsample
-        self.stride = stride
-
-    def forward(self, x):
-        residual = x
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
-
-        out = self.conv3(out)
-        out = self.bn3(out)
-
-        if self.downsample is not None:
-            residual = self.downsample(x)
-
-        out += residual
-        out = self.relu(out)
-
-        return out
-
-
-class ResNeXtBase(Classification):
-
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
-
-        Args:
-            current_epoch:
-            total_epoch:
-            current_batch:
-            total_epoch:
-        """
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
-            return self._opt
-        elif self.plateau:
-            avg_valid_loss_list = kwargs['avg_valid_loss_list']
-            if len(avg_valid_loss_list) >= 2 and current_batch == 0:
-                if avg_valid_loss_list[-1] > min(avg_valid_loss_list):
-                    self._counter += 1
-                    new_lr = self._opt._lr * self._factor
-                    if self._counter > self._patience and new_lr > self._min_lr:
-                        self._opt._lr = new_lr
-                        self._counter = 0
-                else:
-                    self._counter = 0
-
-            return self._opt
-        else:
-            return self._opt
+    def __call__(self, *args, **kwargs):
+        return self.build(*args, **kwargs)
 
     def preprocess(self, x):
         # normalization
@@ -98,74 +39,70 @@ class ResNeXtBase(Classification):
 
         return x
 
-    def _freeze(self):
-        self._model.conv1.set_auto_update(self._train_whole_network)
-        self._model.bn1.set_auto_update(self._train_whole_network)
-        self._model.layer1.set_auto_update(self._train_whole_network)
-        self._model.layer2.set_auto_update(self._train_whole_network)
-        self._model.layer3.set_auto_update(self._train_whole_network)
-        self._model.layer4.set_auto_update(self._train_whole_network)
+    def resize_img(self, img_list, label_list):
+        im_list = []
+
+        for img in img_list:
+            channel_last = img.transpose(1, 2, 0)
+            img = Image.fromarray(np.uint8(channel_last))
+            img = img.resize(self.imsize, RESIZE_METHOD).convert('RGB')
+            im_list.append(np.asarray(img))
+
+        return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(label_list)
+
+    def load_img(self, path):
+        """ Loads an image
+
+        Args:
+            path(str): A path of an image
+
+        Returns:
+            (tuple): Returns image(numpy.array), the ratio of the given width to the actual image width,
+                     and the ratio of the given height to the actual image height
+        """
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        img = img.convert('RGB')
+        # img = img.resize(self.imsize, RESIZE_METHOD)
+        img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+        return img, self.imsize[0] / float(w), self.imsize[1] / h
 
 
-class ResNeXt(rm.Model):
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        """ Builds an array of images and corresponding labels
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt.h5".format(
-        __version__)
+        Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): List of class id
+                                    [1, 4, 6 (int)]
+            augmentation(Augmentation): Instance of the augmentation class.
 
-    def __init__(self, num_classes, block, layers, cardinality):
-        self.inplanes = 128
-        self.cardinality = cardinality
-        super(ResNeXt, self).__init__()
-        self.conv1 = rm.Conv2d(64, filter=7, stride=2, padding=3, ignore_bias=True)
-        self.bn1 = rm.BatchNormalize(epsilon=0.00001, mode='feature')
-        self.relu = rm.Relu()
-        self.maxpool = rm.MaxPool2d(filter=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(
-            block, 128, layers[0], stride=1, cardinality=self.cardinality)
-        self.layer2 = self._make_layer(
-            block, 256, layers[1], stride=2, cardinality=self.cardinality)
-        self.layer3 = self._make_layer(
-            block, 512, layers[2], stride=2, cardinality=self.cardinality)
-        self.layer4 = self._make_layer(
-            block, 1024, layers[3], stride=2, cardinality=self.cardinality)
-        self.flat = rm.Flatten()
-        self.fc = rm.Dense(num_classes)
+        Returns:
+            (tuple): Batch of images and corresponding one hot labels for each image in a batch
+        """
 
-    def _make_layer(self, block, planes, blocks, stride=1, cardinality=32):
-        downsample = None
-        if stride != 1 or self.inplanes != planes * block.expansion:
-            downsample = rm.Sequential([
-                rm.Conv2d(planes * block.expansion, filter=1, stride=stride, ignore_bias=True),
-                rm.BatchNormalize(epsilon=0.00001, mode='feature')
-            ])
+        # Check the class mapping.
+        n_class = len(self.class_map)
 
-        layers = []
-        layers.append(block(planes, stride, downsample, cardinality=cardinality))
-        self.inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(block(planes, cardinality=cardinality))
+        img_list = []
+        label_list = []
+        for img_path, an_data in zip(img_path_list, annotation_list):
+            one_hot = np.zeros(n_class)
+            img, sw, sh = self.load_img(img_path)
+            img_list.append(img)
+            one_hot[an_data] = 1.
+            label_list.append(one_hot)
 
-        return rm.Sequential(layers)
+        if augmentation is not None:
+            img_list, label_list = augmentation(img_list, label_list, mode="classification")
 
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
+        img_list, label_list = self.resize_img(img_list, label_list)
 
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
-
-        x = rm.average_pool2d(x, filter=(x.shape[2], x.shape[3]))
-        x = self.flat(x)
-        x = self.fc(x)
-
-        return x
+        return self.preprocess(np.array(img_list)), np.array(label_list)
 
 
-class ResNeXt50(ResNeXtBase):
+class ResNeXt50(Classification):
     """ResNeXt50 model.
 
     If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
@@ -195,37 +132,23 @@ class ResNeXt50(ResNeXtBase):
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
+
         self.cardinality = cardinality
 
-        self._model = ResNeXt(self.num_class, Bottleneck, [3, 4, 6, 3], self.cardinality)
-        self._opt = rm.Sgd(0.1, 0.9)
+        self.model = CnnResNeXt(1, Bottleneck, [3, 4, 6, 3], self.cardinality)
+        super(ResNeXt50, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
 
-        # for error plateau
-        self.plateau = plateau
-        self._patience = 15
-        self._counter = 0
-        self._min_lr = 1e-6
-        self._factor = np.sqrt(0.1)
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network)
+        
+        self.default_optimizer = OptimizerResNeXt()
+        self.decay_rate = 0.0001
+        self.model.fc.params = {}
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
+    def build_data(self):
+        return TargetBuilderResNeXt(self.class_map, self.imsize)
 
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
-
-
-class ResNeXt101(ResNeXtBase):
+class ResNeXt101(Classification):
     """ResNeXt101 model.
 
     If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
@@ -255,31 +178,17 @@ class ResNeXt101(ResNeXtBase):
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
         self.cardinality = cardinality
 
-        self._model = ResNeXt(self.num_class, Bottleneck, [3, 4, 23, 3], self.cardinality)
-        self._opt = rm.Sgd(0.1, 0.9)
+        self.model = CnnResNeXt(1, Bottleneck, [3, 4, 23, 3], self.cardinality)
+        super(ResNeXt50, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
 
-        # for error plateau
-        self.plateau = plateau
-        self._patience = 15
-        self._counter = 0
-        self._min_lr = 1e-6
-        self._factor = np.sqrt(0.1)
+        self.default_optimizer = OptimizerResNeXt()
+        self.decay_rate = 0.0001
+        self.model.fc.params = {}
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
+    def build_data(self):
+        return TargetBuilderResNeXt(self.class_map, self.imsize)
 
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
 
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
+

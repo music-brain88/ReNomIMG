@@ -30,6 +30,33 @@ class BaseOptimizer(object):
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
 
+class OptimizerResNeXt(BaseOptimizer):
+    def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
+        super(OptimizerResNeXt, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.opt = rm.Sgd(0.1, 0.9)
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(OptimizerResNeXt, self).setup(total_batch_iteration, total_epoch_iteration)
+        self.plateau = True
+        self.patience = 15
+        self.min_lr = 1e-6
+        self.counter = 0
+        self.factor = np.sqrt(0.1)
+
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+        super(OptimizerResNeXt, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
+                                                     avg_valid_loss_list)
+
+        if self.plateau:
+             if len(avg_valid_loss_list) >= 2 and nth_batch == 0:
+                if avg_valid_loss_list[-1] > min(avg_valid_loss_list):
+                    self.counter +=1
+                    new_lr = self.opt._lr * self.factor
+                    if self.counter > self.patience and new_lr > self.min_lr:
+                        self.opt._lr = new_lr
+                        self.counter = 0
+                else:
+                    self.counter = 0
 
 class OptimizerResNet(BaseOptimizer):
 
