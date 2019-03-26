@@ -160,7 +160,7 @@ class InceptionV1(Classification):
         return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an optimizer instance for training InceptionV1 algorithm.
 
         Args:
             current_epoch:
@@ -597,7 +597,7 @@ class InceptionV2(Classification):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an optimizer instance for training InceptionV2 algorithm.
 
         Args:
             current_epoch:
@@ -966,7 +966,7 @@ class InceptionV4(Classification):
         self._model.block3.set_auto_update(self._train_whole_network)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an optimizer instance for training InceptionV4 algorithm.
 
         Args:
             current_epoch:
