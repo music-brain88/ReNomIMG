@@ -7,119 +7,92 @@ import sys
 import numpy as np
 import renom as rm
 from tqdm import tqdm
-
+from PIL import Image
 from renom_img import __version__
 from renom_img.api.utility.misc.download import download
 from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.cnn.densenet import CNN_DenseNet
+from renom_img.api.utility.optimizer import OptimizerDenseNet
 
-DIR = os.path.split(os.path.abspath(__file__))[0]
+RESIZE_METHOD = Image.BILINEAR
 
+class TargetBuilderDenseNet():
+    def __init__(self, class_map, imsize):
+        self.class_map = class_map
+        self.imsize = imsize
 
-def conv_block(growth_rate):
-    return rm.Sequential([
-        rm.BatchNormalize(epsilon=0.001, mode='feature'),
-        rm.Relu(),
-        rm.Conv2d(growth_rate * 4, 1, padding=0),
-        rm.BatchNormalize(epsilon=0.001, mode='feature'),
-        rm.Relu(),
-        rm.Conv2d(growth_rate, 3, padding=1),
-    ])
+    def __call__(self, *args, **kwargs):
+        return self.build(*args, **kwargs)
 
+    def preprocess(self, x):
+        return x
 
-def transition_layer(growth_rate):
-    return rm.Sequential([
-        rm.BatchNormalize(epsilon=0.001, mode='feature'),
-        rm.Relu(),
-        rm.Conv2d(growth_rate, filter=1, padding=0, stride=1),
-        rm.AveragePool2d(filter=2, stride=2)
-    ])
+    def resize_img(self, img_list, label_list):
+        im_list = []
 
+        for img in img_list:
+            channel_last = img.transpose(1, 2, 0)
+            img = Image.fromarray(np.uint8(channel_last))
+            img = img.resize(self.imsize, RESIZE_METHOD).convert('RGB')
+            im_list.append(np.asarray(img))
 
-class DenseNetBase(Classification):
-    def __init__(self, class_map):
-        super(DenseNetBase, self).__init__(class_map)
-        self._opt = rm.Sgd(0.1, 0.9)
+        return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(label_list)
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+    def load_img(self, path):
+        """ Loads an image
 
         Args:
-            current_epoch:
-            total_epoch:
-            current_batch:
-            total_epoch:
+            path(str): A path of an image
+
+        Returns:
+            (tuple): Returns image(numpy.array), the ratio of the given width to the actual image width,
+                     and the ratio of the given height to the actual image height
         """
-        if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
-            return self._opt
-        else:
-            if current_epoch == 30:
-                self._opt._lr = self._opt._lr / 10
-            elif current_epoch == 60:
-                self._opt._lr = self._opt._lr / 10
-            return self._opt
-
-    def _freeze(self):
-        self._model.base.set_auto_update(self._train_whole_network)
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        img = img.convert('RGB')
+        # img = img.resize(self.imsize, RESIZE_METHOD)
+        img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+        return img, self.imsize[0] / float(w), self.imsize[1] / h
 
 
-class CNN_DenseNet(rm.Model):
-    """
-    DenseNet (Densely Connected Convolutional Network) https://arxiv.org/pdf/1608.06993.pdf
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        """ Builds an array of images and corresponding labels
 
-    Input
-        class_map: Array of class names
-        layer_per_block: array specifing number of layers in a block.
-        growth_rate(int): Growth rate of the number of filters.
-        imsize(int or tuple): Input image size.
-        train_whole_network(bool): True if the overal model is trained.
-    """
+        Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): List of class id
+                                    [1, 4, 6 (int)]
+            augmentation(Augmentation): Instance of the augmentation class.
 
-    def __init__(self, num_class, layer_per_block=[6, 12, 24, 16], growth_rate=32, train_whole_network=False):
-        self.layer_per_block = layer_per_block
-        self.growth_rate = growth_rate
+        Returns:
+            (tuple): Batch of images and corresponding one hot labels for each image in a batch
+        """
 
-        layers = []
-        layers.append(rm.Conv2d(64, 7, padding=3, stride=2))
-        layers.append(rm.BatchNormalize(epsilon=0.001, mode='feature'))
-        for i in layer_per_block[:-1]:
-            for j in range(i):
-                layers.append(conv_block(growth_rate))
-            layers.append(transition_layer(growth_rate))
-        for i in range(layer_per_block[-1]):
-            layers.append(conv_block(growth_rate))
+        # Check the class mapping.
+        n_class = len(self.class_map)
 
-        self.base = rm.Sequential(layers)
-        self.fc = rm.Dense(num_class)
+        img_list = []
+        label_list = []
+        for img_path, an_data in zip(img_path_list, annotation_list):
+            one_hot = np.zeros(n_class)
+            img, sw, sh = self.load_img(img_path)
+            img_list.append(img)
+            one_hot[an_data] = 1.
+            label_list.append(one_hot)
 
-    def forward(self, x):
-        i = 0
-        t = self.base[i](x)
-        i += 1
-        t = rm.relu(self.base[i](t))
-        i += 1
-        t = rm.max_pool2d(t, filter=3, stride=2, padding=1)
-        for j in self.layer_per_block[:-1]:
-            for k in range(j):
-                tmp = t
-                t = self.base[i](t)
-                i += 1
-                t = rm.concat(tmp, t)
-            t = self.base[i](t)
-            i += 1
-        for j in range(self.layer_per_block[-1]):
-            tmp = t
-            t = self.base[i](t)
-            i += 1
-            t = rm.concat(tmp, t)
-        t = rm.average_pool2d(t, filter=7, stride=1)
-        t = rm.flatten(t)
-        t = self.fc(t)
-        return t
+        if augmentation is not None:
+            img_list, label_list = augmentation(img_list, label_list, mode="classification")
+
+        img_list, label_list = self.resize_img(img_list, label_list)
+
+        return self.preprocess(np.array(img_list)), np.array(label_list)
 
 
-class DenseNet121(DenseNetBase):
+class DenseNet121(Classification):
     """ DenseNet121 Model
 
     If the argument load_weight is True, pretrained weight will be downloaded.
@@ -148,36 +121,25 @@ class DenseNet121(DenseNetBase):
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
             __version__, self.__class__.__name__)
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
 
         layer_per_block = [6, 12, 24, 16]
         growth_rate = 32
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self._train_whole_network = train_whole_network
-        self._model = CNN_DenseNet(self.num_class, layer_per_block,
-                                   growth_rate, train_whole_network)
-        self._opt = rm.Sgd(0.01, 0.9)
+        self.model = CNN_DenseNet(1, layer_per_block,
+                                   growth_rate)
+
+        super(DenseNet121, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+
+        self.model.set_train_whole(train_whole_network)
+        self.model.set_output_size(self.num_class)
+        self.default_optimizer = OptimizerDenseNet()
         self.decay_rate = 0.0005
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.weight_url, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            for layer in self._model._network.iter_models():
-                layer.params = {}
-        if self.num_class != 1000:
-            self._model.params = {}
-        self._freeze()
+    def build_data(self):
+        return TargetBuilderDenseNet(self.class_map, self.imsize)
 
 
-class DenseNet169(DenseNetBase):
+
+class DenseNet169(Classification):
     """ DenseNet169 Model
 
     If the argument load_weight is True, pretrained weight will be downloaded.
@@ -205,36 +167,26 @@ class DenseNet169(DenseNetBase):
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
             __version__, self.__class__.__name__)
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
 
         layer_per_block = [6, 12, 32, 32]
         growth_rate = 32
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self._train_whole_network = train_whole_network
-        self._model = CNN_DenseNet(self.num_class, layer_per_block,
-                                   growth_rate, train_whole_network)
-        self._opt = rm.Sgd(0.01, 0.9)
+
+        self.model = CNN_DenseNet(1, layer_per_block,
+                                   growth_rate)
+
+        super(DenseNet169, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+
+        self.model.set_train_whole(train_whole_network)
+        self.model.set_output_size(self.num_class)
+        self.default_optimizer = OptimizerDenseNet()
         self.decay_rate = 0.0005
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.weight_url, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            for layer in self._model._network.iter_models():
-                layer.params = {}
-        if self.num_class != 1000:
-            self._model.params = {}
-        self._freeze()
+    def build_data(self):
+        return TargetBuilderDenseNet(self.class_map, self.imsize)
 
 
-class DenseNet201(DenseNetBase):
+
+class DenseNet201(Classification):
     """ DenseNet201 Model
 
     If the argument load_weight is True, pretrained weight will be downloaded.
@@ -263,30 +215,20 @@ class DenseNet201(DenseNetBase):
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
             __version__, self.__class__.__name__)
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
 
         layer_per_block = [6, 12, 48, 32]
         growth_rate = 32
-        self.imsize = imsize
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self._train_whole_network = train_whole_network
-        self._model = CNN_DenseNet(self.num_class, layer_per_block,
-                                   growth_rate, train_whole_network)
-        self._opt = rm.Sgd(0.01, 0.9)
+
+        self.model = CNN_DenseNet(1, layer_per_block,
+                                   growth_rate)
+
+        super(DenseNet201, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+
+        self.model.set_train_whole(train_whole_network)
+        self.model.set_output_size(self.num_class)
+        self.default_optimizer = OptimizerDenseNet()
         self.decay_rate = 0.0005
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
+    def build_data(self):
+        return TargetBuilderDenseNet(self.class_map, self.imsize)
 
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            for layer in self._model._network.iter_models():
-                layer.params = {}
-        if self.num_class != 1000:
-            self._model.params = {}
-        self._freeze()

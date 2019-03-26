@@ -30,6 +30,23 @@ class BaseOptimizer(object):
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
 
+class OptimizerDenseNet(BaseOptimizer):
+    def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):
+        super(OptimizerDenseNet, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.opt = rm.Sgd(0.1, 0.9)
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(OptimizerDenseNet, self).setup(total_batch_iteration, total_epoch_iteration)
+
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+        super(OptimizerDenseNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
+                                                     avg_valid_loss_list)
+
+        if nth_epoch == 30:
+            self.opt._lr = self.opt._lr / 10
+        elif nth_epoch == 60:
+            self.opt._lr = self.opt._lr / 10
+
 
 class OptimizerInception(BaseOptimizer):
     def __init__(self, version,total_batch_iteration=None, total_epoch_iteration=None):
