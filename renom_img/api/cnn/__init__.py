@@ -24,4 +24,4 @@ class CnnBase(rm.Model):
         pass
 
     def load_pretrained_weight(self, path):
-        pass
+        raise NotImplemented

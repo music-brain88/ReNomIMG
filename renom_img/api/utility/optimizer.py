@@ -31,6 +31,29 @@ class BaseOptimizer(object):
         self.nth_epoch_iteration = nth_epoch
 
 
+class OptimizerInception(BaseOptimizer):
+    def __init__(self, version,total_batch_iteration=None, total_epoch_iteration=None):
+        super(OptimizerInception, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.opt = rm.Sgd(0.045, 0.9)
+        self.version = version
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(OptimizerInception, self).setup(total_batch_iteration, total_epoch_iteration)
+
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+        super(OptimizerInception, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
+                                                     avg_valid_loss_list)
+
+        if self.version == 1 or self.version == 4:
+            if nth_epoch % 8 == 0:
+                lr = self.opt._lr * 0.94
+                self.opt._lr = lr
+        elif self.version == 2:
+            if nth_epoch % 2 == 0:
+                lr = self.opt._lr * 0.94
+                self.opt._lr = lr 
+
+
 class OptimizerVGG(BaseOptimizer):
     def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
         super(OptimizerVGG, self).__init__(total_batch_iteration, total_epoch_iteration)
