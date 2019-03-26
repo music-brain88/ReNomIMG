@@ -43,7 +43,7 @@ class DenseNetBase(Classification):
         self._opt = rm.Sgd(0.1, 0.9)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an optimizer instance for training DenseNet algorithm.
 
         Args:
             current_epoch:

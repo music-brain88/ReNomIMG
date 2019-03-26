@@ -96,7 +96,7 @@ class ResNetBase(Classification):
 
     def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None,
                       current_batch=None, total_batch=None, avg_valid_loss_list=None):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an optimizer instance for training ResNet algorithm.
 
         Args:
             current_epoch:
