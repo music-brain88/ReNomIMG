@@ -96,6 +96,7 @@ class UNet(SemanticSegmentation):
 class CNN_UNet(rm.Model):
 
     def __init__(self, num_class=1):
+        self.num_class = num_class
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
         self.bn1_1 = rm.BatchNormalize(mode='feature')
         self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
@@ -130,6 +131,9 @@ class CNN_UNet(rm.Model):
         self.conv9 = rm.Conv2d(num_class, filter=1)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = rm.relu(self.bn1_1(self.conv1_1(x)))
         c1 = rm.relu(self.bn1_2(self.conv1_2(t)))
         t = rm.max_pool2d(c1, filter=2, stride=2)

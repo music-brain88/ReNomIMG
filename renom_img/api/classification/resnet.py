@@ -155,6 +155,7 @@ class ResNet(rm.Model):
 
     def __init__(self, num_classes, block, layers):
         self.inplanes = 64
+        self.num_class = num_classes
         super(ResNet, self).__init__()
         self.conv1 = rm.Conv2d(64, filter=7, stride=2, padding=3, ignore_bias=True)
         self.bn1 = rm.BatchNormalize(mode='feature')
@@ -184,6 +185,9 @@ class ResNet(rm.Model):
         return rm.Sequential(layers)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)

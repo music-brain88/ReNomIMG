@@ -237,6 +237,7 @@ class VGG19(VGGBase):
 class CNN_VGG19(rm.Model):
 
     def __init__(self, num_class=1000):
+        self.num_class = num_class
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=4)
@@ -249,6 +250,9 @@ class CNN_VGG19(rm.Model):
         self.fc3 = rm.Dense(num_class)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = self.block1(x)
         t = self.block2(t)
         t = self.block3(t)
@@ -266,6 +270,7 @@ class CNN_VGG19(rm.Model):
 class CNN_VGG16(rm.Model):
 
     def __init__(self, num_class=1000):
+        self.num_class = num_class
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=3)
@@ -278,6 +283,9 @@ class CNN_VGG16(rm.Model):
         self.fc3 = rm.Dense(num_class)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = self.block1(x)
         t = self.block2(t)
         t = self.block3(t)
@@ -339,6 +347,7 @@ class CNN_VGG16_NODENSE(rm.Model):
 class CNN_VGG11(rm.Model):
 
     def __init__(self, num_class=1000):
+        self.num_class = num_class
         self.block1 = layer_factory(channel=64, conv_layer_num=1)
         self.block2 = layer_factory(channel=128, conv_layer_num=1)
         self.block3 = layer_factory(channel=256, conv_layer_num=2)
@@ -351,6 +360,9 @@ class CNN_VGG11(rm.Model):
         self.fc3 = rm.Dense(num_class)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = self.block1(x)
         t = self.block2(t)
         t = self.block3(t)

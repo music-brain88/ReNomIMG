@@ -300,6 +300,7 @@ class FCN8s(FCN_Base):
 class CNN_FCN8s(rm.Model):
     def __init__(self, num_class):
         init_deconv = DeconvInitializer()
+        self.num_class = num_class
         self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=3)
@@ -323,6 +324,9 @@ class CNN_FCN8s(rm.Model):
                                     padding=0, ignore_bias=True, initializer=init_deconv)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = x
         t = self.block1(t)
         t = self.block2(t)
@@ -373,6 +377,7 @@ class CNN_FCN8s(rm.Model):
 class CNN_FCN16s(rm.Model):
     def __init__(self, num_class):
         init_deconv = DeconvInitializer()
+        self.num_class = num_class
         self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=3)
@@ -393,6 +398,9 @@ class CNN_FCN16s(rm.Model):
                                      padding=0, ignore_bias=True, initializer=init_deconv)  # n_classes
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = x
         t = self.block1(t)
         t = self.block2(t)
@@ -429,6 +437,7 @@ class CNN_FCN16s(rm.Model):
 
 class CNN_FCN32s(rm.Model):
     def __init__(self, num_class):
+        self.num_class = num_class
         init_deconv = DeconvInitializer()
         self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
@@ -446,6 +455,9 @@ class CNN_FCN32s(rm.Model):
                                    ignore_bias=True, initializer=init_deconv)  # n_classes
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = x
         t = self.block1(t)
         t = self.block2(t)
