@@ -199,6 +199,9 @@ class Darknet19(rm.Model):
             self.load(load_pretrained_weight)
 
     def forward(self, x):
+        assert self._num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         N = len(x)
         h, _ = self._base(x)
         D = h.shape[2] * h.shape[3]

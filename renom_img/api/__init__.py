@@ -251,6 +251,9 @@ class Base(rm.Model):
         Args:
             x(ndarray, Node): Input to ${class}.
         """
+        assert len(self.class_map) > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the 'load()' method."
         self._freeze()
         return self._model(x)
 
