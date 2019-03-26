@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import renom as rm
 from renom_img import __version__
-from .base import CnnBase
+from renom_img.api.cnn import CnnBase
 
 
 class DarknetConv2dBN(rm.Model):
@@ -81,24 +81,26 @@ class CnnDarknet19(CnnBase):
     def __init__(self):
         super(CnnDarknet19, self).__init__()
         self._base = Darknet19Base()
-        self._last = rm.Conv2d(self.num_class, filter=1)
-        self._last.params = {
-            "w": rm.Variable(self._last._initializer((self.num_class, 1024, 1, 1)), auto_update=True),
-            "b": rm.Variable(self._last._initializer((1, self.num_class, 1, 1)), auto_update =False),
-        }
+        self._last = rm.Conv2d(filter=1)
 
     def set_output_size(self, output_size):
         self.output_size = output_size
+        self._last._channel = output_size
+        self._last.params = {
+            "w": rm.Variable(self._last._initializer((self.output_size, 1024, 1, 1)), auto_update=True),
+            "b": rm.Variable(self._last._initializer((1, self.output_size, 1, 1)), auto_update =False),
+        }
 
-    def reset_deeper_layer(self):
-        pass
+
 
     def forward(self, x):
+        self._freeze()
         N = len(x)
         h, _ = self._base(x)
         D = h.shape[2] * h.shape[3]
-        h = rm.sum(self._last(h).reshape(N, self.num_class, -1), axis=2)
+        h = rm.sum(self._last(h).reshape(N, self.output_size, -1), axis=2)
         h /= D
         return h
 
-	
+    def _freeze(self):
+        self._base.set_auto_update(self.train_whole)
