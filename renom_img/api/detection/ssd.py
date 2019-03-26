@@ -440,6 +440,9 @@ class SSD(Detection):
         return boxes
 
     def forward(self, x):
+        assert len(self.class_map) > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the 'load()' method."
         self._freezed_network.set_auto_update(self.train_whole_network)
         return self._network(self._freezed_network(x))
 

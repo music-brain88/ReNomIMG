@@ -11,7 +11,7 @@ from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.target import DataBuilderClassification
-from renom_img.api.classification import Classification
+
 
 DIR = os.path.split(os.path.abspath(__file__))[0]
 
@@ -39,6 +39,7 @@ class InceptionV1Block(rm.Model):
 
 class CNN_InceptionV1(rm.Model):
     def __init__(self, num_class):
+        self.num_class = num_class
         self.base1 = rm.Sequential([rm.Conv2d(64, filter=7, padding=3, stride=2),
                                     rm.Relu(),
                                     rm.MaxPool2d(filter=3, stride=2, padding=1),
@@ -77,6 +78,9 @@ class CNN_InceptionV1(rm.Model):
         self.aux3 = rm.Dense(num_class)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = self.base1(x)
         out1 = self.aux1(t)
         t = self.base2(t)
@@ -160,7 +164,7 @@ class InceptionV1(Classification):
         return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an optimizer instance for training InceptionV1 algorithm.
 
         Args:
             current_epoch:
@@ -389,6 +393,7 @@ class InceptionV2Stem(rm.Model):
 
 class CNN_InceptionV3(rm.Model):
     def __init__(self, num_class):
+        self.num_class = num_class
         self.base1 = rm.Sequential([
             InceptionV2Stem(),
             InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
@@ -421,6 +426,9 @@ class CNN_InceptionV3(rm.Model):
         self.aux2 = rm.Dense(num_class)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = self.base1(x)
         out1 = self.aux1(t)
         t = self.base2(t)
@@ -503,6 +511,7 @@ class InceptionV3(Classification):
 
 class CNN_InceptionV2(rm.Model):
     def __init__(self, num_class):
+        self.num_class = num_class
         self.base1 = rm.Sequential([
             InceptionV2Stem(),
             InceptionV2BlockA([64, 48, 64, 64, 96, 32]),
@@ -532,6 +541,9 @@ class CNN_InceptionV2(rm.Model):
         self.aux2 = rm.Dense(num_class)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = self.base1(x)
         out1 = self.aux1(t)
         t = self.base2(t)
@@ -597,7 +609,7 @@ class InceptionV2(Classification):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an optimizer instance for training InceptionV2 algorithm.
 
         Args:
             current_epoch:
@@ -876,7 +888,7 @@ class InceptionV4BlockC(rm.Model):
 
 class CNN_InceptionV4(rm.Model):
     def __init__(self, num_class):
-
+        self.num_class = num_class
         self.block1 = rm.Sequential([InceptionV4Stem(),
                                      InceptionV4BlockA(),
                                      InceptionV4BlockA(),
@@ -904,6 +916,9 @@ class CNN_InceptionV4(rm.Model):
         self.fc = rm.Dense(num_class)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         t = self.block1(x)
         t = self.block2(t)
         t = self.block3(t)
@@ -966,7 +981,7 @@ class InceptionV4(Classification):
         self._model.block3.set_auto_update(self._train_whole_network)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an optimizer instance for training InceptionV4 algorithm.
 
         Args:
             current_epoch:

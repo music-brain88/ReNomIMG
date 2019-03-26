@@ -43,7 +43,7 @@ class DenseNetBase(Classification):
         self._opt = rm.Sgd(0.1, 0.9)
 
     def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an instance of Optimiser for training Yolov1 algorithm.
+        """Returns an optimizer instance for training DenseNet algorithm.
 
         Args:
             current_epoch:
@@ -79,7 +79,7 @@ class CNN_DenseNet(rm.Model):
     def __init__(self, num_class, layer_per_block=[6, 12, 24, 16], growth_rate=32, train_whole_network=False):
         self.layer_per_block = layer_per_block
         self.growth_rate = growth_rate
-
+        self.num_class = num_class
         layers = []
         layers.append(rm.Conv2d(64, 7, padding=3, stride=2))
         layers.append(rm.BatchNormalize(epsilon=0.001, mode='feature'))
@@ -94,6 +94,9 @@ class CNN_DenseNet(rm.Model):
         self.fc = rm.Dense(num_class)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         i = 0
         t = self.base[i](x)
         i += 1

@@ -308,6 +308,7 @@ class TernausNet(SemanticSegmentation):
 
 class CNN_TernausNet(rm.Model):
     def __init__(self, num_class):
+        self.num_class = num_class
         self.block1 = layer_factory(channel_list=[64])
         self.block2 = layer_factory(channel_list=[128])
         self.block3 = layer_factory(channel_list=[256, 256])
@@ -325,6 +326,9 @@ class CNN_TernausNet(rm.Model):
         self.final = rm.Conv2d(channel=num_class, filter=1, stride=1)
 
     def forward(self, x):
+        assert self.num_class > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the ‘load()’ method."
         c1 = self.block1(x)
         t = rm.max_pool2d(c1, filter=2, stride=2)
         c2 = self.block2(t)
