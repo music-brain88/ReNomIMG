@@ -94,6 +94,8 @@ class CNN_InceptionV1(CnnBase):
     def set_output_size(self, output_size):
         self.output_size = output_size
         self.aux3._output_size = output_size
+        self.aux1[-1]._output_size = output_size
+        self.aux2[-1]._output_size = output_size
 
 
 class InceptionV2BlockA(rm.Model):
@@ -355,6 +357,7 @@ class CNN_InceptionV3(CnnBase):
     def set_output_size(self, output_size):
         self.output_size = output_size
         self.aux2._output_size = output_size
+        self.aux1[-1]._output_size = output_size
 
 
 
@@ -404,6 +407,7 @@ class CNN_InceptionV2(CnnBase):
 
     def set_output_size(self, output_size):
         self.output_size = output_size
+        self.aux1[-1]._output_size = output_size
         self.aux2._output_size = output_size
 
 

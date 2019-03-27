@@ -26,7 +26,7 @@ class TargetBuilderInception():
 
     def preprocess(self, x):
 
-        return x
+        return x/255.
 
     def resize_img(self, img_list, label_list):
         im_list = []
