@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import print_function, division
 import os
 import sys
-
+sys.setrecursionlimit(3000)
 import numpy as np
 import renom as rm
 from tqdm import tqdm

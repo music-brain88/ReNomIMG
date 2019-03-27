@@ -57,8 +57,7 @@ class OptimizerDenseNet(BaseOptimizer):
         super(OptimizerDenseNet, self).setup(total_batch_iteration, total_epoch_iteration)
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(OptimizerDenseNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
-                                                     avg_valid_loss_list)
+        super(OptimizerDenseNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
 
         if nth_epoch == 30:
             self.opt._lr = self.opt._lr / 10
