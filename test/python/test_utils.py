@@ -60,6 +60,13 @@ def scope_session():
 
 
 # Test of augmentations for detection.
+@pytest.mark.parametrize('image_path', [
+    './renom.png',
+    './renom.png',
+    './renom.png',
+    './renom.png',
+    './renom.png'
+])
 @pytest.mark.parametrize('method, kwargs', [
     [shift, {"horizontal": 50, "vertivcal": 50}],
     [rotate, {}],
@@ -78,8 +85,8 @@ def scope_session():
     [center_crop, {}],
     [distortion, {}],
 ])
-def test_augmentation_process_detection(method, kwargs):
-    img = Image.open('./renom.png')
+def test_augmentation_process_detection(method, kwargs, image_path):
+    img = Image.open(image_path)
     img.convert('RGB')
     x = np.array(img).transpose(2, 0, 1).astype(np.float)
     x = np.expand_dims(x, axis=0)
@@ -100,6 +107,13 @@ def test_augmentation_process_detection(method, kwargs):
 
 
 # Test of augmentations for classification.
+@pytest.mark.parametrize('image_path', [
+    './renom.png',
+    './renom.png',
+    './renom.png',
+    './renom.png',
+    './renom.png'
+])
 @pytest.mark.parametrize('method, kwargs', [
     [shift, {"horizontal": 50, "vertivcal": 50}],
     [rotate, {}],
@@ -118,8 +132,8 @@ def test_augmentation_process_detection(method, kwargs):
     [center_crop, {}],
     [distortion, {}],
 ])
-def test_augmentation_process_classification(method, kwargs):
-    img = Image.open('./renom.png')
+def test_augmentation_process_classification(method, kwargs, image_path):
+    img = Image.open(image_path)
     img.convert('RGB')
     x = np.array(img).transpose(2, 0, 1).astype(np.float)
     x = np.expand_dims(x, axis=0)
@@ -132,6 +146,12 @@ def test_augmentation_process_classification(method, kwargs):
 
 
 # Test segmentation augmentation methods that should not affect label at all
+@pytest.mark.parametrize('image, label', [
+    ['./img_1.jpg', './lbl_1.png' ],
+    ['./img_2.jpg', './lbl_2.png' ],
+    ['./img_3.jpg', './lbl_3.png' ],
+    ['./img_4.jpg', './lbl_4.png' ]
+])
 @pytest.mark.parametrize('method, kwargs', [
     [WhiteNoise, {"std": 10}],
     [ContrastNorm, {"alpha": [0.5, 1.0]}],
@@ -140,9 +160,9 @@ def test_augmentation_process_classification(method, kwargs):
     [RandomSaturation, {}],
     [RandomLighting, {}]
 ])
-def test_augmentation_process_segmentation_noise(method, kwargs):
-    x, img = load_img('./voc_01.jpg')
-    y, l = load_seg_label('./voc_01.png')
+def test_augmentation_process_segmentation_noise(method, kwargs, image, label):
+    x, img = load_img(image)
+    y, l = load_seg_label(label)
 
     transform = method(**kwargs)
     x_aug, y_aug = transform(x, y, mode="segmentation")
@@ -153,13 +173,19 @@ def test_augmentation_process_segmentation_noise(method, kwargs):
 
 
 # Test segmentation augmentation shift method
+@pytest.mark.parametrize('image, label', [
+    ['./img_1.jpg', './lbl_1.png' ],
+    ['./img_2.jpg', './lbl_2.png' ],
+    ['./img_3.jpg', './lbl_3.png' ],
+    ['./img_4.jpg', './lbl_4.png' ]
+])
 @pytest.mark.parametrize('method, kwargs', [
     [Shift, {"horizontal": 10, "vertivcal": 10}],
     [RandomCrop, {}]
 ])
-def test_augmentation_process_segmentation_shift(method, kwargs):
-    x, img = load_img('./voc_01.jpg')
-    y, l = load_seg_label('./voc_01.png')
+def test_augmentation_process_segmentation_shift(method, kwargs, image, label):
+    x, img = load_img(image)
+    y, l = load_seg_label(label)
 
     transform = method(**kwargs)
     x_aug, y_aug = transform(x, y, mode="segmentation")
@@ -170,12 +196,18 @@ def test_augmentation_process_segmentation_shift(method, kwargs):
     assert (y_aug[0] == 0).sum() >= (y[0] == 0).sum()
 
 
+@pytest.mark.parametrize('image, label', [
+    ['./img_1.jpg', './lbl_1.png' ],
+    ['./img_2.jpg', './lbl_2.png' ],
+    ['./img_3.jpg', './lbl_3.png' ],
+    ['./img_4.jpg', './lbl_4.png' ]
+])
 @pytest.mark.parametrize('method, kwargs', [
     [CenterCrop, {"size": (112, 112)}]
 ])
-def test_augmentation_process_segmentation_centercrop(method, kwargs):
-    x, img = load_img('./voc_01.jpg')
-    y, l = load_seg_label('./voc_01.png')
+def test_augmentation_process_segmentation_centercrop(method, kwargs, image, label):
+    x, img = load_img(image)
+    y, l = load_seg_label(label)
 
     transform = method(**kwargs)
     x_aug, y_aug = transform(x, y, mode="segmentation")
@@ -187,12 +219,18 @@ def test_augmentation_process_segmentation_centercrop(method, kwargs):
 
 
 # Test segmentation augmentation shift method
+@pytest.mark.parametrize('image, label', [
+    ['./img_1.jpg', './lbl_1.png' ],
+    ['./img_2.jpg', './lbl_2.png' ],
+    ['./img_3.jpg', './lbl_3.png' ],
+    ['./img_4.jpg', './lbl_4.png' ]
+])
 @pytest.mark.parametrize('method, kwargs', [
     [RandomExpand, {}]
 ])
-def test_augmentation_process_segmentation_randomexpand(method, kwargs):
-    x, img = load_img('./voc_01.jpg')
-    y, l = load_seg_label('./voc_01.png')
+def test_augmentation_process_segmentation_randomexpand(method, kwargs, image, label):
+    x, img = load_img(image)
+    y, l = load_seg_label(label)
 
     transform = method(**kwargs)
     x_aug, y_aug = transform(x, y, mode="segmentation")
@@ -202,12 +240,18 @@ def test_augmentation_process_segmentation_randomexpand(method, kwargs):
     assert (y_aug[0] == 0).sum() >= (y[0] == 0).sum()
 
 
+@pytest.mark.parametrize('image, label', [
+    ['./img_1.jpg', './lbl_1.png' ],
+    ['./img_2.jpg', './lbl_2.png' ],
+    ['./img_3.jpg', './lbl_3.png' ],
+    ['./img_4.jpg', './lbl_4.png' ]
+])
 @pytest.mark.parametrize('method, kwargs', [
     [Shear, {}]
 ])
-def test_augmentation_process_segmentation_shear(method, kwargs):
-    x, img = load_img('./voc_01.jpg')
-    y, l = load_seg_label('./voc_01.png')
+def test_augmentation_process_segmentation_shear(method, kwargs, image, label):
+    x, img = load_img(image)
+    y, l = load_seg_label(label)
 
     transform = method(**kwargs)
     x_aug, y_aug = transform(x, y, mode="segmentation")
@@ -215,13 +259,19 @@ def test_augmentation_process_segmentation_shear(method, kwargs):
     assert x_aug[0].shape[1:] == y_aug[0].shape[1:], "Shapes do not match"
 
 
+@pytest.mark.parametrize('image, label', [
+    ['./img_1.jpg', './lbl_1.png' ],
+    ['./img_2.jpg', './lbl_2.png' ],
+    ['./img_3.jpg', './lbl_3.png' ],
+    ['./img_4.jpg', './lbl_4.png' ]
+])
 @pytest.mark.parametrize('method, kwargs', [
     [Rotate, {}],
     [Distortion, {}]
 ])
-def test_augmentation_process_segmentation_rotate(method, kwargs):
-    x, img = load_img('./voc_01.jpg')
-    y, l = load_seg_label('./voc_01.png')
+def test_augmentation_process_segmentation_rotate(method, kwargs, image, label):
+    x, img = load_img(image)
+    y, l = load_seg_label(label)
 
     transform = method(**kwargs)
     x_aug, y_aug = transform(x, y, mode="segmentation")
@@ -236,14 +286,20 @@ def test_augmentation_process_segmentation_rotate(method, kwargs):
 
 
 # Test segmentation augmentation methods that flip image and label
+@pytest.mark.parametrize('image, label', [
+    ['./img_1.jpg', './lbl_1.png' ],
+    ['./img_2.jpg', './lbl_2.png' ],
+    ['./img_3.jpg', './lbl_3.png' ],
+    ['./img_4.jpg', './lbl_4.png' ]
+])
 @pytest.mark.parametrize('method, kwargs', [
     [Flip, {}],
     [HorizontalFlip, {}],
     [VerticalFlip, {}]
 ])
-def test_augmentation_process_segmentation_flip(method, kwargs):
-    x, img = load_img('./voc_01.jpg')
-    y, l = load_seg_label('./voc_01.png')
+def test_augmentation_process_segmentation_flip(method, kwargs, image, label):
+    x, img = load_img(image)
+    y, l = load_seg_label(label)
 
     transform = method()
     x_aug, y_aug = transform(x, y, mode="segmentation")
