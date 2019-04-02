@@ -17,205 +17,131 @@ from renom_img.api.utility.load import load_img
 from renom_img.api.utility.target import DataBuilderSegmentation
 from renom_img.api.segmentation import SemanticSegmentation
 from renom.utility.initializer import GlorotNormal, GlorotUniform
+from PIL import Image
+from renom_img.api.cnn.ternausnet import CNN_TernausNet
+from renom_img.api.utility.optimizer import OptimizerTernausNet
 import renom.cuda as cu
 if cu.has_cuda():
     from renom.cuda.gpuvalue import GPUValue, get_gpu
 
+RESIZE_METHOD = Image.BILINEAR
 
-DIR = os.path.split(os.path.abspath(__file__))[0]
+class TargetBuilderTernausNet():
+    def __init__(self, class_map, imsize):
+        self.class_map = class_map
+        self.imsize = imsize
 
+    def __call__(self, *args, **kwargs):
+        return self.build(*args, **kwargs)
 
-def transpose_out_size(size, k, s, p, d=(1, 1), ceil_mode=False):
-    if ceil_mode:
-        return (np.array(s) * (np.array(size) - 1) + np.array(k) + (np.array(k) - 1) *
-                (np.array(d) - 1) - 2 * np.array(p) + 1).astype(np.int)
-    return (np.array(s) * (np.array(size) - 1) + np.array(k) + (np.array(k) - 1) *
-            (np.array(d) - 1) - 2 * np.array(p)).astype(np.int)
+    def preprocess(self, x):
+        """Image preprocessing for TernausNet training.
 
+        :math:`new_x = (x-mean)/(255*std).`
 
-class deconv2d(Node):
+        Returns:
+            (ndarray): Preprocessed data.
+        """
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
 
-    def __new__(cls, x, w, b, filter=3, stride=1, padding=0, dilation=1, ceil_mode=False):
-        filter, stride, padding, dilation = (tuplize(x)
-                                             for x in (filter, stride, padding, dilation))
+        x = x / 255.
+        x[:, 0, :, :] -= mean[0]  # R
+        x[:, 1, :, :] -= mean[1]  # G
+        x[:, 2, :, :] -= mean[2]  # B
+        x[:, 0, :, :] /= std[0]  # R
+        x[:, 1, :, :] /= std[1]  # G
+        x[:, 2, :, :] /= std[2]  # B
+        return x
 
-        in_shape = x.shape[1:]
-        out_shape = [w.shape[1], ]
-        out_shape.extend(transpose_out_size(
-            in_shape[1:], filter, stride, padding, dilation, ceil_mode))
-        return cls.calc_value(x, w, b, in_shape, out_shape, filter, stride, padding, dilation)
+    def resize(self, img_list, label_list):
+        x_list = []
+        y_list = []
+        for i, (img, label) in enumerate(zip(img_list, label_list)):
+            channel_last = img.transpose(1, 2, 0)
+            img = Image.fromarray(np.uint8(channel_last))
+            img = img.resize(self.imsize, RESIZE_METHOD).convert('RGB')
+            x_list.append(np.asarray(img))
+            c, h, w = label.shape
+            l = []
+            for z in range(c):
+                select = label[z, :, :]
+                im = Image.fromarray(select)
+                resized = im.resize(self.imsize, RESIZE_METHOD)
+                l.append(np.array(resized))
+            y_list.append(np.array(l))
 
-    @classmethod
-    def _oper_cpu(cls, x, w, b, in_shape, out_shape, kernel, stride, padding, dilation):
-        z = np.tensordot(w, x, (0, 1))
-        z = np.rollaxis(z, 3)
-        z = col2im(z, out_shape[1:], stride, padding, dilation)
-        if b is not None:
-            z += b
-        ret = cls._create_node(z)
-        ret.attrs._x = x
-        ret.attrs._w = w
-        ret.attrs._b = b
-        ret.attrs._in_shape = in_shape
-        ret.attrs._kernel = kernel
-        ret.attrs._stride = stride
-        ret.attrs._padding = padding
-        ret.attrs._dilation = dilation
-        return ret
+        return np.asarray(x_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(y_list)
 
-    @classmethod
-    def _oper_gpu(cls, x, w, b, in_shape, out_shape, kernel, stride, padding, dilation):
-        conv_desc = cu.ConvolutionDescriptor(padding, stride, dilation, precision)
-        filter_desc = cu.FilterDescriptor(w.shape, precision)
-        N = x.shape[0]
-        z = GPUValue(shape=tuple([N, ] + list(out_shape)))
+    def load_annotation(self, path):
+        """ Loads annotation data
 
-        with cu.cudnn_handler() as handle:
-            cu.cuConvolutionBackwardData(handle, conv_desc, filter_desc, get_gpu(w), get_gpu(x), z)
-        if b is not None:
-            cu.cu_add_bias(get_gpu(b), z)
+        Args:
+            path: A path of annotation file
 
-        ret = cls._create_node(z)
-        ret.attrs._conv_desc = conv_desc
-        ret.attrs._filter_desc = filter_desc
-        ret.attrs._x = x
-        ret.attrs._w = w
-        ret.attrs._b = b
-        return ret
+        Returns:
+            (tuple): Returns annotation data(numpy.array), the ratio of the given width to the actual image width,
+        """
+        N = len(self.class_map)
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
+        img = np.array(img)
+        assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
+        assert img.ndim == 2
+        return img, img.shape[0], img.shape[1]
 
-    def _backward_cpu(self, context, dy, **kwargs):
+    def load_img(self, path):
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        img = img.convert('RGB')
+        # img = img.resize(self.imsize, RESIZE_METHOD)
+        img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+        return img, w, h
 
-        col = im2col(dy, self.attrs._in_shape[1:], self.attrs._kernel,
-                     self.attrs._stride, self.attrs._padding, self.attrs._dilation)
+    def crop_to_square(self, image):
+        size = min(image.size)
+        left, upper = (image.width - size) // 2, (image.height - size) // 2
+        right, bottom = (image.width + size) // 2, (image.height + size) // 2
+        return image.crop((left, upper, right, bottom))
 
-        if isinstance(self.attrs._x, Node):
-            dx = np.tensordot(col, self.attrs._w, ([1, 2, 3], [1, 2, 3]))
-            dx = np.rollaxis(dx, 3, 1)
-            self.attrs._x._update_diff(context, dx, **kwargs)
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        """
+        Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): The format of annotation list is as follows.
+            augmentation(Augmentation): Instance of the augmentation class.
 
-        if isinstance(self.attrs._w, Node):
-            self.attrs._w._update_diff(context, np.tensordot(
-                self.attrs._x, col, ([0, 2, 3], [0, 4, 5])), **kwargs)
+        Returns:
+            (tuple): Batch of images and ndarray whose shape is **(batch size, #classes, width, height)**
 
-        if isinstance(self.attrs._b, Node):
-            self.attrs._b._update_diff(context, np.sum(dy, (0, 2, 3), keepdims=True), **kwargs)
+        """
+        # Check the class mapping.
+        n_class = len(self.class_map)
 
-    def _backward_gpu(self, context, dy, **kwargs):
-        dw, db, dx = (get_gpu(g).empty_like_me() if g is not None else None
-                      for g in (self.attrs._w, self.attrs._b, self.attrs._x))
-        with cu.cudnn_handler() as handle:
-            cu.cuConvolutionForward(handle, self.attrs._conv_desc,
-                                    self.attrs._filter_desc, get_gpu(dy), get_gpu(self.attrs._w), dx)
-            cu.cuConvolutionBackwardFilter(handle, self.attrs._conv_desc,
-                                           self.attrs._filter_desc, get_gpu(dy), get_gpu(self.attrs._x), dw)
-            if db is not None:
-                cu.cuConvolutionBackwardBias(handle, get_gpu(dy), db)
-
-        if isinstance(self.attrs._x, Node):
-            self.attrs._x._update_diff(context, dx, **kwargs)
-
-        if isinstance(self.attrs._w, Node):
-            self.attrs._w._update_diff(context, dw, **kwargs)
-
-        if isinstance(self.attrs._b, Node):
-            self.attrs._b._update_diff(context, db, **kwargs)
-
-
-class Deconv2d(Parametrized):
-    '''2d convolution layer.
-
-    This class creates a convolution filter to be convolved with
-    the input tensor.
-    The instance of this class only accepts and outputs 4d tensors.
-
-    At instantiation, in the case of int input, filter, padding, and stride, the shape will be symmetric.
-
-    If the argument `input_size` is passed, this layers' weight is initialized
-    in the __init__ function.
-    Otherwise, the weight is initialized in its first forward calculation.
-
-    Args:
-        channel (int): The dimensionality of the output.
-        filter (tuple,int): Filter size to witch used as convolution kernel.
-        padding (tuple,int): Pad around image by 0 according to this size.
-        stride (tuple,int): Specifying the strides of the convolution.
-        dilation (tuple, int): Dilation of the convolution.
-        input_size (tuple): Input unit size. This must be a tuple like (Channel, Height, Width).
-        ignore_bias (bool): If True is given, bias will not be added.
-        initializer (Initializer): Initializer object for weight initialization.
-        ceil_mode (bool): If True, choose larger output shape when two shapes are possible
-
-    Example:
-        >>> import numpy as np
-        >>> import renom as rm
-        >>> n, c, h, w = (10, 3, 32, 32)
-        >>> x = np.random.rand(n, c, h, w)
-        >>> x.shape
-        (10, 3, 32, 32)
-        >>> layer = rm.Deconv2d(channel=32)
-        >>> z = layer(x)
-        >>> z.shape
-        (10, 32, 34, 34)
-
-    '''
-
-    def __init__(self,
-                 channel=1,
-                 filter=3,
-                 padding=0,
-                 stride=1,
-                 dilation=1,
-                 input_size=None,
-                 ignore_bias=False,
-                 initializer=GlorotNormal(),
-                 weight_decay=0,
-                 ceil_mode=False):
-
-        self._padding, self._stride, self._kernel, self._dilation = (tuplize(x)
-                                                                     for x in (padding, stride, filter, dilation))
-        self._channel = channel
-        self._initializer = initializer
-        self._ignore_bias = ignore_bias
-        self._weight_decay = weight_decay
-        self._ceil_mode = ceil_mode
-        super(Deconv2d, self).__init__(input_size)
-
-    def weight_initiallize(self, input_size):
-        size_f = (input_size[0], self._channel,
-                  self._kernel[0], self._kernel[1])
-        self.params = {"w": Variable(self._initializer(
-            size_f), auto_update=True, weight_decay=self._weight_decay)}
-        if not self._ignore_bias:
-            self.params["b"] = Variable(
-                np.zeros((1, self._channel, 1, 1), dtype=precision), auto_update=True)
-
-    def forward(self, x):
-        return deconv2d(x, self.params["w"], self.params.get("b"),
-                        self._kernel, self._stride, self._padding, self._dilation, self._ceil_mode)
-
-
-def layer_factory(channel_list=[64]):
-    layers = []
-    for i in range(len(channel_list)):
-        layers.append(rm.Conv2d(channel=channel_list[i],
-                                padding=1, filter=3, initializer=GlorotUniform()))
-        layers.append(rm.Relu())
-    return rm.Sequential(layers)
-
-
-def layer_factory_deconv(channel_list=[512, 256]):
-    layers = []
-    layers.append(rm.Conv2d(channel=channel_list[0],
-                            padding=1, filter=3, initializer=GlorotUniform()))
-    layers.append(rm.Relu())
-    if 'ceil_mode' in inspect.signature(rm.Deconv2d).parameters:
-        layers.append(rm.Deconv2d(
-            channel=channel_list[1], padding=1, filter=3, stride=2, initializer=GlorotUniform(), ceil_mode=True))
-    else:
-        layers.append(Deconv2d(
-            channel=channel_list[1], padding=1, filter=3, stride=2, initializer=GlorotUniform(), ceil_mode=True))
-    layers.append(rm.Relu())
-    return rm.Sequential(layers)
+        img_list = []
+        label_list = []
+        for img_path, an_path in zip(img_path_list, annotation_list):
+            img, sw, sh = self.load_img(img_path)
+            labels, asw, ash = self.load_annotation(an_path)
+            annot = np.zeros((n_class, asw, ash))
+            img_list.append(img)
+            for i in range(labels.shape[0]):
+                for j in range(labels.shape[1]):
+                    if int(labels[i][j]) >= n_class:
+                        annot[n_class - 1, i, j] = 1
+                    else:
+                        annot[int(labels[i][j]), i, j] = 1
+            label_list.append(annot)
+        if augmentation is not None:
+            img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
+            data,label = self.resize(img_list, label_list)
+            return self.preprocess(data),label
+        else:
+            data,label = self.resize(img_list, label_list)   
+            return self.preprocess(data),label
 
 
 @adddoc
@@ -259,95 +185,13 @@ class TernausNet(SemanticSegmentation):
               ex: imsize=(320, 320)"
 
         self.decay_rate = 0
-        self._opt = rm.Adam(1e-4)
-        self._model = CNN_TernausNet(1)
+        self.default_optimizer = OptimizerTernausNet()
+        self.model = CNN_TernausNet(1)
 
         super(TernausNet, self).__init__(class_map, imsize,
-                                         load_pretrained_weight, train_whole_network, load_target=self._model)
-        self._model.final._channel = self.num_class
-        self._freeze()
+                                         load_pretrained_weight, train_whole_network, load_target=self.model)
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network)
 
-    def _freeze(self):
-        self._model.block1.set_auto_update(self.train_whole_network)
-        self._model.block2.set_auto_update(self.train_whole_network)
-        self._model.block3.set_auto_update(self.train_whole_network)
-        self._model.block4.set_auto_update(self.train_whole_network)
-        self._model.block5.set_auto_update(self.train_whole_network)
-
-    def preprocess(self, x):
-        """Image preprocessing for TernausNet training.
-
-        :math:`new_x = (x-mean)/(255*std).`
-
-        Returns:
-            (ndarray): Preprocessed data.
-        """
-        mean = [0.485, 0.456, 0.406]
-        std = [0.229, 0.224, 0.225]
-
-        x = x / 255.
-        x[:, 0, :, :] -= mean[0]  # R
-        x[:, 1, :, :] -= mean[1]  # G
-        x[:, 2, :, :] -= mean[2]  # B
-        x[:, 0, :, :] /= std[0]  # R
-        x[:, 1, :, :] /= std[1]  # G
-        x[:, 2, :, :] /= std[2]  # B
-        return x
-
-    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None):
-        if any([num is None for num in
-                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
-            return self._opt
-        else:
-            self._opt.lr = 1e-4
-            return self._opt
-
-    def set_last_layer_unit(self, unit_size):
-        pass
-
-
-class CNN_TernausNet(rm.Model):
-    def __init__(self, num_class):
-        self.block1 = layer_factory(channel_list=[64])
-        self.block2 = layer_factory(channel_list=[128])
-        self.block3 = layer_factory(channel_list=[256, 256])
-        self.block4 = layer_factory(channel_list=[512, 512])
-        self.block5 = layer_factory(channel_list=[512, 512])
-
-        self.center = layer_factory_deconv(channel_list=[512, 256])
-
-        self.decoder_block5 = layer_factory_deconv(channel_list=[512, 256])
-        self.decoder_block4 = layer_factory_deconv(channel_list=[512, 128])
-        self.decoder_block3 = layer_factory_deconv(channel_list=[256, 64])
-        self.decoder_block2 = layer_factory_deconv(channel_list=[128, 32])
-        self.decoder_block1 = layer_factory(channel_list=[32])
-
-        self.final = rm.Conv2d(channel=num_class, filter=1, stride=1)
-
-    def forward(self, x):
-        c1 = self.block1(x)
-        t = rm.max_pool2d(c1, filter=2, stride=2)
-        c2 = self.block2(t)
-        t = rm.max_pool2d(c2, filter=2, stride=2)
-        c3 = self.block3(t)
-        t = rm.max_pool2d(c3, filter=2, stride=2)
-        c4 = self.block4(t)
-        t = rm.max_pool2d(c4, filter=2, stride=2)
-        c5 = self.block5(t)
-        t = rm.max_pool2d(c5, filter=2, stride=2)
-
-        t = self.center(t)
-        t = rm.concat([t, c5])
-        t = self.decoder_block5(t)
-        t = rm.concat([t, c4])
-        t = self.decoder_block4(t)
-        t = rm.concat([t, c3])
-        t = self.decoder_block3(t)
-        t = rm.concat([t, c2])
-        t = self.decoder_block2(t)
-        t = rm.concat([t, c1])
-        t = self.decoder_block1(t)
-
-        t = self.final(t)
-
-        return t
+    def build_data(self):
+        return TargetBuilderTernausNet(self.class_map, self.imsize)

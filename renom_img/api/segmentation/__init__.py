@@ -6,6 +6,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from PIL import Image
 
+from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api import adddoc
 from renom_img.api.utility.load import load_img
 from renom_img.api import Base
@@ -78,7 +79,7 @@ class SemanticSegmentation(Base):
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
-            epoch=136, batch_size=64, augmentation=None, callback_end_epoch=None, class_weight=None):
+            epoch=136, batch_size=64, optimizer=None, augmentation=None, callback_end_epoch=None, class_weight=None):
 
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation)
@@ -87,11 +88,28 @@ class SemanticSegmentation(Base):
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
         avg_valid_loss_list = []
+
+        # Optimizer settings
+        if optimizer is None:
+            opt = self.default_optimizer
+        else:
+            opt = optimizer
+        assert opt is not None
+        if isinstance(opt, BaseOptimizer):
+            opt.setup(batch_loop, epoch)
+
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
             display_loss = 0
+            # Batch loop.
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
+
+                # Modify optimizer
+                if isinstance(opt, BaseOptimizer):
+                    opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list)
+
+                # grdient
                 with self.train():
                     loss = self.loss(self(train_x), train_y, class_weight=class_weight)
                     reg_loss = loss + self.regularize()
@@ -99,7 +117,8 @@ class SemanticSegmentation(Base):
                     loss = loss.as_ndarray()[0]
                 except:
                     loss = loss.as_ndarray()
-                reg_loss.grad().update(self.get_optimizer(loss, e, epoch, i, batch_loop))
+                reg_loss.grad().update(opt)
+
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
