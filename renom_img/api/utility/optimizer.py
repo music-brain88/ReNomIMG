@@ -30,6 +30,35 @@ class BaseOptimizer(object):
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
 
+class OptimizerUNet(BaseOptimizer):
+    def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):
+        super(OptimizerUNet, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.opt = rm.Sgd(1e-2, 0.9)
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(OptimizerUNet, self).setup(total_batch_iteration, total_epoch_iteration)
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+        super(OptimizerUNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
+
+        ind1 = int(self.total_epoch_iteration * 0.5)
+        ind2 = int(self.total_epoch_iteration * 0.3) + ind1 + 1 
+        if nth_epoch == ind1:
+            self.opt._lr = 6e-3
+        elif nth_epoch == ind2:
+            self.opt._lr = 1e-3
+
+class OptimizerTernausNet(BaseOptimizer):
+    def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):
+        super(OptimizerTernausNet, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.opt = rm.Adam(1e-4)
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(OptimizerTernausNet, self).setup(total_batch_iteration, total_epoch_iteration)
+
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+        super(OptimizerTernausNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
+ 
+
 class FCN_Optimizer(BaseOptimizer):
     def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):
         super(FCN_Optimizer, self).__init__(total_batch_iteration, total_epoch_iteration)
@@ -39,8 +68,7 @@ class FCN_Optimizer(BaseOptimizer):
         super(FCN_Optimizer, self).setup(total_batch_iteration, total_epoch_iteration)
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(FCN_Optimizer, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
-                                                     avg_valid_loss_list)
+        super(FCN_Optimizer, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
  
 
 class OptimizerDarknet19(BaseOptimizer):
@@ -52,8 +80,8 @@ class OptimizerDarknet19(BaseOptimizer):
         super(OptimizerDarknet19, self).setup(total_batch_iteration, total_epoch_iteration)
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(OptimizerDarknet19, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
-                                                     avg_valid_loss_list)
+        super(OptimizerDarknet19, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
+
         if nth_epoch == int(0.3 * self.total_epoch_iteration):
             self.opt._lr /= 10
         elif nth_epoch == int(0.8 * self.total_epoch_iteration):
@@ -87,8 +115,7 @@ class OptimizerInception(BaseOptimizer):
         super(OptimizerInception, self).setup(total_batch_iteration, total_epoch_iteration)
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(OptimizerInception, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
-                                                     avg_valid_loss_list)
+        super(OptimizerInception, self).set_information(nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
 
         if self.version == 1 or self.version == 4:
             if nth_epoch % 8 == 0:

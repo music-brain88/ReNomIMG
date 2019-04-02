@@ -3,13 +3,126 @@ import sys
 import numpy as np
 import renom as rm
 from tqdm import tqdm
-
+from PIL import Image
+from renom_img.api.utility.optimizer import OptimizerUNet
 from renom_img.api import adddoc
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.load import load_img
 from renom_img.api.utility.target import DataBuilderSegmentation
 from renom_img.api.segmentation import SemanticSegmentation
+from renom_img.api.cnn.unet import CNN_UNet
+
+RESIZE_METHOD = Image.BILINEAR
+
+class TargetBuilderUNet():
+    def __init__(self,class_map,imsize):
+        self.class_map = class_map
+        self.imsize = imsize
+
+    def __call__(self, *args, **kwargs):
+        return self.build(*args,**kwargs)
+
+    def preprocess(self, x):
+        """Image preprocess for U-Net.
+
+        :math:`new_x = x/255`
+
+        Returns:
+            (ndarray): Preprocessed data.
+        """
+        return x / 255.
+
+    def resize(self, img_list, label_list):
+        x_list = []
+        y_list = []
+        for i, (img, label) in enumerate(zip(img_list, label_list)):
+            channel_last = img.transpose(1, 2, 0)
+            img = Image.fromarray(np.uint8(channel_last))
+            img = img.resize(self.imsize, RESIZE_METHOD).convert('RGB')
+            x_list.append(np.asarray(img))
+            c, h, w = label.shape
+            l = []
+            for z in range(c):
+                select = label[z, :, :]
+                im = Image.fromarray(select)
+                resized = im.resize(self.imsize, RESIZE_METHOD)
+                l.append(np.array(resized))
+            y_list.append(np.array(l))
+
+        return np.asarray(x_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(y_list)
+
+    def load_annotation(self, path):
+        """ Loads annotation data
+
+        Args:
+            path: A path of annotation file
+
+        Returns:
+            (tuple): Returns annotation data(numpy.array), the ratio of the given width to the actual image width,
+        """
+        N = len(self.class_map)
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
+        img = np.array(img)
+        assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
+        assert img.ndim == 2
+        return img, img.shape[0], img.shape[1]
+
+    def load_img(self, path):
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        img = img.convert('RGB')
+        # img = img.resize(self.imsize, RESIZE_METHOD)
+        img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+        return img, w, h
+
+    def crop_to_square(self, image):
+        size = min(image.size)
+        left, upper = (image.width - size) // 2, (image.height - size) // 2
+        right, bottom = (image.width + size) // 2, (image.height + size) // 2
+        return image.crop((left, upper, right, bottom))
+
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        """
+        Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): The format of annotation list is as follows.
+            augmentation(Augmentation): Instance of the augmentation class.
+
+        Returns:
+            (tuple): Batch of images and ndarray whose shape is **(batch size, #classes, width, height)**
+
+        """
+        # Check the class mapping.
+        n_class = len(self.class_map)
+
+        img_list = []
+        label_list = []
+        for img_path, an_path in zip(img_path_list, annotation_list):
+            img, sw, sh = self.load_img(img_path)
+            labels, asw, ash = self.load_annotation(an_path)
+            annot = np.zeros((n_class, asw, ash))
+            img_list.append(img)
+            for i in range(labels.shape[0]):
+                for j in range(labels.shape[1]):
+                    if int(labels[i][j]) >= n_class:
+                        annot[n_class - 1, i, j] = 1
+                    else:
+                        annot[int(labels[i][j]), i, j] = 1
+            label_list.append(annot)
+        if augmentation is not None:
+            img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
+            data,label = self.resize(img_list, label_list)
+            return self.preprocess(data),label
+        else:
+            data,label = self.resize(img_list, label_list)   
+            return self.preprocess(data),label
+
+  
 
 
 @adddoc
@@ -45,123 +158,17 @@ class UNet(SemanticSegmentation):
 
         assert not load_pretrained_weight, "Currently pretrained weight of %s is not prepared. Please set False to `load_pretrained_weight` flag." % self.__class__.__name__
 
+        self.model = CNN_UNet(1)
         super(UNet, self).__init__(class_map, imsize,
-                                   load_pretrained_weight, train_whole_network, None)
-        self._model = CNN_UNet(len(self.class_map))
+                                   load_pretrained_weight, train_whole_network, self.model)
+ 
+        self.model.set_train_whole(train_whole_network)
+        self.model.set_output_size(self.num_class)
 
-        self._opt = rm.Sgd(1e-2, 0.9)
+        self.default_optimizer = OptimizerUNet()
         self.decay_rate = 0.00002
-        self._freeze()
-
-    def set_last_layer_unit(self, unit_size):
-        # the settings of last layers unit size is done in __init__.
-        pass
-
-    def preprocess(self, x):
-        """Image preprocess for U-Net.
-
-        :math:`new_x = x/255`
-
-        Returns:
-            (ndarray): Preprocessed data.
-        """
-        return x / 255.
-
-    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
-        if any([num is None for num in
-                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
-            return self._opt
-        else:
-            ind1 = int(total_epoch * 0.5)
-            ind2 = int(total_epoch * 0.3) + ind1 + 1
-            if current_epoch == ind1:
-                self._opt._lr = 6e-3
-            elif current_epoch == ind2:
-                self._opt._lr = 1e-3
-            return self._opt
-
-    def _freeze(self):
-        self._model.conv1_1.set_auto_update(self.train_whole_network)
-        self._model.conv1_2.set_auto_update(self.train_whole_network)
-        self._model.conv2_1.set_auto_update(self.train_whole_network)
-        self._model.conv2_2.set_auto_update(self.train_whole_network)
-        self._model.conv3_1.set_auto_update(self.train_whole_network)
-        self._model.conv3_2.set_auto_update(self.train_whole_network)
-        self._model.conv4_1.set_auto_update(self.train_whole_network)
-        self._model.conv4_2.set_auto_update(self.train_whole_network)
-        self._model.conv5_1.set_auto_update(self.train_whole_network)
-        self._model.conv5_2.set_auto_update(self.train_whole_network)
 
 
-class CNN_UNet(rm.Model):
+    def build_data(self):
+        return TargetBuilderUNet(self.class_map, self.imsize)
 
-    def __init__(self, num_class=1):
-        self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
-        self.bn1_1 = rm.BatchNormalize(mode='feature')
-        self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
-        self.bn1_2 = rm.BatchNormalize(mode='feature')
-        self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
-        self.bn2_1 = rm.BatchNormalize(mode='feature')
-        self.conv2_2 = rm.Conv2d(128, padding=1, filter=3)
-        self.bn2_2 = rm.BatchNormalize(mode='feature')
-        self.conv3_1 = rm.Conv2d(256, padding=1, filter=3)
-        self.bn3_1 = rm.BatchNormalize(mode='feature')
-        self.conv3_2 = rm.Conv2d(256, padding=1, filter=3)
-        self.bn3_2 = rm.BatchNormalize(mode='feature')
-        self.conv4_1 = rm.Conv2d(512, padding=1, filter=3)
-        self.bn4_1 = rm.BatchNormalize(mode='feature')
-        self.conv4_2 = rm.Conv2d(512, padding=1, filter=3)
-        self.bn4_2 = rm.BatchNormalize(mode='feature')
-        self.conv5_1 = rm.Conv2d(1024, padding=1, filter=3)
-        self.bn5_1 = rm.BatchNormalize(mode='feature')
-        self.conv5_2 = rm.Conv2d(1024, padding=1, filter=3)
-        self.bn5_2 = rm.BatchNormalize(mode='feature')
-
-        self.deconv1 = rm.Deconv2d(512, stride=2)
-        self.conv6_1 = rm.Conv2d(256, padding=1)
-        self.conv6_2 = rm.Conv2d(256, padding=1)
-        self.deconv2 = rm.Deconv2d(256, stride=2)
-        self.conv7_1 = rm.Conv2d(128, padding=1)
-        self.conv7_2 = rm.Conv2d(128, padding=1)
-        self.deconv3 = rm.Deconv2d(128, stride=2)
-        self.conv8_1 = rm.Conv2d(64, padding=1)
-        self.conv8_2 = rm.Conv2d(64, padding=1)
-        self.deconv4 = rm.Deconv2d(64, stride=2)
-        self.conv9 = rm.Conv2d(num_class, filter=1)
-
-    def forward(self, x):
-        t = rm.relu(self.bn1_1(self.conv1_1(x)))
-        c1 = rm.relu(self.bn1_2(self.conv1_2(t)))
-        t = rm.max_pool2d(c1, filter=2, stride=2)
-        t = rm.relu(self.bn2_1(self.conv2_1(t)))
-        c2 = rm.relu(self.bn2_2(self.conv2_2(t)))
-        t = rm.max_pool2d(c2, filter=2, stride=2)
-        t = rm.relu(self.bn3_1(self.conv3_1(t)))
-        c3 = rm.relu(self.bn3_2(self.conv3_2(t)))
-        t = rm.max_pool2d(c3, filter=2, stride=2)
-        t = rm.relu(self.bn4_1(self.conv4_1(t)))
-        c4 = rm.relu(self.bn4_2(self.conv4_2(t)))
-        t = rm.max_pool2d(c4, filter=2, stride=2)
-        t = rm.relu(self.bn5_1(self.conv5_1(t)))
-        t = rm.relu(self.bn5_2(self.conv5_2(t)))
-
-        t = self.deconv1(t)[:, :, :c4.shape[2], :c4.shape[3]]
-        t = rm.concat([c4, t])
-        t = rm.relu(self.conv6_1(t))
-        t = rm.relu(self.conv6_2(t))
-        t = self.deconv2(t)[:, :, :c3.shape[2], :c3.shape[3]]
-        t = rm.concat([c3, t])
-
-        t = rm.relu(self.conv7_1(t))
-        t = rm.relu(self.conv7_2(t))
-        t = self.deconv3(t)[:, :, :c2.shape[2], :c2.shape[3]]
-        t = rm.concat([c2, t])
-
-        t = rm.relu(self.conv8_1(t))
-        t = rm.relu(self.conv8_2(t))
-        t = self.deconv4(t)[:, :, :c1.shape[2], :c1.shape[3]]
-        t = rm.concat([c1, t])
-
-        t = self.conv9(t)
-
-        return t
