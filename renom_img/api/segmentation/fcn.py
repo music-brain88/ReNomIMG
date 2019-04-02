@@ -4,6 +4,8 @@ import numpy as np
 import renom as rm
 from tqdm import tqdm
 
+from PIL import Image
+from renom_img.api.cnn.fcn import CNN_FCN8s, CNN_FCN16s, CNN_FCN32s
 from renom_img import __version__
 from renom_img.api import adddoc
 from renom_img.api.segmentation import SemanticSegmentation
@@ -11,104 +13,20 @@ from renom.utility.initializer import Initializer
 from renom.config import precision
 from renom.layers.function.pool2d import pool_base, max_pool2d
 from renom.layers.function.utils import tuplize
+from renom_img.api.utility.optimizer import FCN_Optimizer
 
-DIR = os.path.split(os.path.abspath(__file__))[0]
 MEAN_BGR = np.array([104.00698793, 116.66876762, 122.67891434])
+RESIZE_METHOD = Image.BILINEAR
 
 
-class PoolBase(object):
+class TargetBuilderFCN():
 
-    def __init__(self, filter=3,
-                 padding=0, stride=1, ceil_mode=False):
-        self._padding, self._stride, self._kernel = (tuplize(x) for x in (padding, stride, filter))
-        self._ceil_mode = ceil_mode
+    def __init__(self, class_map, imsize):
+        self.class_map = class_map
+        self.imsize = imsize
 
-    def __call__(self, x):
-        assert len(x.shape) == 4, "The dimension of input array must be 4. Actual dim is {}".format(x.ndim)
-        assert all([s > 0 for s in x.shape[2:]]), \
-            "The shape of input array {} is too small. Please give an array which size is lager than 0.".format(
-                x.shape)
-        return self.forward(x)
-
-
-class MaxPool2d(PoolBase):
-    '''Max pooling function.
-    In the case of int input, filter, padding, and stride, the shape will be symmetric.
-
-    Args:
-        filter (tuple,int): Filter size of the convolution kernel.
-        padding (tuple,int): Size of the zero-padding around the image.
-        stride (tuple,int): Stride-size of the convolution.
-        ceil_mode (bool): output size is larger (smaller) of two possible sizes when true (false)
-                   ceiling mode is used in maxpool2d layers in official Caffe FCN implementation
-
-    Example:
-        >>> import numpy as np
-        >>> import renom as rm
-        >>>
-        >>> x = np.random.rand(3, 3, 31, 31)
-        >>> layer = MaxPool2d(filter=3, stride=2)
-        >>> z = layer(x)
-        >>> z.shape
-        (3, 3, 15, 15)
-        >>> layer = MaxPool2d(filter=3, stride=2, ceil_mode=True)
-        >>> z = layer(x)
-        >>> z.shape
-        (3, 3, 16, 16)
-
-    '''
-
-    def forward(self, x):
-        return max_pool2d(x, self._kernel, self._stride, self._padding, self._ceil_mode)
-
-
-def layer_factory(channel=64, conv_layer_num=2, first=None):
-    layers = []
-    for _ in range(conv_layer_num):
-        if first is not None:
-            layers.append(rm.Conv2d(channel=channel, padding=100, filter=3))
-            layers.append(rm.Relu())
-            first = None
-        else:
-            layers.append(rm.Conv2d(channel=channel, padding=1, filter=3))
-            layers.append(rm.Relu())
-    layers.append(MaxPool2d(filter=2, stride=2, ceil_mode=True))
-    return rm.Sequential(layers)
-
-
-class DeconvInitializer(Initializer):
-    def __init__(self):
-        super(DeconvInitializer, self).__init__()
-
-    def __call__(self, shape):
-        filter = np.zeros(shape)
-        kh, kw = shape[2], shape[3]
-        size = kh
-        factor = (size + 1) // 2
-        if size % 2 == 1:
-            center = factor - 1
-        else:
-            center = factor - 0.5
-        og = np.ogrid[:size, :size]
-        filter[range(shape[0]), range(shape[0]), :, :] = (1 - abs(og[0] - center) / factor) * \
-            (1 - abs(og[1] - center) / factor)
-        return filter.astype(precision)
-
-
-@adddoc
-class FCN_Base(SemanticSegmentation):
-
-    def set_last_layer_unit(self, unit_size):
-        pass
-
-    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
-
-        if any([num is None for num in
-                [current_loss, current_epoch, total_epoch, current_batch, total_batch]]):
-            return self._opt
-        else:
-            self._opt._lr = 1e-5
-            return self._opt
+    def __call__(self, *args, **kwargs):
+        return self.build(*args, **kwargs)
 
     def preprocess(self, x):
         """
@@ -128,8 +46,97 @@ class FCN_Base(SemanticSegmentation):
 
         return x
 
+    def resize(self, img_list, label_list):
+        x_list = []
+        y_list = []
+        for i, (img, label) in enumerate(zip(img_list, label_list)):
+            channel_last = img.transpose(1, 2, 0)
+            img = Image.fromarray(np.uint8(channel_last))
+            img = img.resize(self.imsize, RESIZE_METHOD).convert('RGB')
+            x_list.append(np.asarray(img))
+            c, h, w = label.shape
+            l = []
+            for z in range(c):
+                select = label[z, :, :]
+                im = Image.fromarray(select)
+                resized = im.resize(self.imsize, RESIZE_METHOD)
+                l.append(np.array(resized))
+            y_list.append(np.array(l))
 
-class FCN32s(FCN_Base):
+        return np.asarray(x_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(y_list)
+
+    def load_annotation(self, path):
+        """ Loads annotation data
+
+        Args:
+            path: A path of annotation file
+
+        Returns:
+            (tuple): Returns annotation data(numpy.array), the ratio of the given width to the actual image width,
+        """
+        N = len(self.class_map)
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
+        img = np.array(img)
+        assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
+        assert img.ndim == 2
+        return img, img.shape[0], img.shape[1]
+
+    def load_img(self, path):
+        img = Image.open(path)
+        img.load()
+        w, h = img.size
+        img = img.convert('RGB')
+        # img = img.resize(self.imsize, RESIZE_METHOD)
+        img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+        return img, w, h
+
+    def crop_to_square(self, image):
+        size = min(image.size)
+        left, upper = (image.width - size) // 2, (image.height - size) // 2
+        right, bottom = (image.width + size) // 2, (image.height + size) // 2
+        return image.crop((left, upper, right, bottom))
+
+    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+        """
+        Args:
+            img_path_list(list): List of input image paths.
+            annotation_list(list): The format of annotation list is as follows.
+            augmentation(Augmentation): Instance of the augmentation class.
+
+        Returns:
+            (tuple): Batch of images and ndarray whose shape is **(batch size, #classes, width, height)**
+
+        """
+        # Check the class mapping.
+        n_class = len(self.class_map)
+
+        img_list = []
+        label_list = []
+        for img_path, an_path in zip(img_path_list, annotation_list):
+            img, sw, sh = self.load_img(img_path)
+            labels, asw, ash = self.load_annotation(an_path)
+            annot = np.zeros((n_class, asw, ash))
+            img_list.append(img)
+            for i in range(labels.shape[0]):
+                for j in range(labels.shape[1]):
+                    if int(labels[i][j]) >= n_class:
+                        annot[n_class - 1, i, j] = 1
+                    else:
+                        annot[int(labels[i][j]), i, j] = 1
+            label_list.append(annot)
+        if augmentation is not None:
+            img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
+            data,label = self.resize(img_list, label_list)
+            return self.preprocess(data),label
+        else:
+            data,label = self.resize(img_list, label_list)   
+            return self.preprocess(data),label
+
+@adddoc
+class FCN32s(SemanticSegmentation):
     """ Fully convolutional network (32s) for semantic segmentation
 
     Args:
@@ -164,26 +171,18 @@ class FCN32s(FCN_Base):
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
         self.decay_rate = 5e-4
-        self._opt = rm.Sgd(1e-5, 0.9)
-        self._train_final_upscore = train_final_upscore
-        self._model = CNN_FCN32s(1)
+        self.default_optimizer = FCN_Optimizer()
+        self.model = CNN_FCN32s(1)
 
         super(FCN32s, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, load_target=self._model)
-        self._model.score_fr._channel = self.num_class
-        self._model.upscore._channel = self.num_class
-        self._freeze()
+                                     load_pretrained_weight, train_whole_network, load_target=self.model)
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network, train_final_upscore)
 
-    def _freeze(self):
-        self._model.block1.set_auto_update(self.train_whole_network)
-        self._model.block2.set_auto_update(self.train_whole_network)
-        self._model.block3.set_auto_update(self.train_whole_network)
-        self._model.block4.set_auto_update(self.train_whole_network)
-        self._model.block5.set_auto_update(self.train_whole_network)
-        self._model.upscore.set_auto_update(self._train_final_upscore)
+    def build_data(self):
+        return TargetBuilderFCN(self.class_map, self.imsize)
 
-
-class FCN16s(FCN_Base):
+class FCN16s(SemanticSegmentation):
     """ Fully convolutional network (16s) for semantic segmentation
 
     Args:
@@ -217,29 +216,20 @@ class FCN16s(FCN_Base):
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
         self.decay_rate = 5e-4
-        self._opt = rm.Sgd(1e-5, 0.9)
-        self._train_final_upscore = train_final_upscore
-        self._model = CNN_FCN16s(1)
+        self.default_optimizer = FCN_Optimizer()
+        self.model = CNN_FCN16s(1)
 
         super(FCN16s, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, load_target=self._model)
+                                     load_pretrained_weight, train_whole_network, load_target=self.model)
 
-        self._model.score_fr._channel = self.num_class
-        self._model.score_pool4._channel = self.num_class
-        self._model.upscore2._channel = self.num_class
-        self._model.upscore16._channel = self.num_class
-        self._freeze()
+        self.model.set_train_whole(train_whole_network, train_final_upscore)
+        self.model.set_output_size(self.num_class)
 
-    def _freeze(self):
-        self._model.block1.set_auto_update(self.train_whole_network)
-        self._model.block2.set_auto_update(self.train_whole_network)
-        self._model.block3.set_auto_update(self.train_whole_network)
-        self._model.block4.set_auto_update(self.train_whole_network)
-        self._model.block5.set_auto_update(self.train_whole_network)
-        self._model.upscore16.set_auto_update(self._train_final_upscore)
+    def build_data(self):
+        return TargetBuilderFCN(self.class_map, self.imsize)
 
 
-class FCN8s(FCN_Base):
+class FCN8s(SemanticSegmentation):
     """ Fully convolutional network (8s) for semantic segmentation
 
     Args:
@@ -273,195 +263,15 @@ class FCN8s(FCN_Base):
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
         self.decay_rate = 5e-4
-        self._opt = rm.Sgd(1e-5, 0.9)
-        self._train_final_upscore = train_final_upscore
-        self._model = CNN_FCN8s(1)
+        self.default_optimizer = FCN_Optimizer()
+        self.model = CNN_FCN8s(1)
 
         super(FCN8s, self).__init__(class_map, imsize,
-                                    load_pretrained_weight, train_whole_network, load_target=self._model)
+                                    load_pretrained_weight, train_whole_network, load_target=self.model)
+        self.model.set_output_size(self.num_class)
+        self.model.set_train_whole(train_whole_network, train_final_upscore)
 
-        self._model.score_fr._channel = self.num_class
-        self._model.score_pool3._channel = self.num_class
-        self._model.score_pool4._channel = self.num_class
-        self._model.upscore2._channel = self.num_class
-        self._model.upscore_pool4._channel = self.num_class
-        self._model.upscore8._channel = self.num_class
-        self._freeze()
-
-    def _freeze(self):
-        self._model.block1.set_auto_update(self.train_whole_network)
-        self._model.block2.set_auto_update(self.train_whole_network)
-        self._model.block3.set_auto_update(self.train_whole_network)
-        self._model.block4.set_auto_update(self.train_whole_network)
-        self._model.block5.set_auto_update(self.train_whole_network)
-        self._model.upscore8.set_auto_update(self._train_final_upscore)
+    def build_data(self):
+        return TargetBuilderFCN(self.class_map, self.imsize)
 
 
-class CNN_FCN8s(rm.Model):
-    def __init__(self, num_class):
-        init_deconv = DeconvInitializer()
-        self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
-        self.block2 = layer_factory(channel=128, conv_layer_num=2)
-        self.block3 = layer_factory(channel=256, conv_layer_num=3)
-        self.block4 = layer_factory(channel=512, conv_layer_num=3)
-        self.block5 = layer_factory(channel=512, conv_layer_num=3)
-
-        self.fc6 = rm.Conv2d(4096, filter=7, stride=1, padding=0)
-        self.dr1 = rm.Dropout(dropout_ratio=0.5)
-        self.fc7 = rm.Conv2d(4096, filter=1, stride=1, padding=0)
-        self.dr2 = rm.Dropout(dropout_ratio=0.5)
-
-        self.score_fr = rm.Conv2d(num_class, filter=1, stride=1, padding=0)  # n_classes
-        self.score_pool3 = rm.Conv2d(num_class, filter=1, padding=0)
-        self.score_pool4 = rm.Conv2d(num_class, filter=1, padding=0)
-
-        self.upscore2 = rm.Deconv2d(num_class, filter=4, stride=2, padding=0,
-                                    ignore_bias=True, initializer=init_deconv)  # n_classes
-        self.upscore_pool4 = rm.Deconv2d(
-            num_class, filter=4, stride=2, padding=0, ignore_bias=True, initializer=init_deconv)
-        self.upscore8 = rm.Deconv2d(num_class, filter=16, stride=8,
-                                    padding=0, ignore_bias=True, initializer=init_deconv)
-
-    def forward(self, x):
-        t = x
-        t = self.block1(t)
-        t = self.block2(t)
-        t = self.block3(t)
-        pool3 = t
-        t = self.block4(t)
-        pool4 = t
-        t = self.block5(t)
-
-        t = rm.relu(self.fc6(t))
-        t = self.dr1(t)
-        t = rm.relu(self.fc7(t))
-        t = self.dr2(t)
-
-        t = self.score_fr(t)
-        t = self.upscore2(t)
-        upscore2 = t
-
-        pool4 = 0.01 * pool4
-        t = self.score_pool4(pool4)
-        score_pool4 = t
-
-        score_pool4c = score_pool4[:, :, 5:5 + upscore2.shape[2], 5:5 + upscore2.shape[3]]
-        t = upscore2 + score_pool4c
-
-        fuse_pool4 = t
-        t = self.upscore_pool4(fuse_pool4)
-        upscore_pool4 = t
-
-        pool3 = 0.0001 * pool3
-        t = self.score_pool3(pool3)
-        score_pool3 = t
-
-        score_pool3c = score_pool3[:, :, 9:9 + upscore_pool4.shape[2], 9:9 + upscore_pool4.shape[3]]
-        t = upscore_pool4 + score_pool3c
-
-        fuse_pool3 = t
-        t = self.upscore8(fuse_pool3)
-        upscore8 = t
-
-        t = upscore8[:, :, 31:31 + x.shape[2],
-                     31:31 + x.shape[3]]
-        score = t
-
-        return t
-
-
-class CNN_FCN16s(rm.Model):
-    def __init__(self, num_class):
-        init_deconv = DeconvInitializer()
-        self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
-        self.block2 = layer_factory(channel=128, conv_layer_num=2)
-        self.block3 = layer_factory(channel=256, conv_layer_num=3)
-        self.block4 = layer_factory(channel=512, conv_layer_num=3)
-        self.block5 = layer_factory(channel=512, conv_layer_num=3)
-
-        self.fc6 = rm.Conv2d(4096, filter=7, stride=1, padding=0)
-        self.dr1 = rm.Dropout(dropout_ratio=0.5)
-        self.fc7 = rm.Conv2d(4096, filter=1, stride=1, padding=0)
-        self.dr2 = rm.Dropout(dropout_ratio=0.5)
-
-        self.score_fr = rm.Conv2d(num_class, filter=1, stride=1, padding=0)  # n_classes
-        self.score_pool4 = rm.Conv2d(num_class, filter=1, padding=0)
-
-        self.upscore2 = rm.Deconv2d(num_class, filter=4, stride=2, padding=0,
-                                    ignore_bias=True, initializer=init_deconv)  # n_classes
-        self.upscore16 = rm.Deconv2d(num_class, filter=32, stride=16,
-                                     padding=0, ignore_bias=True, initializer=init_deconv)  # n_classes
-
-    def forward(self, x):
-        t = x
-        t = self.block1(t)
-        t = self.block2(t)
-        t = self.block3(t)
-        t = self.block4(t)
-        pool4 = t
-        t = self.block5(t)
-
-        t = rm.relu(self.fc6(t))
-        t = self.dr1(t)
-        t = rm.relu(self.fc7(t))
-        t = self.dr2(t)
-
-        t = self.score_fr(t)
-
-        t = self.upscore2(t)
-        upscore2 = t
-
-        pool4 = 0.01 * pool4
-        t = self.score_pool4(pool4)
-        score_pool4 = t
-
-        score_pool4c = score_pool4[:, :, 5:5 + upscore2.shape[2], 5:5 + upscore2.shape[3]]
-        t = upscore2 + score_pool4c
-        fuse_pool4 = t
-        t = self.upscore16(fuse_pool4)
-        upscore16 = t
-
-        t = t[:, :, 27:27 + x.shape[2], 27:27 + x.shape[3]]
-        score = t
-
-        return t
-
-
-class CNN_FCN32s(rm.Model):
-    def __init__(self, num_class):
-        init_deconv = DeconvInitializer()
-        self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
-        self.block2 = layer_factory(channel=128, conv_layer_num=2)
-        self.block3 = layer_factory(channel=256, conv_layer_num=3)
-        self.block4 = layer_factory(channel=512, conv_layer_num=3)
-        self.block5 = layer_factory(channel=512, conv_layer_num=3)
-
-        self.fc6 = rm.Conv2d(4096, filter=7, stride=1, padding=0)
-        self.dr1 = rm.Dropout(dropout_ratio=0.5)
-        self.fc7 = rm.Conv2d(4096, filter=1, stride=1, padding=0)
-        self.dr2 = rm.Dropout(dropout_ratio=0.5)
-
-        self.score_fr = rm.Conv2d(num_class, filter=1, stride=1, padding=0)  # n_classes
-        self.upscore = rm.Deconv2d(num_class, filter=64, stride=32, padding=0,
-                                   ignore_bias=True, initializer=init_deconv)  # n_classes
-
-    def forward(self, x):
-        t = x
-        t = self.block1(t)
-        t = self.block2(t)
-        t = self.block3(t)
-        t = self.block4(t)
-        t = self.block5(t)
-
-        t = rm.relu(self.fc6(t))
-        t = self.dr1(t)
-        t = rm.relu(self.fc7(t))
-        t = self.dr2(t)
-
-        t = self.score_fr(t)
-        t = self.upscore(t)
-
-        t = t[:, :, 19:19 + x.shape[2], 19:19 + x.shape[3]]
-        score = t
-
-        return t

@@ -30,6 +30,18 @@ class BaseOptimizer(object):
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
 
+class FCN_Optimizer(BaseOptimizer):
+    def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):
+        super(FCN_Optimizer, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.opt = rm.Sgd(1e-5, 0.9)
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(FCN_Optimizer, self).setup(total_batch_iteration, total_epoch_iteration)
+
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+        super(FCN_Optimizer, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
+                                                     avg_valid_loss_list)
+ 
 
 class OptimizerDarknet19(BaseOptimizer):
     def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):
