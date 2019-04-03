@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from renom.cuda import release_mem_pool, is_cuda_active
 from tqdm import tqdm
 from PIL import Image, ImageDraw
-
 from renom_img import __version__
 from renom_img.api import Base, adddoc
 from renom_img.api.detection import Detection
@@ -17,7 +16,7 @@ from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.nms import nms
-from renom_img.api.utility.optimizer import OptimizerYolov2
+from renom_img.api.utility.optimizer import OptimizerYolov2, BaseOptimizer
 
 class AnchorYolov2(object):
     """
@@ -261,9 +260,9 @@ class Yolov2(Detection):
             "Anchor list is empty. Please calculate anchor list using create_anchor function, before instantiate model class.  " +\
             "Or, please load already trained model using the method 'load()'."
 
-        self.model._feature_extractor.set_models(inference=(not self.model.train_whole or getattr(self.model, 'inference', False)))
+        self.model._base.set_models(inference=(not self.model.train_whole or getattr(self.model, 'inference', False)))
         
-        h, f = self.model._feature_extractor(x)
+        h, f = self.model._base(x)
         f = self.model._conv21(f)
         h = self.model._conv1(h)
 

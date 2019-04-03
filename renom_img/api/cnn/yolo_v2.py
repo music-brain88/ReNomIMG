@@ -76,12 +76,13 @@ class Darknet19Base(rm.Model):
 
 
 class CnnYolov2(CnnBase):
-    WEIGHT_URL = "{}".format(__version__)
+
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/Yolov2.h5".format(__version__)
 
     def __init__(self, weight_decay=None):
         super(CnnYolov2, self).__init__()
 
-        self._feature_extractor = Darknet19Base()
+        self._base = Darknet19Base()
         self._conv1 = rm.Sequential([
             DarknetConv2dBN(channel=1024, prev_ch = 1024),
             DarknetConv2dBN(channel=1024, prev_ch = 1024),
@@ -89,7 +90,7 @@ class CnnYolov2(CnnBase):
         self._conv21 = DarknetConv2dBN(channel=64, prev_ch=512, filter=1)
         self._conv2 = DarknetConv2dBN(channel=1024, prev_ch= 1024 + 256)
         self._last = rm.Conv2d(channel=self.output_size, filter=1)
-        
+       
         for part in [self._conv21, self._conv1, self._conv2]:
             for layer in part.iter_models():
                 if not layer.params:
@@ -109,15 +110,25 @@ class CnnYolov2(CnnBase):
     def set_output_size(self,out_size):
         self.output_size = out_size
         self._last._channel = out_size
-
+        self._last.params = {
+            "w": rm.Variable(self._last._initializer((self.output_size,1024,1,1)),auto_update=True),
+            "b": rm.Variable(self._last._initializer((1,self.output_size,1,1)),auto_update=False),
+        }
+ 
 
     def load_pretrained_weight(self,path):
-        self._feature_extractor.load(path)
+        self.load(path)
 
 
     def reset_deeper_layer(self):
         pass
 
 
-    def forward(self):
-        pass
+    def forward(self, x):
+        N = len(x)
+        h, _ = self._base(x)
+        D = h.shape[2] * h.shape[3]
+        h = rm.sum(self._last(h).reshape(N,self.output_size, -1),axis=2)
+        h /= D
+        return h
+        
