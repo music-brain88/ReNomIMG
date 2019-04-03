@@ -221,33 +221,46 @@ class OptimizerSSD(BaseOptimizer):
         else:
             self.opt._lr = 1e-5
 
-
+#---------------------------------------------------------------------------------------------
 class OptimizerYolov2(BaseOptimizer):
 
     def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
         super(OptimizerYolov2, self).__init__(total_batch_iteration, total_epoch_iteration)
-        self.opt = rm.Sgd(1e-3, 0.9)
+        self.opt = rm.Sgd(0.001, 0.9)
 
     def setup(self, total_batch_iteration, total_epoch_iteration):
         super(OptimizerYolov2, self).setup(total_batch_iteration, total_epoch_iteration)
         self.flag = True
-        sch1 = int(self.total_epoch_iteration * 1 / 16.)
-        sch2 = int(self.total_epoch_iteration * 5 / 16.)
-        sch3 = int(self.total_epoch_iteration * 3 / 16.)
-        sch4 = self.total_epoch_iteration - sch2 - sch3
-        self.schedule = [0] + [0.01] * sch1 + [0.001] * sch2 + [0.0001] * sch3 +\
-                        [0.00001] * sch4
+        self.burn_in = 1000
+        self.scale=[0.1,0.1]
+        self.steps=[40000,60000]
+        self.power=4
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
         super(OptimizerYolov1, self).set_information(
             nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
-        if nth_epoch == 0:
-            self.opt._lr = 0.0001 + (0.001 - 0.0001) / float(self.total_batch_iteration) * nth_batch
-        else:
-            self.opt._lr = self.schedule[int(nth_epoch)]
+#        fp = open('/home/shamim/Documents/yolov2/lr.txt','a+')
 
         if self.nth_batch * (self.nth_epoch+1) > int(0.3 * self.total_iteration) and hasattr(self,"flag"):
             self.flag = False
+
+        if nth_batch < self.burn_in:
+            self.opt._lr = self.opt._lr * np.power(float(nth_batch/self.burn_in),self.power)
+#            fp.write(str(nth_batch)+': '+str(self.opt._lr)+'\n')
+#            fp.close()
+            return 
+        rate = self.opt._lr
+        for i in range(len(self.steps)):
+            if self.steps[i] > nth_batch:
+#                fp.write(str(nth_batch)+': '+str(self.opt._lr)+'\n')
+#                fp.close()
+                return 
+            rate *= self.scale[i]
+        self.opt._lr = rate
+#        fp.write(str(nth_batch)+': '+str(self.opt._lr)+'\n')
+#        fp.close()
+ 
+#---------------------------------------------------------------------------------------------
 
 
 class OptimizerYolov1(BaseOptimizer):

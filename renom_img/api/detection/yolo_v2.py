@@ -599,7 +599,6 @@ class Yolov2(Detection):
                 assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
                     "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
                     exp),imsize=[(288, 288), (320, 320)]."
-
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=8)
         if valid_img_path_list is not None and valid_annotation_list is not None:
@@ -619,11 +618,11 @@ class Yolov2(Detection):
         assert opt is not None
         if isinstance(opt, BaseOptimizer):
             opt.setup(batch_loop, epoch)
-
+        my_avg_loss = -1
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
             display_loss = 0
-            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, shuffle=True, target_builder=self.build_data(imsize_list))):
+            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data(imsize_list))):
                 # This is for avoiding memory over flow.
                 if is_cuda_active() and i % 10 == 0:
                     release_mem_pool()
@@ -640,6 +639,12 @@ class Yolov2(Detection):
                     loss = float(loss.as_ndarray()[0])
                 except:
                     loss = float(loss.as_ndarray())
+#                if my_avg_loss < 0:
+#                    my_avg_loss = loss
+#                my_avg_loss = my_avg_loss * 0.9 + loss * 0.1
+#                fp = open('/home/shamim/Documents/yolov2/loss.txt','a+')
+#                fp.write(str(loss)+' '+str(my_avg_loss)+'\n')
+#                fp.close()
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
