@@ -237,11 +237,11 @@ class OptimizerYolov2(BaseOptimizer):
         self.power=4
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(OptimizerYolov1, self).set_information(
+        super(OptimizerYolov2, self).set_information(
             nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
 #        fp = open('/home/shamim/Documents/yolov2/lr.txt','a+')
 
-        if self.nth_batch * (self.nth_epoch+1) > int(0.3 * self.total_iteration) and hasattr(self,"flag"):
+        if nth_batch * (nth_epoch+1) > int(0.3 * self.total_iteration) and hasattr(self,"flag"):
             self.flag = False
 
         if nth_batch < self.burn_in:

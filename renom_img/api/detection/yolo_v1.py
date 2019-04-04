@@ -147,11 +147,11 @@ class Yolov1(Detection):
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
 
-        self._cells = cells
-        self._bbox = bbox
         self.model = CnnYolov1()
         super(Yolov1, self).__init__(class_map, imsize,
                                      load_pretrained_weight, train_whole_network, self.model)
+        self._cells = cells
+        self._bbox = bbox
         self.model.set_output_size((self.num_class + 5 * bbox) * cells[0] * cells[1])
         self.model.set_train_whole(train_whole_network)
         self.default_optimizer = OptimizerYolov1()

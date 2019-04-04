@@ -16,7 +16,7 @@ from renom_img.api.utility.box import calc_iou_xywh, transform2xy12
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.nms import nms
-from renom_img.api.utility.optimizer import OptimizerYolov2, BaseOptimizer
+from renom_img.api.utility.optimizer import BaseOptimizer, OptimizerYolov2
 
 class AnchorYolov2(object):
     """
@@ -176,9 +176,6 @@ class TargetBuilderYolov2():
                 label[n, 5:, cy, cx] = classes[i].reshape(-1, 1, num_class)
         return self.preprocess(img_list), label
 
-   
-
-
 
 class Yolov2(Detection):
     """
@@ -216,16 +213,18 @@ class Yolov2(Detection):
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
               exp),imsize=(320, 320)."
 
+        self.model = CnnYolov2()
+        super(Yolov2, self).__init__(class_map, imsize,
+                                     load_pretrained_weight, train_whole_network, self.model)
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
         self.class_map=class_map
-        self.model = CnnYolov2()
         self.default_optimizer = OptimizerYolov2()
 
-        super(Yolov2, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, self.model)
-        self.model.set_output_size((self.num_class + 5)*self.num_anchor)
+
+
+        self.model.set_output_size((self.num_class + 5)*self.num_anchor,self.class_map,self.num_anchor)
         self.model.set_train_whole(train_whole_network)
 
 
@@ -250,41 +249,6 @@ class Yolov2(Detection):
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return (0.0005 / 2.) * reg
-
-
-    def forward(self, x):
-        assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
-            "Or, please load already trained model using the method 'load()'."
-        assert self.num_anchor > 0, \
-            "Anchor list is empty. Please calculate anchor list using create_anchor function, before instantiate model class.  " +\
-            "Or, please load already trained model using the method 'load()'."
-
-        self.model._base.set_models(inference=(not self.model.train_whole or getattr(self.model, 'inference', False)))
-        
-        h, f = self.model._base(x)
-        f = self.model._conv21(f)
-        h = self.model._conv1(h)
-
-        h = self.model._conv2(rm.concat(h,rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
-
-        out = self.model._last(h)
-        # Create yolo format.
-        N, C, H, W = h.shape
-
-        reshaped = out.reshape(N, self.num_anchor, -1, W * H)
-        conf = rm.sigmoid(reshaped[:, :, 0:1]).transpose(0, 2, 1, 3)
-        px = rm.sigmoid(reshaped[:, :, 1:2]).transpose(0, 2, 1, 3)
-        py = rm.sigmoid(reshaped[:, :, 2:3]).transpose(0, 2, 1, 3)
-        pw = rm.exp(reshaped[:, :, 3:4]).transpose(0, 2, 1, 3)
-        ph = rm.exp(reshaped[:, :, 4:5]).transpose(0, 2, 1, 3)
-        cl = rm.softmax(reshaped[:, :, 5:].transpose(0, 2, 1, 3))
-        
-        return rm.concat(conf, px, py, pw, ph, cl).transpose(0, 2, 1, 3).reshape(N, -1, H, W)
-
-
-
-
 
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
@@ -448,14 +412,13 @@ class Yolov2(Detection):
 
         if self.inference == False:
             if hasattr(self.default_optimizer,"flag") and self.default_optimizer.flag:
-                itarget[:, :, 1:3, ...] = 0.5
+                target[:, :, 1:3, ...] = 0.5
                 target[:, :, 3:5, ...] = 0.0
             else:
                 target[:, :, 1:5, ...] = 0.0
         else:
             target[:, :, 1:5, ...] = 0.0
         target = target.reshape(N, C, H, W)
-
         low_thresh = 0.6
         im_w, im_h = (W * 32, H * 32)
         offset = 5 + self.num_class
@@ -609,7 +572,7 @@ class Yolov2(Detection):
         batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
         avg_valid_loss_list = []
-
+    
         ## optimizer settings
         if optimizer is None:
             opt =self.default_optimizer
@@ -617,6 +580,7 @@ class Yolov2(Detection):
             opt = optimizer
         assert opt is not None
         if isinstance(opt, BaseOptimizer):
+          
             opt.setup(batch_loop, epoch)
         my_avg_loss = -1
         for e in range(epoch):
@@ -627,14 +591,15 @@ class Yolov2(Detection):
                 if is_cuda_active() and i % 10 == 0:
                     release_mem_pool()
                 self.set_models(inference=False)
+
                 if isinstance(opt, BaseOptimizer):
                     opt.set_information(i,e,avg_train_loss_list, avg_valid_loss_list)
 
                 with self.train():
-                    loss = self.loss(self(train_x), train_y)
+                    loss = self.loss(self.model(train_x), train_y)
                     reg_loss = loss + self.regularize()
                 reg_loss.grad().update(opt)
-
+           
                 try:
                     loss = float(loss.as_ndarray()[0])
                 except:

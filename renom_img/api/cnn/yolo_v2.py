@@ -22,6 +22,7 @@ class DarknetConv2dBN(rm.Model):
             self._bn = rm.BatchNormalize(mode='feature', momentum=0.99)
 
     def forward(self, x):
+
         return rm.leaky_relu(self._bn(self._conv(x)), 0.1)
 
 
@@ -81,7 +82,8 @@ class CnnYolov2(CnnBase):
 
     def __init__(self, weight_decay=None):
         super(CnnYolov2, self).__init__()
-
+        self.class_map = None
+        self.num_anchor= None
         self._base = Darknet19Base()
         self._conv1 = rm.Sequential([
             DarknetConv2dBN(channel=1024, prev_ch = 1024),
@@ -107,7 +109,9 @@ class CnnYolov2(CnnBase):
                     }
 
 
-    def set_output_size(self,out_size):
+    def set_output_size(self,out_size, class_map, num_anchor):
+        self.class_map = class_map
+        self.num_anchor = num_anchor
         self.output_size = out_size
         self._last._channel = out_size
         self._last.params = {
@@ -125,10 +129,29 @@ class CnnYolov2(CnnBase):
 
 
     def forward(self, x):
-        N = len(x)
-        h, _ = self._base(x)
-        D = h.shape[2] * h.shape[3]
-        h = rm.sum(self._last(h).reshape(N,self.output_size, -1),axis=2)
-        h /= D
-        return h
+        assert len(self.class_map) > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
+            "Or, please load already trained model using the method 'load()'."
+        assert self.num_anchor > 0, \
+            "Anchor list is empty. Please calculate anchor list using create_anchor function, before instantiate model class.  " +\
+            "Or, please load already trained model using the method 'load()'."
+
+        self._base.set_models(inference=(not self.train_whole or getattr(self, 'inference', False)))        
+        h, f = self._base(x)
+        f = self._conv21(f)
+        h = self._conv1(h)
+
+        h = self._conv2(rm.concat(h,rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
+        out = self._last(h)
+        # Create yolo format.
+        N, C, H, W = h.shape
+
+        reshaped = out.reshape(N, self.num_anchor, -1, W * H)
+        conf = rm.sigmoid(reshaped[:, :, 0:1]).transpose(0, 2, 1, 3)
+        px = rm.sigmoid(reshaped[:, :, 1:2]).transpose(0, 2, 1, 3)
+        py = rm.sigmoid(reshaped[:, :, 2:3]).transpose(0, 2, 1, 3)
+        pw = rm.exp(reshaped[:, :, 3:4]).transpose(0, 2, 1, 3)
+        ph = rm.exp(reshaped[:, :, 4:5]).transpose(0, 2, 1, 3)
+        cl = rm.softmax(reshaped[:, :, 5:].transpose(0, 2, 1, 3))
+        return rm.concat(conf, px, py, pw, ph, cl).transpose(0, 2, 1, 3).reshape(N, -1, H, W)
         
