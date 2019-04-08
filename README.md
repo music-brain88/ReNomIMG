@@ -39,7 +39,7 @@ You can install the wheel package with pip3 command::
 `pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b1-cp36-cp36m-linux_x86_64.whl`
 
 
-#### Wheels of past versions.
+#### Wheels of past version
 
 For python 3.5
 - [v2.0b0](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/173908689/artifacts/raw/public/bin/renom_img-2.1b0-cp35-cp35m-linux_x86_64.whl)
