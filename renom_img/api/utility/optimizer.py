@@ -235,30 +235,25 @@ class OptimizerYolov2(BaseOptimizer):
         self.scale=[0.1,0.1]
         self.steps=[40000,60000]
         self.power=4
+        self.learning_rate = 0.001
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
         super(OptimizerYolov2, self).set_information(
             nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
-#        fp = open('/home/shamim/Documents/yolov2/lr.txt','a+')
 
-        if nth_batch * (nth_epoch+1) > int(0.3 * self.total_iteration) and hasattr(self,"flag"):
+        current_batch_num = (self.total_batch_iteration * nth_epoch) + (nth_batch +1)
+
+        if current_batch_num > int(0.3 * self.total_iteration) and hasattr(self,"flag"):
             self.flag = False
 
-        if nth_batch < self.burn_in:
-            self.opt._lr = self.opt._lr * np.power(float(nth_batch/self.burn_in),self.power)
-#            fp.write(str(nth_batch)+': '+str(self.opt._lr)+'\n')
-#            fp.close()
+        if current_batch_num <= self.burn_in:
+            self.opt._lr = self.learning_rate * np.round(np.power(float(current_batch_num/self.burn_in),self.power),3)
             return 
         rate = self.opt._lr
         for i in range(len(self.steps)):
-            if self.steps[i] > nth_batch:
-#                fp.write(str(nth_batch)+': '+str(self.opt._lr)+'\n')
-#                fp.close()
-                return 
-            rate *= self.scale[i]
-        self.opt._lr = rate
-#        fp.write(str(nth_batch)+': '+str(self.opt._lr)+'\n')
-#        fp.close()
+            if self.steps[i] == current_batch_num:
+                rate *= self.scale[i]
+                self.opt._lr = rate
  
 #---------------------------------------------------------------------------------------------
 

@@ -245,7 +245,7 @@ class Yolov2(Detection):
             >>> reg_loss = loss + model.regularize() # Adding weight decay term.
         """
         reg = 0
-        for layer in self.iter_models():
+        for layer in self.model.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return (0.0005 / 2.) * reg
@@ -598,18 +598,18 @@ class Yolov2(Detection):
                 with self.train():
                     loss = self.loss(self.model(train_x), train_y)
                     reg_loss = loss + self.regularize()
-                reg_loss.grad().update(opt)
+                reg_loss.grad().update(opt.opt)
            
                 try:
                     loss = float(loss.as_ndarray()[0])
                 except:
                     loss = float(loss.as_ndarray())
-#                if my_avg_loss < 0:
-#                    my_avg_loss = loss
-#                my_avg_loss = my_avg_loss * 0.9 + loss * 0.1
-#                fp = open('/home/shamim/Documents/yolov2/loss.txt','a+')
-#                fp.write(str(loss)+' '+str(my_avg_loss)+'\n')
-#                fp.close()
+                if my_avg_loss < 0:
+                    my_avg_loss = loss
+                my_avg_loss = my_avg_loss * 0.9 + loss * 0.1
+                fp = open('/home/shamim/Documents/yolov2/training_log.txt','a+')
+                fp.write(str(loss)+' '+str(my_avg_loss)+' '+str(opt.opt._lr)+'\n')
+                fp.close()
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
