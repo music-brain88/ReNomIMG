@@ -39,6 +39,26 @@ You can install the wheel package with pip3 command::
 `pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b1-cp36-cp36m-linux_x86_64.whl`
 
 
+#### Wheels of past versions.
+
+For python 3.5
+- [v2.0b0](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/173908689/artifacts/raw/public/bin/renom_img-2.1b0-cp35-cp35m-linux_x86_64.whl)
+- [v2.0.4](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/173381695/artifacts/raw/public/bin/renom_img-2.0.4-cp35-cp35m-linux_x86_64.whl)
+- [v2.0.3](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/160057769/artifacts/raw/public/bin/renom_img-2.0.3-cp35-cp35m-linux_x86_64.whl)
+- [v2.0.2](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/156334793/artifacts/raw/public/bin/renom_img-2.0.2-cp35-cp35m-linux_x86_64.whl)
+- [v2.0.1](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/155711690/artifacts/raw/public/bin/renom_img-2.0.1-cp35-cp35m-linux_x86_64.whl)
+- [v2.0.0](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/147536224/artifacts/raw/public/bin/renom_img-2.0.0-cp35-cp35m-linux_x86_64.whl)
+
+For python 3.6
+- [v2.0b0](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/173908689/artifacts/raw/public/bin/renom_img-2.1b0-cp36-cp36m-linux_x86_64.whl)
+- [v2.0.4](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/173381695/artifacts/raw/public/bin/renom_img-2.0.4-cp36-cp36m-linux_x86_64.whl)
+- [v2.0.3](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/160057769/artifacts/raw/public/bin/renom_img-2.0.3-cp36-cp36m-linux_x86_64.whl)
+- [v2.0.2](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/156334793/artifacts/raw/public/bin/renom_img-2.0.2-cp36-cp36m-linux_x86_64.whl)
+- [v2.0.1](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/155711690/artifacts/raw/public/bin/renom_img-2.0.1-cp36-cp36m-linux_x86_64.whl)
+- [v2.0.0](https://gitlab.com/grid-devs/ReNomIMG/-/jobs/147536224/artifacts/raw/public/bin/renom_img-2.0.0-cp36-cp36m-linux_x86_64.whl)
+
+
+
 ### Install from source
 For installing ReNomIMG, download the repository from following url.
 
