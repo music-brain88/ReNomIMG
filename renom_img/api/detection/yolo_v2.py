@@ -355,6 +355,12 @@ class Yolov2(Detection):
                     })
         return nms(result_bbox, nms_threshold)
 
+    def save(self,filename):
+        self.model.save(filename)
+
+    def load(self,filename):
+        self.model.load(filename)
+
     def build_data(self, imsize_list=None):
         """
         This function returns a function which creates input data and target data

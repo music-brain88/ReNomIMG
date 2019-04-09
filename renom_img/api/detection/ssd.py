@@ -260,7 +260,7 @@ class SSD(Detection):
         """
 
         reg = 0
-        for layer in self.iter_models():
+        for layer in self.model.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return (0.00004 / 2.) * reg
@@ -352,6 +352,14 @@ class SSD(Detection):
 
         """
         return super(SSD, self).predict(img_list, batch_size, score_threshold, nms_threshold)
+
+
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)
+
 
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
         N = len(z)

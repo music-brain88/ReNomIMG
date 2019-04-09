@@ -95,7 +95,7 @@ class Base(rm.Model):
             >>> reg_loss = loss + model.regularize() # Add weight decay term.
         """
         reg = 0
-        for layer in self.iter_models():
+        for layer in self.model.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return (self.decay_rate / 2) * reg
@@ -194,7 +194,7 @@ class Base(rm.Model):
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
-                reg_loss.grad().update(opt)
+                reg_loss.grad().update(opt.opt)
                 try:
                     loss = loss.as_ndarray()[0]
                 except:
