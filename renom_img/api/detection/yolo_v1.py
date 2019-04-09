@@ -87,7 +87,13 @@ class TargetBuilderYolov1():
         """
         return x / 255.
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path,self.imsize)[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+            return img_array
+
         N = len(img_path_list)
         num_class = len(self.class_map)
         num_bbox = self.bbox

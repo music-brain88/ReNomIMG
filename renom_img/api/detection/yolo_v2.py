@@ -120,7 +120,7 @@ class TargetBuilderYolov2():
     def preprocess(self, x):
         return x / 255.
 
-    def build(self, img_path_list, annotation_list, augmentation=None, nth=0, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, nth=0, **kwargs):
         """
         These parameters will be given by distributor.
         Args:
@@ -129,6 +129,13 @@ class TargetBuilderYolov2():
             augmentation (Augmentation): Augmentation object.
             nth (int): Current batch index.
         """
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path,self.imsize_list[0])[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+
+            return img_array
+
         N = len(img_path_list)
         # This ratio is specific to Darknet19.
         ratio_w = 32.
@@ -607,9 +614,9 @@ class Yolov2(Detection):
                 if my_avg_loss < 0:
                     my_avg_loss = loss
                 my_avg_loss = my_avg_loss * 0.9 + loss * 0.1
-                fp = open('/home/shamim/Documents/yolov2/training_log.txt','a+')
-                fp.write(str(loss)+' '+str(my_avg_loss)+' '+str(opt.opt._lr)+'\n')
-                fp.close()
+#                fp = open('/home/shamim/Documents/yolov2/training_log.txt','a+')
+#                fp.write(str(loss)+' '+str(my_avg_loss)+' '+str(opt.opt._lr)+'\n')
+#                fp.close()
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)

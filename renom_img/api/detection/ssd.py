@@ -175,6 +175,12 @@ class TargetBuilderSSD():
             x: Image path list.
             y: Detection formatted label.
         """
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path,self.imsize)[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+            return img_array
+
         N = len(img_path_list)
         img_data, label_data = prepare_detection_data(img_path_list,
                                                       annotation_list)
