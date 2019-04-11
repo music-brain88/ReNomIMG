@@ -92,6 +92,8 @@ class DeconvInitializer(Initializer):
         return filter.astype(precision)
 
 class CNN_FCN8s(CnnBase):
+
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN8s.h5".format(__version__)
     def __init__(self, num_class):
         super(CNN_FCN8s, self).__init__()
         self.train_final_upscore=False
@@ -187,9 +189,12 @@ class CNN_FCN8s(CnnBase):
         self.block5.set_auto_update(self.train_whole)
         self.upscore8.set_auto_update(self.train_final_upscore)
 
-
+    def load_pretrained_weight(self,path):
+        self.load(path)
 
 class CNN_FCN16s(CnnBase):
+
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN16s.h5".format(__version__)
     def __init__(self, num_class):
         super(CNN_FCN16s, self).__init__()
         self.train_final_upscore=False
@@ -267,8 +272,11 @@ class CNN_FCN16s(CnnBase):
         self.block5.set_auto_update(self.train_whole)
         self.upscore16.set_auto_update(self.train_final_upscore)
 
+    def load_pretrained_weight(self,path):
+        self.load(path)
 
 class CNN_FCN32s(CnnBase):
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN32s.h5".format(__version__)
     def __init__(self, num_class):
         super(CNN_FCN32s, self).__init__()
         self.train_final_upscore=False
@@ -327,4 +335,5 @@ class CNN_FCN32s(CnnBase):
         self.train_whole =whole
         self.train_final_upscore=upscore
 
-
+    def load_pretrained_weight(self,path):
+        self.load(path)

@@ -98,6 +98,7 @@ class Base(rm.Model):
         for layer in self.model.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
+      
         return (self.decay_rate / 2) * reg
 
     def preprocess(self, x):

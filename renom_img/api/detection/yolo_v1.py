@@ -289,7 +289,7 @@ class Yolov1(Detection):
             # Note: Take care types.
             result[indexes[0][i]].append({
                 "class": int(max_class[indexes[0][i], indexes[1][i]]),
-                "name": self.class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode("utf-8"),
+                "name": self.class_map[int(max_class[indexes[0][i], indexes[1][i]])],
                 "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })

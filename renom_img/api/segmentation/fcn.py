@@ -14,6 +14,7 @@ from renom.config import precision
 from renom.layers.function.pool2d import pool_base, max_pool2d
 from renom.layers.function.utils import tuplize
 from renom_img.api.utility.optimizer import FCN_Optimizer
+from renom_img.api.utility.load import load_img
 
 MEAN_BGR = np.array([104.00698793, 116.66876762, 122.67891434])
 RESIZE_METHOD = Image.BILINEAR
@@ -84,7 +85,7 @@ class TargetBuilderFCN():
         assert img.ndim == 2
         return img, img.shape[0], img.shape[1]
 
-    def load_img(self, path):
+    def _load(self, path):
         img = Image.open(path)
         img.load()
         w, h = img.size
@@ -99,7 +100,7 @@ class TargetBuilderFCN():
         right, bottom = (image.width + size) // 2, (image.height + size) // 2
         return image.crop((left, upper, right, bottom))
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """
         Args:
             img_path_list(list): List of input image paths.
@@ -110,13 +111,21 @@ class TargetBuilderFCN():
             (tuple): Batch of images and ndarray whose shape is **(batch size, #classes, width, height)**
 
         """
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+
+            return img_array
+
         # Check the class mapping.
+        
         n_class = len(self.class_map)
 
         img_list = []
         label_list = []
         for img_path, an_path in zip(img_path_list, annotation_list):
-            img, sw, sh = self.load_img(img_path)
+            img, sw, sh = self._load(img_path)
             labels, asw, ash = self.load_annotation(an_path)
             annot = np.zeros((n_class, asw, ash))
             img_list.append(img)
@@ -164,9 +173,7 @@ class FCN32s(SemanticSegmentation):
         |
 
     """
-
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN32s.h5".format(
-        __version__)
+    WEIGHT_URL = CNN_FCN32s.WEIGHT_URL
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
@@ -181,6 +188,13 @@ class FCN32s(SemanticSegmentation):
 
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
+
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)
+
 
 class FCN16s(SemanticSegmentation):
     """ Fully convolutional network (16s) for semantic segmentation
@@ -209,9 +223,7 @@ class FCN16s(SemanticSegmentation):
         |
 
     """
-
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN16s.h5".format(
-        __version__)
+    WEIGHT_URL = CNN_FCN16s.WEIGHT_URL
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
@@ -227,6 +239,12 @@ class FCN16s(SemanticSegmentation):
 
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
+
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)
 
 
 class FCN8s(SemanticSegmentation):
@@ -256,9 +274,7 @@ class FCN8s(SemanticSegmentation):
         |
 
     """
-
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN8s.h5".format(
-        __version__)
+    WEIGHT_URL = CNN_FCN8s.WEIGHT_URL
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
@@ -273,5 +289,11 @@ class FCN8s(SemanticSegmentation):
 
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
+
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)
 
 

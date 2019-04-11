@@ -57,7 +57,7 @@ class OptimizerTernausNet(BaseOptimizer):
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
         super(OptimizerTernausNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
- 
+        self.opt._lr = 1e-4
 
 class FCN_Optimizer(BaseOptimizer):
     def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):
@@ -69,7 +69,7 @@ class FCN_Optimizer(BaseOptimizer):
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
         super(FCN_Optimizer, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
- 
+        self.opt._lr = 1e-5
 
 class OptimizerDarknet19(BaseOptimizer):
     def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):

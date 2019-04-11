@@ -55,27 +55,19 @@ class SemanticSegmentation(Base):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                if len(img_list) > batch_size:
-                    test_dist = ImageDistributor(img_list)
-                    results = []
-                    bar = tqdm()
-                    bar.total = int(np.ceil(len(test_dist) / batch_size))
-                    for i, (x_img_list, _) in enumerate(test_dist.batch(batch_size, shuffle=False)):
-                        img_array = np.vstack([load_img(path, self.imsize)[None]
-                                               for path in x_img_list])
-                        img_array = self.preprocess(img_array)
-                        results.extend(np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1))
-                        bar.update(1)
-                    return results
-                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-                img_array = self.preprocess(img_array)
-            else:
-                img_array = load_img(img_list, self.imsize)[None]
-                img_array = self.preprocess(img_array)
-                return np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1)[0]
+                test_dist = ImageDistributor(img_list)
+                results = []
+                bar = tqdm()
+                bar.total = int(np.ceil(len(test_dist) / batch_size))
+                for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
+                    if len(img_list) < batch_size:
+                        return np.argmax(rm.softmax(self.model(x_img_list)).as_ndarray(), axis=1)[0]
+                    results.extend(np.argmax(rm.softmax(self.model(x_img_list)).as_ndarray(), axis=1))
+                    bar.update(1)
+                return results
         else:
             img_array = img_list
-        return np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1)
+        return np.argmax(rm.softmax(self.model(img_array)).as_ndarray(), axis=1)
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
@@ -111,13 +103,14 @@ class SemanticSegmentation(Base):
 
                 # grdient
                 with self.train():
-                    loss = self.loss(self(train_x), train_y, class_weight=class_weight)
+                    loss = self.loss(self.model(train_x), train_y, class_weight=class_weight)
                     reg_loss = loss + self.regularize()
+
                 try:
                     loss = loss.as_ndarray()[0]
                 except:
                     loss = loss.as_ndarray()
-                reg_loss.grad().update(opt)
+                reg_loss.grad().update(opt.opt)
 
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
@@ -159,6 +152,7 @@ class SemanticSegmentation(Base):
             loss = rm.sum(loss) / float(len(x))
         else:
             loss = rm.softmax_cross_entropy(x, y)
+
         return loss / (self.imsize[0] * self.imsize[1])
 
     def build_data(self):

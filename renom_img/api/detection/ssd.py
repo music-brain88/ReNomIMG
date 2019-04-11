@@ -403,7 +403,7 @@ class SSD(Detection):
                     continue
                 nth_result.append({
                     "box": nth_loc[ndind[0], ndind[1]].tolist(),
-                    "name": self.class_map[ndind[0]].decode('utf-8'),
+                    "name": self.class_map[ndind[0]],
                     "class": int(ndind[0]),
                     "score": float(conf[n, ndind[0], ndind[1]])
                 })

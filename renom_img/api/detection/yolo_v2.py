@@ -349,7 +349,7 @@ class Yolov2(Detection):
                     b = b if isinstance(b, list) else b.tolist()
                     result_bbox[keep[0][i]].append({
                         "box": b,
-                        "name": self.class_map[int(ind_c)].decode('utf-8'),
+                        "name": self.class_map[int(ind_c)],
                         "class": int(ind_c),
                         "score": float(float(class_score))
                     })
@@ -620,9 +620,9 @@ class Yolov2(Detection):
                 if my_avg_loss < 0:
                     my_avg_loss = loss
                 my_avg_loss = my_avg_loss * 0.9 + loss * 0.1
-#                fp = open('/home/shamim/Documents/yolov2/training_log.txt','a+')
-#                fp.write(str(loss)+' '+str(my_avg_loss)+' '+str(opt.opt._lr)+'\n')
-#                fp.close()
+                fp = open('/home/yamaguchi/Documents/yolov2/training_log.txt','a+')
+                fp.write(str(loss)+' '+str(my_avg_loss)+' '+str(opt.opt._lr)+'\n')
+                fp.close()
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
