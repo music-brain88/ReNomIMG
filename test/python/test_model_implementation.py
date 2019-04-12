@@ -339,12 +339,12 @@ def test_segmentation_model_implementation(algo):
 
     # 4. Check fit function.
     test_imgs = [
-        "voc_01.jpg",
-        "voc_02.jpg",
+        "voc.jpg",
+        "voc.jpg",
     ]
     test_annotation = [
-        "voc_01.png",
-        "voc_02.png",
+        "segmentation_target.png",
+        "segmentation_target.png",
     ]
 
     class_map = ["background", "airplane"]
