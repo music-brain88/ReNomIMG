@@ -4,7 +4,7 @@ import shutil
 import pytest
 import numpy as np
 import inspect
-from PIL import Image
+from PIL import Image, ImageDraw
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.evaluate import EvaluatorClassification
 from renom_img.api.utility.evaluate import EvaluatorDetection
@@ -17,6 +17,51 @@ from renom_img.api.utility.target import DataBuilderClassification, DataBuilderD
 
 from renom_img.api.utility.misc.display import draw_box
 from renom_img.api.utility.box import rescale
+
+
+def create_points(size, pairs=2):
+    p = []
+    for n in range(pairs):
+        i = np.minimum(1,n)
+        a = np.random.randint(size[i]//2)
+        b = np.random.randint(a,size[i])
+        p.extend([a,b])
+    return p
+
+
+def create_seg_data(size, img_name, lbl_name):
+    im = Image.new('RGB', size)
+
+    p_x0,p_x1,p_y0,p_y1,p_z0,p_z1 = create_points(size, pairs=3)
+    e_x0,e_x1,e_y0,e_y1 = create_points(size,pairs=2)
+    r_x0,r_x1,r_y0,r_y1 = create_points(size,pairs=2)
+
+    fill_p = tuple(np.random.randint(1,255,3))
+    fill_e = tuple(np.random.randint(1,255,3))
+    fill_r = tuple(np.random.randint(1,255,3))
+
+    draw = ImageDraw.Draw(im)
+    draw.polygon([(p_x0, p_y0), (p_x1, p_y1), (p_z0,p_z1)], fill=fill_p)
+    draw.rectangle([(r_x0,r_y0),(r_x1,r_y1)], fill=fill_r)
+    draw.ellipse([(e_x0,e_y0),(e_x1,e_y1)], fill=fill_e)
+
+    im.save(img_name)
+
+    lab = Image.new('L', size)
+
+    draw = ImageDraw.Draw(lab)
+    draw.polygon([(p_x0, p_y0), (p_x1, p_y1), (p_z0,p_z1)], fill=3)
+    draw.rectangle([(r_x0,r_y0),(r_x1,r_y1)], fill=2)
+    draw.ellipse([(e_x0,e_y0),(e_x1,e_y1)], fill=1)
+
+    lab.save(lbl_name)
+
+
+def delete_seg_data(img_name, lbl_name):
+    if os.path.exists(img_name):
+        os.remove(img_name)
+    if os.path.exists(lbl_name):
+        os.remove(lbl_name)
 
 
 def load_img(img_path):
@@ -44,12 +89,12 @@ def load_seg_label(label_path):
 
 def same_shape(x1, x2, transform):
     assert x1.shape == x2.shape, "Shapes do not match for {} transformation".format(
-        transform.__class__.__name__)
+        transform.__name__)
 
 
 def same_all(x1, x2, transform):
     assert x1 == x2, "Items are not equal for {} transformation".format(
-        transform.__class__.__name__)
+        transform.__name__)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -79,6 +124,8 @@ def scope_session():
     [random_saturation, {}],
     [random_lighting, {}],
     [random_expand, {}],
+    [color_jitter, {}],
+    [color_jitter, {"h":(0.85,1.05),"s":(0.85,1.05),"v":(0.95,1.05)}],
     [shear, {}],
     [horizontalflip, {}],
     [verticalflip, {}],
@@ -126,6 +173,8 @@ def test_augmentation_process_detection(method, kwargs, image_path):
     [random_saturation, {}],
     [random_lighting, {}],
     [random_expand, {}],
+    [color_jitter, {}],
+    [color_jitter, {"h":(0.85,1.05),"s":(0.85,1.05),"v":(0.95,1.05)}],
     [shear, {}],
     [horizontalflip, {}],
     [verticalflip, {}],
@@ -146,176 +195,192 @@ def test_augmentation_process_classification(method, kwargs, image_path):
 
 
 # Test segmentation augmentation methods that should not affect label at all
-@pytest.mark.parametrize('image, label', [
-    ['./img_1.jpg', './lbl_1.png' ],
-    ['./img_2.jpg', './lbl_2.png' ],
-    ['./img_3.jpg', './lbl_3.png' ],
-    ['./img_4.jpg', './lbl_4.png' ]
+@pytest.mark.parametrize('size,image,label', [
+    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
+    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
+    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
+    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
+    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
 ])
 @pytest.mark.parametrize('method, kwargs', [
-    [WhiteNoise, {"std": 10}],
-    [ContrastNorm, {"alpha": [0.5, 1.0]}],
-    [RandomHue, {}],
-    [RandomBrightness, {}],
-    [RandomSaturation, {}],
-    [RandomLighting, {}]
+    [white_noise, {"std": 1.5}],
+    [contrast_norm, {"alpha": [0.5, 1.0]}],
+    [random_hue, {}],
+    [random_brightness, {}],
+    [random_saturation, {}],
+    [random_lighting, {}],
+    [color_jitter, {}],
+    [color_jitter, {"h":(0.85,1.05),"s":(0.85,1.05),"v":(0.95,1.05)}]
 ])
-def test_augmentation_process_segmentation_noise(method, kwargs, image, label):
+def test_augmentation_process_segmentation_noise(method, kwargs, size, image, label):
+    create_seg_data(size, image, label)
     x, img = load_img(image)
     y, l = load_seg_label(label)
 
-    transform = method(**kwargs)
-    x_aug, y_aug = transform(x, y, mode="segmentation")
+    x_aug, y_aug = method(x, y, mode="segmentation", **kwargs)
 
-    same_shape(x_aug[0], x[0], transform)
-    same_shape(y_aug[0], y[0], transform)
-    same_all(y_aug, y, transform)
+    same_shape(x_aug[0], x[0], method)
+    same_shape(y_aug[0], y[0], method)
+    same_all(y_aug, y, method)
+    delete_seg_data(image, label)
 
 
 # Test segmentation augmentation shift method
-@pytest.mark.parametrize('image, label', [
-    ['./img_1.jpg', './lbl_1.png' ],
-    ['./img_2.jpg', './lbl_2.png' ],
-    ['./img_3.jpg', './lbl_3.png' ],
-    ['./img_4.jpg', './lbl_4.png' ]
+@pytest.mark.parametrize('size,image,label', [
+    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
+    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
+    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
+    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
+    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
 ])
 @pytest.mark.parametrize('method, kwargs', [
-    [Shift, {"horizontal": 10, "vertivcal": 10}],
-    [RandomCrop, {}]
+    [shift, {"horizontal": 10, "vertivcal": 10}],
+    [random_crop, {}]
 ])
-def test_augmentation_process_segmentation_shift(method, kwargs, image, label):
+def test_augmentation_process_segmentation_shift(method, kwargs, size, image, label):
+    create_seg_data(size, image, label)
     x, img = load_img(image)
     y, l = load_seg_label(label)
 
-    transform = method(**kwargs)
-    x_aug, y_aug = transform(x, y, mode="segmentation")
+    x_aug, y_aug = method(x, y, mode="segmentation", **kwargs)
 
-    same_shape(x_aug[0], x[0], transform)
-    same_shape(y_aug[0], y[0], transform)
+    same_shape(x_aug[0], x[0], method)
+    same_shape(y_aug[0], y[0], method)
     assert np.count_nonzero(y_aug[0]) <= np.count_nonzero(y[0])
     assert (y_aug[0] == 0).sum() >= (y[0] == 0).sum()
+    delete_seg_data(image, label)
 
 
-@pytest.mark.parametrize('image, label', [
-    ['./img_1.jpg', './lbl_1.png' ],
-    ['./img_2.jpg', './lbl_2.png' ],
-    ['./img_3.jpg', './lbl_3.png' ],
-    ['./img_4.jpg', './lbl_4.png' ]
+@pytest.mark.parametrize('size,image,label', [
+    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
+    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
+    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
+    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
+    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
 ])
 @pytest.mark.parametrize('method, kwargs', [
-    [CenterCrop, {"size": (112, 112)}]
+    [center_crop, {}]
 ])
-def test_augmentation_process_segmentation_centercrop(method, kwargs, image, label):
+def test_augmentation_process_segmentation_centercrop(method, kwargs, size, image, label):
+    create_seg_data(size, image, label)
     x, img = load_img(image)
     y, l = load_seg_label(label)
 
-    transform = method(**kwargs)
-    x_aug, y_aug = transform(x, y, mode="segmentation")
+    x_aug, y_aug = method(x, y, mode="segmentation", **kwargs)
 
     assert x_aug[0].shape[1:] == y_aug[0].shape[1:], "Shapes do not match"
-    assert y_aug[0].shape[1:] == (112, 112)
+    assert y_aug[0].shape[1:] == (224, 224)
     for i in np.unique(y_aug[0]):
         assert (y_aug[0] == i).sum() <= (y[0] == i).sum()
+    delete_seg_data(image, label)
 
 
 # Test segmentation augmentation shift method
-@pytest.mark.parametrize('image, label', [
-    ['./img_1.jpg', './lbl_1.png' ],
-    ['./img_2.jpg', './lbl_2.png' ],
-    ['./img_3.jpg', './lbl_3.png' ],
-    ['./img_4.jpg', './lbl_4.png' ]
+@pytest.mark.parametrize('size,image,label', [
+    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
+    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
+    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
+    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
+    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
 ])
 @pytest.mark.parametrize('method, kwargs', [
-    [RandomExpand, {}]
+    [random_expand, {}]
 ])
-def test_augmentation_process_segmentation_randomexpand(method, kwargs, image, label):
+def test_augmentation_process_segmentation_randomexpand(method, kwargs, size, image, label):
+    create_seg_data(size, image, label)
     x, img = load_img(image)
     y, l = load_seg_label(label)
 
-    transform = method(**kwargs)
-    x_aug, y_aug = transform(x, y, mode="segmentation")
+    x_aug, y_aug = method(x, y, mode="segmentation", **kwargs)
 
     assert x_aug[0].shape[1:] == y_aug[0].shape[1:], "Shapes do not match"
     assert np.count_nonzero(y_aug[0]) <= np.count_nonzero(y[0])
     assert (y_aug[0] == 0).sum() >= (y[0] == 0).sum()
+    delete_seg_data(image, label)
 
 
-@pytest.mark.parametrize('image, label', [
-    ['./img_1.jpg', './lbl_1.png' ],
-    ['./img_2.jpg', './lbl_2.png' ],
-    ['./img_3.jpg', './lbl_3.png' ],
-    ['./img_4.jpg', './lbl_4.png' ]
+@pytest.mark.parametrize('size,image,label', [
+    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
+    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
+    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
+    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
+    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
 ])
 @pytest.mark.parametrize('method, kwargs', [
-    [Shear, {}]
+    [shear, {}]
 ])
-def test_augmentation_process_segmentation_shear(method, kwargs, image, label):
+def test_augmentation_process_segmentation_shear(method, kwargs, size, image, label):
+    create_seg_data(size, image, label)
     x, img = load_img(image)
     y, l = load_seg_label(label)
 
-    transform = method(**kwargs)
-    x_aug, y_aug = transform(x, y, mode="segmentation")
+    x_aug, y_aug = method(x, y, mode="segmentation", **kwargs)
 
     assert x_aug[0].shape[1:] == y_aug[0].shape[1:], "Shapes do not match"
+    delete_seg_data(image, label)
 
 
-@pytest.mark.parametrize('image, label', [
-    ['./img_1.jpg', './lbl_1.png' ],
-    ['./img_2.jpg', './lbl_2.png' ],
-    ['./img_3.jpg', './lbl_3.png' ],
-    ['./img_4.jpg', './lbl_4.png' ]
+@pytest.mark.parametrize('size,image,label', [
+    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
+    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
+    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
+    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
+    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
 ])
 @pytest.mark.parametrize('method, kwargs', [
-    [Rotate, {}],
-    [Distortion, {}]
+    [rotate, {}],
+    [distortion, {}]
 ])
-def test_augmentation_process_segmentation_rotate(method, kwargs, image, label):
+def test_augmentation_process_segmentation_rotate(method, kwargs, size, image, label):
+    create_seg_data(size, image, label)
     x, img = load_img(image)
     y, l = load_seg_label(label)
 
-    transform = method(**kwargs)
-    x_aug, y_aug = transform(x, y, mode="segmentation")
+    x_aug, y_aug = method(x, y, mode="segmentation", **kwargs)
 
-    same_shape(x_aug[0], x[0], transform)
-    same_shape(y_aug[0], y[0], transform)
+    same_shape(x_aug[0], x[0], method)
+    same_shape(y_aug[0], y[0], method)
     for i in range(len(np.unique(y[0], return_counts=True))):
         assert np.unique(y[0], return_counts=True)[i].all() == \
             np.unique(y_aug[0], return_counts=True)[i].all(), \
             "{} {} {}".format(i, np.unique(y[0], return_counts=True)[
                               i], np.unique(y_aug[0], return_counts=True)[i])
+    delete_seg_data(image, label)
 
 
 # Test segmentation augmentation methods that flip image and label
-@pytest.mark.parametrize('image, label', [
-    ['./img_1.jpg', './lbl_1.png' ],
-    ['./img_2.jpg', './lbl_2.png' ],
-    ['./img_3.jpg', './lbl_3.png' ],
-    ['./img_4.jpg', './lbl_4.png' ]
+@pytest.mark.parametrize('size,image,label', [
+    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
+    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
+    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
+    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
+    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
 ])
 @pytest.mark.parametrize('method, kwargs', [
-    [Flip, {}],
-    [HorizontalFlip, {}],
-    [VerticalFlip, {}]
+    [flip, {}],
+    [horizontalflip, {}],
+    [verticalflip, {}]
 ])
-def test_augmentation_process_segmentation_flip(method, kwargs, image, label):
+def test_augmentation_process_segmentation_flip(method, kwargs, size, image, label):
+    create_seg_data(size, image, label)
     x, img = load_img(image)
     y, l = load_seg_label(label)
 
-    transform = method()
-    x_aug, y_aug = transform(x, y, mode="segmentation")
+    x_aug, y_aug = method(x, y, mode="segmentation", **kwargs)
 
-    same_shape(x_aug[0], x[0], transform)
-    same_shape(y_aug[0], y[0], transform)
+    same_shape(x_aug[0], x[0], method)
+    same_shape(y_aug[0], y[0], method)
 
-    if isinstance(transform, Flip):
+    if method.__name__=='flip':
         assert x_aug[0].all() == x[0][:, ::-1, ::-1].all()
         assert y_aug[0].all() == y[0][:, ::-1, ::-1].all()
-    elif isinstance(transform, HorizontalFlip):
+    elif method.__name__=='horizontalflip':
         assert x_aug[0].all() == x[0][:, :, ::-1].all()
         assert y_aug[0].all() == y[0][:, :, ::-1].all()
-    elif isinstance(transform, VerticalFlip):
+    elif method.__name__=='verticalflip':
         assert x_aug[0].all() == x[0][:, ::-1, :].all()
         assert y_aug[0].all() == y[0][:, ::-1, :].all()
+    delete_seg_data(image, label)
 
 
 @pytest.mark.parametrize('method', [

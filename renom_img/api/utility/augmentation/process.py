@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage.interpolation import map_coordinates
 from scipy.ndimage.filters import gaussian_filter
+import matplotlib.colors as cl
 
 MODE = [
     "classification",
@@ -1070,82 +1071,168 @@ def distortion(x, y, mode='classification'):
     return Distortion()(x, y, mode=mode)
 
 
-class Jitter(ProcessBase):
+class ColorJitter(ProcessBase):
 
-    def __init__(self):
-        pass
+    def __init__(self, h=0.1, s=0.1, v=0.1):
+        super(ColorJitter, self).__init__()
+        self.h = h
+        self.s = s
+        self.v = v
+
+        if isinstance(self.h, tuple) or isinstance(self.h, list):
+            assert np.min(self.h)>=0, "ColorJitter augmentation only accepts h values in [0,1]"
+        else:
+            assert 0<=self.h<=1, "ColorJitter augmentation only accepts h values in [0,1]"
+
+        if isinstance(self.s, tuple) or isinstance(self.s, list):
+            assert np.min(self.s)>=0, "ColorJitter augmentation only accepts s values in [0,1]"
+        else:
+            assert 0<=self.s<=1, "ColorJitter augmentation only accepts s values in [0,1]"
+
+        if isinstance(self.v, tuple) or isinstance(self.v, list):
+            assert np.min(self.v)>=0, "ColorJitter augmentation only accepts h values in [0,1]"
+        else:
+            assert 0<=self.v<=1, "ColorJitter augmentation only accepts v values in [0,1]"
 
     def _transform_classification(self, x, y):
         """
-        Color is "RGB" 0~255 image.
+        Image array should be RGB (either 0-255 or 0-1)
         """
-        raise NotImplementedError
-        N = len(x)
-        dim0 = np.arange(N)
-        scale_h = np.random.uniform(0.9, 1.1)
-        scale_s = np.random.uniform(0.9, 1.1)
-        scale_v = np.random.uniform(0.9, 1.1)
-        new_x = np.zeros_like(x)
-        max_color_index = np.argmax(x, axis=1)
-        max_color = x[(dim0, max_color_index)]
-        min_color = np.min(x, axis=1)
-        h = (x[(dim0, max_color_index - 2)] - x[(dim0, max_color_index - 1)]) / \
-            (max_color - min_color) * 60 + max_color_index * 120
-        s = (max_color - min_color) / max_color
-        v = max_color
+        n = len(x)
+        new_x = []
+        for i in range(n):
 
-        h = np.clip(h * scale_h, 0, 359)
-        s = np.clip(s * scale_s, 0, 1)
-        v = np.clip(v * scale_v, 0, 255)
-        return x, y
+            if isinstance(self.h, tuple) or isinstance(self.h, list):
+                scale_h = np.random.uniform(self.h[0], self.h[1])
+            else:
+                scale_h = np.random.uniform(1.0-self.h, 1.0+self.h)
+
+            if isinstance(self.s, tuple) or isinstance(self.s, list):
+                scale_s = np.random.uniform(self.s[0], self.s[1])
+            else:
+                scale_s = np.random.uniform(1.0-self.s, 1.0+self.s)
+
+            if isinstance(self.s, tuple) or isinstance(self.s, list):
+                scale_v = np.random.uniform(self.v[0], self.v[1])
+            else:
+                scale_v = np.random.uniform(1.0-self.v, 1.0+self.v)
+
+            img = x[i]
+            assert img.shape[0] == 3, "ColorJitter augmentation can only be used with RGB data"
+            img = img.transpose(1,2,0)
+            img_hsv = cl.rgb_to_hsv(img)
+            img_hsv[:,:,0] = np.clip(img_hsv[:,:,0] * scale_h, 0, 1)
+            img_hsv[:,:,1] = np.clip(img_hsv[:,:,1] * scale_s, 0, 1)
+            img_hsv[:,:,2] = np.clip(img_hsv[:,:,2] * scale_v, 0, 255)
+            img = cl.hsv_to_rgb(img_hsv)
+            new_x.append(img.transpose(2,0,1))
+        return new_x, y
 
     def _transform_detection(self, x, y):
         """
-        Color is "RGB" 0~255 image.
+        Image array should be RGB (either 0-255 or 0-1)
         """
-        raise NotImplementedError
-        N = len(x)
-        dim0 = np.arange(N)
-        scale_h = np.random.uniform(0.9, 1.1)
-        scale_s = np.random.uniform(0.9, 1.1)
-        scale_v = np.random.uniform(0.9, 1.1)
-        new_x = np.zeros_like(x)
-        max_color_index = np.argmax(x, axis=1)
-        max_color = x[(dim0, max_color_index)]
-        min_color = np.min(x, axis=1)
-        h = (x[(dim0, max_color_index - 2)] - x[(dim0, max_color_index - 1)]) / \
-            (max_color - min_color) * 60 + max_color_index * 120
-        s = (max_color - min_color) / max_color
-        v = max_color
+        n = len(x)
+        new_x = []
+        for i in range(n):
 
-        h = np.clip(h * scale_h, 0, 359)
-        s = np.clip(s * scale_s, 0, 1)
-        v = np.clip(v * scale_v, 0, 255)
-        return x, y
+            if isinstance(self.h, tuple) or isinstance(self.h, list):
+                scale_h = np.random.uniform(self.h[0], self.h[1])
+            else:
+                scale_h = np.random.uniform(1.0-self.h, 1.0+self.h)
+
+            if isinstance(self.s, tuple) or isinstance(self.s, list):
+                scale_s = np.random.uniform(self.s[0], self.s[1])
+            else:
+                scale_s = np.random.uniform(1.0-self.s, 1.0+self.s)
+
+            if isinstance(self.s, tuple) or isinstance(self.s, list):
+                scale_v = np.random.uniform(self.v[0], self.v[1])
+            else:
+                scale_v = np.random.uniform(1.0-self.v, 1.0+self.v)
+
+            img = x[i]
+            assert img.shape[0] == 3, "ColorJitter augmentation can only be used with RGB data"
+            img = img.transpose(1,2,0)
+            img_hsv = cl.rgb_to_hsv(img)
+            img_hsv[:,:,0] = np.clip(img_hsv[:,:,0] * scale_h, 0, 1)
+            img_hsv[:,:,1] = np.clip(img_hsv[:,:,1] * scale_s, 0, 1)
+            img_hsv[:,:,2] = np.clip(img_hsv[:,:,2] * scale_v, 0, 255)
+            img = cl.hsv_to_rgb(img_hsv)
+            new_x.append(img.transpose(2,0,1))
+        return new_x, y
 
     def _transform_segmentation(self, x, y):
         """
-        Color is "RGB" 0~255 image.
+        Image array should be RGB (either 0-255 or 0-1)
         """
-        raise NotImplementedError
-        N = len(x)
-        dim0 = np.arange(N)
-        scale_h = np.random.uniform(0.9, 1.1)
-        scale_s = np.random.uniform(0.9, 1.1)
-        scale_v = np.random.uniform(0.9, 1.1)
-        new_x = np.zeros_like(x)
-        max_color_index = np.argmax(x, axis=1)
-        max_color = x[(dim0, max_color_index)]
-        min_color = np.min(x, axis=1)
-        h = (x[(dim0, max_color_index - 2)] - x[(dim0, max_color_index - 1)]) / \
-            (max_color - min_color) * 60 + max_color_index * 120
-        s = (max_color - min_color) / max_color
-        v = max_color
+        n = len(x)
+        new_x = []
+        for i in range(n):
 
-        h = np.clip(h * scale_h, 0, 359)
-        s = np.clip(s * scale_s, 0, 1)
-        v = np.clip(v * scale_v, 0, 255)
-        return x, y
+            if isinstance(self.h, tuple) or isinstance(self.h, list):
+                scale_h = np.random.uniform(self.h[0], self.h[1])
+            else:
+                scale_h = np.random.uniform(1.0-self.h, 1.0+self.h)
+
+            if isinstance(self.s, tuple) or isinstance(self.s, list):
+                scale_s = np.random.uniform(self.s[0], self.s[1])
+            else:
+                scale_s = np.random.uniform(1.0-self.s, 1.0+self.s)
+
+            if isinstance(self.s, tuple) or isinstance(self.s, list):
+                scale_v = np.random.uniform(self.v[0], self.v[1])
+            else:
+                scale_v = np.random.uniform(1.0-self.v, 1.0+self.v)
+
+            img = x[i]
+            assert img.shape[0] == 3, "ColorJitter augmentation can only be used with RGB data"
+            img = img.transpose(1,2,0)
+            img_hsv = cl.rgb_to_hsv(img)
+            img_hsv[:,:,0] = np.clip(img_hsv[:,:,0] * scale_h, 0, 1)
+            img_hsv[:,:,1] = np.clip(img_hsv[:,:,1] * scale_s, 0, 1)
+            img_hsv[:,:,2] = np.clip(img_hsv[:,:,2] * scale_v, 0, 255)
+            img = cl.hsv_to_rgb(img_hsv)
+            new_x.append(img.transpose(2,0,1))
+        return new_x, y
+
+
+def color_jitter(x, y=None, h=0.1, s=0.1, v=0.1, mode='classification'):
+    """ Color Jitter
+        Performs random scaling on Hue, Saturation and Brightness values in HSV space
+
+    Args:
+        x (list of str): List of path of images.
+        y (list of annotation): list of annotation for x. It is only used when prediction.
+        h (float, or tuple/list of two floats): Scaling factor for hue values in HSV space.
+                                            If a list [a, b] or tuple (a,b), the h values are scaled by a randomly sampled factor from uniform distribution in the range[a, b].
+                                            If a float, the h values are scaled from uniform distribution in the range [1-h, 1+h].
+        s (float, or tuple/list of two floats): Scaling factor for saturation values in HSV space.
+                                            If a list [a, b] or tuple (a,b), the s values are scaled by a randomly sampled factor from uniform distribution in the range[a, b].
+                                            If a float, the s values are scaled from uniform distribution in the range [1-s, 1+s].
+        v (float, or tuple/list of two floats): Scaling factor for brightness value in HSV space.
+                                            If a list [a, b] or tuple (a,b), the v values are scaled by a randomly sampled factor from uniform distribution in the range[a, b].
+                                            If a float, the v values are scaled from uniform distribution in the range [1-v, 1+v].
+
+    Returns:
+        tuple: list of transformed images and list of annotation for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotation) # list of annotation for x.
+        ]
+
+
+    Example:
+        >>> img = Image.open(img_path)
+        >>> img.convert('RGB')
+        >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
+        >>> x = np.array([img])
+        >>> new_x, new_y = color_jitter(x, h=0.1, s=0.1, v=0.2)
+    """
+    return ColorJitter(h,s,v)(x, y, mode=mode)
 
 
 class ContrastNorm(ProcessBase):
