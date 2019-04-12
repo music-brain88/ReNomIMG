@@ -99,6 +99,7 @@ class SemanticSegmentation(Base):
                     loss = loss.as_ndarray()[0]
                 except:
                     loss = loss.as_ndarray()
+                loss = float(loss)
                 reg_loss.grad().update(self.get_optimizer(loss, e, epoch, i, batch_loop))
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
@@ -117,6 +118,7 @@ class SemanticSegmentation(Base):
                         loss = loss.as_ndarray()[0]
                     except:
                         loss = loss.as_ndarray()
+                    loss = float(loss)
                     display_loss += loss
                     bar.set_description("Epoch:{:03d} Valid Loss:{:5.3f}".format(e, loss))
                     bar.update(1)
