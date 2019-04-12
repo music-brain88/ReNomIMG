@@ -39,7 +39,7 @@ class TargetBuilderInception():
 
         return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(label_list)
 
-    def load_img(self, path):
+    def _load(self, path):
         """ Loads an image
 
         Args:
@@ -58,7 +58,7 @@ class TargetBuilderInception():
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
 
         Args:
@@ -70,7 +70,11 @@ class TargetBuilderInception():
         Returns:
             (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
-
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path,self.imsize)[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+            return img_array
         # Check the class mapping.
         n_class = len(self.class_map)
 
@@ -78,7 +82,7 @@ class TargetBuilderInception():
         label_list = []
         for img_path, an_data in zip(img_path_list, annotation_list):
             one_hot = np.zeros(n_class)
-            img, sw, sh = self.load_img(img_path)
+            img, sw, sh = self._load(img_path)
             img_list.append(img)
             one_hot[an_data] = 1.
             label_list.append(one_hot)
@@ -116,12 +120,7 @@ class InceptionV1(Classification):
         https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = ""
-
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
-            __version__, self.__class__.__name__)
 
         self.model = CNN_InceptionV1(1)
         super(InceptionV1, self).__init__(class_map, imsize, load_pretrained_weight,
@@ -141,24 +140,46 @@ class InceptionV1(Classification):
     def loss(self, x, y):
         return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3 * rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
 
-    def predict(self, img_list):
-        self.set_models(inference=True)
+    def predict(self, img_list, batch_size=1):
+        self.model.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-                img_array = self.preprocess(img_array)
-            else:
-                img_array = load_img(img_list, self.imsize)[None]
-                img_array = self.preprocess(img_array)
-                return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)[0]
+                test_dist = ImageDistributor(img_list)
+                results = []
+                bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
+                for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
+                    if len(img_list) < batch_size:
+                        return np.argmax(rm.softmax(self.model(x_img_list)[2]).as_ndarray(), axis=1)[0]
+                    results.extend(np.argmax(rm.softmax(self.model(x_img_list)[2]).as_ndarray(), axis=1))
+                    bar.update(1)
+                bar.close()
+                return results
         else:
             img_array = img_list
-        return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)
+        return np.argmax(rm.softmax(self.model(img_array)[2]).as_ndarray(), axis=1)
+
+#    def predict(self, img_list):
+#        self.set_models(inference=True)
+#        if isinstance(img_list, (list, str)):
+#            if isinstance(img_list, (tuple, list)):
+#                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+#                img_array = TargetBuilderInception.preprocess(img_array)
+#            else:
+#                img_array = load_img(img_list, self.imsize)[None]
+#                img_array = TargetBuilderInception.preprocess(img_array)
+#                return np.argmax(rm.softmax(self.model(img_array)[2]).as_ndarray(), axis=1)[0]
+#        else:
+#            img_array = img_list
+#        return np.argmax(rm.softmax(self.model(img_array)[2]).as_ndarray(), axis=1)
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
 
+    def load(self, filename):
+        self.model.load(filename)
 
 class InceptionV3(Classification):
     """ Inception V3 model
@@ -182,12 +203,7 @@ class InceptionV3(Classification):
         https://arxiv.org/abs/1512.00567
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = ""
-
     def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
-        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
-            __version__, self.__class__.__name__)
 
         self.model = CNN_InceptionV3(1)
 
@@ -203,24 +219,46 @@ class InceptionV3(Classification):
     def loss(self, x, y):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
 
-    def predict(self, img_list):
-        self.set_models(inference=True)
+    def predict(self, img_list, batch_size=1):
+        self.model.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-                img_array = self.preprocess(img_array)
-            else:
-                img_array = load_img(img_list, self.imsize)[None]
-                img_array = self.preprocess(img_array)
-                return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)[0]
+                test_dist = ImageDistributor(img_list)
+                results = []
+                bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
+                for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
+                    if len(img_list) < batch_size:
+                        return np.argmax(rm.softmax(self.model(x_img_list)[1]).as_ndarray(), axis=1)[0]
+                    results.extend(np.argmax(rm.softmax(self.model(x_img_list)[1]).as_ndarray(), axis=1))
+                    bar.update(1)
+                bar.close()
+                return results
         else:
             img_array = img_list
-        return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
+        return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
+
+#    def predict(self, img_list):
+#        self.set_models(inference=True)
+#        if isinstance(img_list, (list, str)):
+#            if isinstance(img_list, (tuple, list)):
+#                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+#                img_array = TargetBuilderInception.preprocess(img_array)
+#            else:
+#                img_array = load_img(img_list, self.imsize)[None]
+#                img_array = TargerBuilderInception.preprocess(img_array)
+#                return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)[0]
+#        else:
+#            img_array = img_list
+#        return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
 
+    def load(self, filename):
+        self.model.load(filename)
 
 class InceptionV2(Classification):
     """ Inception V2 model
@@ -244,12 +282,7 @@ class InceptionV2(Classification):
         https://arxiv.org/abs/1512.00567
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = ""
-
     def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
-        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
-            __version__, self.__class__.__name__)
         self.model = CNN_InceptionV2(1)
 
         super(InceptionV2, self).__init__(class_map, imsize, load_pretrained_weight,
@@ -264,24 +297,46 @@ class InceptionV2(Classification):
     def loss(self, x, y):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
 
-    def predict(self, img_list):
-        self.set_models(inference=True)
+    def predict(self, img_list, batch_size=1):
+        self.model.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
-                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-                img_array = self.preprocess(img_array)
-            else:
-                img_array = load_img(img_list, self.imsize)[None]
-                img_array = self.preprocess(img_array)
-                return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)[0]
+                test_dist = ImageDistributor(img_list)
+                results = []
+                bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
+                for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
+                    if len(img_list) < batch_size:
+                        return np.argmax(rm.softmax(self.model(x_img_list)[1]).as_ndarray(), axis=1)[0]
+                    results.extend(np.argmax(rm.softmax(self.model(x_img_list)[1]).as_ndarray(), axis=1))
+                    bar.update(1)
+                bar.close()
+                return results     
         else:
             img_array = img_list
-        return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
+        return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
+
+#    def predict(self, img_list):
+#        self.set_models(inference=True)
+#        if isinstance(img_list, (list, str)):
+#            if isinstance(img_list, (tuple, list)):
+#                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
+#                img_array = TargetBuilderInception.preprocess(img_array)
+#            else:
+#               img_array = load_img(img_list, self.imsize)[None]
+#                img_array = TargetBuilderInception.preprocess(img_array)
+#                return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)[0]
+#        else:
+#            img_array = img_list
+#        return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
 
-
+    def save(self, filename):
+        self.model.save(filename)
+    
+    def load(self, filename):
+        self.model.load(filename)
 
 class InceptionV4(Classification):
     """ Inception V4 model
@@ -305,12 +360,8 @@ class InceptionV4(Classification):
         https://arxiv.org/abs/1602.07261
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = ""
-
     def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
-        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
-            __version__, self.__class__.__name__)
+
         self.model = CNN_InceptionV4(1)
         super(InceptionV4, self).__init__(class_map, imsize, load_pretrained_weight,
                                           train_whole_network, self.model)
@@ -324,4 +375,8 @@ class InceptionV4(Classification):
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
 
+    def load(self, filename):
+        self.model.load(filename)

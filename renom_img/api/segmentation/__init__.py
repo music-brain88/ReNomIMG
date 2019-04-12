@@ -52,7 +52,7 @@ class SemanticSegmentation(Base):
             If multiple images or paths are given, then a list in which there are arrays whose shape is **(width, height)** is returned.
         """
 
-        self.set_models(inference=True)
+        self.model.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 test_dist = ImageDistributor(img_list)
@@ -64,6 +64,7 @@ class SemanticSegmentation(Base):
                         return np.argmax(rm.softmax(self.model(x_img_list)).as_ndarray(), axis=1)[0]
                     results.extend(np.argmax(rm.softmax(self.model(x_img_list)).as_ndarray(), axis=1))
                     bar.update(1)
+                bar.close()
                 return results
         else:
             img_array = img_list

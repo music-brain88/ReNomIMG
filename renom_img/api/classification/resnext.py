@@ -5,6 +5,7 @@ import numpy as np
 from tqdm import tqdm
 from PIL import Image
 from renom_img import __version__
+from renom_img.api import Base, adddoc
 from renom_img.api.utility.misc.download import download
 from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
@@ -50,7 +51,7 @@ class TargetBuilderResNeXt():
 
         return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(label_list)
 
-    def load_img(self, path):
+    def _load(self, path):
         """ Loads an image
 
         Args:
@@ -69,7 +70,7 @@ class TargetBuilderResNeXt():
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
 
         Args:
@@ -81,6 +82,11 @@ class TargetBuilderResNeXt():
         Returns:
             (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+            return img_array
 
         # Check the class mapping.
         n_class = len(self.class_map)
@@ -89,7 +95,7 @@ class TargetBuilderResNeXt():
         label_list = []
         for img_path, an_data in zip(img_path_list, annotation_list):
             one_hot = np.zeros(n_class)
-            img, sw, sh = self.load_img(img_path)
+            img, sw, sh = self._load(img_path)
             img_list.append(img)
             one_hot[an_data] = 1.
             label_list.append(one_hot)
@@ -126,7 +132,6 @@ class ResNeXt50(Classification):
         https://arxiv.org/abs/1611.05431
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt50.h5".format(
         __version__)
 
@@ -147,6 +152,12 @@ class ResNeXt50(Classification):
 
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
+
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)
 
 class ResNeXt101(Classification):
     """ResNeXt101 model.
@@ -172,7 +183,6 @@ class ResNeXt101(Classification):
         https://arxiv.org/abs/1611.05431
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt101.h5".format(
         __version__)
 
@@ -194,5 +204,9 @@ class ResNeXt101(Classification):
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
 
+    def load(self, filename):
+        self.model.load(filename)
 

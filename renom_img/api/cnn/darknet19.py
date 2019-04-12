@@ -104,3 +104,6 @@ class CnnDarknet19(CnnBase):
 
     def _freeze(self):
         self._base.set_auto_update(self.train_whole)
+
+    def load_pretrained_weight(self,path):
+        self.load(path)

@@ -55,7 +55,7 @@ class TargetBuilderResNet():
 
         return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(label_list)
 
-    def load_img(self, path):
+    def _load(self, path):
         """ Loads an image
 
         Args:
@@ -74,7 +74,7 @@ class TargetBuilderResNet():
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
 
         Args:
@@ -86,7 +86,11 @@ class TargetBuilderResNet():
         Returns:
             (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
-
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+            return img_array
         # Check the class mapping.
         n_class = len(self.class_map)
 
@@ -94,7 +98,7 @@ class TargetBuilderResNet():
         label_list = []
         for img_path, an_data in zip(img_path_list, annotation_list):
             one_hot = np.zeros(n_class)
-            img, sw, sh = self.load_img(img_path)
+            img, sw, sh = self._load(img_path)
             img_list.append(img)
             one_hot[an_data] = 1.
             label_list.append(one_hot)
@@ -129,7 +133,6 @@ class ResNet18(Classification):
         Deep Residual Learning for Image Recognition
         https://arxiv.org/abs/1512.03385
     """
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet18.h5".format(
         __version__)
 
@@ -148,7 +151,12 @@ class ResNet18(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
+    
+    def save(self, filename):
+        self.model.save(filename)
 
+    def load(self, filename):
+        self.model.load(filename)
 
 class ResNet34(Classification):
     """ResNet34 model.
@@ -172,7 +180,6 @@ class ResNet34(Classification):
         Deep Residual Learning for Image Recognition
         https://arxiv.org/abs/1512.03385
     """
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet34.h5".format(
         __version__)
 
@@ -192,6 +199,11 @@ class ResNet34(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)
 
 class ResNet50(Classification):
     """ResNet50 model.
@@ -216,7 +228,6 @@ class ResNet50(Classification):
         https://arxiv.org/abs/1603.05027
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet50.h5".format(
         __version__)
 
@@ -234,6 +245,12 @@ class ResNet50(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
+    
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)
 
 class ResNet101(Classification):
     """ResNet101 model.
@@ -257,7 +274,6 @@ class ResNet101(Classification):
         Identity Mappings in Deep Residual Networks
         https://arxiv.org/abs/1603.05027
     """
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet101.h5".format(
         __version__)
 
@@ -277,6 +293,11 @@ class ResNet101(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)
 
 class ResNet152(Classification):
     """ResNet152 model.
@@ -300,7 +321,6 @@ class ResNet152(Classification):
         Identity Mappings in Deep Residual Networks
         https://arxiv.org/abs/1603.05027
     """
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet152.h5".format(
         __version__)
 
@@ -319,3 +339,8 @@ class ResNet152(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)

@@ -59,7 +59,7 @@ class Detection(Base):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
-        self.set_models(inference=True)
+        self.model.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 test_dist = ImageDistributor(img_list)
@@ -74,6 +74,7 @@ class Detection(Base):
                                                      score_threshold,
                                                      nms_threshold))
                     bar.update(1)
+                bar.close()
                 return results
         else:
             img_array = img_list

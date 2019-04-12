@@ -23,6 +23,8 @@ def layer_factory(channel=32, conv_layer_num=2):
 
 class CNN_VGG19(CnnBase):
 
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG19.h5".format(__version__)
+
     def __init__(self, num_class=1000):
         super(CNN_VGG19, self).__init__()
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
@@ -62,7 +64,12 @@ class CNN_VGG19(CnnBase):
         self.output_size = output_size
         self.fc3._output_size = output_size
 
+    def load_pretrained_weight(self, path):
+        self.load(path)
+
 class CNN_VGG16(CnnBase):
+
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG16.h5".format(__version__)
 
     def __init__(self, num_class=1000):
         super(CNN_VGG16, self).__init__()
@@ -103,7 +110,8 @@ class CNN_VGG16(CnnBase):
         self.output_size = output_size
         self.fc3._output_size = output_size
 
-
+    def load_pretrained_weight(self, path):
+        self.load(path)
 
 class CNN_VGG16_NODENSE(CnnBase):
 

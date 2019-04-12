@@ -92,7 +92,7 @@ class TargetBuilderTernausNet():
         assert img.ndim == 2
         return img, img.shape[0], img.shape[1]
 
-    def load_img(self, path):
+    def _load(self, path):
         img = Image.open(path)
         img.load()
         w, h = img.size
@@ -107,7 +107,7 @@ class TargetBuilderTernausNet():
         right, bottom = (image.width + size) // 2, (image.height + size) // 2
         return image.crop((left, upper, right, bottom))
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """
         Args:
             img_path_list(list): List of input image paths.
@@ -118,13 +118,20 @@ class TargetBuilderTernausNet():
             (tuple): Batch of images and ndarray whose shape is **(batch size, #classes, width, height)**
 
         """
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path,self.imsize)[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+
+            return img_array
+
         # Check the class mapping.
         n_class = len(self.class_map)
 
         img_list = []
         label_list = []
         for img_path, an_path in zip(img_path_list, annotation_list):
-            img, sw, sh = self.load_img(img_path)
+            img, sw, sh = self._load(img_path)
             labels, asw, ash = self.load_annotation(an_path)
             annot = np.zeros((n_class, asw, ash))
             img_list.append(img)
@@ -172,8 +179,7 @@ class TernausNet(SemanticSegmentation):
         |
 
     """
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/TernausNet.h5".format(
-        __version__)
+    WEIGHT_URL = CNN_TernausNet.WEIGHT_URL
 
     def __init__(self, class_map=None, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
@@ -195,3 +201,9 @@ class TernausNet(SemanticSegmentation):
 
     def build_data(self):
         return TargetBuilderTernausNet(self.class_map, self.imsize)
+
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)

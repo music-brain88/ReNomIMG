@@ -219,7 +219,7 @@ class TargetBuilderSSD():
 class SSD(Detection):
 
     WEIGHT_URL = CnnSSD.WEIGHT_URL
-    # WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/SSD.h5".format(__version__)
+
     SERIALIZED = ("overlap_threshold", *Base.SERIALIZED)
 
     def __init__(self, class_map=None, imsize=(300, 300),

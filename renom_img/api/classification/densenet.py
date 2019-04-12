@@ -1,7 +1,7 @@
 from __future__ import print_function, division
 import os
 import sys
-sys.setrecursionlimit(3000)
+sys.setrecursionlimit(5000)
 import numpy as np
 import renom as rm
 from tqdm import tqdm
@@ -38,7 +38,7 @@ class TargetBuilderDenseNet():
 
         return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(label_list)
 
-    def load_img(self, path):
+    def _load(self, path):
         """ Loads an image
 
         Args:
@@ -57,7 +57,7 @@ class TargetBuilderDenseNet():
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
 
         Args:
@@ -69,7 +69,12 @@ class TargetBuilderDenseNet():
         Returns:
             (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
-
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+            return img_array
+ 
         # Check the class mapping.
         n_class = len(self.class_map)
 
@@ -77,7 +82,7 @@ class TargetBuilderDenseNet():
         label_list = []
         for img_path, an_data in zip(img_path_list, annotation_list):
             one_hot = np.zeros(n_class)
-            img, sw, sh = self.load_img(img_path)
+            img, sw, sh = self._load(img_path)
             img_list.append(img)
             one_hot[an_data] = 1.
             label_list.append(one_hot)
@@ -112,13 +117,9 @@ class DenseNet121(Classification):
         https://arxiv.org/pdf/1608.06993.pdf
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = "".format(
-        __version__)
+
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
-            __version__, self.__class__.__name__)
 
         layer_per_block = [6, 12, 24, 16]
         growth_rate = 32
@@ -135,7 +136,11 @@ class DenseNet121(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
 
+    def load(self, filename):
+        self.model.load(filename)
 
 class DenseNet169(Classification):
     """ DenseNet169 Model
@@ -159,12 +164,9 @@ class DenseNet169(Classification):
         https://arxiv.org/pdf/1608.06993.pdf
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = ""
+
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
-            __version__, self.__class__.__name__)
 
         layer_per_block = [6, 12, 32, 32]
         growth_rate = 32
@@ -182,7 +184,11 @@ class DenseNet169(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
 
+    def load(self, filename):
+        self.model.load(filename)
 
 class DenseNet201(Classification):
     """ DenseNet201 Model
@@ -207,12 +213,7 @@ class DenseNet201(Classification):
         https://arxiv.org/pdf/1608.06993.pdf
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
-    WEIGHT_URL = ""
-
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-        assert not load_pretrained_weight, "In ReNomIMG version {}, pretained weight of {} is not prepared.".format(
-            __version__, self.__class__.__name__)
 
         layer_per_block = [6, 12, 48, 32]
         growth_rate = 32
@@ -230,3 +231,8 @@ class DenseNet201(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)

@@ -53,9 +53,6 @@ class Bottleneck(rm.Model):
 
 class CnnResNeXt(CnnBase):
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt.h5".format(
-        __version__)
-
     def __init__(self, num_classes, block, layers, cardinality):
         self.inplanes = 128
         self.cardinality = cardinality
@@ -122,6 +119,7 @@ class CnnResNeXt(CnnBase):
         self.layer3.set_auto_update(self.train_whole)
         self.layer4.set_auto_update(self.train_whole)
 
-
+    def load_pretrained_weight(self, path):
+        self.load(path)
 
 

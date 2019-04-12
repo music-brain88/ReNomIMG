@@ -152,6 +152,7 @@ class CnnResNet(CnnBase):
         self.layer3.set_auto_update(self.train_whole)
         self.layer4.set_auto_update(self.train_whole)
 
-
+    def load_pretrained_weight(self,path):
+        self.load(path)
 
 

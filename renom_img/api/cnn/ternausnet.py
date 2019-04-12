@@ -216,6 +216,9 @@ def layer_factory_deconv(channel_list=[512, 256]):
     return rm.Sequential(layers)
 
 class CNN_TernausNet(CnnBase):
+
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/TernausNet.h5".format(__version__)
+
     def __init__(self, num_class):
         super(CNN_TernausNet, self).__init__()
         self.block1 = layer_factory(channel_list=[64])
@@ -273,4 +276,7 @@ class CNN_TernausNet(CnnBase):
     def set_output_size(self, output_size):
         self.output_size = output_size
         self.final._channel = output_size
+
+    def load_pretrained_weight(self, path):
+        self.load(path)
 

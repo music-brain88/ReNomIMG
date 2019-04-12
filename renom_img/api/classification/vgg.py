@@ -54,7 +54,7 @@ class TargetBuilderVGG():
 
         return np.asarray(im_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(label_list)
 
-    def load_img(self, path):
+    def _load(self, path):
         """ Loads an image
 
         Args:
@@ -73,7 +73,7 @@ class TargetBuilderVGG():
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
 
         Args:
@@ -85,6 +85,12 @@ class TargetBuilderVGG():
         Returns:
             (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
+        if annotation_list is None:
+            img_array = np.vstack([load_img(path,self.imsize)[None]
+                                    for path in img_path_list])
+            img_array = self.preprocess(img_array)
+
+            return img_array
 
         # Check the class mapping.
         n_class = len(self.class_map)
@@ -93,7 +99,7 @@ class TargetBuilderVGG():
         label_list = []
         for img_path, an_data in zip(img_path_list, annotation_list):
             one_hot = np.zeros(n_class)
-            img, sw, sh = self.load_img(img_path)
+            img, sw, sh = self._load(img_path)
             img_list.append(img)
             one_hot[an_data] = 1.
             label_list.append(one_hot)
@@ -130,8 +136,6 @@ class VGG11(Classification):
 
     """
 
-    WEIGHT_URL = None
-
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
 
@@ -152,6 +156,11 @@ class VGG11(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
+    
+    def load(self, filename):
+        self.model.load(filename)
 
 @adddoc
 class VGG16(Classification):
@@ -179,9 +188,7 @@ class VGG16(Classification):
         |
 
     """
-
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG16.h5".format(
-        __version__)
+    WEIGHT_URL = CNN_VGG16.WEIGHT_URL
 
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
@@ -203,6 +210,11 @@ class VGG16(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model.load(filename)
 
 class VGG16_NODENSE(Classification):
 
@@ -226,7 +238,11 @@ class VGG16_NODENSE(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
-
+    def save(self, filename):
+        self.model.save(filename)
+    
+    def load(self, filename):
+        self.model.load(filename)
 
 @adddoc
 class VGG19(Classification):
@@ -254,9 +270,7 @@ class VGG19(Classification):
         |
 
     """
-
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG19.h5".format(
-        __version__)
+    WEIGHT_URL = CNN_VGG19.WEIGHT_URL
 
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
@@ -278,5 +292,9 @@ class VGG19(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
+    def save(self, filename):   
+        self.model.save(filename)
 
+    def load(self, filename):
+        self.model.load(filename)
 
