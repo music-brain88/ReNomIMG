@@ -95,7 +95,7 @@ class TargetBuilderDenseNet():
         return self.preprocess(np.array(img_list)), np.array(label_list)
 
 
-class DenseNet121(DenseNetBase):
+class DenseNet121(Classification):
 
     """ DenseNet121 Model
 
