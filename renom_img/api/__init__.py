@@ -266,4 +266,4 @@ class Base(rm.Model):
             "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
             "Or, please load a pre-trained model using the 'load()' method."
         self._freeze()
-        return self._model(x)
+        return self.model(x)
