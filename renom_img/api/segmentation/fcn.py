@@ -297,3 +297,4 @@ class FCN8s(SemanticSegmentation):
         self.model.load(filename)
 
 
+

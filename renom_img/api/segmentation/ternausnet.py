@@ -207,3 +207,4 @@ class TernausNet(SemanticSegmentation):
 
     def load(self, filename):
         self.model.load(filename)
+

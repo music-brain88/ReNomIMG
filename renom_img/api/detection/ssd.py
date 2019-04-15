@@ -282,6 +282,7 @@ class SSD(Detection):
         return boxes
 
 
+
     def loss(self, x, y, neg_pos_ratio=3.0):
         pos_samples = (y[:, :, 5] == 0)[..., None]
         N = np.sum(pos_samples)

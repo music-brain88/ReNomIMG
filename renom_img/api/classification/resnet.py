@@ -61,6 +61,7 @@ class TargetBuilderResNet():
         Args:
             path(str): A path of an image
 
+
         Returns:
             (tuple): Returns image(numpy.array), the ratio of the given width to the actual image width,
                      and the ratio of the given height to the actual image height

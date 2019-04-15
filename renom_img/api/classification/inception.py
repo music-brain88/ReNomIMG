@@ -95,8 +95,6 @@ class TargetBuilderInception():
         return self.preprocess(np.array(img_list)), np.array(label_list)
 
 
-
-
 class InceptionV1(Classification):
     """ Inception V1 model
 
@@ -156,6 +154,7 @@ class InceptionV1(Classification):
                 return results
         else:
             img_array = img_list
+
         return np.argmax(rm.softmax(self.model(img_array)[2]).as_ndarray(), axis=1)
 
 #    def predict(self, img_list):
@@ -180,6 +179,7 @@ class InceptionV1(Classification):
 
     def load(self, filename):
         self.model.load(filename)
+
 
 class InceptionV3(Classification):
     """ Inception V3 model
@@ -235,6 +235,7 @@ class InceptionV3(Classification):
                 return results
         else:
             img_array = img_list
+
         return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
 
 #    def predict(self, img_list):
@@ -297,6 +298,7 @@ class InceptionV2(Classification):
     def loss(self, x, y):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
 
+
     def predict(self, img_list, batch_size=1):
         self.model.set_models(inference=True)
         if isinstance(img_list, (list, str)):
@@ -313,6 +315,7 @@ class InceptionV2(Classification):
                 return results     
         else:
             img_array = img_list
+
         return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
 
 #    def predict(self, img_list):

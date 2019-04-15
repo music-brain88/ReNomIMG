@@ -95,7 +95,8 @@ class TargetBuilderDenseNet():
         return self.preprocess(np.array(img_list)), np.array(label_list)
 
 
-class DenseNet121(Classification):
+class DenseNet121(DenseNetBase):
+
     """ DenseNet121 Model
 
     If the argument load_weight is True, pretrained weight will be downloaded.

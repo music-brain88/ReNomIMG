@@ -53,7 +53,7 @@ The ``datasrc`` directory has following folder structure.
       └── prediction_set
             ├── img     # Set prediction img files here.
             └── output  # Prediction result will be output here.
-            	  ├── classofication # Set classofication training label files here.
+            	  ├── classification # Set classification training label files here.
             	  ├── detection      # Set detection training label files here.
             	  │     ├── csv
                   │     └── xml

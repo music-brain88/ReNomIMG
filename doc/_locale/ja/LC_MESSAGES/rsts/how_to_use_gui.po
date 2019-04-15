@@ -411,7 +411,7 @@ msgstr ""
 msgid ""
 "After the prediction you will see the result on the screen like following"
 " picture."
-msgstr "予測が狩猟しますと, 以下のように結果が画面上に表示されます."
+msgstr "予測が終了しますと, 以下のように結果が画面上に表示されます."
 
 #: ../../rsts/how_to_use_gui.rst:383
 msgid ""

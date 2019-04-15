@@ -179,5 +179,7 @@ class UNet(SemanticSegmentation):
     def save(self, filename):
         self.model.save(filename)
 
+
     def load(self, filename):
         self.model.load(filename)
+

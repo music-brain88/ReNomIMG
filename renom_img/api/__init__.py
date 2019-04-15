@@ -109,12 +109,6 @@ class Base(rm.Model):
         """
         return x
 
-    def forward(self, x):
-        assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
-            "Or, please load already trained model using the method 'load()'."
-        return self.model(x)
-
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
             epoch=136, batch_size=64, optimizer=None, augmentation=None, callback_end_epoch=None):
@@ -256,3 +250,20 @@ class Base(rm.Model):
 
         """
         pass
+
+    def _freeze(self):
+        pass
+
+    def forward(self, x):
+        """
+        Performs forward propagation.
+        You can call this function using ``__call__`` method.
+
+        Args:
+            x(ndarray, Node): Input to ${class}.
+        """
+        assert len(self.class_map) > 0, \
+            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
+            "Or, please load a pre-trained model using the 'load()' method."
+        self._freeze()
+        return self._model(x)

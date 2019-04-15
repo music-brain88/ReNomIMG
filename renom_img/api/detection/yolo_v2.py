@@ -220,6 +220,7 @@ class Yolov2(Detection):
             "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
               exp),imsize=(320, 320)."
 
+
         self.model = CnnYolov2()
         super(Yolov2, self).__init__(class_map, imsize,
                                      load_pretrained_weight, train_whole_network, self.model)

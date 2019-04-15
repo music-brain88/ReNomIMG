@@ -298,3 +298,4 @@ class VGG19(Classification):
     def load(self, filename):
         self.model.load(filename)
 
+
