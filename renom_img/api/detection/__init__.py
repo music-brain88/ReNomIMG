@@ -59,7 +59,7 @@ class Detection(Base):
             Therefore the range of 'box' is [0 ~ 1].
 
         """
-        self.model.set_models(inference=True)
+        self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 test_dist = ImageDistributor(img_list)
@@ -68,17 +68,19 @@ class Detection(Base):
                 bar.total = int(np.ceil(len(test_dist) / batch_size))
                 for i, (img_array) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
                     if len(img_list) < batch_size:
-                        return self.get_bbox(self.model(img_array).as_ndarray(),
+                        return self.get_bbox(self(img_array).as_ndarray(),
                                                 score_threshold, nms_threshold) 
-                    results.extend(self.get_bbox(self.model(img_array).as_ndarray(),
+                    results.extend(self.get_bbox(self(img_array).as_ndarray(),
                                                      score_threshold,
                                                      nms_threshold))
                     bar.update(1)
                 bar.close()
                 return results
+            else:#to:do if user provides only one string path.
+                assert False, "ReNomIMG does not support string path for now, please provide list of path."
         else:
             img_array = img_list
-        return self.get_bbox(self.model(img_array).as_ndarray(),
+        return self.get_bbox(self(img_array).as_ndarray(),
                              score_threshold,
                              nms_threshold)
 

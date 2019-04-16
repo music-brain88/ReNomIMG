@@ -52,7 +52,7 @@ class SemanticSegmentation(Base):
             If multiple images or paths are given, then a list in which there are arrays whose shape is **(width, height)** is returned.
         """
 
-        self.model.set_models(inference=True)
+        self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 test_dist = ImageDistributor(img_list)
@@ -61,14 +61,16 @@ class SemanticSegmentation(Base):
                 bar.total = int(np.ceil(len(test_dist) / batch_size))
                 for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
                     if len(img_list) < batch_size:
-                        return np.argmax(rm.softmax(self.model(x_img_list)).as_ndarray(), axis=1)[0]
-                    results.extend(np.argmax(rm.softmax(self.model(x_img_list)).as_ndarray(), axis=1))
+                        return np.argmax(rm.softmax(self(x_img_list)).as_ndarray(), axis=1)
+                    results.extend(np.argmax(rm.softmax(self(x_img_list)).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
+            else:# to:do if user provides only one string path.
+                assert False, "ReNomIMG does not support string path for now, please provide list of path."
         else:
             img_array = img_list
-        return np.argmax(rm.softmax(self.model(img_array)).as_ndarray(), axis=1)
+        return np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1)
 
     def fit(self, train_img_path_list=None, train_annotation_list=None,
             valid_img_path_list=None, valid_annotation_list=None,
@@ -111,7 +113,7 @@ class SemanticSegmentation(Base):
                     loss = loss.as_ndarray()[0]
                 except:
                     loss = loss.as_ndarray()
-                reg_loss.grad().update(opt.opt)
+                reg_loss.grad().update(opt)
 
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))

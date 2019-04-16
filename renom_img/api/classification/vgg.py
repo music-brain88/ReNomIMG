@@ -156,12 +156,6 @@ class VGG11(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-    
-    def load(self, filename):
-        self.model.load(filename)
-
 @adddoc
 class VGG16(Classification):
     """VGG16 model.
@@ -210,12 +204,6 @@ class VGG16(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
 class VGG16_NODENSE(Classification):
 
     def __init__(self, class_map=None, imsize=(224, 224),
@@ -237,12 +225,6 @@ class VGG16_NODENSE(Classification):
 
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
-
-    def save(self, filename):
-        self.model.save(filename)
-    
-    def load(self, filename):
-        self.model.load(filename)
 
 @adddoc
 class VGG19(Classification):
@@ -291,11 +273,5 @@ class VGG19(Classification):
 
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
-
-    def save(self, filename):   
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
 
 

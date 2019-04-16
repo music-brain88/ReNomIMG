@@ -139,7 +139,7 @@ class InceptionV1(Classification):
         return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3 * rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
 
     def predict(self, img_list, batch_size=1):
-        self.model.set_models(inference=True)
+        self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 test_dist = ImageDistributor(img_list)
@@ -147,15 +147,17 @@ class InceptionV1(Classification):
                 bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
                 for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
                     if len(img_list) < batch_size:
-                        return np.argmax(rm.softmax(self.model(x_img_list)[2]).as_ndarray(), axis=1)[0]
-                    results.extend(np.argmax(rm.softmax(self.model(x_img_list)[2]).as_ndarray(), axis=1))
+                        return np.argmax(rm.softmax(self(x_img_list)[2]).as_ndarray(), axis=1)
+                    results.extend(np.argmax(rm.softmax(self(x_img_list)[2]).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
+            else:#to:do if user provides only one string path.
+                assert False, "ReNomIMG does not support string path for now, please provide list of path."
         else:
             img_array = img_list
 
-        return np.argmax(rm.softmax(self.model(img_array)[2]).as_ndarray(), axis=1)
+        return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)
 
 #    def predict(self, img_list):
 #        self.set_models(inference=True)
@@ -173,12 +175,6 @@ class InceptionV1(Classification):
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
-
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
 
 
 class InceptionV3(Classification):
@@ -220,7 +216,7 @@ class InceptionV3(Classification):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
 
     def predict(self, img_list, batch_size=1):
-        self.model.set_models(inference=True)
+        self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 test_dist = ImageDistributor(img_list)
@@ -228,15 +224,17 @@ class InceptionV3(Classification):
                 bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
                 for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
                     if len(img_list) < batch_size:
-                        return np.argmax(rm.softmax(self.model(x_img_list)[1]).as_ndarray(), axis=1)[0]
-                    results.extend(np.argmax(rm.softmax(self.model(x_img_list)[1]).as_ndarray(), axis=1))
+                        return np.argmax(rm.softmax(self(x_img_list)[1]).as_ndarray(), axis=1)
+                    results.extend(np.argmax(rm.softmax(self(x_img_list)[1]).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
+            else:#to:do if user provides only one string path.
+                assert False, "ReNomIMG does not support string path for now, please provide list of path."
         else:
             img_array = img_list
 
-        return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
+        return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
 
 #    def predict(self, img_list):
 #        self.set_models(inference=True)
@@ -254,12 +252,6 @@ class InceptionV3(Classification):
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
-
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
 
 class InceptionV2(Classification):
     """ Inception V2 model
@@ -300,7 +292,7 @@ class InceptionV2(Classification):
 
 
     def predict(self, img_list, batch_size=1):
-        self.model.set_models(inference=True)
+        self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 test_dist = ImageDistributor(img_list)
@@ -308,15 +300,17 @@ class InceptionV2(Classification):
                 bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
                 for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
                     if len(img_list) < batch_size:
-                        return np.argmax(rm.softmax(self.model(x_img_list)[1]).as_ndarray(), axis=1)[0]
-                    results.extend(np.argmax(rm.softmax(self.model(x_img_list)[1]).as_ndarray(), axis=1))
+                        return np.argmax(rm.softmax(self(x_img_list)[1]).as_ndarray(), axis=1)
+                    results.extend(np.argmax(rm.softmax(self(x_img_list)[1]).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results     
+            else:#to:do if user provides only one string path.
+                assert False, "ReNomIMG does not support string path for now, please provide list of path." 
         else:
             img_array = img_list
 
-        return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
+        return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
 
 #    def predict(self, img_list):
 #        self.set_models(inference=True)
@@ -334,12 +328,6 @@ class InceptionV2(Classification):
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
-
-    def save(self, filename):
-        self.model.save(filename)
-    
-    def load(self, filename):
-        self.model.load(filename)
 
 class InceptionV4(Classification):
     """ Inception V4 model
@@ -378,8 +366,4 @@ class InceptionV4(Classification):
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
 
-    def load(self, filename):
-        self.model.load(filename)

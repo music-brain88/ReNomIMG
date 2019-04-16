@@ -153,12 +153,6 @@ class ResNet18(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
     
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
 class ResNet34(Classification):
     """ResNet34 model.
 
@@ -199,12 +193,6 @@ class ResNet34(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
-
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
 
 class ResNet50(Classification):
     """ResNet50 model.
@@ -247,12 +235,6 @@ class ResNet50(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
     
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
 class ResNet101(Classification):
     """ResNet101 model.
 
@@ -294,12 +276,6 @@ class ResNet101(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
 class ResNet152(Classification):
     """ResNet152 model.
 
@@ -340,8 +316,4 @@ class ResNet152(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
 
-    def load(self, filename):
-        self.model.load(filename)

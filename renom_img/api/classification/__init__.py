@@ -26,7 +26,7 @@ class Classification(Base):
             (list): List of class of each image.
 
         """
-        self.model.set_models(inference=True)
+        self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
             if isinstance(img_list, (tuple, list)):
                 test_dist = ImageDistributor(img_list)
@@ -34,15 +34,16 @@ class Classification(Base):
                 bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
                 for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
                     if len(img_list) < batch_size:
-                        return np.argmax(rm.softmax(self.model(x_img_list)).as_ndarray(), axis=1)[0]
-                    results.extend(np.argmax(rm.softmax(self.model(x_img_list)).as_ndarray(), axis=1))
+                        return np.argmax(rm.softmax(self(x_img_list)).as_ndarray(), axis=1)
+                    results.extend(np.argmax(rm.softmax(self(x_img_list)).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
-     
+            else:#to:do if user provides only one string path.
+                assert False, "ReNomIMG does not support string path for now, please provide list of path."
         else:
             img_array = img_list
-        return np.argmax(rm.softmax(self.model(img_array)).as_ndarray(), axis=1)
+        return np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1)
 
     def loss(self, x, y):
         """

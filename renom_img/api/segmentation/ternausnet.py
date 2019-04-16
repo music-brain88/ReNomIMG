@@ -202,9 +202,3 @@ class TernausNet(SemanticSegmentation):
     def build_data(self):
         return TargetBuilderTernausNet(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-

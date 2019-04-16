@@ -153,12 +153,6 @@ class ResNeXt50(Classification):
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
 class ResNeXt101(Classification):
     """ResNeXt101 model.
 
@@ -204,9 +198,4 @@ class ResNeXt101(Classification):
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
 

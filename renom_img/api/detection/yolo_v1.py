@@ -179,7 +179,7 @@ class Yolov1(Detection):
         """
 
         reg = 0
-        for layer in self.model.iter_models():
+        for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return (0.0005 / 2) * reg
@@ -289,7 +289,7 @@ class Yolov1(Detection):
             # Note: Take care types.
             result[indexes[0][i]].append({
                 "class": int(max_class[indexes[0][i], indexes[1][i]]),
-                "name": self.class_map[int(max_class[indexes[0][i], indexes[1][i]])],
+                "name": self.class_map[int(max_class[indexes[0][i], indexes[1][i]])].decode('ascii'),
                 "box": boxes[indexes[0][i], indexes[1][i]].astype(np.float64).tolist(),
                 "score": float(max_probs[indexes[0][i], indexes[1][i]])
             })
@@ -317,12 +317,6 @@ class Yolov1(Detection):
         # There are some cases that we want to change builder parameter in each epoch (ex Yolov2.
         # For this reason, there is a chance to modify builder in this function.
         return TargetBuilderYolov1(self.class_map, self._cells, self._bbox, self.imsize)
-
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self,filename):
-        self.model.load(filename)
 
     def loss(self, x, y):
         """Loss function specified for yolov1.

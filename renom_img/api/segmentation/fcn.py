@@ -189,12 +189,6 @@ class FCN32s(SemanticSegmentation):
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
 
 class FCN16s(SemanticSegmentation):
     """ Fully convolutional network (16s) for semantic segmentation
@@ -240,13 +234,6 @@ class FCN16s(SemanticSegmentation):
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
-
 class FCN8s(SemanticSegmentation):
     """ Fully convolutional network (8s) for semantic segmentation
 
@@ -289,12 +276,4 @@ class FCN8s(SemanticSegmentation):
 
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
-
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
-
 

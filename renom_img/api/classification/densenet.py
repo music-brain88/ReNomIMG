@@ -137,12 +137,6 @@ class DenseNet121(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
 class DenseNet169(Classification):
     """ DenseNet169 Model
 
@@ -185,12 +179,6 @@ class DenseNet169(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
-
 class DenseNet201(Classification):
     """ DenseNet201 Model
 
@@ -232,8 +220,3 @@ class DenseNet201(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)

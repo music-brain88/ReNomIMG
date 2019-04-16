@@ -39,7 +39,7 @@ class Base(rm.Model):
     """Base class of all ReNomIMG algorithm api.
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
+    SERIALIZED = ("imsize", "num_class", "class_map")
     WEIGHT_URL = None
 
     def __init__(self, class_map=None, imsize=(224, 224),
@@ -95,7 +95,7 @@ class Base(rm.Model):
             >>> reg_loss = loss + model.regularize() # Add weight decay term.
         """
         reg = 0
-        for layer in self.model.iter_models():
+        for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
       
@@ -189,7 +189,7 @@ class Base(rm.Model):
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
-                reg_loss.grad().update(opt.opt)
+                reg_loss.grad().update(opt)
                 try:
                     loss = loss.as_ndarray()[0]
                 except:
