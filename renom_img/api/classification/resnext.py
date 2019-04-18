@@ -5,6 +5,7 @@ import numpy as np
 from tqdm import tqdm
 
 from renom_img import __version__
+from renom_img.api import Base, adddoc
 from renom_img.api.utility.misc.download import download
 from renom_img.api.classification import Classification
 from renom_img.api.utility.load import prepare_detection_data, load_img
@@ -53,10 +54,13 @@ class Bottleneck(rm.Model):
         return out
 
 
+@adddoc
 class ResNeXtBase(Classification):
 
-    def get_optimizer(self, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, **kwargs):
-        """Returns an optimizer instance for training ResNeXt algorithm.
+    SERIALIZED = Base.SERIALIZED
+
+    def get_optimizer(self, current_loss=None, current_epoch=None, total_epoch=None, current_batch=None, total_batch=None, avg_valid_loss_list=None):
+        """Returns an optimizer instance for training ResNeXt.
 
         Args:
             current_epoch:
@@ -67,7 +71,7 @@ class ResNeXtBase(Classification):
         if any([num is None for num in [current_epoch, total_epoch, current_batch, total_batch]]):
             return self._opt
         elif self.plateau:
-            avg_valid_loss_list = kwargs['avg_valid_loss_list']
+            avg_valid_loss_list = avg_valid_loss_list
             if len(avg_valid_loss_list) >= 2 and current_batch == 0:
                 if avg_valid_loss_list[-1] > min(avg_valid_loss_list):
                     self._counter += 1
@@ -99,18 +103,18 @@ class ResNeXtBase(Classification):
         return x
 
     def _freeze(self):
-        self._model.conv1.set_auto_update(self._train_whole_network)
-        self._model.bn1.set_auto_update(self._train_whole_network)
-        self._model.layer1.set_auto_update(self._train_whole_network)
-        self._model.layer2.set_auto_update(self._train_whole_network)
-        self._model.layer3.set_auto_update(self._train_whole_network)
-        self._model.layer4.set_auto_update(self._train_whole_network)
+        self._model.conv1.set_auto_update(self.train_whole_network)
+        self._model.bn1.set_auto_update(self.train_whole_network)
+        self._model.layer1.set_auto_update(self.train_whole_network)
+        self._model.layer2.set_auto_update(self.train_whole_network)
+        self._model.layer3.set_auto_update(self.train_whole_network)
+        self._model.layer4.set_auto_update(self.train_whole_network)
+
+    def set_last_layer_unit(self, unit_size):
+        self._model.set_last_layer_unit(unit_size)
 
 
 class ResNeXt(rm.Model):
-
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt.h5".format(
-        __version__)
 
     def __init__(self, num_classes, block, layers, cardinality):
         self.inplanes = 128
@@ -168,7 +172,11 @@ class ResNeXt(rm.Model):
 
         return x
 
+    def set_last_layer_unit(self, unit_size):
+        self.fc._output_size = unit_size
 
+
+@adddoc
 class ResNeXt50(ResNeXtBase):
     """ResNeXt50 model.
 
@@ -193,23 +201,17 @@ class ResNeXt50(ResNeXtBase):
         https://arxiv.org/abs/1611.05431
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt50.h5".format(
         __version__)
 
-    def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
-        self.cardinality = cardinality
+        self._model = ResNeXt(1, Bottleneck, [3, 4, 6, 3], cardinality)
+        super(ResNeXt50, self).__init__(class_map, imsize,
+                                        load_pretrained_weight, train_whole_network, self._model)
 
-        self._model = ResNeXt(self.num_class, Bottleneck, [3, 4, 6, 3], self.cardinality)
         self._opt = rm.Sgd(0.1, 0.9)
+        self.decay_rate = 0.0001
 
         # for error plateau
         self.plateau = plateau
@@ -218,17 +220,10 @@ class ResNeXt50(ResNeXtBase):
         self._min_lr = 1e-6
         self._factor = np.sqrt(0.1)
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
+        self._model.fc.params = {}
 
 
+@adddoc
 class ResNeXt101(ResNeXtBase):
     """ResNeXt101 model.
 
@@ -253,23 +248,17 @@ class ResNeXt101(ResNeXtBase):
         https://arxiv.org/abs/1611.05431
     """
 
-    SERIALIZED = ("imsize", "class_map", "num_class")
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt101.h5".format(
         __version__)
 
-    def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
-        if not hasattr(imsize, "__getitem__"):
-            imsize = (imsize, imsize)
-        self.num_class = len(class_map)
-        self.class_map = [c.encode("ascii", "ignore") for c in class_map]
-        self.imsize = imsize
-        self._train_whole_network = train_whole_network
-        self.decay_rate = 0.0001
-        self.cardinality = cardinality
+        self._model = ResNeXt(1, Bottleneck, [3, 4, 23, 3], cardinality)
+        super(ResNeXt101, self).__init__(class_map, imsize,
+                                         load_pretrained_weight, train_whole_network, self._model)
 
-        self._model = ResNeXt(self.num_class, Bottleneck, [3, 4, 23, 3], self.cardinality)
         self._opt = rm.Sgd(0.1, 0.9)
+        self.decay_rate = 0.0001
 
         # for error plateau
         self.plateau = plateau
@@ -278,12 +267,4 @@ class ResNeXt101(ResNeXtBase):
         self._min_lr = 1e-6
         self._factor = np.sqrt(0.1)
 
-        if load_pretrained_weight:
-            if isinstance(load_pretrained_weight, bool):
-                load_pretrained_weight = self.__class__.__name__ + '.h5'
-
-            if not os.path.exists(load_pretrained_weight):
-                download(self.WEIGHT_URL, load_pretrained_weight)
-
-            self._model.load(load_pretrained_weight)
-            self._model.fc.params = {}
+        self._model.fc.params = {}
