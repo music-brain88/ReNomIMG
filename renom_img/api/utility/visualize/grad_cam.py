@@ -29,7 +29,7 @@ class Guided_Grad_Cam():
             'Model must contain at least one Relu'
 
     def get_zoom_factor(self, size, L):
-        return int(size[0]/L.shape[0])
+        return int(size[0] / L.shape[0])
 
     # 1a. Forward pass (Grad-CAM)
 
@@ -91,19 +91,19 @@ class Guided_Grad_Cam():
             dAk = np.squeeze(grad.get(final_conv))
         if mode == 'plus':
             alpha_new = (dAk * dAk)
-            term_1 = 2*dAk*dAk
+            term_1 = 2 * dAk * dAk
             term_2 = rm.sum(rm.sum(A, axis=2), axis=1)
             if is_cuda_active():
                 term_2 = term_2.as_ndarray()
             term_2 = term_2[:, np.newaxis, np.newaxis]
-            term_2 = term_2*dAk*dAk*dAk
+            term_2 = term_2 * dAk * dAk * dAk
             alpha_new = alpha_new / (term_1 + term_2 + 1e-8)
-            w = rm.sum(rm.sum(alpha_new*rm.relu(dAk), axis=2), axis=1)
+            w = rm.sum(rm.sum(alpha_new * rm.relu(dAk), axis=2), axis=1)
             if is_cuda_active():
                 w = w.as_ndarray()
             w = w[:, np.newaxis, np.newaxis]
         else:
-            w = rm.sum(rm.sum(dAk, axis=2), axis=1) / (dAk.shape[1]*dAk.shape[2])
+            w = rm.sum(rm.sum(dAk, axis=2), axis=1) / (dAk.shape[1] * dAk.shape[2])
             if is_cuda_active():
                 w = w.as_ndarray()
             w = w[:, np.newaxis, np.newaxis]

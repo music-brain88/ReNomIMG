@@ -1080,19 +1080,19 @@ class ColorJitter(ProcessBase):
         self.v = v
 
         if isinstance(self.h, tuple) or isinstance(self.h, list):
-            assert np.min(self.h)>=0, "ColorJitter augmentation only accepts h values in [0,1]"
+            assert np.min(self.h) >= 0, "ColorJitter augmentation only accepts h values in [0,1]"
         else:
-            assert 0<=self.h<=1, "ColorJitter augmentation only accepts h values in [0,1]"
+            assert 0 <= self.h <= 1, "ColorJitter augmentation only accepts h values in [0,1]"
 
         if isinstance(self.s, tuple) or isinstance(self.s, list):
-            assert np.min(self.s)>=0, "ColorJitter augmentation only accepts s values in [0,1]"
+            assert np.min(self.s) >= 0, "ColorJitter augmentation only accepts s values in [0,1]"
         else:
-            assert 0<=self.s<=1, "ColorJitter augmentation only accepts s values in [0,1]"
+            assert 0 <= self.s <= 1, "ColorJitter augmentation only accepts s values in [0,1]"
 
         if isinstance(self.v, tuple) or isinstance(self.v, list):
-            assert np.min(self.v)>=0, "ColorJitter augmentation only accepts h values in [0,1]"
+            assert np.min(self.v) >= 0, "ColorJitter augmentation only accepts h values in [0,1]"
         else:
-            assert 0<=self.v<=1, "ColorJitter augmentation only accepts v values in [0,1]"
+            assert 0 <= self.v <= 1, "ColorJitter augmentation only accepts v values in [0,1]"
 
     def _transform_classification(self, x, y):
         """
@@ -1105,27 +1105,27 @@ class ColorJitter(ProcessBase):
             if isinstance(self.h, tuple) or isinstance(self.h, list):
                 scale_h = np.random.uniform(self.h[0], self.h[1])
             else:
-                scale_h = np.random.uniform(1.0-self.h, 1.0+self.h)
+                scale_h = np.random.uniform(1.0 - self.h, 1.0 + self.h)
 
             if isinstance(self.s, tuple) or isinstance(self.s, list):
                 scale_s = np.random.uniform(self.s[0], self.s[1])
             else:
-                scale_s = np.random.uniform(1.0-self.s, 1.0+self.s)
+                scale_s = np.random.uniform(1.0 - self.s, 1.0 + self.s)
 
             if isinstance(self.s, tuple) or isinstance(self.s, list):
                 scale_v = np.random.uniform(self.v[0], self.v[1])
             else:
-                scale_v = np.random.uniform(1.0-self.v, 1.0+self.v)
+                scale_v = np.random.uniform(1.0 - self.v, 1.0 + self.v)
 
             img = x[i]
             assert img.shape[0] == 3, "ColorJitter augmentation can only be used with RGB data"
-            img = img.transpose(1,2,0)
+            img = img.transpose(1, 2, 0)
             img_hsv = cl.rgb_to_hsv(img)
-            img_hsv[:,:,0] = np.clip(img_hsv[:,:,0] * scale_h, 0, 1)
-            img_hsv[:,:,1] = np.clip(img_hsv[:,:,1] * scale_s, 0, 1)
-            img_hsv[:,:,2] = np.clip(img_hsv[:,:,2] * scale_v, 0, 255)
+            img_hsv[:, :, 0] = np.clip(img_hsv[:, :, 0] * scale_h, 0, 1)
+            img_hsv[:, :, 1] = np.clip(img_hsv[:, :, 1] * scale_s, 0, 1)
+            img_hsv[:, :, 2] = np.clip(img_hsv[:, :, 2] * scale_v, 0, 255)
             img = cl.hsv_to_rgb(img_hsv)
-            new_x.append(img.transpose(2,0,1))
+            new_x.append(img.transpose(2, 0, 1))
         return new_x, y
 
     def _transform_detection(self, x, y):
@@ -1139,27 +1139,27 @@ class ColorJitter(ProcessBase):
             if isinstance(self.h, tuple) or isinstance(self.h, list):
                 scale_h = np.random.uniform(self.h[0], self.h[1])
             else:
-                scale_h = np.random.uniform(1.0-self.h, 1.0+self.h)
+                scale_h = np.random.uniform(1.0 - self.h, 1.0 + self.h)
 
             if isinstance(self.s, tuple) or isinstance(self.s, list):
                 scale_s = np.random.uniform(self.s[0], self.s[1])
             else:
-                scale_s = np.random.uniform(1.0-self.s, 1.0+self.s)
+                scale_s = np.random.uniform(1.0 - self.s, 1.0 + self.s)
 
             if isinstance(self.s, tuple) or isinstance(self.s, list):
                 scale_v = np.random.uniform(self.v[0], self.v[1])
             else:
-                scale_v = np.random.uniform(1.0-self.v, 1.0+self.v)
+                scale_v = np.random.uniform(1.0 - self.v, 1.0 + self.v)
 
             img = x[i]
             assert img.shape[0] == 3, "ColorJitter augmentation can only be used with RGB data"
-            img = img.transpose(1,2,0)
+            img = img.transpose(1, 2, 0)
             img_hsv = cl.rgb_to_hsv(img)
-            img_hsv[:,:,0] = np.clip(img_hsv[:,:,0] * scale_h, 0, 1)
-            img_hsv[:,:,1] = np.clip(img_hsv[:,:,1] * scale_s, 0, 1)
-            img_hsv[:,:,2] = np.clip(img_hsv[:,:,2] * scale_v, 0, 255)
+            img_hsv[:, :, 0] = np.clip(img_hsv[:, :, 0] * scale_h, 0, 1)
+            img_hsv[:, :, 1] = np.clip(img_hsv[:, :, 1] * scale_s, 0, 1)
+            img_hsv[:, :, 2] = np.clip(img_hsv[:, :, 2] * scale_v, 0, 255)
             img = cl.hsv_to_rgb(img_hsv)
-            new_x.append(img.transpose(2,0,1))
+            new_x.append(img.transpose(2, 0, 1))
         return new_x, y
 
     def _transform_segmentation(self, x, y):
@@ -1173,27 +1173,27 @@ class ColorJitter(ProcessBase):
             if isinstance(self.h, tuple) or isinstance(self.h, list):
                 scale_h = np.random.uniform(self.h[0], self.h[1])
             else:
-                scale_h = np.random.uniform(1.0-self.h, 1.0+self.h)
+                scale_h = np.random.uniform(1.0 - self.h, 1.0 + self.h)
 
             if isinstance(self.s, tuple) or isinstance(self.s, list):
                 scale_s = np.random.uniform(self.s[0], self.s[1])
             else:
-                scale_s = np.random.uniform(1.0-self.s, 1.0+self.s)
+                scale_s = np.random.uniform(1.0 - self.s, 1.0 + self.s)
 
             if isinstance(self.s, tuple) or isinstance(self.s, list):
                 scale_v = np.random.uniform(self.v[0], self.v[1])
             else:
-                scale_v = np.random.uniform(1.0-self.v, 1.0+self.v)
+                scale_v = np.random.uniform(1.0 - self.v, 1.0 + self.v)
 
             img = x[i]
             assert img.shape[0] == 3, "ColorJitter augmentation can only be used with RGB data"
-            img = img.transpose(1,2,0)
+            img = img.transpose(1, 2, 0)
             img_hsv = cl.rgb_to_hsv(img)
-            img_hsv[:,:,0] = np.clip(img_hsv[:,:,0] * scale_h, 0, 1)
-            img_hsv[:,:,1] = np.clip(img_hsv[:,:,1] * scale_s, 0, 1)
-            img_hsv[:,:,2] = np.clip(img_hsv[:,:,2] * scale_v, 0, 255)
+            img_hsv[:, :, 0] = np.clip(img_hsv[:, :, 0] * scale_h, 0, 1)
+            img_hsv[:, :, 1] = np.clip(img_hsv[:, :, 1] * scale_s, 0, 1)
+            img_hsv[:, :, 2] = np.clip(img_hsv[:, :, 2] * scale_v, 0, 255)
             img = cl.hsv_to_rgb(img_hsv)
-            new_x.append(img.transpose(2,0,1))
+            new_x.append(img.transpose(2, 0, 1))
         return new_x, y
 
 
@@ -1232,7 +1232,7 @@ def color_jitter(x, y=None, h=0.1, s=0.1, v=0.1, mode='classification'):
         >>> x = np.array([img])
         >>> new_x, new_y = color_jitter(x, h=0.1, s=0.1, v=0.2)
     """
-    return ColorJitter(h,s,v)(x, y, mode=mode)
+    return ColorJitter(h, s, v)(x, y, mode=mode)
 
 
 class ContrastNorm(ProcessBase):

@@ -22,37 +22,37 @@ from renom_img.api.utility.box import rescale
 def create_points(size, pairs=2):
     p = []
     for n in range(pairs):
-        i = np.minimum(1,n)
-        a = np.random.randint(size[i]//2)
-        b = np.random.randint(a,size[i])
-        p.extend([a,b])
+        i = np.minimum(1, n)
+        a = np.random.randint(size[i] // 2)
+        b = np.random.randint(a, size[i])
+        p.extend([a, b])
     return p
 
 
 def create_seg_data(size, img_name, lbl_name):
     im = Image.new('RGB', size)
 
-    p_x0,p_x1,p_y0,p_y1,p_z0,p_z1 = create_points(size, pairs=3)
-    e_x0,e_x1,e_y0,e_y1 = create_points(size,pairs=2)
-    r_x0,r_x1,r_y0,r_y1 = create_points(size,pairs=2)
+    p_x0, p_x1, p_y0, p_y1, p_z0, p_z1 = create_points(size, pairs=3)
+    e_x0, e_x1, e_y0, e_y1 = create_points(size, pairs=2)
+    r_x0, r_x1, r_y0, r_y1 = create_points(size, pairs=2)
 
-    fill_p = tuple(np.random.randint(1,255,3))
-    fill_e = tuple(np.random.randint(1,255,3))
-    fill_r = tuple(np.random.randint(1,255,3))
+    fill_p = tuple(np.random.randint(1, 255, 3))
+    fill_e = tuple(np.random.randint(1, 255, 3))
+    fill_r = tuple(np.random.randint(1, 255, 3))
 
     draw = ImageDraw.Draw(im)
-    draw.polygon([(p_x0, p_y0), (p_x1, p_y1), (p_z0,p_z1)], fill=fill_p)
-    draw.rectangle([(r_x0,r_y0),(r_x1,r_y1)], fill=fill_r)
-    draw.ellipse([(e_x0,e_y0),(e_x1,e_y1)], fill=fill_e)
+    draw.polygon([(p_x0, p_y0), (p_x1, p_y1), (p_z0, p_z1)], fill=fill_p)
+    draw.rectangle([(r_x0, r_y0), (r_x1, r_y1)], fill=fill_r)
+    draw.ellipse([(e_x0, e_y0), (e_x1, e_y1)], fill=fill_e)
 
     im.save(img_name)
 
     lab = Image.new('L', size)
 
     draw = ImageDraw.Draw(lab)
-    draw.polygon([(p_x0, p_y0), (p_x1, p_y1), (p_z0,p_z1)], fill=3)
-    draw.rectangle([(r_x0,r_y0),(r_x1,r_y1)], fill=2)
-    draw.ellipse([(e_x0,e_y0),(e_x1,e_y1)], fill=1)
+    draw.polygon([(p_x0, p_y0), (p_x1, p_y1), (p_z0, p_z1)], fill=3)
+    draw.rectangle([(r_x0, r_y0), (r_x1, r_y1)], fill=2)
+    draw.ellipse([(e_x0, e_y0), (e_x1, e_y1)], fill=1)
 
     lab.save(lbl_name)
 
@@ -125,7 +125,7 @@ def scope_session():
     [random_lighting, {}],
     [random_expand, {}],
     [color_jitter, {}],
-    [color_jitter, {"h":(0.85,1.05),"s":(0.85,1.05),"v":(0.95,1.05)}],
+    [color_jitter, {"h": (0.85, 1.05), "s": (0.85, 1.05), "v": (0.95, 1.05)}],
     [shear, {}],
     [horizontalflip, {}],
     [verticalflip, {}],
@@ -174,7 +174,7 @@ def test_augmentation_process_detection(method, kwargs, image_path):
     [random_lighting, {}],
     [random_expand, {}],
     [color_jitter, {}],
-    [color_jitter, {"h":(0.85,1.05),"s":(0.85,1.05),"v":(0.95,1.05)}],
+    [color_jitter, {"h": (0.85, 1.05), "s": (0.85, 1.05), "v": (0.95, 1.05)}],
     [shear, {}],
     [horizontalflip, {}],
     [verticalflip, {}],
@@ -196,11 +196,11 @@ def test_augmentation_process_classification(method, kwargs, image_path):
 
 # Test segmentation augmentation methods that should not affect label at all
 @pytest.mark.parametrize('size,image,label', [
-    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
-    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
-    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
-    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
-    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
+    [(240, 240), 'img_1.jpg', 'lbl_1.png'],
+    [(240, 300), 'img_2.jpg', 'lbl_2.png'],
+    [(300, 240), 'img_3.jpg', 'lbl_3.png'],
+    [(240, 500), 'img_4.jpg', 'lbl_4.png'],
+    [(500, 240), 'img_5.jpg', 'lbl_5.png']
 ])
 @pytest.mark.parametrize('method, kwargs', [
     [white_noise, {"std": 1.5}],
@@ -210,7 +210,7 @@ def test_augmentation_process_classification(method, kwargs, image_path):
     [random_saturation, {}],
     [random_lighting, {}],
     [color_jitter, {}],
-    [color_jitter, {"h":(0.85,1.05),"s":(0.85,1.05),"v":(0.95,1.05)}]
+    [color_jitter, {"h": (0.85, 1.05), "s": (0.85, 1.05), "v": (0.95, 1.05)}]
 ])
 def test_augmentation_process_segmentation_noise(method, kwargs, size, image, label):
     create_seg_data(size, image, label)
@@ -227,11 +227,11 @@ def test_augmentation_process_segmentation_noise(method, kwargs, size, image, la
 
 # Test segmentation augmentation shift method
 @pytest.mark.parametrize('size,image,label', [
-    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
-    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
-    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
-    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
-    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
+    [(240, 240), 'img_1.jpg', 'lbl_1.png'],
+    [(240, 300), 'img_2.jpg', 'lbl_2.png'],
+    [(300, 240), 'img_3.jpg', 'lbl_3.png'],
+    [(240, 500), 'img_4.jpg', 'lbl_4.png'],
+    [(500, 240), 'img_5.jpg', 'lbl_5.png']
 ])
 @pytest.mark.parametrize('method, kwargs', [
     [shift, {"horizontal": 10, "vertivcal": 10}],
@@ -252,11 +252,11 @@ def test_augmentation_process_segmentation_shift(method, kwargs, size, image, la
 
 
 @pytest.mark.parametrize('size,image,label', [
-    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
-    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
-    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
-    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
-    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
+    [(240, 240), 'img_1.jpg', 'lbl_1.png'],
+    [(240, 300), 'img_2.jpg', 'lbl_2.png'],
+    [(300, 240), 'img_3.jpg', 'lbl_3.png'],
+    [(240, 500), 'img_4.jpg', 'lbl_4.png'],
+    [(500, 240), 'img_5.jpg', 'lbl_5.png']
 ])
 @pytest.mark.parametrize('method, kwargs', [
     [center_crop, {}]
@@ -277,11 +277,11 @@ def test_augmentation_process_segmentation_centercrop(method, kwargs, size, imag
 
 # Test segmentation augmentation shift method
 @pytest.mark.parametrize('size,image,label', [
-    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
-    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
-    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
-    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
-    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
+    [(240, 240), 'img_1.jpg', 'lbl_1.png'],
+    [(240, 300), 'img_2.jpg', 'lbl_2.png'],
+    [(300, 240), 'img_3.jpg', 'lbl_3.png'],
+    [(240, 500), 'img_4.jpg', 'lbl_4.png'],
+    [(500, 240), 'img_5.jpg', 'lbl_5.png']
 ])
 @pytest.mark.parametrize('method, kwargs', [
     [random_expand, {}]
@@ -300,11 +300,11 @@ def test_augmentation_process_segmentation_randomexpand(method, kwargs, size, im
 
 
 @pytest.mark.parametrize('size,image,label', [
-    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
-    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
-    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
-    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
-    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
+    [(240, 240), 'img_1.jpg', 'lbl_1.png'],
+    [(240, 300), 'img_2.jpg', 'lbl_2.png'],
+    [(300, 240), 'img_3.jpg', 'lbl_3.png'],
+    [(240, 500), 'img_4.jpg', 'lbl_4.png'],
+    [(500, 240), 'img_5.jpg', 'lbl_5.png']
 ])
 @pytest.mark.parametrize('method, kwargs', [
     [shear, {}]
@@ -321,11 +321,11 @@ def test_augmentation_process_segmentation_shear(method, kwargs, size, image, la
 
 
 @pytest.mark.parametrize('size,image,label', [
-    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
-    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
-    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
-    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
-    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
+    [(240, 240), 'img_1.jpg', 'lbl_1.png'],
+    [(240, 300), 'img_2.jpg', 'lbl_2.png'],
+    [(300, 240), 'img_3.jpg', 'lbl_3.png'],
+    [(240, 500), 'img_4.jpg', 'lbl_4.png'],
+    [(500, 240), 'img_5.jpg', 'lbl_5.png']
 ])
 @pytest.mark.parametrize('method, kwargs', [
     [rotate, {}],
@@ -350,11 +350,11 @@ def test_augmentation_process_segmentation_rotate(method, kwargs, size, image, l
 
 # Test segmentation augmentation methods that flip image and label
 @pytest.mark.parametrize('size,image,label', [
-    [(240,240), 'img_1.jpg', 'lbl_1.png' ],
-    [(240,300), 'img_2.jpg', 'lbl_2.png' ],
-    [(300,240), 'img_3.jpg', 'lbl_3.png' ],
-    [(240,500), 'img_4.jpg', 'lbl_4.png' ],
-    [(500,240), 'img_5.jpg', 'lbl_5.png' ]
+    [(240, 240), 'img_1.jpg', 'lbl_1.png'],
+    [(240, 300), 'img_2.jpg', 'lbl_2.png'],
+    [(300, 240), 'img_3.jpg', 'lbl_3.png'],
+    [(240, 500), 'img_4.jpg', 'lbl_4.png'],
+    [(500, 240), 'img_5.jpg', 'lbl_5.png']
 ])
 @pytest.mark.parametrize('method, kwargs', [
     [flip, {}],
@@ -371,13 +371,13 @@ def test_augmentation_process_segmentation_flip(method, kwargs, size, image, lab
     same_shape(x_aug[0], x[0], method)
     same_shape(y_aug[0], y[0], method)
 
-    if method.__name__=='flip':
+    if method.__name__ == 'flip':
         assert x_aug[0].all() == x[0][:, ::-1, ::-1].all()
         assert y_aug[0].all() == y[0][:, ::-1, ::-1].all()
-    elif method.__name__=='horizontalflip':
+    elif method.__name__ == 'horizontalflip':
         assert x_aug[0].all() == x[0][:, :, ::-1].all()
         assert y_aug[0].all() == y[0][:, :, ::-1].all()
-    elif method.__name__=='verticalflip':
+    elif method.__name__ == 'verticalflip':
         assert x_aug[0].all() == x[0][:, ::-1, :].all()
         assert y_aug[0].all() == y[0][:, ::-1, :].all()
     delete_seg_data(image, label)
