@@ -146,7 +146,7 @@ class ResNeXt50(Classification):
         self.model.set_output_size(self.num_class)
         self.model.set_train_whole(train_whole_network)
         
-        self.default_optimizer = OptimizerResNeXt()
+        self.default_optimizer = OptimizerResNeXt(plateau)
         self.decay_rate = 0.0001
         self.model.fc.params = {}
 
@@ -191,7 +191,7 @@ class ResNeXt101(Classification):
         self.model.set_train_whole(train_whole_network)
  
 
-        self.default_optimizer = OptimizerResNeXt()
+        self.default_optimizer = OptimizerResNeXt(plateau)
         self.decay_rate = 0.0001
         self.model.fc.params = {}
 

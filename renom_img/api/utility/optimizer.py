@@ -154,12 +154,12 @@ class OptimizerVGG(BaseOptimizer):
 
 
 class OptimizerResNeXt(BaseOptimizer):
-    def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
+    def __init__(self, plateau,total_batch_iteration=None, total_epoch_iteration=None):
         super(OptimizerResNeXt, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.plateau = plateau
 
     def setup(self, total_batch_iteration, total_epoch_iteration):
         super(OptimizerResNeXt, self).setup(total_batch_iteration, total_epoch_iteration)
-        self.plateau = True
         self.patience = 15
         self.min_lr = 1e-6
         self.counter = 0
@@ -184,12 +184,11 @@ class OptimizerResNeXt(BaseOptimizer):
 
 class OptimizerResNet(BaseOptimizer):
 
-    def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
+    def __init__(self, plateau, total_batch_iteration=None, total_epoch_iteration=None):
         super(OptimizerResNet, self).__init__(total_batch_iteration, total_epoch_iteration)
-
+        self.plateau = plateau
     def setup(self, total_batch_iteration, total_epoch_iteration):
         super(OptimizerResNet, self).setup(total_batch_iteration, total_epoch_iteration)
-        self.plateau = True
         self.patience = 15
         self.min_lr = 1e-6
         self.counter = 0

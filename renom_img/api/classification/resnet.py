@@ -147,7 +147,7 @@ class ResNet18(Classification):
         self.model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
-        self.default_optimizer = OptimizerResNet()
+        self.default_optimizer = OptimizerResNet(plateau)
         self.model.fc.params = {}
 
     def build_data(self):
@@ -187,7 +187,7 @@ class ResNet34(Classification):
         self.model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
-        self.default_optimizer = OptimizerResNet()
+        self.default_optimizer = OptimizerResNet(plateau)
         self.model.fc.params = {}
 
 
@@ -229,7 +229,7 @@ class ResNet50(Classification):
         self.model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
-        self.default_optimizer = OptimizerResNet()
+        self.default_optimizer = OptimizerResNet(plateau)
         self.model.fc.params = {}
 
     def build_data(self):
@@ -269,7 +269,7 @@ class ResNet101(Classification):
         self.model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
-        self.default_optimizer = OptimizerResNet()
+        self.default_optimizer = OptimizerResNet(plateau)
         self.model.fc.params = {}
 
 
@@ -310,7 +310,7 @@ class ResNet152(Classification):
         self.model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
-        self.default_optimizer = OptimizerResNet()
+        self.default_optimizer = OptimizerResNet(plateau)
         self.model.fc.params = {}
 
     def build_data(self):
