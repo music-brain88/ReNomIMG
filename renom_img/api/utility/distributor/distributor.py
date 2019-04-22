@@ -159,13 +159,13 @@ class ImageDistributor(ImageDistributorBase):
             perm = np.random.permutation(len(self))
             perm1 = perm[:data1_N]
             perm2 = perm[data1_N:]
-            return ImageDistributor([self.img_path_list[p] for p in perm1], [self.annotation[p] for p in perm1], self._builder, self._augmentation, self._imsize, self._num_worker), \
-                ImageDistributor([self.img_path_list[p] for p in perm2], [self.annotation[p]
+            return ImageDistributor([self.img_path_list[p] for p in perm1], [self.annotation_list[p] for p in perm1], self._builder, self._augmentation, self._imsize, self._num_worker), \
+                ImageDistributor([self.img_path_list[p] for p in perm2], [self.annotation_list[p]
                                                                           for p in perm2], self._builder, self._augmentation, self._imsize, self._num_worker)
         else:
             perm = np.arange(len(self))
             perm1 = perm[:data1_N]
             perm2 = perm[data1_N:]
-            return ImageDistributor([self.img_path_list[p] for p in perm1], [self.annotation[p] for p in perm1], self._builder, self._augmentation, self._imsize, self._num_worker), \
-                ImageDistributor([self.img_path_list[p] for p in perm2], [self.annotation[p]
+            return ImageDistributor([self.img_path_list[p] for p in perm1], [self.annotation_list[p] for p in perm1], self._builder, self._augmentation, self._imsize, self._num_worker), \
+                ImageDistributor([self.img_path_list[p] for p in perm2], [self.annotation_list[p]
                                                                           for p in perm2], self._builder, self._augmentation, self._imsize, self._num_worker)

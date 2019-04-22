@@ -107,7 +107,7 @@ class TargetBuilderResNeXt():
 
         return self.preprocess(np.array(img_list)), np.array(label_list)
 
-
+@adddoc
 class ResNeXt50(Classification):
     """ResNeXt50 model.
 
@@ -152,7 +152,7 @@ class ResNeXt50(Classification):
 
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
-
+@adddoc
 class ResNeXt101(Classification):
     """ResNeXt101 model.
 

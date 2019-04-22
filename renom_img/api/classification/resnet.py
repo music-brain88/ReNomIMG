@@ -111,7 +111,7 @@ class TargetBuilderResNet():
 
         return self.preprocess(np.array(img_list)), np.array(label_list)
 
-
+@adddoc
 class ResNet18(Classification):
     """ResNet18 model.
 
@@ -152,7 +152,7 @@ class ResNet18(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
-    
+@adddoc    
 class ResNet34(Classification):
     """ResNet34 model.
 
@@ -193,7 +193,7 @@ class ResNet34(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
-
+@adddoc
 class ResNet50(Classification):
     """ResNet50 model.
 
@@ -234,7 +234,7 @@ class ResNet50(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
-    
+@adddoc    
 class ResNet101(Classification):
     """ResNet101 model.
 
@@ -275,7 +275,7 @@ class ResNet101(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
-
+@adddoc
 class ResNet152(Classification):
     """ResNet152 model.
 
