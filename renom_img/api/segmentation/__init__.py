@@ -54,20 +54,18 @@ class SemanticSegmentation(Base):
 
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
+            img_builder = self.build_data()
             if isinstance(img_list, (tuple, list)):
-                test_dist = ImageDistributor(img_list)
                 results = []
                 bar = tqdm()
-                bar.total = int(np.ceil(len(test_dist) / batch_size))
-                for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
-                    if len(img_list) < batch_size:
-                        return np.argmax(rm.softmax(self(x_img_list)).as_ndarray(), axis=1)
-                    results.extend(np.argmax(rm.softmax(self(x_img_list)).as_ndarray(), axis=1))
+                bar.total = int(np.ceil(len(img_list) / batch_size))
+                for batch_num in range(0,len(img_list),batch_size):
+                    results.extend(np.argmax(rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
-            else:# to:do if user provides only one string path.
-                assert False, "ReNomIMG does not support string path for now, please provide list of path."
+            else:
+                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))).as_ndarray(),axis=1)
         else:
             img_array = img_list
         return np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1)

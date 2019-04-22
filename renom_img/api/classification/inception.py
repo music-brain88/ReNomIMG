@@ -141,37 +141,21 @@ class InceptionV1(Classification):
     def predict(self, img_list, batch_size=1):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
+            img_builder = self.build_data()
             if isinstance(img_list, (tuple, list)):
-                test_dist = ImageDistributor(img_list)
                 results = []
-                bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
-                for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
-                    if len(img_list) < batch_size:
-                        return np.argmax(rm.softmax(self(x_img_list)[2]).as_ndarray(), axis=1)
-                    results.extend(np.argmax(rm.softmax(self(x_img_list)[2]).as_ndarray(), axis=1))
+                bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
+                for batch_num in range(0,len(img_list),batch_size):
+                    results.extend(np.argmax(rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))[2]).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
-            else:#to:do if user provides only one string path.
-                assert False, "ReNomIMG does not support string path for now, please provide list of path."
+            else:
+                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))[2]).as_ndarray(),axis=1)[0]
         else:
             img_array = img_list
-
         return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)
 
-#    def predict(self, img_list):
-#        self.set_models(inference=True)
-#        if isinstance(img_list, (list, str)):
-#            if isinstance(img_list, (tuple, list)):
-#                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-#                img_array = TargetBuilderInception.preprocess(img_array)
-#            else:
-#                img_array = load_img(img_list, self.imsize)[None]
-#                img_array = TargetBuilderInception.preprocess(img_array)
-#                return np.argmax(rm.softmax(self.model(img_array)[2]).as_ndarray(), axis=1)[0]
-#        else:
-#            img_array = img_list
-#        return np.argmax(rm.softmax(self.model(img_array)[2]).as_ndarray(), axis=1)
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
@@ -218,37 +202,21 @@ class InceptionV3(Classification):
     def predict(self, img_list, batch_size=1):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
+            img_builder = self.build_data()
             if isinstance(img_list, (tuple, list)):
-                test_dist = ImageDistributor(img_list)
                 results = []
-                bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
-                for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
-                    if len(img_list) < batch_size:
-                        return np.argmax(rm.softmax(self(x_img_list)[1]).as_ndarray(), axis=1)
-                    results.extend(np.argmax(rm.softmax(self(x_img_list)[1]).as_ndarray(), axis=1))
+                bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
+                for batch_num in range(0,len(img_list),batch_size):
+                    results.extend(np.argmax(rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))[1]).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
-            else:#to:do if user provides only one string path.
-                assert False, "ReNomIMG does not support string path for now, please provide list of path."
+            else:
+                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))[1]).as_ndarray(),axis=1)[0]
         else:
             img_array = img_list
-
         return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
 
-#    def predict(self, img_list):
-#        self.set_models(inference=True)
-#        if isinstance(img_list, (list, str)):
-#            if isinstance(img_list, (tuple, list)):
-#                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-#                img_array = TargetBuilderInception.preprocess(img_array)
-#            else:
-#                img_array = load_img(img_list, self.imsize)[None]
-#                img_array = TargerBuilderInception.preprocess(img_array)
-#                return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)[0]
-#        else:
-#            img_array = img_list
-#        return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
@@ -294,37 +262,20 @@ class InceptionV2(Classification):
     def predict(self, img_list, batch_size=1):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
+            img_builder = self.build_data()
             if isinstance(img_list, (tuple, list)):
-                test_dist = ImageDistributor(img_list)
                 results = []
-                bar = tqdm(range(int(np.ceil(len(test_dist) / batch_size))))
-                for i, (x_img_list) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
-                    if len(img_list) < batch_size:
-                        return np.argmax(rm.softmax(self(x_img_list)[1]).as_ndarray(), axis=1)
-                    results.extend(np.argmax(rm.softmax(self(x_img_list)[1]).as_ndarray(), axis=1))
+                bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
+                for batch_num in range(0,len(img_list),batch_size):
+                    results.extend(np.argmax(rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))[1]).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
-                return results     
-            else:#to:do if user provides only one string path.
-                assert False, "ReNomIMG does not support string path for now, please provide list of path." 
+                return results
+            else:
+                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))[1]).as_ndarray(),axis=1)[0]
         else:
             img_array = img_list
-
         return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
-
-#    def predict(self, img_list):
-#        self.set_models(inference=True)
-#        if isinstance(img_list, (list, str)):
-#            if isinstance(img_list, (tuple, list)):
-#                img_array = np.vstack([load_img(path, self.imsize)[None] for path in img_list])
-#                img_array = TargetBuilderInception.preprocess(img_array)
-#            else:
-#               img_array = load_img(img_list, self.imsize)[None]
-#                img_array = TargetBuilderInception.preprocess(img_array)
-#                return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)[0]
-#        else:
-#            img_array = img_list
-#        return np.argmax(rm.softmax(self.model(img_array)[1]).as_ndarray(), axis=1)
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)

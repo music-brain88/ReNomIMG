@@ -61,23 +61,20 @@ class Detection(Base):
         """
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
+            img_builder = self.build_data()
             if isinstance(img_list, (tuple, list)):
-                test_dist = ImageDistributor(img_list)
                 results = []
                 bar = tqdm()
-                bar.total = int(np.ceil(len(test_dist) / batch_size))
-                for i, (img_array) in enumerate(test_dist.batch(batch_size, target_builder=self.build_data(), shuffle=False)):
-                    if len(img_list) < batch_size:
-                        return self.get_bbox(self(img_array).as_ndarray(),
-                                                score_threshold, nms_threshold) 
-                    results.extend(self.get_bbox(self(img_array).as_ndarray(),
+                bar.total = int(np.ceil(len(img_list) / batch_size))
+                for batch_num in range(0,len(img_list),batch_size):
+                    results.extend(self.get_bbox(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size])).as_ndarray(),
                                                      score_threshold,
                                                      nms_threshold))
                     bar.update(1)
                 bar.close()
                 return results
-            else:#to:do if user provides only one string path.
-                assert False, "ReNomIMG does not support string path for now, please provide list of path."
+            else:
+                return self.get_bbox(self(img_builder(img_path_list=[img_list])).as_ndarray(),score_threshold,nms_threshold)
         else:
             img_array = img_list
         return self.get_bbox(self(img_array).as_ndarray(),
