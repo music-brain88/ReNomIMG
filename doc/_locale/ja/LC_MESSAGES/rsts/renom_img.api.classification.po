@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 09:52+0900\n"
+"POT-Creation-Date: 2019-04-23 11:05+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: ../../rst/renom_img.api.classification.rst:2
+#: ../../rsts/renom_img.api.classification.rst:2
 msgid "renom\\_img.api.classification"
 msgstr ""
 
@@ -28,21 +28,18 @@ msgstr ""
 #: of renom_img.api.classification.vgg.VGG11
 #: renom_img.api.classification.vgg.VGG11.fit
 #: renom_img.api.classification.vgg.VGG11.forward
-#: renom_img.api.classification.vgg.VGG11.get_optimizer
 #: renom_img.api.classification.vgg.VGG11.loss
 #: renom_img.api.classification.vgg.VGG11.predict
 #: renom_img.api.classification.vgg.VGG11.preprocess
 #: renom_img.api.classification.vgg.VGG16
 #: renom_img.api.classification.vgg.VGG16.fit
 #: renom_img.api.classification.vgg.VGG16.forward
-#: renom_img.api.classification.vgg.VGG16.get_optimizer
 #: renom_img.api.classification.vgg.VGG16.loss
 #: renom_img.api.classification.vgg.VGG16.predict
 #: renom_img.api.classification.vgg.VGG16.preprocess
 #: renom_img.api.classification.vgg.VGG19
 #: renom_img.api.classification.vgg.VGG19.fit
 #: renom_img.api.classification.vgg.VGG19.forward
-#: renom_img.api.classification.vgg.VGG19.get_optimizer
 #: renom_img.api.classification.vgg.VGG19.loss
 #: renom_img.api.classification.vgg.VGG19.predict
 #: renom_img.api.classification.vgg.VGG19.preprocess
@@ -115,25 +112,16 @@ msgstr "この関数はVGG11用の入力データと出力データを作成し�
 
 #: of renom_img.api.classification.vgg.VGG11.build_data
 #: renom_img.api.classification.vgg.VGG11.fit
-#: renom_img.api.classification.vgg.VGG11.forward
-#: renom_img.api.classification.vgg.VGG11.get_optimizer
 #: renom_img.api.classification.vgg.VGG11.loss
 #: renom_img.api.classification.vgg.VGG11.predict
-#: renom_img.api.classification.vgg.VGG11.preprocess
 #: renom_img.api.classification.vgg.VGG16.build_data
 #: renom_img.api.classification.vgg.VGG16.fit
-#: renom_img.api.classification.vgg.VGG16.forward
-#: renom_img.api.classification.vgg.VGG16.get_optimizer
 #: renom_img.api.classification.vgg.VGG16.loss
 #: renom_img.api.classification.vgg.VGG16.predict
-#: renom_img.api.classification.vgg.VGG16.preprocess
 #: renom_img.api.classification.vgg.VGG19.build_data
 #: renom_img.api.classification.vgg.VGG19.fit
-#: renom_img.api.classification.vgg.VGG19.forward
-#: renom_img.api.classification.vgg.VGG19.get_optimizer
 #: renom_img.api.classification.vgg.VGG19.loss
 #: renom_img.api.classification.vgg.VGG19.predict
-#: renom_img.api.classification.vgg.VGG19.preprocess
 msgid "Returns"
 msgstr "戻り値"
 
@@ -145,41 +133,29 @@ msgstr "入力データと出力データを作成する関数を返します。
 
 #: of renom_img.api.classification.vgg.VGG11.build_data
 #: renom_img.api.classification.vgg.VGG11.fit
-#: renom_img.api.classification.vgg.VGG11.forward
-#: renom_img.api.classification.vgg.VGG11.get_optimizer
 #: renom_img.api.classification.vgg.VGG11.loss
 #: renom_img.api.classification.vgg.VGG11.predict
-#: renom_img.api.classification.vgg.VGG11.preprocess
 #: renom_img.api.classification.vgg.VGG16.build_data
 #: renom_img.api.classification.vgg.VGG16.fit
-#: renom_img.api.classification.vgg.VGG16.forward
-#: renom_img.api.classification.vgg.VGG16.get_optimizer
 #: renom_img.api.classification.vgg.VGG16.loss
 #: renom_img.api.classification.vgg.VGG16.predict
-#: renom_img.api.classification.vgg.VGG16.preprocess
 #: renom_img.api.classification.vgg.VGG19.build_data
 #: renom_img.api.classification.vgg.VGG19.fit
-#: renom_img.api.classification.vgg.VGG19.forward
-#: renom_img.api.classification.vgg.VGG19.get_optimizer
 #: renom_img.api.classification.vgg.VGG19.loss
 #: renom_img.api.classification.vgg.VGG19.predict
-#: renom_img.api.classification.vgg.VGG19.preprocess
 msgid "Return type"
 msgstr "戻り値の型"
 
 #: of renom_img.api.classification.vgg.VGG11.build_data:8
 #: renom_img.api.classification.vgg.VGG11.fit:24
-#: renom_img.api.classification.vgg.VGG11.forward:11
 #: renom_img.api.classification.vgg.VGG11.loss:12
 #: renom_img.api.classification.vgg.VGG11.regularize:4
 #: renom_img.api.classification.vgg.VGG16.build_data:8
 #: renom_img.api.classification.vgg.VGG16.fit:24
-#: renom_img.api.classification.vgg.VGG16.forward:11
 #: renom_img.api.classification.vgg.VGG16.loss:12
 #: renom_img.api.classification.vgg.VGG16.regularize:4
 #: renom_img.api.classification.vgg.VGG19.build_data:8
 #: renom_img.api.classification.vgg.VGG19.fit:24
-#: renom_img.api.classification.vgg.VGG19.forward:11
 #: renom_img.api.classification.vgg.VGG19.loss:12
 #: renom_img.api.classification.vgg.VGG19.regularize:4
 msgid "Example"
@@ -287,50 +263,6 @@ msgstr "順伝播を実行します。この関数は__call__メソッドによ�
 msgid "Input to VGG11."
 msgstr "VGG11への入力"
 
-#: of renom_img.api.classification.vgg.VGG11.forward:7
-msgid "Returns raw output of VGG11."
-msgstr "VGG11の生の出力を返します。"
-
-#: of renom_img.api.classification.vgg.VGG11.get_optimizer:1
-msgid ""
-"Returns an instance of Optimizer for training VGG11 algorithm. If all "
-"argument(current_epoch, total_epoch, current_batch, total_batch) are "
-"given, the learning rate is modified according to the number of training "
-"iterations or the constant learning rate is used."
-msgstr "VGG11アルゴリズム学習用のOptimizerクラスのインスタンスを返します。"
-"全ての引数(current_epoch, total_epoch, current_batch, total_batch)が与えられた場合、"
-"学習率は学習のイテレーション毎に修正、もしくは一定の学習率が利用されます。"
-
-#: of renom_img.api.classification.vgg.VGG11.get_optimizer:5
-#: renom_img.api.classification.vgg.VGG16.get_optimizer:5
-#: renom_img.api.classification.vgg.VGG19.get_optimizer:5
-msgid "The number of current epoch."
-msgstr "現在のエポック数"
-
-#: of renom_img.api.classification.vgg.VGG11.get_optimizer:7
-#: renom_img.api.classification.vgg.VGG16.get_optimizer:7
-#: renom_img.api.classification.vgg.VGG19.get_optimizer:7
-msgid "The number of total epoch."
-msgstr "全体のエポック数"
-
-#: of renom_img.api.classification.vgg.VGG11.get_optimizer:9
-#: renom_img.api.classification.vgg.VGG16.get_optimizer:9
-#: renom_img.api.classification.vgg.VGG19.get_optimizer:9
-msgid "The number of current batch."
-msgstr "現在のバッチ数"
-
-#: of renom_img.api.classification.vgg.VGG11.get_optimizer:11
-#: renom_img.api.classification.vgg.VGG16.get_optimizer:11
-#: renom_img.api.classification.vgg.VGG19.get_optimizer:11
-msgid "The number of total batch."
-msgstr "全体のバッチ数"
-
-#: of renom_img.api.classification.vgg.VGG11.get_optimizer:14
-#: renom_img.api.classification.vgg.VGG16.get_optimizer:14
-#: renom_img.api.classification.vgg.VGG19.get_optimizer:14
-msgid "Optimizer object."
-msgstr "Optimizerオブジェクト"
-
 #: of renom_img.api.classification.vgg.VGG11.loss:1
 msgid "Loss function of VGG11 algorithm."
 msgstr "VGG11アルゴリズムの誤差関数"
@@ -385,18 +317,6 @@ msgstr "与えられた配列に対して、前処理を実行します。"
 msgid "Image array for preprocessing."
 msgstr "前処理用の画像の配列"
 
-#: of renom_img.api.classification.vgg.VGG11.preprocess:6
-#: renom_img.api.classification.vgg.VGG16.preprocess:6
-#: renom_img.api.classification.vgg.VGG19.preprocess:6
-msgid "Preprocessed data."
-msgstr "前処理済みのデータ"
-
-#: of renom_img.api.classification.vgg.VGG11.preprocess:9
-#: renom_img.api.classification.vgg.VGG16.preprocess:9
-#: renom_img.api.classification.vgg.VGG19.preprocess:9
-msgid "Preprocessing for VGG is follows."
-msgstr "VGG用の前処理は以下になります。"
-
 #: of renom_img.api.classification.vgg.VGG11.regularize:1
 #: renom_img.api.classification.vgg.VGG16.regularize:1
 #: renom_img.api.classification.vgg.VGG19.regularize:1
@@ -418,20 +338,6 @@ msgstr "この関数はVGG16用の入力データとターゲットデータを�
 #: of renom_img.api.classification.vgg.VGG16.forward:4
 msgid "Input to VGG16."
 msgstr "VGG16への入力"
-
-#: of renom_img.api.classification.vgg.VGG16.forward:7
-msgid "Returns raw output of VGG16."
-msgstr "VGG16への生の出力を返します。"
-
-#: of renom_img.api.classification.vgg.VGG16.get_optimizer:1
-msgid ""
-"Returns an instance of Optimizer for training VGG16 algorithm. If all "
-"argument(current_epoch, total_epoch, current_batch, total_batch) are "
-"given, the learning rate is modified according to the number of training "
-"iterations or the constant learning rate is used."
-msgstr "VGG16アルゴリズム学習用のOptimizerインスタンスを返します。"
-"全ての引数(current_epoch, total_epoch, current_batch, total_batch)が与えられた場合、"
-"学習率は学習のイテレーション毎に修正、もしくは一定の学習率が利用されます。"
 
 #: of renom_img.api.classification.vgg.VGG16.loss:1
 msgid "Loss function of VGG16 algorithm."
@@ -456,20 +362,6 @@ msgstr "この関数はVGG19用の入力データとターゲットデータを�
 #: of renom_img.api.classification.vgg.VGG19.forward:4
 msgid "Input to VGG19."
 msgstr "VGG19への入力"
-
-#: of renom_img.api.classification.vgg.VGG19.forward:7
-msgid "Returns raw output of VGG19."
-msgstr "VGG19の生の出力を返します。"
-
-#: of renom_img.api.classification.vgg.VGG19.get_optimizer:1
-msgid ""
-"Returns an instance of Optimizer for training VGG19 algorithm. If all "
-"argument(current_epoch, total_epoch, current_batch, total_batch) are "
-"given, the learning rate is modified according to the number of training "
-"iterations or the constant learning rate is used."
-msgstr "VGG19アルゴリズム学習用のOptimizerインスタンスを返します。"
-"全ての引数(current_epoch, total_epoch, current_batch, total_batch)が与えられた場合、"
-"学習率は学習のイテレーション毎に修正、もしくは一定の学習率が利用されます。"
 
 #: of renom_img.api.classification.vgg.VGG19.loss:1
 msgid "Loss function of VGG19 algorithm."
@@ -610,4 +502,73 @@ msgstr "VGG19アルゴリズムの誤差関数"
 
 #~ msgid "**model** (Model) - Yolo1 object."
 #~ msgstr ""
+
+#~ msgid "Returns raw output of VGG11."
+#~ msgstr "VGG11の生の出力を返します。"
+
+#~ msgid ""
+#~ "Returns an instance of Optimizer for "
+#~ "training VGG11 algorithm. If all "
+#~ "argument(current_epoch, total_epoch, current_batch, "
+#~ "total_batch) are given, the learning "
+#~ "rate is modified according to the "
+#~ "number of training iterations or the "
+#~ "constant learning rate is used."
+#~ msgstr ""
+#~ "VGG11アルゴリズム学習用のOptimizerクラスのインスタンスを返します。全ての引数(current_epoch, "
+#~ "total_epoch, current_batch, "
+#~ "total_batch)が与えられた場合、学習率は学習のイテレーション毎に修正、もしくは一定の学習率が利用されます。"
+
+#~ msgid "The number of current epoch."
+#~ msgstr "現在のエポック数"
+
+#~ msgid "The number of total epoch."
+#~ msgstr "全体のエポック数"
+
+#~ msgid "The number of current batch."
+#~ msgstr "現在のバッチ数"
+
+#~ msgid "The number of total batch."
+#~ msgstr "全体のバッチ数"
+
+#~ msgid "Optimizer object."
+#~ msgstr "Optimizerオブジェクト"
+
+#~ msgid "Preprocessed data."
+#~ msgstr "前処理済みのデータ"
+
+#~ msgid "Preprocessing for VGG is follows."
+#~ msgstr "VGG用の前処理は以下になります。"
+
+#~ msgid "Returns raw output of VGG16."
+#~ msgstr "VGG16への生の出力を返します。"
+
+#~ msgid ""
+#~ "Returns an instance of Optimizer for "
+#~ "training VGG16 algorithm. If all "
+#~ "argument(current_epoch, total_epoch, current_batch, "
+#~ "total_batch) are given, the learning "
+#~ "rate is modified according to the "
+#~ "number of training iterations or the "
+#~ "constant learning rate is used."
+#~ msgstr ""
+#~ "VGG16アルゴリズム学習用のOptimizerインスタンスを返します。全ての引数(current_epoch, "
+#~ "total_epoch, current_batch, "
+#~ "total_batch)が与えられた場合、学習率は学習のイテレーション毎に修正、もしくは一定の学習率が利用されます。"
+
+#~ msgid "Returns raw output of VGG19."
+#~ msgstr "VGG19の生の出力を返します。"
+
+#~ msgid ""
+#~ "Returns an instance of Optimizer for "
+#~ "training VGG19 algorithm. If all "
+#~ "argument(current_epoch, total_epoch, current_batch, "
+#~ "total_batch) are given, the learning "
+#~ "rate is modified according to the "
+#~ "number of training iterations or the "
+#~ "constant learning rate is used."
+#~ msgstr ""
+#~ "VGG19アルゴリズム学習用のOptimizerインスタンスを返します。全ての引数(current_epoch, "
+#~ "total_epoch, current_batch, "
+#~ "total_batch)が与えられた場合、学習率は学習のイテレーション毎に修正、もしくは一定の学習率が利用されます。"
 

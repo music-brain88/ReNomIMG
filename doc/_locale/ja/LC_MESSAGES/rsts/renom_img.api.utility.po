@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-12 10:26+0900\n"
+"POT-Creation-Date: 2019-04-22 15:00+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,6 +71,15 @@ msgstr "ボックスが特定のサイズになるように座標とサイズを
 #: renom_img.api.utility.target.DataBuilderSegmentation.build
 #: renom_img.api.utility.target.DataBuilderSegmentation.load_annotation
 #: renom_img.api.utility.target.DataBuilderSegmentation.load_img
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.check_for_relus
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_cam
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_gb
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_model_type
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop
 msgid "Parameters"
 msgstr "パラメータ"
 
@@ -148,6 +157,15 @@ msgstr "引数のボックスは以下の例のようなフォーマットでな
 #: renom_img.api.utility.target.DataBuilderSegmentation.build
 #: renom_img.api.utility.target.DataBuilderSegmentation.load_annotation
 #: renom_img.api.utility.target.DataBuilderSegmentation.load_img
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.check_for_relus
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_cam
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_gb
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_model_type
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop
 msgid "Returns"
 msgstr "戻り値"
 
@@ -190,6 +208,15 @@ msgstr "フォームが変更されたバウンディングボックスを返し
 #: renom_img.api.utility.target.DataBuilderSegmentation.build
 #: renom_img.api.utility.target.DataBuilderSegmentation.load_annotation
 #: renom_img.api.utility.target.DataBuilderSegmentation.load_img
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.check_for_relus
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_cam
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_gb
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_model_type
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop
 msgid "Return type"
 msgstr "戻り値の型"
 
@@ -292,6 +319,7 @@ msgid "**Example of the output.**"
 msgstr "**出力の例"
 
 #: ../../docstring of renom_img.api.utility.nms.soft_nms:45
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam:55
 msgid "References"
 msgstr "引用"
 
@@ -426,6 +454,7 @@ msgid "renom\\_img.api.utility.augmentation"
 msgstr ""
 
 #: of renom_img.api.utility.augmentation.Augmentation:1
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam:1
 msgid "Bases: :class:`object`"
 msgstr ""
 
@@ -459,6 +488,7 @@ msgstr "Processモジュールのリスト。Flip, Shift, RotateそしてWhiteNo
 #: renom_img.api.utility.misc.display.draw_box:25
 #: renom_img.api.utility.misc.display.draw_segment:16
 #: renom_img.api.utility.misc.display.pil2array:4
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam:15
 msgid "Example"
 msgstr "例"
 
@@ -1087,6 +1117,201 @@ msgid "ratio between training set and validation set"
 msgstr "トレーニングセットとバリデーションセットの割合"
 
 #: ../../rsts/renom_img.api.utility.rst:65
+msgid "renom\\_img.api.utility.visualize.grad_cam"
+msgstr ""
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:1
+msgid ""
+"Guided Grad-cam implementation for visualizing CNN classification model "
+"feature map importance"
+msgstr "画像分類畳み込み層モデルの特徴の重視領域を可視化するツール"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:3
+msgid ""
+"CNN-based classification model to be used for creating Guided Grad-CAM "
+"saliency maps. Model must be ReNom instance of VGG, ResNet, ResNeXt or "
+"rm.Sequential. Model should use ReLu activation functions and be pre-"
+"trained on the same dataset used for Grad-CAM visualizations."
+msgstr ""
+"Guided Grad-CAM可視化の対象となる画像分類CNNモデル。"
+"モデルはReNomで作成されたVGG、ResNet、ResNeXtまたはrenom.Sequentialの"
+"インスタンスである必要があります。また、事前にモデルをGrad-CAM可視化の対象となる"
+"データセットで学習させる必要があります。モデルは活性化関数にReLuを利用する必要があります。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:11
+msgid ""
+"Guided backpropagation array, Grad-CAM(++) saliency map array, Guided "
+"Grad-CAM(++) array"
+msgstr ""
+"3つの配列が返されます：Guided backpropagationの配列、"
+"Grad-CAM(++)顕著性マップの配列及びGuided Grad-CAM(++)の配列です。"
+
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:56
+msgid ""
+"Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna "
+"Vedantam, Devi Parikh, Dhruv Batra"
+msgstr ""
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:57
+msgid ""
+"**Grad-CAM: Visual Explanations from Deep Networks via Gradient-based "
+"Localization**"
+msgstr ""
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:58
+msgid "https://arxiv.org/abs/1610.02391"
+msgstr ""
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:60
+msgid ""
+"Aditya Chattopadhyay, Anirban Sarkar, Prantik Howlader, Vineeth N "
+"Balasubramanian"
+msgstr ""
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:61
+msgid ""
+"**Grad-CAM++: Improved Visual Explanations for Deep Convolutional "
+"Networks**"
+msgstr ""
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:62
+msgid "https://arxiv.org/abs/1710.11063"
+msgstr ""
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.check_for_relus:1
+msgid "Assertion check to see if ReLu activation functions exist in model"
+msgstr "モデルにはReLuが存在するかどうかを確認します。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.check_for_relus:3
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_model_type:3
+msgid ""
+"CNN-based classification model to be used for creating Guided Grad-CAM "
+"saliency maps Model must be ReNom instance of VGG, ResNet, ResNeXt or "
+"rm.Sequential. Model should use ReLu activation functions and be pre-"
+"trained on the same dataset used for Grad-CAM visualizations."
+msgstr ""
+"Guided Grad-CAM可視化の対象となる画像分類CNNモデル。"
+"モデルはReNomで作成されたVGG、ResNet、ResNeXtまたはrenom.Sequentialの"
+"インスタンスである必要があります。また、事前にモデルをGrad-CAM可視化の対象となる"
+"データセットで学習させる必要があります。モデルは活性化関数にReLuを利用する必要があります。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.check_for_relus:11
+msgid "assert result"
+msgstr "assertの結果です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_cam:1
+msgid "Calculates forward pass through model for Grad-CAM"
+msgstr "Grad-CAMのフォワードパスを計算します。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_cam:3
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_gb:3
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class:3
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop:3
+msgid "Input data for model after pre-processing has been applied"
+msgstr "前処理後のモデル入力データです。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_cam:5
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_gb:5
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class:5
+msgid "Class ID for creating visualizations"
+msgstr "可視化対象となるクラス番号です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_cam:7
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_gb:7
+msgid "Flag for selecting Grad-CAM or Grad-CAM++"
+msgstr "Grad-CAMまたはGrad-CAM++を切り替えるフラグです。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_cam:9
+msgid ""
+"Index representing final convolutional layer (used in rm.Sequential case "
+"only)"
+msgstr "モデルの最終畳み込み層を表すインデックス（rm.Sequentialモデルの場合のみ）です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_cam:12
+msgid "Final layer output and final convolution layer output"
+msgstr "最終層の出力及び最終畳み込み層の出力です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_gb:1
+msgid "Calculates forward pass through model for guided backpropagation"
+msgstr "Guided backpropagation用のフォワードパスを計算します。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.forward_gb:10
+msgid "Final layer output"
+msgstr "最終層の出力です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map:1
+msgid "Generates Guided Grad-CAM and Grad-CAM saliency maps as numpy arrays"
+msgstr "Guided Grad-CAMマップ及び顕著性マップをnumpy配列として生成します。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map:3
+msgid "Output of final layer in forward pass through model"
+msgstr "フォワードパス時のモデル最終層の出力です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map:5
+msgid "Output of final convolution layer in forward pass through model"
+msgstr "フォワードパス時のモデル最終畳み込み層の出力です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map:7
+msgid "numpy array representing normalized guided backpropagation output"
+msgstr "正規化されたguided backpropagation出力を表すnumpy配列です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map:9
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class:7
+msgid "Flag for selecting Grad-CAM ('normal', default) or Grad-CAM++ ('plus')"
+msgstr "Grad-CAM ('normal'、デフォルト値）またはGrad-CAM++ ('plus')を切り替えるフラグです。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map:12
+msgid "Grad-CAM saliency map and Guided Grad-CAM map as numpy arrays"
+msgstr "Grad-CAM顕著性マップ及びGuided Grad-CAMマップのnumpy配列です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_model_type:1
+msgid "Gets model type information for model passed to Grad-CAM"
+msgstr "Grad-CAMインスタンスに引き渡されたモデルの種類を取得します。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_model_type:11
+msgid "Model class name"
+msgstr "クラス名の配列"
+
+#: of
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class:1
+msgid "Returns class that model predicts given input data"
+msgstr "入力データに対するモデルの予測クラスを返します。"
+
+#: of
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class:10
+msgid "np.argmax index of final model output"
+msgstr "モデル最終出力のnp.argmaxインデックスです。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor:1
+msgid "Calculates scaling factor for aligning Grad-CAM map and input image sizes"
+msgstr "Grad-CAMマップと入力画像のサイズを揃えるためのスケーリングを計算します。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor:3
+msgid "tuple of integers representing original image size"
+msgstr "入力画像サイズを表す整数のタプルです。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor:5
+msgid "Grad-CAM saliency map"
+msgstr "Grad-CAMの顕著性マップです。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor:8
+msgid "scaling factor for aligning final array sizes"
+msgstr "出力配列のサイズを揃えるためのスケーリング要素です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop:1
+msgid "Calculates guided backpropagation backward pass"
+msgstr "Guided backpropagationのバックワードパスを計算します。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop:5
+msgid "Output of guided backpropagaion forward pass for x_gb"
+msgstr "x_gbに対するGuided backpropagationフォワードパスの出力です。"
+
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop:8
+msgid "Raw and normalized guided backpropagation outputs"
+msgstr "Guided backpropagationの出力です。"
+
+#: ../../rsts/renom_img.api.utility.rst:73
 msgid "renom\\_img.api.utility.misc"
 msgstr ""
 

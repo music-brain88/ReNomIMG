@@ -119,7 +119,7 @@ class TargetBuilderFCN():
             return img_array
 
         # Check the class mapping.
-        
+
         n_class = len(self.class_map)
 
         img_list = []
@@ -144,16 +144,17 @@ class TargetBuilderFCN():
             data,label = self.resize(img_list, label_list)   
             return self.preprocess(data),label
 
+
 @adddoc
 class FCN32s(SemanticSegmentation):
     """ Fully convolutional network (32s) for semantic segmentation
 
     Args:
         class_map(array): Array of class names
+        train_final_upscore(bool): Final upscore layer is trainable if True, or otherwise frozen if False
         imsize(int or tuple): Input image size
-        load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
-        train_whole_network(bool): True if the overall model is trained, otherwise False
-        train_final_upscore(bool): True if final upscore layer is trainable, otherwise False
+        load_pretrained_weight(bool, str): Pre-trained VGG-16 weights are used if True, or otherwise random initialization is used if False
+        train_whole_network(bool): All layers of model are trainable if True, or otherwise pretrained encoder base is frozen if False
 
     Example:
         >>> import renom as rm
@@ -161,10 +162,12 @@ class FCN32s(SemanticSegmentation):
         >>> from renom_img.api.segmentation.fcn import FCN32s
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = FCN32s()
+        >>> class_map = ["background", "person", "cat", "dog"]
+        >>> model = FCN32s(class_map)
         >>> t = model(x)
         >>> t.shape
-        (2, 12, 64, 64)
+        (2, 4, 64, 64)
+
 
     References:
         | Jonathan Long, Evan Shelhamer, Trevor Darrell
@@ -173,6 +176,7 @@ class FCN32s(SemanticSegmentation):
         |
 
     """
+
     WEIGHT_URL = CNN_FCN32s.WEIGHT_URL
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
@@ -190,14 +194,16 @@ class FCN32s(SemanticSegmentation):
         return TargetBuilderFCN(self.class_map, self.imsize)
 
 
+@adddoc
 class FCN16s(SemanticSegmentation):
     """ Fully convolutional network (16s) for semantic segmentation
 
     Args:
         class_map(array): Array of class names
+        train_final_upscore(bool): Final upscore layer is trainable if True, or otherwise frozen if False
         imsize(int or tuple): Input image size
-        load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
-        train_whole_network(bool): True if the overall model is trained, otherwise False
+        load_pretrained_weight(bool, str): Pre-trained VGG-16 weights are used if True, or otherwise random initialization is used if False
+        train_whole_network(bool): All layers of model are trainable if True, or otherwise pretrained encoder base is frozen if False
 
     Example:
         >>> import renom as rm
@@ -205,10 +211,11 @@ class FCN16s(SemanticSegmentation):
         >>> from renom_img.api.segmentation.fcn import FCN16s
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = FCN16s()
+        >>> class_map = ["background", "person", "cat", "dog"]
+        >>> model = FCN16s(class_map)
         >>> t = model(x)
         >>> t.shape
-        (2, 12, 64, 64)
+        (2, 4, 64, 64)
 
     References:
         | Jonathan Long, Evan Shelhamer, Trevor Darrell
@@ -217,6 +224,7 @@ class FCN16s(SemanticSegmentation):
         |
 
     """
+
     WEIGHT_URL = CNN_FCN16s.WEIGHT_URL
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
@@ -234,14 +242,17 @@ class FCN16s(SemanticSegmentation):
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
 
+
+@adddoc
 class FCN8s(SemanticSegmentation):
     """ Fully convolutional network (8s) for semantic segmentation
 
     Args:
         class_map(array): Array of class names
+        train_final_upscore(bool): Final upscore layer is trainable if True, or otherwise frozen if False
         imsize(int or tuple): Input image size
-        load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
-        train_whole_network(bool): True if the overall model is trained, otherwise False
+        load_pretrained_weight(bool, str): Pre-trained VGG-16 weights are used if True, or otherwise random initialization is used if False
+        train_whole_network(bool): All layers of model are trainable if True, or otherwise pretrained encoder base is frozen if False
 
     Example:
         >>> import renom as rm
@@ -249,10 +260,11 @@ class FCN8s(SemanticSegmentation):
         >>> from renom_img.api.segmentation.fcn import FCN8s
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = FCN8s()
+        >>> class_map = ["background", "person", "cat", "dog"]
+        >>> model = FCN8s(class_map)
         >>> t = model(x)
         >>> t.shape
-        (2, 12, 64, 64)
+        (2, 4, 64, 64)
 
     References:
         | Jonathan Long, Evan Shelhamer, Trevor Darrell
@@ -261,6 +273,7 @@ class FCN8s(SemanticSegmentation):
         |
 
     """
+
     WEIGHT_URL = CNN_FCN8s.WEIGHT_URL
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):

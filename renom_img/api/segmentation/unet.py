@@ -128,7 +128,7 @@ class TargetBuilderUNet():
             data,label = self.resize(img_list, label_list)   
             return self.preprocess(data),label
 
-  
+
 
 
 @adddoc
@@ -138,8 +138,7 @@ class UNet(SemanticSegmentation):
     Args:
         class_map(array): Array of class names
         imsize(int or tuple): Input image size
-        load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
-        train_whole_network(bool): True if the overall model is trained, otherwise False
+        train_whole_network(bool):  All layers of model are trainable if True, or otherwise encoder base is frozen if False
 
     Example:
         >>> import renom as rm
@@ -147,10 +146,11 @@ class UNet(SemanticSegmentation):
         >>> from renom_img.api.segmentation.unet import UNet
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = UNet()
+        >>> class_map = ["background", "person", "cat", "dog"]
+        >>> model = UNet(class_map)
         >>> t = model(x)
         >>> t.shape
-        (2, 12, 64, 64)
+        (2, 4, 64, 64)
 
     References:
         | Olaf Ronneberger, Philipp Fischer, Thomas Brox
@@ -163,6 +163,10 @@ class UNet(SemanticSegmentation):
     def __init__(self, class_map=None, imsize=(256, 256), load_pretrained_weight=False, train_whole_network=False):
 
         self.model = CNN_UNet(1)
+
+        assert not load_pretrained_weight, "The pretrained weights for %s are not \
+            currently available. Please set `load_pretrained_weight` flag to False." % self.__class__.__name__
+
         super(UNet, self).__init__(class_map, imsize,
                                    load_pretrained_weight, train_whole_network, self.model)
  

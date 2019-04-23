@@ -158,8 +158,8 @@ class TernausNet(SemanticSegmentation):
     Args:
         class_map(array): Array of class names
         imsize(int or tuple): Input image size
-        load_pretrained_weight(bool, str): True if pre-trained weight is used, otherwise False.
-        train_whole_network(bool): True if the overall model is trained, otherwise False
+        load_pretrained_weight(bool, str): Pre-trained VGG-11 weights are used if True, or otherwise random initialization is used if False
+        train_whole_network(bool): All layers of model are trainable if True, or otherwise pretrained encoder base is frozen if False
 
     Example:
         >>> import renom as rm
@@ -167,10 +167,11 @@ class TernausNet(SemanticSegmentation):
         >>> from renom_img.api.segmentation.ternausnet import TernausNet
         >>> n, c, h, w = (2, 12, 64, 64)
         >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> model = TernausNet()
+        >>> class_map = ["background", "person", "cat", "dog"]
+        >>> model = TernausNet(class_map)
         >>> t = model(x)
         >>> t.shape
-        (2, 12, 64, 64)
+        (2, 4, 64, 64)
 
     References:
         | Vladimir Iglovikov, Alexey Shvets
@@ -179,6 +180,7 @@ class TernausNet(SemanticSegmentation):
         |
 
     """
+
     WEIGHT_URL = CNN_TernausNet.WEIGHT_URL
 
     def __init__(self, class_map=None, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
