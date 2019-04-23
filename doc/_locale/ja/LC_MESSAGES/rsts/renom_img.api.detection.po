@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-18 09:05+0900\n"
+"POT-Creation-Date: 2019-04-23 11:05+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,6 @@ msgstr "Yolo 物体識別アルゴリズム"
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
 #: renom_img.api.detection.yolo_v1.Yolov1.forward
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
-#: renom_img.api.detection.yolo_v1.Yolov1.get_optimizer
 #: renom_img.api.detection.yolo_v1.Yolov1.loss
 #: renom_img.api.detection.yolo_v1.Yolov1.predict
 #: renom_img.api.detection.yolo_v1.Yolov1.preprocess
@@ -37,7 +36,6 @@ msgstr "Yolo 物体識別アルゴリズム"
 #: renom_img.api.detection.yolo_v2.Yolov2.fit
 #: renom_img.api.detection.yolo_v2.Yolov2.forward
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox
-#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer
 #: renom_img.api.detection.yolo_v2.Yolov2.loss
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 #: renom_img.api.detection.yolo_v2.Yolov2.preprocess
@@ -91,17 +89,12 @@ msgstr "この関数はYolov1クラスでで指定された形式の入力デー
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.build_data
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
-#: renom_img.api.detection.yolo_v1.Yolov1.forward
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
-#: renom_img.api.detection.yolo_v1.Yolov1.get_optimizer
 #: renom_img.api.detection.yolo_v1.Yolov1.loss
 #: renom_img.api.detection.yolo_v1.Yolov1.predict
-#: renom_img.api.detection.yolo_v1.Yolov1.preprocess
 #: renom_img.api.detection.yolo_v2.Yolov2.build_data
 #: renom_img.api.detection.yolo_v2.Yolov2.fit
-#: renom_img.api.detection.yolo_v2.Yolov2.forward
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox
-#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer
 #: renom_img.api.detection.yolo_v2.Yolov2.loss
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 msgid "Returns"
@@ -114,17 +107,12 @@ msgstr "入力データとターゲットデータを作成する関数を返却
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.build_data
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
-#: renom_img.api.detection.yolo_v1.Yolov1.forward
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
-#: renom_img.api.detection.yolo_v1.Yolov1.get_optimizer
 #: renom_img.api.detection.yolo_v1.Yolov1.loss
 #: renom_img.api.detection.yolo_v1.Yolov1.predict
-#: renom_img.api.detection.yolo_v1.Yolov1.preprocess
 #: renom_img.api.detection.yolo_v2.Yolov2.build_data
 #: renom_img.api.detection.yolo_v2.Yolov2.fit
-#: renom_img.api.detection.yolo_v2.Yolov2.forward
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox
-#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer
 #: renom_img.api.detection.yolo_v2.Yolov2.loss
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 msgid "Return type"
@@ -132,14 +120,12 @@ msgstr "戻り値の型"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.build_data:8
 #: renom_img.api.detection.yolo_v1.Yolov1.fit:24
-#: renom_img.api.detection.yolo_v1.Yolov1.forward:13
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:33
 #: renom_img.api.detection.yolo_v1.Yolov1.loss:12
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:35
 #: renom_img.api.detection.yolo_v1.Yolov1.regularize:7
 #: renom_img.api.detection.yolo_v2.Yolov2.build_data:8
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:29
-#: renom_img.api.detection.yolo_v2.Yolov2.forward:13
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:2
 #: renom_img.api.detection.yolo_v2.Yolov2.loss:12
 #: renom_img.api.detection.yolo_v2.Yolov2.predict:35
@@ -196,48 +182,42 @@ msgstr "与えられた関数は各エポックの最後に呼び出されます
 msgid "Training loss list and validation loss list."
 msgstr "学習損失のリストとバリデーション損失のリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:39
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:38
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:44
 msgid "Following arguments will be given to the function ``callback_end_epoch``."
 msgstr "以下の引数はcallback_end_epoch関数に渡されます。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:41
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:40
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:46
 msgid "**epoch** (int) - Number of current epoch."
 msgstr "epoch (int) - 現在のエポック数"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:42
-msgid "**model** (Model) - Yolo1 object."
-msgstr "model (Model) - Yolo1オブジェクト"
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:41
+#, fuzzy
+msgid "**model** (Model) - Model object."
+msgstr "model (Model) - Yolov2オブジェクト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:43
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:42
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:48
 msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
 msgstr "avg_train_loss_list (list) - 各エポック毎の平均学習損失のリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:44
+#: of renom_img.api.detection.yolo_v1.Yolov1.fit:43
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:49
 msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
 msgstr "avg_valid_loss_list (list) - 各エポック毎の平均バリデーション損失のリスト"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.forward:1
 #: renom_img.api.detection.yolo_v2.Yolov2.forward:1
+#, fuzzy
 msgid ""
-"Performs forward propagation. This function can be called using "
-"``__call__`` method. See following example of method usage."
+"Performs forward propagation. You can call this function using "
+"``__call__`` method."
 msgstr "順伝播を実行します。この関数は__call__メソッドにより呼ばれます。メソッドの利用例については以下を参照してください。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.forward:5
-#: renom_img.api.detection.yolo_v2.Yolov2.forward:5
-msgid "Input image as an tensor."
-msgstr "入力画像のテンソル"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.forward:8
-#: renom_img.api.detection.yolo_v2.Yolov2.forward:8
-msgid ""
-"Returns raw output of yolo v1. You can reform it to bounding box form "
-"using the method ``get_bbox``."
-msgstr "Yolo v1の生の出力を返却します。get_bboxメソッドによりバウンディングボックス形式に変形できます。"
+#: of renom_img.api.detection.yolo_v1.Yolov1.forward:4
+msgid "Input to Yolov1."
+msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:1
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:8
@@ -280,46 +260,6 @@ msgid ""
 "size. Therefore the range of 'box' is [0 ~ 1]."
 msgstr "ボックスの座標と大きさは元画像のサイズに対する比で返されます。よって、boxの範囲は[0 ~ 1]です。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:1
-msgid "Returns an instance of Optimizer for training Yolov1 algorithm."
-msgstr "Yolov1アルゴリズム学習用のOptimizerを返却します。"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:3
-#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:3
-msgid ""
-"If all argument(current_epoch, total_epoch, current_batch, total_batch) "
-"are given, an optimizer object which whose learning rate is modified "
-"according to the number of training iteration. Otherwise, constant "
-"learning rate is set."
-msgstr ""
-"全ての引数(current_epoch, total_epoch, current_batch, total_batch) "
-"が渡された場合、学習のイテレーション数にしたがって、学習率を変更します。そうでない場合は、一定の学習率がセットされます。"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:7
-#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:7
-msgid "The number of current epoch."
-msgstr "現在のエポック数"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:9
-#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:9
-msgid "The number of total epoch."
-msgstr "全体のエポック数"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:11
-#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:11
-msgid "The number of current batch."
-msgstr "現在のバッチ数"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:13
-#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:13
-msgid "The number of total batch."
-msgstr "全体のバッチ数"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_optimizer:16
-#: renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:16
-msgid "Optimizer object."
-msgstr "Optimizerオブジェクト"
-
 #: of renom_img.api.detection.yolo_v1.Yolov1.loss:1
 msgid "Loss function specified for yolov1."
 msgstr "yolov1で指定された損失関数"
@@ -350,16 +290,14 @@ msgid "Path to an image, list of path or ndarray."
 msgstr "画像へのパス、パスのリストもしくはndarray"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:1
-msgid "Image preprocess for Yolov1."
-msgstr "Yolov1用の前処理"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:3
-msgid ":math:`x_{new} = x*2/255 - 1`"
+#: renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
+msgid "Performs preprocess for a given array."
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:8
-msgid "Preprocessed data."
-msgstr "前処理済みデータ"
+#: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:3
+#: renom_img.api.detection.yolo_v2.Yolov2.preprocess:3
+msgid "Image array for preprocessing."
+msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.regularize:1
 #: renom_img.api.detection.yolo_v2.Yolov2.regularize:1
@@ -435,21 +373,13 @@ msgstr "画像サイズのリスト"
 msgid "**model** (Model) - Yolo2 object."
 msgstr "model (Model) - Yolov2オブジェクト"
 
-#: of renom_img.api.detection.yolo_v2.Yolov2.get_optimizer:1
-msgid "Returns an instance of Optimizer for training Yolov2 algorithm."
-msgstr "Yolov2アルゴリズム学習用のOptimizerのインスタンス"
+#: of renom_img.api.detection.yolo_v2.Yolov2.forward:4
+msgid "Input to Yolov2."
+msgstr ""
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.loss:1
 msgid "Loss function specified for yolov2."
 msgstr "Yolov2で指定された損失関数"
-
-#: of renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
-msgid "Performs preprocess for a given array."
-msgstr ""
-
-#: of renom_img.api.detection.yolo_v2.Yolov2.preprocess:3
-msgid "Image array for preprocessing."
-msgstr ""
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.regularize:4
 msgid "In Yolo v2, weight decay of 0.0005 will be added."
@@ -617,4 +547,58 @@ msgstr "Yolov2では重み減衰として0.0005が利用されます。"
 
 #~ msgid "Image preprocess for Yolov2."
 #~ msgstr "Yolov2用の前処理"
+
+#~ msgid "**model** (Model) - Yolo1 object."
+#~ msgstr "model (Model) - Yolo1オブジェクト"
+
+#~ msgid "Input image as an tensor."
+#~ msgstr "入力画像のテンソル"
+
+#~ msgid ""
+#~ "Returns raw output of yolo v1. You"
+#~ " can reform it to bounding box "
+#~ "form using the method ``get_bbox``."
+#~ msgstr "Yolo v1の生の出力を返却します。get_bboxメソッドによりバウンディングボックス形式に変形できます。"
+
+#~ msgid "Returns an instance of Optimizer for training Yolov1 algorithm."
+#~ msgstr "Yolov1アルゴリズム学習用のOptimizerを返却します。"
+
+#~ msgid ""
+#~ "If all argument(current_epoch, total_epoch, "
+#~ "current_batch, total_batch) are given, an "
+#~ "optimizer object which whose learning "
+#~ "rate is modified according to the "
+#~ "number of training iteration. Otherwise, "
+#~ "constant learning rate is set."
+#~ msgstr ""
+#~ "全ての引数(current_epoch, total_epoch, current_batch, "
+#~ "total_batch) "
+#~ "が渡された場合、学習のイテレーション数にしたがって、学習率を変更します。そうでない場合は、一定の学習率がセットされます。"
+
+#~ msgid "The number of current epoch."
+#~ msgstr "現在のエポック数"
+
+#~ msgid "The number of total epoch."
+#~ msgstr "全体のエポック数"
+
+#~ msgid "The number of current batch."
+#~ msgstr "現在のバッチ数"
+
+#~ msgid "The number of total batch."
+#~ msgstr "全体のバッチ数"
+
+#~ msgid "Optimizer object."
+#~ msgstr "Optimizerオブジェクト"
+
+#~ msgid "Image preprocess for Yolov1."
+#~ msgstr "Yolov1用の前処理"
+
+#~ msgid ":math:`x_{new} = x*2/255 - 1`"
+#~ msgstr ""
+
+#~ msgid "Preprocessed data."
+#~ msgstr "前処理済みデータ"
+
+#~ msgid "Returns an instance of Optimizer for training Yolov2 algorithm."
+#~ msgstr "Yolov2アルゴリズム学習用のOptimizerのインスタンス"
 

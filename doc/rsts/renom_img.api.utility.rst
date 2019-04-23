@@ -61,6 +61,14 @@ renom\_img.api.utility.distributor
     :undoc-members:
     :show-inheritance:
 
+renom\_img.api.utility.visualize.grad_cam
+------------------------------------
+
+.. automodule:: renom_img.api.utility.visualize.grad_cam
+    :members: GuidedGradCam
+    :undoc-members:
+    :show-inheritance:
+
 renom\_img.api.utility.misc
 ---------------------------
 

@@ -88,9 +88,10 @@ class Base(rm.Model):
         Regularization term to a loss function.
 
         Example:
-            >>> x = numpu.random.rand(1, 3, 224, 224)
+            >>> x = numpy.random.rand(1, 3, 224, 224)
             >>> y = numpy.random.rand(1, (5*2+20)*7*7)
-            >>> model = ${class}()
+            >>> class_map = ["background", "person", "dog", "cat"]
+            >>> model = ${class}(class_map)
             >>> loss = model.loss(x, y)
             >>> reg_loss = loss + model.regularize() # Add weight decay term.
         """
@@ -98,7 +99,7 @@ class Base(rm.Model):
         for layer in self.iter_models():
             if hasattr(layer, "params") and hasattr(layer.params, "w"):
                 reg += rm.sum(layer.params.w * layer.params.w)
-      
+
         return (self.decay_rate / 2) * reg
 
     def preprocess(self, x):

@@ -37,6 +37,7 @@ class CNN_VGG19(CnnBase):
         self.fc2 = rm.Dense(4096)
         self.dropout2 = rm.Dropout(dropout_ratio=0.5)
         self.fc3 = rm.Dense(num_class)
+        self.relu = rm.Relu()
 
     def forward(self, x):
         self._freeze()
@@ -46,9 +47,9 @@ class CNN_VGG19(CnnBase):
         t = self.block4(t)
         t = self.block5(t)
         t = rm.flatten(t)
-        t = rm.relu(self.fc1(t))
+        t = self.relu(self.fc1(t))
         t = self.dropout1(t)
-        t = rm.relu(self.fc2(t))
+        t = self.relu(self.fc2(t))
         t = self.dropout2(t)
         t = self.fc3(t)
         return t
@@ -83,6 +84,7 @@ class CNN_VGG16(CnnBase):
         self.fc2 = rm.Dense(4096)
         self.dropout2 = rm.Dropout(dropout_ratio=0.5)
         self.fc3 = rm.Dense(num_class)
+        self.relu = rm.Relu()
 
     def forward(self, x):
         self._freeze()
@@ -92,9 +94,9 @@ class CNN_VGG16(CnnBase):
         t = self.block4(t)
         t = self.block5(t)
         t = rm.flatten(t)
-        t = rm.relu(self.fc1(t))
+        t = self.relu(self.fc1(t))
         t = self.dropout1(t)
-        t = rm.relu(self.fc2(t))
+        t = self.relu(self.fc2(t))
         t = self.dropout2(t)
         t = self.fc3(t)
         return t
@@ -130,29 +132,30 @@ class CNN_VGG16_NODENSE(CnnBase):
         self.conv5_1 = rm.Conv2d(512, padding=1, filter=3)
         self.conv5_2 = rm.Conv2d(512, padding=1, filter=3)
         self.conv5_3 = rm.Conv2d(512, padding=1, filter=3)
+        self.relu = rm.Relu()
 
     def forward(self, x):
-        t = rm.relu(self.conv1_1(x))
-        t = rm.relu(self.conv1_2(t))
+        t = self.relu(self.conv1_1(x))
+        t = self.relu(self.conv1_2(t))
         t = rm.max_pool2d(t, filter=2, stride=2)
 
-        t = rm.relu(self.conv2_1(t))
-        t = rm.relu(self.conv2_2(t))
+        t = self.relu(self.conv2_1(t))
+        t = self.relu(self.conv2_2(t))
         t = rm.max_pool2d(t, filter=2, stride=2)
 
-        t = rm.relu(self.conv3_1(t))
-        t = rm.relu(self.conv3_2(t))
-        t = rm.relu(self.conv3_3(t))
+        t = self.relu(self.conv3_1(t))
+        t = self.relu(self.conv3_2(t))
+        t = self.relu(self.conv3_3(t))
         t = rm.max_pool2d(t, filter=2, stride=2)
 
-        t = rm.relu(self.conv4_1(t))
-        t = rm.relu(self.conv4_2(t))
-        t = rm.relu(self.conv4_3(t))
+        t = self.relu(self.conv4_1(t))
+        t = self.relu(self.conv4_2(t))
+        t = self.relu(self.conv4_3(t))
         t = rm.max_pool2d(t, filter=2, stride=2)
 
-        t = rm.relu(self.conv5_1(t))
-        t = rm.relu(self.conv5_2(t))
-        t = rm.relu(self.conv5_3(t))
+        t = self.relu(self.conv5_1(t))
+        t = self.relu(self.conv5_2(t))
+        t = self.relu(self.conv5_3(t))
         t = rm.max_pool2d(t, filter=2, stride=2)
 
         return t
@@ -171,6 +174,7 @@ class CNN_VGG11(CnnBase):
         self.fc2 = rm.Dense(4096)
         self.dropout2 = rm.Dropout(dropout_ratio=0.5)
         self.fc3 = rm.Dense(num_class)
+        self.relu = rm.Relu()
 
     def forward(self, x):
         self._freeze()
@@ -180,9 +184,9 @@ class CNN_VGG11(CnnBase):
         t = self.block4(t)
         t = self.block5(t)
         t = rm.flatten(t)
-        t = rm.relu(self.fc1(t))
+        t = self.relu(self.fc1(t))
         t = self.dropout1(t)
-        t = rm.relu(self.fc2(t))
+        t = self.relu(self.fc2(t))
         t = self.dropout2(t)
         t = self.fc3(t)
         return t
