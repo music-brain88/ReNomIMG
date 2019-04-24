@@ -60,7 +60,8 @@ def parse_xml_detection(xml_path_list, num_thread=8):
             height = float(size_tree.find('height').text)
             image_data = []
             object_trees = root.findall('object')
-            assert object_trees, "{} contains no objects in it. Detection model expects at least one object.".format(filename)
+            assert object_trees, "{} contains no objects in it. Detection model expects at least one object.".format(
+                filename)
             for object_tree in object_trees:
                 bounding_box = object_tree.find('bndbox')
                 # Clip width and height to fit the image size.

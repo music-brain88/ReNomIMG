@@ -234,7 +234,7 @@ class ResNet50(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
-@adddoc    
+@adddoc
 class ResNet101(Classification):
     """ResNet101 model.
 
