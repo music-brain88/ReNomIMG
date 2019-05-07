@@ -5,6 +5,7 @@ import pytest
 import numpy as np
 import inspect
 from PIL import Image, ImageDraw
+import tarfile
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.evaluate import EvaluatorClassification
 from renom_img.api.utility.evaluate import EvaluatorDetection
@@ -16,6 +17,9 @@ from renom_img.api.utility.augmentation.process import *
 from renom_img.api.utility.target import DataBuilderClassification, DataBuilderDetection, DataBuilderSegmentation
 
 from renom_img.api.utility.misc.display import draw_box
+from renom_img.api.utility.misc.download import download
+from renom_img.api.utility.misc.dataset import fetch_detection_dataset_pets, fetch_detection_dataset_voc_2007
+from renom_img.api.utility.misc.dataset import fetch_detection_dataset_voc_2012, fetch_classification_dataset_caltech101
 from renom_img.api.utility.box import rescale
 
 
@@ -502,3 +506,30 @@ def test_parse_xml_detection(path, error):
     except Exception as e:
         print(e)
         assert error
+
+
+@pytest.mark.parametrize('method, kwargs', [
+    [fetch_detection_dataset_pets, {"split_validation": True, "test_size": 0.2}],
+    [fetch_detection_dataset_voc_2007, {"split_validation": True}],
+    [fetch_detection_dataset_voc_2012, {"split_validation": True}],
+    [fetch_classification_dataset_caltech101, {"split_validation": True, "test_size": 0.2}]
+])
+def test_download_dataset_split(method, kwargs):
+    train_img, train_annot, val_img, val_annot = method(**kwargs)
+    assert len(train_img) > 0
+    assert len(val_img) > 0
+    assert len(train_img) == len(train_annot)
+    assert len(val_img) == len(val_annot)
+
+
+@pytest.mark.parametrize('method, kwargs', [
+    [fetch_detection_dataset_pets, {"split_validation": False}],
+    [fetch_detection_dataset_voc_2007, {"split_validation": False}],
+    [fetch_detection_dataset_voc_2012, {"split_validation": False}],
+    [fetch_classification_dataset_caltech101, {"split_validation": False}]
+])
+def test_download_dataset_nosplit(method, kwargs):
+    img, annot = method(**kwargs)
+    assert len(img) > 0
+    assert len(annot) > 0
+    assert len(img) == len(annot)
