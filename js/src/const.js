@@ -293,7 +293,7 @@ export const ALGORITHM = {
           max: 4,
         }),
         LAYER: {
-          title: 'Number of Layers',
+          title: 'Architecture Type',
           key: 'layer',
           type: 'select',
           default: '16',
