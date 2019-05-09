@@ -18,7 +18,7 @@ v2.1b0 => v2.1b1
 
 Please refer to the change log at the renom.jp URL below for a complete change history:
 
-- https://www.renom.jp/packages/renomimg/rsts/change_log.html
+- https://www.renom.jp/packages/renomimg/rsts/change.html
 
 
 ## Recommended Environment
@@ -27,6 +27,8 @@ Please refer to the change log at the renom.jp URL below for a complete change h
 - Browser: Google Chrome(version 63.0.3239.132)
 - Python: >=3.5
 
+ReNomIMG requires ReNom.
+If you haven't installed ReNom, you need to install ReNom from https://github.com/ReNom-dev-team/ReNom.git.
 
 ## Requirements
 
@@ -40,9 +42,7 @@ ReNom products can only handle filenames with alphanumeric characters and hyphen
 
 ## Installation
 
-ReNomIMG requires ReNom.
-
-If you haven't installed ReNom yet, please install it according to the instructions at www.renom.jp.
+ReNomIMG requires ReNom, which can be installed from https://github.com/ReNom-dev-team/ReNom.git.
 
 
 ### Installing the ReNomIMG package
