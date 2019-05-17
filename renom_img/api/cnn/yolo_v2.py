@@ -121,7 +121,7 @@ class CnnYolov2(CnnBase):
  
 
     def load_pretrained_weight(self,path):
-        self.load(path)
+        self._base.load(path)
 
 
     def reset_deeper_layer(self):
@@ -136,6 +136,7 @@ class CnnYolov2(CnnBase):
             "Anchor list is empty. Please calculate anchor list using create_anchor function, before instantiate model class.  " +\
             "Or, please load already trained model using the method 'load()'."
 
+        self._base.set_auto_update(self.train_whole)
         self._base.set_models(inference=(not self.train_whole or getattr(self, 'inference', False)))        
         h, f = self._base(x)
         f = self._conv21(f)
