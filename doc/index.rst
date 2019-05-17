@@ -1,5 +1,5 @@
 
-ReNom IMG 2.1.1 beta
+ReNom IMG 2.1.2 beta
 ==================
 
 .. toctree::
