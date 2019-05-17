@@ -7,14 +7,19 @@ ReNomIMG is an image recognition model development tool.
 
 ## Version
 
-v2.1.1 beta
+v2.1.2 beta
 
 
 ## Changes
 
-v2.1b0 => v2.1b1
+v2.1b1 => v2.1b2
 
-- Modify img loader to accept binary image.
+- Added Grad-CAM visualization tool
+- Added pytests
+- Revised README.md format
+- Added URLs to download past wheel packages to README.md
+- Fixed bugs
+
 
 Please refer to the change log at the renom.jp URL below for a complete change history:
 
@@ -60,15 +65,16 @@ The Wheel package is provided at:
 You can install the wheel package with pip3 command::
 
 - For Python3.5
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b1-cp35-cp35m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b2-cp35-cp35m-linux_x86_64.whl`
 
 - For Python3.6
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b1-cp36-cp36m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b2-cp36-cp36m-linux_x86_64.whl`
 
 
 #### Wheels for past versions
 
 For python 3.5
+- [v2.1b1](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b1-cp35-cp35m-linux_x86_64.whl)
 - [v2.1b0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b0-cp35-cp35m-linux_x86_64.whl)
 - [v2.0.4](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.4-cp35-cp35m-linux_x86_64.whl)
 - [v2.0.3](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.3-cp35-cp35m-linux_x86_64.whl)
@@ -77,6 +83,7 @@ For python 3.5
 - [v2.0.0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.0-cp35-cp35m-linux_x86_64.whl)
 
 For python 3.6
+- [v2.1b1](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b1-cp36-cp36m-linux_x86_64.whl)
 - [v2.1b0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b0-cp36-cp36m-linux_x86_64.whl)
 - [v2.0.4](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.4-cp36-cp36m-linux_x86_64.whl)
 - [v2.0.3](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.3-cp36-cp36m-linux_x86_64.whl)

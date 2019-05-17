@@ -1,6 +1,13 @@
 Change Log
 ===========
 
+**v2.1b2**
+
+- Added Grad-CAM visualization tool
+- Added pytests
+- Revised README.md format
+- Added URLs to download past wheel packages to README.md
+- Fixed bugs
 
 **v2.1b1**
 
