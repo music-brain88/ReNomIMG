@@ -30,6 +30,9 @@ class BaseOptimizer(object):
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
 
+class OptimizerDeeplab(BaseOptimizer):
+    pass
+
 class OptimizerUNet(BaseOptimizer):
     def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):
         super(OptimizerUNet, self).__init__(total_batch_iteration, total_epoch_iteration)
