@@ -1,4 +1,4 @@
-mage: node:10.15
+image: node:10.15
 
 stages:
   - pages
