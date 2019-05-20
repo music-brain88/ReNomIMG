@@ -9,7 +9,7 @@ before_script:
   - echo "deb http://security.debian.org jessie/updates main" >> /etc/apt/sources.list
   - apt-get update
   - apt-get -y upgrade
-  - apt-get install python3-gi python3-dbus python3-software-properties software-properties-common
+  - apt-get install python3-apt unattended-upgrades python3-software-properties software-properties-common
   - apt-get update
   - add-apt-repository ppa:deadsnakes/ppa
   - apt-get install python3.5-dev
