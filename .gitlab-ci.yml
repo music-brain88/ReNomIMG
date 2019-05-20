@@ -5,20 +5,15 @@ stages:
   - document
 
 before_script:
-  - echo "deb http://deb.debian.org/debian jessie main" > /etc/apt/sources.list &&\
-      echo "deb http://security.debian.org jessie/updates main" >> /etc/apt/sources.list &&\
-      apt-get update &&\
-      apt-get -y upgrade &&\
-      apt-get install -y python-dev python-pip
+  - echo "deb http://deb.debian.org/debian jessie main" > /etc/apt/sources.list
+  - echo "deb http://security.debian.org jessie/updates main" >> /etc/apt/sources.list
+  - apt-get update
+  - apt-get -y upgrade
+
 
 pages:
   stage: pages
   script:
-    - wget https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tar.xz
-    - tar Jxfv Python-3.5.0.tar.xz
-    - cd Python-3.5.0
-    - ./configure; make; make install
-    - cd ../
     - wget https://www.python.org/ftp/python/3.6.0/Python-3.6.0.tar.xz
     - tar Jxfv Python-3.6.0.tar.xz
     - cd Python-3.6.0
@@ -29,7 +24,7 @@ pages:
     - pip install virtualenv
     - pip install virtualenvwrapper
     - virtualenv --no-site-packages -p /usr/local/bin/python3.6 py36
-    - virtualenv --no-site-packages -p /usr/local/bin/python3.5 py35
+    - virtualenv --no-site-packages -p /usr/bin/python3.5 py35
     - source py35/bin/activate
     - pip install wheel Cython numpy
     - pip install -r requirements.txt
