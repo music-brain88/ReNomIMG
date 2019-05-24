@@ -70,4 +70,4 @@ def setup_example():
 
 
 if __name__ == "__main__":
-    setup_exaple()
+    setup_example()

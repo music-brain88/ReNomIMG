@@ -272,7 +272,13 @@ class TrainThread(object):
                 self.sync_best_valid_result()
 
             elif self.task_id == Task.DETECTION.value:
-                prediction_box = model.get_bbox(valid_prediction[:n_valid])
+                if type(model) is SSD:
+                    prediction_box = []
+                    for sample in range(n_valid):
+                        prediction_b = model.get_bbox(np.expand_dims(valid_prediction[sample],axis=0))
+                        prediction_box.append(prediction_b[0])
+                else:
+                    prediction_box = model.get_bbox(valid_prediction[:n_valid])
                 prec, rec, _, iou = get_prec_rec_iou(
                     prediction_box,
                     valid_target[:n_valid]
