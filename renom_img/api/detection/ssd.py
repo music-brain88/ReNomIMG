@@ -169,7 +169,7 @@ class TargetBuilderSSD():
             box_wh / assigned_priors_wh + 1e-8) / self.prior.variance[1]
         return encoded_box.flatten()
 
-    def build(self, img_path_list, annotation_list, augmentation=None, **kwargs):
+    def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """
         Args:
             x: Image path list.
@@ -367,8 +367,6 @@ class SSD(Detection):
         loc = np.clip(loc, 0, 1)
         loc[:, :, 2:] = loc[:, :, 2:] - loc[:, :, :2]
         loc[:, :, :2] += loc[:, :, 2:] / 2.
-#        print('shape: ',conf.shape)
-#       Exception: CUDA Error: #11|||b'invalid argument'
 
         conf = rm.softmax(conf.transpose(0, 2, 1)).as_ndarray().transpose(0, 2, 1)
 

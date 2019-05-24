@@ -20,7 +20,7 @@ class BaseOptimizer(object):
         self.nth_batch_iteration = 0
         self.nth_epoch_iteration = 0
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
         assert self.total_epoch_iteration >= nth_epoch, \
             "The max epoch iteration count is {} but set {}".format(
                 self.total_epoch_iteration, nth_epoch)
@@ -39,8 +39,8 @@ class OptimizerUNet(BaseOptimizer):
         self.opt._lr = 1e-2
         self.opt._momentum = 0.9
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(OptimizerUNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
+        super(OptimizerUNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list, current_loss)
 
         ind1 = int(self.total_epoch_iteration * 0.5)
         ind2 = int(self.total_epoch_iteration * 0.3) + ind1 + 1 
@@ -59,8 +59,8 @@ class OptimizerTernausNet(BaseOptimizer):
         super(OptimizerTernausNet, self).setup(total_batch_iteration, total_epoch_iteration)
         self.opt = rm.Adam(1e-4)
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(OptimizerTernausNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
+        super(OptimizerTernausNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list, current_loss)
         pass
 
 class FCN_Optimizer(BaseOptimizer):
@@ -72,8 +72,8 @@ class FCN_Optimizer(BaseOptimizer):
         self.opt._lr = 1e-5
         self.opt._momentum = 0.9
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(FCN_Optimizer, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
+        super(FCN_Optimizer, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list, current_loss)
         pass
 
 class OptimizerDarknet19(BaseOptimizer):
@@ -85,8 +85,8 @@ class OptimizerDarknet19(BaseOptimizer):
         self.opt._lr = 0.01
         self.opt._momentum = 0.9
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(OptimizerDarknet19, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list)
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
+        super(OptimizerDarknet19, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,avg_valid_loss_list, current_loss)
 
         if nth_epoch == int(0.3 * self.total_epoch_iteration):
             self.opt._lr = 0.001
@@ -103,8 +103,8 @@ class OptimizerDenseNet(BaseOptimizer):
         self.opt._lr = 0.1
         self.opt._momentum = 0.9
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(OptimizerDenseNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
+        super(OptimizerDenseNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list,current_loss)
 
         if nth_epoch == 30:
             self.opt._lr = 0.01
@@ -122,8 +122,8 @@ class OptimizerInception(BaseOptimizer):
         self.opt._lr = 0.045
         self.opt._momentum = 0.9        
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
-        super(OptimizerInception, self).set_information(nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
+        super(OptimizerInception, self).set_information(nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss)
 
         if self.version == 1 or self.version == 4:
             if nth_epoch % 8 == 0:
@@ -144,9 +144,9 @@ class OptimizerVGG(BaseOptimizer):
         self.opt._lr = 0.01
         self.opt._momentum = 0.9
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
         super(OptimizerVGG, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
-                                                     avg_valid_loss_list)
+                                                     avg_valid_loss_list, current_loss)
 
         if nth_epoch == 0:
             self.opt._lr = 0.00001 + (0.001 - 0.00001) * nth_batch / self.total_batch_iteration
@@ -167,9 +167,9 @@ class OptimizerResNeXt(BaseOptimizer):
         self.opt._lr = 0.1
         self.opt._momentum = 0.9
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
         super(OptimizerResNeXt, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
-                                                     avg_valid_loss_list)
+                                                     avg_valid_loss_list, current_loss)
 
         if self.plateau:
              if len(avg_valid_loss_list) >= 2 and nth_batch == 0:
@@ -196,9 +196,9 @@ class OptimizerResNet(BaseOptimizer):
         self.opt._lr = 0.1
         self.opt._momentum = 0.9
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
         super(OptimizerResNet, self).set_information(nth_batch, nth_epoch, avg_train_loss_list,
-                                                    avg_valid_loss_list)
+                                                    avg_valid_loss_list, current_loss)
         if self.plateau:
             if len(avg_valid_loss_list) >= 2 and nth_batch == 0:
                 if avg_valid_loss_list[-1] > min(avg_valid_loss_list):
@@ -219,10 +219,14 @@ class OptimizerSSD(BaseOptimizer):
         self.opt._lr = 1e-3
         self.opt._momentum = 0.9
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
         super(OptimizerSSD, self).set_information(
-            nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
+            nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss)
         
+        if current_loss is not None and current_loss > 50:
+            self.opt._lr *= 0.1
+            return 
+
         if nth_epoch <1 :
             self.opt._lr = (1e-3 - 1e-5) / self.total_batch_iteration * nth_batch + 1e-5
         elif nth_epoch < 60 / 160. * self.total_epoch_iteration:
@@ -249,9 +253,9 @@ class OptimizerYolov2(BaseOptimizer):
         self.opt._lr = self.learning_rate
         self.opt._momentum = 0.9
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
         super(OptimizerYolov2, self).set_information(
-            nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
+            nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss)
 
         current_batch_num = (self.total_batch_iteration * nth_epoch) + (nth_batch +1)
 
@@ -287,9 +291,9 @@ class OptimizerYolov1(BaseOptimizer):
         self.schedule = [0.0005] * sch1 + [0.00125] * sch2 + \
             [0.0025] * sch3 + [0.005] * sch4 + [0.005] * sch5
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
         super(OptimizerYolov1, self).set_information(
-            nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
+            nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss)
         self.opt._lr = self.schedule[int(nth_epoch * nth_batch)]
 
 

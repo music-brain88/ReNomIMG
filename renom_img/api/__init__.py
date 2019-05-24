@@ -182,14 +182,15 @@ class Base(rm.Model):
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
 
-                # Modify optimizer.
-                if isinstance(opt, BaseOptimizer):
-                    opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list)
-
                 # Gradient descent.
                 with self.train():
                     loss = self.loss(self(train_x), train_y)
                     reg_loss = loss + self.regularize()
+
+                # Modify optimizer.
+                if isinstance(opt, BaseOptimizer):
+                    opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list,loss.as_ndarray())
+
                 reg_loss.grad().update(opt)
                 try:
                     loss = loss.as_ndarray()[0]
