@@ -9,3 +9,7 @@ renom\_img.api.detection
     :members: Yolov2
     :inherited-members:
 
+.. automodule:: renom_img.api.detection.ssd
+    :members: SSD
+    :inherited-members:
+
