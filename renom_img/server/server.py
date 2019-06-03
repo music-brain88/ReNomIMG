@@ -933,6 +933,143 @@ def get_deployed_model_info(task_id):
     }
 
 
+### New API ###
+@route("/renom_img/v2/api/detection/datasets", methods="GET")
+def get_datasets():
+    """
+    get datasets
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/datasets", methods="POST")
+def create_dataset():
+    """
+    create dataset
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", methods="GET")
+def get_dataset(dataset_id):
+    """
+    get dataset
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", methods="PUT")
+def update_dataset(dataset_id):
+    """
+    update dataset
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", methods="DELETE")
+def delete_dataset(dataset_id):
+    """
+    delete dataset
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/models", methods="GET")
+def get_models():
+    """
+    get models
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/models", methods="POST")
+def create_model():
+    """
+    create model
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/models/<model_id:int>", methods="GET")
+def get_model(model_id):
+    """
+    get model
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/models/<model_id:int>", methods="PUT")
+def update_model(model_id):
+    """
+    update model
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/models/<model_id:int>", methods="DELETE")
+def delete_model(model_id):
+    """
+    delete model
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/models/<model_id:int>/weight", methods="GET")
+def download_model_weight(model_id):
+    """
+    download model weight
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/train", methods="GET")
+def get_train_status():
+    """
+    get train status
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/train", methods="POST")
+def run_train():
+    """
+    run train
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/train", methods="DELETE")
+def stop_train():
+    """
+    stop train
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/prediction", methods="GET")
+def get_prediction_status():
+    """
+    get prediction status
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/prediction", methods="POST")
+def run_prediction():
+    """
+    run prediction
+    """
+    pass
+
+
+@route("/renom_img/v2/api/detection/prediction/result", methods="GET")
+def get_prediction_result():
+    """
+    get prediction result
+    """
+    pass
+
+
 def main():
     # Parser settings.
     parser = argparse.ArgumentParser(description='ReNomIMG')
