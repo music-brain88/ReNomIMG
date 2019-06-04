@@ -933,139 +933,287 @@ def get_deployed_model_info(task_id):
     }
 
 
+### New API Dummy Data ###
+CREATED = "2019-03-13T00:49:05"
+CLASS_MAP = ["dog", "cat"]
+CLASS_INFO = {
+    "class_map": CLASS_MAP,
+    "class_ratio": [0.5, 0.5],
+    "train_ratio": [0.8, 0.8],
+    "valid_ratio": [0.2, 0.2],
+    "test_ratio": [0.0, 0.0],
+    "train_img_num": 800,
+    "valid_img_num": 200,
+    "test_img_num": 0
+}
+BBOX = {
+    "box": [10, 10, 20, 20],
+    "class": 1,
+    "name": "cat",
+    "score": 0.7
+}
+BBOXES = [BBOX]
+
+TRAIN_DATA = {
+    "img": [],
+    "target": BBOXES,
+    "size": [[512, 512]]
+}
+VALID_DATA = {
+    "img": [],
+    "target": BBOXES,
+    "size": [[512, 512]]
+}
+
+DATASET = {
+    "id": 1,
+    "name": "dummy_dataset",
+    "description": "dummy dataset",
+    "task_id": 1,
+    "ratio": 0.8,
+    "class_map": CLASS_MAP,
+    "class_info": CLASS_INFO,
+    "train_data": TRAIN_DATA,
+    "valid_data": VALID_DATA,
+    "created": CREATED
+}
+DATASETS = [DATASET]
+
+PARAMS_YOLOv1 = {
+    "batch_size": 4,
+    "imsize_h": 448,
+    "imsize_w": 448,
+    "load_pretrained_weight": True,
+    "total_epoch": 160,
+    "train_whole": False,
+    "box": 2,
+    "cell": 7
+}
+TRAIN_LOSS_LIST = [0.2, 0.1, 0.05]
+VALID_LOSS_LIST = [0.25, 0.15, 0.055]
+
+BEST_EPOCH_VALID_RESULT = {
+    "IOU": 0.7,
+    "mAP": 0.8,
+    "loss": 0.1,
+    "nth_epoch": 80,
+    "prediction": [BBOXES]
+}
+LAST_PREDICTION_RESULT = {
+    "img": [],
+    "prediction": [],
+    "size": []
+}
+RUNNING_INFO = {
+    "running_state": 1,
+    "total_batch": 200,
+    "nth_batch": 100,
+    "total_epoch": 160,
+    "nth_epoch": 120,
+    "last_batch_loss": 0.3
+}
+MODEL = {
+    "id": 1,
+    "task_id": 1,
+    "dataset_id": 1,
+    "algorithm_id": 30,
+    "state": 1,
+    "hyper_parameters": PARAMS_YOLOv1,
+    "train_loss_list": TRAIN_LOSS_LIST,
+    "valid_loss_list": VALID_LOSS_LIST,
+    "best_epoch_valid_result": BEST_EPOCH_VALID_RESULT,
+    "last_prediction_result": LAST_PREDICTION_RESULT,
+    "running_info": RUNNING_INFO,
+    "created": CREATED
+}
+MODELS = [MODEL]
+
+
 ### New API ###
-@route("/renom_img/v2/api/detection/datasets", methods="GET")
+@route("/renom_img/v2/api/detection/datasets", method="GET")
 def get_datasets():
     """
     get datasets
     """
-    pass
+    dummy = {
+        "datasets": DATASETS
+    }
+    return create_response(dummy, status=200)
 
 
-@route("/renom_img/v2/api/detection/datasets", methods="POST")
+@route("/renom_img/v2/api/detection/datasets", method="POST")
 def create_dataset():
     """
     create dataset
     """
-    pass
+    dummy = {
+        "dataset": DATASET
+    }
+    response = create_response(dummy, status=201)
+    location = "/renom_img/v2/api/detection/datasets/{}".format(DATASET["id"])
+    response.set_header('Location', location)
+    return response
 
 
-@route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", methods="GET")
+@route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", method="GET")
 def get_dataset(dataset_id):
     """
     get dataset
     """
-    pass
+    dummy = {
+        "dataset": DATASET
+    }
+    return create_response(dummy, status=200)
 
 
-@route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", methods="PUT")
+@route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", method="PUT")
 def update_dataset(dataset_id):
     """
     update dataset
     """
-    pass
+    dummy = {
+        "status": "success"
+    }
+    return create_response(dummy, status=204)
 
 
-@route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", methods="DELETE")
+@route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", method="DELETE")
 def delete_dataset(dataset_id):
     """
     delete dataset
     """
-    pass
+    dummy = {
+        "status": "success"
+    }
+    return create_response(dummy, status=204)
 
 
-@route("/renom_img/v2/api/detection/models", methods="GET")
+@route("/renom_img/v2/api/detection/models", method="GET")
 def get_models():
     """
     get models
     """
-    pass
+    dummy = {
+        "models": MODELS
+    }
+    return create_response(dummy, status=200)
 
 
-@route("/renom_img/v2/api/detection/models", methods="POST")
+@route("/renom_img/v2/api/detection/models", method="POST")
 def create_model():
     """
     create model
     """
-    pass
+    dummy = {
+        "model": MODEL
+    }
+    response = create_response(dummy, status=201)
+    location = "/renom_img/v2/api/detection/models/{}".format(MODEL["id"])
+    response.set_header('Location', location)
+    return response
 
 
-@route("/renom_img/v2/api/detection/models/<model_id:int>", methods="GET")
+@route("/renom_img/v2/api/detection/models/<model_id:int>", method="GET")
 def get_model(model_id):
     """
     get model
     """
-    pass
+    dummy = {
+        "model": MODEL
+    }
+    return create_response(dummy, status=200)
 
 
-@route("/renom_img/v2/api/detection/models/<model_id:int>", methods="PUT")
+@route("/renom_img/v2/api/detection/models/<model_id:int>", method="PUT")
 def update_model(model_id):
     """
     update model
     """
-    pass
+    dummy = {
+        "status": "sucess"
+    }
+    return create_response(dummy, status=204)
 
 
-@route("/renom_img/v2/api/detection/models/<model_id:int>", methods="DELETE")
+@route("/renom_img/v2/api/detection/models/<model_id:int>", method="DELETE")
 def delete_model(model_id):
     """
     delete model
     """
-    pass
+    dummy = {
+        "status": "sucess"
+    }
+    return create_response(dummy, status=204)
 
 
-@route("/renom_img/v2/api/detection/models/<model_id:int>/weight", methods="GET")
+@route("/renom_img/v2/api/detection/models/<model_id:int>/weight", method="GET")
 def download_model_weight(model_id):
     """
-    download model weight
+    download model weight file
     """
     pass
 
 
-@route("/renom_img/v2/api/detection/train", methods="GET")
+@route("/renom_img/v2/api/detection/train", method="GET")
 def get_train_status():
     """
     get train status
     """
-    pass
+    dummy = {
+        "running_models": MODELS
+    }
+    return create_response(dummy, status=200)
 
 
-@route("/renom_img/v2/api/detection/train", methods="POST")
+@route("/renom_img/v2/api/detection/train", method="POST")
 def run_train():
     """
     run train
     """
-    pass
+    dummy = {
+        "status": "sucess"
+    }
+    return create_response(dummy, status=201)
 
 
-@route("/renom_img/v2/api/detection/train", methods="DELETE")
+@route("/renom_img/v2/api/detection/train", method="DELETE")
 def stop_train():
     """
     stop train
     """
-    pass
+    dummy = {
+        "status": "sucess"
+    }
+    return create_response(dummy, status=204)
 
 
-@route("/renom_img/v2/api/detection/prediction", methods="GET")
+@route("/renom_img/v2/api/detection/prediction", method="GET")
 def get_prediction_status():
     """
     get prediction status
     """
-    pass
+    dummy = {
+        "prediction": {}
+    }
+    return create_response(dummy, status=200)
 
 
-@route("/renom_img/v2/api/detection/prediction", methods="POST")
+@route("/renom_img/v2/api/detection/prediction", method="POST")
 def run_prediction():
     """
     run prediction
     """
-    pass
+    dummy = {
+        "prediction": {}
+    }
+    return create_response(dummy, status=201)
 
 
-@route("/renom_img/v2/api/detection/prediction/result", methods="GET")
+@route("/renom_img/v2/api/detection/prediction/result", method="GET")
 def get_prediction_result():
     """
     get prediction result
+    format
     """
     pass
 
