@@ -1218,6 +1218,10 @@ def get_prediction_result():
     pass
 
 
+def get_app():
+    return default_app()
+
+
 def main():
     # Parser settings.
     parser = argparse.ArgumentParser(description='ReNomIMG')
@@ -1230,7 +1234,7 @@ def main():
     if hasattr(args, 'handler'):
         args.handler()
         return
-    wsgiapp = default_app()
+    wsgiapp = get_app()
     httpd = wsgi_server.Server(wsgiapp, host=args.host, port=int(args.port))
     httpd.serve_forever()
 
