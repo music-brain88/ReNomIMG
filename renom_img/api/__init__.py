@@ -162,7 +162,7 @@ class Base(rm.Model):
         valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
 
         # Number of batch iteration.
-        batch_loop = int(np.ceil(len(train_dist) / batch_size))
+        batch_loop = len(train_dist) // batch_size
 
         # Optimizer settings.
         if optimizer is None:
@@ -205,7 +205,7 @@ class Base(rm.Model):
 
             if valid_img_path_list is not None:
                 bar.n = 0
-                bar.total = int(np.ceil(len(valid_dist) / batch_size))
+                bar.total = len(valid_dist) // batch_size
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)

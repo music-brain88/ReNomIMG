@@ -661,7 +661,7 @@ class Yolov2(Detection):
         else:
             valid_dist = None
 
-        batch_loop = int(np.ceil(len(train_dist) / batch_size))
+        batch_loop = len(train_dist) // batch_size
         avg_train_loss_list = []
         avg_valid_loss_list = []
     
@@ -708,11 +708,11 @@ class Yolov2(Detection):
                 if is_cuda_active():
                     release_mem_pool()
                 bar.n = 0
-                bar.total = int(np.ceil(len(valid_dist) / batch_size))
+                bar.total = len(valid_dist) // batch_size
                 display_loss = 0
                 for i, (valid_x,buffer_data, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data())):
                     self.set_models(inference=True)
-                    loss,coord,confidence,classes = self.loss(self(valid_x), buffer_data,valid_y)
+                    loss = self.loss(self(valid_x), buffer_data,valid_y)
 
                     try:
                         loss = float(loss.as_ndarray()[0])
