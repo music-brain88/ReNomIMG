@@ -80,8 +80,20 @@ class PriorBox(object):
         output = np.concatenate([min_xy, max_xy], axis=1)
         return output
 
-
 class TargetBuilderSSD():
+    """
+    This function returns a function which creates input data and target data specified for SSD.
+
+    Returns:
+        (function): Returns function which creates input data and target data.
+
+    Example:
+        >>> builder = model.build_data() 
+        >>> x, y = builder(image_path_list, annotation_list)
+        >>> z = model(x)
+        >>> loss = model.loss(z,y)
+
+    """
 
     def __init__(self, class_map,imsize,prior,prior_box,num_prior, threshold):
         self.class_map = class_map
@@ -99,7 +111,9 @@ class TargetBuilderSSD():
         """Image preprocess for SSD.
 
         Args:
-            x (ndarray):
+            x (ndarray): Input Images.
+            reverse (bool): Decide whether to add or subtract the ImageNet mean from images.
+                If true is given, ImageNet mean is added to the input images, otherwise subtracted. Default is False. 
 
         Returns:
             (ndarray): Preprocessed data.
@@ -214,12 +228,30 @@ class TargetBuilderSSD():
         return self.preprocess(img_data), np.array(targets)
  
 
-
-
 class SSD(Detection):
+    """ SSD object detection algorithm.
 
+    Args:
+        class_map(list): List of class name.
+        imsize(int or tuple): Image size.
+            This can be integer ex): 300 or tuple ex): (300,300).Default is (300,300).
+        overlap_threshold(float): Threshold to be used in selecting best prior box. 
+            This threshold sould be between 0 and 1. Default is 0.5.
+        load_pretrained_weight(bool, string): Whether to load pretrained weight for backbone model.
+            If true, pretrained weight will be downloaded to current directory. If string is given, 
+            pretrained weight will be saved as given name. Default is False.
+        train_whole_network(bool): Whether to train the whole network or not.
+            If true is given whole network will be trained, otherwise the backbone network 
+            will be on inference mode. No update will be done for the backbone network. Default is False.
+
+    References:
+        | Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg 
+        | **SSD: Single Shot MultiBox Detector**
+        | https://arxiv.org/abs/1512.02325
+        |
+
+    """
     WEIGHT_URL = CnnSSD.WEIGHT_URL
-
     SERIALIZED = ("overlap_threshold", *Base.SERIALIZED)
 
     def __init__(self, class_map=None, imsize=(300, 300),
@@ -282,8 +314,25 @@ class SSD(Detection):
         return boxes
 
 
-
     def loss(self, x, y, neg_pos_ratio=3.0):
+        """
+        Loss function specified for SSD.
+        
+        Args:
+            x(Node, nd_array): Output data of neural network.
+            y(Node, nd_array): Target data.
+            neg_pos_ratio(float): Positive and Negative ratio to be used for hard negative mining.
+                After the matching with true boxes, most of the prior boxes are negative. To eliminate imbalance 
+                between positive and negative boxes this ratio is used by the loss function. Default value is 3.0.
+
+        Returns: Loss between x and y
+        Return type: Node
+
+        Example:
+            >>> z = model(x)
+            >>> loss = model.loss(x,y)
+
+        """
         pos_samples = (y[:, :, 5] == 0)[..., None]
         N = np.sum(pos_samples)
         pos_Ns = np.sum(pos_samples, axis=1)
@@ -315,37 +364,40 @@ class SSD(Detection):
         """
         This method accepts either ndarray and list of image path.
 
-        Example:
-            >>>
-            >>> model.predict(['img01.jpg'], [img02.jpg]])
-            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1}],
-             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0}]]
-
         Args:
-            img_list (string, list, ndarray):
+            img_list (string, list, ndarray): Path to an image, list of path or ndarray.
             score_threshold (float): The threshold for confidence score.
                                      Predicted boxes which have lower confidence score than the threshold are discarderd.
-                                     Defaults to 0.3
-            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
+                                     Defaults is 0.6
+            nms_threshold (float): The threshold for non maximum supression. Defaults is 0.45
 
         Return:
             (list): List of predicted bbox, score and class of each image.
-                The format of return value is bellow. Box coordinates and size will be returned as
-                ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+            The format of return value is bellow. Box coordinates and size will be returned as
+            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
 
+        .. code-block :: python
+
+            # An example of return value.
             [
                 [ # Prediction of first image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 [ # Prediction of second image.
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
-                    {'box': [x, y, w, h], 'score':(float), 'class':(int)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
                 ...
             ]
+
+        Example:
+            >>>
+            >>> model.predict(['img01.jpg', 'img02.jpg']])
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Note:
             Box coordinate and size will be returned as ratio to the original image size.
@@ -356,6 +408,43 @@ class SSD(Detection):
 
 
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
+        """
+        Example:
+            >>> z = model(x)
+            >>> model.get_bbox(z)
+            [[{'box': [0.21, 0.44, 0.11, 0.32], 'score':0.823, 'class':1, 'name':'dog'}],
+             [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
+
+        Args:
+            z (ndarray): Output array of neural network. The shape of array
+
+        Return:
+            (list) : List of predicted bbox, score and class of each image.
+            The format of return value is bellow. Box coordinates and size will be returned as
+            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+
+        .. code-block :: python
+
+            # An example of return value.
+            [
+                [ # Prediction of first image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    ...
+                ],
+                [ # Prediction of second image.
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
+                    ...
+                ],
+                ...
+            ]
+
+        Note:
+            Box coordinate and size will be returned as ratio to the original image size.
+            Therefore the range of 'box' is [0 ~ 1].
+
+        """
         N = len(z)
         class_num = len(self.class_map)
         top_k = 100
