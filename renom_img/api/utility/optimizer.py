@@ -236,7 +236,6 @@ class OptimizerSSD(BaseOptimizer):
         else:
             self.opt._lr = 1e-5
 
-#---------------------------------------------------------------------------------------------
 class OptimizerYolov2(BaseOptimizer):
 
     def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
@@ -244,7 +243,6 @@ class OptimizerYolov2(BaseOptimizer):
 
     def setup(self, total_batch_iteration, total_epoch_iteration):
         super(OptimizerYolov2, self).setup(total_batch_iteration, total_epoch_iteration)
-        self.flag = True
         self.burn_in = 1000
         self.scale=[0.1,0.1]
         self.steps=[40000,60000]
@@ -259,9 +257,6 @@ class OptimizerYolov2(BaseOptimizer):
 
         current_batch_num = (self.total_batch_iteration * nth_epoch) + (nth_batch +1)
 
-        if current_batch_num > int(0.3 * self.total_iteration) and hasattr(self,"flag"):
-            self.flag = False
-
         if current_batch_num <= self.burn_in:
             self.opt._lr = self.learning_rate * np.round(np.power(float(current_batch_num/self.burn_in),self.power),3)
             return 
@@ -271,7 +266,6 @@ class OptimizerYolov2(BaseOptimizer):
                 rate *= self.scale[i]
                 self.opt._lr = rate
  
-#---------------------------------------------------------------------------------------------
 
 
 class OptimizerYolov1(BaseOptimizer):

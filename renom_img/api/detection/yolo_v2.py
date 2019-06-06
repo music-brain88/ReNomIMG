@@ -18,6 +18,77 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.nms import nms
 from renom_img.api.utility.optimizer import BaseOptimizer, OptimizerYolov2
 
+
+class BestAnchorBoxFinder(object):
+    def __init__(self, ANCHORS):
+        self.anchors = [BoundBox(0, 0, ANCHORS[i][0], ANCHORS[i][1]) 
+                        for i in range(len(ANCHORS))]
+        
+    def _interval_overlap(self,interval_a, interval_b):
+        x1, x2 = interval_a
+        x3, x4 = interval_b
+        if x3 < x1:
+            if x4 < x1:
+                return 0
+            else:
+                return min(x2,x4) - x1
+        else:
+            if x2 < x3:
+                 return 0
+            else:
+                return min(x2,x4) - x3  
+
+    def bbox_iou(self,box1, box2):
+        intersect_w = self._interval_overlap([box1.xmin, box1.xmax], [box2.xmin, box2.xmax])
+        intersect_h = self._interval_overlap([box1.ymin, box1.ymax], [box2.ymin, box2.ymax])  
+
+        intersect = intersect_w * intersect_h
+
+        w1, h1 = box1.xmax-box1.xmin, box1.ymax-box1.ymin
+        w2, h2 = box2.xmax-box2.xmin, box2.ymax-box2.ymin
+
+        union = w1*h1 + w2*h2 - intersect
+
+        return float(intersect) / union
+    
+    def find(self,center_w, center_h):
+        # find the anchor that best predicts this box
+        best_anchor = -1
+        max_iou     = -1
+        # each Anchor box is specialized to have a certain shape.
+        # e.g., flat large rectangle, or small square
+        shifted_box = BoundBox(0, 0,center_w, center_h)
+        ##  For given object, find the best anchor box!
+        for i in range(len(self.anchors)): ## run through each anchor box
+            anchor = self.anchors[i]
+            iou    = self.bbox_iou(shifted_box, anchor)
+            if max_iou < iou:
+                best_anchor = i
+                max_iou     = iou
+        return(best_anchor,max_iou)    
+    
+    
+class BoundBox:
+    def __init__(self, xmin, ymin, xmax, ymax, confidence=None,classes=None):
+        self.xmin, self.ymin = xmin, ymin
+        self.xmax, self.ymax = xmax, ymax
+        ## the code below are used during inference
+        # probability
+        self.confidence      = confidence
+        # class probaiblities [c1, c2, .. cNclass]
+        self.set_class(classes)
+        
+    def set_class(self,classes):
+        self.classes = classes
+        self.label   = np.argmax(self.classes) 
+        
+    def get_label(self):  
+        return(self.label)
+    
+    def get_score(self):
+        return(self.classes[self.label])
+
+
 class AnchorYolov2(object):
     """
     This class contains anchors that will used by in Yolov2.
@@ -36,7 +107,7 @@ class AnchorYolov2(object):
         return len(self.anchor)
 
 
-def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
+def create_anchor(annotation_list, n_anchor=5, base_size=(320,320)):
     """
     This function creates 'anchors' for yolo v2 algorithm using k-means clustering.
 
@@ -48,53 +119,70 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(416, 416)):
     Args:
         annotation_list(list):
         n_anchor(int):
-        base_size(int, list):
 
     Returns:
         (AnchorYolov2): Anchor list.
     """
-    convergence = 0.005
-    box_list = [(0, 0, an['box'][2] * base_size[0] / an['size'][0],
-                 an['box'][3] * base_size[1] / an['size'][1])
-                for an in chain.from_iterable(annotation_list)]
+#-------------------------------------------------------------------------
+    annotations = []
+    for annot in annotation_list:
+        for obj in annot:
+            aw = base_size[0]
+            ah = base_size[1]
+            w = obj["box"][2]/aw*int(aw/32)  # make the width range between [0,GRID_W)
+            h = obj["box"][3]/ah*int(ah/32)  # make the width range between [0,GRID_H)
+            temp = [w,h]
+            annotations.append(temp)
+    annotations = np.array(annotations)
 
-    centroid_index = np.random.permutation(len(box_list))[:n_anchor]
-    centroid = [box_list[i] for i in centroid_index]
+    def iou(box, clusters):
 
-    def update(centroid, box_list):
-        loss = 0
-        group = [[] for _ in range(n_anchor)]
-        new_centroid = [[0, 0, 0, 0] for _ in range(n_anchor)]
+        x = np.minimum(clusters[:, 0], box[0]) 
+        y = np.minimum(clusters[:, 1], box[1])
 
-        def metric(x, center): return 1 - calc_iou_xywh(x, center)
-        for box in box_list:
-            minimum_distance = 100
-            for c_ind, cent in enumerate(centroid):
-                distance = metric(box, cent)
-                if distance < minimum_distance:
-                    minimum_distance = distance
-                    group_index = c_ind
-            group[group_index].append(box)
-            new_centroid[group_index][2] += box[2]  # Sum up for calc mean.
-            new_centroid[group_index][3] += box[3]
-            loss += minimum_distance
+        intersection = x * y
+        box_area = box[0] * box[1]
+        cluster_area = clusters[:, 0] * clusters[:, 1]
 
-        for n in range(n_anchor):
-            if (len(group[n])) > 0:
-                new_centroid[n][2] /= len(group[n])
-                new_centroid[n][3] /= len(group[n])
-        return new_centroid, loss
+        iou_ = intersection / (box_area + cluster_area - intersection)
 
-    # Perform k-means.
-    new_centroids, old_loss = update(centroid, box_list)
-    while True:
-        new_centroids, loss = update(new_centroids, box_list)
-        if np.abs(loss - old_loss) < convergence:
-            break
-        old_loss = loss
+        return iou_
 
-    # This depends on input image size.
-    return AnchorYolov2([[cnt[2], cnt[3]] for cnt in new_centroids], base_size)
+    def kmeans(boxes, k, dist=np.median,seed=1):
+
+        rows = boxes.shape[0]
+
+        distances     = np.empty((rows, k)) 
+        last_clusters = np.zeros((rows,))
+
+        np.random.seed(seed)
+
+        # initialize k cluster centers 
+        clusters = boxes[np.random.choice(rows, k, replace=False)]
+
+        while True:
+            # Step 1: allocate each item to the closest cluster centers
+            for icluster in range(k):
+                distances[:,icluster] = 1 - iou(clusters[icluster], boxes)
+
+            nearest_clusters = np.argmin(distances, axis=1)
+
+            if (last_clusters == nearest_clusters).all():
+                break
+            
+            # Step 2: calculate the cluster centers as mean 
+            for cluster in range(k):
+                clusters[cluster] = dist(boxes[nearest_clusters == cluster], axis=0)
+
+            last_clusters = nearest_clusters
+
+        return clusters,nearest_clusters,distances
+
+    clusters, nearest_clusters, distances = kmeans(annotations,n_anchor,seed=2,dist=np.mean)
+
+    WithinClusterMeanDist = np.mean(distances[np.arange(distances.shape[0]),nearest_clusters])
+    print('mean_IOU_withincluster: ',1-WithinClusterMeanDist)
+    return AnchorYolov2(clusters, base_size)
 
 
 class TargetBuilderYolov2():
@@ -107,17 +195,21 @@ class TargetBuilderYolov2():
         bbox:
         imsize:
     """
-    def __init__(self, class_map,size_n,perm,imsize_list):
+    def __init__(self, class_map,size_n,perm,imsize_list,anchor,num_anchor):
         self.class_map = class_map
         self.size_N = size_n
         self.perm = perm
         self.imsize_list = imsize_list
         self.num_class=len(class_map)
+        self.anchor = anchor
+        self.num_anchor = num_anchor
+        self.bestAnchorBoxFinder = BestAnchorBoxFinder(self.anchor)
+        self.buffer = 50
 
     def __call__(self, *args, **kwargs):
         return self.build(*args, **kwargs)
 
-    def preprocess(self, x):
+    def preprocess(self, x):        
         return x / 255.
 
     def build(self, img_path_list, annotation_list=None, augmentation=None, nth=0, **kwargs):
@@ -144,44 +236,42 @@ class TargetBuilderYolov2():
         num_class = self.num_class
         channel = num_class + 5
         offset = channel
-
         if nth % 10 == 0:
             self.perm[:] = np.random.permutation(self.size_N)
         size_index = self.perm[0]
-
+        buff_batch = np.zeros((N,1,4,1,1,self.buffer))
         label = np.zeros(
-                (N, channel, self.imsize_list[size_index][1] // 32, self.imsize_list[size_index][0] // 32))
-        img_list, label_list = prepare_detection_data(
-            img_path_list, annotation_list)
+                (N, self.num_anchor,channel, self.imsize_list[size_index][1] // 32, self.imsize_list[size_index][0] // 32))
+        img_list, label_list = prepare_detection_data(img_path_list, annotation_list)
 
         if augmentation is not None:
             img_list, label_list = augmentation(img_list, label_list, mode="detection")
 
         img_list, label_list = resize_detection_data(img_list, label_list, self.imsize_list[size_index])
+        im_size = self.imsize_list[size_index] 
 
         for n, annotation in enumerate(label_list):
             # This returns resized image.
             # Target processing
-            boxces = np.array([a['box'] for a in annotation])
-            classes = np.array([[0] * a["class"] + [1] + [0] * (num_class - a["class"] - 1)
-                                    for a in annotation])
-            if len(boxces.shape) < 2:
-                continue
-            # x, y
-            cell_x = (boxces[:, 0] // ratio_w).astype(np.int)
-            cell_y = (boxces[:, 1] // ratio_h).astype(np.int)
-            for i, (cx, cy) in enumerate(zip(cell_x, cell_y)):
-                label[n, 1, cy, cx] = boxces[i, 0]
-                label[n, 2, cy, cx] = boxces[i, 1]
+            true_box_index = 0
+            for obj in annotation:
+                center_x,center_y = obj['box'][0]/float(im_size[0])*(im_size[0]//ratio_w),obj['box'][1]/float(im_size[1])*(im_size[1]//ratio_h)
 
-                # w, h
-                label[n, 3, cy, cx] = boxces[i, 2]
-                label[n, 4, cy, cx] = boxces[i, 3]
+                grid_x,grid_y = int(np.floor(center_x)),int(np.floor(center_y))
 
-                # Conf
-                label[n, 0, cy, cx] = 1
-                label[n, 5:, cy, cx] = classes[i].reshape(-1, 1, num_class)
-        return self.preprocess(img_list), label
+                center_w,center_h = obj['box'][2]/float(im_size[0])*(im_size[0]//ratio_w),obj['box'][3]/float(im_size[1])*(im_size[1]//ratio_h)
+
+                box = [center_x,center_y,center_w,center_h]
+                best_anchor,max_iou = self.bestAnchorBoxFinder.find(center_w,center_h)
+                classes = np.array([0] * obj["class"] + [1] + [0] * (num_class - obj["class"] - 1))
+                label[n,best_anchor,0,grid_y,grid_x] = 1
+                label[n,best_anchor,1:5,grid_y,grid_x] = box
+                label[n,best_anchor,5:,grid_y,grid_x] = classes
+                buff_batch[n,0,:,0,0,true_box_index] = box
+                true_box_index += 1
+                true_box_index = true_box_index % self.buffer
+               
+        return self.preprocess(img_list), buff_batch,label
 
 
 class Yolov2(Detection):
@@ -256,6 +346,9 @@ class Yolov2(Detection):
                 reg += rm.sum(layer.params.w * layer.params.w)
         return (0.0005 / 2.) * reg
 
+    def forward(self, x):
+        self.model.set_anchor(self.num_anchor)
+        return self.model(x)
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
@@ -300,9 +393,9 @@ class Yolov2(Detection):
             z = z.as_ndarray()
 
         imsize = self.imsize
-        asw = imsize[0] / self.anchor_size[0]
-        ash = imsize[1] / self.anchor_size[1]
-        anchor = [[an[0] * asw, an[1] * ash] for an in self.anchor]
+#        asw = imsize[0] / self.anchor_size[0]
+#        ash = imsize[1] / self.anchor_size[1]
+        anchor = [[an[0], an[1]] for an in self.anchor]
 
         num_anchor = len(anchor)
         N, C, H, W = z.shape
@@ -318,12 +411,12 @@ class Yolov2(Detection):
             a_box = a_pred[:, 1:5]
             a_box[:, 0] += np.arange(FW).reshape(1, 1, FW)
             a_box[:, 1] += np.arange(FH).reshape(1, FH, 1)
-            a_box[:, 0] *= 32
-            a_box[:, 1] *= 32
+            a_box[:, 0] /= W
+            a_box[:, 1] /= H
             a_box[:, 2] *= anc[0]
             a_box[:, 3] *= anc[1]
-            a_box[:, 0::2] = a_box[:, 0::2] / imsize[0]
-            a_box[:, 1::2] = a_box[:, 1::2] / imsize[1]
+            a_box[:, 2] /= W
+            a_box[:, 3] /= H
 
             # Clip bounding box
             w = a_box[:, 2] / 2.
@@ -380,140 +473,132 @@ class Yolov2(Detection):
         size_N = len(imsize_list)
         perm = np.random.permutation(size_N)
 
-        return TargetBuilderYolov2(self.class_map,size_N,perm,imsize_list)
+        return TargetBuilderYolov2(self.class_map,size_N,perm,imsize_list,self.anchor,self.num_anchor)
 
-    def loss(self, x, y):
-        """Loss function specified for yolov2.
 
-        Args:
-            x(Node, ndarray): Output data of neural network.
-            y(Node, ndarray): Target data.
+    def get_cell_grid(self, grid_w,grid_h,batch,box):
+            cell_x = np.reshape(np.tile(range(grid_w),grid_h),(1,1,1,grid_h,grid_w))
+            cell_y = np.transpose(cell_x,(0,1,2,4,3))
+            cell_grid = np.tile(np.concatenate([cell_x,cell_y],2),[batch,box,1,1,1])
+            return cell_grid
 
-        Returns:
-            (Node): Loss between x and y.
+    def adjust_scale_prediction(self,y_pred,cell_grid,anchors):
+        pred_box_xy = y_pred[:,:,1:3,:,:] + cell_grid
+        pred_box_wh = y_pred[:,:,3:5,:,:] * np.reshape(anchors,[1,self.num_anchor,2,1,1])
+        pred_box_conf = y_pred[:,:,0,:,:]
+        pred_box_class = y_pred[:,:,5:,:,:]
+        
+        return pred_box_xy,pred_box_wh,pred_box_conf,pred_box_class
+    
+    def extract_ground_truth(self,y_true):
+        true_box_xy = y_true[:,:,1:3,:,:]
+        true_box_wh = y_true[:,:,3:5,:,:]
+        true_box_conf = y_true[:,:,0,:,:]
+        true_box_class = y_true[:,:,5:,:,:]
+        
+        return true_box_xy, true_box_wh, true_box_conf, true_box_class
+    
+    def calc_loss_xywh(self, true_box_conf, coord_scale, true_box_xy, pred_box_xy,true_box_wh,pred_box_wh):
+        coord_mask = np.expand_dims(true_box_conf, axis = 2) * coord_scale
+#        nb_coord_box = np.sum(coord_mask[np.where(coord_mask>0.0)])
+        loss_xy = rm.sum(rm.square(true_box_xy-pred_box_xy)*coord_mask)                   # /(nb_coord_box + 1e-6) / 2.
+        loss_wh = rm.sum(rm.square(rm.sqrt(true_box_wh)-rm.sqrt(pred_box_wh))*coord_mask) #/(nb_coord_box + 1e-6) / 2.
+        
+        return loss_xy+loss_wh, coord_mask
+    
+    def cal_loss_class(self,true_box_conf, class_scale, true_box_class, pred_box_class):
+        class_mask = true_box_conf * class_scale
+        n,c,h,w = class_mask.shape
+#        nb_class_box = np.sum(class_mask[np.where(class_mask>0.0)])
+        loss_class = rm.cross_entropy(pred_box_class.transpose(0,2,1,3,4), true_box_class.transpose(0,2,1,3,4),False) # keep the dimension
+        loss_class = rm.sum(loss_class) #/ (nb_class_box + 1e-6)
+        
+        return loss_class     
+    
+    def get_intersect_area(self,true_xy,true_wh,pred_xy,pred_wh):
+        true_wh_half = true_wh / 2.
+        true_mins = true_xy - true_wh_half
+        true_maxes = true_xy + true_wh_half
+        
+        pred_wh_half = pred_wh /2.
+        pred_mins = pred_xy - pred_wh_half
+        pred_maxes = pred_xy + pred_wh_half
+        
+        intersect_mins = np.maximum(pred_mins, true_mins)
+        intersect_maxes = np.minimum(pred_maxes,true_maxes)
+        intersect_wh = np.maximum(intersect_maxes - intersect_mins, 0.)
+        intersect_areas = intersect_wh[:,:,0,...] * intersect_wh[:,:,1,...]
+        
+        true_areas = true_wh[:,:,0,...] * true_wh[:,:,1,...]
+        pred_areas = pred_wh[:,:,0,...] * pred_wh[:,:,1,...]
+        
+        union_areas = pred_areas + true_areas - intersect_areas
+        iou_scores = intersect_areas / union_areas
+        
+        return iou_scores
+    
+    def calc_IOU_pred_true_assigned(self,true_box_conf,true_box_xy,true_box_wh,pred_box_xy,pred_box_wh):
+        pred_box_xy = pred_box_xy.as_ndarray()
+        pred_box_wh = pred_box_wh.as_ndarray()
+        
+        iou_scores = self.get_intersect_area(true_box_xy,true_box_wh,pred_box_xy,pred_box_wh)
+        true_box_conf_IOU = iou_scores * true_box_conf
+        
+        return true_box_conf_IOU
+    
+    def calc_IOU_pred_true_best(self, pred_box_xy,pred_box_wh,true_boxes):
+        pred_box_xy = pred_box_xy.as_ndarray()
+        pred_box_wh = pred_box_wh.as_ndarray()
+        true_xy = true_boxes[:,:,0:2,:,:,:]
+        true_wh = true_boxes[:,:,2:4,:,:,:]
+        pred_xy = np.expand_dims(pred_box_xy,-1)
+        pred_wh = np.expand_dims(pred_box_wh,-1) # expand dimension for the buffer size axis
+        
+        iou_scores = self.get_intersect_area(true_xy,true_wh,pred_xy,pred_wh)
+        best_ious = np.amax(iou_scores,axis=4)
+        return best_ious
+        
+    def get_conf_mask(self, best_ious, true_box_conf, true_box_conf_IOU, LAMBDA_NO_OBJECT,LAMBDA_OBJECT):
+        selected = best_ious < 0.6  # boolean array
+        selected = selected.astype(float) # convert to float array
+        conf_mask = selected * (1-true_box_conf) * LAMBDA_NO_OBJECT
+        conf_mask = conf_mask + true_box_conf_IOU * LAMBDA_OBJECT
+        
+        return conf_mask
+    
+    def calc_loss_conf(self,conf_mask,true_box_conf_IOU,pred_box_conf):
+#        nb_conf_box = np.sum(conf_mask[np.where(conf_mask>0.0)])
+        loss_conf = rm.sum(rm.square(true_box_conf_IOU-pred_box_conf)*conf_mask)# /(nb_conf_box+1e-6) /2.
+        return loss_conf
+    
+    def loss(self, x, buffer, y):
+        LAMBDA_NO_OBJECT = 0.5
+        LAMBDA_OBJECT    = 5.0
+        LAMBDA_COORD     = 1.0
+        LAMBDA_CLASS     = 1.0
+        
+        batch, box, C, grid_h, grid_w = y.shape
 
-        Example:
-            >>> z = model(x)
-            >>> model.loss(z, y)
-        """
-        N, C, H, W = x.shape
-        nd_x = x.as_ndarray()
-        asw = W * 32 / self.anchor_size[0]
-        ash = H * 32 / self.anchor_size[1]
-        anchor = [[an[0] * asw, an[1] * ash] for an in self.anchor]
-        num_anchor = self.num_anchor
-        mask = np.zeros((N, C, H, W), dtype=np.float32)
-        mask = mask.reshape(N, num_anchor, 5 + self.num_class, H, W)
-        if self.inference == False:
-            if hasattr(self.default_optimizer,"flag") and self.default_optimizer.flag:
-                mask[:, :, 1:3, ...] = 1.0
-                mask[:, :, 3:5, ...] = 0.0
-            else:
-                mask[:, :, 1:5, ...] = 0.0
-        else:
-            mask[:, :, 1:5, ...] = 0.0
-        mask = mask.reshape(N, C, H, W)
+        x = x.reshape(batch,box,C,grid_h,grid_w)
+    
+        anchors = np.array(self.anchor)
+        
+        cell_grid = self.get_cell_grid(grid_w, grid_h, batch, box)
+        pred_box_xy,pred_box_wh,pred_box_conf,pred_box_class = self.adjust_scale_prediction(x,cell_grid,anchors)
+ 
+        true_box_xy,true_box_wh,true_box_conf,true_box_class = self.extract_ground_truth(y)
+        loss_xywh, coord_mask = self.calc_loss_xywh(true_box_conf,LAMBDA_COORD,true_box_xy,pred_box_xy,true_box_wh,pred_box_wh)
+        loss_class = self.cal_loss_class(true_box_conf,LAMBDA_CLASS,true_box_class,pred_box_class)
+        
+        true_box_conf_IOU = self.calc_IOU_pred_true_assigned(true_box_conf,true_box_xy,true_box_wh,pred_box_xy,pred_box_wh)
+        best_ious = self.calc_IOU_pred_true_best(pred_box_xy,pred_box_wh,buffer)
+        conf_mask = self.get_conf_mask(best_ious,true_box_conf,true_box_conf_IOU,LAMBDA_NO_OBJECT,LAMBDA_OBJECT)
+        loss_conf = self.calc_loss_conf(conf_mask,true_box_conf_IOU,pred_box_conf)
+       
+        loss = loss_class + loss_conf + loss_xywh
+        
+        return loss
 
-        target = np.zeros((N, C, H, W), dtype=np.float32)
-        target = target.reshape(N, num_anchor, 5 + self.num_class, H, W)
-
-        if self.inference == False:
-            if hasattr(self.default_optimizer,"flag") and self.default_optimizer.flag:
-                target[:, :, 1:3, ...] = 0.5
-                target[:, :, 3:5, ...] = 0.0
-            else:
-                target[:, :, 1:5, ...] = 0.0
-        else:
-            target[:, :, 1:5, ...] = 0.0
-        target = target.reshape(N, C, H, W)
-        low_thresh = 0.6
-        im_w, im_h = (W * 32, H * 32)
-        offset = 5 + self.num_class
-
-        # Calc iou and get best matched prediction.
-        best_anchor_ious = np.zeros((N, 1, H, W), dtype=np.float32)
-        for n in range(N):
-            gt_index = np.where(y[n, 0] > 0)
-
-            # Create mask for prediction that
-            for ind in np.ndindex((num_anchor, H, W)):
-                max_iou = -1
-                px = (nd_x[n, 1 + ind[0] * offset, ind[1], ind[2]] + ind[2]) * im_w / W
-                py = (nd_x[n, 2 + ind[0] * offset, ind[1], ind[2]] + ind[1]) * im_h / H
-                pw = nd_x[n, 3 + ind[0] * offset, ind[1], ind[2]] * anchor[ind[0]][0]
-                ph = nd_x[n, 4 + ind[0] * offset, ind[1], ind[2]] * anchor[ind[0]][1]
-                for h, w in zip(*gt_index):
-                    tx = y[n, 1, h, w]
-                    ty = y[n, 2, h, w]
-                    tw = y[n, 3, h, w]
-                    th = y[n, 4, h, w]
-                    iou = calc_iou_xywh((px, py, pw, ph), (tx, ty, tw, th))
-                    if iou > max_iou:
-                        max_iou = iou
-
-                # scale of noobject iou
-                if max_iou <= low_thresh:
-                    mask[n, ind[0] * offset, ind[1], ind[2]] = 1.
-#                     mask[n, ind[0] * offset, ind[1], ind[2]] = nd_x[n,
-#                                                                     ind[0] * offset, ind[1], ind[2]] * 1
-
-            # Create target and mask for cell that contains obj.
-            for h, w in zip(*gt_index):
-                max_anc_iou = -1
-                best_anc_ind = None
-
-                tx = y[n, 1, h, w]
-                ty = y[n, 2, h, w]
-                tw = y[n, 3, h, w]
-                th = y[n, 4, h, w]
-
-                for ind, anc in enumerate(anchor):
-                    aw = anc[0]
-                    ah = anc[1]
-                    anc_iou = calc_iou_xywh((0, 0, aw, ah), (0, 0, tw, th))
-                    if anc_iou > max_anc_iou:
-                        max_anc_iou = anc_iou
-                        best_anc_ind = ind
-
-                # target of coordinate
-                target[n, 1 + best_anc_ind * offset, h, w] = (tx / 32.) % 1
-                target[n, 2 + best_anc_ind * offset, h, w] = (ty / 32.) % 1
-
-                # Don't need to divide by 32 because anchor is already rescaled to input image size.
-                target[n, 3 + best_anc_ind * offset, h, w] = tw / anchor[best_anc_ind][0]
-                target[n, 4 + best_anc_ind * offset, h, w] = th / anchor[best_anc_ind][1]
-
-                # target of class
-                target[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = \
-                    y[n, 5:offset, h, w]
-
-                # target of iou.
-                px = (nd_x[n, 1 + best_anc_ind * offset, h, w] + w) * 32
-                py = (nd_x[n, 2 + best_anc_ind * offset, h, w] + h) * 32
-                pw = nd_x[n, 3 + best_anc_ind * offset, h, w] * anchor[best_anc_ind][0]
-                ph = nd_x[n, 4 + best_anc_ind * offset, h, w] * anchor[best_anc_ind][1]
-
-                target[n, 0 + best_anc_ind * offset, h, w] = \
-                    calc_iou_xywh([px, py, pw, ph], [tx, ty, tw, th])
-
-                # scale of obj iou
-                mask[n, 0 + best_anc_ind * offset, h, w] = 5.
-#                 mask[n, 0 + best_anc_ind * offset, h,
-#                      w] = (1 - nd_x[n, best_anc_ind * offset, h, w]) * 5
-
-                # scale of coordinate
-                mask[n, 1 + best_anc_ind * offset, h, w] = 1
-                mask[n, 2 + best_anc_ind * offset, h, w] = 1
-                mask[n, 3 + best_anc_ind * offset, h, w] = 1
-                mask[n, 4 + best_anc_ind * offset, h, w] = 1
-
-                # scale of class
-                mask[n, 5 + best_anc_ind * offset:(best_anc_ind + 1) * offset, h, w] = 1
-
-        diff = x - target
-        N = np.sum(y[:, 0] > 0)
-        mask = np.abs(mask)
-        return rm.sum(mask * diff * diff) / N
 
     def fit(self, train_img_path_list, train_annotation_list,
             valid_img_path_list=None, valid_annotation_list=None,
@@ -586,14 +671,14 @@ class Yolov2(Detection):
         else:
             opt = optimizer
         assert opt is not None
-        if isinstance(opt, BaseOptimizer):
-          
+
+        if isinstance(opt, BaseOptimizer):          
             opt.setup(batch_loop, epoch)
-        my_avg_loss = -1
+
         for e in range(epoch):
             bar = tqdm(range(batch_loop))
             display_loss = 0
-            for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data(imsize_list))):
+            for i, (train_x, buffers,train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data(imsize_list))):
                 # This is for avoiding memory over flow.
                 if is_cuda_active() and i % 10 == 0:
                     release_mem_pool()
@@ -603,21 +688,21 @@ class Yolov2(Detection):
                     opt.set_information(i,e,avg_train_loss_list, avg_valid_loss_list)
 
                 with self.train():
-                    loss = self.loss(self.model(train_x), train_y)
+                    loss = self.loss(self(train_x), buffers,train_y)
                     reg_loss = loss + self.regularize()
                 reg_loss.grad().update(opt)
                 try:
                     loss = float(loss.as_ndarray()[0])
                 except:
                     loss = float(loss.as_ndarray())
-                if my_avg_loss < 0:
-                    my_avg_loss = loss
-                my_avg_loss = my_avg_loss * 0.9 + loss * 0.1
+
                 display_loss += loss
                 bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
             avg_train_loss = display_loss / (i + 1)
+
             avg_train_loss_list.append(avg_train_loss)
+ 
 
             if valid_dist is not None:
                 if is_cuda_active():
@@ -625,9 +710,9 @@ class Yolov2(Detection):
                 bar.n = 0
                 bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
-                for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data())):
+                for i, (valid_x,buffer_data, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data())):
                     self.set_models(inference=True)
-                    loss = self.loss(self(valid_x), valid_y)
+                    loss,coord,confidence,classes = self.loss(self(valid_x), buffer_data,valid_y)
 
                     try:
                         loss = float(loss.as_ndarray()[0])

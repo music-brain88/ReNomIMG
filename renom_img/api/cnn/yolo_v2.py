@@ -127,6 +127,8 @@ class CnnYolov2(CnnBase):
     def reset_deeper_layer(self):
         pass
 
+    def set_anchor(self, anchor_size):
+        self.num_anchor = anchor_size 
 
     def forward(self, x):
         assert len(self.class_map) > 0, \
@@ -144,6 +146,7 @@ class CnnYolov2(CnnBase):
 
         h = self._conv2(rm.concat(h,rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
         out = self._last(h)
+
         # Create yolo format.
         N, C, H, W = h.shape
 
