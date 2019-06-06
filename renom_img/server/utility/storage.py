@@ -14,6 +14,7 @@ from renom_img.server.utility.DAO import Session
 from renom_img.server.utility.DAO import engine
 from renom_img.server.utility.table import *
 from renom_img.server import Task as TaskConst
+from renom_img.server import State
 TOTAL_ALOGORITHM_NUMBER = 3
 TOTAL_TASK = 3
 
@@ -277,6 +278,19 @@ class Storage:
                         res_dict[key] = value
             dict_result.append(res_dict)
         return dict_result
+
+    def remove_dataset(self, id):
+        with SessionContext() as session:
+            result = session.query(Dataset).filter(Dataset.id == id).first()
+            if result:
+                session.delete(result)
+        return
+
+    def fetch_running_models(self, task_id):
+        with SessionContext() as session:
+            result = session.query(Model).filter(Model.task_id == task_id).filter(Model.state == State.STARTED.value)
+            dict_result = self.remove_instance_state_key(result)
+            return dict_result
 
 
 global storage

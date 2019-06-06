@@ -40,7 +40,7 @@ from renom_img.server import DATASET_IMG_DIR, DATASET_LABEL_CLASSIFICATION_DIR, 
     DATASET_LABEL_DETECTION_DIR, DATASET_LABEL_SEGMENTATION_DIR
 from renom_img.server import DATASET_NAME_MAX_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH
 from renom_img.server.utility.setup_example import setup_example
-
+from renom_img.server.utility.formatter import get_formatter_resolver
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
 executor = Executor(max_workers=2)
@@ -1035,10 +1035,27 @@ def get_datasets():
     """
     get datasets
     """
-    dummy = {
-        "datasets": DATASETS
+    task_id = Task.DETECTION.value
+    datasets = storage.fetch_datasets_of_task(task_id)
+
+    ret = {
+        "datasets": [
+            {
+                'id': d["id"],
+                'name': d["name"],
+                'description': d["description"],
+                'task_id': d["task_id"],
+                'ratio': d["ratio"],
+                'class_map': [],
+                'class_info': {},
+                'train_data': {},
+                'valid_data': {},
+                'test_dataset_id': d["test_dataset_id"]
+            }
+            for d in datasets
+        ]
     }
-    return create_response(dummy, status=200)
+    return create_response(ret, status=200)
 
 
 @route("/renom_img/v2/api/detection/datasets", method="POST")
@@ -1046,11 +1063,149 @@ def create_dataset():
     """
     create dataset
     """
-    dummy = {
-        "dataset": DATASET
+    req_params = request.params
+    # Receive params here.
+    dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
+    description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
+    ratio = float(req_params.ratio)
+    task_id = Task.DETECTION.value
+
+    test_dataset_id = int(
+        req_params.test_dataset_id
+        if req_params.test_dataset_id != '' else '-1')
+
+    # TODO: Create Module of string length check
+    assert len(dataset_name) <= DATASET_NAME_MAX_LENGTH, \
+        "Dataset name is too long. Please set the name length <= {}".format(DATASET_NAME_MAX_LENGTH)
+    assert len(description) <= DATASET_DESCRIPTION_MAX_LENGTH, \
+        "Dataset description is too long. Please set the description length <= {}".format(
+            DATASET_DESCRIPTION_MAX_LENGTH)
+
+    # TODO: Load root directory from configuration file or env params.
+    # TODO: Make other storage available. e.g. S3.
+    root = pathlib.Path('datasrc')
+    img_dir = root / 'img'
+    label_dir = root / 'label'
+
+    # TODO: Create Module of directory check
+    assert img_dir.exists(), \
+        "The directory 'datasrc/img' is not found in current working directory."
+    assert label_dir.exists(), \
+        "The directory 'datasrc/label/detection' is not found in current working directory."
+
+    file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
+                  if name.is_file()]
+
+    if test_dataset_id > 0:
+        test_dataset = storage.fetch_test_dataset(test_dataset_id)
+        test_dataset = set([pathlib.Path(test_path).relative_to(img_dir)
+                            for test_path in test_dataset['data']['img']])
+
+        # Remove test files.
+        file_names = file_names - test_dataset
+
+    # xmlファイルが存在する画像ファイル名のリスト
+    detection_label_dir = DATASET_LABEL_DETECTION_DIR
+    file_names = [p for p in file_names
+                  if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
+    # xmlファイルが存在する画像ファイルパスのリスト
+    img_files = [str(img_dir / name) for name in file_names]
+    # xmlファイルのパスのリスト
+    xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
+    parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
+
+    # Split into train and valid.
+    # 他のタスクでも同様の処理をするので関数かした方がよさそう
+    n_imgs = len(file_names)
+    perm = np.random.permutation(n_imgs)
+
+    train_img, valid_img = np.split(np.array([img_files[index] for index in perm]),
+                                    [int(ratio * n_imgs)])
+    train_img = train_img.tolist()
+    valid_img = valid_img.tolist()
+    valid_img_size = [list(Image.open(i).size) for i in valid_img]
+
+    train_target, valid_target = np.split(np.array([parsed_target[index] for index in perm]),
+                                          [int(ratio * n_imgs)])
+    train_target = train_target.tolist()
+    valid_target = valid_target.tolist()
+
+    # Load test Dataset if exists.
+    if test_dataset_id > 0:
+        test_dataset = storage.fetch_test_dataset(test_dataset_id)
+        test_ratio = []
+    else:
+        test_ratio = []
+
+    # 同じ処理を繰り返しているので関数にできそう
+    train_tag_list = []
+    valid_tag_list = []
+
+    for i in range(len(train_target)):
+        for j in range(len(train_target[i])):
+            train_tag_list.append(train_target[i][j].get('class'))
+
+    for i in range(len(valid_target)):
+        for j in range(len(valid_target[i])):
+            valid_tag_list.append(valid_target[i][j].get('class'))
+
+    train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
+    valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))
+
+    class_info = {
+        "class_map": class_map,
+        "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
+        "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+        "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+        "test_ratio": test_ratio,
+        "train_img_num": len(train_img),
+        "valid_img_num": len(valid_img),
+        "test_img_num": 1,
     }
-    response = create_response(dummy, status=201)
-    location = "/renom_img/v2/api/detection/datasets/{}".format(DATASET["id"])
+    # print(class_info)
+
+    train_data = {
+        'img': train_img,
+        'target': train_target
+    }
+    # print(train_data)
+
+    valid_data = {
+        'img': valid_img,
+        'target': valid_target,
+        'size': valid_img_size,
+    }
+    # print(valid_data)
+
+    # Registering in DB instead of temporary registration with global variable
+    dataset_id = storage.register_dataset(
+        task_id,
+        dataset_name,
+        description,
+        ratio,
+        train_data,
+        valid_data,
+        class_map,
+        class_info,
+        test_dataset_id
+    )
+
+    ret = {
+        "dataset": {
+            'id': dataset_id,
+            'name': dataset_name,
+            'description': description,
+            'task_id': task_id,
+            'ratio': ratio,
+            'class_map': class_map,
+            'class_info': class_info,
+            'train_data': train_data,
+            'valid_data': valid_data,
+            'test_dataset_id': test_dataset_id
+        }
+    }
+    response = create_response(ret, status=201)
+    location = "/renom_img/v2/api/detection/datasets/{}".format(dataset_id)
     response.set_header('Location', location)
     return response
 
@@ -1060,10 +1215,22 @@ def get_dataset(dataset_id):
     """
     get dataset
     """
-    dummy = {
-        "dataset": DATASET
+    d = storage.fetch_dataset(dataset_id)
+    ret = {
+        "dataset": {
+            'id': d["id"],
+            'name': d["name"],
+            'description': d["description"],
+            'task_id': d["task_id"],
+            'ratio': d["ratio"],
+            'class_map': d["class_map"],
+            'class_info': d["class_info"],
+            'train_data': d["train_data"],
+            'valid_data': d["valid_data"],
+            'test_dataset_id': d["test_dataset_id"],
+        }
     }
-    return create_response(dummy, status=200)
+    return create_response(ret, status=200)
 
 
 @route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", method="PUT")
@@ -1071,10 +1238,8 @@ def update_dataset(dataset_id):
     """
     update dataset
     """
-    dummy = {
-        "status": "success"
-    }
-    return create_response(dummy, status=204)
+    # 仮登録したデータセットを本登録する。
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/detection/datasets/<dataset_id:int>", method="DELETE")
@@ -1082,10 +1247,8 @@ def delete_dataset(dataset_id):
     """
     delete dataset
     """
-    dummy = {
-        "status": "success"
-    }
-    return create_response(dummy, status=204)
+    storage.remove_dataset(dataset_id)
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/detection/models", method="GET")
@@ -1093,10 +1256,43 @@ def get_models():
     """
     get models
     """
-    dummy = {
-        "models": MODELS
-    }
-    return create_response(dummy, status=200)
+    task_id = Task.DETECTION.value
+
+    req_params = request.params
+    state = req_params.state
+
+    # TODO: stateに合わせてDBから取得するモデルをかえる
+    models = storage.fetch_models_of_task(task_id)
+    # models = storage.fetch_running_models(task_id)
+    # models = storage.fetch_deployed_model(task_id)
+
+    # Remove best_valid_changed because it is very large.
+    models = [
+        {
+            "id": m["id"],
+            "task_id": m["task_id"],
+            "dataset_id": m["dataset_id"],
+            "algorithm_id": m["algorithm_id"],
+            "hyper_parameters": m["hyper_parameters"],
+            "state": m["state"],
+            "running_state": m["running_state"],
+            "train_loss_list": [],
+            "valid_loss_list": [],
+            "best_epoch_valid_result": {},
+            "total_epoch": m["total_epoch"],
+            "nth_epoch": m["nth_epoch"],
+            "total_batch": m["total_batch"],
+            "nth_batch": m["nth_batch"],
+            "last_batch_loss": m["last_batch_loss"],
+            "last_prediction_result": {},
+            "created": m["created"],
+            "updated": m["updated"],
+        }
+        for m in models
+    ]
+    ret = {'models': models}
+    ret = json.dumps(ret, ignore_nan=True, default=json_encoder)
+    return create_response(ret, status=200)
 
 
 @route("/renom_img/v2/api/detection/models", method="POST")
@@ -1104,11 +1300,26 @@ def create_model():
     """
     create model
     """
-    dummy = {
-        "model": MODEL
+    req_json = request.json
+    hyper_params = req_json['hyper_parameters']
+    algorithm_id = req_json['algorithm_id']
+    dataset_id = req_json['dataset_id']
+    task_id = Task.DETECTION.value
+
+    new_id = storage.register_model(
+        int(task_id), int(dataset_id), int(algorithm_id), hyper_params)
+
+    ret = {
+        "model": {
+            "id": new_id,
+            "task_id": task_id,
+            "dataset_id": dataset_id,
+            "algorithm_id": algorithm_id,
+            "hyper_parameters": hyper_params
+        }
     }
-    response = create_response(dummy, status=201)
-    location = "/renom_img/v2/api/detection/models/{}".format(MODEL["id"])
+    response = create_response(ret, status=201)
+    location = "/renom_img/v2/api/detection/models/{}".format(new_id)
     response.set_header('Location', location)
     return response
 
@@ -1118,10 +1329,11 @@ def get_model(model_id):
     """
     get model
     """
-    dummy = {
-        "model": MODEL
-    }
-    return create_response(dummy, status=200)
+    model = storage.fetch_model(model_id)
+    model = {k: v for k, v in model.items()}
+    ret = {'model': model}
+    ret = json.dumps(ret, ignore_nan=True, default=json_encoder)
+    return create_response(ret, status=200)
 
 
 @route("/renom_img/v2/api/detection/models/<model_id:int>", method="PUT")
@@ -1129,10 +1341,20 @@ def update_model(model_id):
     """
     update model
     """
-    dummy = {
-        "status": "sucess"
-    }
-    return create_response(dummy, status=204)
+    task_id = Task.DETECTION.value
+
+    req_params = request.params
+
+    # if deploy value exists
+    deploy = req_params.pop("deploy", False)
+    if deploy:
+        storage.deploy_model(model_id)
+    else:
+        storage.undeploy_model(task_id)
+
+    # TODO: check request parameters
+    storage.update_model(model_id, **req_params)
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/detection/models/<model_id:int>", method="DELETE")
@@ -1140,10 +1362,13 @@ def delete_model(model_id):
     """
     delete model
     """
-    dummy = {
-        "status": "sucess"
-    }
-    return create_response(dummy, status=204)
+    threads = TrainThread.jobs
+    active_train_thread = threads.get(id, None)
+    if active_train_thread is not None:
+        active_train_thread.stop()
+        active_train_thread.future.result()
+    storage.remove_model(id)
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/detection/models/<model_id:int>/weight", method="GET")
@@ -1151,18 +1376,19 @@ def download_model_weight(model_id):
     """
     download model weight file
     """
-    pass
-
-
-@route("/renom_img/v2/api/detection/train", method="GET")
-def get_train_status():
-    """
-    get train status
-    """
-    dummy = {
-        "running_models": MODELS
-    }
-    return create_response(dummy, status=200)
+    # This method will be called from python script.
+    try:
+        model = storage.fetch_model(model_id)
+        if model is None:
+            raise Exception("No model deployed.")
+        file_name = model['best_epoch_weight']
+        download_filename = 'model{}_weight.h5'.format(model_id)
+        return static_file(file_name, root=".", download=download_filename)
+    except Exception as e:
+        traceback.print_exc()
+        body = json.dumps({"error_msg": e.args[0]})
+        ret = create_response(body, status=500)
+        return ret
 
 
 @route("/renom_img/v2/api/detection/train", method="POST")
@@ -1170,21 +1396,130 @@ def run_train():
     """
     run train
     """
-    dummy = {
-        "status": "sucess"
-    }
-    return create_response(dummy, status=201)
+    req_params = request.params
+    model_id = req_params.model_id
+
+    # TODO: Confirm if the model is already trained.
+    thread = TrainThread(model_id)
+    th = executor.submit(thread)
+    thread.set_future(th)
+
+    # TODO: set train_id to thread
+    # train_id = 1
+    # response = create_response({"train": {"train_id": train_id}}, status=201)
+    # location = "/renom_img/v2/api/detection/train/{}".format(train_id)
+    # response.set_header('Location', location)
+    response = create_response({"status": "success"}, status=201)
+    return response
 
 
+# TODO
+# train_idから学習の進捗をとれるようにする
+# 学習が動くホストが変わったら必要になる?
+# @route("/renom_img/v2/api/detection/train/<train_id:int>", method="GET")
+@route("/renom_img/v2/api/detection/train", method="GET")
+def get_train_status():
+    """
+    get train status
+    """
+    req_params = request.params
+    model_id = req_params.model_id
+
+    threads = TrainThread.jobs
+    active_train_thread = threads.get(model_id, None)
+    if active_train_thread is None:
+        saved_model = storage.fetch_model(model_id)
+        if saved_model is None:
+            return
+
+        # If the state == STOPPED, client will never throw request.
+        if saved_model["state"] != State.STOPPED.value:
+            storage.update_model(model_id, state=State.STOPPED.value,
+                                 running_state=RunningState.STOPPING.value)
+            saved_model = storage.fetch_model(model_id)
+
+        return {
+            "state": saved_model["state"],
+            "running_state": saved_model["running_state"],
+            "total_epoch": saved_model["total_epoch"],
+            "nth_epoch": saved_model["nth_epoch"],
+            "total_batch": saved_model["total_batch"],
+            "nth_batch": saved_model["nth_batch"],
+            "last_batch_loss": saved_model["last_batch_loss"],
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": False,
+            "train_loss_list": saved_model["train_loss_list"],
+            "valid_loss_list": saved_model["valid_loss_list"],
+        }
+    elif active_train_thread.state == State.RESERVED or \
+            active_train_thread.state == State.CREATED:
+
+        for _ in range(60):
+            if active_train_thread.state == State.RESERVED or \
+                    active_train_thread.state == State.CREATED:
+                time.sleep(1)
+                if active_train_thread.updated:
+                    active_train_thread.returned2client()
+                    break
+            else:
+                time.sleep(1)
+                break
+
+        active_train_thread.consume_error()
+        return {
+            "state": active_train_thread.state.value,
+            "running_state": active_train_thread.running_state.value,
+            "total_epoch": 0,
+            "nth_epoch": 0,
+            "total_batch": 0,
+            "nth_batch": 0,
+            "last_batch_loss": 0,
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": False,
+            "train_loss_list": [],
+            "valid_loss_list": [],
+        }
+    else:
+        for _ in range(10):
+            time.sleep(0.5)  # Avoid many request.
+            if active_train_thread.updated:
+                break
+            active_train_thread.consume_error()
+        active_train_thread.returned2client()
+        return {
+            "state": active_train_thread.state.value,
+            "running_state": active_train_thread.running_state.value,
+            "total_epoch": active_train_thread.total_epoch,
+            "nth_epoch": active_train_thread.nth_epoch,
+            "total_batch": active_train_thread.total_batch,
+            "nth_batch": active_train_thread.nth_batch,
+            "last_batch_loss": active_train_thread.last_batch_loss,
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": active_train_thread.best_valid_changed,
+            "train_loss_list": active_train_thread.train_loss_list,
+            "valid_loss_list": active_train_thread.valid_loss_list,
+        }
+
+
+# TODO
+# train_idから学習を停止する
+# 学習が動くホストが変わったら必要になる?
+# @route("/renom_img/v2/api/detection/train/<train_id:int>", method="DELETE")
 @route("/renom_img/v2/api/detection/train", method="DELETE")
 def stop_train():
     """
     stop train
     """
-    dummy = {
-        "status": "sucess"
-    }
-    return create_response(dummy, status=204)
+    req_params = request.params
+    model_id = req_params.model_id
+
+    thread = TrainThread.jobs.get(model_id, None)
+    if thread is not None:
+        thread.stop()
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/detection/prediction", method="GET")
@@ -1192,10 +1527,48 @@ def get_prediction_status():
     """
     get prediction status
     """
-    dummy = {
-        "prediction": {}
-    }
-    return create_response(dummy, status=200)
+    # dummy = {
+    #     "prediction": {}
+    # }
+    req_params = request.params
+    model_id = req_params.model_id
+
+    threads = PredictionThread.jobs
+    active_prediction_thread = threads.get(model_id, None)
+    if active_prediction_thread is None:
+        time.sleep(0.5)  # Avoid many request.
+        return {
+            "need_pull": False,
+            "state": State.STOPPED.value,
+            "running_state": RunningState.STOPPING.value,
+            "total_batch": 0,
+            "nth_batch": 0,
+        }
+    elif active_prediction_thread.state == State.PRED_RESERVED or \
+            active_prediction_thread.state == State.PRED_CREATED:
+        time.sleep(0.5)  # Avoid many request.
+        return {
+            "need_pull": active_prediction_thread.need_pull,
+            "state": active_prediction_thread.state.value,
+            "running_state": active_prediction_thread.running_state.value,
+            "total_batch": active_prediction_thread.total_batch,
+            "nth_batch": active_prediction_thread.nth_batch,
+        }
+    else:
+        for _ in range(10):
+            time.sleep(0.5)  # Avoid many request.
+            if active_prediction_thread.updated:
+                break
+            active_prediction_thread.consume_error()
+        active_prediction_thread.returned2client()
+        return {
+            "need_pull": active_prediction_thread.need_pull,
+            "state": active_prediction_thread.state.value,
+            "running_state": active_prediction_thread.running_state.value,
+            "total_batch": active_prediction_thread.total_batch,
+            "nth_batch": active_prediction_thread.nth_batch,
+        }
+    # return create_response(ret, status=200)
 
 
 @route("/renom_img/v2/api/detection/prediction", method="POST")
@@ -1203,10 +1576,19 @@ def run_prediction():
     """
     run prediction
     """
-    dummy = {
-        "prediction": {}
-    }
-    return create_response(dummy, status=201)
+    req_params = request.params
+    model_id = req_params.model_id
+
+    thread = PredictionThread(model_id)
+    th = executor.submit(thread)
+    thread.set_future(th)
+
+    # prediction_id = 1
+    # response = create_response({"prediction": {"prediction_id": prediction_id}}, status=201)
+    # location = "/renom_img/v2/api/detection/prediction/{}".format(prediction_id)
+    # response.set_header('Location', location)
+    response = create_response({"status": "success"}, status=201)
+    return response
 
 
 @route("/renom_img/v2/api/detection/prediction/result", method="GET")
@@ -1215,7 +1597,29 @@ def get_prediction_result():
     get prediction result
     format
     """
-    pass
+    task_id = Task.DETECTION.value
+
+    req_params = request.params
+    model_id = req_params.model_id
+    format = req_params.format
+
+    filename = 'prediction.csv'
+
+    model = storage.fetch_model(model_id)
+    prediction = model["last_prediction_result"]
+
+    # formatごとにデータの整形を行う
+    resolver = get_formatter_resolver(task_id)
+    formatter = resolver.resolve(format)
+    df = formatter.format(prediction)
+
+    # 整形済みデータを出力
+    # formatが増えたら以下のようにモジュール化した方がよさそう
+    # writer = get_writer(format)
+    # writer.write(df, filename)
+    df.to_csv(filename)
+
+    return static_file(filename, root='.', download=True)
 
 
 def get_app():

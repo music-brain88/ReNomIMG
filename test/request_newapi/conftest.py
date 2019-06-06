@@ -51,7 +51,7 @@ def session():
             traceback.print_exc()
 
         try:
-            shutil.rmtree('datasrc', ignore_errors=True)
+            # shutil.rmtree('datasrc', ignore_errors=True)
             shutil.rmtree('storage', ignore_errors=True)
         except Exception:
             traceback.print_exc()

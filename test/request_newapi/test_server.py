@@ -105,6 +105,20 @@ MODEL = {
 }
 MODELS = [MODEL]
 
+POST_DATASET = {
+    "name": "dummy_dataset",
+    "description": "dummy dataset",
+    "task_id": 1,
+    "ratio": 0.8,
+}
+
+POST_MODEL = {
+    "task_id": 1,
+    "dataset_id": 1,
+    "algorithm_id": 30,
+    "hyper_parameters": PARAMS_YOLOv1
+}
+
 
 def test_index(app):
     resp = app.get('/')
@@ -119,7 +133,7 @@ def test_404(app):
 
 
 def test_create_dataset(app):
-    resp = app.post('/renom_img/v2/api/detection/datasets', {})
+    resp = app.post('/renom_img/v2/api/detection/datasets', POST_DATASET)
     assert resp.status_int == 201
     assert resp.json['dataset']['id'] == DATASET['id']
 
@@ -147,13 +161,25 @@ def test_delete_dataset(app):
 
 
 def test_create_model(app):
-    resp = app.post('/renom_img/v2/api/detection/models', {})
+    resp = app.post_json('/renom_img/v2/api/detection/models', POST_MODEL)
     assert resp.status_int == 201
     assert resp.json['model']['id'] == MODEL['id']
 
 
 def test_get_models(app):
     resp = app.get('/renom_img/v2/api/detection/models')
+    assert resp.status_int == 200
+    assert resp.json['models'][0]['id'] == MODELS[0]['id']
+
+
+def test_get_running_models(app):
+    resp = app.get('/renom_img/v2/api/detection/models?state=running')
+    assert resp.status_int == 200
+    assert resp.json['models'][0]['id'] == MODELS[0]['id']
+
+
+def test_get_deployed_models(app):
+    resp = app.get('/renom_img/v2/api/detection/models?state=deployed')
     assert resp.status_int == 200
     assert resp.json['models'][0]['id'] == MODELS[0]['id']
 
@@ -169,42 +195,41 @@ def test_update_model(app):
     assert resp.status_int == 204
 
 
-def test_delete_model(app):
-    resp = app.delete('/renom_img/v2/api/detection/models/1', {})
-    assert resp.status_int == 204
+# def test_delete_model(app):
+#     resp = app.delete('/renom_img/v2/api/detection/models/1', {})
+#     assert resp.status_int == 204
 
 
-def test_download_model_weight(app):
-    resp = app.get('/renom_img/v2/api/detection/models/1/weight')
-    pass
+# def test_download_model_weight(app):
+#     resp = app.get('/renom_img/v2/api/detection/models/1/weight')
+#     pass
 
 
-def test_get_train_status(app):
-    resp = app.get('/renom_img/v2/api/detection/train')
-    assert resp.status_int == 200
-    assert resp.json['running_models'][0]['id'] == MODELS[0]['id']
+# def test_get_train_status(app):
+#     resp = app.get('/renom_img/v2/api/detection/train?model_id=1')
+#     assert resp.status_int == 200
 
 
-def test_run_train(app):
-    resp = app.post('/renom_img/v2/api/detection/train', {})
-    assert resp.status_int == 201
+# def test_run_train(app):
+#     resp = app.post('/renom_img/v2/api/detection/train', {"model_id": 1})
+#     assert resp.status_int == 201
 
 
-def test_stop_train(app):
-    resp = app.delete('/renom_img/v2/api/detection/train', {})
-    assert resp.status_int == 204
+# def test_stop_train(app):
+#     resp = app.delete('/renom_img/v2/api/detection/train', {"model_id": 1})
+#     assert resp.status_int == 204
+#
+#
+# def test_get_prediction_status(app):
+#     resp = app.get('/renom_img/v2/api/detection/prediction')
+#     assert resp.status_int == 200
 
 
-def test_get_prediction_status(app):
-    resp = app.get('/renom_img/v2/api/detection/prediction')
-    assert resp.status_int == 200
+# def test_run_prediction(app):
+#     resp = app.post('/renom_img/v2/api/detection/prediction', {})
+#     assert resp.status_int == 201
 
 
-def test_run_prediction(app):
-    resp = app.post('/renom_img/v2/api/detection/prediction', {})
-    assert resp.status_int == 201
-
-
-def test_get_prediction_result(app):
-    resp = app.get('/renom_img/v2/api/detection/prediction/result')
-    assert resp.status_int == 200
+# def test_get_prediction_result(app):
+#     resp = app.get('/renom_img/v2/api/detection/prediction/result')
+#     assert resp.status_int == 200
