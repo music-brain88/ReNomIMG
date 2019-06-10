@@ -199,7 +199,7 @@ class HorizontalFlip(ProcessBase):
                         **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
-            return new_x, new_y
+        return new_x, new_y
 
     def _transform_segmentation(self, x, y):
         n = len(x)
@@ -286,7 +286,7 @@ class VerticalFlip(ProcessBase):
                         **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
-            return new_x, new_y
+        return new_x, new_y
 
     def _transform_segmentation(self, x, y):
         n = len(x)
