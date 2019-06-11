@@ -439,12 +439,19 @@ class TrainThread(object):
         self.best_epoch_valid_result = {}
 
         # Augmentation Setting.
-        self.augmentation = Augmentation([
-            Shift(10, 10),
-            Rotate(),
-            Flip(),
-            ContrastNorm(),
-        ])
+        if self.task_id == Task.SEGMENTATION.value:
+            self.augmentation = Augmentation([
+                Rotate(),
+                Flip(),
+                ContrastNorm(),
+            ])
+        else:
+            self.augmentation = Augmentation([
+                Shift(10, 10),
+                Rotate(),
+                Flip(),
+                ContrastNorm(),
+            ])
 
     def _prepare_model(self):
         if self.stop_event.is_set():
