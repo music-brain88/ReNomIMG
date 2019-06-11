@@ -30,8 +30,23 @@ class BaseOptimizer(object):
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
 
+
 class OptimizerDeeplab(BaseOptimizer):
-    pass
+    def __init__(self, lr_initial=1e-4, lr_power=0.9, total_batch_iteration=None, total_epoch_iteration=None):
+        super(OptimizerDeeplab, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.lr_initial = lr_initial
+        self.lr_power = lr_power
+        self.current_iterations = 0
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(OptimizerDeeplab, self).setup(total_batch_iteration, total_epoch_iteration)
+        self.total_iterations = total_batch_iteration * total_epoch_iteration
+        self.opt._lr = self.lr_initial*((1 - self.current_iterations/self.total_iterations)**self.lr_power)
+
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+        super(OptimizerDeeplab, self).set_information(nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
+        self.current_iterations = self.total_batch_iteration*nth_epoch + nth_batch
+        self.opt._lr = self.lr_initial*((1 - self.current_iterations/self.total_iterations)**self.lr_power)
 
 class OptimizerUNet(BaseOptimizer):
     def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):

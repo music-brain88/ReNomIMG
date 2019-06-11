@@ -270,11 +270,8 @@ class XceptionBlock(rm.Model):
         return out
 
 class AsppModule(rm.Model):
-    def __init__(self, num_class, size=(33,33), atrous_rates=[6,12,18]):
+    def __init__(self, num_class, filter_size=(33,33), atrous_rates=[6,12,18]):
         
-        self.num_class = num_class
-        self.size = size
-        self.atrous_rates = atrous_rates
         # aspp0
         self.aspp0_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
         self.aspp0_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5) 
@@ -288,12 +285,12 @@ class AsppModule(rm.Model):
         self.aspp3_conv = rm.Conv2d(channel=256, filter=3, stride=1, padding=atrous_rates[2], dilation=atrous_rates[2], ignore_bias=True)
         self.aspp3_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)        
         # Image Pooling
-        self.avg_pool = rm.AveragePool2d(filter=self.size)
+        self.avg_pool = rm.AveragePool2d(filter=filter_size)
         self.image_pool_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
         self.image_pool_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
         
-        self.image_pool_resize = rm.GroupConv2d(channel=256, filter=21, stride=1, padding=20, ignore_bias=True, initializer=np.ones, groups=256)
-        #self.image_pool_resize = rm.GroupConv2d(channel=256, filter=33, stride=1, padding=32, ignore_bias=True, initializer=np.ones, groups=256)   
+        #self.image_pool_resize = rm.GroupConv2d(channel=256, filter=21, stride=1, padding=20, ignore_bias=True, initializer=np.ones, groups=256)
+        self.image_pool_resize = rm.GroupConv2d(channel=256, filter=33, stride=1, padding=32, ignore_bias=True, initializer=np.ones, groups=256)   
         
         # Common
         self.relu = rm.Relu()
@@ -321,7 +318,7 @@ class AsppModule(rm.Model):
         image_pool = self.image_pool_bn(image_pool)
         image_pool = self.relu(image_pool)
         image_pool = self.image_pool_resize(image_pool)
-        #print('--aspp_image: x.shape = ', image_pool.shape)                
+        #print('--aspp_image: image_pool.shape = ', image_pool.shape)                
         x = rm.concat(image_pool, aspp0, aspp1, aspp2, aspp3)
         
         return x
@@ -329,32 +326,28 @@ class AsppModule(rm.Model):
 
 class CnnDeeplabv3plus(CnnBase):
         
-    def __init__(self, num_class, dilation=2, atrous_rates=[6,12,18], decoder=False, imsize=(321,321)):
+    def __init__(self, num_class, imsize=(513,513), scale_factor=16, atrous_rates=[6,12,18], decoder=False):
 
         super(CnnDeeplabv3plus, self).__init__()
         
-        self.imsize = imsize
-        self.num_class = num_class
         self.conv1_1 = rm.Conv2d(32, filter=3, stride=2, padding=1, ignore_bias=True)
         self.bn1_1 = rm.BatchNormalize(mode='feature', epsilon=1e-3)
         self.conv1_2 = rm.Conv2d(64, filter=3, stride=1, padding=1, ignore_bias=True)
         self.bn1_2 = rm.BatchNormalize(mode='feature', epsilon=1e-3)
         self.relu = rm.Relu()
-        self.dilation = dilation
-        self.atrous_rates = atrous_rates
+        self.dilation = int(32/scale_factor)
         
         self.flow1 = self._make_flow(XceptionBlock, units=3, channels=[64,128,256,728], stride=2, dilation =1, type='Entry')
         self.flow2 = self._make_flow(XceptionBlock, units=16, channels=[728, 728, 728, 728], stride=1, dilation = 1, type='Middle')
         self.flow3 = self._make_flow(XceptionBlock, units=2, channels=[728,1024,1536,2048], stride=1, dilation = 1, type='Exit')
-    
-        self.aspp = AsppModule(self.num_class, size=(21,21), atrous_rates=self.atrous_rates)
-        #self.aspp = AsppModule(self.num_class, size=(33,33), atrous_rates=self.atrous_rates)
+        self.avg_pool_filter = (np.ceil(imsize[0]/scale_factor), np.ceil(imsize[1]/scale_factor)) 
+        self.aspp = AsppModule(num_class, self.avg_pool_filter, atrous_rates)
         
         self.concat_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
         self.concat_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
         self.dropout = rm.Dropout(dropout_ratio=0.1)
-        self.final_conv = rm.Conv2d(channel=self.num_class, filter=1, ignore_bias=False)
-        self.final_resize = Deconv2d(self.num_class, filter=32, stride=16, padding=16, ignore_bias=True, initializer=DeconvInitializer(), ceil_mode=True)
+        self.final_conv = rm.Conv2d(channel=num_class, filter=1, ignore_bias=False)
+        self.final_resize = Deconv2d(num_class, filter=32, stride=16, padding=16, ignore_bias=True, initializer=DeconvInitializer(), ceil_mode=True)
         
     def _make_flow(self, block, units, channels, stride=1, padding=1, dilation=1, type=None):
         layers = []
