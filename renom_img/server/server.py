@@ -25,6 +25,8 @@ from concurrent.futures import ThreadPoolExecutor as Executor
 from concurrent.futures import ProcessPoolExecutor
 from bottle import HTTPResponse, default_app, route, static_file, request, error
 
+from sqlalchemy.exc import SQLAlchemyError
+
 from renom.cuda import release_mem_pool
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.load import parse_txt_classification
@@ -41,6 +43,8 @@ from renom_img.server import DATASET_IMG_DIR, DATASET_LABEL_CLASSIFICATION_DIR, 
 from renom_img.server import DATASET_NAME_MAX_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH
 from renom_img.server.utility.setup_example import setup_example
 from renom_img.server.utility.formatter import get_formatter_resolver
+
+from renom_img.server.utility.error import ReNomIMGError
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
 executor = Executor(max_workers=2)
@@ -61,6 +65,18 @@ def create_response(body, status=200):
     r = HTTPResponse(status=status, body=body)
     r.set_header('Content-Type', 'application/json')
     return r
+
+
+# def create_error_response(error):
+#     if not isinstance(error, ReNomIMGError):
+#         error = ReNomIMGUnknownError()
+#     body = {"error": {"code": error.code, "message": "this error is {}".format(error.message)}}
+#     return create_response(body, status=error.status)
+
+
+def logging_error(error):
+    # logging
+    traceback.print_exc()
 
 
 def strip_path(filename):
@@ -1036,7 +1052,13 @@ def get_datasets():
     get datasets
     """
     task_id = Task.DETECTION.value
-    datasets = storage.fetch_datasets_of_task(task_id)
+
+    try:
+        datasets = storage.fetch_datasets_of_task(task_id)
+    except Exception as e:
+        logging_error(e)
+        # return create_error_response(e)
+        pass
 
     ret = {
         "datasets": [
@@ -1073,6 +1095,7 @@ def create_dataset():
     test_dataset_id = int(
         req_params.test_dataset_id
         if req_params.test_dataset_id != '' else '-1')
+
 
     # TODO: Create Module of string length check
     assert len(dataset_name) <= DATASET_NAME_MAX_LENGTH, \
