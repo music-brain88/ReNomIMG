@@ -143,7 +143,7 @@ export const ALGORITHM = {
           key: 'layer',
           type: 'select',
           default: '16',
-          options: ['11', '16', '19']
+          options: ['16', '19']
         }
       }
     },
