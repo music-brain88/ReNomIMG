@@ -130,7 +130,6 @@ class TrainThread(object):
             # Watch stop event
             self.updated = True
             return
-
         for e in range(self.total_epoch):
             release_mem_pool()
             self.nth_epoch = e
@@ -145,9 +144,13 @@ class TrainThread(object):
             self.running_state = RunningState.TRAINING
             self.sync_state()
 
-            for b, (train_x, train_y) in enumerate(self.train_dist.batch(self.batch_size), 1):
-                if isinstance(self.model, Yolov2) and (b - 1) % 10 == 0 and (b - 1):
-                    release_mem_pool()
+            for b,val in enumerate(self.train_dist.batch(self.batch_size),1): 
+                if isinstance(model, Yolov2):
+                    if (b-1)%10 == 0 and (b-1):
+                        release_mem_pool()
+                    train_x, buffers, train_y = val[0],val[1],val[2]
+                else:
+                    train_x, train_y = val[0],val[1]
 
                 self.nth_batch = b
                 if self.stop_event.is_set():
@@ -158,7 +161,10 @@ class TrainThread(object):
 
                 if len(train_x) > 0:
                     with model.train():
-                        loss = model.loss(model(train_x), train_y)
+                        if isinstance(model,Yolov2):
+                            loss = model.loss(model(train_x),buffers,train_y)
+                        else:
+                            loss = model.loss(model(train_x), train_y)
                         reg_loss = loss + model.regularize()
 
                     try:
@@ -200,15 +206,21 @@ class TrainThread(object):
             valid_prediction = []
             temp_valid_batch_loss_list = []
             model.set_models(inference=True)
-            for b, (valid_x, valid_y) in enumerate(self.valid_dist.batch(self.batch_size, shuffle=False)):
-
+            for b,val in enumerate(self.valid_dist.batch(self.batch_size,shuffle=False),1):
+                if isinstance(model,Yolov2):
+                    valid_x,buffers,valid_y=val[0],val[1],val[2]
+                else:
+                    valid_x,valid_y = val[0],val[1]
                 if self.stop_event.is_set():
                     # Watch stop event
                     self.updated = True
                     return
 
                 valid_prediction_in_batch = model(valid_x)
-                loss = model.loss(valid_prediction_in_batch, valid_y)
+                if isinstance(model,Yolov2):
+                    loss = model.loss(valid_prediction_in_batch,buffers,valid_y)
+                else:
+                    loss = model.loss(valid_prediction_in_batch, valid_y)
                 if self.task_id == Task.CLASSIFICATION.value:
                     valid_prediction.append(rm.softmax(valid_prediction_in_batch).as_ndarray())
                 else:
