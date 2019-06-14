@@ -23,7 +23,7 @@ class BestAnchorBoxFinder(object):
     def __init__(self, ANCHORS):
         self.anchors = [BoundBox(0, 0, ANCHORS[i][0], ANCHORS[i][1]) 
                         for i in range(len(ANCHORS))]
-        
+
     def _interval_overlap(self,interval_a, interval_b):
         x1, x2 = interval_a
         x3, x4 = interval_b
@@ -181,7 +181,6 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(320,320)):
     clusters, nearest_clusters, distances = kmeans(annotations,n_anchor,seed=2,dist=np.mean)
 
     WithinClusterMeanDist = np.mean(distances[np.arange(distances.shape[0]),nearest_clusters])
-    print('mean_IOU_withincluster: ',1-WithinClusterMeanDist)
     return AnchorYolov2(clusters, base_size)
 
 

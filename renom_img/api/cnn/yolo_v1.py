@@ -6,7 +6,7 @@ from renom_img.api.cnn import CnnBase
 
 class CnnYolov1(CnnBase):
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/Darknet.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/Yolov1.h5".format(__version__)
 
     def __init__(self, weight_decay=None):
         super(CnnYolov1, self).__init__()
