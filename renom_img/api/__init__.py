@@ -90,7 +90,7 @@ class Base(rm.Model):
 
     def regularize(self):
         """
-        Regularization term to a loss function.
+        Adds a regularization term to the loss function.
 
         Example:
             >>> x = numpy.random.rand(1, 3, 224, 224)
@@ -108,7 +108,7 @@ class Base(rm.Model):
         return (self.decay_rate / 2) * reg
 
     def preprocess(self, x):
-        """Performs preprocess for a given array.
+        """Performs preprocessing for a given array.
 
         Args:
             x(ndarray, Node): Image array for preprocessing.
@@ -119,15 +119,15 @@ class Base(rm.Model):
             valid_img_path_list=None, valid_annotation_list=None,
             epoch=136, batch_size=64, optimizer=None, augmentation=None, callback_end_epoch=None):
         """
-        This function performs training with given data and hyper parameters.
+        This function performs training with the given data and hyperparameters.
 
         Args:
-            train_img_path_list(list): List of image path.
+            train_img_path_list(list): List of image paths.
             train_annotation_list(list): List of annotations.
-            valid_img_path_list(list): List of image path for validation.
+            valid_img_path_list(list): List of image paths for validation.
             valid_annotation_list(list): List of annotations for validation.
-            epoch(int): Number of training epoch.
-            batch_size(int): Number of batch size.
+            epoch(int): Number of training epochs.
+            batch_size(int): Batch size.
             augmentation(Augmentation): Augmentation object.
             callback_end_epoch(function): Given function will be called at the end of each epoch.
 
@@ -135,11 +135,12 @@ class Base(rm.Model):
             (tuple): Training loss list and validation loss list.
 
         Example:
-            >>> train_img_path_list, train_annot_list = ... # Define own data.
-            >>> valid_img_path_list, valid_annot_list = ...
-            >>> model = ${class}() # Any algorithm which provided by ReNomIMG here.
+            >>> train_img_path_list, train_annot_list = ... # Define train data
+            >>> valid_img_path_list, valid_annot_list = ... # Define validation data
+            >>> class_map = ... # Define class map
+            >>> model = ${class}(class_map) # Specify any algorithm provided by ReNomIMG API here
             >>> model.fit(
-            ...     # Feeds image and annotation data.
+            ...     # Feeds image and annotation data
             ...     train_img_path_list,
             ...     train_annot_list,
             ...     valid_img_path_list,
@@ -148,9 +149,9 @@ class Base(rm.Model):
             ...     batch_size=8)
             >>> 
 
-        Following arguments will be given to the function ``callback_end_epoch``.
+        The following arguments will be given to the function ``callback_end_epoch``.
 
-        - **epoch** (int) - Number of current epoch.
+        - **epoch** (int) - Current epoch number.
         - **model** (Model) - Model object.
         - **avg_train_loss_list** (list) - List of average train loss of each epoch.
         - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
@@ -194,7 +195,8 @@ class Base(rm.Model):
 
                 # Modify optimizer.
                 if isinstance(opt, BaseOptimizer):
-                    opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list,loss.as_ndarray())
+                    opt.set_information(i, e, avg_train_loss_list,
+                                        avg_valid_loss_list, loss.as_ndarray())
 
                 reg_loss.grad().update(opt)
                 try:
@@ -236,8 +238,8 @@ class Base(rm.Model):
 
     def predict(self, img_list):
         """Perform prediction.
-        Argument can be an image array, image path list or a image path.
-        The form of return value depends on your task(classification, detection or segmentation).
+        Argument can be an image array, image path list or an image path.
+        The form of the return value depends on your task (classification, detection or segmentation).
 
         Args:
             img_list(ndarray, list, string): Image array, image path list or image path.
@@ -265,7 +267,7 @@ class Base(rm.Model):
     def forward(self, x):
         """
         Performs forward propagation.
-        You can call this function using ``__call__`` method.
+        You can call this function using the ``__call__`` method.
 
         Args:
             x(ndarray, Node): Input to ${class}.

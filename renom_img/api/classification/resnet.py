@@ -16,10 +16,11 @@ from renom_img.api.utility.optimizer import OptimizerResNet
 
 RESIZE_METHOD = Image.BILINEAR
 
+
 class TargetBuilderResNet():
     '''
     Target Builder for ResNet
-    
+
     '''
 
     def __init__(self, class_map, imsize):
@@ -29,8 +30,25 @@ class TargetBuilderResNet():
     def __call__(self, *args, **kwargs):
         return self.build(*args, **kwargs)
 
-
     def preprocess(self, x):
+        """
+        Returns:
+            (ndarray): Preprocessed data.
+
+        Preprocessing for ResNet is as follows.
+
+        .. math::
+
+            x /= 255
+            x[:, 0, :, :] -= 0.4914
+            x[:, 1, :, :] -= 0.4822
+            x[:, 2, :, :] -= 0.4465
+
+            x[:, 0, :, :] /= 0.2023
+            x[:, 1, :, :] /= 0.1994
+            x[:, 2, :, :] /= 0.2010
+
+        """
         # normalization
         x /= 255
         # mean=0.4914, 0.4822, 0.4465 and std=0.2023, 0.1994, 0.2010
@@ -59,11 +77,10 @@ class TargetBuilderResNet():
         """ Loads an image
 
         Args:
-            path(str): A path of an image
-
+            path(str): Path to an image
 
         Returns:
-            (tuple): Returns image(numpy.array), the ratio of the given width to the actual image width,
+            (tuple): Returns image data (numpy.array), the ratio of the given width to the actual image width,
                      and the ratio of the given height to the actual image height
         """
         img = Image.open(path)
@@ -73,7 +90,6 @@ class TargetBuilderResNet():
         # img = img.resize(self.imsize, RESIZE_METHOD)
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, self.imsize[0] / float(w), self.imsize[1] / h
-
 
     def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
@@ -89,7 +105,7 @@ class TargetBuilderResNet():
         """
         if annotation_list is None:
             img_array = np.vstack([load_img(path, self.imsize)[None]
-                                    for path in img_path_list])
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
             return img_array
         # Check the class mapping.
@@ -111,28 +127,35 @@ class TargetBuilderResNet():
 
         return self.preprocess(np.array(img_list)), np.array(label_list)
 
+
 @adddoc
 class ResNet18(Classification):
     """ResNet18 model.
 
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
+    If the argument load_pretrained_weight is True, pretrained weights will be downloaded.
+    The pretrained weights were trained using ILSVRC2012.
 
     Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        plateau: True if error plateau should be used
-        train_whole_network(bool): True if the overal model is trained.
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        plateau (bool): Specifies whether or not error plateau learning rate adjustment should be used. If True, learning rate is
+          automatically decreased when training loss reaches a plateau.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Deep Residual Learning for Image Recognition
-        https://arxiv.org/abs/1512.03385
+        | Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        | **Deep Residual Learning for Image Recognition**
+        | https://arxiv.org/abs/1512.03385
+        |
+
     """
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet18.h5".format(
         __version__)
@@ -142,7 +165,7 @@ class ResNet18(Classification):
         self.model = CnnResNet(1, BasicBlock, [2, 2, 2, 2])
         super(ResNet18, self).__init__(class_map, imsize,
                                        load_pretrained_weight, train_whole_network, self.model)
-        
+
         self.model.set_output_size(self.num_class)
         self.model.set_train_whole(train_whole_network)
 
@@ -152,28 +175,36 @@ class ResNet18(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
-@adddoc    
+
+
+@adddoc
 class ResNet34(Classification):
     """ResNet34 model.
 
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
+    If the argument load_pretrained_weight is True, pretrained weights will be downloaded.
+    The pretrained weights were trained using ILSVRC2012.
 
     Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        plateau: True if error plateau should be used
-        train_whole_network(bool): True if the overal model is trained.
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        plateau (bool): Specifies whether or not error plateau learning rate adjustment should be used. If True, learning rate is
+          automatically decreased when training loss reaches a plateau.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Deep Residual Learning for Image Recognition
-        https://arxiv.org/abs/1512.03385
+        | Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        | **Deep Residual Learning for Image Recognition**
+        | https://arxiv.org/abs/1512.03385
+        |
+
     """
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet34.h5".format(
         __version__)
@@ -190,33 +221,39 @@ class ResNet34(Classification):
         self.default_optimizer = OptimizerResNet(plateau)
         self.model.fc.params = {}
 
-
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
+
+
 @adddoc
 class ResNet50(Classification):
     """ResNet50 model.
 
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
+    If the argument load_pretrained_weight is True, pretrained weights will be downloaded.
+    The pretrained weights were trained using ILSVRC2012.
 
     Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        plateau: True if error plateau should be used
-        train_whole_network(bool): True if the overal model is trained.
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        plateau (bool): Specifies whether or not error plateau learning rate adjustment should be used. If True, learning rate is
+          automatically decreased when training loss reaches a plateau.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Identity Mappings in Deep Residual Networks
-        https://arxiv.org/abs/1603.05027
-    """
+        | Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        | **Deep Residual Learning for Image Recognition**
+        | https://arxiv.org/abs/1512.03385
+        |
 
+    """
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet50.h5".format(
         __version__)
 
@@ -234,28 +271,36 @@ class ResNet50(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
+
+
 @adddoc
 class ResNet101(Classification):
     """ResNet101 model.
 
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
+    If the argument load_pretrained_weight is True, pretrained weights will be downloaded.
+    The pretrained weights were trained using ILSVRC2012.
 
     Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        plateau: True if error plateau should be used
-        train_whole_network(bool): True if the overal model is trained.
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        plateau (bool): Specifies whether or not error plateau learning rate adjustment should be used. If True, learning rate is
+          automatically decreased when training loss reaches a plateau.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Identity Mappings in Deep Residual Networks
-        https://arxiv.org/abs/1603.05027
+        | Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        | **Deep Residual Learning for Image Recognition**
+        | https://arxiv.org/abs/1512.03385
+        |
+
     """
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet101.h5".format(
         __version__)
@@ -272,31 +317,38 @@ class ResNet101(Classification):
         self.default_optimizer = OptimizerResNet(plateau)
         self.model.fc.params = {}
 
-
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
+
+
 @adddoc
 class ResNet152(Classification):
     """ResNet152 model.
 
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
+    If the argument load_pretrained_weight is True, pretrained weights will be downloaded.
+    The pretrained weights were trained using ILSVRC2012.
 
     Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        plateau: True if error plateau should be used
-        train_whole_network(bool): True if the overal model is trained.
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        plateau (bool): Specifies whether or not error plateau learning rate adjustment should be used. If True, learning rate is
+          automatically decreased when training loss reaches a plateau.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
-        Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
-        Identity Mappings in Deep Residual Networks
-        https://arxiv.org/abs/1603.05027
+        | Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+        | **Deep Residual Learning for Image Recognition**
+        | https://arxiv.org/abs/1512.03385
+        |
+
     """
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNet152.h5".format(
         __version__)
@@ -315,5 +367,3 @@ class ResNet152(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
-
-

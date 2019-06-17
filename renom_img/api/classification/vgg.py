@@ -16,7 +16,13 @@ from renom_img.api.utility.optimizer import OptimizerVGG
 
 RESIZE_METHOD = Image.BILINEAR
 
+
 class TargetBuilderVGG():
+    '''
+    Target Builder for VGG
+
+    '''
+
     def __init__(self, class_map, imsize):
         self.class_map = class_map
         self.imsize = imsize
@@ -29,13 +35,13 @@ class TargetBuilderVGG():
         Returns:
             (ndarray): Preprocessed data.
 
-        Preprocessing for VGG is follows.
+        Preprocessing for VGG is as follows.
 
         .. math::
 
-            x_{red} -= 123.68 \\\\
-            x_{green} -= 116.779 \\\\
-            x_{blue} -= 103.939
+            x_{red} -= 123.68 \\
+            x_{green} -= 116.779 \\
+            x_{blue} -= 103.939 \\
 
         """
         x[:, 0, :, :] -= 123.68  # R
@@ -58,10 +64,10 @@ class TargetBuilderVGG():
         """ Loads an image
 
         Args:
-            path(str): A path of an image
+            path(str): Path to an image
 
         Returns:
-            (tuple): Returns image(numpy.array), the ratio of the given width to the actual image width,
+            (tuple): Returns image data (numpy.array), the ratio of the given width to the actual image width,
                      and the ratio of the given height to the actual image height
         """
         img = Image.open(path)
@@ -72,7 +78,6 @@ class TargetBuilderVGG():
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
-
     def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
 
@@ -82,12 +87,11 @@ class TargetBuilderVGG():
                                     [1, 4, 6 (int)]
             augmentation(Augmentation): Instance of the augmentation class.
 
-        Returns:
-            (tuple): Batch of images and corresponding one hot labels for each image in a batch
+        Returns:            (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
         if annotation_list is None:
-            img_array = np.vstack([load_img(path,self.imsize)[None]
-                                    for path in img_path_list])
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
 
             return img_array
@@ -111,26 +115,27 @@ class TargetBuilderVGG():
 
         return self.preprocess(np.array(img_list)), np.array(label_list)
 
-  
+
 @adddoc
 class VGG11(Classification):
     """VGG11 model.
 
     Args:
-        class_map(array): Array of class names
-        imsize(int or tuple): Input image size
-        train_whole_network(bool): True if the overall model is trained, otherwise False
-        load_pretrained_weight (bool, str): If true, pretrained weight will be
-          downloaded to current directory. If string is given, pretrained weight
-          will be saved as given name.
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          Pretrained weights have not been prepared for VGG-11 yet, so this must either be set to False, or to a
+          user-defined string that specifies a local pretrained weights filename.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If true, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
         | Karen Simonyan, Andrew Zisserman
-        | Very Deep Convolutional Networks for Large-Scale Image Recognition
+        | **Very Deep Convolutional Networks for Large-Scale Image Recognition**
         | https://arxiv.org/abs/1409.1556
         |
 
@@ -156,28 +161,30 @@ class VGG11(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
+
 @adddoc
 class VGG16(Classification):
     """VGG16 model.
-    If the argument load_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
+
+    If the argument load_pretrained_weight is True, pretrained weights will be downloaded.
+    The pretrained weights were trained using ILSVRC2012.
 
     Args:
-        class_map(array): Array of class names
-        imsize(int or tuple): Input image size
-        train_whole_network(bool): True if the overall model is trained, otherwise False
-        load_pretrained_weight (bool, str): If true, pretrained weight will be
-          downloaded to current directory. If string is given, pretrained weight
-          will be saved as given name.
-
+        class_map (list, dict): List of class names.
+        imsize (int or tuple): Input image size.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
         | Karen Simonyan, Andrew Zisserman
-        | Very Deep Convolutional Networks for Large-Scale Image Recognition
+        | **Very Deep Convolutional Networks for Large-Scale Image Recognition**
         | https://arxiv.org/abs/1409.1556
         |
 
@@ -204,6 +211,7 @@ class VGG16(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
+
 class VGG16_NODENSE(Classification):
 
     def __init__(self, class_map=None, imsize=(224, 224),
@@ -226,28 +234,30 @@ class VGG16_NODENSE(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
+
 @adddoc
 class VGG19(Classification):
     """VGG19 model.
 
-    If the argument load_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
+    If the argument load_pretrained_weight is True, pretrained weights will be downloaded.
+    The pretrained weights were trained using ILSVRC2012.
 
     Args:
-        class_map(array): Array of class names
-        imsize(int or tuple): Input image size
-        train_whole_network(bool): True if the overall model is trained, otherwise False
-        load_pretrained_weight (bool, str): If true, pretrained weight will be
-          downloaded to current directory. If string is given, pretrained weight
-          will be saved as given name.
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
         | Karen Simonyan, Andrew Zisserman
-        | Very Deep Convolutional Networks for Large-Scale Image Recognition
+        | **Very Deep Convolutional Networks for Large-Scale Image Recognition**
         | https://arxiv.org/abs/1409.1556
         |
 
@@ -273,5 +283,3 @@ class VGG19(Classification):
 
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
-
-

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-22 15:00+0900\n"
+"POT-Creation-Date: 2019-06-17 11:22+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,10 +31,22 @@ msgstr "ボックスが特定のサイズになるように座標とサイズを
 
 #: ../../docstring of renom_img.api.utility.augmentation.Augmentation
 #: renom_img.api.utility.augmentation.Augmentation.transform
+#: renom_img.api.utility.augmentation.process.center_crop
+#: renom_img.api.utility.augmentation.process.color_jitter
 #: renom_img.api.utility.augmentation.process.contrast_norm
+#: renom_img.api.utility.augmentation.process.distortion
 #: renom_img.api.utility.augmentation.process.flip
+#: renom_img.api.utility.augmentation.process.horizontalflip
+#: renom_img.api.utility.augmentation.process.random_brightness
+#: renom_img.api.utility.augmentation.process.random_crop
+#: renom_img.api.utility.augmentation.process.random_expand
+#: renom_img.api.utility.augmentation.process.random_hue
+#: renom_img.api.utility.augmentation.process.random_lighting
+#: renom_img.api.utility.augmentation.process.random_saturation
 #: renom_img.api.utility.augmentation.process.rotate
+#: renom_img.api.utility.augmentation.process.shear
 #: renom_img.api.utility.augmentation.process.shift
+#: renom_img.api.utility.augmentation.process.verticalflip
 #: renom_img.api.utility.augmentation.process.white_noise
 #: renom_img.api.utility.box.calc_iou_xywh
 #: renom_img.api.utility.box.calc_iou_xyxy renom_img.api.utility.box.rescale
@@ -122,10 +134,22 @@ msgid "The format of argument box have to be following example."
 msgstr "引数のボックスは以下の例のようなフォーマットでなければなりません。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.Augmentation.transform
+#: renom_img.api.utility.augmentation.process.center_crop
+#: renom_img.api.utility.augmentation.process.color_jitter
 #: renom_img.api.utility.augmentation.process.contrast_norm
+#: renom_img.api.utility.augmentation.process.distortion
 #: renom_img.api.utility.augmentation.process.flip
+#: renom_img.api.utility.augmentation.process.horizontalflip
+#: renom_img.api.utility.augmentation.process.random_brightness
+#: renom_img.api.utility.augmentation.process.random_crop
+#: renom_img.api.utility.augmentation.process.random_expand
+#: renom_img.api.utility.augmentation.process.random_hue
+#: renom_img.api.utility.augmentation.process.random_lighting
+#: renom_img.api.utility.augmentation.process.random_saturation
 #: renom_img.api.utility.augmentation.process.rotate
+#: renom_img.api.utility.augmentation.process.shear
 #: renom_img.api.utility.augmentation.process.shift
+#: renom_img.api.utility.augmentation.process.verticalflip
 #: renom_img.api.utility.augmentation.process.white_noise
 #: renom_img.api.utility.box.calc_iou_xywh
 #: renom_img.api.utility.box.calc_iou_xyxy
@@ -176,10 +200,22 @@ msgid "Returns reformatted bounding box."
 msgstr "フォームが変更されたバウンディングボックスを返します。"
 
 #: ../../docstring of renom_img.api.utility.augmentation.Augmentation.transform
+#: renom_img.api.utility.augmentation.process.center_crop
+#: renom_img.api.utility.augmentation.process.color_jitter
 #: renom_img.api.utility.augmentation.process.contrast_norm
+#: renom_img.api.utility.augmentation.process.distortion
 #: renom_img.api.utility.augmentation.process.flip
+#: renom_img.api.utility.augmentation.process.horizontalflip
+#: renom_img.api.utility.augmentation.process.random_brightness
+#: renom_img.api.utility.augmentation.process.random_crop
+#: renom_img.api.utility.augmentation.process.random_expand
+#: renom_img.api.utility.augmentation.process.random_hue
+#: renom_img.api.utility.augmentation.process.random_lighting
+#: renom_img.api.utility.augmentation.process.random_saturation
 #: renom_img.api.utility.augmentation.process.rotate
+#: renom_img.api.utility.augmentation.process.shear
 #: renom_img.api.utility.augmentation.process.shift
+#: renom_img.api.utility.augmentation.process.verticalflip
 #: renom_img.api.utility.augmentation.process.white_noise
 #: renom_img.api.utility.box.calc_iou_xywh
 #: renom_img.api.utility.box.calc_iou_xyxy
@@ -463,7 +499,7 @@ msgid "This class is for applying augmentation to images."
 msgstr "このクラスは画像に前処理を適用します。"
 
 #: of renom_img.api.utility.augmentation.Augmentation:2
-msgid "Instance of augmentation is passed to ImageDistributor module,"
+msgid "An Augmentation instance is passed to the ImageDistributor module,"
 msgstr "AugmentationのインスタンスはImageDistributorモジュールに渡されます、"
 
 #: of renom_img.api.utility.augmentation.Augmentation:3
@@ -471,17 +507,24 @@ msgid "and is called only when training process is runnning."
 msgstr "そして学習プロセスが実行されている場合のみに呼び出されます。"
 
 #: of renom_img.api.utility.augmentation.Augmentation:4
-msgid "You could choose augmentation methods from Process module."
+msgid "You could choose augmentation methods from the process module."
 msgstr "Processモジュールから前処理用のメソッドを呼び出せます。"
 
 #: of renom_img.api.utility.augmentation.Augmentation:6
 msgid ""
-"list of Process modules. You could choose from Flip, Shift, Rotate and "
-"WhiteNoise"
+"list of process modules. The following example selects Shift, Rotate, "
+"Flip and WhiteNoise."
 msgstr "Processモジュールのリスト。Flip, Shift, RotateそしてWhiteNoiseから選択できます。"
 
 #: of renom_img.api.utility.augmentation.Augmentation:10
+#: renom_img.api.utility.augmentation.process.color_jitter:32
 #: renom_img.api.utility.augmentation.process.contrast_norm:27
+#: renom_img.api.utility.augmentation.process.random_brightness:22
+#: renom_img.api.utility.augmentation.process.random_expand:20
+#: renom_img.api.utility.augmentation.process.random_hue:22
+#: renom_img.api.utility.augmentation.process.random_lighting:20
+#: renom_img.api.utility.augmentation.process.random_saturation:22
+#: renom_img.api.utility.augmentation.process.shear:22
 #: renom_img.api.utility.evaluate.EvaluatorClassification:18
 #: renom_img.api.utility.evaluate.EvaluatorDetection:27
 #: renom_img.api.utility.evaluate.EvaluatorSegmentation:20
@@ -497,62 +540,162 @@ msgid "This function is for applying augmentation to ImageDistributor"
 msgstr "この関数はImageDistributorに前処理を適用します。"
 
 #: of renom_img.api.utility.augmentation.Augmentation.transform:3
+#: renom_img.api.utility.augmentation.process.center_crop:3
+#: renom_img.api.utility.augmentation.process.color_jitter:3
 #: renom_img.api.utility.augmentation.process.contrast_norm:3
+#: renom_img.api.utility.augmentation.process.distortion:3
 #: renom_img.api.utility.augmentation.process.flip:3
+#: renom_img.api.utility.augmentation.process.horizontalflip:3
+#: renom_img.api.utility.augmentation.process.random_brightness:3
+#: renom_img.api.utility.augmentation.process.random_crop:3
+#: renom_img.api.utility.augmentation.process.random_expand:3
+#: renom_img.api.utility.augmentation.process.random_hue:3
+#: renom_img.api.utility.augmentation.process.random_lighting:3
+#: renom_img.api.utility.augmentation.process.random_saturation:3
 #: renom_img.api.utility.augmentation.process.rotate:3
+#: renom_img.api.utility.augmentation.process.shear:3
 #: renom_img.api.utility.augmentation.process.shift:3
+#: renom_img.api.utility.augmentation.process.verticalflip:3
 #: renom_img.api.utility.augmentation.process.white_noise:3
-msgid "List of path of images."
+msgid "List of image paths."
 msgstr "入力画像のパスのリスト"
 
 #: of renom_img.api.utility.augmentation.Augmentation.transform:5
+#: renom_img.api.utility.augmentation.process.center_crop:5
+#: renom_img.api.utility.augmentation.process.color_jitter:5
 #: renom_img.api.utility.augmentation.process.contrast_norm:5
+#: renom_img.api.utility.augmentation.process.distortion:5
 #: renom_img.api.utility.augmentation.process.flip:5
+#: renom_img.api.utility.augmentation.process.horizontalflip:5
+#: renom_img.api.utility.augmentation.process.random_brightness:5
+#: renom_img.api.utility.augmentation.process.random_crop:5
+#: renom_img.api.utility.augmentation.process.random_expand:5
+#: renom_img.api.utility.augmentation.process.random_hue:5
+#: renom_img.api.utility.augmentation.process.random_lighting:5
+#: renom_img.api.utility.augmentation.process.random_saturation:5
 #: renom_img.api.utility.augmentation.process.rotate:5
+#: renom_img.api.utility.augmentation.process.shear:5
 #: renom_img.api.utility.augmentation.process.shift:5
+#: renom_img.api.utility.augmentation.process.verticalflip:5
 #: renom_img.api.utility.augmentation.process.white_noise:5
-msgid "list of annotation for x. It is only used when prediction."
-msgstr "xのアノテーションのリスト。予測時のみ利用されます。"
+msgid "List of annotations for x."
+msgstr "アノテーションパスのリスト"
 
 #: of renom_img.api.utility.augmentation.Augmentation.transform:8
-#: renom_img.api.utility.augmentation.process.white_noise:8
 msgid ""
-"list of transformed images and list of annotation for x.  .. code-block "
+"list of transformed images and list of annotations for x.  .. code-block "
 ":: python      [         x (list of numpy.ndarray), # List of transformed"
-" images.         y (list of annotation) # list of annotation for x.     ]"
+" images.         y (list of annotations) # List of annotations for x."
+"     ]"
 msgstr ""
 
 #: of renom_img.api.utility.augmentation.Augmentation.transform:8
+#: renom_img.api.utility.augmentation.process.center_crop:8
+#: renom_img.api.utility.augmentation.process.color_jitter:20
 #: renom_img.api.utility.augmentation.process.contrast_norm:15
+#: renom_img.api.utility.augmentation.process.distortion:8
 #: renom_img.api.utility.augmentation.process.flip:8
+#: renom_img.api.utility.augmentation.process.horizontalflip:8
+#: renom_img.api.utility.augmentation.process.random_brightness:10
+#: renom_img.api.utility.augmentation.process.random_crop:8
+#: renom_img.api.utility.augmentation.process.random_expand:8
+#: renom_img.api.utility.augmentation.process.random_hue:10
+#: renom_img.api.utility.augmentation.process.random_lighting:8
+#: renom_img.api.utility.augmentation.process.random_saturation:10
 #: renom_img.api.utility.augmentation.process.rotate:8
+#: renom_img.api.utility.augmentation.process.shear:10
 #: renom_img.api.utility.augmentation.process.shift:8
+#: renom_img.api.utility.augmentation.process.verticalflip:8
 #: renom_img.api.utility.augmentation.process.white_noise:8
-msgid "list of transformed images and list of annotation for x."
+msgid "list of transformed images and list of annotations for x."
 msgstr "変換された画像のリストとxのアノテーションのリスト"
 
 #: of renom_img.api.utility.augmentation.process.flip:1
 msgid "Flip image randomly."
 msgstr "画像をランダムに反転させます。"
 
-#: of renom_img.api.utility.augmentation.process.flip:19
+#: of renom_img.api.utility.augmentation.process.center_crop:19
+#: renom_img.api.utility.augmentation.process.distortion:19
+#: renom_img.api.utility.augmentation.process.flip:19
+#: renom_img.api.utility.augmentation.process.horizontalflip:19
+#: renom_img.api.utility.augmentation.process.random_crop:19
 #: renom_img.api.utility.augmentation.process.rotate:19
 #: renom_img.api.utility.augmentation.process.shift:20
+#: renom_img.api.utility.augmentation.process.verticalflip:19
 #: renom_img.api.utility.augmentation.process.white_noise:19
 msgid "Examples"
 msgstr "例"
 
+#: of renom_img.api.utility.augmentation.process.horizontalflip:1
+msgid "Flip image randomly, only about vertical axis."
+msgstr "画像をランダムに水平反転させます。"
+
+#: of renom_img.api.utility.augmentation.process.verticalflip:1
+msgid "Flip image randomly, only about horizontal axis."
+msgstr "画像をランダムに垂直反転させます。"
+
+#: of renom_img.api.utility.augmentation.process.random_crop:1
+msgid "Crop image randomly."
+msgstr "画像をランダムにクロップさせます。"
+
+#: of renom_img.api.utility.augmentation.process.center_crop:1
+msgid "Crop image in the center."
+msgstr "画像のセンターをクロップさせます。"
+
 #: of renom_img.api.utility.augmentation.process.shift:1
-msgid "Shift images randomly according to given parameter."
+msgid "Shift images randomly according to given parameters."
 msgstr "与えられたパラメータを元に画像をランダムにシフトさせます。"
 
 #: of renom_img.api.utility.augmentation.process.rotate:1
-msgid "Rotate images randomly from 0, 90, 180, 270 degree."
+msgid "Rotate images randomly by 0, 90, 180, or 270 degrees."
 msgstr "0度、90度、180度、270度からランダムに画像を回転させます。"
 
 #: of renom_img.api.utility.augmentation.process.white_noise:1
 msgid "Add white noise to images."
 msgstr "画像にホワイトノイズを加えます。"
+
+#: of renom_img.api.utility.augmentation.process.distortion:8
+#: renom_img.api.utility.augmentation.process.white_noise:8
+msgid ""
+"list of transformed images and list of annotations for x.  .. code-block "
+":: python      [         x (list of numpy.ndarray), # List of transformed"
+" images.         y (list of annotations) # list of annotations for x."
+"     ]"
+msgstr ""
+
+#: of renom_img.api.utility.augmentation.process.distortion:1
+msgid "Randomly distort image contents while maintaining image shape."
+msgstr "画像に歪みを加えます。"
+
+#: of renom_img.api.utility.augmentation.process.color_jitter:1
+msgid ""
+"Color Jitter. Performs random scaling on Hue, Saturation and Brightness "
+"values in HSV space."
+msgstr "HSV空間においてランダムにジッターを加えます。"
+
+#: of renom_img.api.utility.augmentation.process.color_jitter:7
+msgid ""
+"Scaling factor for hue values in HSV space. If a list [a, b] or tuple "
+"(a,b), the h values are scaled by a randomly sampled factor from uniform "
+"distribution in the range[a, b]. If a float, the h values are scaled from"
+" uniform distribution in the range [1-h, 1+h]."
+msgstr "Hueジッターのスケールファクター。List型、tuple型、もしくはfloat型を受け付けます。"
+
+#: of renom_img.api.utility.augmentation.process.color_jitter:11
+msgid ""
+"Scaling factor for saturation values in HSV space. If a list [a, b] or "
+"tuple (a,b), the s values are scaled by a randomly sampled factor from "
+"uniform distribution in the range[a, b]. If a float, the s values are "
+"scaled from uniform distribution in the range [1-s, 1+s]."
+msgstr "Saturationジッターのスケールファクター。List型、tuple型、もしくはfloat型を受け付けます。"
+
+#: of renom_img.api.utility.augmentation.process.color_jitter:15
+msgid ""
+"Scaling factor for brightness value in HSV space. If a list [a, b] or "
+"tuple (a,b), the v values are scaled by a randomly sampled factor from "
+"uniform distribution in the range[a, b]. If a float, the v values are "
+"scaled from uniform distribution in the range [1-v, 1+v]."
+msgstr "Brightnessジッターのスケールファクター。List型、tuple型、もしくはfloat型を受け付けます。"
 
 #: of renom_img.api.utility.augmentation.process.contrast_norm:1
 msgid "Contrast Normalization"
@@ -560,18 +703,59 @@ msgstr "コントラスト正規化"
 
 #: of renom_img.api.utility.augmentation.process.contrast_norm:7
 msgid ""
-"Higher value increases contrast, and lower value decreases contrast. if a"
-" list [a, b], alpha value is sampled from uniform distribution ranging "
-"from [a, b). if a float, constant value of alpha is used."
-msgstr ""
+"Higher value increases contrast, and lower value decreases contrast. If a"
+" list [a, b] is provided, alpha value is sampled from uniform "
+"distribution ranging from [a, b). If a float is provided, alpha is set to"
+" that value as a constant."
+msgstr "コントラストを変動させる範囲のパラメーターです。List型かfloat型を受け付けます。"
 
 #: of renom_img.api.utility.augmentation.process.contrast_norm:11
 msgid ""
 "Whether to apply contrast normalization for each channel. If alpha is "
 "given a list, then different values for each channel are used."
-msgstr ""
+msgstr "チェンネルごとに変動させるかどうかを指定します。alphaにリスト型が引き渡される場合は、チャンネルごとにコントラストの変動をさせます。"
 
-#: ../../rsts/renom_img.api.utility.rst:49
+#: of renom_img.api.utility.augmentation.process.random_brightness:1
+msgid "Random Brightness Adjustment"
+msgstr "画像の明度をランダムに変動させます。"
+
+#: of renom_img.api.utility.augmentation.process.random_brightness:7
+msgid "Range of values (-delta to +delta) for randomly fluctuating pixel values."
+msgstr "明度を調整する範囲"
+
+#: of renom_img.api.utility.augmentation.process.random_hue:1
+msgid "Random Hue Adjustment"
+msgstr "画像の色調をランダムに変動させます。"
+
+#: of renom_img.api.utility.augmentation.process.random_hue:7
+msgid "Maximum hue fluctuation parameter. Must be in range [0, 0.5]."
+msgstr "色調変動のパラメーター。指定可能範囲は[0, 0.5]。"
+
+#: of renom_img.api.utility.augmentation.process.random_saturation:1
+msgid "Random Saturation Adjustment"
+msgstr "画像の彩度をランダムに変動させます。"
+
+#: of renom_img.api.utility.augmentation.process.random_saturation:7
+msgid "Saturation fluctuation parameter. Must be in range [0, 1]."
+msgstr "彩度変動のパラメーター。指定可能範囲は[0,1]。"
+
+#: of renom_img.api.utility.augmentation.process.random_lighting:1
+msgid "Random Lighting Adjustment"
+msgstr "画像の明暗をランダムに変動させます。"
+
+#: of renom_img.api.utility.augmentation.process.random_expand:1
+msgid "Randomly expand images"
+msgstr "画像をランダムに拡大させます。"
+
+#: of renom_img.api.utility.augmentation.process.shear:1
+msgid "Randomly shear image"
+msgstr "画像の剪断変形をランダムに実施します。"
+
+#: of renom_img.api.utility.augmentation.process.shear:7
+msgid "Angle range for randomly shearing image contents."
+msgstr "剪断変形のアングルパラメーター範囲"
+
+#: ../../rsts/renom_img.api.utility.rst:51
 msgid "renom\\_img.api.utility.evaluate"
 msgstr ""
 
@@ -1077,7 +1261,7 @@ msgstr ""
 msgid "5553608/18351769"
 msgstr ""
 
-#: ../../rsts/renom_img.api.utility.rst:57
+#: ../../rsts/renom_img.api.utility.rst:59
 msgid "renom\\_img.api.utility.distributor"
 msgstr ""
 
@@ -1116,7 +1300,7 @@ msgstr "画像とラベルを分割します。"
 msgid "ratio between training set and validation set"
 msgstr "トレーニングセットとバリデーションセットの割合"
 
-#: ../../rsts/renom_img.api.utility.rst:65
+#: ../../rsts/renom_img.api.utility.rst:67
 msgid "renom\\_img.api.utility.visualize.grad_cam"
 msgstr ""
 
@@ -1133,19 +1317,17 @@ msgid ""
 "rm.Sequential. Model should use ReLu activation functions and be pre-"
 "trained on the same dataset used for Grad-CAM visualizations."
 msgstr ""
-"Guided Grad-CAM可視化の対象となる画像分類CNNモデル。"
-"モデルはReNomで作成されたVGG、ResNet、ResNeXtまたはrenom.Sequentialの"
-"インスタンスである必要があります。また、事前にモデルをGrad-CAM可視化の対象となる"
-"データセットで学習させる必要があります。モデルは活性化関数にReLuを利用する必要があります。"
+"Guided Grad-"
+"CAM可視化の対象となる画像分類CNNモデル。モデルはReNomで作成されたVGG、ResNet、ResNeXtまたはrenom.Sequentialのインスタンスである必要があります。また"
+"、事前にモデルをGrad-CAM可視化の対象となるデータセットで学習させる必要があります。モデルは活性化関数にReLuを利用する必要があります。"
 
 #: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:11
 msgid ""
 "Guided backpropagation array, Grad-CAM(++) saliency map array, Guided "
 "Grad-CAM(++) array"
 msgstr ""
-"3つの配列が返されます：Guided backpropagationの配列、"
-"Grad-CAM(++)顕著性マップの配列及びGuided Grad-CAM(++)の配列です。"
-
+"3つの配列が返されます：Guided backpropagationの配列、Grad-CAM(++)顕著性マップの配列及びGuided Grad-"
+"CAM(++)の配列です。"
 
 #: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:56
 msgid ""
@@ -1191,10 +1373,9 @@ msgid ""
 "rm.Sequential. Model should use ReLu activation functions and be pre-"
 "trained on the same dataset used for Grad-CAM visualizations."
 msgstr ""
-"Guided Grad-CAM可視化の対象となる画像分類CNNモデル。"
-"モデルはReNomで作成されたVGG、ResNet、ResNeXtまたはrenom.Sequentialの"
-"インスタンスである必要があります。また、事前にモデルをGrad-CAM可視化の対象となる"
-"データセットで学習させる必要があります。モデルは活性化関数にReLuを利用する必要があります。"
+"Guided Grad-"
+"CAM可視化の対象となる画像分類CNNモデル。モデルはReNomで作成されたVGG、ResNet、ResNeXtまたはrenom.Sequentialのインスタンスである必要があります。また"
+"、事前にモデルをGrad-CAM可視化の対象となるデータセットで学習させる必要があります。モデルは活性化関数にReLuを利用する必要があります。"
 
 #: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.check_for_relus:11
 msgid "assert result"
@@ -1311,7 +1492,7 @@ msgstr "x_gbに対するGuided backpropagationフォワードパスの出力で�
 msgid "Raw and normalized guided backpropagation outputs"
 msgstr "Guided backpropagationの出力です。"
 
-#: ../../rsts/renom_img.api.utility.rst:73
+#: ../../rsts/renom_img.api.utility.rst:75
 msgid "renom\\_img.api.utility.misc"
 msgstr ""
 
@@ -1932,4 +2113,32 @@ msgstr "numpy配列オブジェクトを返します。"
 
 #~ msgid "tupple: list of transformed images and list of annotation for x."
 #~ msgstr "タプル: 変換された画像のリストとxのアノテーションのリスト"
+
+#~ msgid "List of path of images."
+#~ msgstr "入力画像のパスのリスト"
+
+#~ msgid "list of annotation for x. It is only used when prediction."
+#~ msgstr "xのアノテーションのリスト。予測時のみ利用されます。"
+
+#~ msgid ""
+#~ "list of transformed images and list "
+#~ "of annotation for x.  .. code-"
+#~ "block :: python      [         x (list"
+#~ " of numpy.ndarray), # List of "
+#~ "transformed images.         y (list of "
+#~ "annotation) # list of annotation for "
+#~ "x.     ]"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Higher value increases contrast, and "
+#~ "lower value decreases contrast. if a "
+#~ "list [a, b], alpha value is "
+#~ "sampled from uniform distribution ranging "
+#~ "from [a, b). if a float, constant"
+#~ " value of alpha is used."
+#~ msgstr ""
+
+#~ msgid "Color Jitter"
+#~ msgstr "画像にジッターを加えます。"
 

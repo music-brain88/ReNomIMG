@@ -32,8 +32,9 @@ class Classification(Base):
             if isinstance(img_list, (tuple, list)):
                 results = []
                 bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
-                for batch_num in range(0,len(img_list),batch_size):
-                    results.extend(np.argmax(rm.softmax(self(img_builder(img_path_list = img_list[batch_num:batch_num+batch_size]))).as_ndarray(), axis=1))
+                for batch_num in range(0, len(img_list), batch_size):
+                    results.extend(np.argmax(rm.softmax(
+                        self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
@@ -54,7 +55,7 @@ class Classification(Base):
         Returns:
             (Node): Loss between x and y.
         Example:
-            >>> builder = model.build_data()  # This will return function.
+            >>> builder = model.build_data()  # This will return a builder function.
             >>> x, y = builder(image_path_list, annotation_list)
             >>> z = model(x)
             >>> loss = model.loss(z, y)

@@ -5,12 +5,12 @@ from renom_img.api.utility.augmentation.process import MODE
 class Augmentation(object):
     """
     | This class is for applying augmentation to images.
-    | Instance of augmentation is passed to ImageDistributor module,
+    | An Augmentation instance is passed to the ImageDistributor module,
     | and is called only when training process is runnning.
-    | You could choose augmentation methods from Process module.
+    | You could choose augmentation methods from the process module.
 
     Args:
-        process_list (list of Process modules): list of Process modules. You could choose from Flip, Shift, Rotate and WhiteNoise
+        process_list (list of Process modules): list of process modules. The following example selects Shift, Rotate, Flip and WhiteNoise.
 
     Example:
         >>> from renom_img.api.utility.augmentation import Augmentation
@@ -39,12 +39,12 @@ class Augmentation(object):
         """This function is for applying augmentation to images.
 
         Args:
-            x (list of str): List of path of images.
-            y (list of annotation): List of annotation results.
+            x (list of str): List of image paths.
+            y (list of annotations): List of annotations.
 
         Returns:
             x (list of numpy.ndarray): List of transformed images.
-            y (list of annotation): List of annotation results.
+            y (list of annotations): List of annotations.
 
         """
         return self.transform(x, y, mode)
@@ -54,17 +54,17 @@ class Augmentation(object):
         This function is for applying augmentation to ImageDistributor
 
         Args:
-            x (list of str): List of path of images.
-            y (list of annotation): list of annotation for x. It is only used when prediction.
+            x (list of str): List of image paths.
+            y (list of annotations): List of annotations for x.
 
         Returns:
-            tupple: list of transformed images and list of annotation for x.
+            tuple: list of transformed images and list of annotations for x.
 
             .. code-block :: python
 
                 [
                     x (list of numpy.ndarray), # List of transformed images.
-                    y (list of annotation) # list of annotation for x.
+                    y (list of annotations) # List of annotations for x.
                 ]
 
         """

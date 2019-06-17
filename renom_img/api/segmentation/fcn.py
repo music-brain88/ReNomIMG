@@ -113,7 +113,7 @@ class TargetBuilderFCN():
         """
         if annotation_list is None:
             img_array = np.vstack([load_img(path, self.imsize)[None]
-                                    for path in img_path_list])
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
 
             return img_array
@@ -138,11 +138,11 @@ class TargetBuilderFCN():
             label_list.append(annot)
         if augmentation is not None:
             img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
-            data,label = self.resize(img_list, label_list)
-            return self.preprocess(data),label
+            data, label = self.resize(img_list, label_list)
+            return self.preprocess(data), label
         else:
-            data,label = self.resize(img_list, label_list)   
-            return self.preprocess(data),label
+            data, label = self.resize(img_list, label_list)
+            return self.preprocess(data), label
 
 
 @adddoc
@@ -150,11 +150,15 @@ class FCN32s(SemanticSegmentation):
     """ Fully convolutional network (32s) for semantic segmentation
 
     Args:
-        class_map(array): Array of class names
-        train_final_upscore(bool): Final upscore layer is trainable if True, or otherwise frozen if False
-        imsize(int or tuple): Input image size
-        load_pretrained_weight(bool, str): Pre-trained VGG-16 weights are used if True, or otherwise random initialization is used if False
-        train_whole_network(bool): All layers of model are trainable if True, or otherwise pretrained encoder base is frozen if False
+        class_map (list, dict): List of class names.
+        train_final_upscore (bool): Whether or not to train final upscore layer. If True, final upscore layer is initialized to bilinear upsampling and made trainable.
+          If False, final upscore layer is fixed to bilinear upsampling.
+        imsize (int, tuple): Input image size.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base encoder layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     Example:
         >>> import renom as rm
@@ -199,11 +203,15 @@ class FCN16s(SemanticSegmentation):
     """ Fully convolutional network (16s) for semantic segmentation
 
     Args:
-        class_map(array): Array of class names
-        train_final_upscore(bool): Final upscore layer is trainable if True, or otherwise frozen if False
-        imsize(int or tuple): Input image size
-        load_pretrained_weight(bool, str): Pre-trained VGG-16 weights are used if True, or otherwise random initialization is used if False
-        train_whole_network(bool): All layers of model are trainable if True, or otherwise pretrained encoder base is frozen if False
+        class_map (list, dict): List of class names.
+        train_final_upscore (bool): Whether or not to train final upscore layer. If True, final upscore layer is initialized to bilinear upsampling and made trainable.
+          If False, final upscore layer is fixed to bilinear upsampling.
+        imsize (int, tuple): Input image size.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base encoder layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     Example:
         >>> import renom as rm
@@ -248,11 +256,15 @@ class FCN8s(SemanticSegmentation):
     """ Fully convolutional network (8s) for semantic segmentation
 
     Args:
-        class_map(array): Array of class names
-        train_final_upscore(bool): Final upscore layer is trainable if True, or otherwise frozen if False
-        imsize(int or tuple): Input image size
-        load_pretrained_weight(bool, str): Pre-trained VGG-16 weights are used if True, or otherwise random initialization is used if False
-        train_whole_network(bool): All layers of model are trainable if True, or otherwise pretrained encoder base is frozen if False
+        class_map (list, dict): List of class names.
+        train_final_upscore (bool): Whether or not to train final upscore layer. If True, final upscore layer is initialized to bilinear upsampling and made trainable.
+          If False, final upscore layer is fixed to bilinear upsampling.
+        imsize (int, tuple): Input image size.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base encoder layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     Example:
         >>> import renom as rm
@@ -289,4 +301,3 @@ class FCN8s(SemanticSegmentation):
 
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
-

@@ -17,30 +17,30 @@ class Detection(Base):
 
     def predict(self, img_list, batch_size=1, score_threshold=0.3, nms_threshold=0.4):
         """
-        This method accepts either ndarray and list of image path.
+        This method accepts an array of image paths, list of image paths, or a path to an image.
 
         Args:
             img_list (string, list, ndarray): Path to an image, list of path or ndarray.
-            score_threshold (float): The threshold for confidence score.
-                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
-                                     Defaults is 0.3
-            nms_threshold (float): The threshold for non maximum supression. Defaults is 0.4
+            score_threshold (float): The threshold for the confidence score.
+                                     Predicted boxes that have a lower confidence score than the threshold are discarded.
+                                     The default is 0.3.
+            nms_threshold (float): The threshold for non maximum supression. The default is 0.4.
 
         Return:
             (list): List of predicted bbox, score and class of each image.
-            The format of return value is bellow. Box coordinates and size will be returned as
-            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+            The format of the return value is shown below. Box coordinates and size will be returned as
+            ratios to the original image size. Therefore, the values of 'box' are in the range [0 ~ 1].
 
         .. code-block :: python
 
-            # An example of return value.
+            # An example of a return value.
             [
-                [ # Prediction of first image.
+                [ # Prediction for first image.
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
-                [ # Prediction of second image.
+                [ # Prediction for second image.
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
@@ -55,8 +55,8 @@ class Detection(Base):
              [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Note:
-            Box coordinate and size will be returned as ratio to the original image size.
-            Therefore the range of 'box' is [0 ~ 1].
+            Box coordinates and size will be returned as ratios to the original image size.
+            Therefore, the values of 'box' are in the range [0 ~ 1].
 
         """
         self.set_models(inference=True)
@@ -92,7 +92,7 @@ class Detection(Base):
         Returns:
             (Node): Loss between x and y.
         Example:
-            >>> builder = model.build_data()  # This will return function.
+            >>> builder = model.build_data()  # This will return a builder function.
             >>> x, y = builder(image_path_list, annotation_list)
             >>> z = model(x)
             >>> loss = model.loss(z, y)
@@ -108,7 +108,7 @@ class Detection(Base):
             (function): Returns function which creates input data and target data.
 
         Example:
-            >>> builder = model.build_data()  # This will return function.
+            >>> builder = model.build_data()  # This will return a builder function.
             >>> x, y = builder(image_path_list, annotation_list)
             >>> z = model(x)
             >>> loss = model.loss(z, y)

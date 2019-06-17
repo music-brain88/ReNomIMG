@@ -91,7 +91,7 @@ class BoundBox:
 
 class AnchorYolov2(object):
     """
-    This class contains anchors that will used by in Yolov2.
+    This class contains anchors that are used in Yolov2.
 
     Args:
       anchor(list): List of anchors.
@@ -109,16 +109,16 @@ class AnchorYolov2(object):
 
 def create_anchor(annotation_list, n_anchor=5, base_size=(320,320)):
     """
-    This function creates 'anchors' for yolo v2 algorithm using k-means clustering.
+    This function creates 'anchors' for the Yolov2 algorithm using k-means clustering.
 
-    Requires following annotation list.
+    The following annotation list is required.
 
-    Perform k-means clustering using custom metric.
-    We want to get only anchor's size so we don't have to consider coordinates.
+    This function performs K-means clustering using a custom metric.
+    Only the anchor sizes are relevant, so coordinates do not need to be considered.
 
     Args:
-        annotation_list(list):
-        n_anchor(int):
+        annotation_list (list): Annotation list.
+        n_anchor(int): Number of anchors.
 
     Returns:
         (AnchorYolov2): Anchor list.
@@ -189,10 +189,12 @@ class TargetBuilderYolov2():
     Target Builder for Yolov2.
 
     Args:
-        class_map:
-        cell:
-        bbox:
-        imsize:
+        class_map (list, dict): List of class names.
+        size_n:
+        perm:
+        imsize_list: List of image sizes.
+        anchor:
+        num_anchor: Number of anchors.
     """
     def __init__(self, class_map,size_n,perm,imsize_list,anchor,num_anchor):
         self.class_map = class_map
@@ -278,14 +280,17 @@ class Yolov2(Detection):
     Yolov2 object detection algorithm.
 
     Args:
-        class_map(list): List of class name.
-        anchor(AnchorYolov2): Anchors.
-        imsize(list): Image size.
-            This can be both image size ex):(320, 320) and list of image size
-            ex):[(288, 288), (320, 320)]. If list of image size is given,
+        class_map (list, dict): List of class names.
+        anchor (AnchorYolov2): Anchors.
+        imsize (list): Image size(s).
+            This can be either an image size ex):(320, 320) or list of image sizes
+            ex):[(288, 288), (320, 320)]. If a list of image sizes is provided,
             the prediction method uses the last image size of the list for prediction.
-        load_pretrained_weight(bool, string):
-        train_whole_network(bool):
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     References:
         | Joseph Redmon, Ali Farhadi
@@ -294,8 +299,8 @@ class Yolov2(Detection):
         |
 
     Note:
-        If you save this model using 'save' method, anchor information(anchor list and base size of them) will be
-        saved. So when you load your own saved model, you don't have to give the arguments 'anchor' and 'anchor_size'.
+        If you save this model using the 'save' method, anchor information (list of anchors and their base sizes) will be
+        saved. Therefore, when you load your own saved model, you do not need to provide the 'anchor' and 'anchor_size' arguments.
     """
 
     # Anchor information will be serialized by 'save' method.
@@ -325,19 +330,20 @@ class Yolov2(Detection):
 
 
     def regularize(self):
-        """Regularize term. You can use this function to add regularize term to
-        loss function.
+        """Regularization term. You can use this function to add a regularization term to
+        the loss function.
 
-        In Yolo v2, weight decay of 0.0005 will be added.
+        In Yolo v2, a weight decay of 0.0005 will be used in the calculation.
 
         Example:
             >>> import numpy as np
             >>> from renom_img.api.detection.yolo_v2 import Yolov2
             >>> x = np.random.rand(1, 3, 224, 224)
             >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> model = Yolov2()
+            >>> class_map = ...
+            >>> model = Yolov2(class_map)
             >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # Adding weight decay term.
+            >>> reg_loss = loss + model.regularize() # The weight decay term is added here.
         """
         reg = 0
         for layer in self.iter_models():
@@ -351,6 +357,8 @@ class Yolov2(Detection):
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
+        Calculates the bounding box location, size and class information for model predictions.
+
         Example:
             >>> z = model(x)
             >>> model.get_bbox(z)
@@ -358,23 +366,23 @@ class Yolov2(Detection):
              [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Args:
-            z (ndarray): Output array of neural network. The shape of array
+            z (ndarray): Output array of neural network.
 
         Return:
             (list) : List of predicted bbox, score and class of each image.
-            The format of return value is bellow. Box coordinates and size will be returned as
-            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+            The format of the return value is shown below. Box coordinates and size will be returned as
+            ratios to the original image size. Therefore, the values in 'box' are in the range [0 ~ 1].
 
         .. code-block :: python
 
-            # An example of return value.
+            # An example of a return value.
             [
-                [ # Prediction of first image.
+                [ # Prediction for first image.
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
-                [ # Prediction of second image.
+                [ # Prediction for second image.
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
@@ -383,8 +391,8 @@ class Yolov2(Detection):
             ]
 
         Note:
-            Box coordinate and size will be returned as ratio to the original image size.
-            Therefore the range of 'box' is [0 ~ 1].
+            Box coordinates and size will be returned as ratios to the original image size.
+            Therefore, the values in 'box' are in the range [0 ~ 1].
 
         """
 
@@ -571,13 +579,28 @@ class Yolov2(Detection):
         return loss_conf
     
     def loss(self, x, buffer, y):
+        """
+        Loss function of ${class} algorithm.
+
+        Args:
+            x(ndarray, Node): Output of model.
+            y(ndarray, Node): Target array.
+
+        Returns:
+            (Node): Loss between x and y.
+
+        Example:
+            >>> builder = model.build_data()  # This will return a builder function.
+            >>> x, buffer, y = builder(image_path_list, annotation_list)
+            >>> z = model(x)
+            >>> loss = model.loss(z, buffer, y)
+        """
         LAMBDA_NO_OBJECT = 0.5
         LAMBDA_OBJECT    = 5.0
         LAMBDA_COORD     = 1.0
         LAMBDA_CLASS     = 1.0
         
         batch, box, C, grid_h, grid_w = y.shape
-
         x = x.reshape(batch,box,C,grid_h,grid_w)
     
         anchors = np.array(self.anchor)
@@ -603,30 +626,31 @@ class Yolov2(Detection):
             valid_img_path_list=None, valid_annotation_list=None,
             epoch=160, batch_size=16, optimizer=None, imsize_list=None, augmentation=None, callback_end_epoch=None):
         """
-        This function performs training with given data and hyper parameters.
+        This function performs training with the given data and hyperparameters.
         Yolov2 is trained using multiple scale images. Therefore, this function
-        requires list of image size. If it is not given, the model will be trained
-        using fixed image size.
+        requires a list of image sizes. If this is not provided, the model will be trained
+        using a fixed image size.
 
         Args:
-            train_img_path_list(list): List of image path.
-            train_annotation_list(list): List of annotations.
-            valid_img_path_list(list): List of image path for validation.
-            valid_annotation_list(list): List of annotations for validation.
-            epoch(int): Number of training epoch.
-            batch_size(int): Number of batch size.
-            imsize_list(list): List of image size.
-            augmentation(Augmentation): Augmentation object.
-            callback_end_epoch(function): Given function will be called at the end of each epoch.
+            train_img_path_list (list): List of image paths.
+            train_annotation_list (list): List of annotations.
+            valid_img_path_list (list): List of image paths for validation.
+            valid_annotation_list (list): List of annotations for validation.
+            epoch (int): Number of training epochs.
+            batch_size (int): Batch size.
+            imsize_list (list): List of image sizes.
+            augmentation (Augmentation): Augmentation object.
+            callback_end_epoch (function): The given function will be called at the end of each epoch.
 
         Returns:
             (tuple): Training loss list and validation loss list.
 
         Example:
             >>> from renom_img.api.detection.yolo_v2 import Yolov2
-            >>> train_img_path_list, train_annot_list = ... # Define own data.
-            >>> valid_img_path_list, valid_annot_list = ...
-            >>> model = Yolov2()
+            >>> train_img_path_list, train_annot_list = ... # Define train data.
+            >>> valid_img_path_list, valid_annot_list = ...i # Define validation data.
+            >>> class_map = ... # List of class names.
+            >>> model = Yolov2(class_map)
             >>> model.fit(
             ...     # Feeds image and annotation data.
             ...     train_img_path_list,
@@ -637,10 +661,10 @@ class Yolov2(Detection):
             ...     batch_size=8)
             >>>
 
-        Following arguments will be given to the function ``callback_end_epoch``.
+        The following arguments will be given to the function ``callback_end_epoch``.
 
-        - **epoch** (int) - Number of current epoch.
-        - **model** (Model) - Yolo2 object.
+        - **epoch** (int) - Current epoch number.
+        - **model** (Model) - Yolov2 object.
         - **avg_train_loss_list** (list) - List of average train loss of each epoch.
         - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
 
