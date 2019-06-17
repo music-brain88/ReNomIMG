@@ -76,3 +76,10 @@ class Algorithm(enum.Enum):
 
     UNET = 60
     FCN = 61
+
+
+TASK_ID_BY_NAME = {
+    "classification": Task.CLASSIFICATION.value,
+    "detection": Task.DETECTION.value,
+    "segmentation": Task.SEGMENTATION.value,
+}
