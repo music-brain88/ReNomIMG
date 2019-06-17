@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-18 09:05+0900\n"
+"POT-Creation-Date: 2019-06-16 21:43+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,12 +22,12 @@ msgid "Quick start with example dataset"
 msgstr "Example Dataを使ったクイックスタート"
 
 #: ../../rsts/quick_start.rst:4
-msgid "Let's use ReNomIMG with example dataset."
-msgstr "まずはExample Dataを使用してReNomIMGをお試しください."
+msgid "Let's use ReNomIMG with an example dataset."
+msgstr "まずはExample Dataを使用してReNomIMGをお試しください。"
 
 #: ../../rsts/quick_start.rst:6
-msgid "We use PASCAL VOC dataset as an example."
-msgstr "ここではExample Dataとして, PASCAL VOCデータセットを使用します."
+msgid "We will use the PASCAL VOC dataset in this example."
+msgstr "ここではExample Dataとして, PASCAL VOCデータセットを使用します。"
 
 #: ../../rsts/quick_start.rst:8
 msgid "**The PASCAL Visual Object Classes (VOC) Challenge**"
@@ -57,33 +57,50 @@ msgstr "データの準備"
 
 #: ../../rsts/quick_start.rst:19
 msgid ""
-"First we need to prepare image dataset. Here we use ``Pascal VOC "
-"dataset`` . You can setup the data only running following command."
-msgstr "まずはデータセットを準備する必要があります. ここでは ``PASCAL VOC`` データセットを"
-"使いますが, ReNomIMGが提供する以下のコマンドを実行することで, 自動的にPASCAL VOCデータセットが"
-"使用可能になります."
+"First we need to prepare the image dataset. Here we use the ``Pascal "
+"VOC`` dataset. You can download and prepare the dataset by running the "
+"following command."
+msgstr ""
+"まずはデータセットを準備する必要があります。ここでは ``PASCAL VOC`` データセットを使いますが、"
+"ReNomIMGが提供する以下のコマンドを実行することで、自動的にPASCAL VOCデータセットが使用可能になります。"
 
-#: ../../rsts/quick_start.rst:28
+#: ../../rsts/quick_start.rst:39
 msgid ""
-"You will see the ``datasrc`` and ``storage`` directory that are created "
-"to current directory."
-msgstr "コマンドの実行終了後には, ``datasrc`` ディレクトリと ``storage`` ディレクトリが"
-"作成されています."
+"The ``datasrc`` and ``storage`` directories will be created in the "
+"current directory."
+msgstr "コマンドの実行終了後には、 ``datasrc`` ディレクトリと ``storage`` ディレクトリが作成されています。"
 
-#: ../../rsts/quick_start.rst:31
+#: ../../rsts/quick_start.rst:42
 msgid "Run ReNomIMG"
 msgstr "ReNomIMGを起動する"
 
-#: ../../rsts/quick_start.rst:33
+#: ../../rsts/quick_start.rst:44
 msgid ""
-"After the data preparation, run the ReNomIMG server. Following code runs "
-"ReNomIMG with port 8080."
-msgstr "上記のコマンドを実行してデータセットの準備が終了しました."
-"次に, ReNomIMGを起動する以下のコマンドを実行してください."
-"このコマンドは, ReNomIMGサーバを8080ポートで実行するためのコマンドです."
+"Once the dataset is ready, start the ReNomIMG server. The command below "
+"runs ReNomIMG on port 8080."
+msgstr ""
+"上記のコマンドを実行してデータセットの準備が終了しました。次に、"
+"ReNomIMGを起動する以下のコマンドを実行してください。このコマンドは、"
+"ReNomIMGサーバを8080ポートで実行するためのコマンドです。"
 
-#: ../../rsts/quick_start.rst:40
-msgid "Next, let's move on next settion \"How to use ReNomIMG GUI\"."
-msgstr "サーバが起動しましたら, 次の「ReNomIMG GUIツールの使い方」セクションで"
-"アプリケーションの使い方を確認し, 画像認識モデルを作成してみましょう."
+#: ../../rsts/quick_start.rst:51
+msgid "Next, let's move on to the section \"How to use the ReNomIMG GUI\"."
+msgstr ""
+"サーバが起動しましたら、次の「ReNomIMG GUIツールの使い方」セクションでアプリケーションの使い方を確認し、"
+"画像認識モデルを作成してみましょう。"
+
+#~ msgid "We use PASCAL VOC dataset as an example."
+#~ msgstr "ここではExample Dataとして, PASCAL VOCデータセットを使用します."
+
+#~ msgid ""
+#~ "After the data preparation, run the "
+#~ "ReNomIMG server. Following code runs "
+#~ "ReNomIMG with port 8080."
+#~ msgstr ""
+#~ "上記のコマンドを実行してデータセットの準備が終了しました.次に, "
+#~ "ReNomIMGを起動する以下のコマンドを実行してください.このコマンドは, "
+#~ "ReNomIMGサーバを8080ポートで実行するためのコマンドです."
+
+#~ msgid "We use will use the PASCAL VOC dataset for this example."
+#~ msgstr ""
 

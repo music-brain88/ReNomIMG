@@ -1,9 +1,9 @@
 Quick start with example dataset
 ================================
 
-Let's use ReNomIMG with example dataset.
+Let's use ReNomIMG with an example dataset.
 
-We use PASCAL VOC dataset as an example.
+We will use the PASCAL VOC dataset in this example.
 
 | **The PASCAL Visual Object Classes (VOC) Challenge**
 | Everingham, M., Van Gool, L., Williams, C. K. I., Winn, J. and Zisserman, A.
@@ -16,13 +16,13 @@ We use PASCAL VOC dataset as an example.
 Prepare Dataset
 ----------------
 
-First we need to prepare image dataset. Here we use ``Pascal VOC dataset`` .
-You can setup the data only running following command.
+First we need to prepare the image dataset. Here we use the ``Pascal VOC`` dataset.
+You can download and prepare the dataset by running the following command.
 
 
 .. code-block :: shell
 
-    # This command will download the data and align it to current directory.
+    # This command will download the data and save it to the current directory.
     renom_img setup_example
 
     # ### Setup a example dataset ###
@@ -32,20 +32,20 @@ You can setup the data only running following command.
     # 4/7: Moving image data to datasrc/prediction_set/img...
     # 5/7: Moving xml data to datasrc/label/detection...
     # 6/7: Moving segmentation target data to datasrc/label/segmentation...
-    # 7/7: Creating classification target data to datasrc/label/classification...
+    # 7/7: Creating classification target data in datasrc/label/classification...
     # Setup done.
 
 
-You will see the ``datasrc`` and ``storage`` directory that are created to current directory.
+The ``datasrc`` and ``storage`` directories will be created in the current directory.
 
 Run ReNomIMG
 -------------
 
-After the data preparation, run the ReNomIMG server.
-Following code runs ReNomIMG with port 8080.
+Once the dataset is ready, start the ReNomIMG server.
+The command below runs ReNomIMG on port 8080.
 
 .. code-block :: shell
 
     renom_img --port 8080
 
-Next, let's move on next settion "How to use ReNomIMG GUI".
+Next, let's move on to the section "How to use the ReNomIMG GUI".

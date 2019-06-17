@@ -1,26 +1,25 @@
 APIs
 ====
 
-ReNomIMG also provides python APIs.
+ReNomIMG also provides python APIs for algorithms and utilities.
 
-These APIs allows you to build not only building object detection model
-but also classification model and object segmentation model.
+These APIs allow you to build object detection, classification and semantic segmentation models.
 
 
-**# Model's for each image processing tasks.**
+**# Models for each image processing task**
 
 .. toctree::
     renom_img.api.classification
     renom_img.api.detection
     renom_img.api.segmentation
 
-**# Utility apis**
+**# Utility APIs**
 
 .. toctree::
     renom_img.api.utility
 
 
-**# Use models which trained on ReNomIMG GUI tool**
+**# Use models trained in ReNomIMG GUI**
 
 .. toctree::
     renom_img.api.inference

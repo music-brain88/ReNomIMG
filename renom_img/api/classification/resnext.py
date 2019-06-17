@@ -16,7 +16,13 @@ from renom_img.api.utility.optimizer import OptimizerResNeXt
 
 RESIZE_METHOD = Image.BILINEAR
 
+
 class TargetBuilderResNeXt():
+    '''
+    Target Builder for ResNet
+
+    '''
+
     def __init__(self, class_map, imsize):
         self.class_map = class_map
         self.imsize = imsize
@@ -25,6 +31,25 @@ class TargetBuilderResNeXt():
         return self.build(*args, **kwargs)
 
     def preprocess(self, x):
+        """
+        Returns:
+            (ndarray): Preprocessed data.
+
+        Preprocessing for ResNeXt is as follows.
+        These values are taken from the official facebook torch implementation:
+        https://github.com/facebook/fb.resnet.torch/blob/master/pretrained/classify.lua
+
+        .. math::
+
+            x /= 255
+            x[:, 0, :, :] -= 0.485
+            x[:, 1, :, :] -= 0.456
+            x[:, 2, :, :] -= 0.406
+
+            x[:, 0, :, :] /= 0.229
+            x[:, 1, :, :] /= 0.224
+            x[:, 2, :, :] /= 0.225
+        """
         # normalization
         x /= 255
         # mean=0.485, 0.456, 0.406 and std=0.229, 0.224, 0.225
@@ -55,10 +80,10 @@ class TargetBuilderResNeXt():
         """ Loads an image
 
         Args:
-            path(str): A path of an image
+            path(str): Path to an image
 
         Returns:
-            (tuple): Returns image(numpy.array), the ratio of the given width to the actual image width,
+            (tuple): Returns image data (numpy.array), the ratio of the given width to the actual image width,
                      and the ratio of the given height to the actual image height
         """
         img = Image.open(path)
@@ -68,7 +93,6 @@ class TargetBuilderResNeXt():
         # img = img.resize(self.imsize, RESIZE_METHOD)
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, self.imsize[0] / float(w), self.imsize[1] / h
-
 
     def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
@@ -84,7 +108,7 @@ class TargetBuilderResNeXt():
         """
         if annotation_list is None:
             img_array = np.vstack([load_img(path, self.imsize)[None]
-                                    for path in img_path_list])
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
             return img_array
 
@@ -107,29 +131,36 @@ class TargetBuilderResNeXt():
 
         return self.preprocess(np.array(img_list)), np.array(label_list)
 
+
 @adddoc
 class ResNeXt50(Classification):
     """ResNeXt50 model.
 
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
+    If the argument load_pretrained_weight is True, pretrained weights will be downloaded.
+    The pretrained weights were trained using ILSVRC2012.
 
     Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        plateau: True if error plateau should be used
-        train_whole_network(bool): True if the overal model is trained.
-        cardinality: number of groups in group convolution layers (default = 32)
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        cardinality (int): Number of groups in group convolution layers (default = 32)
+        plateau (bool): Specifies whether or not error plateau learning rate adjustment should be used. If True, learning rate is
+          automatically decreased when training loss reaches a plateau.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
-        Aggregated Residual Transformations for Deep Neural Networks
-        Saining Xie, Ross Girshick, Piotr Dollar, Zhuowen Tu, Kaiming H
-        https://arxiv.org/abs/1611.05431
+        | Saining Xie, Ross Girshick, Piotr Dollar, Zhuowen Tu, Kaiming He
+        | **Aggregated Residual Transformations for Deep Neural Networks**
+        | https://arxiv.org/abs/1611.05431
+        |
+
     """
 
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt50.h5".format(
@@ -137,11 +168,11 @@ class ResNeXt50(Classification):
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
 
-
         self.cardinality = cardinality
 
         self.model = CnnResNeXt(1, Bottleneck, [3, 4, 6, 3], self.cardinality)
-        super(ResNeXt50, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+        super(ResNeXt50, self).__init__(class_map, imsize,
+                                        load_pretrained_weight, train_whole_network, self.model)
 
         self.model.set_output_size(self.num_class)
         self.model.set_train_whole(train_whole_network)
@@ -152,29 +183,37 @@ class ResNeXt50(Classification):
 
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
+
+
 @adddoc
 class ResNeXt101(Classification):
     """ResNeXt101 model.
 
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using ILSVRC2012.
+    If the argument load_pretrained_weight is True, pretrained weights will be downloaded.
+    The pretrained weights were trained using ILSVRC2012.
 
     Args:
-        load_pretrained_weight(bool):
-        class_map: Array of class names
-        imsize(int or tuple): Input image size.
-        plateau: True if error plateau should be used
-        train_whole_network(bool): True if the overal model is trained.
-        cardinality: number of groups in group convolution layers (default = 32)
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        cardinality (int): Number of groups in group convolution layers (default = 32)
+        plateau (bool): Specifies whether or not error plateau learning rate adjustment should be used. If True, learning rate is
+          automatically decreased when training loss reaches a plateau.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
     Note:
-        if the argument num_class is not 1000, last dense layer will be reset because
-        the pretrained weight is trained on 1000 classification dataset.
+        If the argument num_class is not equal to 1000, the last dense layer will be reset because
+        the pretrained weight was trained on a 1000-class dataset.
 
     References:
-        Aggregated Residual Transformations for Deep Neural Networks
-        Saining Xie, Ross Girshick, Piotr Dollar, Zhuowen Tu, Kaiming H
-        https://arxiv.org/abs/1611.05431
+        | Saining Xie, Ross Girshick, Piotr Dollar, Zhuowen Tu, Kaiming He
+        | **Aggregated Residual Transformations for Deep Neural Networks**
+        | https://arxiv.org/abs/1611.05431
+        |
+
     """
 
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt101.h5".format(
@@ -185,11 +224,11 @@ class ResNeXt101(Classification):
         self.cardinality = cardinality
 
         self.model = CnnResNeXt(1, Bottleneck, [3, 4, 23, 3], self.cardinality)
-        super(ResNeXt101, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+        super(ResNeXt101, self).__init__(class_map, imsize,
+                                         load_pretrained_weight, train_whole_network, self.model)
 
         self.model.set_output_size(self.num_class)
         self.model.set_train_whole(train_whole_network)
-
 
         self.default_optimizer = OptimizerResNeXt(plateau)
         self.decay_rate = 0.0001
@@ -197,5 +236,3 @@ class ResNeXt101(Classification):
 
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
-
-

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-23 11:05+0900\n"
+"POT-Creation-Date: 2019-06-14 21:05+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,81 +66,90 @@ msgstr "パラメーター"
 #: renom_img.api.segmentation.fcn.FCN8s:3
 #: renom_img.api.segmentation.ternausnet.TernausNet:3
 #: renom_img.api.segmentation.unet.UNet:3
-msgid "Array of class names"
+msgid "List of class names."
 msgstr "クラス名の配列"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:5
 #: renom_img.api.segmentation.fcn.FCN32s:5
 #: renom_img.api.segmentation.fcn.FCN8s:5
-msgid "Final upscore layer is trainable if True, or otherwise frozen if False"
-msgstr "モデル全体の学習を行う場合はTrue、さもなければFalse"
+msgid ""
+"Whether or not to train final upscore layer. If True, final upscore layer"
+" is initialized to bilinear upsampling and made trainable. If False, "
+"final upscore layer is fixed to bilinear upsampling."
+msgstr ""
+"最後のアップサンプル層を学習する場合はTrue、さもなければFalse"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:7
-#: renom_img.api.segmentation.fcn.FCN32s:7
-#: renom_img.api.segmentation.fcn.FCN8s:7
+#: of renom_img.api.segmentation.fcn.FCN16s:8
+#: renom_img.api.segmentation.fcn.FCN32s:8
+#: renom_img.api.segmentation.fcn.FCN8s:8
 #: renom_img.api.segmentation.ternausnet.TernausNet:5
 #: renom_img.api.segmentation.unet.UNet:5
-msgid "Input image size"
+msgid "Input image size."
 msgstr "入力の画像サイズ"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:9
-#: renom_img.api.segmentation.fcn.FCN32s:9
-#: renom_img.api.segmentation.fcn.FCN8s:9
+#: of renom_img.api.segmentation.fcn.FCN16s:10
+#: renom_img.api.segmentation.fcn.FCN32s:10
+#: renom_img.api.segmentation.fcn.FCN8s:10
+#: renom_img.api.segmentation.ternausnet.TernausNet:7
 msgid ""
-"Pre-trained VGG-16 weights are used if True, or otherwise random "
-"initialization is used if False"
-msgstr ""
+"Argument specifying whether or not to load pretrained weight values. If "
+"True, pretrained weights will be downloaded to the current directory and "
+"loaded as the initial weight values. If a string is given, weight values "
+"will be loaded and initialized from the weights in the given file name."
+msgstr "事前学習済みの重みを利用する場合はTrue、さもなければFalse"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:11
-#: renom_img.api.segmentation.fcn.FCN32s:11
-#: renom_img.api.segmentation.fcn.FCN8s:11
-#: renom_img.api.segmentation.ternausnet.TernausNet:9
+#: of renom_img.api.segmentation.fcn.FCN16s:14
+#: renom_img.api.segmentation.fcn.FCN32s:14
+#: renom_img.api.segmentation.fcn.FCN8s:14
+#: renom_img.api.segmentation.ternausnet.TernausNet:11
+#: renom_img.api.segmentation.unet.UNet:11
 msgid ""
-"All layers of model are trainable if True, or otherwise pretrained "
-"encoder base is frozen if False"
-msgstr ""
+"Flag specifying whether to freeze or train the base encoder layers of the"
+" model during training. If True, trains all layers of the model. If "
+"False, the convolutional encoder base is frozen during training."
+msgstr "モデル全体の学習を行う場合はTrue、さもなければFalse"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:15
+#: of renom_img.api.segmentation.fcn.FCN16s:19
 #: renom_img.api.segmentation.fcn.FCN16s.fit:24
 #: renom_img.api.segmentation.fcn.FCN16s.regularize:4
-#: renom_img.api.segmentation.fcn.FCN32s:15
+#: renom_img.api.segmentation.fcn.FCN32s:19
 #: renom_img.api.segmentation.fcn.FCN32s.fit:24
 #: renom_img.api.segmentation.fcn.FCN32s.regularize:4
-#: renom_img.api.segmentation.fcn.FCN8s:15
+#: renom_img.api.segmentation.fcn.FCN8s:19
 #: renom_img.api.segmentation.fcn.FCN8s.fit:24
 #: renom_img.api.segmentation.fcn.FCN8s.regularize:4
-#: renom_img.api.segmentation.ternausnet.TernausNet:13
+#: renom_img.api.segmentation.ternausnet.TernausNet:16
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:24
 #: renom_img.api.segmentation.ternausnet.TernausNet.regularize:4
-#: renom_img.api.segmentation.unet.UNet:11
+#: renom_img.api.segmentation.unet.UNet:16
 #: renom_img.api.segmentation.unet.UNet.fit:24
 #: renom_img.api.segmentation.unet.UNet.regularize:4
 msgid "Example"
 msgstr "例"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:28
-#: renom_img.api.segmentation.fcn.FCN32s:28
-#: renom_img.api.segmentation.fcn.FCN8s:28
-#: renom_img.api.segmentation.ternausnet.TernausNet:26
-#: renom_img.api.segmentation.unet.UNet:24
+#: of renom_img.api.segmentation.fcn.FCN16s:32
+#: renom_img.api.segmentation.fcn.FCN32s:32
+#: renom_img.api.segmentation.fcn.FCN8s:32
+#: renom_img.api.segmentation.ternausnet.TernausNet:29
+#: renom_img.api.segmentation.unet.UNet:29
 msgid "References"
 msgstr "参照"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:29
-#: renom_img.api.segmentation.fcn.FCN32s:29
-#: renom_img.api.segmentation.fcn.FCN8s:29
+#: of renom_img.api.segmentation.fcn.FCN16s:33
+#: renom_img.api.segmentation.fcn.FCN32s:33
+#: renom_img.api.segmentation.fcn.FCN8s:33
 msgid "Jonathan Long, Evan Shelhamer, Trevor Darrell"
 msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN16s:30
-#: renom_img.api.segmentation.fcn.FCN32s:30
-#: renom_img.api.segmentation.fcn.FCN8s:30
+#: of renom_img.api.segmentation.fcn.FCN16s:34
+#: renom_img.api.segmentation.fcn.FCN32s:34
+#: renom_img.api.segmentation.fcn.FCN8s:34
 msgid "**Fully Convolutional Networks for Semantic Segmentation**"
-msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク"
+msgstr "**セマンティックセグメンテーション用の全畳み込みネットワーク**"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:31
-#: renom_img.api.segmentation.fcn.FCN32s:31
-#: renom_img.api.segmentation.fcn.FCN8s:31
+#: of renom_img.api.segmentation.fcn.FCN16s:35
+#: renom_img.api.segmentation.fcn.FCN32s:35
+#: renom_img.api.segmentation.fcn.FCN8s:35
 msgid "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
 msgstr ""
 
@@ -149,7 +158,7 @@ msgstr ""
 #: renom_img.api.segmentation.fcn.FCN8s.fit:1
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:1
 #: renom_img.api.segmentation.unet.UNet.fit:1
-msgid "This function performs training with given data and hyper parameters."
+msgid "This function performs training with the given data and hyperparameters."
 msgstr "この関数は与えられたデータとパラメータをもとに、モデルの学習を行います。"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:3
@@ -157,7 +166,7 @@ msgstr "この関数は与えられたデータとパラメータをもとに、
 #: renom_img.api.segmentation.fcn.FCN8s.fit:3
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:3
 #: renom_img.api.segmentation.unet.UNet.fit:3
-msgid "List of image path."
+msgid "List of image paths."
 msgstr "画像ファイルのパスのリスト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:5
@@ -173,7 +182,7 @@ msgstr "アノテーションファイルのパスのリスト"
 #: renom_img.api.segmentation.fcn.FCN8s.fit:7
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:7
 #: renom_img.api.segmentation.unet.UNet.fit:7
-msgid "List of image path for validation."
+msgid "List of image paths for validation."
 msgstr "バリデーション用の画像パスのリスト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:9
@@ -189,7 +198,7 @@ msgstr "バリデーション用のアノテーションファイルのパスリ
 #: renom_img.api.segmentation.fcn.FCN8s.fit:11
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:11
 #: renom_img.api.segmentation.unet.UNet.fit:11
-msgid "Number of training epoch."
+msgid "Number of training epochs."
 msgstr "学習エポック数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:13
@@ -197,7 +206,7 @@ msgstr "学習エポック数"
 #: renom_img.api.segmentation.fcn.FCN8s.fit:13
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:13
 #: renom_img.api.segmentation.unet.UNet.fit:13
-msgid "Number of batch size."
+msgid "Batch size."
 msgstr "バッチサイズ"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:15
@@ -260,43 +269,45 @@ msgstr "学習誤差とバリデーション誤差のリスト"
 msgid "Return type"
 msgstr "戻り値の型"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:38
-#: renom_img.api.segmentation.fcn.FCN32s.fit:38
-#: renom_img.api.segmentation.fcn.FCN8s.fit:38
-#: renom_img.api.segmentation.ternausnet.TernausNet.fit:38
-#: renom_img.api.segmentation.unet.UNet.fit:38
-msgid "Following arguments will be given to the function ``callback_end_epoch``."
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:39
+#: renom_img.api.segmentation.fcn.FCN32s.fit:39
+#: renom_img.api.segmentation.fcn.FCN8s.fit:39
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:39
+#: renom_img.api.segmentation.unet.UNet.fit:39
+msgid ""
+"The following arguments will be given to the function "
+"``callback_end_epoch``."
 msgstr "以下の引数が ``callback_end_epoch`` に与えられます。"
-
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:40
-#: renom_img.api.segmentation.fcn.FCN32s.fit:40
-#: renom_img.api.segmentation.fcn.FCN8s.fit:40
-#: renom_img.api.segmentation.ternausnet.TernausNet.fit:40
-#: renom_img.api.segmentation.unet.UNet.fit:40
-msgid "**epoch** (int) - Number of current epoch."
-msgstr "**epoch** (int) - 現在のエポック数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:41
 #: renom_img.api.segmentation.fcn.FCN32s.fit:41
 #: renom_img.api.segmentation.fcn.FCN8s.fit:41
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:41
 #: renom_img.api.segmentation.unet.UNet.fit:41
-msgid "**model** (Model) - Model object."
-msgstr "**model** (Model) - モデルオブジェクト"
+msgid "**epoch** (int) - Current epoch number."
+msgstr "**epoch** (int) - 現在のエポック数"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:42
 #: renom_img.api.segmentation.fcn.FCN32s.fit:42
 #: renom_img.api.segmentation.fcn.FCN8s.fit:42
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:42
 #: renom_img.api.segmentation.unet.UNet.fit:42
-msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
-msgstr "**avg_train_loss_list** (list) -　各エポックの学習誤差の平均のリスト"
+msgid "**model** (Model) - Model object."
+msgstr "**model** (Model) - モデルオブジェクト"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.fit:43
 #: renom_img.api.segmentation.fcn.FCN32s.fit:43
 #: renom_img.api.segmentation.fcn.FCN8s.fit:43
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:43
 #: renom_img.api.segmentation.unet.UNet.fit:43
+msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
+msgstr "**avg_train_loss_list** (list) -　各エポックの学習誤差の平均のリスト"
+
+#: of renom_img.api.segmentation.fcn.FCN16s.fit:44
+#: renom_img.api.segmentation.fcn.FCN32s.fit:44
+#: renom_img.api.segmentation.fcn.FCN8s.fit:44
+#: renom_img.api.segmentation.ternausnet.TernausNet.fit:44
+#: renom_img.api.segmentation.unet.UNet.fit:44
 msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
 msgstr "**avg_valid_loss_list** (list) - 各エポックのバリデーション誤差の平均のリスト"
 
@@ -306,7 +317,7 @@ msgstr "**avg_valid_loss_list** (list) - 各エポックのバリデーション
 #: renom_img.api.segmentation.ternausnet.TernausNet.forward:1
 #: renom_img.api.segmentation.unet.UNet.forward:1
 msgid ""
-"Performs forward propagation. You can call this function using "
+"Performs forward propagation. You can call this function using the "
 "``__call__`` method."
 msgstr "順伝播を行います。これは ``__call__`` 関数によって呼ばれます。"
 
@@ -349,9 +360,8 @@ msgstr "xとy間の損失"
 #: renom_img.api.segmentation.unet.UNet.predict:1
 msgid ""
 "If only an image or a path is given, an array whose shape is **(width, "
-"height)** is returned. If multiple images or paths are given, then a list"
-" in which there are arrays whose shape is **(width, height)** is "
-"returned."
+"height)** is returned. If multiple images or paths are given, a list with"
+" arrays whose shape is **(width, height)** is returned."
 msgstr ""
 "一枚の画像もしくは画像のパスが与えられた場合、 **(幅、高さ)** "
 "の形のarrayが返されます。複数の画像もしくは画像のパスが与えられた場合は、 **(幅、高さ)** の形のarrayが入ったリストが返されます。"
@@ -361,7 +371,7 @@ msgstr ""
 #: renom_img.api.segmentation.fcn.FCN8s.preprocess:1
 #: renom_img.api.segmentation.ternausnet.TernausNet.preprocess:1
 #: renom_img.api.segmentation.unet.UNet.preprocess:1
-msgid "Performs preprocess for a given array."
+msgid "Performs preprocessing for a given array."
 msgstr "与えられたarrayに対して前処理を行います。"
 
 #: of renom_img.api.segmentation.fcn.FCN16s.preprocess:3
@@ -377,7 +387,7 @@ msgstr "前処理を行うための画像のarray"
 #: renom_img.api.segmentation.fcn.FCN8s.regularize:1
 #: renom_img.api.segmentation.ternausnet.TernausNet.regularize:1
 #: renom_img.api.segmentation.unet.UNet.regularize:1
-msgid "Regularization term to a loss function."
+msgid "Adds a regularization term to the loss function."
 msgstr "損失関数に追加する正則化項"
 
 #: of renom_img.api.segmentation.fcn.FCN32s:1
@@ -410,19 +420,26 @@ msgstr "U-Net: 画像セグメンテーションに用いられる畳込みニ�
 
 #: of renom_img.api.segmentation.unet.UNet:7
 msgid ""
-"All layers of model are trainable if True, or otherwise encoder base is "
-"frozen if False"
+"Argument specifying whether or not to load pretrained weight values. "
+"Pretrained weights are not available for U-Net, so this must be set to "
+"False (for random initialization) or to a string specifying the filename "
+"of pretrained weights provided by the user. If a string is given, weight "
+"values will be loaded and initialized from the weights in the given "
+"filename."
 msgstr ""
+"事前学習済みの重みを使用するかどうかを指定します。"
+"U-Netには事前学習済みの重みが用意されていないため、Falseに設定するか、"
+"ユーザが自分で学習した重みのファイル名へのパスを指定します。"
 
-#: of renom_img.api.segmentation.unet.UNet:25
+#: of renom_img.api.segmentation.unet.UNet:30
 msgid "Olaf Ronneberger, Philipp Fischer, Thomas Brox"
 msgstr ""
 
-#: of renom_img.api.segmentation.unet.UNet:26
+#: of renom_img.api.segmentation.unet.UNet:31
 msgid "**U-Net: Convolutional Networks for Biomedical Image Segmentation**"
-msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク"
+msgstr "**セマンティックセグメンテーション用の全畳み込みネットワーク**"
 
-#: of renom_img.api.segmentation.unet.UNet:27
+#: of renom_img.api.segmentation.unet.UNet:32
 msgid "https://arxiv.org/pdf/1505.04597.pdf"
 msgstr ""
 
@@ -440,23 +457,17 @@ msgid ""
 "Segmentation"
 msgstr "TernausNet: ImageNetデータセットで事前学習されたVGG11 エンコーダを搭載したU-Net."
 
-#: of renom_img.api.segmentation.ternausnet.TernausNet:7
-msgid ""
-"Pre-trained VGG-11 weights are used if True, or otherwise random "
-"initialization is used if False"
-msgstr ""
-
-#: of renom_img.api.segmentation.ternausnet.TernausNet:27
+#: of renom_img.api.segmentation.ternausnet.TernausNet:30
 msgid "Vladimir Iglovikov, Alexey Shvets"
 msgstr ""
 
-#: of renom_img.api.segmentation.ternausnet.TernausNet:28
+#: of renom_img.api.segmentation.ternausnet.TernausNet:31
 msgid ""
 "**TernausNet: U-Net with VGG11 Encoder Pre-Trained on ImageNet for Image "
 "Segmentation**"
-msgstr "TernausNet: ImageNetデータセットで事前学習されたVGG11 エンコーダを搭載したU-Net."
+msgstr "**TernausNet: ImageNetデータセットで事前学習されたVGG11 エンコーダを搭載したU-Net.**"
 
-#: of renom_img.api.segmentation.ternausnet.TernausNet:29
+#: of renom_img.api.segmentation.ternausnet.TernausNet:32
 msgid "https://arxiv.org/pdf/1801.05746.pdf"
 msgstr ""
 
@@ -647,5 +658,32 @@ msgstr "TernausNetのための損失関数"
 #~ msgstr "U-Netのための前処理"
 
 #~ msgid ":math:`new_x = (x-mean)/(255*std).`"
+#~ msgstr ""
+
+#~ msgid "Final upscore layer is trainable if True, or otherwise frozen if False"
+#~ msgstr "モデル全体の学習を行う場合はTrue、さもなければFalse"
+
+#~ msgid ""
+#~ "Pre-trained VGG-16 weights are used "
+#~ "if True, or otherwise random "
+#~ "initialization is used if False"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "All layers of model are trainable "
+#~ "if True, or otherwise pretrained encoder"
+#~ " base is frozen if False"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "All layers of model are trainable "
+#~ "if True, or otherwise encoder base "
+#~ "is frozen if False"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Pre-trained VGG-11 weights are used "
+#~ "if True, or otherwise random "
+#~ "initialization is used if False"
 #~ msgstr ""
 

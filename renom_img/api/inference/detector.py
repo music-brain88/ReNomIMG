@@ -12,11 +12,11 @@ from renom_img.api.detection.ssd import SSD
 
 
 class Detector(object):
-    """This class allows you to pull model which trained on ReNomIMG GUI Tool.
+    """This class allows you to pull models trained in the ReNomIMG GUI.
 
     Args:
-        url (string): The url ReNomIMG server running.
-        port (string): The port number ReNomIMG server running.
+        url (string): The running ReNomIMG server URL.
+        port (string): The running ReNomIMG server port number.
     """
 
     def error_handler(self, func):
@@ -94,7 +94,7 @@ class Detector(object):
 
     def predict(self, img_list):
         """
-        Perform prediction to given image.
+        Perform prediction for the given image.
 
         Args:
             img_list (string, list, ndarray): Path to the image, list of path or ndarray can be passed.

@@ -15,16 +15,17 @@ from renom_img.api.cnn.unet import CNN_UNet
 
 RESIZE_METHOD = Image.BILINEAR
 
+
 class TargetBuilderUNet():
-    def __init__(self,class_map,imsize):
+    def __init__(self, class_map, imsize):
         self.class_map = class_map
         self.imsize = imsize
 
     def __call__(self, *args, **kwargs):
-        return self.build(*args,**kwargs)
+        return self.build(*args, **kwargs)
 
     def preprocess(self, x):
-        """Image preprocess for U-Net.
+        """Image preprocessing for U-Net.
 
         :math:`new_x = x/255`
 
@@ -98,8 +99,8 @@ class TargetBuilderUNet():
 
         """
         if annotation_list is None:
-            img_array = np.vstack([load_img(path,self.imsize)[None]
-                                    for path in img_path_list])
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
 
             return img_array
@@ -122,13 +123,11 @@ class TargetBuilderUNet():
             label_list.append(annot)
         if augmentation is not None:
             img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
-            data,label = self.resize(img_list, label_list)
-            return self.preprocess(data),label
+            data, label = self.resize(img_list, label_list)
+            return self.preprocess(data), label
         else:
-            data,label = self.resize(img_list, label_list)   
-            return self.preprocess(data),label
-
-
+            data, label = self.resize(img_list, label_list)
+            return self.preprocess(data), label
 
 
 @adddoc
@@ -136,9 +135,13 @@ class UNet(SemanticSegmentation):
     """ U-Net: Convolutional Networks for Biomedical Image Segmentation
 
     Args:
-        class_map(array): Array of class names
-        imsize(int or tuple): Input image size
-        train_whole_network(bool):  All layers of model are trainable if True, or otherwise encoder base is frozen if False
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          Pretrained weights are not available for U-Net, so this must be set to False (for random initialization) or to a string specifying the filename of pretrained weights provided by the user.
+          If a string is given, weight values will be loaded and initialized from the weights in the given filename.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base encoder layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     Example:
         >>> import renom as rm
@@ -169,13 +172,12 @@ class UNet(SemanticSegmentation):
 
         super(UNet, self).__init__(class_map, imsize,
                                    load_pretrained_weight, train_whole_network, self.model)
- 
+
         self.model.set_train_whole(train_whole_network)
         self.model.set_output_size(self.num_class)
 
         self.default_optimizer = OptimizerUNet()
         self.decay_rate = 0.00002
-
 
     def build_data(self):
         return TargetBuilderUNet(self.class_map, self.imsize)

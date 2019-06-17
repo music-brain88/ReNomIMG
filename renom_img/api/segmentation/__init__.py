@@ -49,7 +49,7 @@ class SemanticSegmentation(Base):
         """
         Returns:
             (Numpy.array or list): If only an image or a path is given, an array whose shape is **(width, height)** is returned.
-            If multiple images or paths are given, then a list in which there are arrays whose shape is **(width, height)** is returned.
+            If multiple images or paths are given, a list with arrays whose shape is **(width, height)** is returned.
         """
 
         self.set_models(inference=True)
@@ -59,13 +59,14 @@ class SemanticSegmentation(Base):
                 results = []
                 bar = tqdm()
                 bar.total = int(np.ceil(len(img_list) / batch_size))
-                for batch_num in range(0,len(img_list),batch_size):
-                    results.extend(np.argmax(rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))).as_ndarray(), axis=1))
+                for batch_num in range(0, len(img_list), batch_size):
+                    results.extend(np.argmax(rm.softmax(
+                        self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
             else:
-                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))).as_ndarray(),axis=1)
+                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))).as_ndarray(), axis=1)
         else:
             img_array = img_list
         return np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1)

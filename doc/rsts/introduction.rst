@@ -1,7 +1,7 @@
 Introduction
 ============
 
-**ReNomIMG is a GUI tool & PythonAPI for building image recognition models.**
+**ReNomIMG is a GUI tool & Python API for building image recognition models.**
 
 .. image:: /_static/image/top.png
 
@@ -10,110 +10,112 @@ Introduction
 
 .. ユーザが自分自身で目的に沿ったAIモデルを作れるようにすること.
 
-The concept of ReNomIMG is **ensure that users can create AI models 
-according to the purpose by themselves**.
+The concept of ReNomIMG is to **allow users to easily create AI models
+tailored to their objectives**.
 
-Recent developing deep learning technology realizes extremely big improvement at
-recognition accuracy.  
+Rapid developments in deep learning have resulted in tremendous improvements
+in image recognition accuracy.
 
-However if you would create a recognition model for any business scene such as 
-recognising damages of manufactured products, there are still many problems for 
-earning high accuracy recognition model.
+However, creating accurate image recognition models for specific business use, such as
+damage detection in manufactured products, is difficult due to a number of obstacles.
 
-For example, correcting training dataset, programming recognition model and train it, 
-evaluating the model, and so on.
+These obstacles include gathering a sufficiently large, accurate training dataset,
+programming the model, training the model, evaluating its performance, and so on.
 
-Especially, even if deep learning era, it is required to tune up the hyper parameters of 
-the recognition model. It requires many try and errors.
+Additionally, even with recent deep learning models, proper tuning of the
+the model hyper-parameters is very important. This usually requires significant trial and error.
 
-ReNomIMG allows you to build object detection model easily.
+ReNomIMG allows you to build image recognition models easily without these hassles.
 
-2. What ReNomIMG provides you.
+2. ReNomIMG overview
+---------------------
+
+ReNomIMG is an application for building and training deep-learning image recognition models.
+Image recognition is commonly divided into three tasks:
+
+* Object Detection (or 'detection')
+* Semantic Segmentation (or 'segmentation')
+* Image Classification (or 'classification')
+
+ReNomIMG allows users to perform all three of these tasks.
+
+ReNomIMG also provides users dataset creation and partition features, model evaluation metrics,
+training curve visualizations and the ability to export models for service integration.
+
+3. What ReNomIMG provides you
 -------------------------------
 
-ReNomIMG provides gui tool and python api.
+ReNomIMG provides you with a user-friendly GUI tool, a variety of popular algorithms, and a flexible python API.
 
 GUI tool
 ~~~~~~~~~~~~~~
 
-ReNomIMG GUI tool allows you to build object detection models.
-What users have to do are **preparing training data**, 
-**setting train configuration** and **pushing run button**.
+The ReNomIMG GUI tool allows users to build object detection, semantic segmentation, and image classification models.
+Users can do this simply by **preparing training data**,
+**selecting the training configuration** and **pushing the run button**.
 
 
 .. 下の図は, 後で差し替え
 
 .. image:: /_static/image/renomimg_gui_top.png
 
-3. ReNomIMG overview
----------------------
+ReNomIMG Algorithms
+~~~~~~~~~~~~~~
 
-ReNomIMG is service for image classification.Image classification has three types
+ReNomIMG provides the following algorithms.
 
-* Object Detection(or just detection).
-* Semantic Segmentation(or just Segmentation).
-* Image Classification(or just classification).
-
-ReNomIMG can do these three kind of tasks. Not only one job
-
-ReNomIMG is not only that, such as detection, segmentation, classification.
-You can also to use own data and splitting, model comparing, to see how to learning data and
-export model then use another services.
-
-4. ReNomIMG Algorithms
-----------------------
-
-You can use these algorithms.
-
-* detection
+* Detection
 
   - Yolo v1
   - Yolo v2
   - SSD
 
-* segmentation
+* Segmentation
 
   .. - U-Net
   - FCN
   .. - TernousNet
 
-* classification
+* Classification
 
   - ResNet
   - ResNeXt
   - VGG
 
 
-5. Python API
----------------------
-ReNomIMG API is a python api which provides you not only modern **object detection model** 
-but also **classification model**, **segmentation model**. 
+Python API
+~~~~~~~~~~~~~~
 
-And more, all those models have pretrained weights.
-This makes models more accurate one.
+ReNomIMG includes a flexible python API that provides a simple interface for popular **object detection**,
+**semantic segmentation**, and **image classification models**.
 
-An example code is bellow. Using ReNomIMG, you can build a model and train it in 3 lines.
+Pre-trained weights are also available, allowing users to efficiently train high-performing models.
+
+An example of defining and training a model is shown below. With ReNomIMG you can build a model, train it, and make predictions in just 3 lines.
 
 **Building a VGG16 Model**
 
 .. code-block :: python
     :linenos:
-    :emphasize-lines: 12,13,16
+    :emphasize-lines: 15,16,19
 
     from renom_img.api.classification.vgg import VGG16
     from renom_img.api.utility.load import parse_xml_detection
     from renom_img.api.utility.misc.display import draw_box
 
-    ## Data preparation.
+    ## Data preparation
     train_image_path_list = ...
     train_label_list = ...
     valid_image_path_list = ...
     valid_label_list = ...
 
-    ## Build a classification model(ex: VGG16).
+    ## Define your dataset classes
+    class_map = ...
+
+    ## Build a classification model(ex: VGG16)
     model = VGG16(class_map, load_pretrained_weight=True, train_whole_network=False)
     model.fit(train_image_path_list, train_label_list, valid_image_path_list, valid_label_list)
 
-    ## Prediction.
+    ## Prediction
     prediction = model.predict(new_image)
 

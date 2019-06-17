@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-23 11:05+0900\n"
+"POT-Creation-Date: 2019-06-14 20:15+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,10 +22,15 @@ msgid "renom\\_img.api.detection"
 msgstr ""
 
 #: of renom_img.api.detection.yolo_v1.Yolov1:1
-msgid "Yolo object detection algorithm."
-msgstr "Yolo 物体識別アルゴリズム"
+msgid "Yolov1 object detection algorithm."
+msgstr "Yolov1 物体検出アルゴリズム"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1
+#: of renom_img.api.detection.ssd.SSD renom_img.api.detection.ssd.SSD.fit
+#: renom_img.api.detection.ssd.SSD.forward
+#: renom_img.api.detection.ssd.SSD.get_bbox
+#: renom_img.api.detection.ssd.SSD.loss renom_img.api.detection.ssd.SSD.predict
+#: renom_img.api.detection.ssd.SSD.preprocess
+#: renom_img.api.detection.yolo_v1.Yolov1
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
 #: renom_img.api.detection.yolo_v1.Yolov1.forward
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
@@ -42,9 +47,11 @@ msgstr "Yolo 物体識別アルゴリズム"
 msgid "Parameters"
 msgstr "パラメータ"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1:3
-msgid "Number of class."
-msgstr "クラス数"
+#: of renom_img.api.detection.ssd.SSD:3
+#: renom_img.api.detection.yolo_v1.Yolov1:3
+#: renom_img.api.detection.yolo_v2.Yolov2:3
+msgid "List of class names."
+msgstr "クラス名のリスト"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1:5
 msgid "Cell size."
@@ -60,24 +67,37 @@ msgstr "画像サイズ"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1:11
 msgid ""
-"If true, pretrained weight will be downloaded to current directory. If "
-"string is given, pretrained weight will be saved as given name."
-msgstr "Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。文字列が渡された場合には、その名前で重みが保存されます。"
+"If True, pretrained weights will be downloaded to the current directory "
+"and loaded as the initial weight values. If a string is given, weight "
+"values will be loaded and initialized from the weights in the given file "
+"name."
+msgstr ""
+"Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。"
+"文字列が渡された場合には、そのファイルから重みが読み込みされます。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1:17
-#: renom_img.api.detection.yolo_v2.Yolov2:18
+#: of renom_img.api.detection.yolo_v1.Yolov1:16
+#: renom_img.api.detection.yolo_v2.Yolov2:16
+msgid ""
+"Flag specifying whether to freeze or train the base layers of the model "
+"during training. If True, trains all layers of the model. If False, the "
+"convolutional base is frozen during training."
+msgstr "モデル全体を学習させる場合はTrue、そうでなければFalse"
+
+#: of renom_img.api.detection.ssd.SSD:21
+#: renom_img.api.detection.yolo_v1.Yolov1:22
+#: renom_img.api.detection.yolo_v2.Yolov2:21
 msgid "References"
 msgstr "引用"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1:18
+#: of renom_img.api.detection.yolo_v1.Yolov1:23
 msgid "Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1:19
+#: of renom_img.api.detection.yolo_v1.Yolov1:24
 msgid "**You Only Look Once: Unified, Real-Time Object Detection**"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1:20
+#: of renom_img.api.detection.yolo_v1.Yolov1:25
 msgid "https://arxiv.org/abs/1506.02640"
 msgstr ""
 
@@ -87,7 +107,10 @@ msgid ""
 " specified for Yolov1."
 msgstr "この関数はYolov1クラスでで指定された形式の入力データとターゲットデータを返却します。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.build_data
+#: of renom_img.api.detection.ssd.SSD.build_data
+#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.get_bbox
+#: renom_img.api.detection.ssd.SSD.loss renom_img.api.detection.ssd.SSD.predict
+#: renom_img.api.detection.yolo_v1.Yolov1.build_data
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
 #: renom_img.api.detection.yolo_v1.Yolov1.loss
@@ -100,12 +123,16 @@ msgstr "この関数はYolov1クラスでで指定された形式の入力デー
 msgid "Returns"
 msgstr "戻り値"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.build_data:4
+#: of renom_img.api.detection.ssd.SSD.build_data:4
+#: renom_img.api.detection.yolo_v1.Yolov1.build_data:4
 #: renom_img.api.detection.yolo_v2.Yolov2.build_data:4
 msgid "Returns function which creates input data and target data."
 msgstr "入力データとターゲットデータを作成する関数を返却します。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.build_data
+#: of renom_img.api.detection.ssd.SSD.build_data
+#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.get_bbox
+#: renom_img.api.detection.ssd.SSD.predict
+#: renom_img.api.detection.yolo_v1.Yolov1.build_data
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
 #: renom_img.api.detection.yolo_v1.Yolov1.loss
@@ -118,159 +145,184 @@ msgstr "入力データとターゲットデータを作成する関数を返却
 msgid "Return type"
 msgstr "戻り値の型"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.build_data:8
+#: of renom_img.api.detection.ssd.SSD.build_data:8
+#: renom_img.api.detection.ssd.SSD.fit:24
+#: renom_img.api.detection.ssd.SSD.get_bbox:4
+#: renom_img.api.detection.ssd.SSD.loss:18
+#: renom_img.api.detection.ssd.SSD.predict:35
+#: renom_img.api.detection.ssd.SSD.regularize:7
+#: renom_img.api.detection.yolo_v1.Yolov1.build_data:8
 #: renom_img.api.detection.yolo_v1.Yolov1.fit:24
-#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:33
+#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:35
 #: renom_img.api.detection.yolo_v1.Yolov1.loss:12
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:35
 #: renom_img.api.detection.yolo_v1.Yolov1.regularize:7
 #: renom_img.api.detection.yolo_v2.Yolov2.build_data:8
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:29
-#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:2
+#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:4
 #: renom_img.api.detection.yolo_v2.Yolov2.loss:12
 #: renom_img.api.detection.yolo_v2.Yolov2.predict:35
 #: renom_img.api.detection.yolo_v2.Yolov2.regularize:7
 msgid "Example"
 msgstr "例"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:1
-msgid "This function performs training with given data and hyper parameters."
+#: of renom_img.api.detection.ssd.SSD.fit:1
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:1
+msgid "This function performs training with the given data and hyperparameters."
 msgstr "この関数は与えられたデータとハイパーパラメータを元に学習を実行します。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:3
+#: of renom_img.api.detection.ssd.SSD.fit:3
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:3
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:6
-msgid "List of image path."
+msgid "List of image paths."
 msgstr "画像のパスのリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:5
+#: of renom_img.api.detection.ssd.SSD.fit:5
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:5
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:8
 msgid "List of annotations."
 msgstr "アノテーションのリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:7
+#: of renom_img.api.detection.ssd.SSD.fit:7
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:7
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:10
-msgid "List of image path for validation."
+msgid "List of image paths for validation."
 msgstr "バリデーション用の画像のパスのリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:9
+#: of renom_img.api.detection.ssd.SSD.fit:9
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:9
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:12
 msgid "List of annotations for validation."
 msgstr "バリデーション用のアノテーションのリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:11
+#: of renom_img.api.detection.ssd.SSD.fit:11
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:11
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:14
-msgid "Number of training epoch."
+msgid "Number of training epochs."
 msgstr "学習エポック数"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:13
+#: of renom_img.api.detection.ssd.SSD.fit:13
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:13
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:16
-msgid "Number of batch size."
+msgid "Batch size."
 msgstr "バッチサイズ"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:15
+#: of renom_img.api.detection.ssd.SSD.fit:15
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:15
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:20
 msgid "Augmentation object."
 msgstr "Augmentationオブジェクト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:17
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:22
+#: of renom_img.api.detection.ssd.SSD.fit:17
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:17
 msgid "Given function will be called at the end of each epoch."
 msgstr "与えられた関数は各エポックの最後に呼び出されます。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:20
+#: of renom_img.api.detection.ssd.SSD.fit:20
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:20
 #: renom_img.api.detection.yolo_v2.Yolov2.fit:25
 msgid "Training loss list and validation loss list."
 msgstr "学習損失のリストとバリデーション損失のリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:38
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:44
-msgid "Following arguments will be given to the function ``callback_end_epoch``."
+#: of renom_img.api.detection.ssd.SSD.fit:39
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:39
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:45
+msgid ""
+"The following arguments will be given to the function "
+"``callback_end_epoch``."
 msgstr "以下の引数はcallback_end_epoch関数に渡されます。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:40
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:46
-msgid "**epoch** (int) - Number of current epoch."
+#: of renom_img.api.detection.ssd.SSD.fit:41
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:41
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:47
+msgid "**epoch** (int) - Current epoch number."
 msgstr "epoch (int) - 現在のエポック数"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:41
-#, fuzzy
+#: of renom_img.api.detection.ssd.SSD.fit:42
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:42
 msgid "**model** (Model) - Model object."
-msgstr "model (Model) - Yolov2オブジェクト"
+msgstr "model (Model) - モデルオブジェクト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:42
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:48
+#: of renom_img.api.detection.ssd.SSD.fit:43
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:43
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:49
 msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
 msgstr "avg_train_loss_list (list) - 各エポック毎の平均学習損失のリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.fit:43
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:49
+#: of renom_img.api.detection.ssd.SSD.fit:44
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:44
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:50
 msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
 msgstr "avg_valid_loss_list (list) - 各エポック毎の平均バリデーション損失のリスト"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.forward:1
+#: of renom_img.api.detection.ssd.SSD.forward:1
+#: renom_img.api.detection.yolo_v1.Yolov1.forward:1
 #: renom_img.api.detection.yolo_v2.Yolov2.forward:1
-#, fuzzy
 msgid ""
-"Performs forward propagation. You can call this function using "
+"Performs forward propagation. You can call this function using the "
 "``__call__`` method."
 msgstr "順伝播を実行します。この関数は__call__メソッドにより呼ばれます。メソッドの利用例については以下を参照してください。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.forward:4
 msgid "Input to Yolov1."
-msgstr ""
+msgstr "Yolov1への入力"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:1
-#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:8
-msgid "Output array of neural network. The shape of array"
-msgstr "ニューラルネットワークの結果得られた配列を出力します。"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:3
-#: renom_img.api.detection.yolo_v1.Yolov1.predict:5
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:5
+#: of renom_img.api.detection.ssd.SSD.get_bbox:1
+#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:1
+#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:1
 msgid ""
-"The threshold for confidence score. Predicted boxes which have lower "
-"confidence score than the threshold are discarderd. Defaults to 0.3"
+"Calculates the bounding box location, size and class information for "
+"model predictions."
+msgstr "予測されたバウンディングボックスのリスト、クラスラベルのIDとそのスコア"
+
+#: of renom_img.api.detection.ssd.SSD.get_bbox:10
+#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:3
+#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:10
+msgid "Output array of neural network."
+msgstr "ニューラルネットワークの出力データ"
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:5
+msgid ""
+"The threshold for confidence score. Predicted boxes which have a lower "
+"confidence score than the threshold are discarded. The default is 0.3."
 msgstr "信頼スコアの閾値。予測さればボックスのうち、信頼スコアが閾値に満たないものは破棄されます。デフォルト値は0.3"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:7
-#: renom_img.api.detection.yolo_v1.Yolov1.predict:9
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:9
-msgid "The threshold for non maximum supression. Defaults to 0.4"
+#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:9
+msgid "The threshold for non-maximum supression. The default is 0.4."
 msgstr "nmsの閾値。デファルト値は0.4。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:10
-#: renom_img.api.detection.yolo_v1.Yolov1.predict:12
-#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:11
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:12
+#: of renom_img.api.detection.ssd.SSD.get_bbox:13
+#: renom_img.api.detection.ssd.SSD.predict:12
+#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:12
 msgid ""
-"List of predicted bbox, score and class of each image. The format of "
-"return value is bellow. Box coordinates and size will be returned as "
-"ratio to the original image size. Therefore the range of 'box' is [0 ~ "
-"1]."
+"List of predicted bbox, score and class for each image. The format of the"
+" return value is shown below. Box coordinates and size will be returned "
+"as ratios to the original image size. Therefore, the values of 'box' are "
+"in the range [0 ~ 1]."
 msgstr ""
-"予測した結果得られたbbox、スコア、各画像に対応するクラスの配列。戻り値のフォーマットは下に記載してある通りです。ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0"
-" ~ 1]です。"
+"予測した結果得られたbbox、スコア、各画像に対応するクラスの配列。戻り値のフォーマットは下に記載してある通りです。ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0~1]です。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.get_bbox:41
+#: of renom_img.api.detection.ssd.SSD.get_bbox:37
+#: renom_img.api.detection.ssd.SSD.predict:43
+#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:43
 #: renom_img.api.detection.yolo_v1.Yolov1.predict:43
-#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:35
 #: renom_img.api.detection.yolo_v2.Yolov2.predict:43
 msgid ""
-"Box coordinate and size will be returned as ratio to the original image "
-"size. Therefore the range of 'box' is [0 ~ 1]."
+"Box coordinates and size will be returned as ratios to the original image"
+" size. Therefore, the values of 'box' are in the range [0 ~ 1]."
 msgstr "ボックスの座標と大きさは元画像のサイズに対する比で返されます。よって、boxの範囲は[0 ~ 1]です。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.loss:1
 msgid "Loss function specified for yolov1."
 msgstr "yolov1で指定された損失関数"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.loss:3
-#: renom_img.api.detection.yolo_v2.Yolov2.loss:3
+#: of renom_img.api.detection.ssd.SSD.loss:3
+#: renom_img.api.detection.yolo_v1.Yolov1.loss:3
 msgid "Output data of neural network."
 msgstr "ニューラルネットワークの出力データ"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.loss:5
-#: renom_img.api.detection.yolo_v2.Yolov2.loss:5
+#: of renom_img.api.detection.ssd.SSD.loss:5
+#: renom_img.api.detection.yolo_v1.Yolov1.loss:5
 msgid "Target data."
 msgstr "ターゲットデータ"
 
@@ -281,42 +333,67 @@ msgstr "xとy間の損失"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.predict:1
 #: renom_img.api.detection.yolo_v2.Yolov2.predict:1
-msgid "This method accepts either ndarray and list of image path."
+msgid ""
+"This method accepts an array of image paths, list of image paths, or a "
+"path to an image."
 msgstr "このメソッドはndarrayか画像のパスのリストを受け取ります。"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.predict:3
+#: of renom_img.api.detection.ssd.SSD.predict:3
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:3
 #: renom_img.api.detection.yolo_v2.Yolov2.predict:3
 msgid "Path to an image, list of path or ndarray."
 msgstr "画像へのパス、パスのリストもしくはndarray"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:1
-#: renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
-msgid "Performs preprocess for a given array."
-msgstr ""
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:5
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:5
+msgid ""
+"The threshold for the confidence score. Predicted boxes that have a lower"
+" confidence score than the threshold are discarded. The default is 0.3."
+msgstr "信頼スコアの閾値。予測さればボックスのうち、信頼スコアが閾値に満たないものは破棄されます。デフォルト値は0.3"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.preprocess:3
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:9
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:9
+msgid "The threshold for non maximum supression. The default is 0.4."
+msgstr "nmsの閾値。デファルト値は0.4。"
+
+#: of renom_img.api.detection.yolo_v1.Yolov1.predict:12
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:12
+msgid ""
+"List of predicted bbox, score and class of each image. The format of the "
+"return value is shown below. Box coordinates and size will be returned as"
+" ratios to the original image size. Therefore, the values of 'box' are in"
+" the range [0 ~ 1]."
+msgstr ""
+"予測した結果得られたbbox、スコア、各画像に対応するクラスの配列。戻り値のフォーマットは下に記載してある通りです。ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0"
+" ~ 1]です。"
+
+#: of renom_img.api.detection.ssd.SSD.preprocess:1
+#: renom_img.api.detection.yolo_v1.Yolov1.preprocess:1
+#: renom_img.api.detection.yolo_v2.Yolov2.preprocess:1
+msgid "Performs preprocessing for a given array."
+msgstr "配列の前処理をします。"
+
+#: of renom_img.api.detection.ssd.SSD.preprocess:3
+#: renom_img.api.detection.yolo_v1.Yolov1.preprocess:3
 #: renom_img.api.detection.yolo_v2.Yolov2.preprocess:3
 msgid "Image array for preprocessing."
-msgstr ""
+msgstr "前処理用の画像データ配列"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1.regularize:1
+#: of renom_img.api.detection.ssd.SSD.regularize:1
+#: renom_img.api.detection.yolo_v1.Yolov1.regularize:1
 #: renom_img.api.detection.yolo_v2.Yolov2.regularize:1
 msgid ""
-"Regularize term. You can use this function to add regularize term to loss"
-" function."
+"Regularization term. You can use this function to add a regularization "
+"term to the loss function."
 msgstr "正則化項。この関数は損失関数に正則化項を加えるために利用できます。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.regularize:4
-msgid "In Yolo v1, weight decay of 0.0005 will be added."
+msgid "In Yolov1, a weight decay of 0.0005 will be used in the calculation."
 msgstr "Yolo v1では重み減衰として0.0005が利用されます。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2:1
 msgid "Yolov2 object detection algorithm."
-msgstr "Yolo 物体識別アルゴリズム"
-
-#: of renom_img.api.detection.yolo_v2.Yolov2:3
-msgid "List of class name."
-msgstr "クラス名のリスト"
+msgstr "Yolov2 物体検出アルゴリズム"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2:5
 msgid "Anchors."
@@ -324,32 +401,46 @@ msgstr "アンカー"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2:7
 msgid ""
-"Image size. This can be both image size ex):(320, 320) and list of image "
-"size ex):[(288, 288), (320, 320)]. If list of image size is given, the "
-"prediction method uses the last image size of the list for prediction."
+"Image size(s). This can be either an image size ex):(320, 320) or list of"
+" image sizes ex):[(288, 288), (320, 320)]. If a list of image sizes is "
+"provided, the prediction method uses the last image size of the list for "
+"prediction."
 msgstr ""
 "画像サイズ。画像サイズ ex):(320, 320)と画像サイズのリストex):[(288, 288), (320, "
 "320)]が可能です。画像サイズのリストが与えられた場合、予測の際にはリストの最後のサイズが利用されます。"
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:19
+#: of renom_img.api.detection.yolo_v2.Yolov2:12
+msgid ""
+"Argument specifying whether or not to load pretrained weight values. If "
+"True, pretrained weights will be downloaded to the current directory and "
+"loaded as the initial weight values. If a string is given, weight values "
+"will be loaded and initialized from the weights in the given file name."
+msgstr ""
+"Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。"
+"文字列が渡された場合には、そのファイルから重みが読み込みされます。"
+
+#: of renom_img.api.detection.yolo_v2.Yolov2:22
 msgid "Joseph Redmon, Ali Farhadi"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:20
+#: of renom_img.api.detection.yolo_v2.Yolov2:23
 msgid "**YOLO9000: Better, Faster, Stronger**"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:21
+#: of renom_img.api.detection.yolo_v2.Yolov2:24
 msgid "https://arxiv.org/abs/1612.08242"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:26
+#: of renom_img.api.detection.yolo_v2.Yolov2:29
 msgid ""
-"If you save this model using 'save' method, anchor information(anchor "
-"list and base size of them) will be saved. So when you load your own "
-"saved model, you don't have to give the arguments 'anchor' and "
-"'anchor_size'."
-msgstr "saveメソッドを利用して保存する場合、アンカー情報(アンカーのリストとそれらの基本サイズ)が保存されます。従って、保存したモデルをロードする場合にはancoorとanchor_sizeを指定する必要はありません。"
+"If you save this model using the 'save' method, anchor information (list "
+"of anchors and their base sizes) will be saved. Therefore, when you load "
+"your own saved model, you do not need to provide the 'anchor' and "
+"'anchor_size' arguments."
+msgstr ""
+"saveメソッドを利用して保存する場合、アンカー情報(アンカーのリストと"
+"それらの基本サイズ)が保存されます。従って、保存したモデルをい"
+"ロードする場合にはancoorとanchor_sizeを指定する必要はありません。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.build_data:1
 msgid ""
@@ -359,31 +450,164 @@ msgstr "この関数はYolov2で指定された入力データとターゲット
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.fit:1
 msgid ""
-"This function performs training with given data and hyper parameters. "
+"This function performs training with the given data and hyperparameters. "
 "Yolov2 is trained using multiple scale images. Therefore, this function "
-"requires list of image size. If it is not given, the model will be "
-"trained using fixed image size."
+"requires a list of image sizes. If this is not provided, the model will "
+"be trained using a fixed image size."
 msgstr "この関数は与えられたデータとハイパーパラメータを元に学習を実行します。Yolov2は様々なスケールの画像を利用して学習します。よって、この関数は画像サイズのリストを必要とします。これらが与えられない場合、モデルは固定の画像サイズで学習します。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.fit:18
-msgid "List of image size."
+msgid "List of image sizes."
 msgstr "画像サイズのリスト"
 
-#: of renom_img.api.detection.yolo_v2.Yolov2.fit:47
-msgid "**model** (Model) - Yolo2 object."
+#: of renom_img.api.detection.yolo_v2.Yolov2.fit:22
+msgid "The given function will be called at the end of each epoch."
+msgstr "与えられた関数は各エポックの最後に呼び出されます。"
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.fit:48
+msgid "**model** (Model) - Yolov2 object."
 msgstr "model (Model) - Yolov2オブジェクト"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.forward:4
 msgid "Input to Yolov2."
+msgstr "Yolov2への入力"
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.get_bbox:13
+msgid ""
+"List of predicted bbox, score and class of each image. The format of the "
+"return value is shown below. Box coordinates and size will be returned as"
+" ratios to the original image size. Therefore, the values in 'box' are in"
+" the range [0 ~ 1]."
 msgstr ""
+"予測した結果得られたbbox、スコア、各画像に対応するクラスの配列。戻り値のフォーマットは下に記載してある通りです。ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0"
+" ~ 1]です。"
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.get_bbox:37
+msgid ""
+"Box coordinates and size will be returned as ratios to the original image"
+" size. Therefore, the values in 'box' are in the range [0 ~ 1]."
+msgstr "ボックスの座標と大きさは元画像のサイズに対する比で返されます。よって、boxの範囲は[0 ~ 1]です。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.loss:1
-msgid "Loss function specified for yolov2."
+msgid "Loss function of Yolov2 algorithm."
 msgstr "Yolov2で指定された損失関数"
 
+#: of renom_img.api.detection.yolo_v2.Yolov2.loss:3
+msgid "Output of model."
+msgstr "モデルの出力"
+
+#: of renom_img.api.detection.yolo_v2.Yolov2.loss:5
+msgid "Target array."
+msgstr "ターゲットデータ"
+
 #: of renom_img.api.detection.yolo_v2.Yolov2.regularize:4
-msgid "In Yolo v2, weight decay of 0.0005 will be added."
+msgid "In Yolo v2, a weight decay of 0.0005 will be used in the calculation."
 msgstr "Yolov2では重み減衰として0.0005が利用されます。"
+
+#: of renom_img.api.detection.ssd.SSD:1
+msgid "SSD object detection algorithm."
+msgstr "SSD 物体検出アルゴリズム"
+
+#: of renom_img.api.detection.ssd.SSD:5
+msgid ""
+"Image size. Must be 300x300. This can either be specified as an integer "
+"ex): 300 or tuple ex): (300,300)."
+msgstr "画像サイズ。画像サイズ は300x300である必要があります。画像サイズの指定方法は(300, 300)もしくは300が可能です。"
+
+#: of renom_img.api.detection.ssd.SSD:8
+msgid ""
+"Threshold to be used in selecting the best prior box. This threshold "
+"sould be between 0 and 1. The default is 0.5."
+msgstr "最適なデフォルトボックスを選択するのに使う閾値。閾値が0と1の間にある数字です。デフォルト値は0.5です。"
+
+#: of renom_img.api.detection.ssd.SSD:11
+msgid ""
+"Whether or not to load pretrained weights for the backbone model. If "
+"True, pretrained weights will be downloaded to the current directory and "
+"loaded into the model. If a string is provided, pretrained weightwill be "
+"loaded from the specified filename. The default is False."
+msgstr ""
+"Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。"
+"文字列が渡された場合には、そのファイルから重みが読み込みされます。"
+
+#: of renom_img.api.detection.ssd.SSD:15
+msgid ""
+"Whether or not to train the whole network. If True, all network layers "
+"will be trained. If False, the backbone network layers will be set to "
+"inference mode, and no updates will be performed for the backbone network"
+" weights. The default is False."
+msgstr "モデル全体を学習させる場合はTrue、そうでなければFalse"
+
+#: of renom_img.api.detection.ssd.SSD:22
+msgid ""
+"Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,"
+" Cheng-Yang Fu, Alexander C. Berg"
+msgstr ""
+
+#: of renom_img.api.detection.ssd.SSD:23
+msgid "**SSD: Single Shot MultiBox Detector**"
+msgstr ""
+
+#: of renom_img.api.detection.ssd.SSD:24
+msgid "https://arxiv.org/abs/1512.02325"
+msgstr ""
+
+#: of renom_img.api.detection.ssd.SSD.build_data:1
+msgid ""
+"This function returns a function which creates input data and target data"
+" specified for SSD."
+msgstr "この関数はSSDで指定された入力データとターゲットデータを作成します。"
+
+#: of renom_img.api.detection.ssd.SSD.forward:4
+msgid "Input to SSD."
+msgstr "SSDへの入力"
+
+#: of renom_img.api.detection.ssd.SSD.loss:1
+msgid "Loss function specified for SSD."
+msgstr "SSDで指定された損失関数"
+
+#: of renom_img.api.detection.ssd.SSD.loss:7
+msgid ""
+"Positive and Negative ratio to be used for hard negative mining. After "
+"the matching with true boxes, most of the prior boxes are negative. To "
+"eliminate imbalance between positive and negative boxes this ratio is "
+"used by the loss function. The default value is 3.0."
+msgstr ""
+"ハードネガティブマイニングのポジティブ及びネガティブの割合を設定します。"
+"損失関数に使用されます。デフォルト値は3.0。"
+
+#: of renom_img.api.detection.ssd.SSD.loss:12
+msgid "Loss between x and y"
+msgstr "xとy間の損失"
+
+#: of renom_img.api.detection.ssd.SSD.loss:15
+msgid "Return type:"
+msgstr "戻り値の型"
+
+#: of renom_img.api.detection.ssd.SSD.loss:15
+msgid "Node"
+msgstr ""
+
+#: of renom_img.api.detection.ssd.SSD.predict:1
+msgid ""
+"This method accepts an ndarray of image paths, a list of image paths, or "
+"an image path as a string."
+msgstr "このメソッドはndarrayか画像のパスのリストを受け取ります。"
+
+#: of renom_img.api.detection.ssd.SSD.predict:5
+msgid ""
+"The threshold for the confidence score. Predicted boxes which have a "
+"lower confidence score than the threshold are discarded. The default is "
+"0.6."
+msgstr "信頼スコアの閾値。予測さればボックスのうち、信頼スコアが閾値に満たないものは破棄されます。デフォルト値は0.3"
+
+#: of renom_img.api.detection.ssd.SSD.predict:9
+msgid "The threshold for non-maximum supression. The default is 0.45."
+msgstr "nmsの閾値。デファルト値は0.4。"
+
+#: of renom_img.api.detection.ssd.SSD.regularize:4
+msgid "In SSD, a weight decay of 0.0005 will be used in the calculatiomn."
+msgstr "SSDでは重み減衰として0.0005が利用されます。"
 
 #~ msgid "Image path list."
 #~ msgstr "画像のパスのリスト"
@@ -601,4 +825,160 @@ msgstr "Yolov2では重み減衰として0.0005が利用されます。"
 
 #~ msgid "Returns an instance of Optimizer for training Yolov2 algorithm."
 #~ msgstr "Yolov2アルゴリズム学習用のOptimizerのインスタンス"
+
+#~ msgid "Yolo object detection algorithm."
+#~ msgstr "Yolo 物体識別アルゴリズム"
+
+#~ msgid ""
+#~ "If true, pretrained weight will be "
+#~ "downloaded to current directory. If "
+#~ "string is given, pretrained weight will"
+#~ " be saved as given name."
+#~ msgstr "Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。文字列が渡された場合には、その名前で重みが保存されます。"
+
+#~ msgid ""
+#~ "If you save this model using "
+#~ "'save' method, anchor information(anchor list"
+#~ " and base size of them) will be"
+#~ " saved. So when you load your "
+#~ "own saved model, you don't have to"
+#~ " give the arguments 'anchor' and "
+#~ "'anchor_size'."
+#~ msgstr "saveメソッドを利用して保存する場合、アンカー情報(アンカーのリストとそれらの基本サイズ)が保存されます。従って、保存したモデルをロードする場合にはancoorとanchor_sizeを指定する必要はありません。"
+
+#~ msgid "Number of classes."
+#~ msgstr "クラス数"
+
+#~ msgid ""
+#~ "If true, pretrained weights will be "
+#~ "downloaded to the current directory and"
+#~ " loaded as the initial weight values."
+#~ " If a string is given, weight "
+#~ "values will be loaded and initialized"
+#~ " from the weights in the given "
+#~ "file name."
+#~ msgstr ""
+
+#~ msgid "List of image path."
+#~ msgstr "画像のパスのリスト"
+
+#~ msgid "List of image path for validation."
+#~ msgstr "バリデーション用の画像のパスのリスト"
+
+#~ msgid ""
+#~ "Following arguments will be given to "
+#~ "the function ``callback_end_epoch``."
+#~ msgstr "以下の引数はcallback_end_epoch関数に渡されます。"
+
+#~ msgid "Output array of neural network. The shape of array"
+#~ msgstr "ニューラルネットワークの結果得られた配列を出力します。"
+
+#~ msgid ""
+#~ "The threshold for confidence score. "
+#~ "Predicted boxes which have lower "
+#~ "confidence score than the threshold are"
+#~ " discarderd. Defaults to 0.3"
+#~ msgstr "信頼スコアの閾値。予測さればボックスのうち、信頼スコアが閾値に満たないものは破棄されます。デフォルト値は0.3"
+
+#~ msgid "The threshold for non maximum supression. Defaults to 0.4"
+#~ msgstr "nmsの閾値。デファルト値は0.4。"
+
+#~ msgid ""
+#~ "List of predicted bbox, score and "
+#~ "class of each image. The format of"
+#~ " return value is bellow. Box "
+#~ "coordinates and size will be returned"
+#~ " as ratio to the original image "
+#~ "size. Therefore the range of 'box' "
+#~ "is [0 ~ 1]."
+#~ msgstr ""
+#~ "予測した結果得られたbbox、スコア、各画像に対応するクラスの配列。戻り値のフォーマットは下に記載してある通りです。ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0"
+#~ " ~ 1]です。"
+
+#~ msgid ""
+#~ "Box coordinate and size will be "
+#~ "returned as ratio to the original "
+#~ "image size. Therefore the range of "
+#~ "'box' is [0 ~ 1]."
+#~ msgstr "ボックスの座標と大きさは元画像のサイズに対する比で返されます。よって、boxの範囲は[0 ~ 1]です。"
+
+#~ msgid ""
+#~ "Argument specifying whether or not to"
+#~ " load pretrained weight values. If "
+#~ "true, pretrained weights will be "
+#~ "downloaded to the current directory and"
+#~ " loaded as the initial weight values."
+#~ " If a string is given, weight "
+#~ "values will be loaded and initialized"
+#~ " from the weights in the given "
+#~ "file name."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Flag specifying whether to freeze or "
+#~ "train the base layers of the model"
+#~ " during training. If true, trains all"
+#~ " layers of the model. If False, "
+#~ "the convolutional base is frozen during"
+#~ " training."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "If you save this model using the"
+#~ " 'save' method, anchor information (list"
+#~ " of anchros and their base sizes) "
+#~ "will be saved. Therefore, when you "
+#~ "load your own saved model, you do"
+#~ " not need to provide the 'anchor' "
+#~ "and 'anchor_size' arguments."
+#~ msgstr ""
+
+#~ msgid "List of class name."
+#~ msgstr "クラス名のリスト"
+
+#~ msgid ""
+#~ "Whether to load pretrained weight for"
+#~ " backbone model. If true, pretrained "
+#~ "weight will be downloaded to current "
+#~ "directory. If string is given, "
+#~ "pretrained weight will be saved as "
+#~ "given name. Default is False."
+#~ msgstr "Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。文字列が渡された場合には、その名前で重みが保存されます。"
+
+#~ msgid ""
+#~ "Whether to train the whole network "
+#~ "or not. If true is given whole "
+#~ "network will be trained, otherwise the"
+#~ " backbone network will be on "
+#~ "inference mode. No update will be "
+#~ "done for the backbone network. Default"
+#~ " is False."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Positive and Negative ratio to be "
+#~ "used for hard negative mining. After "
+#~ "the matching with true boxes, most "
+#~ "of the prior boxes are negative. "
+#~ "To eliminate imbalance between positive "
+#~ "and negative boxes this ratio is "
+#~ "used by the loss function. Default "
+#~ "value is 3.0."
+#~ msgstr ""
+
+#~ msgid "Returns: Loss between x and y Return type: Node"
+#~ msgstr ""
+
+#~ msgid "This method accepts either ndarray and list of image path."
+#~ msgstr "このメソッドはndarrayか画像のパスのリストを受け取ります。"
+
+#~ msgid ""
+#~ "The threshold for confidence score. "
+#~ "Predicted boxes which have lower "
+#~ "confidence score than the threshold are"
+#~ " discarderd. Defaults is 0.6"
+#~ msgstr "信頼スコアの閾値。予測さればボックスのうち、信頼スコアが閾値に満たないものは破棄されます。デフォルト値は0.3"
+
+#~ msgid "The threshold for non maximum supression. Defaults is 0.45"
+#~ msgstr "nmsの閾値。デファルト値は0.45。"
 

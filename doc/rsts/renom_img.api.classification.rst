@@ -17,11 +17,6 @@ renom\_img.api.classification
         :undoc-members:
         :show-inheritance:
 
-    .. automodule:: renom_img.api.classification.resnet
-        :members: ResNet32, ResNet34, ResNet44, ResNet50, ResNet56, ResNet101, ResNet110
-        :undoc-members:
-        :show-inheritance:
-
 .. automodule:: renom_img.api.classification
     :members: 
     :show-inheritance:
@@ -31,5 +26,14 @@ renom\_img.api.classification
 .. automodule:: renom_img.api.classification.vgg
     :members: VGG11, VGG16, VGG19
     :undoc-members:
-    :inherited-members:
+    :show-inheritance:
 
+.. automodule:: renom_img.api.classification.resnet
+    :members: ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: renom_img.api.classification.resnext
+    :members: ResNeXt50, ResNeXt101
+    :undoc-members:
+    :show-inheritance:

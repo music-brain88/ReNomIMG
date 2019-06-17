@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-12 09:17+0900\n"
+"POT-Creation-Date: 2019-06-16 21:09+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Generated-By: Babel 2.6.0\n"
 
 #: ../../rsts/how_to_use_gui.rst:2
-msgid "How to Use ReNomIMG GUI tool"
+msgid "How to use the ReNomIMG GUI"
 msgstr "ReNomIMG GUIツールの使い方"
 
 #: ../../rsts/how_to_use_gui.rst:5
@@ -27,404 +27,454 @@ msgstr "アプリケーションの起動"
 
 #: ../../rsts/how_to_use_gui.rst:7
 msgid ""
-"ReNomIMG is a single page web application. If your installation have done"
-" successfully, you can run application in any directory with following "
-"commands."
+"ReNomIMG is a single page web application. After installation is "
+"finished, you can run the application in any directory with the following"
+" commands."
 msgstr "ReNomIMGは単一ページウェブアプリケーションです。インストールが成功しましたら、任意の場所でコマンドによりアプリケーションを実行できるようになります。"
 
 #: ../../rsts/how_to_use_gui.rst:16
-msgid "For the command ``renom_img``, you can give following arguments."
-msgstr "コマンド`renom_img`を利用する際に、以下の引数を与えることができます。。"
+msgid "The command ``renom_img`` accepts the following arguments."
+msgstr "コマンド ``renom_img`` を利用する際に、以下の引数を与えることができます。"
 
 #: ../../rsts/how_to_use_gui.rst:18
-msgid "--host : This specifies server address."
-msgstr "--host: サーバーのアドレスを指定します。"
+msgid "``--host`` : This specifies the server address."
+msgstr "``--host``: サーバーのアドレスを指定します。"
 
 #: ../../rsts/how_to_use_gui.rst:19
-msgid "--port : This specifies port number of the server."
-msgstr "--port : サーバのポート番号を指定します。"
+msgid "``--port`` : This specifies the server port number."
+msgstr "``--port`` : サーバのポート番号を指定します。"
 
 #: ../../rsts/how_to_use_gui.rst:21
-msgid "For example, following code runs ReNomIMG with port 8888."
+msgid "For example, the following command runs ReNomIMG on port 8888."
 msgstr "例えば、以下のコードを実行するとReNomIMGは8888のポートで実行されます。"
 
 #: ../../rsts/how_to_use_gui.rst:27
 msgid ""
-"If the application server runs, open web browser and type the server "
-"address to the address bar like this."
+"After starting the application server, open your web browser and type the"
+" server address into the address bar."
 msgstr "アプリケーションサーバーが実行されましたら、Webブラウザが開きますので以下のようにサーバーのアドレスをアドレスバーに入力してください。"
 
 #: ../../rsts/how_to_use_gui.rst:32
-msgid "Then the application will be appeared."
+msgid "The ReNomIMG GUI will load in your web browser."
 msgstr "アプリケーションが表示されます。"
 
 #: ../../rsts/how_to_use_gui.rst:38
-msgid "Place your dataset"
+msgid "Provide Image and Label Data"
 msgstr "データの配置"
 
 #: ../../rsts/how_to_use_gui.rst:40
 msgid ""
-"When the server starts, ``datasrc`` directory and ``storage`` directory "
-"will be created in the server running directory."
+"When the server starts, it will create ``datasrc`` and ``storage`` "
+"directories in the current running directory if they don't already exist."
 msgstr "サーバーが実行された場合、datasrcディレクトリとstorageディレクトリがサーバ実行されているディレクトリに作成されます。"
 
 #: ../../rsts/how_to_use_gui.rst:43
-msgid "The ``datasrc`` directory has following folder structure."
+msgid "The ``datasrc`` directory has the following folder structure."
 msgstr "datasrcディレクトリは以下のようなフォルダ構造をしています。"
 
-#: ../../rsts/how_to_use_gui.rst:62
+#: ../../rsts/how_to_use_gui.rst:56
 msgid ""
-"As written in the above comments, please set training image data to "
-"``datasrc/img``, set training label data to ``datasrc/label``."
+"As shown in the structure above, please place the training image data in "
+"``datasrc/img``, and the training label data in ``datasrc/label``."
 msgstr "上のコメントに書かれているように訓練画像データをdatasrc/imgディレクトリに、訓練ラベルデータをdatasrc/labelディレクトリに配置してください。"
 
-#: ../../rsts/how_to_use_gui.rst:67
+#: ../../rsts/how_to_use_gui.rst:61
 msgid ""
-"The name of image file and corresponded label file name have to be same. "
-"For example, the image file name is ``image01.jpg``, corresponded label "
-"file name have to be ``image01.xml``."
-msgstr "画像ファイル名と対応するラベルファイル名は同じでなければなりません。例えば、画像ファイルの名前がimage01.jpgの場合、対応するラベルの名前はimage01.xmlでなければなりません。"
+"The name of the image file and corresponding label file name must be the "
+"same. For example, for object detection data if an image file name is "
+"``image01.jpg``, the corresponding label file name must be "
+"``image01.xml``."
+msgstr "画像ファイル名と対応するラベルファイル名は同じでなければなりません。例えば、オブジェクト検出の場合、画像ファイルの名前がimage01.jpgであれば、対応するラベルの名前はimage01.xmlでなければなりません。"
 
-#: ../../rsts/how_to_use_gui.rst:73
-msgid "Format of the Detection data"
+#: ../../rsts/how_to_use_gui.rst:67
+msgid "Format of Detection data"
 msgstr "オブジェクト検出のデータフォーマット"
 
-#: ../../rsts/how_to_use_gui.rst:75 ../../rsts/how_to_use_gui.rst:167
+#: ../../rsts/how_to_use_gui.rst:69
+msgid ""
+"Object detection image and label files should conform to the formats "
+"below."
+msgstr "オブジェクト検出の画像データ及びラベルファイルは以下のフォーマットでなければなりません。"
+
+#: ../../rsts/how_to_use_gui.rst:71 ../../rsts/how_to_use_gui.rst:109
+#: ../../rsts/how_to_use_gui.rst:165
 msgid ""
 "**Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` "
 "formatted image files."
-msgstr "**画像ファイルの形式** : ReNomIMGはJPEGかPNG形式の画像ファイルのみを受け付けます。"
+msgstr "**画像ファイルの形式** : ReNomIMGは ``JPEG`` か ``PNG`` 形式の画像ファイルのみを受け付けます。"
 
-#: ../../rsts/how_to_use_gui.rst:77
+#: ../../rsts/how_to_use_gui.rst:73
 msgid ""
 "**Format of label files** : ReNomIMG only accepts ``xml`` formatted label"
-" files. The format of xml file is bellow."
-msgstr "**ラベルの形式** : ReNomIMGはxml形式のラベルのみを受け付けます。"
+" files. The format of the xml file is shown below."
+msgstr "**ラベルの形式** : ReNomIMGは ``xml`` 形式のラベルのみを受け付けます。"
 
-#: ../../rsts/how_to_use_gui.rst:80
+#: ../../rsts/how_to_use_gui.rst:76
 msgid ""
-"**put xml files here**:``<ReNomIMG "
-"dir>datasrc/label/detection/<sample.xml>``"
+"**Place xml files here**: ``<ReNomIMG "
+"dir>/datasrc/label/detection/<sample.xml>``"
 msgstr ""
 "**ここにファイルを配置してください** : ``<ReNomIMG "
-"dir>datasrc/label/detection/<sample.xml>``"
+"dir>/datasrc/label/detection/<sample.xml>``"
 
-#: ../../rsts/how_to_use_gui.rst:101 ../../rsts/how_to_use_gui.rst:153
-#: ../../rsts/how_to_use_gui.rst:248
-msgid "ReNomIMG accepts PASCAL VOC formatted object detection data."
+#: ../../rsts/how_to_use_gui.rst:97
+msgid "ReNomIMG accepts the PASCAL VOC format for object detection data."
 msgstr "ReNomIMGはPASCAL VOC形式の物体検出データを受け付けます。"
 
-#: ../../rsts/how_to_use_gui.rst:103 ../../rsts/how_to_use_gui.rst:155
-#: ../../rsts/how_to_use_gui.rst:250
+#: ../../rsts/how_to_use_gui.rst:99 ../../rsts/how_to_use_gui.rst:155
+#: ../../rsts/how_to_use_gui.rst:253
 msgid "**The PASCAL Visual Object Classes**"
 msgstr ""
 
-#: ../../rsts/how_to_use_gui.rst:104 ../../rsts/how_to_use_gui.rst:156
-#: ../../rsts/how_to_use_gui.rst:251
+#: ../../rsts/how_to_use_gui.rst:100 ../../rsts/how_to_use_gui.rst:156
+#: ../../rsts/how_to_use_gui.rst:254
 msgid "http://host.robots.ox.ac.uk/pascal/VOC/"
 msgstr ""
 
-#: ../../rsts/how_to_use_gui.rst:109
-msgid "Format of the Classification data"
+#: ../../rsts/how_to_use_gui.rst:105
+msgid "Format of Classification data"
 msgstr "画像分類のデータフォーマット"
+
+#: ../../rsts/how_to_use_gui.rst:107
+msgid "Classification image and label files should conform to the formats below."
+msgstr "画像分類の画像データ及びラベルファイルは以下のフォーマットでなければなりません。"
 
 #: ../../rsts/how_to_use_gui.rst:111
 msgid ""
 "**Format of label files** : ReNomIMG only accepts ``txt`` formatted label"
-" files. The format of text file is bellow."
+" files. The format of the text file is shown below."
 msgstr "**ラベルの形式** : ReNomIMG は ``txt`` 形式のラベルのみを受け付けます。"
 
 #: ../../rsts/how_to_use_gui.rst:114
-msgid "Please Save as ``target.txt``"
+msgid "Please save the file as ``target.txt``."
 msgstr "ファイル名は ``target.txt`` で保存してください。"
 
 #: ../../rsts/how_to_use_gui.rst:116
-msgid "**put here**:``<ReNomIMG dir>datasrc/label/classification/target.txt``"
+msgid ""
+"**Place label file here**: ``<ReNomIMG "
+"dir>/datasrc/label/classification/target.txt``"
 msgstr ""
 "**ここにファイルを配置してください** ``<ReNomIMG "
-"dir>datasrc/label/classification/target.txt`` "
+"dir>/datasrc/label/classification/target.txt`` "
+
+#: ../../rsts/how_to_use_gui.rst:153
+msgid "ReNomIMG accepts the PASCAL VOC format for classification data."
+msgstr "ReNomIMGはPASCAL VOC形式の画像分類データを受け付けます。"
 
 #: ../../rsts/how_to_use_gui.rst:161
-msgid "Format of the Segmentation data"
+msgid "Format of Segmentation data"
 msgstr "セグメンテーションのデータフォーマット"
 
-#: ../../rsts/how_to_use_gui.rst:164
+#: ../../rsts/how_to_use_gui.rst:163
 msgid ""
-"Segmentation require two kind of labels. ``PNG`` files and "
-"``class_map.txt``"
-msgstr "画像ファイル名と対応するラベルファイル名は同じでなければなりません。例えば、画像ファイルの名前がimage01.jpgの場合、対応するラベルの名前はimage01.xmlでなければなりません。"
+"Semantic segmentation image and label files should conform to the formats"
+" below."
+msgstr "セマンティックセグメンテーションの画像データ及びラベルファイルは以下のフォーマットでなければなりません。"
 
-#: ../../rsts/how_to_use_gui.rst:169
+#: ../../rsts/how_to_use_gui.rst:168
 msgid ""
-"**Format of label files** : ReNomIMG only accepts ``txt`` and ``PNG`` "
-"formatted label files. The format of txt file is bellow."
-msgstr "**ラベルの形式** : ReNomIMG は ``txt`` 形式のラベルのみを受け付けます。"
+"Segmentation requires two kinds of label data. ``PNG`` files (one per "
+"image) and ``class_map.txt`` (one per dataset)."
+msgstr ""
+"セグメンテーションのラベルには、 ``PNG`` ファイル（画像ごとの正解ラベル）"
+"及び ``class_map.txt`` （データセット全体のクラスマップ）の二種類が必要です。"
 
-#: ../../rsts/how_to_use_gui.rst:172
-msgid "Please Save as ``class_map.txt`` ."
-msgstr "ファイル名は ``class_map.txt`` で保存してください。"
+#: ../../rsts/how_to_use_gui.rst:171
+msgid ""
+"**Format of label files** : ReNomIMG only accepts ``txt`` formatted files"
+" for class labels and ``PNG`` files for image label data. The format of "
+"the txt file is shown below."
+msgstr ""
+"**ラベルの形式** : ReNomIMG は ``txt`` 形式のクラスラベル及び"
+" ``PNG`` 形式の画像ラベルデータのみを受け付けます。"
 
 #: ../../rsts/how_to_use_gui.rst:174
-msgid ""
-"**Put file here**:``<ReNomIMG "
-"dir>/datasrc/label/segmentation/class_map.txt``"
-msgstr ""
-"**ここにファイルを配置してください** : ``<ReNomIMG "
-"dir>datasrc/label/segmentation/class_map.txt``"
+msgid "Please save the class label list as ``class_map.txt``."
+msgstr "クラスラベルのファイル名は ``class_map.txt`` で保存してください。"
 
 #: ../../rsts/how_to_use_gui.rst:176
-msgid "Good example"
-msgstr "良いファイル例"
+msgid ""
+"**Place class label file here**: ``<ReNomIMG "
+"dir>/datasrc/label/segmentation/class_map.txt``"
+msgstr ""
+"**ここにクラスラベルのファイルを配置してください** : ``<ReNomIMG "
+"dir>/datasrc/label/segmentation/class_map.txt``"
 
 #: ../../rsts/how_to_use_gui.rst:178
-msgid "Class number id must be start 0 and  set background."
+msgid "**Example of good data**"
+msgstr "良いファイル例"
+
+#: ../../rsts/how_to_use_gui.rst:180
+msgid "Class id number starts at 0, which is set to the background class."
 msgstr "クラス番号は0始まりでなければなりません。0 に対応するクラスは必ず背景を設定してください。"
 
-#: ../../rsts/how_to_use_gui.rst:179
-msgid "Class number id must be serial number."
+#: ../../rsts/how_to_use_gui.rst:181
+msgid "Class id numbers are serially numbered."
 msgstr "クラス番号は必ず連番でなければなりません。"
 
-#: ../../rsts/how_to_use_gui.rst:214
-msgid ":red:`Bad example`"
+#: ../../rsts/how_to_use_gui.rst:216
+msgid ":red:`Example of incorrect data`"
 msgstr "悪いファイル例"
 
-#: ../../rsts/how_to_use_gui.rst:216
-msgid "Class number id does not start 0."
+#: ../../rsts/how_to_use_gui.rst:218
+msgid "Class id number does not start at 0."
 msgstr "クラス番号が0スタートでありません。"
 
-#: ../../rsts/how_to_use_gui.rst:217
-msgid "Class name does not have background."
+#: ../../rsts/how_to_use_gui.rst:219
+msgid "Class names do not include a background class."
 msgstr "クラス名に背景が設定されていません。"
 
-#: ../../rsts/how_to_use_gui.rst:218
-msgid "Class number does not have serial number."
+#: ../../rsts/how_to_use_gui.rst:220
+msgid "Class numbers are not serially numbered."
 msgstr "クラス番号が歯抜けになっており、連番でないです。"
 
-#: ../../rsts/how_to_use_gui.rst:243
-msgid "Sample of Segementation  PNG label file"
-msgstr "セグメンテーションの PNG教師データファイル の例"
-
-#: ../../rsts/how_to_use_gui.rst:256
+#: ../../rsts/how_to_use_gui.rst:245
 msgid ""
-"The name of image file and corresponded label file name have to be same. "
-"For example, the image file name is ``image01.jpg``, corresponded label "
-"file name have to be ``image01.png``."
-msgstr "画像ファイル名と対応するラベルファイル名は同じでなければなりません。例えば、画像ファイルの名前がimage01.jpgの場合、対応するラベルの名前はimage01.xmlでなければなりません。"
+"The following is a sample segmentation label PNG file. The class id "
+"numbers have been mapped to colors with a color map for visualization "
+"purposes."
+msgstr "以下はセグメンテーション用PNGラベルファイルの例です。この例の可視化のためにラベル内のクラス番号が色に関連付けされています。"
 
-#: ../../rsts/how_to_use_gui.rst:262
-msgid "Create Detection Model"
+#: ../../rsts/how_to_use_gui.rst:251
+msgid "ReNomIMG accepts the PASCAL VOC format for semantic segmentation data."
+msgstr "ReNomIMGはPASCAL VOC形式のセグメンテーションデータを受け付けます。"
+
+#: ../../rsts/how_to_use_gui.rst:259
+msgid ""
+"The name of the image file and corresponding label file name must be the "
+"same. For example, if the image file name is ``image01.jpg``, the "
+"corresponding label file name must be ``image01.png``."
+msgstr "画像ファイル名と対応するラベルファイル名は同じでなければなりません。例えば、画像ファイルの名前がimage01.jpgの場合、対応するラベルの名前はimage01.pngでなければなりません。"
+
+#: ../../rsts/how_to_use_gui.rst:265
+msgid "Create Model"
 msgstr "予測モデルの作成"
 
-#: ../../rsts/how_to_use_gui.rst:264
+#: ../../rsts/how_to_use_gui.rst:267
 msgid ""
-"So far, the server and dataset are prepared. Let's build a object "
-"detection model. For building a model, you have to specify ``dataset`` "
-"and ``hyper parameters``."
+"The application server and dataset are now both ready, so let's build an "
+"object detection model. To build a model, you must specify the dataset "
+"and the training hyper-parameters."
 msgstr "これまでに、サーバーとデータセットが準備されています。それでは物体検出モデルを作成してみましょう。モデルを作成するためには、datasetとハイパーパラメータを指定しなければなりません。"
 
-#: ../../rsts/how_to_use_gui.rst:268
+#: ../../rsts/how_to_use_gui.rst:271
 msgid "Create Dataset"
 msgstr "データセットの作成"
 
-#: ../../rsts/how_to_use_gui.rst:270
+#: ../../rsts/how_to_use_gui.rst:273
 msgid ""
-"For training a machine learning model, you have to prepare training "
-"dataset and validation dataset. Training dataset is used for training "
-"model, and validation dataset is used for evaluating a model in terms of "
-"how accurately predict data that have not used in training."
+"To train a machine learning model, you should prepare training and "
+"validation sub-datasets. The training sub-dataset is used for training "
+"the model, and the validation sub-dataset is used for evaluating how "
+"accurately the model can predict data that has not been used in training."
 msgstr "機械学習のモデルを訓練するためには、訓練用データセットとバリデーション用データセットの用意が必要です。訓練用データセットはモデルの学習に利用し、バリデーション用データセットはどれだけ正確にモデルがデータを予測できるか評価するためのもので、学習に利用してはいけません。"
 
-#: ../../rsts/how_to_use_gui.rst:274
+#: ../../rsts/how_to_use_gui.rst:277
 msgid ""
-"In ReNomIMG, training dataset and validation dataset will be **randomly**"
-" sampled from the data that is in the ``datasrc`` directory."
+"In ReNomIMG, the training and validation sub-datasets will be "
+"**randomly** sampled from the data that is in the ``datasrc`` directory."
 msgstr "ReNomIMGでは、datasrcディレクトリ内のデータから訓練用データとバリデーション用データをランダムにサンプリングします。"
-
-#: ../../rsts/how_to_use_gui.rst:279
-msgid ""
-"According to the above figure, you can create ``dataset`` from datasrc. "
-"Once a dataset is created its content will never be change."
-msgstr "上の画像によると、データソースからデータセットを作成できます。一度データセットが作成されると、その内容は決して変更できません。"
 
 #: ../../rsts/how_to_use_gui.rst:282
 msgid ""
-"For creating a ``dataset``, please move to dataset setting modal. "
-"Following figures guide you to the dataset page."
+"As shown in the figure above, you can create a dataset from the datasrc "
+"images. Once a dataset is created its contents will never change."
+msgstr "上の画像によると、データソースからデータセットを作成できます。一度データセットが作成されると、その内容は決して変更できません。"
+
+#: ../../rsts/how_to_use_gui.rst:285
+msgid ""
+"For creating a dataset, please open the dataset modal. The following "
+"figures guide you through this step."
 msgstr "データセットを作成するために、データセットページに移動してください。以下の画像はデータセットページへの移動方法を示したものです。"
 
-#: ../../rsts/how_to_use_gui.rst:287
-msgid "Then following page will be appeared."
+#: ../../rsts/how_to_use_gui.rst:290
+msgid "The following page is displayed next."
 msgstr "そうしましたら、以下のページが表れます。"
 
-#: ../../rsts/how_to_use_gui.rst:291
+#: ../../rsts/how_to_use_gui.rst:294
 msgid ""
-"As you can see, you can specify the ``dataset name``, ``description`` and"
-" ``ratio of training data``."
-msgstr "ご覧のように ``dataset name`` 、``description`` と ``学習データ割合`` を指定することが出来ます。"
+"As shown above, you can specify the dataset name, description and ratio "
+"of training to validation data."
+msgstr "ご覧のようにデータセット名、データセットの説明と学習データ割合を指定することが出来ます。"
 
-#: ../../rsts/how_to_use_gui.rst:293
+#: ../../rsts/how_to_use_gui.rst:296
 msgid ""
-"After filling all forms, please push the ``confirm`` button to confirm "
-"the content that the dataset includes."
-msgstr "すべての入力フォームを埋めた後, ``confirm`` ボタンを押してください."
+"After entering this information, click the ``Confirm`` button to generate"
+" the sub-datasets."
+msgstr "すべての入力フォームを埋めた後, ``Confirm`` ボタンを押してください。"
 
 #: ../../rsts/how_to_use_gui.rst:298
 msgid ""
-"Then following graph will be appeared. You can confirm what classes are "
-"included in the dataset and how many tags are they."
+"The following visual will be shown. You can confirm what classes exist in"
+" the dataset, their ratios, and the total number of images."
 msgstr ""
-"ボタン押下後, 以下のようなデータセット確認画面が表示されます.こちらの画面では, データセット内に含まれる画像の枚数や, "
-"各クラスの教師データ数が表示されます."
+"ボタン押下後, 以下のようなデータセット確認画面が表示されます。こちらの画面では, データセット内に含まれる画像の枚数や, "
+"各クラスの教師データと検証データの分割が可視化して表示されます。"
 
-#: ../../rsts/how_to_use_gui.rst:301
-msgid "At last, for saving the dataset, please push the ``submit`` button."
-msgstr "データセットの内容を確認した後, データセットを保存する場合は ``submit`` ボタンを押してください."
+#: ../../rsts/how_to_use_gui.rst:304
+msgid "Finally, to save the dataset click the ``Submit`` button."
+msgstr "データセットの内容を確認した後、データセットを保存する場合は ``Submit`` ボタンを押してください。"
 
-#: ../../rsts/how_to_use_gui.rst:303
+#: ../../rsts/how_to_use_gui.rst:306
 msgid ""
-"You can confirm created datasets in the dataset page. For going to the "
-"dataset page, please follow the figure below."
-msgstr "作成したデータセットは, ``Dataset`` ページから確認することができます.以下の図にしたがってDatasetページへ移動してください."
-
-#: ../../rsts/how_to_use_gui.rst:310
-msgid "In the above figure, 2 datasets are already created."
-msgstr ""
-"上の図がDatasetページです. すでに二つのデータセットが作成されていることがわかります.それぞれのデータセット名をクリックすると, "
-"それらに含まれる画像の枚数や各クラスの教師データ数を確認することができます."
+"You can confirm all datasets you have created on the dataset page. To "
+"access the dataset page, please follow the steps shown below."
+msgstr "作成したデータセットは、``Dataset`` ページから確認することができます。以下の図にしたがってDatasetページへ移動してください。"
 
 #: ../../rsts/how_to_use_gui.rst:313
-msgid "Hyper parameter setting"
+msgid "In the figure above, 2 datasets have already been created."
+msgstr ""
+"上の図がDatasetページです。すでに二つのデータセットが作成されていることがわかります。それぞれのデータセット名をクリックすると, "
+"それらに含まれる画像の枚数や各クラスの教師データ数を確認することができます。"
+
+#: ../../rsts/how_to_use_gui.rst:316
+msgid "Configure Hyper-parameters"
 msgstr "ハイパーパラメータの設定"
 
-#: ../../rsts/how_to_use_gui.rst:315
+#: ../../rsts/how_to_use_gui.rst:318
 msgid ""
-"So far you got all the materials, let's build a model and run training. "
-"For creating a model please push the button ``New``."
-msgstr "ここまでで全て材料がそろいました。それでは、モデルの作成して訓練させましょう。モデルを作成するために、``New`` ボタンを押してください。"
+"After completing the steps above, you can build a model and start "
+"training it. To create a model, click the button ``+New`` button."
+msgstr "ここまでで全ての材料がそろいました。それでは、モデルを作成して訓練させましょう。モデルを作成するために、``+New`` ボタンを押してください。"
 
-#: ../../rsts/how_to_use_gui.rst:320
-msgid "Then you can see a hyper parameter setting modal like following figure."
+#: ../../rsts/how_to_use_gui.rst:323
+msgid "This will open a hyper-parameter configuration modal, as shown below."
 msgstr "そうしましたら、ハイパーパラメータを設定するモーダルが以下の図のように表れます。"
 
-#: ../../rsts/how_to_use_gui.rst:324
-msgid "As you can see in above figure, you can specify following parameters."
+#: ../../rsts/how_to_use_gui.rst:327
+msgid "As seen in the figure, you can specify the following parameters."
 msgstr "上の図から分かりますように、以下のパラメータを指定することができます。"
 
-#: ../../rsts/how_to_use_gui.rst:326
+#: ../../rsts/how_to_use_gui.rst:329
 msgid "**Dataset Name** ... Select the dataset for training."
 msgstr "**Dataset Name** ... 訓練用のデータセットを選択してください。"
 
-#: ../../rsts/how_to_use_gui.rst:327
-msgid "**CNN architecture** ... Select the object detection algorithm."
-msgstr "**CNN architecture** ... 使用したいアルゴリズムを選択してください。"
-
-#: ../../rsts/how_to_use_gui.rst:328
-msgid ""
-"**Batch Size** ... Set higher number, the learning speed become **fast**."
-" Set lower number, the behavior  become like **Stochastic Gradient "
-"Descent(or just SGD)**"
-msgstr "**Batch Size** ...数値が高いほど学習速度は早くなり、1に近いほど振る舞いが確率的勾配降下法に近くなります。"
-
-#: ../../rsts/how_to_use_gui.rst:329
-msgid ""
-"**Total Eopch** ... Training your network on each item of the set once is"
-" an epoch."
-msgstr "**Total Eopch** ...各データに対する学習回数の設定です。10を設定しますと各データを10回学習します。"
-
 #: ../../rsts/how_to_use_gui.rst:330
-msgid ""
-"**Train Whole network** ... If this is  checked, whole network weight "
-"will be trained."
-msgstr "**Train Whole network** ... もしこの項目にチェックを入れましたらで、全ネットワークの重みが訓練されます。"
+msgid "**Algorithm** ... Select the CNN algorithm."
+msgstr "**Algorithm** ... 使用したいアルゴリズムを選択してください。"
 
 #: ../../rsts/how_to_use_gui.rst:331
-msgid "**Image size** ... Image size for training."
-msgstr "**Image size** ... 訓練用画像のサイズ"
+msgid ""
+"**Batch Size** ... Set the batch size. A larger number can speed up "
+"training but requires more memory."
+msgstr "**Batch Size** ...数値が高いほど学習速度は早くなり、1に近いほど振る舞いが確率的勾配降下法に近くなります。"
+
+#: ../../rsts/how_to_use_gui.rst:332
+msgid ""
+"**Total Epoch** ... Set the number of times your model should pass "
+"through the dataset during training. All images are seen once in every "
+"epoch."
+msgstr "**Total Epoch** ...各データに対する学習回数の設定です。10を設定しますと各データを10回学習します。"
+
+#: ../../rsts/how_to_use_gui.rst:333
+msgid "**Image Width** ... Image width for resizing images during training."
+msgstr "**Image Width** ... 訓練用画像の幅サイズ"
 
 #: ../../rsts/how_to_use_gui.rst:334
+msgid "**Image Height** ... Image height for resizing images during training."
+msgstr "**Image Height** ... 訓練用画像の縦サイズ"
+
+#: ../../rsts/how_to_use_gui.rst:335
 msgid ""
-"Depending on your GPU device, larger image size or batch size causes "
-"memory overflow."
+"**Load pretrain weight** ... Check this box to load the pretrained "
+"weights for the algorithm as initial weight values. If unchecked, the "
+"weights are randomly initialized."
+msgstr ""
+"**Load pretrain weight** ... "
+"事前学習済みの重みを初期値として使用するにはチェックを入れてください。チェックを入れないと、重みの初期値がランダムの値に設定されます。"
+
+#: ../../rsts/how_to_use_gui.rst:336
+msgid ""
+"**Train Whole network** ... Check this box to train all layers of the "
+"model. If unchecked, the pretrained layers will be frozen during "
+"training."
+msgstr "**Train Whole network** ... もしこの項目にチェックを入れましたら、全ネットワークの重みが訓練されます。"
+
+#: ../../rsts/how_to_use_gui.rst:339
+msgid ""
+"Depending on your GPU device, a larger image size or batch size may cause"
+" a memory overflow."
 msgstr "GPUデバイスによりましては、サイズの大きい画像や大きなバッチサイズによりメモリがオーバーフローします。"
 
-#: ../../rsts/how_to_use_gui.rst:338
-msgid "Training Model"
-msgstr "訓練モデル"
+#: ../../rsts/how_to_use_gui.rst:343
+msgid "Train the Model"
+msgstr "予測モデルの学習"
 
-#: ../../rsts/how_to_use_gui.rst:340
+#: ../../rsts/how_to_use_gui.rst:345
 msgid ""
-"Finishing hyper parameter settings, then **push run button to start "
-"training!**"
-msgstr "ハイパーパラメータ設定が完了しましたら、[start training]ボタンを押してトレーニングを開始してください。"
+"After configuring the hyper-parameters, **click the Create button to "
+"start training!**"
+msgstr "ハイパーパラメータ設定が完了しましたら、 ``Create`` ボタンを押してトレーニングを開始してください。"
 
-#: ../../rsts/how_to_use_gui.rst:342
+#: ../../rsts/how_to_use_gui.rst:347
 msgid ""
-"If the training starts, model will be appeared in model list and progress"
-" bar will be shown."
+"As training begins, the model will be added to the model list and the "
+"train progress bar will also appear."
 msgstr "訓練が開始しましたら、モデルがモデル一覧に表示され、進捗バーが現れます。"
 
-#: ../../rsts/how_to_use_gui.rst:348
-msgid "Detection, Segmentation and Classification task take same process."
+#: ../../rsts/how_to_use_gui.rst:353
+msgid ""
+"The same procedure for building and training a model can be used for "
+"Detection, Segmentation and Classification."
 msgstr "オブジェクト検出、セグメンテーション、画像分類、全てのタスクは同じ手順で実行出来ます。"
 
-#: ../../rsts/how_to_use_gui.rst:352
-msgid "Perform Prediction"
-msgstr "作成したモデルで予測を実行する"
+#: ../../rsts/how_to_use_gui.rst:357
+msgid "Perform Predictions"
+msgstr "学習したモデルによる予測"
 
-#: ../../rsts/how_to_use_gui.rst:354
+#: ../../rsts/how_to_use_gui.rst:359
 msgid ""
-"After finishing the training, we can use the model for predicting new "
-"image data."
+"After training is finished, we can use the model for making predictions "
+"with new image data."
 msgstr "学習が終了したモデルを使用して, 予測を実行することができます."
-
-#: ../../rsts/how_to_use_gui.rst:356
-msgid ""
-"In the 'Train Page' you can see `Deploy` button. The deployed model will "
-"be used for performing prediction. If any model is deployed you will see "
-"following view."
-msgstr ""
-"'Train Page'において以下の画像内にある `Deploy` ボタンを押すことで, 予測に使用するモデルを選択することができます. "
-"これをデプロイと呼びます."
 
 #: ../../rsts/how_to_use_gui.rst:361
 msgid ""
-"Then please move to 'Predict Page' using the side bar menu. The following"
-" picture is a 'Prediction Page'."
-msgstr "モデルをデプロイしましたら, サイドバーメニューから 'Predict Page' に移動してください.以下のような画面が表示されます."
+"Click the ``Deploy`` button shown in the `Model Detail` window on the "
+"`Train Page` to select which model to use for performing predictions on "
+"new data. The currently deployed model is shown at the top of the model "
+"list with a status of 'Deployed'."
+msgstr ""
+"'Train Page'において以下の画像内にある ``Deploy`` "
+"ボタンを押すことで、予測に使用するモデルを選択することができます。これをデプロイと呼びます。"
 
-#: ../../rsts/how_to_use_gui.rst:368
+#: ../../rsts/how_to_use_gui.rst:367
 msgid ""
-"You will see `Run Prediction` button. Pushing this button runs the "
-"prediction using deployed model."
-msgstr "ページには, `Run Prediction` ボタンがあります. このボタンを押すことで, 画像に対する予測が実行されます."
+"After deployment, open the `Predict` page using the side bar menu. The "
+"following figure shows the `Predict` page."
+msgstr "モデルをデプロイしましたら、サイドバーメニューから'Predict'ページに移動してください。以下のような画面が表示されます。"
 
-#: ../../rsts/how_to_use_gui.rst:372
+#: ../../rsts/how_to_use_gui.rst:374
 msgid ""
-"The input image of the prediction will be the images that aligned to "
-"`datasrc/prediction_set/img`. Required directory structure is described "
-"in :ref:`Place your dataset<dir_structure>` ."
+"To run the prediction using the deployed model, click the ``Run "
+"Prediction`` button."
+msgstr "ページには, ``Run Prediction`` ボタンがあります。このボタンを押すことで、画像に対する予測が実行されます。"
+
+#: ../../rsts/how_to_use_gui.rst:378
+msgid ""
+"The images used for predictions are all those contained in the "
+"`datasrc/prediction_set/img` directory. The directory structure is "
+"described in :ref:`Provide your dataset<dir_structure>`."
 msgstr ""
 "予測時に入力される画像は, `datasrc/prediction_set/img` ディレクトリから読み込まれます. "
 "どのようなディレクトリ構成が必要となるかについては, :ref:`データの配置<dir_structure>` をご覧ください."
 
-#: ../../rsts/how_to_use_gui.rst:376
-msgid ""
-"After the prediction you will see the result on the screen like following"
-" picture."
-msgstr "予測が終了しますと, 以下のように結果が画面上に表示されます."
+#: ../../rsts/how_to_use_gui.rst:382
+msgid "After the predictions are made, the results are displayed in the window."
+msgstr "予測が終了しますと、以下のように結果が画面上に表示されます。"
 
-#: ../../rsts/how_to_use_gui.rst:383
+#: ../../rsts/how_to_use_gui.rst:389
 msgid ""
-"Also you can download the result as csv file. The button placed on the "
-"right top of the prediction result allows you to download the result."
-msgstr "この予測結果は, 左上のダウンロードボタンを押すことで, CSV形式でダウンロードすることが可能です."
+"You can also download the prediction results as a csv file. Click the "
+"``Download`` button on the top right to download the file."
+msgstr "この予測結果は、左上のダウンロードボタンを押すことで、CSV形式でダウンロードすることが可能です。"
 
-#: ../../rsts/how_to_use_gui.rst:392
+#: ../../rsts/how_to_use_gui.rst:397
 msgid "Uninstall ReNomIMG"
 msgstr "ReNomIMGのアンインストール"
 
-#: ../../rsts/how_to_use_gui.rst:394
-msgid "You can uninstall ReNomIMG by following pip command."
+#: ../../rsts/how_to_use_gui.rst:399
+msgid "You can uninstall ReNomIMG with the following pip command."
 msgstr "以下のpipコマンドにより、ReNomIMGをアンインストールすることができます。"
 
 #~ msgid "How to Use ReNomIMG GUI TOOL"
@@ -459,4 +509,149 @@ msgstr "以下のpipコマンドにより、ReNomIMGをアンインストール�
 #~ " and each has 80% of dataset "
 #~ "for training and 20% for validation."
 #~ msgstr "画像から分かりますように、データセット名と、トレーニングデータ名を指定できます。上の画像では2つのデータセットがすでに作成されており、それぞれデータセットのうち80%がトレーニング用、20%が訓練用のものとなっています。"
+
+#~ msgid "Then the application will be appeared."
+#~ msgstr "アプリケーションが表示されます。"
+
+#~ msgid "Good example"
+#~ msgstr "良いファイル例"
+
+#~ msgid ":red:`Bad example`"
+#~ msgstr "悪いファイル例"
+
+#~ msgid "Sample of Segementation  PNG label file"
+#~ msgstr "セグメンテーションの PNG教師データファイル の例"
+
+#~ msgid ""
+#~ "For training a machine learning model,"
+#~ " you have to prepare training dataset"
+#~ " and validation dataset. Training dataset"
+#~ " is used for training model, and "
+#~ "validation dataset is used for "
+#~ "evaluating a model in terms of how"
+#~ " accurately predict data that have "
+#~ "not used in training."
+#~ msgstr "機械学習のモデルを訓練するためには、訓練用データセットとバリデーション用データセットの用意が必要です。訓練用データセットはモデルの学習に利用し、バリデーション用データセットはどれだけ正確にモデルがデータを予測できるか評価するためのもので、学習に利用してはいけません。"
+
+#~ msgid ""
+#~ "So far you got all the materials,"
+#~ " let's build a model and run "
+#~ "training. For creating a model please"
+#~ " push the button ``New``."
+#~ msgstr "ここまでで全て材料がそろいました。それでは、モデルの作成して訓練させましょう。モデルを作成するために、``New`` ボタンを押してください。"
+
+#~ msgid "Then you can see a hyper parameter setting modal like following figure."
+#~ msgstr "そうしましたら、ハイパーパラメータを設定するモーダルが以下の図のように表れます。"
+
+#~ msgid ""
+#~ "**Batch Size** ... Set higher number,"
+#~ " the learning speed become **fast**. "
+#~ "Set lower number, the behavior  become"
+#~ " like **Stochastic Gradient Descent(or just"
+#~ " SGD)**"
+#~ msgstr "**Batch Size** ...数値が高いほど学習速度は早くなり、1に近いほど振る舞いが確率的勾配降下法に近くなります。"
+
+#~ msgid ""
+#~ "**Total Eopch** ... Training your "
+#~ "network on each item of the set"
+#~ " once is an epoch."
+#~ msgstr "**Total Eopch** ...各データに対する学習回数の設定です。10を設定しますと各データを10回学習します。"
+
+#~ msgid ""
+#~ "**Train Whole network** ... If this "
+#~ "is  checked, whole network weight will"
+#~ " be trained."
+#~ msgstr "**Train Whole network** ... もしこの項目にチェックを入れましたらで、全ネットワークの重みが訓練されます。"
+
+#~ msgid "Detection, Segmentation and Classification task take same process."
+#~ msgstr "オブジェクト検出、セグメンテーション、画像分類、全てのタスクは同じ手順で実行出来ます。"
+
+#~ msgid ""
+#~ "In the 'Train Page' you can see"
+#~ " `Deploy` button. The deployed model "
+#~ "will be used for performing prediction."
+#~ " If any model is deployed you "
+#~ "will see following view."
+#~ msgstr ""
+#~ "'Train Page'において以下の画像内にある `Deploy` ボタンを押すことで, "
+#~ "予測に使用するモデルを選択することができます. これをデプロイと呼びます."
+
+#~ msgid ""
+#~ "You will see `Run Prediction` button."
+#~ " Pushing this button runs the "
+#~ "prediction using deployed model."
+#~ msgstr "ページには, `Run Prediction` ボタンがあります. このボタンを押すことで, 画像に対する予測が実行されます."
+
+#~ msgid ""
+#~ "After the prediction you will see "
+#~ "the result on the screen like "
+#~ "following picture."
+#~ msgstr "予測が終了しますと, 以下のように結果が画面上に表示されます."
+
+#~ msgid ""
+#~ "Also you can download the result "
+#~ "as csv file. The button placed on"
+#~ " the right top of the prediction "
+#~ "result allows you to download the "
+#~ "result."
+#~ msgstr "この予測結果は, 左上のダウンロードボタンを押すことで, CSV形式でダウンロードすることが可能です."
+
+#~ msgid "The application GUI will load in your web browser window."
+#~ msgstr ""
+
+#~ msgid "Example of good data"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The following is a sample of a "
+#~ "segementation PNG label file. The class"
+#~ " id numbers have been mapped to "
+#~ "colors with a color map for "
+#~ "visualization purposes."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "**Total Eopch** ... Set the number "
+#~ "of times your model should pass "
+#~ "through the dataset during training. All"
+#~ " images are seen once in every "
+#~ "epoch."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Click the `Deploy` button shown in "
+#~ "the `Model Detail` window on the "
+#~ "'Train Page' to select which model "
+#~ "to use for performing predictions on "
+#~ "new data. The currently deployed model"
+#~ " is shown at the top of the "
+#~ "model list with a status of "
+#~ "'Deployed'."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "To run the prediction using the "
+#~ "deployed model, click the `Run "
+#~ "Prediction` button."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You can also download the prediction "
+#~ "results as a csv file. Click the"
+#~ " `download` button on the top right"
+#~ " to download the file."
+#~ msgstr ""
+
+#~ msgid "Provide your dataset"
+#~ msgstr "データの配置"
+
+#~ msgid "Create Detection Model"
+#~ msgstr "予測モデルの作成"
+
+#~ msgid ""
+#~ "**Format of label files** : ReNomIMG "
+#~ "only accepts ``txt`` and ``PNG`` "
+#~ "formatted label files. The format of "
+#~ "the txt file is shown below."
+#~ msgstr "**ラベルの形式** : ReNomIMG は ``txt`` 形式のクラスマップ及び``PNG``形式の画像ラベルのみを受け付けます。"
 
