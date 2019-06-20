@@ -29,7 +29,7 @@ from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.optimizer import BaseOptimizer
-from renom_img.api.observer import TrainObserverBase, ObservableTrainer
+from renom_img.api.observer.trainer import TrainObserverBase, ObservableTrainer
 
 from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
 from renom_img.server.utility.storage import storage
@@ -47,6 +47,7 @@ class AppObserver(TrainObserverBase):
 
     def update_batch(self, result):
         self.ts.nth_batch = result["batch"]
+        self.ts.total_batch = result["total_batch"]
         self.ts.last_batch_loss = result["loss"]
         self.ts.sync_batch_result()
         self.ts.updated = True
@@ -148,6 +149,7 @@ class AppObserver(TrainObserverBase):
                     "loss": float(loss)
                 }
         self.ts.sync_best_valid_result()
+        self.ts.running_state = RunningState.TRAINING
         self.ts.updated = True
 
 
