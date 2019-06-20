@@ -9,7 +9,7 @@ sys.setrecursionlimit(10000)
 import numpy as np
 
 import renom as rm
-from renom.cuda import set_cuda_active, release_mem_pool, use_device
+from renom.cuda import set_cuda_active, release_mem_pool, is_cuda_active, use_device
 from renom_img.api.classification.vgg import VGG11, VGG16, VGG19
 from renom_img.api.classification.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
 from renom_img.api.classification.resnext import ResNeXt50, ResNeXt101
@@ -29,10 +29,126 @@ from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.optimizer import BaseOptimizer
+from renom_img.api.observer import TrainObserverBase, ObservableTrainer
 
 from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
 from renom_img.server.utility.storage import storage
 from renom_img.server import State, RunningState, MAX_THREAD_NUM, Algorithm, Task, DB_DIR_PRETRAINED_WEIGHT
+
+
+class AppObserver(TrainObserverBase):
+    def __init__(self, ts):
+        self.ts = ts
+
+    def update_epoch(self, result):
+        self.ts.nth_epoch = result["epoch"]
+        self.ts.sync_train_loss()
+        self.ts.updated = True
+
+    def update_batch(self, result):
+        self.ts.nth_batch = result["batch"]
+        self.ts.last_batch_loss = result["loss"]
+        self.ts.sync_batch_result()
+        self.ts.updated = True
+
+    def start_train(self):
+        self.ts.state = State.STARTED
+        self.ts.running_state = RunningState.TRAINING
+        self.ts.sync_state()
+        self.ts.updated = True
+
+    def start_valid(self):
+        self.ts.running_state = RunningState.VALIDATING
+        self.ts.updated = True
+
+    def start_evaluate(self):
+        pass
+
+    def end_train(self, train_result):
+        if is_cuda_active():
+            release_mem_pool()
+
+    def end_valid(self, valid_result):
+        self.ts.valid_loss_list.append(valid_result["avg_valid_loss"])
+        self.ts.sync_valid_loss()
+        self.ts.updated = True
+
+    def end_evaluate(self, evaluate_result):
+        loss = self.ts.valid_loss_list[-1]
+        if self.ts.task_id == Task.CLASSIFICATION.value:
+            if self.ts.best_epoch_valid_result:
+                if self.ts.best_epoch_valid_result["f1"] <= evaluate_result["evaluation_matrix"]["f1"]:
+                    self.ts.best_valid_changed = True
+                    self.ts.save_best_model()
+                    self.ts.best_epoch_valid_result = {
+                        "nth_epoch": self.ts.nth_epoch,
+                        "prediction": evaluate_result["prediction"],
+                        "recall": float(evaluate_result["evaluation_matrix"]["recall"]),
+                        "precision": float(evaluate_result["evaluation_matrix"]["precision"]),
+                        "f1": float(evaluate_result["evaluation_matrix"]["f1"]),
+                        "loss": float(loss)
+                    }
+            else:
+                self.ts.best_valid_changed = True
+                self.ts.save_best_model()
+                self.ts.best_epoch_valid_result = {
+                    "nth_epoch": self.ts.nth_epoch,
+                    "prediction": evaluate_result["prediction"],
+                    "recall": float(evaluate_result["evaluation_matrix"]["recall"]),
+                    "precision": float(evaluate_result["evaluation_matrix"]["precision"]),
+                    "f1": float(evaluate_result["evaluation_matrix"]["f1"]),
+                    "loss": float(loss)
+                }
+
+        elif self.ts.task_id == Task.DETECTION.value:
+            if self.ts.best_epoch_valid_result:
+                if self.ts.best_epoch_valid_result["mAP"] <= evaluate_result["evaluation_matrix"]["mAP"]:
+                    self.ts.best_valid_changed = True
+                    self.ts.save_best_model()
+                    self.ts.best_epoch_valid_result = {
+                        "nth_epoch": self.ts.nth_epoch,
+                        "prediction": evaluate_result["prediction"],
+                        "mAP": float(evaluate_result["evaluation_matrix"]["mAP"]),
+                        "IOU": float(evaluate_result["evaluation_matrix"]["iou"]),
+                        "loss": float(loss)
+                    }
+            else:
+                self.ts.best_valid_changed = True
+                self.ts.save_best_model()
+                self.ts.best_epoch_valid_result = {
+                    "nth_epoch": self.ts.nth_epoch,
+                    "prediction": evaluate_result["prediction"],
+                    "mAP": float(evaluate_result["evaluation_matrix"]["mAP"]),
+                    "IOU": float(evaluate_result["evaluation_matrix"]["iou"]),
+                    "loss": float(loss)
+                }
+
+        elif self.ts.task_id == Task.SEGMENTATION.value:
+            if self.ts.best_epoch_valid_result:
+                if self.ts.best_epoch_valid_result["f1"] <= evaluate_result["evaluation_matrix"]["f1"]:
+                    self.ts.best_valid_changed = True
+                    self.ts.save_best_model()
+                    self.ts.best_epoch_valid_result = {
+                        "nth_epoch": self.ts.nth_epoch,
+                        "prediction": evaluate_result["prediction"],
+                        "recall": float(evaluate_result["evaluation_matrix"]["recall"]),
+                        "precision": float(evaluate_result["evaluation_matrix"]["precision"]),
+                        "f1": float(evaluate_result["evaluation_matrix"]["f1"]),
+                        "loss": float(loss)
+                    }
+            else:
+                self.ts.best_valid_changed = True
+                self.ts.save_best_model()
+                self.ts.best_epoch_valid_result = {
+                    "nth_epoch": self.ts.nth_epoch,
+                    "prediction": evaluate_result["prediction"],
+                    "recall": float(evaluate_result["evaluation_matrix"]["recall"]),
+                    "precision": float(evaluate_result["evaluation_matrix"]["precision"]),
+                    "f1": float(evaluate_result["evaluation_matrix"]["f1"]),
+                    "loss": float(loss)
+                }
+        self.ts.sync_best_valid_result()
+        self.ts.updated = True
 
 
 class TrainThread(object):
@@ -116,256 +232,10 @@ class TrainThread(object):
             raise e
 
     def run(self):
-        model = self.model
-        opt = model.default_optimizer
-        if isinstance(opt, BaseOptimizer):
-            opt.setup(self.total_batch, self.total_epoch)
-
-        self.state = State.STARTED
-        self.running_state = RunningState.TRAINING
-        if self.task_id == Task.DETECTION.value:
-            valid_target = self.valid_dist.get_resized_annotation_list(self.imsize)
-
-        if self.stop_event.is_set():
-            # Watch stop event
-            self.updated = True
-            return
-        for e in range(self.total_epoch):
-            release_mem_pool()
-            self.nth_epoch = e
-            if self.stop_event.is_set():
-                # Watch stop event
-                self.updated = True
-                return
-
-            model.set_models(inference=False)
-            temp_train_batch_loss_list = []
-
-            self.running_state = RunningState.TRAINING
-            self.sync_state()
-
-            for b,val in enumerate(self.train_dist.batch(self.batch_size),1): 
-                if isinstance(model, Yolov2):
-                    if (b-1)%10 == 0 and (b-1):
-                        release_mem_pool()
-                    train_x, buffers, train_y = val[0],val[1],val[2]
-                else:
-                    train_x, train_y = val[0],val[1]
-
-                self.nth_batch = b
-                if self.stop_event.is_set():
-                    # Watch stop event
-                    self.updated = True
-                    return
-
-
-                if len(train_x) > 0:
-                    with model.train():
-                        if isinstance(model,Yolov2):
-                            loss = model.loss(model(train_x),buffers,train_y)
-                        else:
-                            loss = model.loss(model(train_x), train_y)
-                        reg_loss = loss + model.regularize()
-
-                    try:
-                        loss = loss.as_ndarray()[0]
-                    except:
-                        loss = loss.as_ndarray()
-                    loss = float(loss)
-
-                # Modify optimizer.
-                if isinstance(opt, BaseOptimizer):
-                    opt.set_information(self.nth_batch, self.nth_epoch,
-                                        self.train_loss_list, self.valid_loss_list, loss)
-
-                    temp_train_batch_loss_list.append(loss)
-                    self.last_batch_loss = loss
-                    self.sync_batch_result()
-
-                    if self.stop_event.is_set():
-                        # Watch stop event
-                        self.updated = True
-                        return
-
-                    reg_loss.grad().update(opt)
-
-                # Thread value changed.
-                self.updated = True
-
-            self.train_loss_list.append(np.mean(temp_train_batch_loss_list))
-            self.sync_train_loss()
-
-            self.updated = True
-
-            release_mem_pool()
-            self.running_state = RunningState.VALIDATING
-            self.sync_state()
-
-            if self.task_id != Task.DETECTION.value:
-                valid_target = []
-            valid_prediction = []
-            temp_valid_batch_loss_list = []
-            model.set_models(inference=True)
-            for b,val in enumerate(self.valid_dist.batch(self.batch_size,shuffle=False),1):
-                if isinstance(model,Yolov2):
-                    valid_x,buffers,valid_y=val[0],val[1],val[2]
-                else:
-                    valid_x,valid_y = val[0],val[1]
-                if self.stop_event.is_set():
-                    # Watch stop event
-                    self.updated = True
-                    return
-
-                valid_prediction_in_batch = model(valid_x)
-                if isinstance(model,Yolov2):
-                    loss = model.loss(valid_prediction_in_batch,buffers,valid_y)
-                else:
-                    loss = model.loss(valid_prediction_in_batch, valid_y)
-                if self.task_id == Task.CLASSIFICATION.value:
-                    valid_prediction.append(rm.softmax(valid_prediction_in_batch).as_ndarray())
-                else:
-                    valid_prediction.append(valid_prediction_in_batch.as_ndarray())
-
-                if self.task_id != Task.DETECTION.value:
-                    valid_target.append(valid_y)
-
-                try:
-                    loss = loss.as_ndarray()[0]
-                except:
-                    loss = loss.as_ndarray()
-                loss = float(loss)
-                temp_valid_batch_loss_list.append(loss)
-
-            self.valid_loss_list.append(np.mean(temp_valid_batch_loss_list))
-            self.sync_valid_loss()
-
-            if self.stop_event.is_set():
-                # Watch stop event
-                self.updated = True
-                return
-
-            valid_prediction = np.concatenate(valid_prediction, axis=0)
-            if self.task_id != Task.DETECTION.value:
-                valid_target = np.concatenate(valid_target, axis=0)
-            n_valid = min(len(valid_prediction), len(valid_target))
-
-            # Depends on each task.
-            loss = self.valid_loss_list[-1]
-            if self.task_id == Task.CLASSIFICATION.value:
-                pred = np.argmax(valid_prediction, axis=1)
-                targ = np.argmax(valid_target, axis=1)
-                _, pr, _, rc, _, f1 = precision_recall_f1_score(pred, targ)
-                prediction = [
-                    {
-                        "score": [float(vc) for vc in v],
-                        "class":float(p)
-                    }
-                    for v, p in zip(valid_prediction, pred)
-                ]
-                if self.best_epoch_valid_result:
-                    if self.best_epoch_valid_result["f1"] <= f1:
-                        self.best_valid_changed = True
-                        self.save_best_model()
-                        self.best_epoch_valid_result = {
-                            "nth_epoch": e,
-                            "prediction": prediction,
-                            "recall": float(rc),
-                            "precision": float(pr),
-                            "f1": float(f1),
-                            "loss": float(loss)
-                        }
-                else:
-                    self.best_valid_changed = True
-                    self.save_best_model()
-                    self.best_epoch_valid_result = {
-                        "nth_epoch": e,
-                        "prediction": prediction,
-                        "recall": float(rc),
-                        "precision": float(pr),
-                        "f1": float(f1),
-                        "loss": float(loss)
-                    }
-                self.sync_best_valid_result()
-
-            elif self.task_id == Task.DETECTION.value:
-                if type(model) is SSD:
-                    prediction_box = []
-                    for sample in range(n_valid):
-                        prediction_b = model.get_bbox(np.expand_dims(valid_prediction[sample],axis=0))
-                        prediction_box.append(prediction_b[0])
-                else:
-                    prediction_box = model.get_bbox(valid_prediction[:n_valid])
-                prec, rec, _, iou = get_prec_rec_iou(
-                    prediction_box,
-                    valid_target[:n_valid]
-                )
-                _, mAP = get_ap_and_map(prec, rec)
-                if self.best_epoch_valid_result:
-                    if self.best_epoch_valid_result["mAP"] <= mAP:
-                        self.best_valid_changed = True
-                        self.save_best_model()
-                        self.best_epoch_valid_result = {
-                            "nth_epoch": e,
-                            "prediction": prediction_box,
-                            "mAP": float(mAP),
-                            "IOU": float(iou),
-                            "loss": float(loss)
-                        }
-                else:
-                    self.best_valid_changed = True
-                    self.save_best_model()
-                    self.best_epoch_valid_result = {
-                        "nth_epoch": e,
-                        "prediction": prediction_box,
-                        "mAP": float(mAP),
-                        "IOU": float(iou),
-                        "loss": float(loss)
-                    }
-                self.sync_best_valid_result()
-            elif self.task_id == Task.SEGMENTATION.value:
-                pred = np.argmax(valid_prediction, axis=1)
-                targ = np.argmax(valid_target, axis=1)
-                _, pr, _, rc, _, f1, _, _, _, _ = \
-                    get_segmentation_metrics(pred, targ, n_class=len(self.class_map))
-
-                prediction = []
-                for p, t in zip(pred, targ):
-                    lep, lemp, ler, lemr, _, _, _, _, _, _ = get_segmentation_metrics(p[None],
-                                                                                      t[None], n_class=len(self.class_map))
-                    prediction.append({
-                        "class": p.astype(np.int).tolist(),
-                        "recall": {k: float(v) for k, v in ler.items()},
-                        "precision": {k: float(v) for k, v in lep.items()},
-                    })
-
-                if self.best_epoch_valid_result:
-                    if self.best_epoch_valid_result["f1"] <= f1:
-                        self.best_valid_changed = True
-                        self.save_best_model()
-                        self.best_epoch_valid_result = {
-                            "nth_epoch": e,
-                            "prediction": prediction,
-                            "recall": float(rc),
-                            "precision": float(pr),
-                            "f1": float(f1),
-                            "loss": float(loss)
-                        }
-                else:
-                    self.best_valid_changed = True
-                    self.save_best_model()
-                    self.best_epoch_valid_result = {
-                        "nth_epoch": e,
-                        "prediction": prediction,
-                        "recall": float(rc),
-                        "precision": float(pr),
-                        "f1": float(f1),
-                        "loss": float(loss)
-                    }
-                self.sync_best_valid_result()
-
-            # Thread value changed.
-            self.save_last_model()
-            self.updated = True
+        observer = AppObserver(self)
+        trainer = ObservableTrainer(self.model)
+        trainer.add_observer(observer)
+        trainer.train(self.train_dist, self.valid_dist, self.total_epoch, self.batch_size)
 
     def stop(self):
         self.stop_event.set()
