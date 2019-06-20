@@ -1,55 +1,141 @@
-class ReNomIMGError(Exception):
-    code = "IMG0000"
-    message = "Unkown error was occured."
+class ReNomIMGServerError(Exception):
+    code = "IMG-0202-ER-B999-99"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class ForbiddenError(ReNomIMGError):
-    message = "forbidden."
+class ForbiddenError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B001-01"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class NotFoundError(ReNomIMGError):
-    message = "not found."
+class NotFoundError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B001-02"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class MethodNotAllowedError(ReNomIMGError):
-    message = "not allowed."
+class MethodNotAllowedError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B001-03"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class ServiceUnavailableError(ReNomIMGError):
-    message = "temporary service down."
+class ServiceUnavailableError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B001-04"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class MissingRequestParamError(ReNomIMGError):
-    message = "required param is missing."
+class DirectoryNotFound(ReNomIMGServerError):
+    code = "IMG-0202-ER-B002-01"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class InvalidRequestParamError(ReNomIMGError):
-    message = "param is invalid."
+class TaskNotFoundError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B002-02"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class TaskNotFoundError(ReNomIMGError):
-    message = "Task not found."
+class DatasetNotFoundError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B002-03"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class DatasetNotFoundError(ReNomIMGError):
-    message = "Dataset not found."
+class ModelNotFoundError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B002-04"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class ModelNotFoundError(ReNomIMGError):
-    message = "Model not found."
+class WeightNotFoundError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B002-05"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class WeightNotFoundError(ReNomIMGError):
-    message = "Weight not found."
+class ModelRunningError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B003-01"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class ModelRunningError(ReNomIMGError):
-    message = "Model is running."
+class InvalidRequestParamError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B004-01"
+
+    def __init__(self, message):
+        self._message = message
+
+    @property
+    def message(self):
+        return self._message
 
 
-class MemoryOverflowError(ReNomIMGError):
-    message = "Memory overflow."
+class MemoryOverflowError(ReNomIMGServerError):
+    code = "IMG-0202-ER-B005-01"
 
+    def __init__(self, message):
+        self._message = message
 
-class DirectoryNotFound(ReNomIMGError):
-    message = "directory not found."
+    @property
+    def message(self):
+        return self._message

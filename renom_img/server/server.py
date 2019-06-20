@@ -36,10 +36,15 @@ from renom_img.server import wsgi_server
 from renom_img.server.train_thread import TrainThread
 from renom_img.server.prediction_thread import PredictionThread
 from renom_img.server.utility.storage import storage
-from renom_img.server import State, RunningState, Task
+from renom_img.server import Algorithm, State, RunningState, Task
 from renom_img.server import DATASET_IMG_DIR, DATASET_LABEL_CLASSIFICATION_DIR, \
     DATASET_LABEL_DETECTION_DIR, DATASET_LABEL_SEGMENTATION_DIR
-from renom_img.server import DATASET_NAME_MAX_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH, TASK_ID_BY_NAME
+from renom_img.server import DATASET_NAME_MAX_LENGTH, DATASET_NAME_MIN_LENGTH, \
+    DATASET_DESCRIPTION_MAX_LENGTH, DATASET_DESCRIPTION_MIN_LENGTH, \
+    DATASET_RATIO_MAX, DATASET_RATIO_MIN, EPOCH_MAX, EPOCH_MIN, \
+    BATCH_MAX, BATCH_MIN, CELL_MAX, CELL_MIN, \
+    BBOX_MAX, BBOX_MIN, TASK_ID_BY_NAME
+
 from renom_img.server.utility.setup_example import setup_example
 from renom_img.server.utility.formatter import get_formatter_resolver
 
@@ -76,8 +81,7 @@ def create_response(body, status=200):
 
 def create_error_response(error, status=500):
     if not isinstance(error, ReNomIMGError):
-        error = ReNomIMGError()
-        status = 500
+        error = ReNomIMGError("Unkown error occured.")
     body = {"error": {"code": error.code, "message": error.message}}
     return create_response(body, status=status)
 
@@ -87,9 +91,30 @@ def logging_error(error):
     traceback.print_exc()
 
 
-def check_task_name(task_name):
+def is_int(s):
+    try:
+        int(s)
+    except:
+        return False
+    return True
+
+
+def is_float(s):
+    try:
+        float(s)
+    except:
+        return False
+    return True
+
+
+def get_task_id_by_name(task_name):
+    task_exists(task_name)
+    return TASK_ID_BY_NAME[task_name]
+
+
+def task_exists(task_name):
     if task_name not in TASK_ID_BY_NAME.keys():
-        raise TaskNotFoundError()
+        raise TaskNotFoundError(task_name)
 
 
 def check_dataset_exists(dataset):
@@ -107,26 +132,153 @@ def check_weight_exists(filepath):
         raise WeightNotFoundError()
 
 
-def check_dataset_name_length(name):
-    if len(name) > DATASET_NAME_MAX_LENGTH:
-        raise InvalidRequestParamError()
+def error_message_dataset_name(name):
+    message = ""
+    if name is None:
+        message = "Dataset name is required. Please input 1 ~ 128 characters."
+    elif len(name) < DATASET_NAME_MIN_LENGTH:
+        message = "Dataset name is too short. Please input 1 ~ 128 characters."
+    elif len(name) > DATASET_NAME_MAX_LENGTH:
+        message = "Dataset name is too long. Please input 1 ~ 128 characters."
+    return message
 
 
-def check_dataset_desc_length(description):
-    if len(description) > DATASET_DESCRIPTION_MAX_LENGTH:
-        raise InvalidRequestParamError()
+def error_message_dataset_ratio(ratio):
+    message = ""
+    if ratio is None:
+        message = "Dataset ratio is required. Please input 0.1 ~ 0.9."
+    elif not is_float(ratio):
+        message = "Dataset ratio must be float value. Please input 0.1 ~ 0.9."
+    elif float(ratio) < DATASET_RATIO_MIN:
+        message = "Dataset description is too small. Please input 0.1 ~ 0.9."
+    elif float(ratio) > DATASET_RATIO_MAX:
+        message = "Dataset description is too large. Please input 0.1 ~ 0.9."
+    return message
 
 
-def check_model_state(state):
-    if state not in ["", "running", "deployed"]:
-        raise InvalidRequestParamError()
+def error_message_dataset_desc(desc):
+    message = ""
+    if len(desc) < DATASET_DESCRIPTION_MIN_LENGTH:
+        message = "Dataset description is too short. Please input 0 ~ 1024 characters."
+    elif len(desc) > DATASET_DESCRIPTION_MAX_LENGTH:
+        message = "Dataset description is too long. Please input 0 ~ 1024 characters."
+    return message
 
 
-def check_model_create_params(params):
-    pass
+def check_create_dataset_params(params):
+    messages = []
+    # check name.
+    m = error_message_dataset_name(params["name"])
+    if len(m) > 0:
+        messages.append(m)
+
+    # check ratio
+    m = error_message_dataset_ratio(params["ratio"])
+    if len(m) > 0:
+        messages.append(m)
+
+    # check description
+    m = error_message_dataset_desc(params["description"])
+    if len(m) > 0:
+        messages.append(m)
+
+    if len(messages) > 0:
+        raise InvalidRequestParamError("\n".join(messages))
 
 
-def check_model_upadte_params(params):
+def error_message_model_dataset_id(dataset_id):
+    message = ""
+    if dataset_id is None:
+        message = "Dataset id is required. Please input exists dataset id."
+    elif not is_int(dataset_id):
+        message = "Dataset id is must be integer."
+    return message
+
+
+def error_message_model_algorithm_id(algorithm_id):
+    message = ""
+    if algorithm_id is None:
+        message = "Algorithm id is required. Please select from {}.".format([{a.name: a.value} for a in Algorithm])
+    elif not is_int(algorithm_id):
+        message = "Algorithm id is must be integer. Please select from {}.".format([{a.name: a.value} for a in Algorithm])
+    elif is_int(algorithm_id) not in [a.value for a in Algorithm]:
+        message = "Algorithm id is not exists. Please select from {}.".format([{a.name: a.value} for a in Algorithm])
+    return message
+
+
+def error_message_epoch(epoch):
+    message = ""
+    if epoch is not None:
+        message = "Hyperparameter epoch is not exists. Please input {} ~ {}.".format(EPOCH_MIN, EPOCH_MAX)
+    elif is_int(epoch):
+        message = "Hyperparameter epoch must be integer. Please input {} ~ {}.".format(EPOCH_MIN, EPOCH_MAX)
+    elif is_int(epoch) < EPOCH_MIN:
+        message = "Hyperparameter epoch is too small. Please input {} ~ {}.".format(EPOCH_MIN, EPOCH_MAX)
+    elif is_int(epoch) > EPOCH_MAX:
+        message = "Hyperparameter epoch is too large. Please input {} ~ {}.".format(EPOCH_MIN, EPOCH_MAX)
+    return message
+
+
+def error_message_batch(batch):
+    message = ""
+    if batch is not None:
+        message = "Hyperparameter batch is not exists. Please input {} ~ {}.".format(BATCH_MIN, BATCH_MAX)
+    elif is_int(batch):
+        message = "Hyperparameter batch must be integer. Please input {} ~ {}.".format(BATCH_MIN, BATCH_MAX)
+    elif is_int(batch) < BATCH_MIN:
+        message = "Hyperparameter batch is too small. Please input {} ~ {}.".format(BATCH_MIN, BATCH_MAX)
+    elif is_int(batch) > BATCH_MAX:
+        message = "Hyperparameter batch is too large. Please input {} ~ {}.".format(BATCH_MIN, BATCH_MAX)
+    return message
+
+
+def error_message_model_hyper_params(hyper_params):
+    messages = []
+    if hyper_params is None:
+        messages.append("Hyper parameter is not exists.")
+    else:
+        # check epoch
+        m = error_message_epoch(hyper_params["epoch"])
+        if len(m) > 0:
+            messages.append(m)
+
+        # check batch
+        m = error_message_batch(hyper_params["batch"])
+        if len(m) > 0:
+            messages.append(m)
+
+        # TODO: check cell
+        # TODO: check bbox
+        # TODO: check pre trained weight
+        # TODO: check train whole network
+
+    return messages
+
+
+def check_create_model_params(params):
+    messages = []
+
+    # check dataset_id
+    m = error_message_model_dataset_id(params["dataset_id"])
+    if len(m) > 0:
+        messages.append(m)
+
+    # check algorithm_id
+    m = error_message_model_algorithm_id(params["algorithm_id"])
+    if len(m) > 0:
+        messages.append(m)
+
+    # check hyper parameters
+    m = error_message_model_hyper_params(params["hyper_parameters"])
+    if len(m) > 0:
+        messages.extend(m)
+
+    # raise error
+    if len(messages) > 0:
+        raise InvalidRequestParamError("\n".join(messages))
+
+
+def check_upadte_model_params(params):
     pass
 
 
@@ -257,6 +409,44 @@ def get_tag_list(target):
     return ret
 
 
+def parse_classification_target(file_names, img_dir):
+    classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
+    class_labe_path = classification_label_dir / "target.txt"
+    check_dir_exists(classification_label_dir)
+
+    target, class_map = parse_txt_classification(str(class_labe_path))
+    target_file_list = list(target.keys())
+
+    file_names = [p for p in file_names
+                  if (img_dir / p).is_file() and (p.name in target_file_list)]
+
+    parsed_target = [target[name.name] for name in file_names]
+    return parsed_target, class_map
+
+
+def parse_detection_target(file_names, img_dir):
+    detection_label_dir = DATASET_LABEL_DETECTION_DIR
+    check_dir_exists(detection_label_dir)
+    file_names = [p for p in file_names
+                  if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
+
+    xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
+    parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
+    return parsed_target, class_map
+
+
+def parse_segmentation_target(file_names, img_dir):
+    segmentation_label_dir = DATASET_LABEL_SEGMENTATION_DIR
+    check_dir_exists(segmentation_label_dir)
+    file_names = [p for p in file_names if (img_dir / p).is_file() and
+                  any([((segmentation_label_dir / p.name).with_suffix(suf)).is_file()
+                       for suf in [".jpg", ".png"]])]
+    parsed_target = [str(segmentation_label_dir / name.with_suffix(".png"))
+                     for name in file_names]
+    class_map = parse_classmap_file(str(segmentation_label_dir / "class_map.txt"))
+    return parsed_target, class_map
+
+
 def strip_path(filename):
     if os.path.isabs(filename):
         raise ValueError('Invalid path')
@@ -315,6 +505,27 @@ def json_handler(func):
     return wrapped
 
 
+def error_handler(func):
+    def wrapped(*args, **kwargs):
+        try:
+            ret = func(*args, **kwargs)
+            return ret
+        except (MissingRequestParamError, InvalidRequestParamError) as e:
+            logging_error(e)
+            return create_error_response(e, status=400)
+        except (TaskNotFoundError, DatasetNotFoundError, ModelNotFoundError, WeightNotFoundError) as e:
+            logging_error(e)
+            return create_error_response(e, status=404)
+        except SQLAlchemyError as e:
+            e = ServiceUnavailableError()
+            logging_error(e)
+            return create_error_response(e, status=503)
+        except (DirectoryNotFound, Exception) as e:
+            logging_error(e)
+            return create_error_response(e, status=500)
+    return wrapped
+
+
 @route("/")
 def index():
     return _get_resource('', 'index.html')
@@ -337,21 +548,21 @@ def font(file_name):
 
 @error(403)
 def error403(error):
-    e = NotFoundError()
+    e = ForbiddenError("Forbidden error.")
     logging_error(e)
     return create_error_response(e, status=403)
 
 
 @error(404)
 def error404(error):
-    e = NotFoundError()
+    e = NotFoundError("Endpoint not found.")
     logging_error(e)
     return create_error_response(e, status=404)
 
 
 @error(405)
 def error405(error):
-    e = NotFoundError()
+    e = MethodNotAllowedError("Method not allowed.")
     logging_error(e)
     return create_error_response(e, status=405)
 
@@ -1143,585 +1354,329 @@ def get_deployed_model_info(task_id):
 
 ### New API ###
 @route("/renom_img/v2/api/<task_name>/datasets", method="GET")
+@error_handler
 def get_datasets(task_name):
     """
     get datasets
     """
-    try:
-        check_task_name(task_name)
-        task_id = TASK_ID_BY_NAME[task_name]
-        datasets = storage.fetch_datasets_of_task(task_id)
-        ret = {"datasets": [dataset_to_light_dict(d) for d in datasets]}
-        return create_response(ret, status=200)
-    except TaskNotFoundError as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    task_id = get_task_id_by_name(task_name)
+    datasets = storage.fetch_datasets_of_task(task_id)
+    ret = {"datasets": [dataset_to_light_dict(d) for d in datasets]}
+    return create_response(ret, status=200)
 
 
-@route("/renom_img/v2/api/detection/datasets", method="POST")
-def create_detection_dataset():
+@route("/renom_img/v2/api/<task_name>/datasets", method="POST")
+@error_handler
+def create_dataset(task_name):
     """
     create detection dataset
     """
-    try:
-        task_id = Task.DETECTION.value
-        req_params = request.params
-        # Receive params here.
-        dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
-        description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
-        ratio = float(req_params.ratio)
+    task_id = get_task_id_by_name(task_name)
+    req_params = request.params
+    check_create_dataset_params(req_params)
 
-        test_dataset_id = int(
-            req_params.test_dataset_id
-            if req_params.test_dataset_id != '' else '-1')
+    # Receive params here.
+    dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
+    description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
+    ratio = float(req_params.ratio)
 
-        check_dataset_name_length(dataset_name)
-        check_dataset_desc_length(description)
+    test_dataset_id = int(
+        req_params.test_dataset_id
+        if req_params.test_dataset_id != '' else '-1')
 
-        # TODO: Load root directory from configuration file or env params.
-        # TODO: Make other storage available. e.g. S3.
-        root = pathlib.Path('datasrc')
-        img_dir = root / 'img'
-        label_dir = root / 'label'
-        check_dir_exists(img_dir)
-        check_dir_exists(label_dir)
+    # TODO: Load root directory from configuration file or env params.
+    # TODO: Make other storage available. e.g. S3.
+    root = pathlib.Path('datasrc')
+    img_dir = root / 'img'
+    label_dir = root / 'label'
+    check_dir_exists(img_dir)
+    check_dir_exists(label_dir)
 
-        file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
-                      if name.is_file()]
+    file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
+                  if name.is_file()]
 
-        if test_dataset_id > 0:
-            test_dataset = storage.fetch_test_dataset(test_dataset_id)
-            test_dataset = set([pathlib.Path(test_path).relative_to(img_dir)
-                                for test_path in test_dataset['data']['img']])
+    if test_dataset_id > 0:
+        test_dataset = storage.fetch_test_dataset(test_dataset_id)
+        test_dataset = set([pathlib.Path(test_path).relative_to(img_dir)
+                            for test_path in test_dataset['data']['img']])
 
-            # Remove test files.
-            file_names = file_names - test_dataset
+        # Remove test files.
+        file_names = file_names - test_dataset
 
-        # parse detection label data
-        detection_label_dir = DATASET_LABEL_DETECTION_DIR
-        file_names = [p for p in file_names
-                      if (img_dir / p).is_file() and ((detection_label_dir / p.name).with_suffix(".xml")).is_file()]
+    img_files = [str(img_dir / name) for name in file_names]
 
-        img_files = [str(img_dir / name) for name in file_names]
-        xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
-        parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
+    # parse label data
+    # TODO: create parser
+    if task_id == Task.CLASSIFICATION.value:
+        parsed_target, class_map = parse_classification_target(file_names, img_dir)
+    elif task_id == Task.DETECTION.value:
+        parsed_target, class_map = parse_detection_target(file_names, img_dir)
+    elif task_id == Task.SEGMENTATION.value:
+        parsed_target, class_map = parse_segmentation_target(file_names, img_dir)
 
-        # Split into train and valid.
-        n_imgs = len(file_names)
-        perm = np.random.permutation(n_imgs)
+    # Split into train and valid.
+    n_imgs = len(file_names)
+    perm = np.random.permutation(n_imgs)
 
-        train_img, valid_img = split_by_ratio(img_files, perm, ratio, n_imgs)
-        train_img = ndarray_to_list(train_img)
-        valid_img = ndarray_to_list(valid_img)
-        valid_img_size = [list(Image.open(i).size) for i in valid_img]
+    train_img, valid_img = split_by_ratio(img_files, perm, ratio, n_imgs)
+    train_img = ndarray_to_list(train_img)
+    valid_img = ndarray_to_list(valid_img)
+    valid_img_size = [list(Image.open(i).size) for i in valid_img]
 
-        train_target, valid_target = split_by_ratio(parsed_target, perm, ratio, n_imgs)
-        train_target = ndarray_to_list(train_target)
-        valid_target = ndarray_to_list(valid_target)
+    train_target, valid_target = split_by_ratio(parsed_target, perm, ratio, n_imgs)
+    train_target = ndarray_to_list(train_target)
+    valid_target = ndarray_to_list(valid_target)
 
-        # Load test Dataset if exists.
-        if test_dataset_id > 0:
-            test_dataset = storage.fetch_test_dataset(test_dataset_id)
-            test_ratio = []
-        else:
-            test_ratio = []
+    # Load test Dataset if exists.
+    if test_dataset_id > 0:
+        test_dataset = storage.fetch_test_dataset(test_dataset_id)
+        test_ratio = []
+    else:
+        test_ratio = []
 
-        train_tag_list = get_tag_list(train_target)
-        valid_tag_list = get_tag_list(valid_target)
-
-        train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
-        valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))
-
-        class_info = class_info_to_dict(class_map, train_tag_num, valid_tag_num, test_ratio, train_img, valid_img)
-
-        train_data = {
-            'img': train_img,
-            'target': train_target
-        }
-
-        valid_data = {
-            'img': valid_img,
-            'target': valid_target,
-            'size': valid_img_size,
-        }
-
-        # Registering in DB instead of temporary registration with global variable
-        dataset_id = storage.register_dataset(
-            task_id,
-            dataset_name,
-            description,
-            ratio,
-            train_data,
-            valid_data,
-            class_map,
-            class_info,
-            test_dataset_id
-        )
-
-        ret = {
-            "dataset": {
-                'id': dataset_id,
-                'name': dataset_name,
-                'description': description,
-                'task_id': task_id,
-                'ratio': ratio,
-                'class_map': class_map,
-                'class_info': class_info,
-                'train_data': train_data,
-                'valid_data': valid_data,
-                'test_dataset_id': test_dataset_id
-            }
-        }
-        response = create_response(ret, status=201)
-        location = "/renom_img/v2/api/detection/datasets/{}".format(dataset_id)
-        response.set_header('Location', location)
-        return response
-
-    except DatasetNotFoundError as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except DirectoryNotFound as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
-
-
-@route("/renom_img/v2/api/classification/datasets", method="POST")
-def create_classification_dataset():
-    """
-    create classification dataset
-    """
-    try:
-        task_id = Task.CLASSIFICATION.value
-        req_params = request.params
-        # Receive params here.
-        dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
-        description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
-        ratio = float(req_params.ratio)
-
-        test_dataset_id = int(
-            req_params.test_dataset_id
-            if req_params.test_dataset_id != '' else '-1')
-
-        check_dataset_name_length(dataset_name)
-        check_dataset_desc_length(description)
-
-        # TODO: Load root directory from configuration file or env params.
-        # TODO: Make other storage available. e.g. S3.
-        root = pathlib.Path('datasrc')
-        img_dir = root / 'img'
-        label_dir = root / 'label'
-        check_dir_exists(img_dir)
-        check_dir_exists(label_dir)
-
-        file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
-                      if name.is_file()]
-
-        if test_dataset_id > 0:
-            test_dataset = storage.fetch_test_dataset(test_dataset_id)
-            test_dataset = set([pathlib.Path(test_path).relative_to(img_dir)
-                                for test_path in test_dataset['data']['img']])
-
-            # Remove test files.
-            file_names = file_names - test_dataset
-
-        # Load data for Classification
-        # Checks
-        # 1. The class name file existence and format.
-        classification_label_dir = DATASET_LABEL_CLASSIFICATION_DIR
-        class_labe_path = classification_label_dir / "target.txt"
-        check_dir_exists(classification_label_dir)
-
-        target, class_map = parse_txt_classification(str(class_labe_path))
-        target_file_list = list(target.keys())
-
-        file_names = [p for p in file_names
-                      if (img_dir / p).is_file() and (p.name in target_file_list)]
-
-        img_files = [str(img_dir / name) for name in file_names]
-        parsed_target = [target[name.name] for name in file_names]
-
-        # Split into train and valid.
-        n_imgs = len(file_names)
-        perm = np.random.permutation(n_imgs)
-
-        train_img, valid_img = split_by_ratio(img_files, perm, ratio, n_imgs)
-        train_img = ndarray_to_list(train_img)
-        valid_img = ndarray_to_list(valid_img)
-        valid_img_size = [list(Image.open(i).size) for i in valid_img]
-
-        train_target, valid_target = split_by_ratio(parsed_target, perm, ratio, n_imgs)
-        train_target = ndarray_to_list(train_target)
-        valid_target = ndarray_to_list(valid_target)
-
-        # Load test Dataset if exists.
-        if test_dataset_id > 0:
-            test_dataset = storage.fetch_test_dataset(test_dataset_id)
-            test_ratio = []
-        else:
-            test_ratio = []
-
+    # count tag list
+    if task_id == Task.CLASSIFICATION.value:
         train_tag_num, _ = np.histogram(train_target, bins=list(range(len(class_map) + 1)))
         valid_tag_num, _ = np.histogram(valid_target, bins=list(range(len(class_map) + 1)))
+    elif task_id == Task.DETECTION.value:
+        train_tag_list = get_tag_list(train_target)
+        valid_tag_list = get_tag_list(valid_target)
+        train_tag_num, _ = np.histogram(train_tag_list, bins=list(range(len(class_map) + 1)))
+        valid_tag_num, _ = np.histogram(valid_tag_list, bins=list(range(len(class_map) + 1)))
+    elif task_id == Task.SEGMENTATION.value:
+        train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
+        valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
 
-        class_info = class_info_to_dict(class_map, train_tag_num, valid_tag_num, test_ratio, train_img, valid_img)
+    class_info = class_info_to_dict(class_map, train_tag_num, valid_tag_num, test_ratio, train_img, valid_img)
 
-        train_data = {
-            'img': train_img,
-            'target': train_target
+    train_data = {
+        'img': train_img,
+        'target': train_target
+    }
+
+    valid_data = {
+        'img': valid_img,
+        'target': valid_target,
+        'size': valid_img_size,
+    }
+
+    # Registering in DB instead of temporary registration with global variable
+    dataset_id = storage.register_dataset(
+        task_id,
+        dataset_name,
+        description,
+        ratio,
+        train_data,
+        valid_data,
+        class_map,
+        class_info,
+        test_dataset_id
+    )
+
+    ret = {
+        "dataset": {
+            'id': dataset_id,
+            'name': dataset_name,
+            'description': description,
+            'task_id': task_id,
+            'ratio': ratio,
+            'class_map': class_map,
+            'class_info': class_info,
+            'train_data': train_data,
+            'valid_data': valid_data,
+            'test_dataset_id': test_dataset_id
         }
-
-        valid_data = {
-            'img': valid_img,
-            'target': valid_target,
-            'size': valid_img_size,
-        }
-
-        # Registering in DB instead of temporary registration with global variable
-        dataset_id = storage.register_dataset(
-            task_id,
-            dataset_name,
-            description,
-            ratio,
-            train_data,
-            valid_data,
-            class_map,
-            class_info,
-            test_dataset_id
-        )
-
-        ret = {
-            "dataset": {
-                'id': dataset_id,
-                'name': dataset_name,
-                'description': description,
-                'task_id': task_id,
-                'ratio': ratio,
-                'class_map': class_map,
-                'class_info': class_info,
-                'train_data': train_data,
-                'valid_data': valid_data,
-                'test_dataset_id': test_dataset_id
-            }
-        }
-        response = create_response(ret, status=201)
-        location = "/renom_img/v2/api/classification/datasets/{}".format(dataset_id)
-        response.set_header('Location', location)
-        return response
-
-    except DatasetNotFoundError as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except DirectoryNotFound as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    }
+    response = create_response(ret, status=201)
+    location = "/renom_img/v2/api/detection/datasets/{}".format(dataset_id)
+    response.set_header('Location', location)
+    return response
 
 
 @route("/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="GET")
+@error_handler
 def get_dataset(task_name, dataset_id):
     """
     get dataset
     """
-    try:
-        check_task_name(task_name)
-        d = storage.fetch_dataset(dataset_id)
-        check_dataset_exists(d)
-        ret = {"dataset": dataset_to_dict(d)}
-        return create_response(ret, status=200)
-
-    except (TaskNotFoundError, DatasetNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    task_exists(task_name)
+    d = storage.fetch_dataset(dataset_id)
+    check_dataset_exists(d)
+    ret = {"dataset": dataset_to_dict(d)}
+    return create_response(ret, status=200)
 
 
 @route("/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="PUT")
+@error_handler
 def update_dataset(task_name, dataset_id):
     """
     update dataset
     """
-    # 仮登録したデータセットを本登録する。
-    try:
-        check_task_name(task_name)
-        return create_response({}, status=204)
-    except (TaskNotFoundError, DatasetNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
+    # TODO: 仮登録したデータセットを本登録する。
+    task_exists(task_name)
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="DELETE")
+@error_handler
 def delete_dataset(task_name, dataset_id):
     """
     delete dataset
     """
-    try:
-        check_task_name(task_name)
-        storage.remove_dataset(dataset_id)
-        return create_response({}, status=204)
-    except (TaskNotFoundError, DatasetNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    task_exists(task_name)
+    storage.remove_dataset(dataset_id)
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/<task_name>/models", method="GET")
+@error_handler
 def get_models(task_name):
     """
     get models
     """
-    try:
-        check_task_name(task_name)
-        task_id = TASK_ID_BY_NAME[task_name]
-        req_params = request.params
-        check_model_state(req_params.state)
-        state = req_params.state
+    task_id = get_task_id_by_name(task_name)
+    req_params = request.params
+    state = req_params.state
 
-        # TODO: stateに合わせてDBから取得するモデルをかえる
-        models = storage.fetch_models_of_task(task_id)
-        # models = storage.fetch_running_models(task_id)
-        # models = storage.fetch_deployed_model(task_id)
+    # TODO: stateに合わせてDBから取得するモデルをかえる
+    models = storage.fetch_models_of_task(task_id)
+    # models = storage.fetch_running_models(task_id)
+    # models = storage.fetch_deployed_model(task_id)
 
-        ret = {'models': [model_to_light_dict(m) for m in models]}
-        return create_response(ret, status=200)
-
-    except InvalidRequestParamError as e:
-        logging_error(e)
-        return create_error_response(e, status=400)
-    except TaskNotFoundError as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    ret = {'models': [model_to_light_dict(m) for m in models]}
+    return create_response(ret, status=200)
 
 
 @route("/renom_img/v2/api/<task_name>/models", method="POST")
+@error_handler
 def create_model(task_name):
     """
     create model
     """
-    try:
-        check_task_name(task_name)
-        task_id = TASK_ID_BY_NAME[task_name]
-        req_json = request.json
-        check_model_create_params(req_json)
+    task_id = get_task_id_by_name(task_name)
+    req_json = request.json
+    check_create_model_params(req_json)
 
-        hyper_params = req_json['hyper_parameters']
-        algorithm_id = req_json['algorithm_id']
-        dataset_id = req_json['dataset_id']
+    hyper_params = req_json['hyper_parameters']
+    algorithm_id = req_json['algorithm_id']
+    dataset_id = req_json['dataset_id']
 
-        new_id = storage.register_model(
-            int(task_id), int(dataset_id), int(algorithm_id), hyper_params)
+    new_id = storage.register_model(
+        int(task_id), int(dataset_id), int(algorithm_id), hyper_params)
 
-        ret = {
-            "model": {
-                "id": new_id,
-                "task_id": task_id,
-                "dataset_id": dataset_id,
-                "algorithm_id": algorithm_id,
-                "hyper_parameters": hyper_params
-            }
+    ret = {
+        "model": {
+            "id": new_id,
+            "task_id": task_id,
+            "dataset_id": dataset_id,
+            "algorithm_id": algorithm_id,
+            "hyper_parameters": hyper_params
         }
-        response = create_response(ret, status=201)
-        location = "/renom_img/v2/api/{}/models/{}".format(task_name, new_id)
-        response.set_header('Location', location)
-        return response
-
-    except (MissingRequestParamError, InvalidRequestParamError) as e:
-        logging_error(e)
-        return create_error_response(e, status=400)
-    except TaskNotFoundError as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    }
+    response = create_response(ret, status=201)
+    location = "/renom_img/v2/api/{}/models/{}".format(task_name, new_id)
+    response.set_header('Location', location)
+    return response
 
 
 @route("/renom_img/v2/api/<task_name>/models/<model_id:int>", method="GET")
+@error_handler
 def get_model(task_name, model_id):
     """
     get model
     """
-    try:
-        check_task_name(task_name)
-        model = storage.fetch_model(model_id)
-        check_model_exists(model)
-        ret = {'model': model_to_dict(model)}
-        return create_response(ret, status=200)
-    except TaskNotFoundError as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    task_exists(task_name)
+    model = storage.fetch_model(model_id)
+    check_model_exists(model)
+    ret = {'model': model_to_dict(model)}
+    return create_response(ret, status=200)
 
 
 @route("/renom_img/v2/api/<task_name>/models/<model_id:int>", method="PUT")
+@error_handler
 def update_model(task_name, model_id):
     """
     update model
     """
-    try:
-        check_task_name(task_name)
-        task_id = TASK_ID_BY_NAME[task_name]
-        req_params = request.params
-        check_model_upadte_params(req_params)
+    task_id = get_task_id_by_name(task_name)
+    req_params = request.params
+    check_upadte_model_params(req_params)
 
-        model = storage.fetch_model(model_id)
-        check_model_exists(model)
+    model = storage.fetch_model(model_id)
+    check_model_exists(model)
 
-        # if deploy value exists
-        deploy = req_params.pop("deploy", False)
-        if deploy:
-            storage.deploy_model(model_id)
-        else:
-            storage.undeploy_model(task_id)
+    # if deploy value exists
+    deploy = req_params.pop("deploy", False)
+    if deploy:
+        storage.deploy_model(model_id)
+    else:
+        storage.undeploy_model(task_id)
 
-        storage.update_model(model_id, **req_params)
-        return create_response({}, status=204)
-
-    except InvalidRequestParamError as e:
-        logging_error(e)
-        return create_error_response(e, status=400)
-    except TaskNotFoundError as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    storage.update_model(model_id, **req_params)
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/<task_name>/models/<model_id:int>", method="DELETE")
+@error_handler
 def delete_model(task_name, model_id):
     """
     delete model
     """
-    try:
-        check_task_name(task_name)
-        model = storage.fetch_model(model_id)
-        check_model_exists(model)
+    task_exists(task_name)
+    model = storage.fetch_model(model_id)
+    check_model_exists(model)
 
-        threads = TrainThread.jobs
-        active_train_thread = threads.get(id, None)
-        if active_train_thread is not None:
-            active_train_thread.stop()
-            active_train_thread.future.result()
-        storage.remove_model(id)
-        return create_response({}, status=204)
-
-    except TaskNotFoundError as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    threads = TrainThread.jobs
+    active_train_thread = threads.get(id, None)
+    if active_train_thread is not None:
+        active_train_thread.stop()
+        active_train_thread.future.result()
+    storage.remove_model(id)
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/<task_name>/models/<model_id:int>/weight", method="GET")
+@error_handler
 def download_model_weight(task_name, model_id):
     """
     download model weight file
     """
     # This method will be called from python script.
-    try:
-        check_task_name(task_name)
-        model = storage.fetch_model(model_id)
-        check_model_exists(model)
+    task_exists(task_name)
+    model = storage.fetch_model(model_id)
+    check_model_exists(model)
 
-        file_name = model['best_epoch_weight']
-        check_weight_exists(file_name)
+    file_name = model['best_epoch_weight']
+    check_weight_exists(file_name)
 
-        download_filename = 'model{}_weight.h5'.format(model_id)
-        return static_file(file_name, root=".", download=download_filename)
-
-    except (TaskNotFoundError, ModelNotFoundError, WeightNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    download_filename = 'model{}_weight.h5'.format(model_id)
+    return static_file(file_name, root=".", download=download_filename)
 
 
 @route("/renom_img/v2/api/<task_name>/train", method="POST")
+@error_handler
 def run_train(task_name):
     """
     run train
     """
-    try:
-        check_task_name(task_name)
-        req_params = request.params
-        model_id = req_params.model_id
-        model = storage.fetch_model(model_id)
-        check_model_exists(model)
+    task_exists(task_name)
+    req_params = request.params
+    model_id = req_params.model_id
+    model = storage.fetch_model(model_id)
+    check_model_exists(model)
 
-        # TODO: Confirm if the model is already trained.
-        thread = TrainThread(model_id)
-        th = executor.submit(thread)
-        thread.set_future(th)
+    # TODO: Confirm if the model is already trained.
+    thread = TrainThread(model_id)
+    th = executor.submit(thread)
+    thread.set_future(th)
 
-        # TODO: set train_id to thread
-        # train_id = 1
-        # response = create_response({"train": {"train_id": train_id}}, status=201)
-        # location = "/renom_img/v2/api/detection/train/{}".format(train_id)
-        # response.set_header('Location', location)
-        response = create_response({"status": "success"}, status=201)
-        return response
-
-    except (TaskNotFoundError, ModelNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    # TODO: set train_id to thread
+    # train_id = 1
+    # response = create_response({"train": {"train_id": train_id}}, status=201)
+    # location = "/renom_img/v2/api/detection/train/{}".format(train_id)
+    # response.set_header('Location', location)
+    response = create_response({"status": "success"}, status=201)
+    return response
 
 
 # TODO
@@ -1729,101 +1684,91 @@ def run_train(task_name):
 # 学習が動くホストが変わったら必要になる?
 # @route("/renom_img/v2/api/detection/train/<train_id:int>", method="GET")
 @route("/renom_img/v2/api/<task_name>/train", method="GET")
+@error_handler
 def get_train_status(task_name):
     """
     get train status
     """
-    try:
-        check_task_name(task_name)
-        req_params = request.params
-        model_id = req_params.model_id
+    task_exists(task_name)
+    req_params = request.params
+    model_id = req_params.model_id
 
-        threads = TrainThread.jobs
-        active_train_thread = threads.get(model_id, None)
-        if active_train_thread is None:
+    threads = TrainThread.jobs
+    active_train_thread = threads.get(model_id, None)
+    if active_train_thread is None:
+        saved_model = storage.fetch_model(model_id)
+        check_model_exists(saved_model)
+
+        # If the state == STOPPED, client will never throw request.
+        if saved_model["state"] != State.STOPPED.value:
+            storage.update_model(model_id, state=State.STOPPED.value,
+                                 running_state=RunningState.STOPPING.value)
             saved_model = storage.fetch_model(model_id)
-            check_model_exists(saved_model)
 
-            # If the state == STOPPED, client will never throw request.
-            if saved_model["state"] != State.STOPPED.value:
-                storage.update_model(model_id, state=State.STOPPED.value,
-                                     running_state=RunningState.STOPPING.value)
-                saved_model = storage.fetch_model(model_id)
+        return {
+            "state": saved_model["state"],
+            "running_state": saved_model["running_state"],
+            "total_epoch": saved_model["total_epoch"],
+            "nth_epoch": saved_model["nth_epoch"],
+            "total_batch": saved_model["total_batch"],
+            "nth_batch": saved_model["nth_batch"],
+            "last_batch_loss": saved_model["last_batch_loss"],
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": False,
+            "train_loss_list": saved_model["train_loss_list"],
+            "valid_loss_list": saved_model["valid_loss_list"],
+        }
+    elif active_train_thread.state == State.RESERVED or \
+            active_train_thread.state == State.CREATED:
 
-            return {
-                "state": saved_model["state"],
-                "running_state": saved_model["running_state"],
-                "total_epoch": saved_model["total_epoch"],
-                "nth_epoch": saved_model["nth_epoch"],
-                "total_batch": saved_model["total_batch"],
-                "nth_batch": saved_model["nth_batch"],
-                "last_batch_loss": saved_model["last_batch_loss"],
-                "total_valid_batch": 0,
-                "nth_valid_batch": 0,
-                "best_result_changed": False,
-                "train_loss_list": saved_model["train_loss_list"],
-                "valid_loss_list": saved_model["valid_loss_list"],
-            }
-        elif active_train_thread.state == State.RESERVED or \
-                active_train_thread.state == State.CREATED:
-
-            for _ in range(60):
-                if active_train_thread.state == State.RESERVED or \
-                        active_train_thread.state == State.CREATED:
-                    time.sleep(1)
-                    if active_train_thread.updated:
-                        active_train_thread.returned2client()
-                        break
-                else:
-                    time.sleep(1)
-                    break
-
-            active_train_thread.consume_error()
-            return {
-                "state": active_train_thread.state.value,
-                "running_state": active_train_thread.running_state.value,
-                "total_epoch": 0,
-                "nth_epoch": 0,
-                "total_batch": 0,
-                "nth_batch": 0,
-                "last_batch_loss": 0,
-                "total_valid_batch": 0,
-                "nth_valid_batch": 0,
-                "best_result_changed": False,
-                "train_loss_list": [],
-                "valid_loss_list": [],
-            }
-        else:
-            for _ in range(10):
-                time.sleep(0.5)  # Avoid many request.
+        for _ in range(60):
+            if active_train_thread.state == State.RESERVED or \
+                    active_train_thread.state == State.CREATED:
+                time.sleep(1)
                 if active_train_thread.updated:
+                    active_train_thread.returned2client()
                     break
-                active_train_thread.consume_error()
-            active_train_thread.returned2client()
-            return {
-                "state": active_train_thread.state.value,
-                "running_state": active_train_thread.running_state.value,
-                "total_epoch": active_train_thread.total_epoch,
-                "nth_epoch": active_train_thread.nth_epoch,
-                "total_batch": active_train_thread.total_batch,
-                "nth_batch": active_train_thread.nth_batch,
-                "last_batch_loss": active_train_thread.last_batch_loss,
-                "total_valid_batch": 0,
-                "nth_valid_batch": 0,
-                "best_result_changed": active_train_thread.best_valid_changed,
-                "train_loss_list": active_train_thread.train_loss_list,
-                "valid_loss_list": active_train_thread.valid_loss_list,
-            }
+            else:
+                time.sleep(1)
+                break
 
-    except (TaskNotFoundError, ModelNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+        active_train_thread.consume_error()
+        return {
+            "state": active_train_thread.state.value,
+            "running_state": active_train_thread.running_state.value,
+            "total_epoch": 0,
+            "nth_epoch": 0,
+            "total_batch": 0,
+            "nth_batch": 0,
+            "last_batch_loss": 0,
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": False,
+            "train_loss_list": [],
+            "valid_loss_list": [],
+        }
+    else:
+        for _ in range(10):
+            time.sleep(0.5)  # Avoid many request.
+            if active_train_thread.updated:
+                break
+            active_train_thread.consume_error()
+        active_train_thread.returned2client()
+        return {
+            "state": active_train_thread.state.value,
+            "running_state": active_train_thread.running_state.value,
+            "total_epoch": active_train_thread.total_epoch,
+            "nth_epoch": active_train_thread.nth_epoch,
+            "total_batch": active_train_thread.total_batch,
+            "nth_batch": active_train_thread.nth_batch,
+            "last_batch_loss": active_train_thread.last_batch_loss,
+            "total_valid_batch": 0,
+            "nth_valid_batch": 0,
+            "best_result_changed": active_train_thread.best_valid_changed,
+            "train_loss_list": active_train_thread.train_loss_list,
+            "valid_loss_list": active_train_thread.valid_loss_list,
+        }
 
 
 # TODO
@@ -1831,168 +1776,129 @@ def get_train_status(task_name):
 # 学習が動くホストが変わったら必要になる?
 # @route("/renom_img/v2/api/detection/train/<train_id:int>", method="DELETE")
 @route("/renom_img/v2/api/<task_name>/train", method="DELETE")
+@error_handler
 def stop_train(task_name):
     """
     stop train
     """
-    try:
-        check_task_name(task_name)
-        req_params = request.params
-        model_id = req_params.model_id
+    task_exists(task_name)
+    req_params = request.params
+    model_id = req_params.model_id
 
-        saved_model = storage.fetch_model(model_id)
-        check_model_exists(saved_model)
+    saved_model = storage.fetch_model(model_id)
+    check_model_exists(saved_model)
 
-        thread = TrainThread.jobs.get(model_id, None)
-        if thread is not None:
-            thread.stop()
-        return create_response({}, status=204)
-
-    except (TaskNotFoundError, ModelNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    thread = TrainThread.jobs.get(model_id, None)
+    if thread is not None:
+        thread.stop()
+    return create_response({}, status=204)
 
 
 @route("/renom_img/v2/api/<task_name>/prediction", method="GET")
+@error_handler
 def get_prediction_status(task_name):
     """
     get prediction status
     """
-    try:
-        check_task_name(task_name)
-        req_params = request.params
-        model_id = req_params.model_id
+    task_exists(task_name)
+    req_params = request.params
+    model_id = req_params.model_id
 
-        threads = PredictionThread.jobs
-        active_prediction_thread = threads.get(model_id, None)
-        if active_prediction_thread is None:
-            time.sleep(0.5)  # Avoid many request.
-            return {
-                "need_pull": False,
-                "state": State.STOPPED.value,
-                "running_state": RunningState.STOPPING.value,
-                "total_batch": 0,
-                "nth_batch": 0,
-            }
-        elif active_prediction_thread.state == State.PRED_RESERVED or \
-                active_prediction_thread.state == State.PRED_CREATED:
-            time.sleep(0.5)  # Avoid many request.
-            return {
-                "need_pull": active_prediction_thread.need_pull,
-                "state": active_prediction_thread.state.value,
-                "running_state": active_prediction_thread.running_state.value,
-                "total_batch": active_prediction_thread.total_batch,
-                "nth_batch": active_prediction_thread.nth_batch,
-            }
-        else:
-            for _ in range(10):
-                time.sleep(0.5)  # Avoid many request.
-                if active_prediction_thread.updated:
-                    break
-                active_prediction_thread.consume_error()
-            active_prediction_thread.returned2client()
-            return {
-                "need_pull": active_prediction_thread.need_pull,
-                "state": active_prediction_thread.state.value,
-                "running_state": active_prediction_thread.running_state.value,
-                "total_batch": active_prediction_thread.total_batch,
-                "nth_batch": active_prediction_thread.nth_batch,
-            }
+    saved_model = storage.fetch_model(model_id)
+    check_model_exists(saved_model)
 
-    except (TaskNotFoundError, ModelNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    threads = PredictionThread.jobs
+    active_prediction_thread = threads.get(model_id, None)
+    if active_prediction_thread is None:
+        time.sleep(0.5)  # Avoid many request.
+        return {
+            "need_pull": False,
+            "state": State.STOPPED.value,
+            "running_state": RunningState.STOPPING.value,
+            "total_batch": 0,
+            "nth_batch": 0,
+        }
+    elif active_prediction_thread.state == State.PRED_RESERVED or \
+            active_prediction_thread.state == State.PRED_CREATED:
+        time.sleep(0.5)  # Avoid many request.
+        return {
+            "need_pull": active_prediction_thread.need_pull,
+            "state": active_prediction_thread.state.value,
+            "running_state": active_prediction_thread.running_state.value,
+            "total_batch": active_prediction_thread.total_batch,
+            "nth_batch": active_prediction_thread.nth_batch,
+        }
+    else:
+        for _ in range(10):
+            time.sleep(0.5)  # Avoid many request.
+            if active_prediction_thread.updated:
+                break
+            active_prediction_thread.consume_error()
+        active_prediction_thread.returned2client()
+        return {
+            "need_pull": active_prediction_thread.need_pull,
+            "state": active_prediction_thread.state.value,
+            "running_state": active_prediction_thread.running_state.value,
+            "total_batch": active_prediction_thread.total_batch,
+            "nth_batch": active_prediction_thread.nth_batch,
+        }
 
 
 @route("/renom_img/v2/api/<task_name>/prediction", method="POST")
+@error_handler
 def run_prediction(task_name):
     """
     run prediction
     """
-    try:
-        check_task_name(task_name)
-        req_params = request.params
-        model_id = req_params.model_id
+    task_exists(task_name)
+    req_params = request.params
+    model_id = req_params.model_id
 
-        thread = PredictionThread(model_id)
-        th = executor.submit(thread)
-        thread.set_future(th)
+    saved_model = storage.fetch_model(model_id)
+    check_model_exists(saved_model)
 
-        # prediction_id = 1
-        # response = create_response({"prediction": {"prediction_id": prediction_id}}, status=201)
-        # location = "/renom_img/v2/api/detection/prediction/{}".format(prediction_id)
-        # response.set_header('Location', location)
-        response = create_response({"status": "success"}, status=201)
-        return response
+    thread = PredictionThread(model_id)
+    th = executor.submit(thread)
+    thread.set_future(th)
 
-    except (TaskNotFoundError, ModelNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
+    # prediction_id = 1
+    # response = create_response({"prediction": {"prediction_id": prediction_id}}, status=201)
+    # location = "/renom_img/v2/api/detection/prediction/{}".format(prediction_id)
+    # response.set_header('Location', location)
+    response = create_response({"status": "success"}, status=201)
+    return response
 
 
 @route("/renom_img/v2/api/<task_name>/prediction/result", method="GET")
+@error_handler
 def get_prediction_result(task_name):
     """
     get prediction result
     format
     """
-    try:
-        check_task_name(task_name)
-        task_id = TASK_ID_BY_NAME[task_name]
+    task_id = get_task_id_by_name(task_name)
+    req_params = request.params
+    model_id = req_params.model_id
+    format = req_params.format
+    check_export_format(format)
 
-        req_params = request.params
-        model_id = req_params.model_id
-        format = req_params.format
-        check_export_format(format)
+    filename = 'prediction.csv'
 
-        filename = 'prediction.csv'
+    model = storage.fetch_model(model_id)
+    prediction = model["last_prediction_result"]
 
-        model = storage.fetch_model(model_id)
-        prediction = model["last_prediction_result"]
+    # formatごとにデータの整形を行う
+    resolver = get_formatter_resolver(task_id)
+    formatter = resolver.resolve(format)
+    df = formatter.format(prediction)
 
-        # formatごとにデータの整形を行う
-        resolver = get_formatter_resolver(task_id)
-        formatter = resolver.resolve(format)
-        df = formatter.format(prediction)
+    # 整形済みデータを出力
+    # formatが増えたら以下のようにモジュール化した方がよさそう
+    # writer = get_writer(format)
+    # writer.write(df, filename)
+    df.to_csv(filename)
 
-        # 整形済みデータを出力
-        # formatが増えたら以下のようにモジュール化した方がよさそう
-        # writer = get_writer(format)
-        # writer.write(df, filename)
-        df.to_csv(filename)
-
-        return static_file(filename, root='.', download=True)
-
-    except (TaskNotFoundError, ModelNotFoundError) as e:
-        logging_error(e)
-        return create_error_response(e, status=404)
-    except SQLAlchemyError as e:
-        logging_error(e)
-        return create_error_response(e, status=503)
-    except Exception as e:
-        logging_error(e)
-        return create_error_response(e, status=500)
-
-
-### Segmentation ###
+    return static_file(filename, root='.', download=True)
 
 
 def get_app():
