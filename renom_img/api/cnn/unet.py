@@ -11,6 +11,7 @@ from renom_img.api.utility.load import load_img
 from renom_img.api.utility.target import DataBuilderSegmentation
 from renom_img.api.segmentation import SemanticSegmentation
 from renom_img.api.cnn import CnnBase
+from renom_img.api.utility.exceptions.exceptions import *
 
 class CNN_UNet(CnnBase):
 

@@ -13,7 +13,7 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.optimizer import OptimizerYolov1
 from renom_img.api.utility.box import transform2xy12
 from renom_img.api.utility.load import prepare_detection_data, load_img, resize_detection_data
-
+from renom_img.api.utility.exceptions.check_exceptions import check_yolov1_init
 
 def make_box(box):
     x1 = box[0] - box[2] / 2.
@@ -153,7 +153,8 @@ class Yolov1(Detection):
     WEIGHT_URL = CnnYolov1.WEIGHT_URL
 
     def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-
+        # exceptions checking
+        check_yolov1_init(cells,bbox)
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
 

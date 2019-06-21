@@ -15,6 +15,7 @@ from renom.layers.function.pool2d import pool_base, max_pool2d
 from renom.layers.function.utils import tuplize
 from renom_img.api.utility.optimizer import FCN_Optimizer
 from renom_img.api.utility.load import load_img
+from renom_img.api.utility.exceptions.check_exceptions import check_fcn_init
 
 MEAN_BGR = np.array([104.00698793, 116.66876762, 122.67891434])
 RESIZE_METHOD = Image.BILINEAR
@@ -184,6 +185,8 @@ class FCN32s(SemanticSegmentation):
     WEIGHT_URL = CNN_FCN32s.WEIGHT_URL
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
+        # check for exceptions
+        check_fcn_init(train_final_upscore)
 
         self.model = CNN_FCN32s(1)
 

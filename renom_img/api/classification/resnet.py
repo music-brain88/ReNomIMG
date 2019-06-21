@@ -15,7 +15,7 @@ from renom_img.api.utility.target import DataBuilderClassification
 from renom_img.api.utility.optimizer import OptimizerResNet
 
 RESIZE_METHOD = Image.BILINEAR
-
+from renom_img.api.utility.exceptions.check_exceptions import check_resnet_init
 
 class TargetBuilderResNet():
     '''
@@ -161,7 +161,8 @@ class ResNet18(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-
+        #Exception checking
+        check_resnet_init(plateau)
         self.model = CnnResNet(1, BasicBlock, [2, 2, 2, 2])
         super(ResNet18, self).__init__(class_map, imsize,
                                        load_pretrained_weight, train_whole_network, self.model)
@@ -210,6 +211,8 @@ class ResNet34(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        #Exception checking
+        check_resnet_init(plateau)
 
         self.model = CnnResNet(1, BasicBlock, [3, 4, 6, 3])
         super(ResNet34, self).__init__(class_map, imsize,
@@ -258,6 +261,8 @@ class ResNet50(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        #Exception checking
+        check_resnet_init(plateau)
 
         self.model = CnnResNet(1, Bottleneck, [3, 4, 6, 3])
         super(ResNet50, self).__init__(class_map, imsize,
@@ -306,6 +311,8 @@ class ResNet101(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        #Exception checking
+        check_resnet_init(plateau)
 
         self.model = CnnResNet(1, Bottleneck, [3, 4, 23, 3])
         super(ResNet101, self).__init__(class_map, imsize,
@@ -354,6 +361,8 @@ class ResNet152(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        #Exception checking
+        check_resnet_init(plateau)
 
         self.model = CnnResNet(1, Bottleneck, [3, 8, 36, 3])
         super(ResNet152, self).__init__(class_map, imsize,

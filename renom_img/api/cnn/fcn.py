@@ -12,6 +12,7 @@ from renom.config import precision
 from renom.layers.function.pool2d import pool_base, max_pool2d
 from renom.layers.function.utils import tuplize
 from renom_img.api.cnn import CnnBase
+from renom_img.api.utility.exceptions.exceptions import *
 
 class PoolBase(object):
 
@@ -190,7 +191,10 @@ class CNN_FCN8s(CnnBase):
         self.upscore8.set_auto_update(self.train_final_upscore)
 
     def load_pretrained_weight(self,path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('Following path {} can not be loaded to the class{}.'.format(path,self.__class__))
 
 class CNN_FCN16s(CnnBase):
 
@@ -273,7 +277,10 @@ class CNN_FCN16s(CnnBase):
         self.upscore16.set_auto_update(self.train_final_upscore)
 
     def load_pretrained_weight(self,path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('Following path {} can not be loaded to the class {}.'.format(path,self.__class__))
 
 class CNN_FCN32s(CnnBase):
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN32s.h5".format(__version__)
@@ -336,4 +343,7 @@ class CNN_FCN32s(CnnBase):
         self.train_final_upscore=upscore
 
     def load_pretrained_weight(self,path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('Following path {} can not be loaded to the class {}.'.format(path,self.__class__))

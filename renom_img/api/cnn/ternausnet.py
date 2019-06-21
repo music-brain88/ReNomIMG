@@ -18,6 +18,7 @@ from renom_img.api.utility.target import DataBuilderSegmentation
 from renom_img.api.segmentation import SemanticSegmentation
 from renom.utility.initializer import GlorotNormal, GlorotUniform
 from renom_img.api.cnn import CnnBase
+from renom_img.api.utility.exceptions.exceptions import *
 
 import renom.cuda as cu
 if cu.has_cuda():
@@ -278,5 +279,8 @@ class CNN_TernausNet(CnnBase):
         self.final._channel = output_size
 
     def load_pretrained_weight(self, path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('Following path {} can not be loaded to the class {}.'.format(path,self.__class__))
 

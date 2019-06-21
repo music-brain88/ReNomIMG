@@ -11,6 +11,7 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.cnn import CnnBase
+from renom_img.api.utility.exceptions.exceptions import *
 
 
 def layer_factory(channel=32, conv_layer_num=2):
@@ -66,7 +67,10 @@ class CNN_VGG19(CnnBase):
         self.fc3._output_size = output_size
 
     def load_pretrained_weight(self, path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('Following path {} can not be loaded to class {}.'.format(path,self.__class__))
 
 class CNN_VGG16(CnnBase):
 
@@ -113,7 +117,11 @@ class CNN_VGG16(CnnBase):
         self.fc3._output_size = output_size
 
     def load_pretrained_weight(self, path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('Following path {} can not be loaded to class {}.'.format(path,self.__class__))
+
 
 class CNN_VGG16_NODENSE(CnnBase):
 
