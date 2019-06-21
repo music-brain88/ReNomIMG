@@ -1,4 +1,4 @@
-import abc
+from abc import ABC, abstractmethod
 import renom as rm
 from renom.cuda import release_mem_pool, is_cuda_active
 import numpy as np
@@ -14,23 +14,37 @@ from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_re
 
 
 # Generic Observer class
-class TrainObserverBase(metaclass=abc.ABCMeta):
-    def __init__(self):
-        pass
+class TrainObserverBase(ABC):
+
+    @abstractmethod
     def update_epoch(self,result): #called after training batch loop
         pass
-    def update_batch(self,result): # for training and validation batch update
+
+    @abstractmethod
+    def update_batch(self,result): # for training and validation batch update 
         pass
-    def start_train(self): # this is start point
+
+    @abstractmethod
+    def start_train(self): # this is start point 
         pass
+
+    @abstractmethod
     def start_valid(self): # called before starting validation batch loop
         pass
+
+    @abstractmethod
     def start_evaluate(self): # called before starting evaluation
         pass
+
+    @abstractmethod
     def end_train(self,train_result): # this is finish point
         pass
+
+    @abstractmethod
     def end_valid(self,valid_result): # called after validation batch loop
         pass
+
+    @abstractmethod
     def end_evaluate(self,evaluate_result): # called after finishing evaluation
         pass
 
