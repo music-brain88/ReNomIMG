@@ -17,7 +17,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.nms import nms
 from renom_img.api.utility.optimizer import BaseOptimizer, OptimizerYolov2
-
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 class BestAnchorBoxFinder(object):
     def __init__(self, ANCHORS):
@@ -309,11 +309,8 @@ class Yolov2(Detection):
 
     def __init__(self, class_map=None, anchor=None,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
-
-        assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
-            "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
-              exp),imsize=(320, 320)."
-
+        # Exceptions checking
+        check_yolov2_init(imsize)
 
         self.model = CnnYolov2()
         super(Yolov2, self).__init__(class_map, imsize,
@@ -352,6 +349,14 @@ class Yolov2(Detection):
         return (0.0005 / 2.) * reg
 
     def forward(self, x):
+        """
+        Performs forward propagation.
+        You can call this function using the ``__call__`` method.
+
+        Args:
+            x(ndarray, Node): Input to ${class}.
+        """
+        check_yolov2_forward(self.anchor,x)
         self.model.set_anchor(self.num_anchor)
         return self.model(x)
 
@@ -731,7 +736,7 @@ class Yolov2(Detection):
                 if is_cuda_active():
                     release_mem_pool()
                 bar.n = 0
-                bar.total = len(valid_dist) // batch_size
+                bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
                 for i, (valid_x,buffer_data, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data())):
                     self.set_models(inference=True)

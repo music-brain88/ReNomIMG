@@ -17,6 +17,7 @@ from renom_img.api.utility.load import parse_xml_detection, load_img
 from renom_img.api.utility.nms import nms
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.optimizer import OptimizerSSD
+from renom_img.api.utility.exceptions.check_exceptions import check_ssd_init
 
 def calc_iou(prior, box):
     """
@@ -256,9 +257,8 @@ class SSD(Detection):
 
     def __init__(self, class_map=None, imsize=(300, 300),
                  overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
-
-        assert imsize == (300, 300), \
-            "SSD implementation in ReNomIMG only accepts image sizes of (300, 300)."
+        # check for exceptions
+        check_ssd_init(overlap_threshold,imsize)
 
         self.model = CnnSSD()
         super(SSD, self).__init__(class_map, imsize,

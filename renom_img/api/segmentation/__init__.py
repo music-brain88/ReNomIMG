@@ -123,7 +123,7 @@ class SemanticSegmentation(Base):
 
             if valid_img_path_list is not None:
                 bar.n = 0
-                bar.total = len(valid_dist) // batch_size
+                bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)

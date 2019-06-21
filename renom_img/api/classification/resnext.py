@@ -13,6 +13,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.target import DataBuilderClassification
 from renom_img.api.cnn.resnext import CnnResNeXt, Bottleneck
 from renom_img.api.utility.optimizer import OptimizerResNeXt
+from renom_img.api.utility.exceptions.check_exceptions import check_resnext_init
 
 RESIZE_METHOD = Image.BILINEAR
 
@@ -167,6 +168,8 @@ class ResNeXt50(Classification):
         __version__)
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        # exceptions checking
+        check_resnext_init(plateau,cardinality)
 
         self.cardinality = cardinality
 
@@ -220,6 +223,8 @@ class ResNeXt101(Classification):
         __version__)
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        # exceptions checking
+        check_resnext_init(plateau,cardinality)
 
         self.cardinality = cardinality
 

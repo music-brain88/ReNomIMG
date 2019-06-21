@@ -10,6 +10,7 @@ from tqdm import tqdm
 from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 
 def adddoc(cls):
@@ -45,6 +46,9 @@ class Base(rm.Model):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False, load_target=None):
 
+        # for Exceptions check
+        check_for_common_init_params(class_map,imsize,load_pretrained_weight,train_whole_network,load_target)
+
         # 0. General setting.
         self.default_optimizer = rm.Sgd(0.001, 0.9)
 
@@ -71,8 +75,6 @@ class Base(rm.Model):
         # 4. Load pretrained weight.
         self.load_pretrained_weight = load_pretrained_weight
         if load_pretrained_weight and load_target is not None:
-            assert self.WEIGHT_URL, \
-                "The class '{}' has no pretrained weight.".format(self.__class__.__name__)
 
             if isinstance(load_pretrained_weight, bool):
                 weight_path = self.__class__.__name__ + '.h5'
@@ -212,7 +214,7 @@ class Base(rm.Model):
 
             if valid_img_path_list is not None:
                 bar.n = 0
-                bar.total = len(valid_dist) // batch_size
+                bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)
@@ -261,9 +263,6 @@ class Base(rm.Model):
         """
         pass
 
-    def _freeze(self):
-        pass
-
     def forward(self, x):
         """
         Performs forward propagation.
@@ -272,8 +271,5 @@ class Base(rm.Model):
         Args:
             x(ndarray, Node): Input to ${class}.
         """
-        assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
-            "Or, please load a pre-trained model using the 'load()' method."
-        self._freeze()
+        check_common_forward(x)
         return self.model(x)

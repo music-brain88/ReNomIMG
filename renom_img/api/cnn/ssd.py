@@ -9,6 +9,7 @@ from renom_img.api import Base, adddoc
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.exceptions.exceptions import *
 
 def layer_factory(channel=32, conv_layer_num=2):
     layers = []
@@ -243,36 +244,9 @@ class CnnSSD(CnnBase):
         pass
 
     def load_pretrained_weight(self,path):
-        self._feature_extractor.load(path)        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        try:
+            self._feature_extractor.load(path)
+        except:
+            raise WeightLoadError('Following path {} can not be loaded to the class {}.'.format(path,self.__class__))
 
  

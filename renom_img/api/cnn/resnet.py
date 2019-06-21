@@ -12,6 +12,7 @@ from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.target import DataBuilderClassification
 from renom_img.api.cnn import CnnBase
+from renom_img.api.utility.exceptions.exceptions import *
 
 
 
@@ -153,6 +154,9 @@ class CnnResNet(CnnBase):
         self.layer4.set_auto_update(self.train_whole)
 
     def load_pretrained_weight(self,path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('Followng path {} can not be loaded to class {}.'.format(path,self.__class__))
 
 

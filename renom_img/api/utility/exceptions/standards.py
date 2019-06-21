@@ -1,6 +1,5 @@
 import renom as rm
 import numpy as np
-#from renom_img.api.detection.yolo_v2 import AnchorYolov2
 
 class StandardInit:
     def __init__(self):
@@ -10,7 +9,7 @@ class StandardInit:
     def build_standards(self):
         self.standards={'class_map':{
                             'value':[str],
-                            'type':[None,list,dict],
+                            'type':[type(None),list,dict],
                             'range':[1,10000]},
                         'imsize':{
                             'value':[int],
@@ -121,23 +120,4 @@ class StandardYolov2Forward(StandardForward):
                             'range':[2,20]} 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-         
 

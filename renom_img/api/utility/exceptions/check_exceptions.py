@@ -9,7 +9,8 @@ def check_for_common_init_params(class_map,imsize,load_pretrained_weight,train_w
     # value check
     standards = standard_obj.get_standards()
     try:
-        assert all(isinstance(k,standards['class_map']['value'][0]) for k in class_map),"Invalid value encounter in class_map. Type must be string.{}".format(class_map)
+        if class_map is not None:
+            assert all(isinstance(k,standards['class_map']['value'][0]) for k in class_map),"Invalid value encounter in class_map. Type must be string.{}".format(class_map)
     
         if isinstance(imsize,tuple):
             assert all(isinstance(k,standards['imsize']['value'][0]) for k in imsize),"Invalid value encounter in imsize.{}".format(imsize)
@@ -34,7 +35,8 @@ def check_for_common_init_params(class_map,imsize,load_pretrained_weight,train_w
     
     # check range limit
     try:
-        assert len(class_map) >= standards['class_map']['range'][0] and len(class_map)<=standards['class_map']['range'][1],"length of class_map is invalid."
+        if class_map is not None:
+            assert len(class_map) >= standards['class_map']['range'][0] and len(class_map)<=standards['class_map']['range'][1],"length of class_map is invalid."
         if type(imsize) is tuple:
             assert imsize[0] >= standards['imsize']['range'][0] and imsize[0] <= standards['imsize']['range'][1] and imsize[1] >= standards['imsize']['range'][0] and imsize[1] <= standards['imsize']['range'][1],"imsize exceed the range."
         else:
@@ -137,7 +139,6 @@ def check_common_forward(x):
         x
     except:
         raise MissingParamError('x is missing in the forward function. Please call forward with valid image data.')
-
     try:
         assert type(x) in std['type'],"type of x is invalid."
         assert len(x.shape)== std['length'],"shape of x is invalid in forward."
