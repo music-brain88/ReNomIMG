@@ -13,7 +13,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.target import DataBuilderClassification
 from renom_img.api.cnn.resnext import CnnResNeXt, Bottleneck
 from renom_img.api.utility.optimizer import OptimizerResNeXt
-from renom_img.api.utility.exceptions.check_exceptions import check_resnext_init
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 RESIZE_METHOD = Image.BILINEAR
 
@@ -107,6 +107,7 @@ class TargetBuilderResNeXt():
         Returns:
             (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path, self.imsize)[None]
                                    for path in img_path_list])

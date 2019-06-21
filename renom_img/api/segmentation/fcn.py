@@ -15,7 +15,7 @@ from renom.layers.function.pool2d import pool_base, max_pool2d
 from renom.layers.function.utils import tuplize
 from renom_img.api.utility.optimizer import FCN_Optimizer
 from renom_img.api.utility.load import load_img
-from renom_img.api.utility.exceptions.check_exceptions import check_fcn_init
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 MEAN_BGR = np.array([104.00698793, 116.66876762, 122.67891434])
 RESIZE_METHOD = Image.BILINEAR
@@ -112,6 +112,7 @@ class TargetBuilderFCN():
             (tuple): Batch of images and ndarray whose shape is **(batch size, #classes, width, height)**
 
         """
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path, self.imsize)[None]
                                    for path in img_path_list])
