@@ -246,12 +246,6 @@ def error_message_model_hyper_params(hyper_params):
         m = error_message_batch(hyper_params["batch"])
         if len(m) > 0:
             messages.append(m)
-
-        # TODO: check cell
-        # TODO: check bbox
-        # TODO: check pre trained weight
-        # TODO: check train whole network
-
     return messages
 
 
