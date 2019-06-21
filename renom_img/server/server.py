@@ -42,16 +42,15 @@ from renom_img.server import DATASET_IMG_DIR, DATASET_LABEL_CLASSIFICATION_DIR, 
 from renom_img.server import DATASET_NAME_MAX_LENGTH, DATASET_NAME_MIN_LENGTH, \
     DATASET_DESCRIPTION_MAX_LENGTH, DATASET_DESCRIPTION_MIN_LENGTH, \
     DATASET_RATIO_MAX, DATASET_RATIO_MIN, EPOCH_MAX, EPOCH_MIN, \
-    BATCH_MAX, BATCH_MIN, CELL_MAX, CELL_MIN, \
-    BBOX_MAX, BBOX_MIN, TASK_ID_BY_NAME
+    BATCH_MAX, BATCH_MIN, TASK_ID_BY_NAME, ERROR_MESSAGE_TEMPLATE
 
 from renom_img.server.utility.setup_example import setup_example
 from renom_img.server.utility.formatter import get_formatter_resolver
 
-from renom_img.server.utility.error import (ReNomIMGError, ForbiddenError, NotFoundError, \
+from renom_img.server.utility.error import ReNomIMGError, ForbiddenError, NotFoundError, \
     MethodNotAllowedError, ServiceUnavailableError, MissingRequestParamError, \
     InvalidRequestParamError, DatasetNotFoundError, ModelNotFoundError, WeightNotFoundError, \
-    ModelRunningError, MemoryOverflowError, DirectoryNotFound, TaskNotFoundError)
+    ModelRunningError, MemoryOverflowError, DirectoryNotFound, TaskNotFoundError
 
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
@@ -134,34 +133,46 @@ def check_weight_exists(filepath):
 
 def error_message_dataset_name(name):
     message = ""
+    param_name = "Dataset name"
     if name is None:
-        message = "Dataset name is required. Please input 1 ~ 128 characters."
+        desc = "is required"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_NAME_MIN_LENGTH, DATASET_NAME_MAX_LENGTH)
     elif len(name) < DATASET_NAME_MIN_LENGTH:
-        message = "Dataset name is too short. Please input 1 ~ 128 characters."
+        desc = "too short"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_NAME_MIN_LENGTH, DATASET_NAME_MAX_LENGTH)
     elif len(name) > DATASET_NAME_MAX_LENGTH:
-        message = "Dataset name is too long. Please input 1 ~ 128 characters."
+        desc = "too long"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_NAME_MIN_LENGTH, DATASET_NAME_MAX_LENGTH)
     return message
 
 
 def error_message_dataset_ratio(ratio):
     message = ""
+    param_name = "Dataset ratio"
     if ratio is None:
-        message = "Dataset ratio is required. Please input 0.1 ~ 0.9."
+        desc = "is required"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
     elif not is_float(ratio):
-        message = "Dataset ratio must be float value. Please input 0.1 ~ 0.9."
+        desc = "must be float value"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
     elif float(ratio) < DATASET_RATIO_MIN:
-        message = "Dataset description is too small. Please input 0.1 ~ 0.9."
+        desc = "is too small"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
     elif float(ratio) > DATASET_RATIO_MAX:
-        message = "Dataset description is too large. Please input 0.1 ~ 0.9."
+        desc = "is too large"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
     return message
 
 
 def error_message_dataset_desc(desc):
     message = ""
+    param_name = "Dataset description"
     if len(desc) < DATASET_DESCRIPTION_MIN_LENGTH:
-        message = "Dataset description is too short. Please input 0 ~ 1024 characters."
+        desc = "too short"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_DESCRIPTION_MIN_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH)
     elif len(desc) > DATASET_DESCRIPTION_MAX_LENGTH:
-        message = "Dataset description is too long. Please input 0 ~ 1024 characters."
+        desc = "too long"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_DESCRIPTION_MIN_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH)
     return message
 
 
@@ -208,27 +219,37 @@ def error_message_model_algorithm_id(algorithm_id):
 
 def error_message_epoch(epoch):
     message = ""
+    param_name = "Hyperparameter epoch"
     if epoch is not None:
-        message = "Hyperparameter epoch is not exists. Please input {} ~ {}.".format(EPOCH_MIN, EPOCH_MAX)
+        desc = "is required"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
     elif is_int(epoch):
-        message = "Hyperparameter epoch must be integer. Please input {} ~ {}.".format(EPOCH_MIN, EPOCH_MAX)
+        desc = "must be integer"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
     elif is_int(epoch) < EPOCH_MIN:
-        message = "Hyperparameter epoch is too small. Please input {} ~ {}.".format(EPOCH_MIN, EPOCH_MAX)
+        desc = "is too small"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
     elif is_int(epoch) > EPOCH_MAX:
-        message = "Hyperparameter epoch is too large. Please input {} ~ {}.".format(EPOCH_MIN, EPOCH_MAX)
+        desc = "is too large"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
     return message
 
 
 def error_message_batch(batch):
     message = ""
+    param_name = "Hyperparameter batch"
     if batch is not None:
-        message = "Hyperparameter batch is not exists. Please input {} ~ {}.".format(BATCH_MIN, BATCH_MAX)
+        desc = "is required"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
     elif is_int(batch):
-        message = "Hyperparameter batch must be integer. Please input {} ~ {}.".format(BATCH_MIN, BATCH_MAX)
+        desc = "must be integer"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
     elif is_int(batch) < BATCH_MIN:
-        message = "Hyperparameter batch is too small. Please input {} ~ {}.".format(BATCH_MIN, BATCH_MAX)
+        desc = "is too small"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
     elif is_int(batch) > BATCH_MAX:
-        message = "Hyperparameter batch is too large. Please input {} ~ {}.".format(BATCH_MIN, BATCH_MAX)
+        desc = "is too large"
+        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
     return message
 
 
@@ -286,6 +307,7 @@ def check_dir_exists(dirname):
         raise DirectoryNotFound()
 
 
+# To use dataset list, because dataset detail Information is not shown in dataset list.
 def dataset_to_light_dict(dataset):
     return {
         'id': dataset["id"],
@@ -316,6 +338,7 @@ def dataset_to_dict(dataset):
     }
 
 
+# To use model list, model detail information is not shown in model list.
 def model_to_light_dict(model):
     return {
         "id": model["id"],
@@ -327,7 +350,7 @@ def model_to_light_dict(model):
         "running_state": model["running_state"],
         "train_loss_list": [],
         "valid_loss_list": [],
-        "best_epoch_valid_result": {},
+        "best_epoch_valid_result": {},  # TODO: modify only evaluation value return
         "total_epoch": model["total_epoch"],
         "nth_epoch": model["nth_epoch"],
         "total_batch": model["total_batch"],
@@ -471,6 +494,7 @@ def json_encoder(obj):
         return obj.isoformat()
 
 
+# deprecated
 def json_handler(func):
     def wrapped(*args, **kwargs):
         global respopnse_cache
@@ -1389,13 +1413,13 @@ def create_dataset(task_name):
     file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
                   if name.is_file()]
 
+    # ckeck test dataset exists
     if test_dataset_id > 0:
         test_dataset = storage.fetch_test_dataset(test_dataset_id)
-        test_dataset = set([pathlib.Path(test_path).relative_to(img_dir)
+        test_dataset_files = set([pathlib.Path(test_path).relative_to(img_dir)
                             for test_path in test_dataset['data']['img']])
-
         # Remove test files.
-        file_names = file_names - test_dataset
+        file_names = file_names - test_dataset_files
 
     img_files = [str(img_dir / name) for name in file_names]
 
@@ -1421,12 +1445,7 @@ def create_dataset(task_name):
     train_target = ndarray_to_list(train_target)
     valid_target = ndarray_to_list(valid_target)
 
-    # Load test Dataset if exists.
-    if test_dataset_id > 0:
-        test_dataset = storage.fetch_test_dataset(test_dataset_id)
-        test_ratio = []
-    else:
-        test_ratio = []
+    test_ratio = []
 
     # count tag list
     if task_id == Task.CLASSIFICATION.value:
@@ -1506,7 +1525,8 @@ def update_dataset(task_name, dataset_id):
     """
     update dataset
     """
-    # TODO: 仮登録したデータセットを本登録する。
+    # TODO: Add dataset registration status columns in dataset table.
+    # TODO: Register temporaly registed dataset.
     task_exists(task_name)
     return create_response({}, status=204)
 
@@ -1532,10 +1552,12 @@ def get_models(task_name):
     req_params = request.params
     state = req_params.state
 
-    # TODO: stateに合わせてDBから取得するモデルをかえる
-    models = storage.fetch_models_of_task(task_id)
-    # models = storage.fetch_running_models(task_id)
-    # models = storage.fetch_deployed_model(task_id)
+    if state == "running":
+        models = storage.fetch_running_models(task_id)
+    elif state == "deployed":
+        models = storage.fetch_deployed_model(task_id)
+    else:
+        models = storage.fetch_models_of_task(task_id)
 
     ret = {'models': [model_to_light_dict(m) for m in models]}
     return create_response(ret, status=200)
@@ -1635,7 +1657,6 @@ def download_model_weight(task_name, model_id):
     """
     download model weight file
     """
-    # This method will be called from python script.
     task_exists(task_name)
     model = storage.fetch_model(model_id)
     check_model_exists(model)
@@ -1673,10 +1694,8 @@ def run_train(task_name):
     return response
 
 
-# TODO
-# train_idから学習の進捗をとれるようにする
-# 学習が動くホストが変わったら必要になる?
-# @route("/renom_img/v2/api/detection/train/<train_id:int>", method="GET")
+# TODO: getting train status from train_id.
+# @route("/renom_img/v2/api/<task_name>/train/<train_id:int>", method="GET")
 @route("/renom_img/v2/api/<task_name>/train", method="GET")
 @error_handler
 def get_train_status(task_name):
@@ -1765,9 +1784,7 @@ def get_train_status(task_name):
         }
 
 
-# TODO
-# train_idから学習を停止する
-# 学習が動くホストが変わったら必要になる?
+# TODO: Stop train from train_id.
 # @route("/renom_img/v2/api/detection/train/<train_id:int>", method="DELETE")
 @route("/renom_img/v2/api/<task_name>/train", method="DELETE")
 @error_handler
@@ -1881,13 +1898,13 @@ def get_prediction_result(task_name):
     model = storage.fetch_model(model_id)
     prediction = model["last_prediction_result"]
 
-    # formatごとにデータの整形を行う
+    # Shaping data by task & format.
     resolver = get_formatter_resolver(task_id)
     formatter = resolver.resolve(format)
     df = formatter.format(prediction)
 
-    # 整形済みデータを出力
-    # formatが増えたら以下のようにモジュール化した方がよさそう
+    # Export shaped data.
+    # It is better to create writer for increasing format.
     # writer = get_writer(format)
     # writer.write(df, filename)
     df.to_csv(filename)

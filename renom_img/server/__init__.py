@@ -94,3 +94,6 @@ TASK_ID_BY_NAME = {
     "detection": Task.DETECTION.value,
     "segmentation": Task.SEGMENTATION.value,
 }
+
+# name, description, min, max
+ERROR_MESSAGE_TEMPLATE = "{} {}. Please input {} ~ {}."
