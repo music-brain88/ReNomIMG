@@ -176,15 +176,15 @@ def check_common_learning_rate(lr):
     obj = StandardLR()
     std = obj.get_standards()
     try:
-        assert type(lr) in std['LR']['type'],"Type of learning rate is invalid. ReNomIMG only accepts float learning rate."
-        assert lr >= std['LR']['range'][0] and lr < std['LR']['range'][1], "Abnormal learning rate is selected. Expected range: {}".format(std['LR']['range'])
+        assert type(lr) in std['LR']['type'],"Invalid type for learning rate argument. Please provide a {} type.".format(std['LR']['type'])
+        assert lr >= std['LR']['range'][0] and lr < std['LR']['range'][1], "Invalid value for learning rate argument. Please provide values between {} and {}".format(std['LR']['range'][0], std['LR']['range'][1])
 
     except Exception as e:
         raise LearningRateError(str(e))
 
 def check_missing_param(class_map):
     try:
-        assert len(class_map)>0, "class_map must be defined or pretrained wegiht should be loaded."
+        assert len(class_map)>0, "class_map not defined. Please define a class_map or load pretrained weights that contain a class_map."
     except Exception as e:
         raise MissingParamError(str(e))
 
