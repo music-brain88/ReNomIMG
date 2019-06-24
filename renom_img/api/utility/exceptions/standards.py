@@ -1,6 +1,7 @@
 import renom as rm
 import numpy as np
 
+
 class StandardInit:
     def __init__(self):
         self.standards = {}
@@ -25,52 +26,56 @@ class StandardInit:
                        }
 
     def get_standards(self):
-        return self.standards    
+        return self.standards
+
 
 class StandardResNetInit(StandardInit):
     def __init__(self):
-        super(StandardResNetInit,self).__init__()
+        super(StandardResNetInit, self).__init__()
         self.build_standards()
 
     def build_standards(self):
-        self.standards['plateau']={
-            'type':[bool]}
+        self.standards['plateau'] = {
+            'type': [bool]}
 
-class StandardResNextInit(StandardInit):
     def __init__(self):
         super(StandardResNextInit, self).__init__()
         self.build_standards()
 
     def build_standards(self):
-        self.standards['plateau']={
-                            'type':[bool]}
-        self.standards['cardinality']={
-                            'range':[1,256]}
+        self.standards['plateau'] = {
+            'type': [bool]}
+        self.standards['cardinality'] = {
+            'type': [int],
+            'range': [1, 256]}
+
 
 class StandardYolov1Init(StandardInit):
     def __init__(self):
-        super(StandardYolov1Init,self).__init__()
+        super(StandardYolov1Init, self).__init__()
         self.build_standards()
 
     def build_standards(self):
-        self.standards['cells']={
-                            'type':[int,tuple],
-                            'range':[1,20]}
-        self.standards['bbox']={
-                            'type':[int],
-                            'range':[2,20]}
+        self.standards['cells'] = {
+            'type': [int, tuple],
+            'range': [1, 20]}
+        self.standards['bbox'] = {
+            'type': [int],
+            'range': [2, 20]}
+
 
 class StandardYolov2Init(StandardInit):
     def __init__(self):
-        super(StandardYolov2Init,self).__init__()
+        super(StandardYolov2Init, self).__init__()
         self.build_standards()
 
     def build_standards(self):
-        self.standards['multiple']=32
+        self.standards['multiple'] = 32
+
 
 class StandardSSDInit(StandardInit):
     def __init__(self):
-        super(StandardSSDInit,self).__init__()
+        super(StandardSSDInit, self).__init__()
         self.build_standards()
 
     def build_standards(self):
@@ -82,12 +87,13 @@ class StandardSSDInit(StandardInit):
 
 class StandardFCNInit(StandardInit):
     def __init__(self):
-        super(StandardFCNInit,self).__init__()
+        super(StandardFCNInit, self).__init__()
         self.build_standards()
 
     def build_standards(self):
-        self.standards['upscore']={
-                            'type':[bool]}
+        self.standards['upscore'] = {
+            'type': [bool]}
+
 
 class StandardForward:
     def __init__(self):
@@ -95,17 +101,18 @@ class StandardForward:
         self.build_standards()
 
     def build_standards(self):
-        self.standards={
-                'value':[int,float,np.float32,np.float64],
-                'type':[np.ndarray,rm.Variable],
-                'length':4}
+        self.standards = {
+            'value': [int, np.float32, np.float64],
+            'type': [np.ndarray, rm.Variable],
+            'length': 4}
 
     def get_standards(self):
         return self.standards
 
+
 class StandardYolov2Forward(StandardForward):
     def __init__(self):
-        super(StandardYolov2Forward,self).__init__()
+        super(StandardYolov2Forward, self).__init__()
         self.build_standards()
 
     def build_standards(self):
