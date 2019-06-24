@@ -99,12 +99,12 @@ class Darknet19(Classification):
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
-        self.model = CnnDarknet19()
+        self._model = CnnDarknet19()
 
-        super(Darknet19, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+        super(Darknet19, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_train_whole(train_whole_network)
-        self.model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
         self.default_optimizer = OptimizerDarknet19()
         self.decay_rate = 0.0005
 

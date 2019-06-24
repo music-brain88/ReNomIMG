@@ -189,12 +189,12 @@ class FCN32s(SemanticSegmentation):
         # check for exceptions
         check_fcn_init(train_final_upscore)
 
-        self.model = CNN_FCN32s(1)
+        self._model = CNN_FCN32s(1)
 
         super(FCN32s, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, load_target=self.model)
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network, train_final_upscore)
+                                     load_pretrained_weight, train_whole_network, load_target=self._model)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network, train_final_upscore)
         self.decay_rate = 5e-4
         self.default_optimizer = FCN_Optimizer()
 
@@ -241,13 +241,13 @@ class FCN16s(SemanticSegmentation):
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
-        self.model = CNN_FCN16s(1)
+        self._model = CNN_FCN16s(1)
 
         super(FCN16s, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, load_target=self.model)
+                                     load_pretrained_weight, train_whole_network, load_target=self._model)
 
-        self.model.set_train_whole(train_whole_network, train_final_upscore)
-        self.model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network, train_final_upscore)
+        self._model.set_output_size(self.num_class)
         self.decay_rate = 5e-4
         self.default_optimizer = FCN_Optimizer()
 
@@ -294,12 +294,12 @@ class FCN8s(SemanticSegmentation):
 
     def __init__(self, class_map=None, train_final_upscore=False, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
-        self.model = CNN_FCN8s(1)
+        self._model = CNN_FCN8s(1)
 
         super(FCN8s, self).__init__(class_map, imsize,
-                                    load_pretrained_weight, train_whole_network, load_target=self.model)
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network, train_final_upscore)
+                                    load_pretrained_weight, train_whole_network, load_target=self._model)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network, train_final_upscore)
         self.decay_rate = 5e-4
         self.default_optimizer = FCN_Optimizer()
 

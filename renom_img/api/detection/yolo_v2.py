@@ -18,6 +18,7 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.nms import nms
 from renom_img.api.utility.optimizer import BaseOptimizer, OptimizerYolov2
 from renom_img.api.utility.exceptions.check_exceptions import *
+from renom_img.api.utility.exceptions.exceptions import WeightLoadError
 
 class BestAnchorBoxFinder(object):
     def __init__(self, ANCHORS):
@@ -313,18 +314,95 @@ class Yolov2(Detection):
         # Exceptions checking
         check_yolov2_init(imsize)
 
-        self.model = CnnYolov2()
+        self._model = CnnYolov2()
         super(Yolov2, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, self.model)
+                                     load_pretrained_weight, train_whole_network, self._model)
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
         self.default_optimizer = OptimizerYolov2()
 
 
-        self.model.set_output_size((self.num_class + 5)*self.num_anchor,self.class_map,self.num_anchor)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size((self.num_class + 5)*self.num_anchor,self.class_map,self.num_anchor)
+        self._model.set_train_whole(train_whole_network)
         self.decay_rate = 0.0005
+
+    def load(self, filename):
+        """Load saved weights to model.
+
+        Args:
+            filename (str): File name of saved model.
+
+        Example:
+            >>> model = rm.Dense(2)
+            >>> model.load("model.hd5")
+        """
+        import h5py
+        f = h5py.File(filename, 'r+')
+        values = f['values']
+        types = f['types']
+
+        names = sorted(values.keys())
+
+        try:
+            self._try_load(names,values,types)
+        except AttributeError as e:
+            try:
+                names,values,types = self._mapping(names,values,types)
+                self._try_load(names,values,types)
+            except Exception as e:
+                raise WeightLoadError('{} weight file can not be loaded to the model.'.format(filename))
+
+    def _mapping(self,names,values,types):
+        for name in names:
+            if "._freezed_network" in name:
+                values[name.replace("._freezed_network","._model._base")] = values.pop(name)
+                types[name.replace("._freezed_network","._model._base")] = types.pop(name)
+            elif "root." in name:
+                values[name.replace("root.","root._model.")] = values.pop(name)
+                types[name.replace("root.","root._model.")] = types.pop(name)
+
+        names = [n.replace("root.","root._model.") for n in names]
+        names = [n.replace("._freezed_network","._base") for n in names]
+
+        return sorted(names),values,types
+
+    def _try_load(self,names,values,types):
+
+        def get_attr(root, names):
+            names = names.split('.')[1:]
+            ret = root
+            for name in names:
+                ret = getattr(ret, name)
+            return ret
+
+        target = self
+        for name in names:
+            target = get_attr(self, name)
+
+            values_grp = values[name]
+            types_grp = types[name]
+
+            for k, v in values_grp.items():
+                v = v.value
+                if isinstance(v, np.ndarray):
+                    type = types_grp.get(k, None)
+                    if type:
+                        if type.value == 'renom.Variable':
+                            auto_update = types_grp[k + '._auto_update'].value
+                            v = rm.Variable(v, auto_update=auto_update)
+                        else:
+                            v = rm.Node(v)
+
+                if k.startswith('__dict__.'):
+                    obj = target
+                    name = k.split(".", 1)[1]
+                else:
+                    obj = target.params
+                    name = k
+
+                setattr(obj, name, v)
+
 
     def forward(self, x):
         """
@@ -335,8 +413,8 @@ class Yolov2(Detection):
             x(ndarray, Node): Input to ${class}.
         """
         check_yolov2_forward(self.anchor,x)
-        self.model.set_anchor(self.num_anchor)
-        return self.model(x)
+        self._model.set_anchor(self.num_anchor)
+        return self._model(x)
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """

@@ -165,16 +165,16 @@ class UNet(SemanticSegmentation):
 
     def __init__(self, class_map=None, imsize=(256, 256), load_pretrained_weight=False, train_whole_network=False):
 
-        self.model = CNN_UNet(1)
+        self._model = CNN_UNet(1)
 
         assert not load_pretrained_weight, "The pretrained weights for %s are not \
             currently available. Please set `load_pretrained_weight` flag to False." % self.__class__.__name__
 
         super(UNet, self).__init__(class_map, imsize,
-                                   load_pretrained_weight, train_whole_network, self.model)
+                                   load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_train_whole(train_whole_network)
-        self.model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
 
         self.default_optimizer = OptimizerUNet()
         self.decay_rate = 0.00002
