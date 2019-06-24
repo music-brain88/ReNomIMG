@@ -11,7 +11,7 @@ from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.exceptions.check_exceptions import *
-from renom_img.api.utility.exceptions.exceptions import InvalidDataError
+from renom_img.api.utility.exceptions.exceptions import InvalidDataError, OptimizerError
 
 def adddoc(cls):
     """Insert parent doc strings to inherited class.
@@ -180,7 +180,8 @@ class Base(rm.Model):
             opt = self.default_optimizer
         else:
             opt = optimizer
-        assert opt is not None
+        if opt is None:
+            raise OptimizerError("Optimizer is not defined. Please define a valid optimizer.")
         if isinstance(opt, BaseOptimizer):
             opt.setup(batch_loop, epoch)
 

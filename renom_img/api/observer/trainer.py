@@ -142,7 +142,7 @@ class ObservableTrainer():
                     loss = float(loss)
                     # Exception checking
                     try:
-                        assert not np.isnan(loss),"Loss becomes NAN."
+                        assert not np.isnan(loss),"Loss value has become NAN. Please consider training with different hyper-parameters."
                     except Exception as e:
                         raise LossError(str(e))
                     display_loss+=loss
