@@ -42,6 +42,7 @@ class AppObserver(TrainObserverBase):
 
     def update_epoch(self, result):
         self.ts.nth_epoch = result["epoch"]
+        self.ts.train_loss_list.append(result["loss"])
         self.ts.sync_train_loss()
         self.ts.updated = True
 
