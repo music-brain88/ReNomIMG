@@ -47,7 +47,7 @@ from renom_img.server import DATASET_NAME_MAX_LENGTH, DATASET_NAME_MIN_LENGTH, \
 from renom_img.server.utility.setup_example import setup_example
 from renom_img.server.utility.formatter import get_formatter_resolver
 
-from renom_img.server.utility.error import ReNomIMGError, ForbiddenError, NotFoundError, \
+from renom_img.server.utility.error import ReNomIMGServerError, ForbiddenError, NotFoundError, \
     MethodNotAllowedError, ServiceUnavailableError, MissingRequestParamError, \
     InvalidRequestParamError, DatasetNotFoundError, ModelNotFoundError, WeightNotFoundError, \
     ModelRunningError, MemoryOverflowError, DirectoryNotFound, TaskNotFoundError
@@ -79,8 +79,8 @@ def create_response(body, status=200):
 
 
 def create_error_response(error, status=500):
-    if not isinstance(error, ReNomIMGError):
-        error = ReNomIMGError("Unkown error occured.")
+    if not isinstance(error, ReNomIMGServerError):
+        error = ReNomIMGServerError("Unkown error occured.")
     body = {"error": {"code": error.code, "message": error.message}}
     return create_response(body, status=status)
 
