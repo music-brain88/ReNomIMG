@@ -48,7 +48,7 @@ from renom_img.server.utility.setup_example import setup_example
 from renom_img.server.utility.formatter import get_formatter_resolver
 
 from renom_img.server.utility.error import ReNomIMGServerError, ForbiddenError, NotFoundError, \
-    MethodNotAllowedError, ServiceUnavailableError, MissingRequestParamError, \
+    MethodNotAllowedError, ServiceUnavailableError, \
     InvalidRequestParamError, DatasetNotFoundError, ModelNotFoundError, WeightNotFoundError, \
     ModelRunningError, MemoryOverflowError, DirectoryNotFound, TaskNotFoundError
 
@@ -315,10 +315,13 @@ def dataset_to_light_dict(dataset):
         'description': dataset["description"],
         'task_id': dataset["task_id"],
         'ratio': dataset["ratio"],
-        'class_map': [],
-        'class_info': {},
-        'train_data': {},
-        'valid_data': {},
+        # 'class_map': [], TODO:なぜ空白にしたのか？
+        'class_map': dataset["class_map"],
+        # 'class_info': {}, TODO:なぜ空白にしたのか？
+        'class_info': dataset["class_info"],
+        'train_data': {},   # 元のにはなかったがなぜ増えている？
+        # 'valid_data': {}, TODO:なぜ空白にしたのか？
+        'valid_data': dataset["valid_data"],
         'test_dataset_id': dataset["test_dataset_id"]
     }
 
@@ -528,7 +531,7 @@ def error_handler(func):
         try:
             ret = func(*args, **kwargs)
             return ret
-        except (MissingRequestParamError, InvalidRequestParamError) as e:
+        except (InvalidRequestParamError) as e:
             logging_error(e)
             return create_error_response(e, status=400)
         except (TaskNotFoundError, DatasetNotFoundError, ModelNotFoundError, WeightNotFoundError) as e:
@@ -1371,7 +1374,7 @@ def get_deployed_model_info(task_id):
 
 
 ### New API ###
-@route("/renom_img/v2/api/<task_name>/datasets", method="GET")
+@route("/api/renom_img/v2/api/<task_name>/datasets", method="GET")
 @error_handler
 def get_datasets(task_name):
     """
@@ -1382,8 +1385,27 @@ def get_datasets(task_name):
     ret = {"datasets": [dataset_to_light_dict(d) for d in datasets]}
     return create_response(ret, status=200)
 
+    # TODO：旧書式の下記の書き方だと正常にデータ取得可能。色々変わっている模様。
+    # datasets = storage.fetch_datasets_of_task(task_id)
+    # return {
+    #     "datasets": [
+    #         {
+    #             'id': d["id"],
+    #             'name': d["name"],
+    #             'class_map': d["class_map"],
+    #             'task_id': d["task_id"],
+    #             'valid_data': d["valid_data"],
+    #             'ratio': d["ratio"],
+    #             'description': d["description"],
+    #             'test_dataset_id': d["test_dataset_id"],
+    #             'class_info': d["class_info"],
+    #         }
+    #         for d in datasets
+    #     ]
+    # }
 
-@route("/renom_img/v2/api/<task_name>/datasets", method="POST")
+
+@route("/api/renom_img/v2/api/<task_name>/datasets", method="POST")
 @error_handler
 def create_dataset(task_name):
     """
@@ -1501,12 +1523,12 @@ def create_dataset(task_name):
         }
     }
     response = create_response(ret, status=201)
-    location = "/renom_img/v2/api/detection/datasets/{}".format(dataset_id)
+    location = "/api/renom_img/v2/api/detection/datasets/{}".format(dataset_id)
     response.set_header('Location', location)
     return response
 
 
-@route("/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="GET")
+@route("/api/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="GET")
 @error_handler
 def get_dataset(task_name, dataset_id):
     """
@@ -1519,7 +1541,7 @@ def get_dataset(task_name, dataset_id):
     return create_response(ret, status=200)
 
 
-@route("/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="PUT")
+@route("/api/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="PUT")
 @error_handler
 def update_dataset(task_name, dataset_id):
     """
@@ -1531,7 +1553,7 @@ def update_dataset(task_name, dataset_id):
     return create_response({}, status=204)
 
 
-@route("/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="DELETE")
+@route("/api/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="DELETE")
 @error_handler
 def delete_dataset(task_name, dataset_id):
     """
@@ -1542,7 +1564,7 @@ def delete_dataset(task_name, dataset_id):
     return create_response({}, status=204)
 
 
-@route("/renom_img/v2/api/<task_name>/models", method="GET")
+@route("/api/renom_img/v2/api/<task_name>/models", method="GET")
 @error_handler
 def get_models(task_name):
     """
@@ -1563,7 +1585,7 @@ def get_models(task_name):
     return create_response(ret, status=200)
 
 
-@route("/renom_img/v2/api/<task_name>/models", method="POST")
+@route("/api/renom_img/v2/api/<task_name>/models", method="POST")
 @error_handler
 def create_model(task_name):
     """
@@ -1590,12 +1612,12 @@ def create_model(task_name):
         }
     }
     response = create_response(ret, status=201)
-    location = "/renom_img/v2/api/{}/models/{}".format(task_name, new_id)
+    location = "/api/renom_img/v2/api/{}/models/{}".format(task_name, new_id)
     response.set_header('Location', location)
     return response
 
 
-@route("/renom_img/v2/api/<task_name>/models/<model_id:int>", method="GET")
+@route("/api/renom_img/v2/api/<task_name>/models/<model_id:int>", method="GET")
 @error_handler
 def get_model(task_name, model_id):
     """
@@ -1608,7 +1630,7 @@ def get_model(task_name, model_id):
     return create_response(ret, status=200)
 
 
-@route("/renom_img/v2/api/<task_name>/models/<model_id:int>", method="PUT")
+@route("/api/renom_img/v2/api/<task_name>/models/<model_id:int>", method="PUT")
 @error_handler
 def update_model(task_name, model_id):
     """
@@ -1632,7 +1654,7 @@ def update_model(task_name, model_id):
     return create_response({}, status=204)
 
 
-@route("/renom_img/v2/api/<task_name>/models/<model_id:int>", method="DELETE")
+@route("/api/renom_img/v2/api/<task_name>/models/<model_id:int>", method="DELETE")
 @error_handler
 def delete_model(task_name, model_id):
     """
@@ -1651,7 +1673,7 @@ def delete_model(task_name, model_id):
     return create_response({}, status=204)
 
 
-@route("/renom_img/v2/api/<task_name>/models/<model_id:int>/weight", method="GET")
+@route("/api/renom_img/v2/api/<task_name>/models/<model_id:int>/weight", method="GET")
 @error_handler
 def download_model_weight(task_name, model_id):
     """
@@ -1668,7 +1690,7 @@ def download_model_weight(task_name, model_id):
     return static_file(file_name, root=".", download=download_filename)
 
 
-@route("/renom_img/v2/api/<task_name>/train", method="POST")
+@route("/api/renom_img/v2/api/<task_name>/train", method="POST")
 @error_handler
 def run_train(task_name):
     """
@@ -1688,15 +1710,15 @@ def run_train(task_name):
     # TODO: set train_id to thread
     # train_id = 1
     # response = create_response({"train": {"train_id": train_id}}, status=201)
-    # location = "/renom_img/v2/api/detection/train/{}".format(train_id)
+    # location = "/api/renom_img/v2/api/detection/train/{}".format(train_id)
     # response.set_header('Location', location)
     response = create_response({"status": "success"}, status=201)
     return response
 
 
 # TODO: getting train status from train_id.
-# @route("/renom_img/v2/api/<task_name>/train/<train_id:int>", method="GET")
-@route("/renom_img/v2/api/<task_name>/train", method="GET")
+# @route("/api/renom_img/v2/api/<task_name>/train/<train_id:int>", method="GET")
+@route("/api/renom_img/v2/api/<task_name>/train", method="GET")
 @error_handler
 def get_train_status(task_name):
     """
@@ -1785,8 +1807,8 @@ def get_train_status(task_name):
 
 
 # TODO: Stop train from train_id.
-# @route("/renom_img/v2/api/detection/train/<train_id:int>", method="DELETE")
-@route("/renom_img/v2/api/<task_name>/train", method="DELETE")
+# @route("/api/renom_img/v2/api/detection/train/<train_id:int>", method="DELETE")
+@route("/api/renom_img/v2/api/<task_name>/train", method="DELETE")
 @error_handler
 def stop_train(task_name):
     """
@@ -1805,7 +1827,7 @@ def stop_train(task_name):
     return create_response({}, status=204)
 
 
-@route("/renom_img/v2/api/<task_name>/prediction", method="GET")
+@route("/api/renom_img/v2/api/<task_name>/prediction", method="GET")
 @error_handler
 def get_prediction_status(task_name):
     """
@@ -1855,7 +1877,7 @@ def get_prediction_status(task_name):
         }
 
 
-@route("/renom_img/v2/api/<task_name>/prediction", method="POST")
+@route("/api/renom_img/v2/api/<task_name>/prediction", method="POST")
 @error_handler
 def run_prediction(task_name):
     """
@@ -1874,13 +1896,13 @@ def run_prediction(task_name):
 
     # prediction_id = 1
     # response = create_response({"prediction": {"prediction_id": prediction_id}}, status=201)
-    # location = "/renom_img/v2/api/detection/prediction/{}".format(prediction_id)
+    # location = "/api/renom_img/v2/api/detection/prediction/{}".format(prediction_id)
     # response.set_header('Location', location)
     response = create_response({"status": "success"}, status=201)
     return response
 
 
-@route("/renom_img/v2/api/<task_name>/prediction/result", method="GET")
+@route("/api/renom_img/v2/api/<task_name>/prediction/result", method="GET")
 @error_handler
 def get_prediction_result(task_name):
     """

@@ -37,6 +37,9 @@ export default {
     state.group_by = key
   },
   setSelectedModel (state, payload) {
+    console.log('【MUTATION:setSelectedModel】')
+    console.log(state.current_task)
+    console.log(payload)
     const task_id = state.current_task
     state.selected_model = Object.assign({ ...state.selected_model }, { [task_id]: payload })
   },
@@ -80,6 +83,8 @@ export default {
     state.confirming_test_dataset = payload
   },
   addDataset (state, payload) {
+    console.log('MUTATION:addDataset')
+    console.log(payload)
     if (state.datasets.find(n => n.id === payload.id) === undefined) {
       state.datasets = [payload, ...state.datasets]
     }

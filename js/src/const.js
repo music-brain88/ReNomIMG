@@ -12,8 +12,8 @@ export const TASK_ID = {
 export const PAGE_ID = {
   DEBUG: -1,
   TRAIN: 0,
-  PREDICT: 1,
-  DATASET: 2,
+  DATASET: 1,
+  PREDICT: 2,
 }
 
 const COMMON_PARAMS = {
@@ -496,6 +496,26 @@ export const FILTER_CONDITION = {
     EQUAL: 1,
     GRATER_THAN: 2,
   },
+}
+
+export const train_color = '#0762ad'
+export const valid_color = '#ef8200'
+
+export const algorithm_colors = {
+  'color_no_model': '#229954', // green when no model exists
+  'color_0': '#903e84',
+  'color_1': '#423885',
+  'color_2': '#136eab',
+  'color_3': '#009453',
+  'color_4': '#92b447',
+  'color_5': '#dfd238',
+  // 以下RGのを臨時的に入れています
+  'C-GCNN': '#903e84',
+  'Kernel-GCNN': '#423885',
+  'DBSCAN-GCNN': '#136eab',
+  'Random-Forest': '#1b6e00',
+  'XGBoost': '#99CC66',
+  'user-defined': '#a9a9a9'
 }
 
 export function getKeyByValue (object, value) {

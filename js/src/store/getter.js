@@ -194,17 +194,21 @@ export default {
   getDeployedModel (state, getters) {
     return state.deployed_model[getters.getCurrentTask]
   },
+  /* TODO: エラー原因だったため取り急ぎコメントアウト
   getDatasetDetail (state, getters) {
     return state.dataset_details[0]
   },
+  */
   getDatasetFromId (state, getters) {
     return function (id) {
       return state.datasets.find(n => n.id === id)
     }
   },
+  /* TODO: エラー原因だったため取り急ぎコメントアウト
   getTestDatasetDetail (state, getters) {
     return state.test_dataset_details[0]
   },
+  */
   getCurrentTaskTitle (state, getters) {
     if (state.current_task === TASK_ID.CLASSIFICATION) {
       return 'Classification'
@@ -228,6 +232,7 @@ export default {
   getShowSlideMenu (state, getters) {
     return state.show_slide_menu
   },
+  /* TODO: エラー原因だったため取り急ぎコメントアウト
   getSortTitle (state, getters) {
     const task = getters.getCurrentTask
     if (task in Object.values(TASK_ID)) {
@@ -237,6 +242,7 @@ export default {
       throw new Error('Not supported task.')
     }
   },
+  */
   getAlgorithmList (state, getters) {
     const task = getters.getCurrentTask
     if (task in Object.values(TASK_ID)) {
