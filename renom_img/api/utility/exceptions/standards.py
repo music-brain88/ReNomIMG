@@ -38,7 +38,7 @@ class StandardResNetInit(StandardInit):
         self.standards['plateau'] = {
             'type': [bool]}
 
-class StandardResNextInit(StandardInit):
+class StandardResNeXtInit(StandardInit):
     def __init__(self):
         super(StandardResNextInit, self).__init__()
         self.build_standards()
