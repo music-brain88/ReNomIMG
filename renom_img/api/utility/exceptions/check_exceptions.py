@@ -64,7 +64,6 @@ def check_resnet_init(plateau):
 
 def check_resnext_init(plateau, cardinality):
     standard_obj = StandardResNextInit()
-    std = standard_obj.get_standards()
 
     try:
         assert type(plateau) in std['plateau']['type'], "Invalid plateau type. Please provide a {} type for the plateau argument.".format(std['plateau']['type'])
@@ -171,3 +170,22 @@ def check_yolov2_forward(anchor, x):
         assert all(k.dtype in std['anchor']['value'] for k in anchor), "Invalid value for anchor argument. Please provide {} or {} values.".format(std['anchor']['value'][0], std['anchor']['value'][1])
     except Exception as e:
         raise ParamValueError(str(e))
+
+
+def check_common_learning_rate(lr):
+    obj = StandardLR()
+    std = obj.get_standards()
+    try:
+        assert type(lr) in std['LR']['type'],"Type of learning rate is invalid. ReNomIMG only accepts float learning rate."
+        assert lr >= std['LR']['range'][0] and lr < std['LR']['range'][1], "Abnormal learning rate is selected. Expected range: {}".format(std['LR']['range'])
+
+    except Exception as e:
+        raise LearningRateError(str(e))
+
+def check_missing_param(class_map):
+    try:
+        assert len(class_map)>0, "class_map must be defined or pretrained wegiht should be loaded."
+    except Exception as e:
+        raise MissingParamError(str(e))
+
+

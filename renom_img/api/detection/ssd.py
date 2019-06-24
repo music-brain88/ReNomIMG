@@ -17,7 +17,7 @@ from renom_img.api.utility.load import parse_xml_detection, load_img
 from renom_img.api.utility.nms import nms
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.optimizer import OptimizerSSD
-from renom_img.api.utility.exceptions.check_exceptions import check_ssd_init
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 def calc_iou(prior, box):
     """
@@ -190,6 +190,7 @@ class TargetBuilderSSD():
             x: Image path list.
             y: Detection formatted label.
         """
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path,self.imsize)[None]
                                     for path in img_path_list])
@@ -273,30 +274,8 @@ class SSD(Detection):
         self.prior_box = self.prior.create()
         self.num_prior = len(self.prior_box)
         self.default_optimizer = OptimizerSSD()
+        self.decay_rate = 0.00004
 
-    def regularize(self):
-        """Regularization term. You can use this function to add a regularization term to
-        the loss function.
-
-        In SSD, a weight decay of 0.0005 will be used in the calculatiomn.
-
-        Example:
-            >>> import numpy as np
-            >>> from renom_img.api.detection.ssd import SSD
-            >>> x = np.random.rand(1, 3, 300, 300)
-            >>> y = np.random.rand(1, 22, 8732)
-            >>> class_map = ...
-            >>> model = SSD(class_map)
-            >>> t = model(x)
-            >>> loss = model.loss(t, y)
-            >>> reg_loss = loss + model.regularize() # The weight decay term is added here.
-        """
-
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.00004 / 2.) * reg
 
     def build_data(self):
 

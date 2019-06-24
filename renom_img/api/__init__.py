@@ -11,7 +11,7 @@ from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.exceptions.check_exceptions import *
-
+from renom_img.api.utility.exceptions.exceptions import InvalidDataError
 
 def adddoc(cls):
     """Insert parent doc strings to inherited class.
@@ -103,9 +103,12 @@ class Base(rm.Model):
             >>> reg_loss = loss + model.regularize() # Add weight decay term.
         """
         reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
+        try:
+            for layer in self.iter_models():
+                if hasattr(layer, "params") and hasattr(layer.params, "w") and not isinstance(layer,rm.BatchNormalize):
+                    reg += rm.sum(layer.params.w * layer.params.w)
+        except Exception as e:
+            raise InvalidDataError(str(e))
 
         return (self.decay_rate / 2) * reg
 

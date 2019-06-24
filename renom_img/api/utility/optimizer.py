@@ -1,5 +1,7 @@
 import renom as rm
 import numpy as np
+from renom_img.api.utility.exceptions.exceptions import *
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 
 class BaseOptimizer(object):
@@ -21,14 +23,21 @@ class BaseOptimizer(object):
         self.nth_epoch_iteration = 0
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
-        assert self.total_epoch_iteration >= nth_epoch, \
-            "The max epoch iteration count is {} but set {}".format(
-                self.total_epoch_iteration, nth_epoch)
-        assert self.total_batch_iteration >= nth_batch, \
-            "The max batch iteration count is {} but set {}".format(
+        try:
+            assert self.total_epoch_iteration >= nth_epoch, \
+                "The max epoch iteration count is {} but set {}".format(
+                 self.total_epoch_iteration, nth_epoch)
+            assert self.total_batch_iteration >= nth_batch, \
+                "The max batch iteration count is {} but set {}".format(
                 self.total_batch_iteration, nth_batch)
+        except Exception as e:
+            raise InvalidDataError(str(e))
+
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
+        # check for valid learning rate
+        check_common_learning_rate(self.opt._lr)
+
 
 class OptimizerUNet(BaseOptimizer):
     def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):

@@ -8,22 +8,22 @@ class StandardInit:
         self.build_standards()
 
     def build_standards(self):
-        self.standards = {'class_map': {
-            'value': [str],
-            'type': [type(None), list, dict],
-            'range': [1, 10000]},
-            'imsize': {
-            'value': [int],
-            'type': [int, tuple],
-            'range': [16, 2048]},
-            'load_pretrained_weight': {
-            'type': [bool, str]},
-            'train_whole_network': {
-            'type': [bool]},
-            'target_model': {
-            'type': rm.Model}
+        self.standards={'class_map':{
+                            'value':[str],
+                            'type':[type(None),list,dict],
+                            'range':[1,10000]},
+                        'imsize':{
+                            'value':[int],
+                            'type':[int,tuple],
+                            'range':[16,2048]},
+                        'load_pretrained_weight':{
+                            'type':[bool,str]},
+                        'train_whole_network':{
+                            'type':[bool]},
+                        'target_model':{
+                            'type':rm.Model}
 
-        }
+                       }
 
     def get_standards(self):
         return self.standards
@@ -38,8 +38,6 @@ class StandardResNetInit(StandardInit):
         self.standards['plateau'] = {
             'type': [bool]}
 
-
-class StandardResNextInit(StandardInit):
     def __init__(self):
         super(StandardResNextInit, self).__init__()
         self.build_standards()
@@ -81,12 +79,11 @@ class StandardSSDInit(StandardInit):
         self.build_standards()
 
     def build_standards(self):
-        self.standards['overlap'] = {
-            'type': [float],
-            'range': [0.01, 0.99]}
-        self.standards['imsize'] = {
-            'type': 300}
-
+        self.standards['overlap']={
+                            'type':[float,np.float32,np.float64],
+                            'range':[0.01,0.99]}
+        self.standards['imsize']={
+                            'type':300}
 
 class StandardFCNInit(StandardInit):
     def __init__(self):
@@ -119,7 +116,22 @@ class StandardYolov2Forward(StandardForward):
         self.build_standards()
 
     def build_standards(self):
-        self.standards['anchor'] = {
-            'value': [np.float32, np.float64],
-            'type': [np.ndarray],
-            'range': [2, 20]}
+        self.standards['anchor']={
+                            'value':[float,np.float32,np.float64],
+                            'type':[np.ndarray],
+                            'range':[2,20]} 
+
+class StandardLR:
+    def __init__(self):
+        self.standards = {}
+        self.build_standards()
+
+    def build_standards(self):
+        self.standards = {
+                'LR':{
+                    'type':[float,np.float32,np.float64],
+                    'range':[0,1]}
+                 }
+    def get_standards(self):
+        return self.standards
+

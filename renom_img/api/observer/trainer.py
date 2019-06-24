@@ -11,7 +11,8 @@ from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.evaluate.segmentation import get_segmentation_metrics
 from renom_img.api.utility.evaluate.classification import precision_recall_f1_score
 from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
-
+from renom_img.api.utility.exceptions.check_exceptions import *
+from renom_img.api.utility.exceptions.exceptions import *
 
 # Generic Observer class
 class TrainObserverBase(ABC):
@@ -101,9 +102,10 @@ class ObservableTrainer():
             opt = self.model.default_optimizer
         else:
             opt = optimizer
-        assert opt is not None
-#         if opt is None:
-#             raise InvalidParamError('Invalid optimizer {}.'.format(opt))
+        try:
+            assert opt is not None,"Provided Optimizer is not valid. Optimizer must an instance of rm.optimizer. Provided {}".format(opt)
+        except Exception as e:
+            raise OptimizerError(str(e))
 
         train_batch_loop = len(train_dist)//batch_size
 
@@ -138,6 +140,11 @@ class ObservableTrainer():
                     except:
                         loss = loss.as_ndarray()
                     loss = float(loss)
+                    # Exception checking
+                    try:
+                        assert not np.isnan(loss),"Loss becomes NAN."
+                    except Exception as e:
+                        raise LossError(str(e))
                     display_loss+=loss
                 if isinstance(opt, BaseOptimizer):
                     opt.set_information(batch,epoch,avg_train_loss_list,avg_valid_loss_list,loss)

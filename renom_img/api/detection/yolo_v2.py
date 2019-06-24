@@ -205,7 +205,7 @@ class TargetBuilderYolov2():
         self.anchor = anchor
         self.num_anchor = num_anchor
         self.bestAnchorBoxFinder = BestAnchorBoxFinder(self.anchor)
-        self.buffer = 50
+        self.buffer = 50 
 
     def __call__(self, *args, **kwargs):
         return self.build(*args, **kwargs)
@@ -222,6 +222,7 @@ class TargetBuilderYolov2():
             augmentation (Augmentation): Augmentation object.
             nth (int): Current batch index.
         """
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path,self.imsize_list[0])[None]
                                     for path in img_path_list])
@@ -323,30 +324,7 @@ class Yolov2(Detection):
 
         self.model.set_output_size((self.num_class + 5)*self.num_anchor,self.class_map,self.num_anchor)
         self.model.set_train_whole(train_whole_network)
-
-
-
-    def regularize(self):
-        """Regularization term. You can use this function to add a regularization term to
-        the loss function.
-
-        In Yolo v2, a weight decay of 0.0005 will be used in the calculation.
-
-        Example:
-            >>> import numpy as np
-            >>> from renom_img.api.detection.yolo_v2 import Yolov2
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> class_map = ...
-            >>> model = Yolov2(class_map)
-            >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # The weight decay term is added here.
-        """
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.0005 / 2.) * reg
+        self.decay_rate = 0.0005
 
     def forward(self, x):
         """

@@ -14,61 +14,75 @@ class ReNomIMGError(Exception):
 
 class UnknownError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "000"
+        self.status_code = "API0000"
         super(UnknownError,self).__init__(msg)
         
 class MissingParamError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "001"
+        self.status_code = "API0001"
         super(MissingParamError,self).__init__(msg)
         
 class InvalidParamError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "002"
+        self.status_code = "API0002"
         super(InvalidParamError,self).__init__(msg)
 
 class MissingDataError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "003"
+        self.status_code = "API0003"
         super(MissingDataError,self).__init__(msg)
         
 class InvalidDataError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "004"
+        self.status_code = "API0004"
         super(InvalidDataError,self).__init__(msg)
         
 class OutOfMemoryError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "005"
+        self.status_code = "API0005"
         super(OutOfMemoryError,self).__init__(msg)
         
 class WeightNotFoundError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "006"
+        self.status_code = "API0006"
         super(WeightNotFoundError,self).__init__(msg)
 
 class WeightLoadError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "007"
+        self.status_code = "API0007"
         super(WeightLoadError,self).__init__(msg)
         
 class ParamValueError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "008"
+        self.status_code = "API0008"
         super(ParamValueError,self).__init__(msg)
         
 class DataValueError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "009"
+        self.status_code = "API0009"
         super(DataValueError, self).__init__(msg)
 
 class WeightURLOpenError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "010"
+        self.status_code = "API0010"
         super(WeightURLOpenError, self).__init__(msg)
 
 class WeightRetrieveError(ReNomIMGError):
     def __init__(self, msg=None):
-        self.status_code = "011"
+        self.status_code = "API0011"
         super(WeightRetrieveError, self).__init__(msg)
 
+class LearningRateError(ReNomIMGError):
+    def __init__(self, msg=None):
+        self.status_code = "API0012"
+        super(LearningRateError,self).__init__(msg)
+
+class OptimizerError(ReNomIMGError):
+    def __init__(self,msg=None):
+        self.status_code = "API0013"
+        super(OptimizerError,self).__init__(msg)
+
+class LossError(ReNomIMGError):
+    def __init__(self,msg=None):
+        self.status_code = "API0014"
+        super(LossError,self).__init__(msg) 

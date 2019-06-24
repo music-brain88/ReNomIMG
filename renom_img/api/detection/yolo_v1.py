@@ -13,7 +13,7 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.optimizer import OptimizerYolov1
 from renom_img.api.utility.box import transform2xy12
 from renom_img.api.utility.load import prepare_detection_data, load_img, resize_detection_data
-from renom_img.api.utility.exceptions.check_exceptions import check_yolov1_init
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 def make_box(box):
     x1 = box[0] - box[2] / 2.
@@ -88,6 +88,7 @@ class TargetBuilderYolov1():
         return x / 255.
 
     def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path,self.imsize)[None]
                                     for path in img_path_list])
@@ -166,29 +167,8 @@ class Yolov1(Detection):
         self.model.set_output_size((self.num_class + 5 * bbox) * cells[0] * cells[1])
         self.model.set_train_whole(train_whole_network)
         self.default_optimizer = OptimizerYolov1()
+        self.decay_rate = 0.0005
 
-    def regularize(self):
-        """Regularization term. You can use this function to add a regularization term to
-        the loss function.
-
-        In Yolov1, a weight decay of 0.0005 will be used in the calculation.
-
-        Example:
-            >>> import numpy as np
-            >>> from renom_img.api.detection.yolo_v1 import Yolov1
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> class_map = ...
-            >>> model = Yolov1(class_map)
-            >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # The weight decay term is added here.
-        """
-
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.0005 / 2) * reg
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
