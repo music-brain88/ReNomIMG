@@ -113,22 +113,28 @@ def get_task_id_by_name(task_name):
 
 def task_exists(task_name):
     if task_name not in TASK_ID_BY_NAME.keys():
-        raise TaskNotFoundError(task_name)
+        raise TaskNotFoundError("Task {} is not available.".format(task_name))
 
 
-def check_dataset_exists(dataset):
+def check_dataset_exists(dataset, dataset_id):
     if dataset is None:
-        raise DatasetNotFoundError()
+        raise DatasetNotFoundError("Dataset {} is not found.".format(dataset_id))
 
 
-def check_model_exists(model):
+def check_model_exists(model, model_id):
     if model is None:
-        raise ModelNotFoundError()
+        raise ModelNotFoundError("Model {} is not found.".format(model_id))
 
 
-def check_weight_exists(filepath):
+def check_weight_exists(filepath, model_id):
     if os.path.isfile(filepath):
-        raise WeightNotFoundError()
+        raise WeightNotFoundError("Model {} is exists, but weight file is not found.".format(model_id))
+
+
+def check_model_running(model_id):
+    thread = TrainThread.jobs.get(model_id, None)
+    if thread is not None:
+        raise ModelRunningError("Model {} is running, please wait or stop train.")
 
 
 def error_message_dataset_name(name):
@@ -304,7 +310,7 @@ def check_export_format(format):
 
 def check_dir_exists(dirname):
     if not dirname.exists():
-        raise DirectoryNotFound()
+        raise DirectoryNotFound("Directory {} is not found.".format(dirname))
 
 
 # To use dataset list, because dataset detail Information is not shown in dataset list.
@@ -535,7 +541,7 @@ def error_handler(func):
             logging_error(e)
             return create_error_response(e, status=404)
         except SQLAlchemyError as e:
-            e = ServiceUnavailableError()
+            e = ServiceUnavailableError("DB tempolary unavailable.")
             logging_error(e)
             return create_error_response(e, status=503)
         except (DirectoryNotFound, Exception) as e:
@@ -566,7 +572,7 @@ def font(file_name):
 
 @error(403)
 def error403(error):
-    e = ForbiddenError("Forbidden error.")
+    e = ForbiddenError("Permission denied.")
     logging_error(e)
     return create_error_response(e, status=403)
 
@@ -1514,7 +1520,7 @@ def get_dataset(task_name, dataset_id):
     """
     task_exists(task_name)
     d = storage.fetch_dataset(dataset_id)
-    check_dataset_exists(d)
+    check_dataset_exists(d, dataset_id)
     ret = {"dataset": dataset_to_dict(d)}
     return create_response(ret, status=200)
 
@@ -1603,7 +1609,7 @@ def get_model(task_name, model_id):
     """
     task_exists(task_name)
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
     ret = {'model': model_to_dict(model)}
     return create_response(ret, status=200)
 
@@ -1619,11 +1625,12 @@ def update_model(task_name, model_id):
     check_upadte_model_params(req_params)
 
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
 
     # if deploy value exists
     deploy = req_params.pop("deploy", False)
     if deploy:
+        check_model_running(model_id)
         storage.deploy_model(model_id)
     else:
         storage.undeploy_model(task_id)
@@ -1640,7 +1647,7 @@ def delete_model(task_name, model_id):
     """
     task_exists(task_name)
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
 
     threads = TrainThread.jobs
     active_train_thread = threads.get(id, None)
@@ -1659,10 +1666,10 @@ def download_model_weight(task_name, model_id):
     """
     task_exists(task_name)
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
 
     file_name = model['best_epoch_weight']
-    check_weight_exists(file_name)
+    check_weight_exists(file_name, model_id)
 
     download_filename = 'model{}_weight.h5'.format(model_id)
     return static_file(file_name, root=".", download=download_filename)
@@ -1710,7 +1717,7 @@ def get_train_status(task_name):
     active_train_thread = threads.get(model_id, None)
     if active_train_thread is None:
         saved_model = storage.fetch_model(model_id)
-        check_model_exists(saved_model)
+        check_model_exists(saved_model, model_id)
 
         # If the state == STOPPED, client will never throw request.
         if saved_model["state"] != State.STOPPED.value:
@@ -1797,7 +1804,7 @@ def stop_train(task_name):
     model_id = req_params.model_id
 
     saved_model = storage.fetch_model(model_id)
-    check_model_exists(saved_model)
+    check_model_exists(saved_model, model_id)
 
     thread = TrainThread.jobs.get(model_id, None)
     if thread is not None:
@@ -1816,7 +1823,7 @@ def get_prediction_status(task_name):
     model_id = req_params.model_id
 
     saved_model = storage.fetch_model(model_id)
-    check_model_exists(saved_model)
+    check_model_exists(saved_model, model_id)
 
     threads = PredictionThread.jobs
     active_prediction_thread = threads.get(model_id, None)
@@ -1866,7 +1873,10 @@ def run_prediction(task_name):
     model_id = req_params.model_id
 
     saved_model = storage.fetch_model(model_id)
-    check_model_exists(saved_model)
+    check_model_exists(saved_model, model_id)
+
+    file_name = model['best_epoch_weight']
+    check_weight_exists(file_name, model_id)
 
     thread = PredictionThread(model_id)
     th = executor.submit(thread)
