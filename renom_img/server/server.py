@@ -48,7 +48,7 @@ from renom_img.server.utility.setup_example import setup_example
 from renom_img.server.utility.formatter import get_formatter_resolver
 
 from renom_img.server.utility.error import ReNomIMGServerError, ForbiddenError, NotFoundError, \
-    MethodNotAllowedError, ServiceUnavailableError, MissingRequestParamError, \
+    MethodNotAllowedError, ServiceUnavailableError, \
     InvalidRequestParamError, DatasetNotFoundError, ModelNotFoundError, WeightNotFoundError, \
     ModelRunningError, MemoryOverflowError, DirectoryNotFound, TaskNotFoundError
 
@@ -528,7 +528,7 @@ def error_handler(func):
         try:
             ret = func(*args, **kwargs)
             return ret
-        except (MissingRequestParamError, InvalidRequestParamError) as e:
+        except (InvalidRequestParamError) as e:
             logging_error(e)
             return create_error_response(e, status=400)
         except (TaskNotFoundError, DatasetNotFoundError, ModelNotFoundError, WeightNotFoundError) as e:
