@@ -196,12 +196,12 @@ class TernausNet(SemanticSegmentation):
             "TernausNet only accepts 'imsize' arguments that are multiples of 32. \
               ex: imsize=(320, 320)"
 
-        self.model = CNN_TernausNet(1)
+        self._model = CNN_TernausNet(1)
 
         super(TernausNet, self).__init__(class_map, imsize,
-                                         load_pretrained_weight, train_whole_network, load_target=self.model)
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+                                         load_pretrained_weight, train_whole_network, load_target=self._model)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
         self.decay_rate = 0
         self.default_optimizer = OptimizerTernausNet()
 

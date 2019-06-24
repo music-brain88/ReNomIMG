@@ -64,6 +64,7 @@ def check_resnet_init(plateau):
 
 def check_resnext_init(plateau, cardinality):
     standard_obj = StandardResNextInit()
+    std = standard_obj.get_standards()
 
     try:
         assert type(plateau) in std['plateau']['type'], "Invalid plateau type. Please provide a {} type for the plateau argument.".format(std['plateau']['type'])

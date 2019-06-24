@@ -276,4 +276,4 @@ class Base(rm.Model):
             x(ndarray, Node): Input to ${class}.
         """
         check_common_forward(x)
-        return self.model(x)
+        return self._model(x)
