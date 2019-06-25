@@ -52,6 +52,19 @@ class TargetBuilderDeeplab():
 
         return np.asarray(x_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(y_list)
 
+    def resize_by_padding(self, img_list, label_list):
+        x_list = []
+        y_list = []
+        for i, (img, label) in enumerate(zip(img_list, label_list)):
+            _, h, w = img.shape
+            padded_img = np.pad(img, ((0,0),(0,self.imsize[0]-h),(0,self.imsize[1]-w)), 'mean')
+            x_list.append(padded_img)
+            _, h, w = label.shape
+            padded_label = np.pad(label,((0,0),(0,self.imsize[0]-h),(0,self.imsize[1]-w)),'constant',constant_values=0)
+            y_list.append(padded_label)
+
+        return np.asarray(x_list).astype(np.float32), np.asarray(y_list)
+
     def load_annotation(self, path):
         """ Loads annotation data
 
@@ -105,22 +118,22 @@ class TargetBuilderDeeplab():
         label_list = []
         for img_path, an_path in zip(img_path_list, annotation_list):
             img, sw, sh = self._load(img_path)
-            labels, asw, ash = self.load_annotation(an_path)
-            annot = np.zeros((n_class+1, asw, ash))
-            img_list.append(img)
-            for i in range(labels.shape[0]):
-                for j in range(labels.shape[1]):
-                    if int(labels[i][j]) >= n_class:
+            label, asw, ash = self.load_annotation(an_path)
+            annot = np.zeros((n_class+1, label.shape[0], label.shape[1]))
+            for i in range(label.shape[0]):
+                for j in range(label.shape[1]):
+                    if int(label[i][j]) >= n_class:
                         annot[n_class, i, j] = 1
                     else:
-                        annot[int(labels[i][j]), i, j] = 1
+                        annot[int(label[i][j]), i, j] = 1
+            img_list.append(img)
             label_list.append(annot[:n_class])
         if augmentation is not None:
             img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
-            data,label = self.resize(img_list, label_list)
+            data,label = self.resize_by_padding(img_list, label_list)
             return self.preprocess(data),label
         else:
-            data,label = self.resize(img_list, label_list)   
+            data,label = self.resize_by_padding(img_list, label_list)   
             return self.preprocess(data),label
 
 

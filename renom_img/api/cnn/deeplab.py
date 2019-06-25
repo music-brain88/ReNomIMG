@@ -288,9 +288,8 @@ class AsppModule(rm.Model):
         self.avg_pool = rm.AveragePool2d(filter=filter_size)
         self.image_pool_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
         self.image_pool_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
-        
-        #self.image_pool_resize = rm.GroupConv2d(channel=256, filter=21, stride=1, padding=20, ignore_bias=True, initializer=np.ones, groups=256)
-        self.image_pool_resize = rm.GroupConv2d(channel=256, filter=33, stride=1, padding=32, ignore_bias=True, initializer=np.ones, groups=256)   
+                
+        self.image_pool_resize = rm.GroupConv2d(channel=256, filter=filter_size[0], stride=1, padding=int(filter_size[0]-1), ignore_bias=True, initializer=np.ones, groups=256)   
         
         # Common
         self.relu = rm.Relu()
@@ -340,7 +339,7 @@ class CnnDeeplabv3plus(CnnBase):
         self.flow1 = self._make_flow(XceptionBlock, units=3, channels=[64,128,256,728], stride=2, dilation =1, type='Entry')
         self.flow2 = self._make_flow(XceptionBlock, units=16, channels=[728, 728, 728, 728], stride=1, dilation = 1, type='Middle')
         self.flow3 = self._make_flow(XceptionBlock, units=2, channels=[728,1024,1536,2048], stride=1, dilation = 1, type='Exit')
-        self.avg_pool_filter = (np.ceil(imsize[0]/scale_factor), np.ceil(imsize[1]/scale_factor)) 
+        self.avg_pool_filter = (int(np.ceil(imsize[0]/scale_factor)), int(np.ceil(imsize[1]/scale_factor))) 
         self.aspp = AsppModule(num_class, self.avg_pool_filter, atrous_rates)
         
         self.concat_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
@@ -384,6 +383,7 @@ class CnnDeeplabv3plus(CnnBase):
 
     
     def forward(self, x):
+#        self._freeze_bn()
         image = x
         #print('--flow0_0: input.shape = ', x.shape)
         x = self.conv1_1(x)
@@ -421,8 +421,17 @@ class CnnDeeplabv3plus(CnnBase):
         self.flow1.set_auto_update(self.train_whole)
         self.flow2.set_auto_update(self.train_whole)
         self.flow3.set_auto_update(self.train_whole)
+#        self.aspp.image_pool_resize.set_auto_update(False)
+#        self.final_resize.set_auto_update(False)
         self.aspp.image_pool_resize.params.w._auto_update = False
         self.final_resize.params.w._auto_update = False
+
+    def _freeze_bn(self):
+        for l in self.iter_models():
+           if 'BatchNormalize' in l.__class__.__name__ and l._epsilon == 0.001: 
+               l.set_models(inference=True)
+               l.params.w._auto_update = False
+               l.params.b._auto_update = False
 
     def load_pretrained_weight(self, path):
         self.load(path)
