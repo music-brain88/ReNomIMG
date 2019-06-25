@@ -11,7 +11,7 @@ from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.exceptions.check_exceptions import *
-from renom_img.api.utility.exceptions.exceptions import InvalidDataError, OptimizerError
+from renom_img.api.utility.exceptions.exceptions import InvalidDataError, InvalidOptimizerError
 
 def adddoc(cls):
     """Insert parent doc strings to inherited class.
