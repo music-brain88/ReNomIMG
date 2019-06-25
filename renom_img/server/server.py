@@ -306,7 +306,7 @@ def check_upadte_model_params(params):
 
 def check_export_format(format):
     if format not in ["csv"]:
-        raise InvalidRequestParamError()
+        raise InvalidRequestParamError("format {} is unavailable.".format(format))
 
 
 def check_dir_exists(dirname):
@@ -1664,7 +1664,7 @@ def delete_model(task_name, model_id):
     if active_train_thread is not None:
         active_train_thread.stop()
         active_train_thread.future.result()
-    storage.remove_model(id)
+    storage.remove_model(model_id)
     return create_response({}, status=204)
 
 
@@ -1695,7 +1695,7 @@ def run_train(task_name):
     req_params = request.params
     model_id = req_params.model_id
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
 
     # TODO: Confirm if the model is already trained.
     thread = TrainThread(model_id)
@@ -1881,11 +1881,10 @@ def run_prediction(task_name):
     task_exists(task_name)
     req_params = request.params
     model_id = req_params.model_id
-
     saved_model = storage.fetch_model(model_id)
     check_model_exists(saved_model, model_id)
 
-    file_name = model['best_epoch_weight']
+    file_name = saved_model['best_epoch_weight']
     check_weight_exists(file_name, model_id)
 
     thread = PredictionThread(model_id)
@@ -1917,6 +1916,7 @@ def get_prediction_result(task_name):
 
     model = storage.fetch_model(model_id)
     prediction = model["last_prediction_result"]
+    print(prediction)
 
     # Shaping data by task & format.
     resolver = get_formatter_resolver(task_id)

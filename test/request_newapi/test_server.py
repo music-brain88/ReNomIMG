@@ -6,6 +6,8 @@ import json
 import pytest
 import threading
 
+from renom_img.server import server, train_thread, prediction_thread
+
 from unittest.mock import patch
 from concurrent.futures import ThreadPoolExecutor
 
@@ -155,11 +157,6 @@ def test_update_dataset(app):
     assert resp.status_int == 204
 
 
-def test_delete_dataset(app):
-    resp = app.delete('/renom_img/v2/api/detection/datasets/1', {})
-    assert resp.status_int == 204
-
-
 def test_create_model(app):
     resp = app.post_json('/renom_img/v2/api/detection/models', POST_MODEL)
     assert resp.status_int == 201
@@ -172,22 +169,27 @@ def test_get_models(app):
     assert resp.json['models'][0]['id'] == MODELS[0]['id']
 
 
-# def test_get_running_models(app):
-#     resp = app.get('/renom_img/v2/api/detection/models?state=running')
-#     assert resp.status_int == 200
-#     assert resp.json['models'][0]['id'] == MODELS[0]['id']
-#
-#
-# def test_get_deployed_models(app):
-#     resp = app.get('/renom_img/v2/api/detection/models?state=deployed')
-#     assert resp.status_int == 200
-#     assert resp.json['models'][0]['id'] == MODELS[0]['id']
-
-
 def test_get_model(app):
     resp = app.get('/renom_img/v2/api/detection/models/1')
     assert resp.status_int == 200
     assert resp.json['model']['id'] == MODEL['id']
+
+
+def test_run_train(app):
+    train_thread.TrainThread.add_thread(MODEL['id'])
+    resp = app.post('/renom_img/v2/api/detection/train', {"model_id": 1})
+    assert resp.status_int == 201
+
+
+def test_get_train_status(app):
+    resp = app.get('/renom_img/v2/api/detection/train?model_id=1')
+    print(resp)
+    assert resp.status_int == 200
+
+
+def test_stop_train(app):
+    resp = app.delete('/renom_img/v2/api/detection/train', {"model_id": 1})
+    assert resp.status_int == 204
 
 
 def test_update_model(app):
@@ -195,41 +197,22 @@ def test_update_model(app):
     assert resp.status_int == 204
 
 
-# def test_delete_model(app):
-#     resp = app.delete('/renom_img/v2/api/detection/models/1', {})
-#     assert resp.status_int == 204
+def test_run_prediction(app):
+    prediction_thread.PredictionThread.add_thread(MODEL['id'])
+    resp = app.post('/renom_img/v2/api/detection/prediction', {"model_id": 1})
+    assert resp.status_int == 201
 
 
-# def test_download_model_weight(app):
-#     resp = app.get('/renom_img/v2/api/detection/models/1/weight')
-#     pass
+def test_get_prediction_status(app):
+    resp = app.get('/renom_img/v2/api/detection/prediction?model_id=1')
+    assert resp.status_int == 200
 
 
-# def test_get_train_status(app):
-#     resp = app.get('/renom_img/v2/api/detection/train?model_id=1')
-#     assert resp.status_int == 200
+def test_delete_dataset(app):
+    resp = app.delete('/renom_img/v2/api/detection/datasets/1', {})
+    assert resp.status_int == 204
 
 
-# def test_run_train(app):
-#     resp = app.post('/renom_img/v2/api/detection/train', {"model_id": 1})
-#     assert resp.status_int == 201
-
-
-# def test_stop_train(app):
-#     resp = app.delete('/renom_img/v2/api/detection/train', {"model_id": 1})
-#     assert resp.status_int == 204
-#
-#
-# def test_get_prediction_status(app):
-#     resp = app.get('/renom_img/v2/api/detection/prediction')
-#     assert resp.status_int == 200
-
-
-# def test_run_prediction(app):
-#     resp = app.post('/renom_img/v2/api/detection/prediction', {})
-#     assert resp.status_int == 201
-
-
-# def test_get_prediction_result(app):
-#     resp = app.get('/renom_img/v2/api/detection/prediction/result')
-#     assert resp.status_int == 200
+def test_delete_model(app):
+    resp = app.delete('/renom_img/v2/api/detection/models/1', {})
+    assert resp.status_int == 204
