@@ -89,6 +89,19 @@ export default {
       state.datasets = [payload, ...state.datasets]
     }
   },
+  updateDataset (state, payload) {
+    console.log('MUTATION:updateDataset')
+    console.log(payload)
+    if (state.datasets.find(n => n.id === payload.id) === undefined) {
+      state.datasets = [payload, ...state.datasets]
+    } else {
+      let old_datasets = state.datasets
+      const index = old_datasets.findIndex(n => n.id === payload.id)
+      old_datasets.splice(index, 1)
+
+      state.datasets = [payload, old_datasets]
+    }
+  },
   addTestDataset (state, payload) {
     if (state.test_datasets.find(n => n.id === payload.id) === undefined) {
       state.test_datasets = [payload, ...state.test_datasets]
@@ -97,6 +110,19 @@ export default {
   addModel (state, payload) {
     if (state.models.find(n => n.id === payload.id) === undefined) {
       state.models = [payload, ...state.models]
+    }
+  },
+  updateModel (state, payload) {
+    console.log('MUTATION:updateModel')
+    console.log(payload)
+    if (state.models.find(n => n.id === payload.id) === undefined) {
+      state.models = [payload, ...state.models]
+    } else {
+      let old_models = state.models
+      const index = old_models.findIndex(n => n.id === payload.id)
+      old_models.splice(index, 1)
+
+      state.models = [payload, old_models]
     }
   },
   rmModel (state, payload) {

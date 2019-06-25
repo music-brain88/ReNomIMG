@@ -76,6 +76,45 @@ export default {
   /** ***
    *
    */
+  async loadModelsOfCurrentTaskDetail (context, payload) {
+    const model_id = payload
+    const url = '/api/renom_img/v2/api/detection/models/' + model_id
+    return axios.get(url)
+      .then(function (response) {
+        console.log('【loadModelsOfCurrentTaskDetail】')
+        console.log(response.data)
+
+        if (response.status === 204) return
+        const model_list = response.data.models
+        for (const m of model_list) {
+          const algorithm_id = m.algorithm_id
+          const task_id = m.task_id
+          const state = m.state
+          const id = m.id
+          const hyper_params = m.hyper_parameters
+          const dataset_id = m.dataset_id
+          const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
+
+          model.id = id
+          model.state = state
+          model.total_epoch = m.total_epoch
+          model.nth_epoch = m.nth_epoch
+          model.total_batch = m.total_batch
+          model.nth_batch = m.nth_batch
+          model.train_loss_list = m.train_loss_list
+          model.valid_loss_list = m.valid_loss_list
+          model.best_epoch_valid_result = m.best_epoch_valid_result
+          model.last_batch_loss = m.last_batch_loss
+
+          context.commit('updateModel', model)
+          context.dispatch('loadBestValidResult', id)
+        }
+      }, error_handler_creator(context))
+  },
+
+  /** ***
+   *
+   */
   async loadDatasetsOfCurrentTask (context) {
     // TODO: const task_id = context.getters.getCurrentTask
     // TODO: const url = '/api/renom_img/v2/dataset/load/task/' + task_id
@@ -103,6 +142,37 @@ export default {
           loaded_dataset.valid_data = valid_data
           loaded_dataset.class_info = class_info
           context.commit('addDataset', loaded_dataset)
+        }
+      }, error_handler_creator(context))
+  },
+
+  /** ***
+   *
+   */
+  async loadDatasetsOfCurrentTaskDetail (context, payload) {
+    const dataset_id = payload
+    const url = '/api/renom_img/v2/api/detection/datasets/' + dataset_id
+    return axios.get(url)
+      .then(function (response) {
+        console.log('【loadDatasetsOfCurrentTaskDetail】')
+        console.log(response.data)
+        if (response.status === 204) return
+        for (const ds of response.data.datasets) {
+          const id = ds.id
+          const class_map = ds.class_map
+          const valid_data = ds.valid_data
+          const task = ds.task_id
+          const name = ds.name
+          const ratio = ds.ratio
+          const description = ds.description
+          const test_dataset_id = ds.test_dataset_id
+          const class_info = ds.class_info
+          const loaded_dataset = new Dataset(task, name, ratio, description, test_dataset_id)
+          loaded_dataset.id = id
+          loaded_dataset.class_map = class_map
+          loaded_dataset.valid_data = valid_data
+          loaded_dataset.class_info = class_info
+          context.commit('updateDataset', loaded_dataset)
         }
       }, error_handler_creator(context))
   },
