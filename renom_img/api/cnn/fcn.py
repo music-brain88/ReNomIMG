@@ -22,10 +22,6 @@ class PoolBase(object):
         self._ceil_mode = ceil_mode
 
     def __call__(self, x):
-        assert len(x.shape) == 4, "The dimension of input array must be 4. Actual dim is {}".format(x.ndim)
-        assert all([s > 0 for s in x.shape[2:]]), \
-            "The shape of input array {} is too small. Please give an array which size is lager than 0.".format(
-                x.shape)
         return self.forward(x)
 
 
@@ -194,7 +190,7 @@ class CNN_FCN8s(CnnBase):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('Following path {} can not be loaded to the class{}.'.format(path,self.__class__))
+            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
 
 class CNN_FCN16s(CnnBase):
 
@@ -280,7 +276,7 @@ class CNN_FCN16s(CnnBase):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('Following path {} can not be loaded to the class {}.'.format(path,self.__class__))
+            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
 
 class CNN_FCN32s(CnnBase):
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN32s.h5".format(__version__)
@@ -346,4 +342,4 @@ class CNN_FCN32s(CnnBase):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('Following path {} can not be loaded to the class {}.'.format(path,self.__class__))
+            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))

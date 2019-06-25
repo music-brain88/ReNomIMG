@@ -108,7 +108,7 @@ class Base(rm.Model):
                 if hasattr(layer, "params") and hasattr(layer.params, "w") and not isinstance(layer,rm.BatchNormalize):
                     reg += rm.sum(layer.params.w * layer.params.w)
         except Exception as e:
-            raise InvalidDataError(str(e))
+            raise InvalidValueError("Error encountered in calculating regularization term for loss function. Please check if model is appropriately defined and model contains only acceptable values for the weight parameters.")
 
         return (self.decay_rate / 2) * reg
 
@@ -181,7 +181,7 @@ class Base(rm.Model):
         else:
             opt = optimizer
         if opt is None:
-            raise OptimizerError("Optimizer is not defined. Please define a valid optimizer.")
+            raise InvalidOptimizerError("Optimizer is not defined. Please define a valid optimizer.")
         if isinstance(opt, BaseOptimizer):
             opt.setup(batch_loop, epoch)
 

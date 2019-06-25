@@ -18,7 +18,7 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.nms import nms
 from renom_img.api.utility.optimizer import BaseOptimizer, OptimizerYolov2
 from renom_img.api.utility.exceptions.check_exceptions import *
-from renom_img.api.utility.exceptions.exceptions import WeightLoadError
+from renom_img.api.utility.exceptions.exceptions import WeightLoadError, InvalidOptimizerError
 
 class BestAnchorBoxFinder(object):
     def __init__(self, ANCHORS):
@@ -351,7 +351,7 @@ class Yolov2(Detection):
                 names,values,types = self._mapping(names,values,types)
                 self._try_load(names,values,types)
             except Exception as e:
-                raise WeightLoadError('{} weight file can not be loaded to the model.'.format(filename))
+                raise WeightLoadError('The {} weight file can not be loaded into the {} model.'.format(filename, self.__class__.__name__))
 
     def _mapping(self,names,values,types):
         for name in names:
@@ -532,11 +532,6 @@ class Yolov2(Detection):
         """
         if imsize_list is None:
             imsize_list = [self.imsize]
-        else:
-            for ims in imsize_list:
-                assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
-                    "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
-                    exp),imsize=[(288, 288), (320, 320)]."
 
         size_N = len(imsize_list)
         perm = np.random.permutation(size_N)
@@ -734,10 +729,7 @@ class Yolov2(Detection):
         if imsize_list is None:
             imsize_list = [self.imsize]
         else:
-            for ims in imsize_list:
-                assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
-                    "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
-                    exp),imsize=[(288, 288), (320, 320)]."
+            check_yolov2_init(imsize)
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=8)
         if valid_img_path_list is not None and valid_annotation_list is not None:
@@ -754,7 +746,8 @@ class Yolov2(Detection):
             opt =self.default_optimizer
         else:
             opt = optimizer
-        assert opt is not None
+        if opt is None:
+            raise InvalidOptimizerError("Optimizer is not defined. Please define a valid optimizer.")
 
         if isinstance(opt, BaseOptimizer):          
             opt.setup(batch_loop, epoch)
