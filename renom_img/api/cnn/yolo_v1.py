@@ -129,4 +129,4 @@ class CnnYolov1(CnnBase):
         try:
             self.feature_extractor.load(path)
         except:
-            raise WeightLoadError('Following path {} can not be loaded to the class {}'.format(path,self.__class__))
+            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))

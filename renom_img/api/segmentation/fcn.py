@@ -82,8 +82,7 @@ class TargetBuilderFCN():
         w, h = img.size
         # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
         img = np.array(img)
-        assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
-        assert img.ndim == 2
+        check_segmentation_label(img)
         return img, img.shape[0], img.shape[1]
 
     def _load(self, path):

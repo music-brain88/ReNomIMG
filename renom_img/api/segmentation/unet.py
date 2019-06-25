@@ -10,6 +10,7 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.load import load_img
 from renom_img.api.utility.target import DataBuilderSegmentation
+from renom_img.api.utility.exceptions.check_exceptions import check_segmentation_label
 from renom_img.api.segmentation import SemanticSegmentation
 from renom_img.api.cnn.unet import CNN_UNet
 
@@ -68,8 +69,7 @@ class TargetBuilderUNet():
         w, h = img.size
         # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
         img = np.array(img)
-        assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
-        assert img.ndim == 2
+        check_segmentation_label(img)
         return img, img.shape[0], img.shape[1]
 
     def _load(self, path):
@@ -167,8 +167,8 @@ class UNet(SemanticSegmentation):
 
         self._model = CNN_UNet(1)
 
-        assert not load_pretrained_weight, "The pretrained weights for %s are not \
-            currently available. Please set `load_pretrained_weight` flag to False." % self.__class__.__name__
+        if load_pretrained_weight:
+            raise FunctionNotImplementedError("The pretrained weights for %s are not currently available. Please set `load_pretrained_weight` to False.".format(self.__class__.__name__))
 
         super(UNet, self).__init__(class_map, imsize,
                                    load_pretrained_weight, train_whole_network, self._model)

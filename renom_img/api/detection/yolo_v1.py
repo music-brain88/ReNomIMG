@@ -194,7 +194,7 @@ class Yolov1(Detection):
                 names,values,types = self._mapping(names,values,types)
                 self._try_load(names,values,types)
             except Exception as e:
-                raise WeightLoadError('{} weight file can not be loaded to the model.'.format(filename))
+                raise WeightLoadError('The {} weight file can not be loaded into the {} model.'.format(filename, self.__class__.__name__))
 
     def _mapping(self,names,values,types):
         for name in names:

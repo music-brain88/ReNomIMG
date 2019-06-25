@@ -105,7 +105,7 @@ class ObservableTrainer():
         try:
             assert opt is not None,"Provided Optimizer is not valid. Optimizer must an instance of rm.optimizer. Provided {}".format(opt)
         except Exception as e:
-            raise OptimizerError(str(e))
+            raise InvalidOptimizerError(str(e))
 
         train_batch_loop = len(train_dist)//batch_size
 
@@ -142,9 +142,9 @@ class ObservableTrainer():
                     loss = float(loss)
                     # Exception checking
                     try:
-                        assert not np.isnan(loss),"Loss becomes NAN."
+                        assert not np.isnan(loss),"Loss value has become NAN. Please consider training with different hyper-parameters."
                     except Exception as e:
-                        raise LossError(str(e))
+                        raise InvalidLossValueError(str(e))
                     display_loss+=loss
                 if isinstance(opt, BaseOptimizer):
                     opt.set_information(batch,epoch,avg_train_loss_list,avg_valid_loss_list,loss)
