@@ -32,8 +32,9 @@ export default {
     context.dispatch('startAllPolling')
   },
 
+
   /** ***
-   *
+   * Get models list (No details)
    */
   async loadModelsOfCurrentTask (context, payload) {
     // TODO: const task = context.getters.getCurrentTask
@@ -66,15 +67,22 @@ export default {
           model.valid_loss_list = m.valid_loss_list
           model.best_epoch_valid_result = m.best_epoch_valid_result
           model.last_batch_loss = m.last_batch_loss
+          model.last_prediction_result = m.last_prediction_result
 
           context.commit('addModel', model)
           context.dispatch('loadBestValidResult', id)
+
+          // TODO muraishi: modify later
+          // model.deployed_model = m.deployed_model
+          // if(model.deployed_model){
+          //   context.commit('setDeployedModel', model)
+          // }
         }
       }, error_handler_creator(context))
   },
 
   /** ***
-   *
+   * TODO muraishi: 1
    */
   async loadModelsOfCurrentTaskDetail (context, payload) {
     const model_id = payload
@@ -85,30 +93,32 @@ export default {
         console.log(response.data)
 
         if (response.status === 204) return
-        const model_list = response.data.models
-        for (const m of model_list) {
-          const algorithm_id = m.algorithm_id
-          const task_id = m.task_id
-          const state = m.state
-          const id = m.id
-          const hyper_params = m.hyper_parameters
-          const dataset_id = m.dataset_id
-          const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
+        const m= response.data.model
 
-          model.id = id
-          model.state = state
-          model.total_epoch = m.total_epoch
-          model.nth_epoch = m.nth_epoch
-          model.total_batch = m.total_batch
-          model.nth_batch = m.nth_batch
-          model.train_loss_list = m.train_loss_list
-          model.valid_loss_list = m.valid_loss_list
-          model.best_epoch_valid_result = m.best_epoch_valid_result
-          model.last_batch_loss = m.last_batch_loss
+        const algorithm_id = m.algorithm_id
+        const task_id = m.task_id
+        const state = m.state
+        const id = m.id
+        const hyper_params = m.hyper_parameters
+        const dataset_id = m.dataset_id
+        const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
 
-          context.commit('updateModel', model)
-          context.dispatch('loadBestValidResult', id)
-        }
+        model.id = id
+        model.state = state
+        model.total_epoch = m.total_epoch
+        model.nth_epoch = m.nth_epoch
+        model.total_batch = m.total_batch
+        model.nth_batch = m.nth_batch
+        model.train_loss_list = m.train_loss_list
+        model.valid_loss_list = m.valid_loss_list
+        model.best_epoch_valid_result = m.best_epoch_valid_result
+        model.last_batch_loss = m.last_batch_loss
+        model.last_prediction_result = m.last_prediction_result
+
+        // TODO muraishi: no need updateModel?? if dont have to contain model details
+        context.commit('updateModel', model)
+        context.commit('setSelectedModel',model)
+        context.dispatch('loadBestValidResult', id)
       }, error_handler_creator(context))
   },
 
@@ -147,7 +157,7 @@ export default {
   },
 
   /** ***
-   *
+   *TODO muraishi :2
    */
   async loadDatasetsOfCurrentTaskDetail (context, payload) {
     const dataset_id = payload
@@ -205,7 +215,7 @@ export default {
    */
 
   /** ***
-   *
+   * TODO muraishi
    */
   async createModel (context, payload) {
     // TODO: const url = '/api/renom_img/v2/model/create'
@@ -526,7 +536,7 @@ export default {
   },
 
   /** ***
-   *
+   * TODO muraishi
    */
   async createDataset (context, payload) {
     const url = '/api/renom_img/v2/api/detection/datasets/' + payload.test_dataset_id
