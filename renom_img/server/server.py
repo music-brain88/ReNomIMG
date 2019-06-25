@@ -313,6 +313,13 @@ def check_dir_exists(dirname):
         raise DirectoryNotFound("Directory {} is not found.".format(dirname))
 
 
+def check_model_deployed(model):
+    deployed_model = storage.fetch_deployed_model(model["task_id"])
+    if model["id"] == deployed_model["id"]:
+        return True
+    return False
+
+
 # To use dataset list, because dataset detail Information is not shown in dataset list.
 def dataset_to_light_dict(dataset):
     return {
@@ -365,6 +372,7 @@ def model_to_light_dict(model):
         "last_prediction_result": {},
         "created": model["created"],
         "updated": model["updated"],
+        "deployed": check_model_deployed(model)
     }
 
 
@@ -388,6 +396,7 @@ def model_to_dict(model):
         "last_prediction_result": model["last_prediction_result"],
         "created": model["created"],
         "updated": model["updated"],
+        "deployed": check_model_deployed(model)
     }
 
 
