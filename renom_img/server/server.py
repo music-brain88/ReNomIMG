@@ -226,10 +226,10 @@ def error_message_model_algorithm_id(algorithm_id):
 def error_message_epoch(epoch):
     message = ""
     param_name = "Hyperparameter epoch"
-    if epoch is not None:
+    if epoch is None:
         desc = "is required"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
-    elif is_int(epoch):
+    elif not is_int(epoch):
         desc = "must be integer"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
     elif is_int(epoch) < EPOCH_MIN:
@@ -244,10 +244,10 @@ def error_message_epoch(epoch):
 def error_message_batch(batch):
     message = ""
     param_name = "Hyperparameter batch"
-    if batch is not None:
+    if batch is None:
         desc = "is required"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
-    elif is_int(batch):
+    elif not is_int(batch):
         desc = "must be integer"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
     elif is_int(batch) < BATCH_MIN:
@@ -264,13 +264,14 @@ def error_message_model_hyper_params(hyper_params):
     if hyper_params is None:
         messages.append("Hyper parameter is not exists.")
     else:
+        print(hyper_params)
         # check epoch
-        m = error_message_epoch(hyper_params["epoch"])
+        m = error_message_epoch(hyper_params["total_epoch"])
         if len(m) > 0:
             messages.append(m)
 
         # check batch
-        m = error_message_batch(hyper_params["batch"])
+        m = error_message_batch(hyper_params["batch_size"])
         if len(m) > 0:
             messages.append(m)
     return messages
@@ -315,7 +316,7 @@ def check_dir_exists(dirname):
 
 def check_model_deployed(model):
     deployed_model = storage.fetch_deployed_model(model["task_id"])
-    if model["id"] == deployed_model["id"]:
+    if deployed_model is not None and model["id"] == deployed_model["id"]:
         return True
     return False
 

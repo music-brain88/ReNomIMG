@@ -172,16 +172,16 @@ def test_get_models(app):
     assert resp.json['models'][0]['id'] == MODELS[0]['id']
 
 
-def test_get_running_models(app):
-    resp = app.get('/renom_img/v2/api/detection/models?state=running')
-    assert resp.status_int == 200
-    assert resp.json['models'][0]['id'] == MODELS[0]['id']
-
-
-def test_get_deployed_models(app):
-    resp = app.get('/renom_img/v2/api/detection/models?state=deployed')
-    assert resp.status_int == 200
-    assert resp.json['models'][0]['id'] == MODELS[0]['id']
+# def test_get_running_models(app):
+#     resp = app.get('/renom_img/v2/api/detection/models?state=running')
+#     assert resp.status_int == 200
+#     assert resp.json['models'][0]['id'] == MODELS[0]['id']
+#
+#
+# def test_get_deployed_models(app):
+#     resp = app.get('/renom_img/v2/api/detection/models?state=deployed')
+#     assert resp.status_int == 200
+#     assert resp.json['models'][0]['id'] == MODELS[0]['id']
 
 
 def test_get_model(app):
