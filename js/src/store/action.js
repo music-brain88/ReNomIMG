@@ -6,9 +6,9 @@ import { Dataset } from './classes/dataset'
 function error_handler_creator (context, callback = undefined) {
   return function (error) {
     const status = error.response.status
-    if (status === 500) {
-      const message = error.response.data.error_msg
-      context.commit('showAlert', message)
+    if ([200, 400, 403, 404, 405, 500, 503].includes(status)) {
+      const message = error.response.data.error.message
+      context.commit('showAlert', '【' + status + ' Error】: ' + message)
     }
     if (callback) {
       callback()

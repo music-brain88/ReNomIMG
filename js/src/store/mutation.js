@@ -95,7 +95,7 @@ export default {
     if (state.datasets.find(n => n.id === payload.id) === undefined) {
       state.datasets = [payload, ...state.datasets]
     } else {
-      let old_datasets = state.datasets
+      const old_datasets = state.datasets
       const index = old_datasets.findIndex(n => n.id === payload.id)
       old_datasets.splice(index, 1)
 
@@ -118,7 +118,7 @@ export default {
     if (state.models.find(n => n.id === payload.id) === undefined) {
       state.models = [payload, ...state.models]
     } else {
-      let old_models = state.models
+      const old_models = state.models
       const index = old_models.findIndex(n => n.id === payload.id)
       old_models.splice(index, 1)
 

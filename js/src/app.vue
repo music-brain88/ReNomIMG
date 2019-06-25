@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <rnc-modal-alart v-if="$store.state.show_alert_modal" />
+    <rnc-modal-alert v-if="$store.state.show_alert_modal" />
     <rnc-modal-confirm v-if="$store.state.show_confirm_modal" />
     <rnc-modal-togglemask
       :show-modal="show"
