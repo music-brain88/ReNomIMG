@@ -365,6 +365,8 @@ def dataset_to_dict(dataset):
 
 # To use model list, model detail information is not shown in model list.
 def model_to_light_dict(model):
+    best_epoch_valid_result = model["best_epoch_valid_result"]
+    best_epoch_valid_result["prediction"] = []
     return {
         "id": model["id"],
         "task_id": model["task_id"],
@@ -377,7 +379,7 @@ def model_to_light_dict(model):
         # "train_loss_list": model["train_loss_list"],
         "valid_loss_list": [],
         # "valid_loss_list": model["valid_loss_list"],
-        "best_epoch_valid_result": {},  # modify only evaluation value return
+        "best_epoch_valid_result": best_epoch_valid_result,  # modify only evaluation value return
         # "best_epoch_valid_result": model["best_epoch_valid_result"],
         "total_epoch": model["total_epoch"],
         "nth_epoch": model["nth_epoch"],
