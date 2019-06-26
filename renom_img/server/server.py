@@ -271,21 +271,11 @@ def error_message_model_hyper_params(hyper_params):
     else:
         print()
         # check epoch
-<<<<<<< HEAD
-        # TODO: m = error_message_epoch(hyper_params["epoch"])
-        print("***hyper_params[total_epoch]:", hyper_params['total_epoch'])
-        m = error_message_epoch(hyper_params['total_epoch'])
-=======
         m = error_message_epoch(hyper_params["total_epoch"])
->>>>>>> numajiri/#272
         if len(m) > 0:
             messages.append(m)
 
         # check batch
-<<<<<<< HEAD
-        # TODO: m = error_message_batch(hyper_params["batch"])
-=======
->>>>>>> numajiri/#272
         m = error_message_batch(hyper_params["batch_size"])
         if len(m) > 0:
             messages.append(m)
