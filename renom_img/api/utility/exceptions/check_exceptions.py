@@ -63,7 +63,7 @@ def check_resnet_init(plateau):
 
 
 def check_resnext_init(plateau, cardinality):
-    standard_obj = StandardResNextInit()
+    standard_obj = StandardResNeXtInit()
     std = standard_obj.get_standards()
 
     try:
@@ -210,8 +210,8 @@ def check_missing_param(class_map):
     except Exception as e:
         raise MissingParamError(str(e))
 
-def check_segmentation_label(label):
-    if not np.sum(np.histogram(label, bins=list(range(256)))[0][N:-1]) == 0:
+def check_segmentation_label(label, n):
+    if not np.sum(np.histogram(label, bins=list(range(256)))[0][n:-1]) == 0:
         raise InvalidInputValueError("Invalid label numbers in annotation data. Please provide annotation data with only numbers that correspond to the number of classes in class_map.")
     if not label.ndim == 2:
         raise InvalidInputTypeError("Invalid label data type with {} dimensions. Please provide label data with 2 dimensions only (label.ndim == 2).".format(label.ndim))
