@@ -124,13 +124,13 @@ class DenseNet121(Classification):
 
         layer_per_block = [6, 12, 24, 16]
         growth_rate = 32
-        self.model = CNN_DenseNet(1, layer_per_block,
+        self._model = CNN_DenseNet(1, layer_per_block,
                                    growth_rate)
 
-        super(DenseNet121, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+        super(DenseNet121, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_train_whole(train_whole_network)
-        self.model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
         self.default_optimizer = OptimizerDenseNet()
         self.decay_rate = 0.0005
 
@@ -166,13 +166,13 @@ class DenseNet169(Classification):
         layer_per_block = [6, 12, 32, 32]
         growth_rate = 32
 
-        self.model = CNN_DenseNet(1, layer_per_block,
+        self._model = CNN_DenseNet(1, layer_per_block,
                                    growth_rate)
 
-        super(DenseNet169, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+        super(DenseNet169, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_train_whole(train_whole_network)
-        self.model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
         self.default_optimizer = OptimizerDenseNet()
         self.decay_rate = 0.0005
 
@@ -207,13 +207,13 @@ class DenseNet201(Classification):
         layer_per_block = [6, 12, 48, 32]
         growth_rate = 32
 
-        self.model = CNN_DenseNet(1, layer_per_block,
+        self._model = CNN_DenseNet(1, layer_per_block,
                                    growth_rate)
 
-        super(DenseNet201, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+        super(DenseNet201, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_train_whole(train_whole_network)
-        self.model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
         self.default_optimizer = OptimizerDenseNet()
         self.decay_rate = 0.0005
 

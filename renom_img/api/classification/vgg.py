@@ -13,6 +13,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.cnn.vgg import CNN_VGG19, CNN_VGG16, CNN_VGG16_NODENSE, CNN_VGG11
 from renom_img.api.utility.optimizer import OptimizerVGG
 from renom_img.api.utility.exceptions.check_exceptions import *
+from renom_img.api.utility.exceptions.exceptions import FunctionNotImplementedError
 
 RESIZE_METHOD = Image.BILINEAR
 
@@ -145,19 +146,21 @@ class VGG11(Classification):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
 
-        self.model = CNN_VGG11()
+        self._model = CNN_VGG11()
+        if load_pretrained_weight:
+            raise FunctionNotImplementedError("The pretrained weights for %s are not currently available. Please set `load_pretrained_weight` to False.".format(self.__class__.__name__))
         super(VGG11, self).__init__(class_map, imsize, load_pretrained_weight,
-                                    train_whole_network, self.model)
+                                    train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerVGG()
         self.decay_rate = 0.0005
 
-        self.model.fc1.params = {}
-        self.model.fc2.params = {}
-        self.model.fc3.params = {}
+        self._model.fc1.params = {}
+        self._model.fc2.params = {}
+        self._model.fc3.params = {}
 
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
@@ -195,19 +198,19 @@ class VGG16(Classification):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
 
-        self.model = CNN_VGG16()
+        self._model = CNN_VGG16()
         super(VGG16, self).__init__(class_map, imsize, load_pretrained_weight,
-                                    train_whole_network, self.model)
+                                    train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerVGG()
         self.decay_rate = 0.0005
 
-        self.model.fc1.params = {}
-        self.model.fc2.params = {}
-        self.model.fc3.params = {}
+        self._model.fc1.params = {}
+        self._model.fc2.params = {}
+        self._model.fc3.params = {}
 
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
@@ -218,19 +221,19 @@ class VGG16_NODENSE(Classification):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
 
-        self.model = CNN_VGG16_NODENSE()
+        self._model = CNN_VGG16_NODENSE()
         super(VGG16, self).__init__(class_map, imsize, load_pretrained_weight,
-                                    train_whole_network, self._model, load_target=self.model)
+                                    train_whole_network, self._model, load_target=self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerVGG()
         self.decay_rate = 0.0005
 
-        self.model.fc1.params = {}
-        self.model.fc2.params = {}
-        self.model.fc3.params = {}
+        self._model.fc1.params = {}
+        self._model.fc2.params = {}
+        self._model.fc3.params = {}
 
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
@@ -268,19 +271,19 @@ class VGG19(Classification):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False):
 
-        self.model = CNN_VGG19()
+        self._model = CNN_VGG19()
         super(VGG19, self).__init__(class_map, imsize,
-                                    load_pretrained_weight, train_whole_network, self.model)
+                                    load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerVGG()
         self.decay_rate = 0.0005
 
-        self.model.fc1.params = {}
-        self.model.fc2.params = {}
-        self.model.fc3.params = {}
+        self._model.fc1.params = {}
+        self._model.fc2.params = {}
+        self._model.fc3.params = {}
 
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)

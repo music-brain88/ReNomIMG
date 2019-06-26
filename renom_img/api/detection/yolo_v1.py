@@ -14,6 +14,7 @@ from renom_img.api.utility.optimizer import OptimizerYolov1
 from renom_img.api.utility.box import transform2xy12
 from renom_img.api.utility.load import prepare_detection_data, load_img, resize_detection_data
 from renom_img.api.utility.exceptions.check_exceptions import *
+from renom_img.api.utility.exceptions.exceptions import WeightLoadError
 
 def make_box(box):
     x1 = box[0] - box[2] / 2.
@@ -159,15 +160,93 @@ class Yolov1(Detection):
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
 
-        self.model = CnnYolov1()
+        self._model = CnnYolov1()
         super(Yolov1, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, self.model)
+                                     load_pretrained_weight, train_whole_network, self._model)
         self._cells = cells
         self._bbox = bbox
-        self.model.set_output_size((self.num_class + 5 * bbox) * cells[0] * cells[1])
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size((self.num_class + 5 * bbox) * cells[0] * cells[1])
+        self._model.set_train_whole(train_whole_network)
         self.default_optimizer = OptimizerYolov1()
         self.decay_rate = 0.0005
+
+    def load(self, filename):
+        """Load saved weights to model.
+
+        Args:
+            filename (str): File name of saved model.
+
+        Example:
+            >>> model = rm.Dense(2)
+            >>> model.load("model.hd5")
+        """
+        import h5py
+        f = h5py.File(filename, 'r+')
+        values = f['values']
+        types = f['types']
+
+        names = sorted(values.keys())
+
+        try:
+            self._try_load(names,values,types)
+        except AttributeError as e:
+            try:
+                names,values,types = self._mapping(names,values,types)
+                self._try_load(names,values,types)
+            except Exception as e:
+                raise WeightLoadError('The {} weight file can not be loaded into the {} model.'.format(filename, self.__class__.__name__))
+
+    def _mapping(self,names,values,types):
+        for name in names:
+            if "._network" in name:
+                values[name.replace("._network","._model.classifier")] = values.pop(name)
+                types[name.replace("._network","._model.classifier")] = types.pop(name)
+            elif "._freezed_network" in name:
+                values[name.replace("._freezed_network","._model.feature_extractor")] = values.pop(name)
+                types[name.replace("._freezed_network","._model.feature_extractor")] = types.pop(name)
+
+        names = [n.replace("._network","._model.classifier") for n in names]
+        names = [n.replace("._freezed_network","._model.feature_extractor") for n in names]
+
+        return sorted(names),values,types
+
+    def _try_load(self,names,values,types):
+
+        def get_attr(root, names):
+            names = names.split('.')[1:]
+            ret = root
+            for name in names:
+                ret = getattr(ret, name)
+            return ret
+
+        target = self
+        for name in names:
+            target = get_attr(self, name)
+
+            values_grp = values[name]
+            types_grp = types[name]
+
+            for k, v in values_grp.items():
+                v = v.value
+                if isinstance(v, np.ndarray):
+                    type = types_grp.get(k, None)
+                    if type:
+                        if type.value == 'renom.Variable':
+                            auto_update = types_grp[k + '._auto_update'].value
+                            v = rm.Variable(v, auto_update=auto_update)
+                        else:
+                            v = rm.Node(v)
+
+                if k.startswith('__dict__.'):
+                    obj = target
+                    name = k.split(".", 1)[1]
+                else:
+                    obj = target.params
+                    name = k
+
+                setattr(obj, name, v)
+
+
 
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):

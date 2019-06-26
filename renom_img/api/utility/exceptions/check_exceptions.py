@@ -22,7 +22,7 @@ def check_for_common_init_params(class_map, imsize, load_pretrained_weight, trai
                               ), "Invalid imsize value ({}). Please provide an integer value.".format(imsize)
 
     except Exception as e:
-        raise ParamValueError(str(e))
+        raise InvalidInputValueError(str(e))
     # type check
     try:
         assert type(class_map) in standards['class_map']['type'], "Invalid type for class_map argument. Please provide a {} type.".format(
@@ -36,7 +36,7 @@ def check_for_common_init_params(class_map, imsize, load_pretrained_weight, trai
         assert isinstance(target_model, standards['target_model']['type']), "Invalid type for target_model argument. Please provide a {} type".format(
             standards['train_whole_network']['type'])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputTypeError(str(e))
 
     # check range limit
     try:
@@ -49,7 +49,7 @@ def check_for_common_init_params(class_map, imsize, load_pretrained_weight, trai
         else:
             assert imsize >= standards['imsize']['range'][0] and imsize <= standards['imsize']['range'][1], "Invalid imsize value. Please provide a value between {} and {}".format(standards['imsize']['range'][0], standards['imsize']['range'][1])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputValueError(str(e))
 
 
 def check_resnet_init(plateau):
@@ -59,18 +59,22 @@ def check_resnet_init(plateau):
     try:
         assert type(plateau) in std['plateau']['type'], "Invalid plateau type. Please provide a {} type for the plateau argument.".format(std['plateau']['type'])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputTypeError(str(e))
 
 
 def check_resnext_init(plateau, cardinality):
     standard_obj = StandardResNextInit()
+    std = standard_obj.get_standards()
 
     try:
         assert type(plateau) in std['plateau']['type'], "Invalid plateau type. Please provide a {} type for the plateau argument.".format(std['plateau']['type'])
         assert type(cardinality) in std['cardinality']['type'], "Invalid cardinality type. Please provide a {} type for the cardinality argument.".format(std['cardinality']['type'])
+    except Exception as e:
+        raise InvalidInputTypeError(str(e))
+    try:
         assert cardinality >= std['cardinality']['range'][0] and cardinality <= std['cardinality']['range'][1], "Invalid cardinality value. Please provide a cardinality value between {} and {}.".format(std['cardinality']['range'][0], std['cardinality']['range'][1])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputValueError(str(e))
 
 
 def check_yolov1_init(cells, bbox):
@@ -80,7 +84,10 @@ def check_yolov1_init(cells, bbox):
     try:
         assert type(cells) in std['cells']['type'], "Invalid type for cells argument. Please provide a {} type.".format(std['cells']['type'])
         assert type(bbox) in std['bbox']['type'], "Invalid type for bbox argument. Please provide a {} type.".format(std['bbox']['type'])
+    except Exception as e:
+        raise InvalidInputTypeError(str(e))
 
+    try:
         if type(cells) is tuple:
             assert cells[0] >= std['cells']['range'][0] and cells[0] <= std['cells']['range'][1] and cells[
                 1] >= std['cells']['range'][0] and cells[1] <= std['cells']['range'][1], "Invalid cells values. Please provide values between {} and {} for cells argument.".format(std['cells']['range'][0], std['cells']['range'][1])
@@ -89,7 +96,7 @@ def check_yolov1_init(cells, bbox):
 
         assert bbox >= std['bbox']['range'][0] and bbox <= std['bbox']['range'][1], "Invalid bbox value. Please provide a value between {} and {} for the bbox argument.".format(std['bbox']['range'][0], std['bbox']['range'][1])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputValueError(str(e))
 
 
 def check_yolov2_init(imsize):
@@ -103,7 +110,7 @@ def check_yolov2_init(imsize):
             assert imsize % std['multiple'] == 0, "Invalid imsize value. imsize for Yolov2 must be integer multiple of {}.".format(
                 std['multiple'])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputValueError(str(e))
 
 
 def check_ssd_init(overlap, imsize):
@@ -111,17 +118,19 @@ def check_ssd_init(overlap, imsize):
     std = obj.get_standards()
     try:
         assert type(overlap) in std['overlap']['type'], "Invalid type for overlap_threshold argument. Please provide a {}".format(std['overlap']['type'])
-
         if type(imsize) is tuple:
             assert all(k == std['imsize']['type']
                        for k in imsize), "Invalid type for imsize argument. Please provide a {} type.".format(std['imsize']['type'])
         else:
             assert imsize == std['imsize']['type'], "Invalid type for imsize argument. Please provide a {} type.".format(
                 std['imsize']['type'])
+    except Exception as e:
+        raise InvalidInputTypeError(str(e))
 
+    try:
         assert overlap >= std['overlap']['range'][0] and overlap <= std['overlap']['range'][1], "Invalid value for overlap_threshold. Please provide a value between {} and {}.".format(std['overlap']['range'][0], std['overlap']['range'][1])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputValueError(str(e))
 
 
 def check_fcn_init(upscore):
@@ -131,7 +140,20 @@ def check_fcn_init(upscore):
     try:
         assert type(upscore) in std['upscore']['type'], "Invalid type for train_final_upscore argument. Please provide a {} type.".format(std['upscore']['type'])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputTypeError(str(e))
+
+def check_ternausnet_init(imsize):
+    obj = StandardTernausNetInit()
+    std = obj.get_standards()
+    try:
+        if type(imsize) is tuple:
+            assert all(k % std['multiple'] == 0 for k in imsize), "Invalid imsize value. imsize for TernausNet must be integer multiple of {}.".format(
+                std['multiple'])
+        else:
+            assert imsize % std['multiple'] == 0, "Invalid imsize value. imsize for TernausNet must be integer multiple of {}.".format(
+                std['multiple'])
+    except Exception as e:
+        raise InvalidInputValueError(str(e))
 
 
 def check_common_forward(x):
@@ -141,18 +163,18 @@ def check_common_forward(x):
     try:  # check for existance
         x
     except:
-        raise MissingParamError(
+        raise MissingInputError(
             'Input argument x is missing in the forward function. Please call forward with valid input.')
     try:
         assert type(x) in std['type'], "Invalid type for input x. Please provide input with a {} type.".format(std['type'])
         assert len(x.shape) == std['length'], "Invalid number of dimensions for input x. Please provide input with len(x.shape) == {}".format(std['length'])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputTypeError(str(e))
 
     try:
         assert x.dtype in std['value'], "Invalid value for input x. Please provide input with {}, {} or {} values.".format(std['value'][0], std['value'][1], std['value'][2])
     except Exception as e:
-        raise ParamValueError(str(e))
+        raise InvalidInputValueError(str(e))
 
 
 def check_yolov2_forward(anchor, x):
@@ -161,15 +183,16 @@ def check_yolov2_forward(anchor, x):
     check_common_forward(x)
     try:
         assert type(anchor) in std['anchor']['type'], "Invalid type for anchor argument. Please provide a {} type.".format(std['anchor']['type'])
-        assert len(anchor) >= std['anchor']['range'][0] and len(
-            anchor) <= std['anchor']['range'][1], "Invalid legnth for anchor argument. Please provide an object with length between {} and {}.".format(std['anchor']['range'][0], std['anchor']['range'][1])
     except Exception as e:
-        raise InvalidParamError(str(e))
+        raise InvalidInputTypeError(str(e))
 
     try:
+        assert len(anchor) >= std['anchor']['range'][0] and len(
+            anchor) <= std['anchor']['range'][1], "Invalid legnth for anchor argument. Please provide an object with length between {} and {}.".format(std['anchor']['range'][0], std['anchor']['range'][1])
+
         assert all(k.dtype in std['anchor']['value'] for k in anchor), "Invalid value for anchor argument. Please provide {} or {} values.".format(std['anchor']['value'][0], std['anchor']['value'][1])
     except Exception as e:
-        raise ParamValueError(str(e))
+        raise InvalidInputValueError(str(e))
 
 
 def check_common_learning_rate(lr):
@@ -178,9 +201,8 @@ def check_common_learning_rate(lr):
     try:
         assert type(lr) in std['LR']['type'],"Invalid type for learning rate argument. Please provide a {} type.".format(std['LR']['type'])
         assert lr >= std['LR']['range'][0] and lr < std['LR']['range'][1], "Invalid value for learning rate argument. Please provide values between {} and {}".format(std['LR']['range'][0], std['LR']['range'][1])
-
     except Exception as e:
-        raise LearningRateError(str(e))
+        raise InvalidLearningRateError(str(e))
 
 def check_missing_param(class_map):
     try:
@@ -188,4 +210,9 @@ def check_missing_param(class_map):
     except Exception as e:
         raise MissingParamError(str(e))
 
+def check_segmentation_label(label):
+    if not np.sum(np.histogram(label, bins=list(range(256)))[0][N:-1]) == 0:
+        raise InvalidInputValueError("Invalid label numbers in annotation data. Please provide annotation data with only numbers that correspond to the number of classes in class_map.")
+    if not label.ndim == 2:
+        raise InvalidInputTypeError("Invalid label data type with {} dimensions. Please provide label data with 2 dimensions only (label.ndim == 2).".format(label.ndim))
 

@@ -11,7 +11,7 @@ from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.exceptions.check_exceptions import *
-from renom_img.api.utility.exceptions.exceptions import InvalidDataError
+from renom_img.api.utility.exceptions.exceptions import InvalidValueError, InvalidOptimizerError
 
 def adddoc(cls):
     """Insert parent doc strings to inherited class.
@@ -108,7 +108,7 @@ class Base(rm.Model):
                 if hasattr(layer, "params") and hasattr(layer.params, "w") and not isinstance(layer,rm.BatchNormalize):
                     reg += rm.sum(layer.params.w * layer.params.w)
         except Exception as e:
-            raise InvalidDataError(str(e))
+            raise InvalidValueError("Error encountered in calculating regularization term for loss function. Please check if model is appropriately defined and model contains only acceptable values for the weight parameters.")
 
         return (self.decay_rate / 2) * reg
 
@@ -180,7 +180,8 @@ class Base(rm.Model):
             opt = self.default_optimizer
         else:
             opt = optimizer
-        assert opt is not None
+        if opt is None:
+            raise InvalidOptimizerError("Optimizer is not defined. Please define a valid optimizer.")
         if isinstance(opt, BaseOptimizer):
             opt.setup(batch_loop, epoch)
 
@@ -275,4 +276,4 @@ class Base(rm.Model):
             x(ndarray, Node): Input to ${class}.
         """
         check_common_forward(x)
-        return self.model(x)
+        return self._model(x)

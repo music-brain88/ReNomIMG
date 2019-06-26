@@ -120,20 +120,20 @@ class InceptionV1(Classification):
 
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
-        self.model = CNN_InceptionV1(1)
+        self._model = CNN_InceptionV1(1)
         super(InceptionV1, self).__init__(class_map, imsize, load_pretrained_weight,
-                                          train_whole_network, self.model)
+                                          train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerInception(1)
         self.decay_rate = 0.0005
  
 
-        self.model.aux1.params = {}
-        self.model.aux2.params = {}
-        self.model.aux3.params = {}
+        self._model.aux1.params = {}
+        self._model.aux2.params = {}
+        self._model.aux3.params = {}
 
     def loss(self, x, y):
         return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3 * rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
@@ -185,13 +185,13 @@ class InceptionV3(Classification):
 
     def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
 
-        self.model = CNN_InceptionV3(1)
+        self._model = CNN_InceptionV3(1)
 
         super(InceptionV3, self).__init__(class_map, imsize, load_pretrained_weight,
-                                          train_whole_network, self.model)
+                                          train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerInception(3)
         self.decay_rate = 0.0005
@@ -244,13 +244,13 @@ class InceptionV2(Classification):
     """
 
     def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
-        self.model = CNN_InceptionV2(1)
+        self._model = CNN_InceptionV2(1)
 
         super(InceptionV2, self).__init__(class_map, imsize, load_pretrained_weight,
-                                          train_whole_network, self.model)
+                                          train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerInception(2)
         self.decay_rate = 0.0005
@@ -304,12 +304,12 @@ class InceptionV4(Classification):
 
     def __init__(self, class_map=[], imsize=(299, 299), load_pretrained_weight=False, train_whole_network=True):
 
-        self.model = CNN_InceptionV4(1)
+        self._model = CNN_InceptionV4(1)
         super(InceptionV4, self).__init__(class_map, imsize, load_pretrained_weight,
-                                          train_whole_network, self.model)
+                                          train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerInception(4)
         self.decay_rate = 0.0005

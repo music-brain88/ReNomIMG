@@ -174,16 +174,16 @@ class ResNeXt50(Classification):
 
         self.cardinality = cardinality
 
-        self.model = CnnResNeXt(1, Bottleneck, [3, 4, 6, 3], self.cardinality)
+        self._model = CnnResNeXt(1, Bottleneck, [3, 4, 6, 3], self.cardinality)
         super(ResNeXt50, self).__init__(class_map, imsize,
-                                        load_pretrained_weight, train_whole_network, self.model)
+                                        load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerResNeXt(plateau)
         self.decay_rate = 0.0001
-        self.model.fc.params = {}
+        self._model.fc.params = {}
 
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
@@ -229,16 +229,16 @@ class ResNeXt101(Classification):
 
         self.cardinality = cardinality
 
-        self.model = CnnResNeXt(1, Bottleneck, [3, 4, 23, 3], self.cardinality)
+        self._model = CnnResNeXt(1, Bottleneck, [3, 4, 23, 3], self.cardinality)
         super(ResNeXt101, self).__init__(class_map, imsize,
-                                         load_pretrained_weight, train_whole_network, self.model)
+                                         load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerResNeXt(plateau)
         self.decay_rate = 0.0001
-        self.model.fc.params = {}
+        self._model.fc.params = {}
 
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)

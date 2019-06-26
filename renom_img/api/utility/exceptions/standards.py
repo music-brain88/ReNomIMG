@@ -71,6 +71,10 @@ class StandardYolov2Init(StandardInit):
         self.build_standards()
 
     def build_standards(self):
+        self.standards['imsize'] = {
+                            'value':[int],
+                            'type':[int,tuple],
+                            'range':[32,2048]}
         self.standards['multiple'] = 32
 
 
@@ -95,6 +99,17 @@ class StandardFCNInit(StandardInit):
         self.standards['upscore'] = {
             'type': [bool]}
 
+class StandardTernausNetInit(StandardInit):
+    def __init__(self):
+        super(StandardTernausNetInit, self).__init__()
+        self.build_standards()
+
+    def build_standards(self):
+        self.standards['imsize'] = {
+                            'value':[int],
+                            'type':[int,tuple],
+                            'range':[32,2048]}
+        self.standards['multiple'] = 32
 
 class StandardForward:
     def __init__(self):
