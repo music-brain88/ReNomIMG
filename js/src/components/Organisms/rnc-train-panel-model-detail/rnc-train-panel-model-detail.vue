@@ -182,29 +182,19 @@ export default {
 }
 
 #model-detail {
-  width:100%;
+  width: 100%;
+  height: 100%;
   padding: $padding-middle;
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   .col {
+    height: 100%;
     font-size: 0.8rem;
-    align-items: center;
-    justify-content: center;
     max-width: 50%;
     .item {
-      width: calc(100% - $margin-large});
-      display: flex;
-      align-items: center;
-      margin-right: $margin-large;
-      margin-bottom: 15px;
-      .item-title {
-        color: $component-font-color-title;
-      }
-      .item-content {
-        text-align: center;
-        color: $component-font-color;
-        margin-left: 10px;
-      }
+      width: 100%;
+      text-align: center;
+      line-height: $text-height-middle;
     }
   }
 }

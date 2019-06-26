@@ -332,9 +332,9 @@ export default {
         .attr('stroke', 'red')
         .attr('stroke-width', 1)
         .attr('opacity', 0.7)
-        .attr('x1', this.scaleX(best_epoch_nth + 1))
+        .attr('x1', this.scaleX(best_epoch_nth))
         .attr('y1', this.scaleY(maxY))
-        .attr('x2', this.scaleX(best_epoch_nth + 1))
+        .attr('x2', this.scaleX(best_epoch_nth))
         .attr('y2', this.scaleY(minY))
 
         .on('mouseenter', (d, index) => {
