@@ -35,7 +35,7 @@
                   :class="{selected: current_dataset===item}"
                   :key="key"
                   class="dataset-item"
-                  @click="current_dataset=item"
+                  @click="clickedDatasetsItem(item)"
                 >
                   <span>
                     {{ item.name }}
@@ -144,7 +144,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import RncBarDataset from './../../Atoms/rnc-bar-dataset/rnc-bar-dataset.vue'
 import RncKeyValue from './../../Atoms/rnc-key-value/rnc-key-value.vue'
 import RncTitleFrame from './../../Molecules/rnc-title-frame/rnc-title-frame.vue'
@@ -169,6 +169,7 @@ export default {
   data: function () {
     return {
       current_dataset: undefined,
+      clicked_dataset_id: undefined,
       isHover: false,
       bar_move: true
     }
@@ -191,56 +192,80 @@ export default {
       }
     },
     id: function () {
-      const d = this.current_dataset
+      // const d = this.current_dataset
+      if (!this.datasets) return
+      const d = this.datasets[this.clicked_dataset_id]
+
       if (!d) return
       return d.id
     },
     name: function () {
-      const d = this.current_dataset
+      // const d = this.current_dataset
+      if (!this.datasets) return
+      const d = this.datasets[this.clicked_dataset_id]
+
       if (!d) return
       return d.name
     },
     ratio: function () {
-      const d = this.current_dataset
+      // const d = this.current_dataset
+      if (!this.datasets) return
+      const d = this.datasets[this.clicked_dataset_id]
+
       if (!d) return
       return d.ratio
     },
     description: function () {
-      const d = this.current_dataset
+      // const d = this.current_dataset
+      if (!this.datasets) return
+      const d = this.datasets[this.clicked_dataset_id]
+
       if (!d) return
       return d.description
     },
     train_num: function () {
-      const dataset = this.current_dataset
-      if (!dataset) return
+      // const dataset = this.current_dataset
+      if (!this.datasets) return
+      const d = this.datasets[this.clicked_dataset_id]
+
+      if (!d) return
+      return d.class_info.train_img_num
       // TODO muraishi: .class_info
-      const t = dataset.class_info.train_img_num
-      return t
     },
     valid_num: function () {
-      const dataset = this.current_dataset
-      if (!dataset) return
+      // const dataset = this.current_dataset
+      if (!this.datasets) return
+      const d = this.datasets[this.clicked_dataset_id]
+
+      if (!d) return
+      return d.class_info.valid_img_num
       // TODO muraishi: .class_info
-      const t = dataset.class_info.valid_img_num
-      return t
     },
     class_items: function () {
-      const dataset = this.current_dataset
-      if (!dataset) return
+      // const dataset = this.current_dataset
+      if (!this.datasets) return
+      const d = this.datasets[this.clicked_dataset_id]
+
+      if (!d) return
+      const info = d.class_info
       // TODO muraishi: .class_info
-      const info = dataset.class_info
+
       if (!info) return
       const t = info.train_ratio
       const v = info.valid_ratio
       const c = info.class_ratio
-      // TODO muraishi: .class_map
       const n = info.class_map
-      return t.map((i, index) => [
+      // TODO muraishi: .class_map
+
+      if (!t) return
+
+      let ret = t.map((i, index) => [
         n[index],
         i * c[index] * 100,
         v[index] * c[index] * 100,
         c[index]
       ])
+      return ret
     },
     train_style: function () {
       const t = this.train_num
@@ -266,19 +291,24 @@ export default {
     current_dataset: function () {
       this.bar_move = false
       // 少し時間を開けて、モーションが正常稼働しない不具合を解消
-      setTimeout(this.bar_move_true, 50)
+      setTimeout(this.barMoveTrue, 50)
     }
   },
   mounted: function () {
     this.current_dataset = this.datasets[0]
   },
   methods: {
+    ...mapActions(['loadDatasetsOfCurrentTaskDetail']),
     reset: function () {
       this.current_dataset = undefined
     },
-    bar_move_true: function () {
+    barMoveTrue: function () {
       this.bar_move = true
     },
+    clickedDatasetsItem: function(dataset){
+      this.loadDatasetsOfCurrentTaskDetail(dataset.id)
+      this.clicked_dataset_id = dataset.id
+    }
   }
 }
 </script>
