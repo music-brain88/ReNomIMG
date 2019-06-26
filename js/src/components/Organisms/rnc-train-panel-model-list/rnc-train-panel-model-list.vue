@@ -247,15 +247,15 @@ export default {
       return this.sort_order_direction === SORT_DIRECTION.DESCENDING
     },
     deployedModelListItem: function () {
-      console.log("getDeployedModel in modelList", this.getDeployedModel)
+      console.log('getDeployedModel in modelList', this.getDeployedModel)
       const ret = this.makeModelListItem(this.getDeployedModel)
 
       return ret
     },
     ModelListItemArray: function () {
-      console.log("getFilteredAndGroupedModelList in modelList", this.getFilteredAndGroupedModelList)
+      console.log('getFilteredAndGroupedModelList in modelList', this.getFilteredAndGroupedModelList)
       const ret = this.getFilteredAndGroupedModelList.map((model) => {
-        console.log("loop")
+        console.log('loop')
         return this.makeModelListItem(model)
       })
       return ret

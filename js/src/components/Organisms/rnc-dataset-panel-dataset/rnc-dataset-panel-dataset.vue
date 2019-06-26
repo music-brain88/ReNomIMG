@@ -259,7 +259,7 @@ export default {
 
       if (!t) return
 
-      let ret = t.map((i, index) => [
+      const ret = t.map((i, index) => [
         n[index],
         i * c[index] * 100,
         v[index] * c[index] * 100,
@@ -305,7 +305,7 @@ export default {
     barMoveTrue: function () {
       this.bar_move = true
     },
-    clickedDatasetsItem: function(dataset){
+    clickedDatasetsItem: function (dataset) {
       this.loadDatasetsOfCurrentTaskDetail(dataset.id)
       this.clicked_dataset_id = dataset.id
     }
