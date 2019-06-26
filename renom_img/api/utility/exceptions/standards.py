@@ -40,7 +40,7 @@ class StandardResNetInit(StandardInit):
 
 class StandardResNeXtInit(StandardInit):
     def __init__(self):
-        super(StandardResNextInit, self).__init__()
+        super(StandardResNeXtInit, self).__init__()
         self.build_standards()
 
     def build_standards(self):
