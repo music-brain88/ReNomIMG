@@ -127,7 +127,7 @@ def check_model_exists(model, model_id):
 
 
 def check_weight_exists(filepath, model_id):
-    if os.path.isfile(filepath):
+    if not os.path.isfile(filepath):
         raise WeightNotFoundError("Model {} is exists, but weight file is not found.".format(model_id))
 
 
@@ -185,6 +185,7 @@ def error_message_dataset_desc(desc):
 
 
 def check_create_dataset_params(params):
+    print(params)
     messages = []
     # check params has name.
     name = params.get("name", None)
@@ -362,8 +363,13 @@ def dataset_to_dict(dataset):
 
 # To use model list, model detail information is not shown in model list.
 def model_to_light_dict(model):
-    best_epoch_valid_result = model["best_epoch_valid_result"]
-    best_epoch_valid_result["prediction"] = []
+    # check best_epoch_valid_result exists
+    if model["best_epoch_valid_result"] is None:
+        best_epoch_valid_result = {}
+    else:
+        best_epoch_valid_result = model["best_epoch_valid_result"]
+        best_epoch_valid_result["prediction"] = []
+
     return {
         "id": model["id"],
         "task_id": model["task_id"],
@@ -441,6 +447,10 @@ def ndarray_to_list(data):
 
 
 def split_by_ratio(data, perm, ratio, length):
+    print(len(data))
+    print(perm)
+    print(ratio)
+    print(length)
     return np.split(np.array([data[index] for index in perm]), [int(ratio * length)])
 
 
@@ -1417,6 +1427,7 @@ def create_dataset(task_name):
     """
     task_id = get_task_id_by_name(task_name)
     req_params = request.json
+    print(req_params)
     check_create_dataset_params(req_params)
 
     # Receive params here.
@@ -1589,7 +1600,10 @@ def get_models(task_name):
     else:
         models = storage.fetch_models_of_task(task_id)
 
-    ret = {'models': [model_to_light_dict(m) for m in models]}
+    if models is not None:
+        ret = {'models': [model_to_light_dict(m) for m in models]}
+    else:
+        ret = {'models': []}
     return create_response(ret, status=200)
 
 
