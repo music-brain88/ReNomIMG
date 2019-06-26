@@ -69,7 +69,7 @@ class TargetBuilderUNet():
         w, h = img.size
         # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
         img = np.array(img)
-        check_segmentation_label(img)
+        check_segmentation_label(img, N)
         return img, img.shape[0], img.shape[1]
 
     def _load(self, path):
