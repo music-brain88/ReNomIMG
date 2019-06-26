@@ -27,8 +27,10 @@ export default {
     context.dispatch('loadDatasetsOfCurrentTask')
     // TODO: context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask', 'all')
-    await context.dispatch('loadModelsOfCurrentTask', 'running')// TODO: 必要？タイミングは？
-    await context.dispatch('loadModelsOfCurrentTask', 'deployed')// TODO: 必要？タイミングは？
+    // await context.dispatch('loadModelsOfCurrentTask', 'running')// TODO: 必要？タイミングは？
+    // TODO:↓村石さんので一度試してみるけど念の為。
+    // await context.dispatch('loadModelsOfCurrentTask', 'deployed')// TODO: 必要？タイミングは？
+    await context.dispatch('loadDeployedModel')
     // TODO: await context.dispatch('loadDeployedModel')
     context.commit('showLoadingMask', false)
     context.dispatch('startAllPolling')
@@ -127,6 +129,46 @@ export default {
         context.commit('updateModel', model)
         context.commit('setSelectedModel', model)
         context.dispatch('loadBestValidResult', id)
+      }, error_handler_creator(context))
+  },
+
+  async loadDeployedModel (context, payload) {
+    // const task_id = context.getters.getCurrentTask
+    const url = '/api/renom_img/v2/api/detection/models?state=deployed'
+    return axios.get(url)
+      .then(function (response) {
+        console.log('【loadDeployedModel】')
+        console.log(response.data)
+
+        if (response.status === 204) return
+        const m = response.data.models[0]
+
+        const algorithm_id = m.algorithm_id
+        const task_id = m.task_id
+        const state = m.state
+        const id = m.id
+        const hyper_params = m.hyper_parameters
+        const dataset_id = m.dataset_id
+        const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
+
+        model.id = id
+        model.state = state
+        model.total_epoch = m.total_epoch
+        model.nth_epoch = m.nth_epoch
+        model.total_batch = m.total_batch
+        model.nth_batch = m.nth_batch
+        model.train_loss_list = m.train_loss_list
+        model.valid_loss_list = m.valid_loss_list
+        model.best_epoch_valid_result = m.best_epoch_valid_result
+        model.last_batch_loss = m.last_batch_loss
+
+        // ADD muraishi
+        model.last_prediction_result = m.last_prediction_result
+
+        this.commit('setDeployedModel', model)
+
+        // TODO muraishi : after '/renom_img/v2/api/detection/prediction' is solved
+        // this.dispatch('loadPredictionResult', model.id)
       }, error_handler_creator(context))
   },
 
@@ -566,7 +608,7 @@ export default {
   },
 
   /** ***
-   * TODO muraishi
+   * PUT the tempDataset : not using in current version v2.2
    */
   async createDataset (context, payload) {
     const url = '/api/renom_img/v2/api/detection/datasets/' + payload.test_dataset_id
@@ -628,6 +670,9 @@ export default {
   },
   */
 
+  /** ***
+   * POST and create the tempDataset
+   */
   async confirmDataset (context, payload) {
     // TODO: const url = '/api/renom_img/v2/dataset/confirm'
     const url = '/api/renom_img/v2/api/detection/datasets'
@@ -739,7 +784,7 @@ export default {
     }, error_handler_creator(context))
   },
 
-  /* TODO:
+  /* TODO: ↓旧ソース。後で消します。
   async loadDeployedModel (context, payload) {
     const task_id = context.getters.getCurrentTask
     const url = '/api/renom_img/v2/model/load/deployed/task/' + task_id

@@ -1621,6 +1621,9 @@ def get_models(task_name):
     else:
         models = storage.fetch_models_of_task(task_id)
 
+    print("*** state:", state)
+    print("*** model of get_models:", models)
+
     ret = {'models': [model_to_light_dict(m) for m in models]}
     return create_response(ret, status=200)
 
