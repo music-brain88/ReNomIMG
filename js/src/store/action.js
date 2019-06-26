@@ -191,7 +191,6 @@ export default {
         loaded_dataset.valid_data = valid_data
         loaded_dataset.class_info = class_info
         context.commit('updateDataset', loaded_dataset)
-
       }, error_handler_creator(context))
   },
 

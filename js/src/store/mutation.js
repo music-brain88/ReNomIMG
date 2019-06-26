@@ -91,7 +91,7 @@ export default {
   updateDataset (state, payload) {
     console.log('MUTATION:updateDataset')
     console.log(payload)
-    let new_dataset = payload
+    const new_dataset = payload
     if (state.datasets.find(n => n.id === new_dataset.id) === undefined) {
       state.datasets = [new_dataset, ...state.datasets]
     } else {
@@ -115,7 +115,7 @@ export default {
   updateModel (state, payload) {
     console.log('MUTATION:updateModel')
     console.log(payload)
-    let new_model = payload
+    const new_model = payload
     if (state.models.find(n => n.id === new_model.id) === undefined) {
       state.models = [new_model, ...state.models]
     } else {
