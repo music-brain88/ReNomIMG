@@ -282,7 +282,7 @@ export default {
     // setGoupingCategory: function () {
     //   this.setGoupBy(this.groupby)
     // },
-    clickedModelItem : function(model){
+    clickedModelItem: function (model) {
       this.loadModelsOfCurrentTaskDetail(model.id)
       this.loadDatasetsOfCurrentTaskDetail(model.dataset_id)
     },

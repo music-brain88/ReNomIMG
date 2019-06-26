@@ -340,8 +340,7 @@ def dataset_to_light_dict(dataset):
         'ratio': dataset["ratio"],
         'class_map': [],
         # 'class_map': dataset["class_map"],
-        'class_info': {},
-        # 'class_info': dataset["class_info"],
+        'class_info': dataset["class_info"],
         'train_data': {},   # TODO:元のにはなかった
         'valid_data': {},
         # 'valid_data': dataset["valid_data"],
