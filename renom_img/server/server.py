@@ -1633,22 +1633,20 @@ def get_models(task_name):
 @route("/api/renom_img/v2/api/<task_name>/models", method="POST")
 @error_handler
 def create_model(task_name):
-    print("***server:create_model START")
+    # TODO: print("***server:create_model START")
     """
     create model
     """
     task_id = get_task_id_by_name(task_name)
-    print("***task_id:", task_id)
-    print("***request:", request)
-    print("***request.params:", request.params)
+    # TODO: print("***task_id:", task_id)
+    # TODO: print("***request:", request)
+    # TODO: print("***request.params:", request.params)
+    # TODO: req_params = request.params
 
-    req_params = request.params
-
-    # print("***algorithm_id:", json.loads(req_params.algorithm_id))
-    # print("***dataset_id:", req_params.dataset_id)
-
-    # print("***hyper_params:", json.loads(req_params.hyper_params))
-    # print("***hyper_parameters:", json.loads(req_params.hyper_parameters))
+    # TODO: print("***algorithm_id:", json.loads(req_params.algorithm_id))
+    # TODO: print("***dataset_id:", req_params.dataset_id)
+    # TODO: print("***hyper_params:", json.loads(req_params.hyper_params))
+    # TODO: print("***hyper_parameters:", json.loads(req_params.hyper_parameters))
 
 
     # req_json = request.params
