@@ -40,39 +40,43 @@ class AppObserver(TrainObserverBase):
     def __init__(self, ts):
         self.ts = ts
 
-    def update_epoch(self, result):
-        self.ts.nth_epoch = result["epoch"]
-        self.ts.sync_train_loss()
-        self.ts.updated = True
-
-    def update_batch(self, result):
-        self.ts.nth_batch = result["batch"]
-        self.ts.total_batch = result["total_batch"]
-        self.ts.last_batch_loss = result["loss"]
-        self.ts.sync_batch_result()
-        self.ts.updated = True
-
-    def start_train(self):
+    def start(self):
         self.ts.state = State.STARTED
         self.ts.running_state = RunningState.TRAINING
         self.ts.sync_state()
         self.ts.updated = True
 
-    def start_valid(self):
+    def start_train_batches(self, notification):
+        self.ts.running_state = RunningState.TRAINING
+        self.ts.nth_epoch = notification["epoch"]
+        self.ts.updated = True
+
+    def start_batch(self, notification):
+        self.ts.nth_batch = notification["batch"]
+        self.ts.total_batch = notification["total_batch"]
+        self.ts.updated = True
+
+    def end_batch(self, notification):
+        self.ts.last_batch_loss = notification["loss"]
+        self.ts.sync_batch_result()
+        self.ts.updated = True
+
+    def end_train_batches(self, notification):
+        self.ts.train_loss_list.append(notification["avg_train_loss"])
+        self.ts.sync_train_loss()
+        self.ts.updated = True
+
+    def start_valid_batches(self, notification):
         self.ts.running_state = RunningState.VALIDATING
+        self.ts.updated = True
+
+    def end_valid_batches(self, notification):
+        self.ts.valid_loss_list.append(valid_result["avg_valid_loss"])
+        self.ts.sync_valid_loss()
         self.ts.updated = True
 
     def start_evaluate(self):
         pass
-
-    def end_train(self, train_result):
-        if is_cuda_active():
-            release_mem_pool()
-
-    def end_valid(self, valid_result):
-        self.ts.valid_loss_list.append(valid_result["avg_valid_loss"])
-        self.ts.sync_valid_loss()
-        self.ts.updated = True
 
     def end_evaluate(self, evaluate_result):
         loss = self.ts.valid_loss_list[-1]
@@ -149,8 +153,14 @@ class AppObserver(TrainObserverBase):
                     "loss": float(loss)
                 }
         self.ts.sync_best_valid_result()
-        self.ts.running_state = RunningState.TRAINING
         self.ts.updated = True
+
+    def end(self, train_result):
+        self.ts.state = State.STOPPED
+        self.sync_state()
+        self.ts.updated = True
+        if is_cuda_active():
+            release_mem_pool()
 
 
 class TrainThread(object):
