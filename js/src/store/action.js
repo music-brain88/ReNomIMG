@@ -26,7 +26,8 @@ export default {
     context.commit('flushFilter')
     context.dispatch('loadDatasetsOfCurrentTask')
     // TODO: context.dispatch('loadTestDatasetsOfCurrentTask')
-    await context.dispatch('loadModelsOfCurrentTask')
+    await context.dispatch('loadModelsOfCurrentTask', 'all')
+    //await context.dispatch('loadModelsOfCurrentTask', 'running')
     // TODO: await context.dispatch('loadDeployedModel')
     context.commit('showLoadingMask', false)
     context.dispatch('startAllPolling')
@@ -38,10 +39,11 @@ export default {
   async loadModelsOfCurrentTask (context, payload) {
     // TODO: const task = context.getters.getCurrentTask
     // TODO: const url = '/api/renom_img/v2/model/load/task/' + task
-    const url = '/api/renom_img/v2/api/detection/models'
+    const state = payload
+    const url = '/api/renom_img/v2/api/detection/models?state=' + state
     return axios.get(url)
       .then(function (response) {
-        console.log('【loadModelsOfCurrentTask】')
+        console.log('【loadModelsOfCurrentTask】<<' + state + '>>')
         console.log(response.data)
 
         if (response.status === 204) return
