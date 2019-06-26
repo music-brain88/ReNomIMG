@@ -182,6 +182,7 @@ export default {
   },
   methods: {
     ...mapMutations(['setSelectedModel']),
+    // ADD muraishi
     ...mapActions(['loadModelsOfCurrentTaskDetail']),
 
     drawLearningCurve: function () {
@@ -603,6 +604,7 @@ export default {
           this.TooltipDisplay = false
         })
         .on('click', (m) => {
+          // CHANGE muraishi
           this.loadModelsOfCurrentTaskDetail(m.id)
         })
         // .on('click', (m) => {

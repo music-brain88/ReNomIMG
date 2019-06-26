@@ -155,6 +155,7 @@
           :is-deployed-model="true"
           @clicked-model-id="loadModelsOfCurrentTaskDetail($event.id)"
         />
+        <!-- CHANGE muraishi -->
         <!-- @clicked-model-id="setSelectedModel($event)" -->
 
         <div
@@ -190,6 +191,7 @@
           @rm-model="rmModel($event.id)"
           @clicked-model-id="loadModelsOfCurrentTaskDetail($event.id)"
         />
+        <!-- CHANGE muraishi -->
         <!-- @clicked-model-id="setSelectedModel($event)" -->
 
       </div>
@@ -267,6 +269,7 @@ export default {
       'selectNextModel',
       'toggleSortOrder',
     ]),
+    // ADD muraishi
     ...mapActions(['removeModel', 'loadModelsOfCurrentTaskDetail']),
 
     // TODO muraishi : not using currently

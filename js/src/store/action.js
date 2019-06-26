@@ -67,12 +67,14 @@ export default {
           model.valid_loss_list = m.valid_loss_list
           model.best_epoch_valid_result = m.best_epoch_valid_result
           model.last_batch_loss = m.last_batch_loss
+
+          // ADD muraishi
           model.last_prediction_result = m.last_prediction_result
 
           context.commit('addModel', model)
           context.dispatch('loadBestValidResult', id)
 
-          // TODO muraishi: modify later
+          // ADD muraishi
           // model.deployed_model = m.deployed_model
           // if(model.deployed_model){
           //   context.commit('setDeployedModel', model)
@@ -93,7 +95,7 @@ export default {
         console.log(response.data)
 
         if (response.status === 204) return
-        const m= response.data.model
+        const m = response.data.model
 
         const algorithm_id = m.algorithm_id
         const task_id = m.task_id
@@ -113,10 +115,14 @@ export default {
         model.valid_loss_list = m.valid_loss_list
         model.best_epoch_valid_result = m.best_epoch_valid_result
         model.last_batch_loss = m.last_batch_loss
+
+        // ADD muraishi
         model.last_prediction_result = m.last_prediction_result
 
         // TODO muraishi: no need updateModel?? if dont have to contain model details
         context.commit('updateModel', model)
+
+        // ADD muraishi
         context.commit('setSelectedModel',model)
         context.dispatch('loadBestValidResult', id)
       }, error_handler_creator(context))
@@ -157,7 +163,7 @@ export default {
   },
 
   /** ***
-   *TODO muraishi :2
+   *muraishi :2
    */
   async loadDatasetsOfCurrentTaskDetail (context, payload) {
     const dataset_id = payload
