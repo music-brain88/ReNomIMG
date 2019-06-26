@@ -338,13 +338,13 @@ def dataset_to_light_dict(dataset):
         'description': dataset["description"],
         'task_id': dataset["task_id"],
         'ratio': dataset["ratio"],
-        # 'class_map': [],
-        'class_map': dataset["class_map"],
-        # 'class_info': {},
-        'class_info': dataset["class_info"],
+        'class_map': [],
+        # 'class_map': dataset["class_map"],
+        'class_info': {},
+        # 'class_info': dataset["class_info"],
         'train_data': {},   # TODO:元のにはなかった
-        # 'valid_data': {},
-        'valid_data': dataset["valid_data"],
+        'valid_data': {},
+        # 'valid_data': dataset["valid_data"],
         'test_dataset_id': dataset["test_dataset_id"]
     }
 
@@ -374,12 +374,12 @@ def model_to_light_dict(model):
         "hyper_parameters": model["hyper_parameters"],
         "state": model["state"],
         "running_state": model["running_state"],
-        # "train_loss_list": [],
-        "train_loss_list": model["train_loss_list"],
-        # "valid_loss_list": [],
-        "valid_loss_list": model["valid_loss_list"],
-        # "best_epoch_valid_result": {},  # modify only evaluation value return
-        "best_epoch_valid_result": model["best_epoch_valid_result"],
+        "train_loss_list": [],
+        # "train_loss_list": model["train_loss_list"],
+        "valid_loss_list": [],
+        # "valid_loss_list": model["valid_loss_list"],
+        "best_epoch_valid_result": {},  # modify only evaluation value return
+        # "best_epoch_valid_result": model["best_epoch_valid_result"],
         "total_epoch": model["total_epoch"],
         "nth_epoch": model["nth_epoch"],
         "total_batch": model["total_batch"],
