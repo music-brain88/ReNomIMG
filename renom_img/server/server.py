@@ -113,22 +113,28 @@ def get_task_id_by_name(task_name):
 
 def task_exists(task_name):
     if task_name not in TASK_ID_BY_NAME.keys():
-        raise TaskNotFoundError(task_name)
+        raise TaskNotFoundError("Task {} is not available. Please select from {}.".format(task_name, list(TASK_ID_BY_NAME.keys())))
 
 
-def check_dataset_exists(dataset):
+def check_dataset_exists(dataset, dataset_id):
     if dataset is None:
-        raise DatasetNotFoundError()
+        raise DatasetNotFoundError("Dataset {} is not found.".format(dataset_id))
 
 
-def check_model_exists(model):
+def check_model_exists(model, model_id):
     if model is None:
-        raise ModelNotFoundError()
+        raise ModelNotFoundError("Model {} is not found.".format(model_id))
 
 
-def check_weight_exists(filepath):
+def check_weight_exists(filepath, model_id):
     if os.path.isfile(filepath):
-        raise WeightNotFoundError()
+        raise WeightNotFoundError("Model {} is exists, but weight file is not found.".format(model_id))
+
+
+def check_model_running(model_id):
+    thread = TrainThread.jobs.get(model_id, None)
+    if thread is not None:
+        raise ModelRunningError("Model {} is running, please wait or stop train.")
 
 
 def error_message_dataset_name(name):
@@ -167,6 +173,8 @@ def error_message_dataset_ratio(ratio):
 def error_message_dataset_desc(desc):
     message = ""
     param_name = "Dataset description"
+    if desc is None:
+        return message
     if len(desc) < DATASET_DESCRIPTION_MIN_LENGTH:
         desc = "too short"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_DESCRIPTION_MIN_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH)
@@ -178,18 +186,21 @@ def error_message_dataset_desc(desc):
 
 def check_create_dataset_params(params):
     messages = []
-    # check name.
-    m = error_message_dataset_name(params["name"])
+    # check params has name.
+    name = params.get("name", None)
+    m = error_message_dataset_name(name)
     if len(m) > 0:
         messages.append(m)
 
     # check ratio
-    m = error_message_dataset_ratio(params["ratio"])
+    ratio = params.get("ratio", None)
+    m = error_message_dataset_ratio(ratio)
     if len(m) > 0:
         messages.append(m)
 
     # check description
-    m = error_message_dataset_desc(params["description"])
+    description = params.get("description", None)
+    m = error_message_dataset_desc(description)
     if len(m) > 0:
         messages.append(m)
 
@@ -220,10 +231,10 @@ def error_message_model_algorithm_id(algorithm_id):
 def error_message_epoch(epoch):
     message = ""
     param_name = "Hyperparameter epoch"
-    if epoch is not None:
+    if epoch is None:
         desc = "is required"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
-    elif is_int(epoch):
+    elif not is_int(epoch):
         desc = "must be integer"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
     elif is_int(epoch) < EPOCH_MIN:
@@ -238,10 +249,10 @@ def error_message_epoch(epoch):
 def error_message_batch(batch):
     message = ""
     param_name = "Hyperparameter batch"
-    if batch is not None:
+    if batch is None:
         desc = "is required"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
-    elif is_int(batch):
+    elif not is_int(batch):
         desc = "must be integer"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
     elif is_int(batch) < BATCH_MIN:
@@ -258,13 +269,14 @@ def error_message_model_hyper_params(hyper_params):
     if hyper_params is None:
         messages.append("Hyper parameter is not exists.")
     else:
+        print()
         # check epoch
-        m = error_message_epoch(hyper_params["epoch"])
+        m = error_message_epoch(hyper_params["total_epoch"])
         if len(m) > 0:
             messages.append(m)
 
         # check batch
-        m = error_message_batch(hyper_params["batch"])
+        m = error_message_batch(hyper_params["batch_size"])
         if len(m) > 0:
             messages.append(m)
     return messages
@@ -274,17 +286,20 @@ def check_create_model_params(params):
     messages = []
 
     # check dataset_id
-    m = error_message_model_dataset_id(params["dataset_id"])
+    dataset_id = params.get("dataset_id", None)
+    m = error_message_model_dataset_id(dataset_id)
     if len(m) > 0:
         messages.append(m)
 
     # check algorithm_id
-    m = error_message_model_algorithm_id(params["algorithm_id"])
+    algorithm_id = params.get("algorithm_id", None)
+    m = error_message_model_algorithm_id(algorithm_id)
     if len(m) > 0:
         messages.append(m)
 
     # check hyper parameters
-    m = error_message_model_hyper_params(params["hyper_parameters"])
+    hyper_parameters = params.get("hyper_parameters", None)
+    m = error_message_model_hyper_params(hyper_parameters)
     if len(m) > 0:
         messages.extend(m)
 
@@ -294,17 +309,25 @@ def check_create_model_params(params):
 
 
 def check_upadte_model_params(params):
+    # nothing to check in v2.2.
     pass
 
 
 def check_export_format(format):
     if format not in ["csv"]:
-        raise InvalidRequestParamError()
+        raise InvalidRequestParamError("format {} is unavailable.".format(format))
 
 
 def check_dir_exists(dirname):
     if not dirname.exists():
-        raise DirectoryNotFound()
+        raise DirectoryNotFound("Directory {} is not found.".format(dirname))
+
+
+def check_model_deployed(model):
+    deployed_model = storage.fetch_deployed_model(model["task_id"])
+    if deployed_model is not None and model["id"] == deployed_model["id"]:
+        return True
+    return False
 
 
 # To use dataset list, because dataset detail Information is not shown in dataset list.
@@ -365,6 +388,7 @@ def model_to_light_dict(model):
         "last_prediction_result": {},
         "created": model["created"],
         "updated": model["updated"],
+        "deployed": check_model_deployed(model)
     }
 
 
@@ -388,6 +412,7 @@ def model_to_dict(model):
         "last_prediction_result": model["last_prediction_result"],
         "created": model["created"],
         "updated": model["updated"],
+        "deployed": check_model_deployed(model)
     }
 
 
@@ -541,7 +566,7 @@ def error_handler(func):
             logging_error(e)
             return create_error_response(e, status=404)
         except SQLAlchemyError as e:
-            e = ServiceUnavailableError()
+            e = ServiceUnavailableError("DB tempolary unavailable.")
             logging_error(e)
             return create_error_response(e, status=503)
         except (DirectoryNotFound, Exception) as e:
@@ -572,7 +597,7 @@ def font(file_name):
 
 @error(403)
 def error403(error):
-    e = ForbiddenError("Forbidden error.")
+    e = ForbiddenError("Permission denied.")
     logging_error(e)
     return create_error_response(e, status=403)
 
@@ -1415,17 +1440,18 @@ def create_dataset(task_name):
     create detection dataset
     """
     task_id = get_task_id_by_name(task_name)
-    req_params = request.params
+    req_params = request.json
     check_create_dataset_params(req_params)
 
     # Receive params here.
-    dataset_name = str(urllib.parse.unquote(req_params.name, encoding='utf-8'))
-    description = str(urllib.parse.unquote(req_params.description, encoding='utf-8'))
-    ratio = float(req_params.ratio)
+    dataset_name = str(urllib.parse.unquote(req_params["name"], encoding='utf-8'))
+    description = str(urllib.parse.unquote(req_params["description"], encoding='utf-8'))
+    ratio = float(req_params["ratio"])
 
-    test_dataset_id = int(
-        req_params.test_dataset_id
-        if req_params.test_dataset_id != '' else '-1')
+    try:
+        test_dataset_id = int(req_params["test_dataset_id"])
+    except KeyError:
+        test_dataset_id = -1
 
     # TODO: Load root directory from configuration file or env params.
     # TODO: Make other storage available. e.g. S3.
@@ -1539,7 +1565,7 @@ def get_dataset(task_name, dataset_id):
     """
     task_exists(task_name)
     d = storage.fetch_dataset(dataset_id)
-    check_dataset_exists(d)
+    check_dataset_exists(d, dataset_id)
     ret = {"dataset": dataset_to_dict(d)}
     return create_response(ret, status=200)
 
@@ -1552,8 +1578,9 @@ def update_dataset(task_name, dataset_id):
     """
     # TODO: Add dataset registration status columns in dataset table.
     # TODO: Register temporaly registed dataset.
-    task_exists(task_name)
-    return create_response({}, status=204)
+    # task_exists(task_name)
+    # return create_response({}, status=204)
+    return "Update dataset is not available now."
 
 
 @route("/api/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="DELETE")
@@ -1563,6 +1590,8 @@ def delete_dataset(task_name, dataset_id):
     delete dataset
     """
     task_exists(task_name)
+    d = storage.fetch_dataset(dataset_id)
+    check_dataset_exists(d, dataset_id)
     storage.remove_dataset(dataset_id)
     return create_response({}, status=204)
 
@@ -1604,11 +1633,25 @@ def get_models(task_name):
 @route("/api/renom_img/v2/api/<task_name>/models", method="POST")
 @error_handler
 def create_model(task_name):
+    # TODO: print("***server:create_model START")
     """
     create model
     """
     task_id = get_task_id_by_name(task_name)
+    # TODO: print("***task_id:", task_id)
+    # TODO: print("***request:", request)
+    # TODO: print("***request.params:", request.params)
+    # TODO: req_params = request.params
+
+    # TODO: print("***algorithm_id:", json.loads(req_params.algorithm_id))
+    # TODO: print("***dataset_id:", req_params.dataset_id)
+    # TODO: print("***hyper_params:", json.loads(req_params.hyper_params))
+    # TODO: print("***hyper_parameters:", json.loads(req_params.hyper_parameters))
+
+
+    # req_json = request.params
     req_json = request.json
+    print("***req_json:", req_json)
     check_create_model_params(req_json)
 
     hyper_params = req_json['hyper_parameters']
@@ -1641,7 +1684,7 @@ def get_model(task_name, model_id):
     """
     task_exists(task_name)
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
     ret = {'model': model_to_dict(model)}
     return create_response(ret, status=200)
 
@@ -1650,23 +1693,26 @@ def get_model(task_name, model_id):
 @error_handler
 def update_model(task_name, model_id):
     """
-    update model
+    change model's deploy status.
     """
     task_id = get_task_id_by_name(task_name)
-    req_params = request.params
+    req_params = request.json
+
     check_upadte_model_params(req_params)
 
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
 
     # if deploy value exists
     deploy = req_params.pop("deploy", False)
     if deploy:
+        check_model_running(model_id)
         storage.deploy_model(model_id)
     else:
         storage.undeploy_model(task_id)
 
-    storage.update_model(model_id, **req_params)
+    # update deploy status in v2.2.
+    # storage.update_model(model_id, **req_params)
     return create_response({}, status=204)
 
 
@@ -1678,14 +1724,14 @@ def delete_model(task_name, model_id):
     """
     task_exists(task_name)
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
 
     threads = TrainThread.jobs
     active_train_thread = threads.get(id, None)
     if active_train_thread is not None:
         active_train_thread.stop()
         active_train_thread.future.result()
-    storage.remove_model(id)
+    storage.remove_model(model_id)
     return create_response({}, status=204)
 
 
@@ -1697,10 +1743,10 @@ def download_model_weight(task_name, model_id):
     """
     task_exists(task_name)
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
 
     file_name = model['best_epoch_weight']
-    check_weight_exists(file_name)
+    check_weight_exists(file_name, model_id)
 
     download_filename = 'model{}_weight.h5'.format(model_id)
     return static_file(file_name, root=".", download=download_filename)
@@ -1713,10 +1759,10 @@ def run_train(task_name):
     run train
     """
     task_exists(task_name)
-    req_params = request.params
-    model_id = req_params.model_id
+    req_params = request.json
+    model_id = req_params.get("model_id", None)
     model = storage.fetch_model(model_id)
-    check_model_exists(model)
+    check_model_exists(model, model_id)
 
     # TODO: Confirm if the model is already trained.
     thread = TrainThread(model_id)
@@ -1741,6 +1787,7 @@ def get_train_status(task_name):
     get train status
     """
     task_exists(task_name)
+    # get query params
     req_params = request.params
     model_id = req_params.model_id
 
@@ -1748,7 +1795,7 @@ def get_train_status(task_name):
     active_train_thread = threads.get(model_id, None)
     if active_train_thread is None:
         saved_model = storage.fetch_model(model_id)
-        check_model_exists(saved_model)
+        check_model_exists(saved_model, model_id)
 
         # If the state == STOPPED, client will never throw request.
         if saved_model["state"] != State.STOPPED.value:
@@ -1831,11 +1878,11 @@ def stop_train(task_name):
     stop train
     """
     task_exists(task_name)
-    req_params = request.params
-    model_id = req_params.model_id
+    req_params = request.json
+    model_id = req_params["model_id"]
 
     saved_model = storage.fetch_model(model_id)
-    check_model_exists(saved_model)
+    check_model_exists(saved_model, model_id)
 
     thread = TrainThread.jobs.get(model_id, None)
     if thread is not None:
@@ -1850,11 +1897,12 @@ def get_prediction_status(task_name):
     get prediction status
     """
     task_exists(task_name)
+    # get query params
     req_params = request.params
     model_id = req_params.model_id
 
     saved_model = storage.fetch_model(model_id)
-    check_model_exists(saved_model)
+    check_model_exists(saved_model, model_id)
 
     threads = PredictionThread.jobs
     active_prediction_thread = threads.get(model_id, None)
@@ -1900,11 +1948,13 @@ def run_prediction(task_name):
     run prediction
     """
     task_exists(task_name)
-    req_params = request.params
-    model_id = req_params.model_id
-
+    req_params = request.json
+    model_id = req_params.get("model_id", None)
     saved_model = storage.fetch_model(model_id)
-    check_model_exists(saved_model)
+    check_model_exists(saved_model, model_id)
+
+    file_name = saved_model['best_epoch_weight']
+    check_weight_exists(file_name, model_id)
 
     thread = PredictionThread(model_id)
     th = executor.submit(thread)
@@ -1926,6 +1976,7 @@ def get_prediction_result(task_name):
     format
     """
     task_id = get_task_id_by_name(task_name)
+    # get query params
     req_params = request.params
     model_id = req_params.model_id
     format = req_params.format
@@ -1935,6 +1986,7 @@ def get_prediction_result(task_name):
 
     model = storage.fetch_model(model_id)
     prediction = model["last_prediction_result"]
+    print(prediction)
 
     # Shaping data by task & format.
     resolver = get_formatter_resolver(task_id)
