@@ -71,26 +71,26 @@ class AppObserver(TrainObserverBase):
         self.ts.updated = True
 
     def end_valid_batches(self, notification):
-        self.ts.valid_loss_list.append(valid_result["avg_valid_loss"])
+        self.ts.valid_loss_list.append(notification["avg_valid_loss"])
         self.ts.sync_valid_loss()
         self.ts.updated = True
 
     def start_evaluate(self):
         pass
 
-    def end_evaluate(self, evaluate_result):
+    def end_evaluate(self, notification):
         loss = self.ts.valid_loss_list[-1]
         if self.ts.task_id == Task.CLASSIFICATION.value:
             if self.ts.best_epoch_valid_result:
-                if self.ts.best_epoch_valid_result["f1"] <= evaluate_result["evaluation_matrix"]["f1"]:
+                if self.ts.best_epoch_valid_result["f1"] <= notification["evaluation_matrix"]["f1"]:
                     self.ts.best_valid_changed = True
                     self.ts.save_best_model()
                     self.ts.best_epoch_valid_result = {
                         "nth_epoch": self.ts.nth_epoch,
-                        "prediction": evaluate_result["prediction"],
-                        "recall": float(evaluate_result["evaluation_matrix"]["recall"]),
-                        "precision": float(evaluate_result["evaluation_matrix"]["precision"]),
-                        "f1": float(evaluate_result["evaluation_matrix"]["f1"]),
+                        "prediction": notification["prediction"],
+                        "recall": float(notification["evaluation_matrix"]["recall"]),
+                        "precision": float(notification["evaluation_matrix"]["precision"]),
+                        "f1": float(notification["evaluation_matrix"]["f1"]),
                         "loss": float(loss)
                     }
             else:
@@ -98,23 +98,23 @@ class AppObserver(TrainObserverBase):
                 self.ts.save_best_model()
                 self.ts.best_epoch_valid_result = {
                     "nth_epoch": self.ts.nth_epoch,
-                    "prediction": evaluate_result["prediction"],
-                    "recall": float(evaluate_result["evaluation_matrix"]["recall"]),
-                    "precision": float(evaluate_result["evaluation_matrix"]["precision"]),
-                    "f1": float(evaluate_result["evaluation_matrix"]["f1"]),
+                    "prediction": notification["prediction"],
+                    "recall": float(notification["evaluation_matrix"]["recall"]),
+                    "precision": float(notification["evaluation_matrix"]["precision"]),
+                    "f1": float(notification["evaluation_matrix"]["f1"]),
                     "loss": float(loss)
                 }
 
         elif self.ts.task_id == Task.DETECTION.value:
             if self.ts.best_epoch_valid_result:
-                if self.ts.best_epoch_valid_result["mAP"] <= evaluate_result["evaluation_matrix"]["mAP"]:
+                if self.ts.best_epoch_valid_result["mAP"] <= notification["evaluation_matrix"]["mAP"]:
                     self.ts.best_valid_changed = True
                     self.ts.save_best_model()
                     self.ts.best_epoch_valid_result = {
                         "nth_epoch": self.ts.nth_epoch,
-                        "prediction": evaluate_result["prediction"],
-                        "mAP": float(evaluate_result["evaluation_matrix"]["mAP"]),
-                        "IOU": float(evaluate_result["evaluation_matrix"]["iou"]),
+                        "prediction": notification["prediction"],
+                        "mAP": float(notification["evaluation_matrix"]["mAP"]),
+                        "IOU": float(notification["evaluation_matrix"]["iou"]),
                         "loss": float(loss)
                     }
             else:
@@ -122,23 +122,23 @@ class AppObserver(TrainObserverBase):
                 self.ts.save_best_model()
                 self.ts.best_epoch_valid_result = {
                     "nth_epoch": self.ts.nth_epoch,
-                    "prediction": evaluate_result["prediction"],
-                    "mAP": float(evaluate_result["evaluation_matrix"]["mAP"]),
-                    "IOU": float(evaluate_result["evaluation_matrix"]["iou"]),
+                    "prediction": notification["prediction"],
+                    "mAP": float(notification["evaluation_matrix"]["mAP"]),
+                    "IOU": float(notification["evaluation_matrix"]["iou"]),
                     "loss": float(loss)
                 }
 
         elif self.ts.task_id == Task.SEGMENTATION.value:
             if self.ts.best_epoch_valid_result:
-                if self.ts.best_epoch_valid_result["f1"] <= evaluate_result["evaluation_matrix"]["f1"]:
+                if self.ts.best_epoch_valid_result["f1"] <= notification["evaluation_matrix"]["f1"]:
                     self.ts.best_valid_changed = True
                     self.ts.save_best_model()
                     self.ts.best_epoch_valid_result = {
                         "nth_epoch": self.ts.nth_epoch,
-                        "prediction": evaluate_result["prediction"],
-                        "recall": float(evaluate_result["evaluation_matrix"]["recall"]),
-                        "precision": float(evaluate_result["evaluation_matrix"]["precision"]),
-                        "f1": float(evaluate_result["evaluation_matrix"]["f1"]),
+                        "prediction": notification["prediction"],
+                        "recall": float(notification["evaluation_matrix"]["recall"]),
+                        "precision": float(notification["evaluation_matrix"]["precision"]),
+                        "f1": float(notification["evaluation_matrix"]["f1"]),
                         "loss": float(loss)
                     }
             else:
@@ -146,10 +146,10 @@ class AppObserver(TrainObserverBase):
                 self.ts.save_best_model()
                 self.ts.best_epoch_valid_result = {
                     "nth_epoch": self.ts.nth_epoch,
-                    "prediction": evaluate_result["prediction"],
-                    "recall": float(evaluate_result["evaluation_matrix"]["recall"]),
-                    "precision": float(evaluate_result["evaluation_matrix"]["precision"]),
-                    "f1": float(evaluate_result["evaluation_matrix"]["f1"]),
+                    "prediction": notification["prediction"],
+                    "recall": float(notification["evaluation_matrix"]["recall"]),
+                    "precision": float(notification["evaluation_matrix"]["precision"]),
+                    "f1": float(notification["evaluation_matrix"]["f1"]),
                     "loss": float(loss)
                 }
         self.ts.sync_best_valid_result()
