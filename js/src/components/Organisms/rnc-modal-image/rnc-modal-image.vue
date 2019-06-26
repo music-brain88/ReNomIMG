@@ -183,8 +183,7 @@ export default {
     ...mapState([
       'datasets',
       'modal_image',
-      'modal_index',
-      'datasets'
+      'modal_index'
     ]),
     ...mapGetters([
       'getSelectedModel',
@@ -211,22 +210,27 @@ export default {
       return null
     },
     class_map: function () {
+      // TODO muraishi: .class_map
       const map = this.dataset.class_map
       return map
     },
     img: function () {
       const index = this.modal_index
+      // TODO .valid_data
       return this.dataset.valid_data.img[index]
     },
     size: function () {
+      // TODO .valid_data
       const index = this.modal_index
       return this.dataset.valid_data.size[index]
     },
     length: function () {
+      // TODO .valid_data
       return this.dataset.valid_data.img.length
     },
     getClassificationTop3: function () {
       const model = this.model
+      // TODO muraishi: .class_map
       const map = this.class_map
       if (!model) return
       const prediction = model.getValidResult(this.modal_index)

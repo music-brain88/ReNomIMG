@@ -153,10 +153,10 @@
           :result-of-metric2="deployedModelListItem.ResultOfMetric2"
           :selected-model-id="deployedModelListItem.SelectedModelId"
           :is-deployed-model="true"
-          @clicked-model-id="loadModelsOfCurrentTaskDetail($event.id)"
+          @clicked-model-item="clickedModelItem($event)"
         />
         <!-- CHANGE muraishi -->
-        <!-- @clicked-model-id="setSelectedModel($event)" -->
+        <!-- @clicked-model-item="setSelectedModel($event)" -->
 
         <div
           v-else
@@ -189,10 +189,10 @@
           :selected-model-id="item.SelectedModelId"
 
           @rm-model="rmModel($event.id)"
-          @clicked-model-id="loadModelsOfCurrentTaskDetail($event.id)"
+          @clicked-model-item="clickedModelItem($event)"
         />
         <!-- CHANGE muraishi -->
-        <!-- @clicked-model-id="setSelectedModel($event)" -->
+        <!-- @clicked-model-item="setSelectedModel($event)" -->
 
       </div>
     </template>
@@ -270,12 +270,19 @@ export default {
       'toggleSortOrder',
     ]),
     // ADD muraishi
-    ...mapActions(['removeModel', 'loadModelsOfCurrentTaskDetail']),
+    ...mapActions([
+      'removeModel',
+      'loadModelsOfCurrentTaskDetail',
+      'loadDatasetsOfCurrentTaskDetail']),
 
     // TODO muraishi : not using currently
     // setGoupingCategory: function () {
     //   this.setGoupBy(this.groupby)
     // },
+    clickedModelItem : function(e){
+      this.loadModelsOfCurrentTaskDetail(e.id)
+      this.loadDatasetsOfCurrentTaskDetail(e.dataset_id)
+    },
     setOrder: function (key) {
       if (this.isSortBy(key)) {
         this.toggleSortOrder()

@@ -95,6 +95,8 @@ export default {
         console.log(response.data)
 
         if (response.status === 204) return
+
+        // ADD muraishi
         const m = response.data.model
 
         const algorithm_id = m.algorithm_id
@@ -173,23 +175,26 @@ export default {
         console.log('【loadDatasetsOfCurrentTaskDetail】')
         console.log(response.data)
         if (response.status === 204) return
-        for (const ds of response.data.datasets) {
-          const id = ds.id
-          const class_map = ds.class_map
-          const valid_data = ds.valid_data
-          const task = ds.task_id
-          const name = ds.name
-          const ratio = ds.ratio
-          const description = ds.description
-          const test_dataset_id = ds.test_dataset_id
-          const class_info = ds.class_info
-          const loaded_dataset = new Dataset(task, name, ratio, description, test_dataset_id)
-          loaded_dataset.id = id
-          loaded_dataset.class_map = class_map
-          loaded_dataset.valid_data = valid_data
-          loaded_dataset.class_info = class_info
-          context.commit('updateDataset', loaded_dataset)
-        }
+        let ds = response.data.dataset
+
+        // ADD muraishi
+        const id = ds.id
+
+        const class_map = ds.class_map
+        const valid_data = ds.valid_data
+        const task = ds.task_id
+        const name = ds.name
+        const ratio = ds.ratio
+        const description = ds.description
+        const test_dataset_id = ds.test_dataset_id
+        const class_info = ds.class_info
+        const loaded_dataset = new Dataset(task, name, ratio, description, test_dataset_id)
+        loaded_dataset.id = id
+        loaded_dataset.class_map = class_map
+        loaded_dataset.valid_data = valid_data
+        loaded_dataset.class_info = class_info
+        context.commit('updateDataset', loaded_dataset)
+
       }, error_handler_creator(context))
   },
 
@@ -463,7 +468,7 @@ export default {
     //   if (model) {
     //     const r = response.data
     //     const result = r.result
-    //     model.prediction_result = result
+    //     model.last_prediction_result = result
     //     context.commit('forceUpdatePredictionPage')
     //   }
     // }, error_handler_creator(context))

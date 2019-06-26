@@ -52,6 +52,7 @@ export default {
       }
       const dataset = this.getDatasetFromId(model.dataset_id)
       if (dataset) {
+        // TODO muraishi: .class_map
         return dataset.class_map
       } else {
         return []

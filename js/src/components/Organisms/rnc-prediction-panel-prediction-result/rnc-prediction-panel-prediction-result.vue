@@ -66,8 +66,9 @@
               :img="item.img"
               :result="getResult(item)"
               :model="model"
-              ::dataset="dataset"
+              :dataset="dataset"
             />
+            <!-- TODO muraishi: dataset here is for rendering class label of classification-->
           </div>
           <div
             v-else
@@ -162,13 +163,18 @@ export default {
         return model
       }
     },
+    // TODO muraishi : dispatch datasetDetail when setDeployedModel occor
+    dataset: function () {
+      const model = this.model
+      if (model) return this.datasets.find(d => d.id === model.dataset_id)
+    },
     showImage: function () {
       return this.show_image || !this.isTaskSegmentation
     },
     getImages: function () {
       const model = this.model
       if (model) {
-        const dataset = model.prediction_result
+        const dataset = model.last_prediction_result
         if (!dataset) {
           return []
         }
@@ -245,7 +251,7 @@ export default {
       const model = this.model
       if (!model) return
 
-      const dataset = model.prediction_result
+      const dataset = model.last_prediction_result
       if (!dataset) return
 
       // Using vue-worker here.
@@ -259,7 +265,7 @@ export default {
       const index = item.index
       const model = this.model
       if (!model) return
-      const pred = model.prediction_result.prediction[index]
+      const pred = model.last_prediction_result.prediction[index]
       return {
         index: index,
         target: undefined,

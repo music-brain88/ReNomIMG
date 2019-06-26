@@ -213,23 +213,27 @@ export default {
     train_num: function () {
       const dataset = this.current_dataset
       if (!dataset) return
+      // TODO muraishi: .class_info
       const t = dataset.class_info.train_img_num
       return t
     },
     valid_num: function () {
       const dataset = this.current_dataset
       if (!dataset) return
+      // TODO muraishi: .class_info
       const t = dataset.class_info.valid_img_num
       return t
     },
     class_items: function () {
       const dataset = this.current_dataset
       if (!dataset) return
+      // TODO muraishi: .class_info
       const info = dataset.class_info
       if (!info) return
       const t = info.train_ratio
       const v = info.valid_ratio
       const c = info.class_ratio
+      // TODO muraishi: .class_map
       const n = info.class_map
       return t.map((i, index) => [
         n[index],

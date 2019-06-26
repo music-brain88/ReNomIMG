@@ -21,7 +21,7 @@
 
     <div
       id="model-id"
-      @click="$emit('clicked-model-id', model)"
+      @click="$emit('clicked-model-item', model)"
     >
       <div class="info-row">
         <rnc-key-value
