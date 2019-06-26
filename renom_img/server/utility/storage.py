@@ -215,7 +215,9 @@ class Storage:
         with SessionContext() as session:
             result = session.query(Dataset).filter(Dataset.id == id)
             dict_result = self.remove_instance_state_key(result)
-            assert dict_result
+            # assert dict_result
+            if len(dict_result) == 0:
+                return None
             return dict_result[0]
 
     def register_dataset(self, task_id, name, description, ratio,
