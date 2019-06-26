@@ -296,7 +296,7 @@ export default {
   async pollingTrain (context, payload) {
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/polling/train/model/' + model_id
-    const url = '/api/renom_img/v2/api/detection/train/' + model_id
+    const url = '/api/renom_img/v2/api/detection/train?model_id=' + model_id
     const request_source = { 'train': model_id }
     const current_requests = context.state.polling_request_jobs.train
 
@@ -401,7 +401,7 @@ export default {
   async pollingPrediction (context, payload) {
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/polling/prediction/model/' + model_id
-    const url = '/api/renom_img/v2/api/detection/prediction/' + model_id
+    const url = '/api/renom_img/v2/api/detection/prediction?model_id=' + model_id
     const request_source = { 'prediction': model_id }
     const current_requests = context.state.polling_request_jobs.prediction
 
@@ -731,9 +731,10 @@ export default {
   */
 
   async downloadPredictionResult (context, payload) {
-    // TODO: const model = payload
+    const model = payload
+    const format = 'csv'// 現状はcsvのみですが、今後増える想定です。
     // const url = '/api/renom_img/v2/model/' + model.id + '/export/'
-    const url = '/api/renom_img/v2/api/detection/prediction/result?format=csv'
+    const url = '/api/renom_img/v2/api/detection/prediction/result?model_id=' + model.id + '&format=' + format
     window.open(url, '__blank')
   },
 }
