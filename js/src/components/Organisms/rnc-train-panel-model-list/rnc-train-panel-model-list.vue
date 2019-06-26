@@ -153,8 +153,10 @@
           :result-of-metric2="deployedModelListItem.ResultOfMetric2"
           :selected-model-id="deployedModelListItem.SelectedModelId"
           :is-deployed-model="true"
-          @clicked-model-id="setSelectedModel($event)"
+          @clicked-model-id="loadModelsOfCurrentTaskDetail($event.id)"
         />
+        <!-- @clicked-model-id="setSelectedModel($event)" -->
+
         <div
           v-else
           id="empty"
@@ -186,8 +188,10 @@
           :selected-model-id="item.SelectedModelId"
 
           @rm-model="rmModel($event.id)"
-          @clicked-model-id="setSelectedModel($event)"
+          @clicked-model-id="loadModelsOfCurrentTaskDetail($event.id)"
         />
+        <!-- @clicked-model-id="setSelectedModel($event)" -->
+
       </div>
     </template>
   </rnc-title-frame>
@@ -263,7 +267,7 @@ export default {
       'selectNextModel',
       'toggleSortOrder',
     ]),
-    ...mapActions(['removeModel']),
+    ...mapActions(['removeModel', 'loadModelsOfCurrentTaskDetail']),
 
     // TODO muraishi : not using currently
     // setGoupingCategory: function () {

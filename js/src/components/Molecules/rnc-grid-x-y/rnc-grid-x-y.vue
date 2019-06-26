@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import * as d3 from 'd3'
 import { train_color, valid_color, algorithm_colors } from './../../../const'
 import RncTooltip from './../../Atoms/rnc-tooltip/rnc-tooltip.vue'
@@ -97,6 +97,7 @@ export default {
     getTrainLossList: function () {
       const model = this.SelectedModelObj
       if (undefined !== model) {
+        // TODO muraishi: train_loss_list
         return model.train_loss_list
       } else {
         return []
@@ -181,6 +182,7 @@ export default {
   },
   methods: {
     ...mapMutations(['setSelectedModel']),
+    ...mapActions(['loadModelsOfCurrentTaskDetail']),
 
     drawLearningCurve: function () {
       if (!this.kind) return
@@ -199,9 +201,13 @@ export default {
 
       if (this.SelectedModelObj) {
         const model = this.SelectedModelObj
+        // TODO muraishi : best_epoch_valid_result
         const best_epoch = model.best_epoch_valid_result
         best_epoch_nth = (best_epoch && best_epoch.nth_epoch) ? best_epoch.nth_epoch : 0
         best_epoch_loss = (best_epoch && best_epoch.loss) ? best_epoch.loss : 0
+
+        // TODO muraishi : train_loss_list
+        // TODO muraishi : valid_loss_list
         train_loss_list = model.train_loss_list
         valid_loss_list = model.valid_loss_list
         if (!train_loss_list) {
@@ -597,8 +603,11 @@ export default {
           this.TooltipDisplay = false
         })
         .on('click', (m) => {
-          this.setSelectedModel(m)
+          this.loadModelsOfCurrentTaskDetail(m.id)
         })
+        // .on('click', (m) => {
+        //   this.setSelectedModel(m)
+        // })
       // d3.select('#model-scatter-canvas')
       //   .on('contextmenu', this.resetZoom)
     },

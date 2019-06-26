@@ -175,7 +175,6 @@ export default {
   methods: {
     ...mapMutations([
       'showModal',
-      'setSelectedModel',
       'showConfirm',
     ]),
     ...mapActions(['removeModel']),
