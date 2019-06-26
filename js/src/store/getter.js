@@ -166,9 +166,13 @@ export default {
     let filtered = []
     const task_filtered_model_list = state.models.filter(m => m.task_id === getters.getCurrentTask)
     filtered = task_filtered_model_list
+    // console.log("【currentModels in getFilteredModelList】")
+    // console.log(filtered)
     for (const flt of state.filters) {
       filtered = flt.filter(filtered)
     }
+    // console.log("【filtered in getFilteredModelList】")
+    // console.log(filtered)
     return filtered
   },
   getFilteredDatasetList (state, getters) {

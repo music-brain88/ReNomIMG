@@ -247,12 +247,15 @@ export default {
       return this.sort_order_direction === SORT_DIRECTION.DESCENDING
     },
     deployedModelListItem: function () {
+      console.log("getDeployedModel in modelList", this.getDeployedModel)
       const ret = this.makeModelListItem(this.getDeployedModel)
 
       return ret
     },
     ModelListItemArray: function () {
+      console.log("getFilteredAndGroupedModelList in modelList", this.getFilteredAndGroupedModelList)
       const ret = this.getFilteredAndGroupedModelList.map((model) => {
+        console.log("loop")
         return this.makeModelListItem(model)
       })
       return ret
@@ -316,6 +319,8 @@ export default {
       }
 
       if (model) {
+        // console.log("【model in makeModelListItem】")
+        // console.log(model)
         model_item.Model = model
 
         model_item.LastBatchLoss = this.getLastBatchLoss(model)
@@ -323,6 +328,8 @@ export default {
         model_item.ResultOfMetric2 = model.getResultOfMetric2().value
         model_item.SelectedModelId = this.ensureSelectedModelId(this.getSelectedModel)
       }
+      // console.log('【model_item in makeModelListItem】')
+      // console.log(model_item)
       return model_item
     },
     getLastBatchLoss (model) {

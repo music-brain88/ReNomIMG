@@ -12,7 +12,7 @@
           <rnc-select
             :option-info="getFilteredDatasetList"
             :get-id="true"
-            v-model="selectedDatasetId"
+            v-model="selected_dataset_id"
             class="input-value"
           >
             <template slot="default-item">
@@ -29,7 +29,7 @@
           </div>
           <rnc-select
             :option-info="getAlgorithmList"
-            v-model="selectedAlgorithm"
+            v-model="selected_algorithm"
             class="input-value"
           >
             <template slot="default-item">
@@ -48,7 +48,7 @@
       </div>
       <div class="form-set-field">
         <div
-          v-for="(item, itemkey) in getAlgorithmParamList(selectedAlgorithm)"
+          v-for="(item, itemkey) in getAlgorithmParamList(selected_algorithm)"
           :key="itemkey"
           class="form-set"
         >
@@ -112,11 +112,11 @@ export default {
   },
   data: function () {
     return {
-      selectedDatasetId: '',
-      selectedAlgorithm: '',
+      selected_dataset_id: '',
+      selected_algorithm: '',
       vali_params: {},
       parameters: {},
-      runningDisabled: '',
+      running_disabled: '',
       paramKeys: {}
     }
   },
@@ -130,8 +130,8 @@ export default {
       'getFilteredDatasetList'
     ]),
     isRunnable () {
-      if (this.selectedDatasetId !== '' && this.selectedAlgorithm !== '') {
-        if (this.runningDisabled) {
+      if (this.selected_dataset_id !== '' && this.selected_algorithm !== '') {
+        if (this.running_disabled) {
           return true
         } else {
           return false
@@ -142,8 +142,11 @@ export default {
     }
   },
   watch: {
-    selectedAlgorithm: function () {
-      this.setDefaultValue(this.getAlgorithmParamList(this.selectedAlgorithm))
+    selected_algorithm: function () {
+      this.setDefaultValue(this.getAlgorithmParamList(this.selected_algorithm))
+    },
+    selected_dataset_id: function() {
+      console.log("selected_dataset_id", this.selected_dataset_id)
     }
   },
   methods: {
@@ -153,10 +156,10 @@ export default {
     onUpdateParams: function (params, itemkey) {
       this.$set(this.vali_params, itemkey, params['errorMessage'])
       for (const k in this.vali_params) {
-        this.runningDisabled = false
+        this.running_disabled = false
         if (this.vali_params[k]) {
-          this.runningDisabled = true
-          return this.runningDisabled
+          this.running_disabled = true
+          return this.running_disabled
         }
       }
       this.parameters[itemkey] = params['value']
@@ -171,8 +174,8 @@ export default {
       this.showModal({ 'all': false })
       this.createModel({
         hyper_params: this.parameters,
-        algorithm_id: this.getAlgorithmIdFromTitle(this.selectedAlgorithm),
-        dataset_id: this.selectedDatasetId,
+        algorithm_id: this.getAlgorithmIdFromTitle(this.selected_algorithm),
+        dataset_id: this.selected_dataset_id,
         task_id: this.getCurrentTask
       })
     }
