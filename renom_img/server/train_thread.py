@@ -66,7 +66,7 @@ class AppObserver(TrainObserverBase):
         self.ts.sync_train_loss()
         self.ts.updated = True
 
-    def start_valid_batches(self, notification):
+    def start_valid_batches(self):
         self.ts.running_state = RunningState.VALIDATING
         self.ts.updated = True
 

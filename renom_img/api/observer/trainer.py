@@ -250,10 +250,10 @@ class ObservableTrainer():
             if isinstance(self.model,SSD):
                 prediction_box = []
                 for sample in range(n_valid):
-                    prediction_b = model.get_bbox(np.expand_dims(prediction[sample],axis=0))
+                    prediction_b = self.model.get_bbox(np.expand_dims(prediction[sample],axis=0))
                     prediction_box.append(prediction_b[0])
             else:
-                prediction_box = model.get_bbox(prediction[:n_valid])
+                prediction_box = self.model.get_bbox(prediction[:n_valid])
             prec, rec, _, iou = get_prec_rec_iou(prediction_box,label[:n_valid])
             _, mAP = get_ap_and_map(prec, rec)
             
@@ -264,12 +264,12 @@ class ObservableTrainer():
             label = np.concatenate(label,axis=0)
             pred = np.argmax(prediction,axis=1)
             targ = np.argmax(label,axis=1)
-            _, pr, _, rc, _, f1, _, _, _, _ = get_segmentation_metrics(pred, targ, n_class=model.num_class)
+            _, pr, _, rc, _, f1, _, _, _, _ = get_segmentation_metrics(pred, targ, n_class=self.model.num_class)
             prediction = []
             
             for p, t in zip(pred, targ):
                 lep, lemp, ler, lemr, _, _, _, _, _, _ = get_segmentation_metrics(p[None],t[None],
-                                                                                  n_class=model.num_class)
+                                                                                  n_class=self.model.num_class)
                 prediction.append({
                     "class": p.astype(np.int).tolist(),
                     "recall": {k: float(v) for k, v in ler.items()},
