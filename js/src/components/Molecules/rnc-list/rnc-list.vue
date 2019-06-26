@@ -17,7 +17,7 @@
       :result-of-metric2="item.ResultOfMetric2"
       :selected-model-id="item.SelectedModelId"
 
-      @clicked-model-id="$emit('clicked-model-id', $event)"
+      @clicked-model-item="$emit('clicked-model-item', $event)"
       @rm-model="$emit('rm-model', $event)"
     />
   </div>

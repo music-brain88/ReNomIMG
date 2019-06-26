@@ -182,7 +182,10 @@ export default {
   },
   methods: {
     ...mapMutations(['setSelectedModel']),
-    ...mapActions(['loadModelsOfCurrentTaskDetail']),
+    // ADD muraishi
+    ...mapActions([
+      'loadModelsOfCurrentTaskDetail',
+      'loadDatasetsOfCurrentTaskDetail']),
 
     drawLearningCurve: function () {
       if (!this.kind) return
@@ -603,7 +606,8 @@ export default {
           this.TooltipDisplay = false
         })
         .on('click', (m) => {
-          this.loadModelsOfCurrentTaskDetail(m.id)
+          // CHANGE muraishi
+          this.clickedModelItem(m)
         })
         // .on('click', (m) => {
         //   this.setSelectedModel(m)
@@ -642,6 +646,10 @@ export default {
     //   }
     //   d3.event.preventDefault()
     // }
+    clickedModelItem: function (model) {
+      this.loadModelsOfCurrentTaskDetail(model.id)
+      this.loadDatasetsOfCurrentTaskDetail(model.dataset_id)
+    }
   }
 }
 </script>

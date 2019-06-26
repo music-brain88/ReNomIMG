@@ -40,6 +40,8 @@
             :result="getResult()"
             :dataset="dataset"
           />
+          <!-- TODO muraishi: dataset here is for rendering class label of classification-->
+
         </div>
       </template>
     </rnc-title-frame>
@@ -154,8 +156,7 @@ export default {
     ...mapState([
       'datasets',
       'modal_image',
-      'modal_index',
-      'datasets'
+      'modal_index'
     ]),
     ...mapGetters([
       'getDeployedModel',
@@ -175,6 +176,7 @@ export default {
       const index = this.modal_index
       return this.prediction_dataset.prediction[index]
     },
+    // TODO muraishi : dispatch datasetDetail when setDeployedModel occor
     dataset: function () {
       const model = this.model
       if (model) {
@@ -188,10 +190,11 @@ export default {
     prediction_dataset: function () {
       const model = this.model
       if (model) {
-        return model.prediction_result
+        return model.last_prediction_result
       }
     },
     class_map: function () {
+      // TODO muraishi: .class_map
       const map = this.dataset.class_map
       return map
     },

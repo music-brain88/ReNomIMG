@@ -175,6 +175,7 @@ export default {
     cls: function () {
       const dataset = this.dataset
       if (!this.isTaskClassification || !dataset) return
+      // TODO muraishi: .class_map
       const class_map = dataset.class_map
       if (this.showTarget) {
         const targ = this.result.target

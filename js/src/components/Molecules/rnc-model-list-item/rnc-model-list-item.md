@@ -24,7 +24,7 @@ getLastBatchLoss () {
 "model.getResultOfMetric1().value" of model acquired by "getFilteredAndGroupedModelList".
 - selected-model-id: Acquired by "getSelectedModel" inReNomIMG.
 - is-deployed-model: When this is true, it would render the style for a deployed model.
-- [v-on]clicked-model-id: This event is emitted when model list item is clicked. It conveys the id of selected model.
+- [v-on]clicked-model-item: This event is emitted when model list item is clicked. It conveys the id of selected model.
 
   （The following is the item originally included. I have put in just in case.）  
   （以下は、元々入っていた項目です。念の為に入れています。）  

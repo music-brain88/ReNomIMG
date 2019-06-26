@@ -66,12 +66,14 @@ export default {
           model.valid_loss_list = m.valid_loss_list
           model.best_epoch_valid_result = m.best_epoch_valid_result
           model.last_batch_loss = m.last_batch_loss
+
+          // ADD muraishi
           model.last_prediction_result = m.last_prediction_result
 
           context.commit('addModel', model)
           context.dispatch('loadBestValidResult', id)
 
-          // TODO muraishi: modify later
+          // ADD muraishi
           // model.deployed_model = m.deployed_model
           // if(model.deployed_model){
           //   context.commit('setDeployedModel', model)
@@ -92,6 +94,8 @@ export default {
         console.log(response.data)
 
         if (response.status === 204) return
+
+        // ADD muraishi
         const m = response.data.model
 
         const algorithm_id = m.algorithm_id
@@ -112,6 +116,8 @@ export default {
         model.valid_loss_list = m.valid_loss_list
         model.best_epoch_valid_result = m.best_epoch_valid_result
         model.last_batch_loss = m.last_batch_loss
+
+        // ADD muraishi
         model.last_prediction_result = m.last_prediction_result
 
         // TODO muraishi: no need updateModel?? if dont have to contain model details
@@ -156,7 +162,7 @@ export default {
   },
 
   /** ***
-   *TODO muraishi :2
+   *muraishi :2
    */
   async loadDatasetsOfCurrentTaskDetail (context, payload) {
     const dataset_id = payload
@@ -166,23 +172,25 @@ export default {
         console.log('【loadDatasetsOfCurrentTaskDetail】')
         console.log(response.data)
         if (response.status === 204) return
-        for (const ds of response.data.datasets) {
-          const id = ds.id
-          const class_map = ds.class_map
-          const valid_data = ds.valid_data
-          const task = ds.task_id
-          const name = ds.name
-          const ratio = ds.ratio
-          const description = ds.description
-          const test_dataset_id = ds.test_dataset_id
-          const class_info = ds.class_info
-          const loaded_dataset = new Dataset(task, name, ratio, description, test_dataset_id)
-          loaded_dataset.id = id
-          loaded_dataset.class_map = class_map
-          loaded_dataset.valid_data = valid_data
-          loaded_dataset.class_info = class_info
-          context.commit('updateDataset', loaded_dataset)
-        }
+
+        // ADD muraishi
+        const ds = response.data.dataset
+
+        const id = ds.id
+        const class_map = ds.class_map
+        const valid_data = ds.valid_data
+        const task = ds.task_id
+        const name = ds.name
+        const ratio = ds.ratio
+        const description = ds.description
+        const test_dataset_id = ds.test_dataset_id
+        const class_info = ds.class_info
+        const loaded_dataset = new Dataset(task, name, ratio, description, test_dataset_id)
+        loaded_dataset.id = id
+        loaded_dataset.class_map = class_map
+        loaded_dataset.valid_data = valid_data
+        loaded_dataset.class_info = class_info
+        context.commit('updateDataset', loaded_dataset)
       }, error_handler_creator(context))
   },
 
@@ -474,7 +482,7 @@ export default {
     //   if (model) {
     //     const r = response.data
     //     const result = r.result
-    //     model.prediction_result = result
+    //     model.last_prediction_result = result
     //     context.commit('forceUpdatePredictionPage')
     //   }
     // }, error_handler_creator(context))
