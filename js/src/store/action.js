@@ -172,11 +172,11 @@ export default {
         console.log('【loadDatasetsOfCurrentTaskDetail】')
         console.log(response.data)
         if (response.status === 204) return
-        let ds = response.data.dataset
 
         // ADD muraishi
-        const id = ds.id
+        const ds = response.data.dataset
 
+        const id = ds.id
         const class_map = ds.class_map
         const valid_data = ds.valid_data
         const task = ds.task_id

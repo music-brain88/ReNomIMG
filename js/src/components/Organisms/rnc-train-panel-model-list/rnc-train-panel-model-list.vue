@@ -279,9 +279,9 @@ export default {
     // setGoupingCategory: function () {
     //   this.setGoupBy(this.groupby)
     // },
-    clickedModelItem : function(e){
-      this.loadModelsOfCurrentTaskDetail(e.id)
-      this.loadDatasetsOfCurrentTaskDetail(e.dataset_id)
+    clickedModelItem : function(model){
+      this.loadModelsOfCurrentTaskDetail(model.id)
+      this.loadDatasetsOfCurrentTaskDetail(model.dataset_id)
     },
     setOrder: function (key) {
       if (this.isSortBy(key)) {
