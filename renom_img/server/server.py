@@ -220,10 +220,10 @@ def error_message_model_algorithm_id(algorithm_id):
 def error_message_epoch(epoch):
     message = ""
     param_name = "Hyperparameter epoch"
-    if epoch is not None:
+    if epoch is None:
         desc = "is required"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
-    elif is_int(epoch):
+    elif not is_int(epoch):
         desc = "must be integer"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, EPOCH_MIN, EPOCH_MAX)
     elif is_int(epoch) < EPOCH_MIN:
@@ -238,10 +238,10 @@ def error_message_epoch(epoch):
 def error_message_batch(batch):
     message = ""
     param_name = "Hyperparameter batch"
-    if batch is not None:
+    if batch is None:
         desc = "is required"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
-    elif is_int(batch):
+    elif not is_int(batch):
         desc = "must be integer"
         message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, BATCH_MIN, BATCH_MAX)
     elif is_int(batch) < BATCH_MIN:
@@ -258,13 +258,17 @@ def error_message_model_hyper_params(hyper_params):
     if hyper_params is None:
         messages.append("Hyper parameter is not exists.")
     else:
+        print()
         # check epoch
-        m = error_message_epoch(hyper_params["epoch"])
+        # TODO: m = error_message_epoch(hyper_params["epoch"])
+        print("***hyper_params[total_epoch]:", hyper_params['total_epoch'])
+        m = error_message_epoch(hyper_params['total_epoch'])
         if len(m) > 0:
             messages.append(m)
 
         # check batch
-        m = error_message_batch(hyper_params["batch"])
+        # TODO: m = error_message_batch(hyper_params["batch"])
+        m = error_message_batch(hyper_params["batch_size"])
         if len(m) > 0:
             messages.append(m)
     return messages
@@ -315,13 +319,13 @@ def dataset_to_light_dict(dataset):
         'description': dataset["description"],
         'task_id': dataset["task_id"],
         'ratio': dataset["ratio"],
-        'class_map': [],
-        # 'class_map': dataset["class_map"],
-        'class_info': {},
-        # 'class_info': dataset["class_info"],
+        # 'class_map': [],
+        'class_map': dataset["class_map"],
+        # 'class_info': {},
+        'class_info': dataset["class_info"],
         'train_data': {},   # TODO:元のにはなかった
-        'valid_data': {},
-        # 'valid_data': dataset["valid_data"],
+        # 'valid_data': {},
+        'valid_data': dataset["valid_data"],
         'test_dataset_id': dataset["test_dataset_id"]
     }
 
@@ -351,12 +355,12 @@ def model_to_light_dict(model):
         "hyper_parameters": model["hyper_parameters"],
         "state": model["state"],
         "running_state": model["running_state"],
-        "train_loss_list": [],
-        # "train_loss_list": model["train_loss_list"],
-        "valid_loss_list": [],
-        # "valid_loss_list": model["valid_loss_list"],
-        "best_epoch_valid_result": {},  # modify only evaluation value return
-        # "best_epoch_valid_result": model["best_epoch_valid_result"],
+        # "train_loss_list": [],
+        "train_loss_list": model["train_loss_list"],
+        # "valid_loss_list": [],
+        "valid_loss_list": model["valid_loss_list"],
+        # "best_epoch_valid_result": {},  # modify only evaluation value return
+        "best_epoch_valid_result": model["best_epoch_valid_result"],
         "total_epoch": model["total_epoch"],
         "nth_epoch": model["nth_epoch"],
         "total_batch": model["total_batch"],
@@ -1604,11 +1608,27 @@ def get_models(task_name):
 @route("/api/renom_img/v2/api/<task_name>/models", method="POST")
 @error_handler
 def create_model(task_name):
+    print("***server:create_model START")
     """
     create model
     """
     task_id = get_task_id_by_name(task_name)
+    print("***task_id:", task_id)
+    print("***request:", request)
+    print("***request.params:", request.params)
+
+    req_params = request.params
+
+    # print("***algorithm_id:", json.loads(req_params.algorithm_id))
+    # print("***dataset_id:", req_params.dataset_id)
+
+    # print("***hyper_params:", json.loads(req_params.hyper_params))
+    # print("***hyper_parameters:", json.loads(req_params.hyper_parameters))
+
+
+    # req_json = request.params
     req_json = request.json
+    print("***req_json:", req_json)
     check_create_model_params(req_json)
 
     hyper_params = req_json['hyper_parameters']

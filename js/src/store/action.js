@@ -91,7 +91,7 @@ export default {
           const task_id = m.task_id
           const state = m.state
           const id = m.id
-          const hyper_params = m.hyper_parameters
+          const hyper_params = m.hyper_parameters// 時間がある時に「hyper_parameters」に統一する。
           const dataset_id = m.dataset_id
           const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
 
@@ -214,24 +214,36 @@ export default {
     const algorithm_id = payload.algorithm_id
     const dataset_id = payload.dataset_id
     const task_id = payload.task_id
-    const param = new FormData()
+    // TODO: FormDataは使わなくなったそうです。 const param = new FormData()
     const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
     context.commit('addModel', model)
     model.state = STATE.CREATED
 
     // Append params.
-    param.append('hyper_params', JSON.stringify(hyper_params))
-    param.append('dataset_id', dataset_id)
-    param.append('task_id', task_id)
-    param.append('algorithm_id', algorithm_id)
-
-    return axios.post(url, param)
+    // param.append('hyper_parameters', JSON.stringify(hyper_params))
+    // param.append('dataset_id', dataset_id)
+    // param.append('task_id', task_id)
+    // param.append('algorithm_id', algorithm_id)
+    console.log('**createModel param**')
+    // console.log(param)
+    console.log('dataset_id: ' + dataset_id)
+    console.log('task_id: ' + task_id)
+    console.log('algorithm_id: ' + algorithm_id)
+    console.log('hyper_parameters: ' + JSON.stringify(hyper_params))
+    console.log('素のhyper_parameters: ' + hyper_params)
+    return axios.post(url, {
+      hyper_parameters: hyper_params,
+      dataset_id: dataset_id,
+      task_id: task_id,
+      algorithm_id: algorithm_id,
+    })
       .then(function (response) {
         console.log('【createModel】')
         console.log(response.data)
 
         if (response.status === 204) return
-        const id = response.data.id
+        const id = response.data.model.id
+        console.log('*****id: ' + id)
         model.id = id
         model.state = STATE.RESERVED
         context.dispatch('runTrainThread', id)
@@ -261,9 +273,13 @@ export default {
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/model/thread/run/' + model_id
     const url = '/api/renom_img/v2/api/detection/train'
-    const param = new FormData()
-    param.append('model_id', model_id)
-    return axios.post(url, param)
+    // const param = new FormData()
+    // param.append('model_id', model_id)
+    console.log('【runTrainThread の model_id】', model_id)
+
+    return axios.post(url, {
+      model_id: model_id
+    })
       .then(function (response) {
         console.log('【runTrainThread】')
         console.log(response)
@@ -364,14 +380,16 @@ export default {
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/model/thread/prediction/run/' + model_id
     const url = '/api/renom_img/v2/api/detection/prediction'
-    const param = new FormData()
-    param.append('model_id', model_id)
+    // TODO: const param = new FormData()
+    // TODO: param.append('model_id', model_id)
 
     const model = context.getters.getModelById(model_id)
     model.state = STATE.PRED_CREATED // TODO: Remove this line.
     model.total_prediction_batch = 0
     model.nth_prediction_batch = 0
-    return axios.post(url, param)
+    return axios.post(url, {
+      model_id: model_id
+    })
       .then(function (response) {
         console.log('【runPredictionThread】')
         console.log(response)
@@ -474,11 +492,13 @@ export default {
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/model/stop/' + model_id
     const url = '/api/renom_img/v2/api/detection/train'
-    const param = new FormData()
-    param.append('model_id', model_id)
+    // TODO: const param = new FormData()
+    // TODO: param.append('model_id', model_id)
     // TODO: deleteの時の値の渡し方がバラバラだがOK？
 
-    return axios.delete(url, param).then(function (response) {
+    return axios.delete(url, {
+      model_id: model_id
+    }).then(function (response) {
       console.log('【stopModelTrain】')
       console.log(response)
     }, error_handler_creator(context))
@@ -598,16 +618,22 @@ export default {
     const ratio = payload.ratio
     const task_id = context.getters.getCurrentTask
     const description = payload.description
-    const param = new FormData()
+    // TODO: const param = new FormData()
+    // TODO: param.append('name', encodeURIComponent(name))
+    // TODO: param.append('hash', hash)
+    // TODO: param.append('ratio', ratio)
+    // TODO: param.append('task_id', task_id)
+    // TODO: param.append('description', encodeURIComponent(description))
+    // TODO: param.append('test_dataset_id', test_dataset_id)
 
-    param.append('name', encodeURIComponent(name))
-    param.append('hash', hash)
-    param.append('ratio', ratio)
-    param.append('task_id', task_id)
-    param.append('description', encodeURIComponent(description))
-    param.append('test_dataset_id', test_dataset_id)
-
-    return axios.post(url, param).then(function (response) {
+    return axios.post(url, {
+      name: encodeURIComponent(name),
+      hash: hash,
+      ratio: ratio,
+      task_id: task_id,
+      description: encodeURIComponent(description),
+      test_dataset_id: test_dataset_id
+    }).then(function (response) {
       console.log('【confirmDataset】')
       console.log(response.data)
 
@@ -654,10 +680,13 @@ export default {
     const name = payload.name
     const size = payload.size
     const callback = payload.callback
-    const param = new FormData()
-    param.append('size', JSON.stringify(size))
-    param.append('name', name)
-    return axios.post(url, param).then(response => {
+    // TODO: const param = new FormData()
+    // TODO: param.append('size', JSON.stringify(size))
+    // TODO: param.append('name', name)
+    return axios.post(url, {
+      size: size,
+      name: name
+    }).then(response => {
       console.log('【loadSegmentationTargetArray】')
       console.log(response)
 
