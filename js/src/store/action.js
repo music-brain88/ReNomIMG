@@ -27,7 +27,8 @@ export default {
     context.dispatch('loadDatasetsOfCurrentTask')
     // TODO: context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask', 'all')
-    //await context.dispatch('loadModelsOfCurrentTask', 'running')
+    await context.dispatch('loadModelsOfCurrentTask', 'running')// TODO: 必要？タイミングは？
+    await context.dispatch('loadModelsOfCurrentTask', 'deployed')// TODO: 必要？タイミングは？
     // TODO: await context.dispatch('loadDeployedModel')
     context.commit('showLoadingMask', false)
     context.dispatch('startAllPolling')
@@ -718,7 +719,9 @@ export default {
     const url = '/api/renom_img/v2/api/detection/models/' + model.id
 
     this.commit('setDeployedModel', model)
-    return axios.put(url).then(function (response) {
+    return axios.put(url, {
+      deploy: true
+    }).then(function (response) {
       console.log('【deployModel】')
       console.log(response)
     }, error_handler_creator(context))
@@ -728,7 +731,9 @@ export default {
     // TODO: const url = '/api/renom_img/v2/model/undeploy/' + task_id
     const url = '/api/renom_img/v2/api/detection/models/' + task_id
     this.commit('unDeployModel')
-    return axios.put(url).then(function (response) {
+    return axios.put(url, {
+      deploy: false
+    }).then(function (response) {
       console.log('【unDeployModel】')
       console.log(response)
     }, error_handler_creator(context))

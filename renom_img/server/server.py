@@ -450,6 +450,10 @@ def ndarray_to_list(data):
 
 
 def split_by_ratio(data, perm, ratio, length):
+    print("***data:", data)
+    print("***perm:", perm)
+    print("***ratio:", ratio)
+    print("***length:", length)
     return np.split(np.array([data[index] for index in perm]), [int(ratio * length)])
 
 
@@ -1705,14 +1709,20 @@ def update_model(task_name, model_id):
     check_upadte_model_params(req_params)
 
     model = storage.fetch_model(model_id)
+    print("***model of update_model:", model)
+    print("***model_id of update_model:", model_id)
+
     check_model_exists(model, model_id)
 
     # if deploy value exists
+    print("***req_params of update_model:", req_params)
     deploy = req_params.pop("deploy", False)
     if deploy:
+        print("*** Deploy ***")
         check_model_running(model_id)
         storage.deploy_model(model_id)
     else:
+        print("*** Un Deploy ***")
         storage.undeploy_model(task_id)
 
     # update deploy status in v2.2.
@@ -1958,6 +1968,9 @@ def run_prediction(task_name):
     check_model_exists(saved_model, model_id)
 
     file_name = saved_model['best_epoch_weight']
+
+    print("***model_id of run_prediction:", model_id)
+    print("***file_name of run_prediction:", file_name)
     check_weight_exists(file_name, model_id)
 
     thread = PredictionThread(model_id)
