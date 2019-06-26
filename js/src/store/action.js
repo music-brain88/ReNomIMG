@@ -92,7 +92,7 @@ export default {
         console.log(response.data)
 
         if (response.status === 204) return
-        const m= response.data.model
+        const m = response.data.model
 
         const algorithm_id = m.algorithm_id
         const task_id = m.task_id
@@ -116,7 +116,7 @@ export default {
 
         // TODO muraishi: no need updateModel?? if dont have to contain model details
         context.commit('updateModel', model)
-        context.commit('setSelectedModel',model)
+        context.commit('setSelectedModel', model)
         context.dispatch('loadBestValidResult', id)
       }, error_handler_creator(context))
   },
