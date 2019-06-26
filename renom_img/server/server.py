@@ -339,10 +339,8 @@ def dataset_to_light_dict(dataset):
         'task_id': dataset["task_id"],
         'ratio': dataset["ratio"],
         'class_map': [],
-        # 'class_map': dataset["class_map"],
-        'class_info': {},
-        # 'class_info': dataset["class_info"],
-        'train_data': {},   # TODO:元のにはなかった
+        'class_info': dataset["class_info"],
+        'train_data': {},
         'valid_data': {},
         # 'valid_data': dataset["valid_data"],
         'test_dataset_id': dataset["test_dataset_id"]
