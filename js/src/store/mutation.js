@@ -37,7 +37,7 @@ export default {
     state.group_by = key
   },
   setSelectedModel (state, payload) {
-    console.log('【MUTATION:setSelectedModel】')
+    console.log('MUTATION:setSelectedModel')
     console.log(payload)
     const task_id = state.current_task
     state.selected_model = Object.assign({ ...state.selected_model }, { [task_id]: payload })

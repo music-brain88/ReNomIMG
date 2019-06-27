@@ -258,9 +258,17 @@ export default {
         console.log('loop')
         return this.makeModelListItem(model)
       })
+      console.log('***** ret:', ret)
       return ret
     },
   },
+
+  mounted: function () {
+    if (this.ModelListItemArray[0]) {
+      this.clickedModelItem(this.ModelListItemArray[0].Model)
+    }
+  },
+
   methods: {
     ...mapMutations([
       'setSortOrder',
