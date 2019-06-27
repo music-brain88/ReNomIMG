@@ -479,16 +479,28 @@ def dataset_confirm():
         train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
         valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
 
-    class_info = {
-        "class_map": class_map,
-        "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
-        "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
-        "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
-        "test_ratio": test_ratio,
-        "train_img_num": len(train_img),
-        "valid_img_num": len(valid_img),
-        "test_img_num": 1,
-    }
+    if task_id == Task.SEGMENTATION.value: 
+        class_info = {
+            "class_map": class_map,
+            "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
+            "train_ratio": np.divide(train_tag_num, (train_tag_num + valid_tag_num), out=np.zeros_like(train_tag_num), where=(train_tag_num+valid_tag_num)!=0).tolist(),
+            "valid_ratio": np.divide(valid_tag_num, (train_tag_num + valid_tag_num), out=np.zeros_like(valid_tag_num), where=(train_tag_num+valid_tag_num)!=0).tolist(),
+            "test_ratio": test_ratio,
+            "train_img_num": len(train_img),
+            "valid_img_num": len(valid_img),
+            "test_img_num": 1,
+        }
+    else:
+        class_info = {
+            "class_map": class_map,
+            "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
+            "train_ratio": (train_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+            "valid_ratio": (valid_tag_num / (train_tag_num + valid_tag_num)).tolist(),
+            "test_ratio": test_ratio,
+            "train_img_num": len(train_img),
+            "valid_img_num": len(valid_img),
+            "test_img_num": 1,
+        }
 
     # Register
     train_data = {

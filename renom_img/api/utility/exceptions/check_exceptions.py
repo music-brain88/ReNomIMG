@@ -155,6 +155,30 @@ def check_ternausnet_init(imsize):
     except Exception as e:
         raise InvalidInputValueError(str(e))
 
+def check_deeplabv3plus_init(imsize, scale_factor, atrous_rates, lr_initial, lr_power):
+    obj = StandardDeeplabv3plusInit()
+    std = obj.get_standards()
+    try:
+        assert type(scale_factor) in std['scale_factor']['type'], "Invalid type for scale_factor argument. Please provide a {}".format(std['scale_factor']['type'])
+        assert type(atrous_rates) in std['atrous_rates']['type'], "Invalid type for atrous_rates argument. Please provide a {} type. You provided a {} type.".format(std['atrous_rates']['type'], type(atrous_rates))
+        assert type(lr_initial) in std['lr_initial']['type'], "Invalid type for lr_initial argument. Please provide a {}".format(std['lr_initial']['type'])
+        assert type(lr_power) in std['lr_power']['type'], "Invalid type for lr_power argument. Please provide a {}".format(std['lr_power']['type'])
+    except Exception as e:
+        raise InvalidInputTypeError(str(e))
+
+    try:
+        if type(imsize) is tuple:
+            assert all(k in std['imsize']['range']
+                       for k in imsize), "Invalid value for imsize argument. Please set imsize to ({},{}).".format(std['imsize']['range'][0], std['imsize']['range'][0])
+        else:
+            assert imsize in std['imsize']['range'], "Invalid value for imsize argument. Please set imsize to {}.".format(
+                std['imsize']['range'])
+        assert scale_factor in std['scale_factor']['value'], "Invalid value for scale_factor argument. Please set scale_factor to {}.".format(std['scale_factor']['value'])
+        assert atrous_rates in std['atrous_rates']['value'], "Invalid value for atrous_rates argument. Please set atrous_rates to {}. You provided atrous_rates = {}".format(std['atrous_rates']['value'], atrous_rates)
+        assert lr_initial >= std['lr_initial']['range'][0] and lr_initial <= std['lr_initial']['range'][1], "Invalid value for initial learning rate. Please provide a value between {} and {}.".format(std['lr_initial']['range'][0], std['lr_initial']['range'][1])
+        assert lr_power >= std['lr_power']['range'][0] and lr_power <= std['lr_power']['range'][1], "Invalid value for learning rate power factor. Please provide a value between {} and {}.".format(std['lr_power']['range'][0], std['lr_power']['range'][1])
+    except Exception as e:
+        raise InvalidInputValueError(str(e))
 
 def check_common_forward(x):
     obj = StandardForward()

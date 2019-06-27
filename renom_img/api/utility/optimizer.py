@@ -52,7 +52,7 @@ class OptimizerDeeplab(BaseOptimizer):
         self.total_iterations = total_batch_iteration * total_epoch_iteration
         self.opt._lr = self.lr_initial*((1 - self.current_iterations/self.total_iterations)**self.lr_power)
 
-    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list):
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
         super(OptimizerDeeplab, self).set_information(nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
         self.current_iterations = self.total_batch_iteration*nth_epoch + nth_batch
         self.opt._lr = self.lr_initial*((1 - self.current_iterations/self.total_iterations)**self.lr_power)

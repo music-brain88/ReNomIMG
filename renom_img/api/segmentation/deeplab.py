@@ -129,10 +129,9 @@ class Deeplabv3plus(SemanticSegmentation):
 
     Args:
         class_map (list, dict): List of class names.
-          If False, final upscore layer is fixed to bilinear upsampling.
-        imsize (int, tuple): Input image size.
-        scale_factor (int): Reduction factor for output feature maps before upsampling. Current implementation only supports 16.
-        atrous_rates (list): List of dilation factors in ASPP module atrous convolution layers. Current implementation only supports [6,12,18].
+        imsize (int, tuple): Image size after rescaling. Must be set to (321,321) in current implementation, which only supports a fixed rescaled size of 321x321.
+        scale_factor (int): Reduction factor for output feature maps before upsampling. Current implementation only supports a value of 16.
+        atrous_rates (list): List of dilation factors in ASPP module atrous convolution layers. Current implementation only supports values of [6,12,18].
         lr_initial (float): Initial learning rate for poly learning rate schedule. The default value is 1e-4.
         lr_power (float): Exponential factor for poly learning rate schedule. The default value is 0.9
         load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
@@ -142,9 +141,15 @@ class Deeplabv3plus(SemanticSegmentation):
           If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     References:
-        Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation
-        Liang-Chieh Chen, Yukun Zhu, George Papandreou, Florian Schroff, Hartwig Adam
-        https://arxiv.org/abs/1802.02611
+        | Liang-Chieh Chen, George Papandreou, Florian Schroff, Hartwig Adam
+        | **Rethinking Atrous Convolution for Semantic Image Segmentation**
+        | https://arxiv.org/abs/1706.05587
+        | 
+        | Liang-Chieh Chen, Yukun Zhu, George Papandreou, Florian Schroff, Hartwig Adam
+        | **Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation**
+        | https://arxiv.org/abs/1802.02611
+        |
+
     """
     WEIGHT_URL = CnnDeeplabv3plus.WEIGHT_URL
 
@@ -166,12 +171,6 @@ class Deeplabv3plus(SemanticSegmentation):
 
     def build_data(self):
         return TargetBuilderDeeplab(self.class_map, self.imsize)
-
-    def save(self, filename):
-        self.model.save(filename)
-
-    def load(self, filename):
-        self.model.load(filename)
 
     def loss(self, x, y, class_weight=None):
         if class_weight is not None and class_weight:
