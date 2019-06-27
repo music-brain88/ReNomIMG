@@ -95,13 +95,15 @@
                   >
                     {{ description }}
                   </div>
-                  <div v-else>
+                  <div v-else-if="selected_dataset">
                     No description
                   </div>
+                  <div v-else />
                 </div>
               </div>
 
               <div
+                v-if="selected_dataset"
                 id="dataset-num-bar"
                 :class="{'bar-anime': bar_move}"
               >
@@ -192,33 +194,31 @@ export default {
     },
     selected_dataset: function () {
       if (!this.datasets) return
-      let index = this.datasets.findIndex(n => n.id === this.clicked_dataset_id)
-      // 少し時間を開けて、モーションが正常稼働しない不具合を解消
-      setTimeout(this.barMoveTrue, 50)
+      const index = this.datasets.findIndex(n => n.id === this.clicked_dataset_id)
       return this.datasets[index]
     },
     id: function () {
       const d = this.selected_dataset
 
-      if (!d) return
+      if (!d) return ''
       return d.id
     },
     name: function () {
       const d = this.selected_dataset
 
-      if (!d) return
+      if (!d) return ''
       return d.name
     },
     ratio: function () {
       const d = this.selected_dataset
 
-      if (!d) return
+      if (!d) return ''
       return d.ratio
     },
     description: function () {
       const d = this.selected_dataset
 
-      if (!d) return
+      if (!d) return ''
       return d.description
     },
     train_num: function () {
@@ -275,10 +275,18 @@ export default {
   watch: {
     getCurrentTask: function () {
       this.reset()
+    },
+    selected_dataset: function () {
+      this.bar_move = false
+      // 少し時間を開けて、モーションが正常稼働しない不具合を解消
+      setTimeout(this.barMoveTrue, 50)
     }
   },
   mounted: function () {
-
+    if (this.datasets) {
+      this.bar_move = true
+      this.clickedDatasetsItem(this.datasets[0])
+    }
   },
   methods: {
     ...mapActions(['loadDatasetsOfCurrentTaskDetail']),
