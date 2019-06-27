@@ -1,5 +1,6 @@
 import numpy as np
 from PIL import Image
+from renom_img.api.utility.exceptions.exceptions import InvalidInputValueError, FunctionNotImplementedError
 from scipy.ndimage.interpolation import map_coordinates
 from scipy.ndimage.filters import gaussian_filter
 import matplotlib.colors as cl
@@ -25,8 +26,9 @@ class ProcessBase(object):
         return self.transform(x, y, mode)
 
     def transform(self, x, y=None, mode="classification"):
-        assert_msg = "{} is not supported transformation mode. {} are available."
-        assert mode in MODE, assert_msg.format(mode, MODE)
+        assert_msg = "{} is not a supported transformation mode. Please select a mode from the following: {}."
+        if mode not in MODE:
+            raise InvalidInputValueError(assert_msg.format(mode, MODE))
 
         if mode == MODE[0]:
             # Returns only x.
@@ -38,14 +40,14 @@ class ProcessBase(object):
 
     def _transform_classification(self, x, y):
         """Format must be 1d array or list of integer."""
-        raise NotImplemented
+        raise FunctionNotImplementedError("This transformation has not been implemented.")
 
     def _transform_detection(self, x, y):
         """Format must be list of dictionary"""
-        raise NotImplemented
+        raise FunctionNotImplementedError("This transformation has not been implemented.")
 
     def _transform_segmentation(self, x, y):
-        raise NotImplemented
+        raise FunctionNotImplementedError("This transformation has not been implemented.")
 
 
 class Flip(ProcessBase):
@@ -54,7 +56,6 @@ class Flip(ProcessBase):
         super(Flip, self).__init__()
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -68,7 +69,6 @@ class Flip(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -111,7 +111,6 @@ class Flip(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -133,26 +132,31 @@ def flip(x, y=None, mode="classification"):
     """Flip image randomly.
 
     Args:
-        x (list of str): List of path of images.
-        y (list of annotation): list of annotation for x. It is only used when prediction.
+        x (list of str): List of image paths.
+        y (list of annotation): List of annotations for x.
 
     Returns:
-        tupple: list of transformed images and list of annotation for x.
+        tuple: list of transformed images and list of annotations for x.
 
     .. code-block :: python
 
         [
             x (list of numpy.ndarray), # List of transformed images.
-            y (list of annotation) # list of annotation for x.
+            y (list of annotation) # List of annotations for x.
         ]
 
     Examples:
-        >>> from renom_img.api.utility.augmentation.process import Flip
+        >>> from renom_img.api.utility.augmentation.process import flip
         >>> from PIL import Image
+        >>> import numpy as np
         >>>
-        >>> img1 = Image.open(img_path1)
-        >>> img2 = Image.open(img_path2)
-        >>> img_list = np.array([img1, img2])
+        >>> img1 = Image.open(img1_path).convert('RGB')
+        >>> img1 = np.asarray(img1).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img2 = Image.open(img2_path).convert('RGB')
+        >>> img2 = np.asarray(img2).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img_list = [img1, img2]
         >>> flipped_img = flip(img_list)
     """
     return Flip()(x, y, mode=mode)
@@ -165,7 +169,6 @@ class HorizontalFlip(ProcessBase):
         self.prob = prob
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -199,7 +202,7 @@ class HorizontalFlip(ProcessBase):
                         **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
-            return new_x, new_y
+        return new_x, new_y
 
     def _transform_segmentation(self, x, y):
         n = len(x)
@@ -220,26 +223,31 @@ def horizontalflip(x, y=None, prob=True, mode="classification"):
     """Flip image randomly, only about vertical axis.
 
     Args:
-        x (list of str): List of path of images.
-        y (list of annotation): list of annotation for x. It is only used when prediction.
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
 
     Returns:
-        tupple: list of transformed images and list of annotation for x.
+        tuple: list of transformed images and list of annotations for x.
 
     .. code-block :: python
 
         [
             x (list of numpy.ndarray), # List of transformed images.
-            y (list of annotation) # list of annotation for x.
+            y (list of annotation) # List of annotations for x.
         ]
 
     Examples:
-        >>> from renom_img.api.utility.augmentation.process import HorizontalFlip
+        >>> from renom_img.api.utility.augmentation.process import horizontalflip
         >>> from PIL import Image
+        >>> import numpy as np
         >>>
-        >>> img1 = Image.open(img_path1)
-        >>> img2 = Image.open(img_path2)
-        >>> img_list = np.array([img1, img2])
+        >>> img1 = Image.open(img1_path).convert('RGB')
+        >>> img1 = np.asarray(img1).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img2 = Image.open(img2_path).convert('RGB')
+        >>> img2 = np.asarray(img2).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img_list = [img1, img2]
         >>> flipped_img = horizontalflip(img_list)
     """
     return HorizontalFlip(prob=prob)(x, y, mode=mode)
@@ -252,7 +260,6 @@ class VerticalFlip(ProcessBase):
         self.prob = prob
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -286,7 +293,7 @@ class VerticalFlip(ProcessBase):
                         **{k: v for k, v in obj.items() if k != 'box'}
                     }
                     for j, obj in enumerate(y[i])])
-            return new_x, new_y
+        return new_x, new_y
 
     def _transform_segmentation(self, x, y):
         n = len(x)
@@ -304,30 +311,35 @@ class VerticalFlip(ProcessBase):
 
 
 def verticalflip(x, y=None, prob=True, mode="classification"):
-    """Flip image randomly, only about vertical axis.
+    """Flip image randomly, only about horizontal axis.
 
     Args:
-        x (list of str): List of path of images.
-        y (list of annotation): list of annotation for x. It is only used when prediction.
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
 
     Returns:
-        tupple: list of transformed images and list of annotation for x.
+        tuple: list of transformed images and list of annotations for x.
 
     .. code-block :: python
 
         [
             x (list of numpy.ndarray), # List of transformed images.
-            y (list of annotation) # list of annotation for x.
+            y (list of annotations) # List of annotations for x.
         ]
 
     Examples:
-        >>> from renom_img.api.utility.augmentation.process import HorizontalFlip
+        >>> from renom_img.api.utility.augmentation.process import verticalflip
         >>> from PIL import Image
+        >>> import numpy as np
         >>>
-        >>> img1 = Image.open(img_path1)
-        >>> img2 = Image.open(img_path2)
-        >>> img_list = np.array([img1, img2])
-        >>> flipped_img = horizontalflip(img_list)
+        >>> img1 = Image.open(img1_path).convert('RGB')
+        >>> img1 = np.asarray(img1).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img2 = Image.open(img2_path).convert('RGB')
+        >>> img2 = np.asarray(img2).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img_list = [img1, img2]
+        >>> flipped_img = verticalflip(img_list)
     """
     return VerticalFlip(prob=prob)(x, y, mode=mode)
 
@@ -348,7 +360,6 @@ class RandomCrop(ProcessBase):
         )
 
     def _transform_classification(self, x, y):  # according to the ResNet paper
-        # assert len(x.shape) == 4
         img_list = []
         n = len(x)
         for i in range(n):
@@ -387,7 +398,6 @@ class RandomCrop(ProcessBase):
             return False
 
     def _transform_detection(self, x, y):  # according to ssd paper
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -486,7 +496,6 @@ class RandomCrop(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         img_list = []
         new_y = []
         n = len(x)
@@ -510,29 +519,34 @@ class RandomCrop(ProcessBase):
 
 
 def random_crop(x, y=None, padding=4, mode="classification"):
-    """crop image randomly.
+    """Crop image randomly.
 
     Args:
-        x (list of str): List of path of images.
-        y (list of annotation): list of annotation for x. It is only used when prediction.
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
 
     Returns:
-        tupple: list of transformed images and list of annotation for x.
+        tuple: list of transformed images and list of annotations for x.
 
     .. code-block :: python
 
         [
             x (list of numpy.ndarray), # List of transformed images.
-            y (list of annotation) # list of annotation for x.
+            y (list of annotations) # List of annotations for x.
         ]
 
     Examples:
-        >>> from renom_img.api.utility.augmentation.process import RandomCrop
+        >>> from renom_img.api.utility.augmentation.process import random_crop
         >>> from PIL import Image
+        >>> import numpy as np
         >>>
-        >>> img1 = Image.open(img_path1)
-        >>> img2 = Image.open(img_path2)
-        >>> img_list = np.array([img1, img2])
+        >>> img1 = Image.open(img1_path).convert('RGB')
+        >>> img1 = np.asarray(img1).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img2 = Image.open(img2_path).convert('RGB')
+        >>> img2 = np.asarray(img2).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img_list = [img1, img2]
         >>> cropped_img = random_crop(img_list)
     """
     return RandomCrop(padding)(x, y, mode=mode)
@@ -542,7 +556,8 @@ class CenterCrop(ProcessBase):
 
     def __init__(self, size=(224, 224)):
         super(CenterCrop, self).__init__()
-        assert len(size) == 2, "crop size should be a tuple, for example (224,224)"
+        if not len(size) == 2:
+            raise InvalidInputValueError("Invalid crop size provided. Please provide a tuple for the crop size, such as (224,224).")
         self.size = size
 
     def cal_overlap(self, b1_x1, b1_y1, b1_x2, b1_y2, b2_x1, b2_y1, b2_x2, b2_y2):
@@ -625,6 +640,36 @@ class CenterCrop(ProcessBase):
 
 
 def center_crop(x, y, mode="classification"):
+    """Crop image in the center.
+
+    Args:
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
+
+    Returns:
+        tuple: list of transformed images and list of annotations for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotations) # List of annotations for x.
+        ]
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import center_crop
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
+        >>> img1 = Image.open(img1_path).convert('RGB')
+        >>> img1 = np.asarray(img1).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img2 = Image.open(img2_path).convert('RGB')
+        >>> img2 = np.asarray(img2).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img_list = [img1, img2]
+        >>> cropped_img = center_crop(img_list)
+    """
     return CenterCrop(size=(224, 224))(x, y, mode=mode)
 
 
@@ -636,7 +681,6 @@ class Shift(ProcessBase):
         self._v = vertivcal
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -661,7 +705,6 @@ class Shift(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 1
         img_list = []
         new_y = []
         n = len(x)
@@ -712,7 +755,6 @@ class Shift(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         label_list = []
@@ -743,30 +785,35 @@ class Shift(ProcessBase):
 
 
 def shift(x, y=None, horizontal=10, vertivcal=10, mode="classification"):
-    """Shift images randomly according to given parameter.
+    """Shift images randomly according to given parameters.
 
     Args:
-        x (list of str): List of path of images.
-        y (list of annotation): list of annotation for x. It is only used when prediction.
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
 
     Returns:
-        tupple: list of transformed images and list of annotation for x.
+        tuple: list of transformed images and list of annotations for x.
 
     .. code-block :: python
 
         [
             x (list of numpy.ndarray), # List of transformed images.
-            y (list of annotation) # list of annotation for x.
+            y (list of annotations) # List of annotations for x.
         ]
 
 
     Examples:
         >>> from renom_img.api.utility.augmentation.process import shift
         >>> from PIL import Image
+        >>> import numpy as np
         >>>
-        >>> img1 = Image.open(img_path1)
-        >>> img2 = Image.open(img_path2)
-        >>> img_list = np.array([img1, img2])
+        >>> img1 = Image.open(img1_path).convert('RGB')
+        >>> img1 = np.asarray(img1).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img2 = Image.open(img2_path).convert('RGB')
+        >>> img2 = np.asarray(img2).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img_list = [img1, img2]
         >>> shifted_img = shift(img_list)
     """
     return Shift(horizontal, vertivcal)(x, y, mode=mode)
@@ -778,7 +825,6 @@ class Rotate(ProcessBase):
         super(Rotate, self).__init__()
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -795,7 +841,6 @@ class Rotate(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -850,7 +895,6 @@ class Rotate(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         new_x = []
         new_y = []
@@ -868,29 +912,34 @@ class Rotate(ProcessBase):
 
 
 def rotate(x, y=None, mode="classification"):
-    """Rotate images randomly from 0, 90, 180, 270 degree.
+    """Rotate images randomly by 0, 90, 180, or 270 degrees.
 
     Args:
-        x (list of str): List of path of images.
-        y (list of annotation): list of annotation for x. It is only used when prediction.
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
 
     Returns:
-        tupple: list of transformed images and list of annotation for x.
+        tuple: list of transformed images and list of annotations for x.
 
     .. code-block :: python
 
         [
             x (list of numpy.ndarray), # List of transformed images.
-            y (list of annotation) # list of annotation for x.
+            y (list of annotations) # List of annotations for x.
         ]
 
     Examples:
         >>> from renom_img.api.utility.augmentation.process import rotate
         >>> from PIL import Image
+        >>> import numpy as np
         >>>
-        >>> img1 = Image.open(img_path1)
-        >>> img2 = Image.open(img_path2)
-        >>> img_list = np.array([img1, img2])
+        >>> img1 = Image.open(img1_path).convert('RGB')
+        >>> img1 = np.asarray(img1).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img2 = Image.open(img2_path).convert('RGB')
+        >>> img2 = np.asarray(img2).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img_list = [img1, img2]
         >>> rotated_img = rotate(img_list)
     """
     return Rotate()(x, y, mode=mode)
@@ -903,7 +952,6 @@ class WhiteNoise(ProcessBase):
         self._std = std
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         img_list = []
         n = len(x)
         for i in range(n):
@@ -911,7 +959,6 @@ class WhiteNoise(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         img_list = []
         n = len(x)
         for i in range(n):
@@ -919,7 +966,6 @@ class WhiteNoise(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         img_list = []
         n = len(x)
         for i in range(n):
@@ -931,27 +977,32 @@ def white_noise(x, y=None, std=0.01, mode="classification"):
     """Add white noise to images.
 
     Args:
-        x (list of str): List of path of images.
-        y (list of annotation): list of annotation for x. It is only used when prediction.
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
 
     Returns:
-        tupple: list of transformed images and list of annotation for x.
+        tuple: list of transformed images and list of annotations for x.
 
         .. code-block :: python
 
             [
                 x (list of numpy.ndarray), # List of transformed images.
-                y (list of annotation) # list of annotation for x.
+                y (list of annotations) # list of annotations for x.
             ]
 
     Examples:
         >>> from renom_img.api.utility.augmentation.process import white_noise
         >>> from PIL import Image
+        >>> import numpy as np
         >>>
-        >>> img1 = Image.open(img_path1)
-        >>> img2 = Image.open(img_path2)
-        >>> img_list = np.array([img1, img2])
-        >>> noise_img = white_noise(img_list)
+        >>> img1 = Image.open(img1_path).convert('RGB')
+        >>> img1 = np.asarray(img1).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img2 = Image.open(img2_path).convert('RGB')
+        >>> img2 = np.asarray(img2).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img_list = [img1, img2]
+        >>> white_noise_img = white_noise(img_list)
     """
     return WhiteNoise(std)(x, y, mode)
 
@@ -1068,6 +1119,36 @@ class Distortion(ProcessBase):
 
 
 def distortion(x, y, mode='classification'):
+    """Randomly distort image contents while maintaining image shape.
+
+    Args:
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
+
+    Returns:
+        tuple: list of transformed images and list of annotations for x.
+
+        .. code-block :: python
+
+            [
+                x (list of numpy.ndarray), # List of transformed images.
+                y (list of annotations) # list of annotations for x.
+            ]
+
+    Examples:
+        >>> from renom_img.api.utility.augmentation.process import distortion
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
+        >>> img1 = Image.open(img1_path).convert('RGB')
+        >>> img1 = np.asarray(img1).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img2 = Image.open(img2_path).convert('RGB')
+        >>> img2 = np.asarray(img2).transpose(2,0,1).astype(np.float32)
+        >>>
+        >>> img_list = [img1, img2]
+        >>> distorted_img = distortion(img_list)
+    """
     return Distortion()(x, y, mode=mode)
 
 
@@ -1198,12 +1279,11 @@ class ColorJitter(ProcessBase):
 
 
 def color_jitter(x, y=None, h=0.1, s=0.1, v=0.1, mode='classification'):
-    """ Color Jitter
-        Performs random scaling on Hue, Saturation and Brightness values in HSV space
+    """Color Jitter. Performs random scaling on Hue, Saturation and Brightness values in HSV space.
 
     Args:
-        x (list of str): List of path of images.
-        y (list of annotation): list of annotation for x. It is only used when prediction.
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
         h (float, or tuple/list of two floats): Scaling factor for hue values in HSV space.
                                             If a list [a, b] or tuple (a,b), the h values are scaled by a randomly sampled factor from uniform distribution in the range[a, b].
                                             If a float, the h values are scaled from uniform distribution in the range [1-h, 1+h].
@@ -1215,17 +1295,21 @@ def color_jitter(x, y=None, h=0.1, s=0.1, v=0.1, mode='classification'):
                                             If a float, the v values are scaled from uniform distribution in the range [1-v, 1+v].
 
     Returns:
-        tuple: list of transformed images and list of annotation for x.
+        tuple: list of transformed images and list of annotations for x.
 
     .. code-block :: python
 
         [
             x (list of numpy.ndarray), # List of transformed images.
-            y (list of annotation) # list of annotation for x.
+            y (list of annotations) # list of annotations for x.
         ]
 
 
     Example:
+        >>> from renom_img.api.utility.augmentation.process import color_jitter
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
         >>> img = Image.open(img_path)
         >>> img.convert('RGB')
         >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
@@ -1252,7 +1336,6 @@ class ContrastNorm(ProcessBase):
             return self._alpha
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1270,7 +1353,6 @@ class ContrastNorm(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1288,7 +1370,6 @@ class ContrastNorm(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1310,26 +1391,30 @@ def contrast_norm(x, y=None, alpha=0.5, per_channel=False, mode='classification'
     """ Contrast Normalization
 
     Args:
-        x (list of str): List of path of images.
-        y (list of annotation): list of annotation for x. It is only used when prediction.
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
         alpha(float or list of two floats): Higher value increases contrast, and lower value decreases contrast.
-                                            if a list [a, b], alpha value is sampled from uniform distribution ranging from [a, b).
-                                            if a float, constant value of alpha is used.
+                                            If a list [a, b] is provided, alpha value is sampled from uniform distribution ranging from [a, b).
+                                            If a float is provided, alpha is set to that value as a constant.
         per_channel(Bool): Whether to apply contrast normalization for each channel.
                            If alpha is given a list, then different values for each channel are used.
 
     Returns:
-        tupple: list of transformed images and list of annotation for x.
+        tuple: list of transformed images and list of annotations for x.
 
     .. code-block :: python
 
         [
             x (list of numpy.ndarray), # List of transformed images.
-            y (list of annotation) # list of annotation for x.
+            y (list of annotations) # List of annotations for x.
         ]
 
 
     Example:
+        >>> from renom_img.api.utility.augmentation.process import contrast_norm
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
         >>> img = Image.open(img_path)
         >>> img.convert('RGB')
         >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
@@ -1345,7 +1430,6 @@ class RandomBrightness(ProcessBase):
         self._delta = delta
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1359,7 +1443,6 @@ class RandomBrightness(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1373,7 +1456,6 @@ class RandomBrightness(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1388,7 +1470,35 @@ class RandomBrightness(ProcessBase):
 
 
 def random_brightness(x, y=None, delta=32, mode='classification'):
+    """ Random Brightness Adjustment
 
+    Args:
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
+        delta (int): Range of values (-delta to +delta) for randomly fluctuating pixel values.
+
+    Returns:
+        tuple: list of transformed images and list of annotations for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotations) # List of annotations for x.
+        ]
+
+
+    Example:
+        >>> from renom_img.api.utility.augmentation.process import random_brightness
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
+        >>> img = Image.open(img_path)
+        >>> img.convert('RGB')
+        >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
+        >>> x = np.array([img])
+        >>> new_x, new_y = random_brightness(x, delta=16)
+    """
     return RandomBrightness(delta)(x, y, mode=mode)
 
 
@@ -1405,7 +1515,6 @@ class RandomHue(ProcessBase):
                                [1.0, -1.107, 1.705]])
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1421,7 +1530,6 @@ class RandomHue(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1437,7 +1545,6 @@ class RandomHue(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1454,6 +1561,35 @@ class RandomHue(ProcessBase):
 
 
 def random_hue(x, y=None, mode='classification'):
+    """ Random Hue Adjustment
+
+    Args:
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
+        max_delta (float): Maximum hue fluctuation parameter. Must be in range [0, 0.5].
+
+    Returns:
+        tuple: list of transformed images and list of annotations for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotations) # List of annotations for x.
+        ]
+
+
+    Example:
+        >>> from renom_img.api.utility.augmentation.process import random_hue
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
+        >>> img = Image.open(img_path)
+        >>> img.convert('RGB')
+        >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
+        >>> x = np.array([img])
+        >>> new_x, new_y = random_hue(x, max_delta=0.2)
+    """
     return RandomHue(max_delta=0.3)(x, y, mode=mode)
 
 
@@ -1465,7 +1601,6 @@ class RandomSaturation(ProcessBase):
         self.coef = np.array([[[0.299, 0.587, 0.114]]])
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1479,7 +1614,6 @@ class RandomSaturation(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1493,7 +1627,6 @@ class RandomSaturation(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1508,6 +1641,35 @@ class RandomSaturation(ProcessBase):
 
 
 def random_saturation(x, y=None, mode='classification'):
+    """ Random Saturation Adjustment
+
+    Args:
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
+        ratio (float): Saturation fluctuation parameter. Must be in range [0, 1].
+
+    Returns:
+        tuple: list of transformed images and list of annotations for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotations) # List of annotations for x.
+        ]
+
+
+    Example:
+        >>> from renom_img.api.utility.augmentation.process import random_saturation
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
+        >>> img = Image.open(img_path)
+        >>> img.convert('RGB')
+        >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
+        >>> x = np.array([img])
+        >>> new_x, new_y = random_saturation(x, ratio=0.2)
+    """
     return RandomSaturation(ratio=0.4)(x, y, mode=mode)
 
 
@@ -1519,7 +1681,6 @@ class RandomLighting(ProcessBase):
                        (2, 0, 1), (2, 1, 0))
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1534,7 +1695,6 @@ class RandomLighting(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1549,7 +1709,6 @@ class RandomLighting(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1565,6 +1724,34 @@ class RandomLighting(ProcessBase):
 
 
 def random_lighting(x, y=None, mode='classification'):
+    """ Random Lighting Adjustment
+
+    Args:
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
+
+    Returns:
+        tuple: list of transformed images and list of annotations for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotations) # List of annotations for x.
+        ]
+
+
+    Example:
+        >>> from renom_img.api.utility.augmentation.process import random_lighting
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
+        >>> img = Image.open(img_path)
+        >>> img.convert('RGB')
+        >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
+        >>> x = np.array([img])
+        >>> new_x, new_y = random_lighting(x)
+    """
     return RandomLighting()(x, y, mode=mode)
 
 
@@ -1573,7 +1760,6 @@ class RandomExpand(ProcessBase):
         super(RandomExpand, self).__init__()
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1589,7 +1775,6 @@ class RandomExpand(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -1614,7 +1799,6 @@ class RandomExpand(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -1639,6 +1823,34 @@ class RandomExpand(ProcessBase):
 
 
 def random_expand(x, y=None, mode='classification'):
+    """ Randomly expand images
+
+    Args:
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
+
+    Returns:
+        tuple: list of transformed images and list of annotations for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotations) # List of annotations for x.
+        ]
+
+
+    Example:
+        >>> from renom_img.api.utility.augmentation.process import random_expand
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
+        >>> img = Image.open(img_path)
+        >>> img.convert('RGB')
+        >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
+        >>> x = np.array([img])
+        >>> new_x, new_y = random_expand(x)
+    """
     return RandomExpand()(x, y, mode=mode)
 
 
@@ -1852,4 +2064,33 @@ class Shear(ProcessBase):
 
 
 def shear(x, y=None, mode='classification'):
+    """ Randomly shear image
+
+    Args:
+        x (list of str): List of image paths.
+        y (list of annotations): List of annotations for x.
+        max_shear_factor (int): Angle range for randomly shearing image contents.
+
+    Returns:
+        tuple: list of transformed images and list of annotations for x.
+
+    .. code-block :: python
+
+        [
+            x (list of numpy.ndarray), # List of transformed images.
+            y (list of annotations) # List of annotations for x.
+        ]
+
+
+    Example:
+        >>> from renom_img.api.utility.augmentation.process import shear
+        >>> from PIL import Image
+        >>> import numpy as np
+        >>>
+        >>> img = Image.open(img_path)
+        >>> img.convert('RGB')
+        >>> img = np.array(img).transpose(2, 0, 1).astype(np.float)
+        >>> x = np.array([img])
+        >>> new_x, new_y = shear(x, max_shear_factor=8)
+    """
     return Shear(max_shear_factor=20)(x, y, mode=mode)

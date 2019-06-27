@@ -225,9 +225,8 @@ def parse_image_segmentation(annotation_list, class_num, num_thread=8):
         ret = exc.map(load, annotation_list)
     ret = np.array(list(ret))
     ret = np.sum(ret, axis=0)
-    ret = ret[ret > 0]
     ret[0] += np.sum(ret[class_num:])
-    return ret[:-1]
+    return ret[:class_num]
 
 
 def parce_class_id_segmentation(annotation_list):

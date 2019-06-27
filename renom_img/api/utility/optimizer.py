@@ -1,5 +1,7 @@
 import renom as rm
 import numpy as np
+from renom_img.api.utility.exceptions.exceptions import *
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 
 class BaseOptimizer(object):
@@ -21,14 +23,39 @@ class BaseOptimizer(object):
         self.nth_epoch_iteration = 0
 
     def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
-        assert self.total_epoch_iteration >= nth_epoch, \
-            "The max epoch iteration count is {} but set {}".format(
-                self.total_epoch_iteration, nth_epoch)
-        assert self.total_batch_iteration >= nth_batch, \
-            "The max batch iteration count is {} but set {}".format(
+        try:
+            assert self.total_epoch_iteration >= nth_epoch, \
+                "The max epoch iteration count is {} but set {}".format(
+                 self.total_epoch_iteration, nth_epoch)
+            assert self.total_batch_iteration >= nth_batch, \
+                "The max batch iteration count is {} but set {}".format(
                 self.total_batch_iteration, nth_batch)
+        except Exception as e:
+            raise InvalidDataError(str(e))
+
         self.nth_batch_iteration = nth_batch
         self.nth_epoch_iteration = nth_epoch
+        # check for valid learning rate
+        check_common_learning_rate(self.opt._lr)
+
+
+
+class OptimizerDeeplab(BaseOptimizer):
+    def __init__(self, lr_initial=1e-4, lr_power=0.9, total_batch_iteration=None, total_epoch_iteration=None):
+        super(OptimizerDeeplab, self).__init__(total_batch_iteration, total_epoch_iteration)
+        self.lr_initial = lr_initial
+        self.lr_power = lr_power
+        self.current_iterations = 0
+
+    def setup(self, total_batch_iteration, total_epoch_iteration):
+        super(OptimizerDeeplab, self).setup(total_batch_iteration, total_epoch_iteration)
+        self.total_iterations = total_batch_iteration * total_epoch_iteration
+        self.opt._lr = self.lr_initial*((1 - self.current_iterations/self.total_iterations)**self.lr_power)
+
+    def set_information(self, nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list, current_loss=None):
+        super(OptimizerDeeplab, self).set_information(nth_batch, nth_epoch, avg_train_loss_list, avg_valid_loss_list)
+        self.current_iterations = self.total_batch_iteration*nth_epoch + nth_batch
+        self.opt._lr = self.lr_initial*((1 - self.current_iterations/self.total_iterations)**self.lr_power)
 
 class OptimizerUNet(BaseOptimizer):
     def __init__(self,total_batch_iteration=None, total_epoch_iteration=None):
@@ -236,7 +263,6 @@ class OptimizerSSD(BaseOptimizer):
         else:
             self.opt._lr = 1e-5
 
-#---------------------------------------------------------------------------------------------
 class OptimizerYolov2(BaseOptimizer):
 
     def __init__(self, total_batch_iteration=None, total_epoch_iteration=None):
@@ -244,7 +270,6 @@ class OptimizerYolov2(BaseOptimizer):
 
     def setup(self, total_batch_iteration, total_epoch_iteration):
         super(OptimizerYolov2, self).setup(total_batch_iteration, total_epoch_iteration)
-        self.flag = True
         self.burn_in = 1000
         self.scale=[0.1,0.1]
         self.steps=[40000,60000]
@@ -259,9 +284,6 @@ class OptimizerYolov2(BaseOptimizer):
 
         current_batch_num = (self.total_batch_iteration * nth_epoch) + (nth_batch +1)
 
-        if current_batch_num > int(0.3 * self.total_iteration) and hasattr(self,"flag"):
-            self.flag = False
-
         if current_batch_num <= self.burn_in:
             self.opt._lr = self.learning_rate * np.round(np.power(float(current_batch_num/self.burn_in),self.power),3)
             return 
@@ -271,7 +293,6 @@ class OptimizerYolov2(BaseOptimizer):
                 rate *= self.scale[i]
                 self.opt._lr = rate
  
-#---------------------------------------------------------------------------------------------
 
 
 class OptimizerYolov1(BaseOptimizer):

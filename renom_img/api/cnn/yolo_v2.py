@@ -4,7 +4,7 @@ import numpy as np
 import renom as rm
 from renom_img import __version__
 from renom_img.api.cnn import CnnBase
-
+from renom_img.api.utility.exceptions.exceptions import *
 
 class DarknetConv2dBN(rm.Model):
 
@@ -121,21 +121,19 @@ class CnnYolov2(CnnBase):
  
 
     def load_pretrained_weight(self,path):
-        self._base.load(path)
+        try:
+            self._base.load(path)
+        except:
+            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
 
 
     def reset_deeper_layer(self):
         pass
 
+    def set_anchor(self, anchor_size):
+        self.num_anchor = anchor_size 
 
     def forward(self, x):
-        assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiate model class. " +\
-            "Or, please load already trained model using the method 'load()'."
-        assert self.num_anchor > 0, \
-            "Anchor list is empty. Please calculate anchor list using create_anchor function, before instantiate model class.  " +\
-            "Or, please load already trained model using the method 'load()'."
-
         self._base.set_auto_update(self.train_whole)
         self._base.set_models(inference=(not self.train_whole or getattr(self, 'inference', False)))        
         h, f = self._base(x)
@@ -144,6 +142,7 @@ class CnnYolov2(CnnBase):
 
         h = self._conv2(rm.concat(h,rm.concat([f[:, :, i::2, j::2] for i in range(2) for j in range(2)])))
         out = self._last(h)
+
         # Create yolo format.
         N, C, H, W = h.shape
 

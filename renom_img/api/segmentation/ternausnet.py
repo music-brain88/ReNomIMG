@@ -15,6 +15,7 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.load import load_img
 from renom_img.api.utility.target import DataBuilderSegmentation
+from renom_img.api.utility.exceptions.check_exceptions import check_segmentation_label, check_ternausnet_init
 from renom_img.api.segmentation import SemanticSegmentation
 from renom.utility.initializer import GlorotNormal, GlorotUniform
 from PIL import Image
@@ -25,6 +26,7 @@ if cu.has_cuda():
     from renom.cuda.gpuvalue import GPUValue, get_gpu
 
 RESIZE_METHOD = Image.BILINEAR
+
 
 class TargetBuilderTernausNet():
     def __init__(self, class_map, imsize):
@@ -88,8 +90,7 @@ class TargetBuilderTernausNet():
         w, h = img.size
         # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
         img = np.array(img)
-        assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
-        assert img.ndim == 2
+        check_segmentation_label(img, N)
         return img, img.shape[0], img.shape[1]
 
     def _load(self, path):
@@ -119,8 +120,8 @@ class TargetBuilderTernausNet():
 
         """
         if annotation_list is None:
-            img_array = np.vstack([load_img(path,self.imsize)[None]
-                                    for path in img_path_list])
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
 
             return img_array
@@ -144,11 +145,11 @@ class TargetBuilderTernausNet():
             label_list.append(annot)
         if augmentation is not None:
             img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
-            data,label = self.resize(img_list, label_list)
-            return self.preprocess(data),label
+            data, label = self.resize(img_list, label_list)
+            return self.preprocess(data), label
         else:
-            data,label = self.resize(img_list, label_list)   
-            return self.preprocess(data),label
+            data, label = self.resize(img_list, label_list)
+            return self.preprocess(data), label
 
 
 @adddoc
@@ -156,10 +157,13 @@ class TernausNet(SemanticSegmentation):
     """ TernausNet: U-Net with VGG11 Encoder Pre-Trained on ImageNet for Image Segmentation
 
     Args:
-        class_map(array): Array of class names
-        imsize(int or tuple): Input image size
-        load_pretrained_weight(bool, str): Pre-trained VGG-11 weights are used if True, or otherwise random initialization is used if False
-        train_whole_network(bool): All layers of model are trainable if True, or otherwise pretrained encoder base is frozen if False
+        class_map (list, dict): List of class names.
+        imsize (int, tuple): Input image size.
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base encoder layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     Example:
         >>> import renom as rm
@@ -188,19 +192,15 @@ class TernausNet(SemanticSegmentation):
         # make int into array
         if isinstance(imsize, int):
             imsize = (imsize, imsize)
-        assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
-            "TernausNet only accepts 'imsize' arguments that are multiples of 32. \
-              ex: imsize=(320, 320)"
-
-        self.model = CNN_TernausNet(1)
+        check_ternausnet_init(imsize)
+        self._model = CNN_TernausNet(1)
 
         super(TernausNet, self).__init__(class_map, imsize,
-                                         load_pretrained_weight, train_whole_network, load_target=self.model)
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+                                         load_pretrained_weight, train_whole_network, load_target=self._model)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
         self.decay_rate = 0
         self.default_optimizer = OptimizerTernausNet()
 
     def build_data(self):
         return TargetBuilderTernausNet(self.class_map, self.imsize)
-

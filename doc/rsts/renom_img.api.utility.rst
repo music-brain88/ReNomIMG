@@ -41,7 +41,9 @@ renom\_img.api.utility.augmentation
     :show-inheritance:
 
 .. automodule:: renom_img.api.utility.augmentation.process
-    :members: flip, shift, rotate, white_noise, contrast_norm
+    :members: flip, horizontalflip, verticalflip, random_crop, center_crop,
+      shift, rotate, white_noise, distortion, color_jitter, contrast_norm,
+      random_brightness, random_hue, random_saturation, random_lighting, random_expand, shear
     :undoc-members:
     :show-inheritance:
 

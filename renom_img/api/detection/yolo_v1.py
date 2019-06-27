@@ -13,7 +13,8 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.optimizer import OptimizerYolov1
 from renom_img.api.utility.box import transform2xy12
 from renom_img.api.utility.load import prepare_detection_data, load_img, resize_detection_data
-
+from renom_img.api.utility.exceptions.check_exceptions import *
+from renom_img.api.utility.exceptions.exceptions import WeightLoadError
 
 def make_box(box):
     x1 = box[0] - box[2] / 2.
@@ -88,6 +89,7 @@ class TargetBuilderYolov1():
         return x / 255.
 
     def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path,self.imsize)[None]
                                     for path in img_path_list])
@@ -124,16 +126,20 @@ class TargetBuilderYolov1():
 
 
 class Yolov1(Detection):
-    """ Yolo object detection algorithm.
+    """ Yolov1 object detection algorithm.
 
     Args:
-        num_class (int): Number of class.
+        class_map (list, dict): List of class names.
         cells (int or tuple): Cell size.
-        boxes (int): Number of boxes.
+        bbox (int): Number of boxes.
         imsize (int, tuple): Image size.
-        load_pretrained_weight (bool, str): If true, pretrained weight will be
-          downloaded to current directory. If string is given, pretrained weight
-          will be saved as given name.
+        load_pretrained_weight (bool, str): If True, pretrained weights will be
+          downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized
+          from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train
+          the base layers of the model during training. If True, trains all layers
+          of the model. If False, the convolutional base is frozen during training.
 
     References:
         | Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi
@@ -149,66 +155,126 @@ class Yolov1(Detection):
     WEIGHT_URL = CnnYolov1.WEIGHT_URL
 
     def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
-
+        # exceptions checking
+        check_yolov1_init(cells,bbox)
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
 
-        self.model = CnnYolov1()
+        self._model = CnnYolov1()
         super(Yolov1, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, self.model)
+                                     load_pretrained_weight, train_whole_network, self._model)
         self._cells = cells
         self._bbox = bbox
-        self.model.set_output_size((self.num_class + 5 * bbox) * cells[0] * cells[1])
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size((self.num_class + 5 * bbox) * cells[0] * cells[1])
+        self._model.set_train_whole(train_whole_network)
         self.default_optimizer = OptimizerYolov1()
+        self.decay_rate = 0.0005
 
-    def regularize(self):
-        """Regularize term. You can use this function to add regularize term to
-        loss function.
+    def load(self, filename):
+        """Load saved weights to model.
 
-        In Yolo v1, weight decay of 0.0005 will be added.
+        Args:
+            filename (str): File name of saved model.
 
         Example:
-            >>> import numpy as np
-            >>> from renom_img.api.detection.yolo_v1 import Yolov1
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> model = Yolov1()
-            >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # Adding weight decay term.
+            >>> model = rm.Dense(2)
+            >>> model.load("model.hd5")
         """
+        import h5py
+        f = h5py.File(filename, 'r+')
+        values = f['values']
+        types = f['types']
 
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.0005 / 2) * reg
+        names = sorted(values.keys())
+
+        try:
+            self._try_load(names,values,types)
+        except AttributeError as e:
+            try:
+                names,values,types = self._mapping(names,values,types)
+                self._try_load(names,values,types)
+            except Exception as e:
+                raise WeightLoadError('The {} weight file can not be loaded into the {} model.'.format(filename, self.__class__.__name__))
+
+    def _mapping(self,names,values,types):
+        for name in names:
+            if "._network" in name:
+                values[name.replace("._network","._model.classifier")] = values.pop(name)
+                types[name.replace("._network","._model.classifier")] = types.pop(name)
+            elif "._freezed_network" in name:
+                values[name.replace("._freezed_network","._model.feature_extractor")] = values.pop(name)
+                types[name.replace("._freezed_network","._model.feature_extractor")] = types.pop(name)
+
+        names = [n.replace("._network","._model.classifier") for n in names]
+        names = [n.replace("._freezed_network","._model.feature_extractor") for n in names]
+
+        return sorted(names),values,types
+
+    def _try_load(self,names,values,types):
+
+        def get_attr(root, names):
+            names = names.split('.')[1:]
+            ret = root
+            for name in names:
+                ret = getattr(ret, name)
+            return ret
+
+        target = self
+        for name in names:
+            target = get_attr(self, name)
+
+            values_grp = values[name]
+            types_grp = types[name]
+
+            for k, v in values_grp.items():
+                v = v.value
+                if isinstance(v, np.ndarray):
+                    type = types_grp.get(k, None)
+                    if type:
+                        if type.value == 'renom.Variable':
+                            auto_update = types_grp[k + '._auto_update'].value
+                            v = rm.Variable(v, auto_update=auto_update)
+                        else:
+                            v = rm.Node(v)
+
+                if k.startswith('__dict__.'):
+                    obj = target
+                    name = k.split(".", 1)[1]
+                else:
+                    obj = target.params
+                    name = k
+
+                setattr(obj, name, v)
+
+
+
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
+        Calculates the bounding box location, size and class information for model predictions.
 
         Args:
-            z (ndarray): Output array of neural network. The shape of array
+            z (ndarray): Output array of neural network.
             score_threshold (float): The threshold for confidence score.
-                                     Predicted boxes which have lower confidence score than the threshold are discarderd.
-                                     Defaults to 0.3
-            nms_threshold (float): The threshold for non maximum supression. Defaults to 0.4
+                                     Predicted boxes which have a lower confidence score than the threshold are discarded.
+                                     The default is 0.3.
+            nms_threshold (float): The threshold for non-maximum supression. The default is 0.4.
 
         Return:
-            (list) : List of predicted bbox, score and class of each image.
-            The format of return value is bellow. Box coordinates and size will be returned as
-            ratio to the original image size. Therefore the range of 'box' is [0 ~ 1].
+            (list) : List of predicted bbox, score and class for each image.
+            The format of the return value is shown below. Box coordinates and size will be returned as
+            ratios to the original image size. Therefore, the values of 'box' are in the range [0 ~ 1].
 
         .. code-block :: python
 
-            # An example of return value.
+            # An example of a return value.
             [
-                [ # Prediction of first image.
+                [ # Prediction for first image.
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
                 ],
-                [ # Prediction of second image.
+                [ # Prediction for second image.
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     {'box': [x, y, w, h], 'score':(float), 'class':(int), 'name':(str)},
                     ...
@@ -223,8 +289,8 @@ class Yolov1(Detection):
              [{'box': [0.87, 0.38, 0.84, 0.22], 'score':0.423, 'class':0, 'name':'cat'}]]
 
         Note:
-            Box coordinate and size will be returned as ratio to the original image size.
-            Therefore the range of 'box' is [0 ~ 1].
+            Box coordinates and size will be returned as ratios to the original image size.
+            Therefore, the values of 'box' are in the range [0 ~ 1].
 
 
         """

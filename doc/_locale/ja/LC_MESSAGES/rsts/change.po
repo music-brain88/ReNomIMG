@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-12 09:15+0900\n"
+"POT-Creation-Date: 2019-06-17 11:35+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,89 +21,135 @@ msgstr ""
 msgid "Change Log"
 msgstr "変更履歴"
 
-#: ../../rsts/change.rst:5
+#: ../../rsts/change.rst:4
+msgid "**v2.1b3**"
+msgstr ""
+
+#: ../../rsts/change.rst:6
+msgid "Refactored CNN model architecture code"
+msgstr "CNNアルゴリズム内部構造のリファクトリング"
+
+#: ../../rsts/change.rst:7
+msgid "Modified Yolov2 loss function and pretrained weights"
+msgstr "Yolov2誤差関数及び事前学習済みの重みを更新"
+
+#: ../../rsts/change.rst:8 ../../rsts/change.rst:16
+msgid "Fixed bugs"
+msgstr "バグを修正"
+
+#: ../../rsts/change.rst:10
+msgid "**v2.1b2**"
+msgstr ""
+
+#: ../../rsts/change.rst:12
+msgid "Added Grad-CAM visualization tool"
+msgstr "Grad-CAM可視化ツールの追加"
+
+#: ../../rsts/change.rst:13
+msgid "Added pytests"
+msgstr "pytest項目の追加"
+
+#: ../../rsts/change.rst:14
+msgid "Revised README.md format"
+msgstr "README.mdフォーマットの変更"
+
+#: ../../rsts/change.rst:15
+msgid "Added URLs to download past wheel packages to README.md"
+msgstr "過去wheelパッケージのダウンロードURLをREADME.mdに追加"
+
+#: ../../rsts/change.rst:18
 msgid "**v2.1b1**"
 msgstr ""
 
-#: ../../rsts/change.rst:7
-msgid "Modify img loader to accept binary image."
+#: ../../rsts/change.rst:20
+msgid "Modify img loader to accept binary image"
 msgstr "二値画像を読み込めるよう修正"
 
-#: ../../rsts/change.rst:9
+#: ../../rsts/change.rst:22
 msgid "**v2.1b0**"
 msgstr ""
 
-#: ../../rsts/change.rst:11
-msgid "Add new augmentation methods."
-msgstr "画像オーギュメンテーション方法の追加."
+#: ../../rsts/change.rst:24
+msgid "Add new augmentation methods"
+msgstr "画像オーギュメンテーション方法の追加"
 
-#: ../../rsts/change.rst:12
-msgid "Add a function for downloading the prediction result as csv."
-msgstr "GUIアプリケーションから, モデルの予測結果をCSV形式でダウンロードする機能を追加."
+#: ../../rsts/change.rst:25
+msgid "Add a function for downloading the prediction result as csv"
+msgstr "GUIアプリケーションから, モデルの予測結果をCSV形式でダウンロードする機能を追加"
 
-#: ../../rsts/change.rst:13
-msgid "Modify image data preprocess pipeline."
-msgstr "画像データの前処理パイプラインを変更."
+#: ../../rsts/change.rst:26
+msgid "Modify image data preprocess pipeline"
+msgstr "画像データの前処理パイプラインを変更"
 
-#: ../../rsts/change.rst:14
-msgid "Update Node.js and Python dependencies."
-msgstr "Node.js, Python関連の依存パッケージを更新."
+#: ../../rsts/change.rst:27
+msgid "Update Node.js and Python dependencies"
+msgstr "Node.js, Python関連の依存パッケージを更新"
 
-#: ../../rsts/change.rst:15 ../../rsts/change.rst:23
-msgid "Fix UI Bugs."
-msgstr "UIに関するバグを修正."
+#: ../../rsts/change.rst:28 ../../rsts/change.rst:36
+msgid "Fix UI Bugs"
+msgstr "バグを修正"
 
-#: ../../rsts/change.rst:17
+#: ../../rsts/change.rst:30
 msgid "**v2.0.4**"
 msgstr ""
 
-#: ../../rsts/change.rst:19
-msgid "Update dependencies."
+#: ../../rsts/change.rst:32
+msgid "Update dependencies"
 msgstr "依存関係を更新"
 
-#: ../../rsts/change.rst:21
+#: ../../rsts/change.rst:34
 msgid "**v2.0.3**"
 msgstr ""
 
-#: ../../rsts/change.rst:25
+#: ../../rsts/change.rst:38
 msgid "**v2.0.2**"
 msgstr ""
 
-#: ../../rsts/change.rst:27
+#: ../../rsts/change.rst:40
 msgid ""
 "Add warning to dataset create modal(GUI) when illegal train valid ratio "
-"is inputted."
-msgstr "GUIでモデル作成時, 異常な入力値に注意を出すよう変更."
+"is inputted"
+msgstr "GUIでモデル作成時, 異常な入力値に注意を出すよう変更"
 
-#: ../../rsts/change.rst:28
+#: ../../rsts/change.rst:41
 msgid "Add error handler to renom_img.api.inference.detector.Detector"
-msgstr "Detectorクラスにエラーハンドラを追加."
+msgstr "Detectorクラスにエラーハンドラを追加"
 
-#: ../../rsts/change.rst:30
+#: ../../rsts/change.rst:43
 msgid "**v2.0.1**"
 msgstr ""
 
-#: ../../rsts/change.rst:32
-msgid "Fixed UI bugs."
-msgstr "UIに関するバグを修正."
+#: ../../rsts/change.rst:45
+msgid "Fixed UI bugs"
+msgstr "バグを修正"
 
-#: ../../rsts/change.rst:33
+#: ../../rsts/change.rst:46
 msgid "Updated webpack@3.x => webpack@4.x"
 msgstr "webpack@3.x => webpack@4.x"
 
-#: ../../rsts/change.rst:34
-msgid "Modified eslint settings."
-msgstr "Eslint設定を変更."
+#: ../../rsts/change.rst:47
+msgid "Modified eslint settings"
+msgstr "Eslint設定を変更"
 
-#: ../../rsts/change.rst:35
-msgid "Modified Darknet architecture."
-msgstr "Darknetのアーキテクチャを変更."
+#: ../../rsts/change.rst:48
+msgid ""
+"Modified Darknet architecture (Added BatchNormalization and removed bias "
+"term from convolution layer)"
+msgstr "Darknetアーキテクチャを変更（バッチ正規化層を追加し、畳み込み層のバイアス項を無効化）"
 
-#: ../../rsts/change.rst:36
-msgid "Added BatchNormalization and removed bias term from convolution layer."
-msgstr "バッチ正規化層を追加し, 畳み込み層のバイアス項を無効化."
+#: ../../rsts/change.rst:49
+msgid "Modified Yolov1 loss function"
+msgstr "Yolov1誤差関数を変更"
 
-#: ../../rsts/change.rst:37
-msgid "Modified Yolov1 loss function."
-msgstr "Yolov1誤差関数を変更."
+#~ msgid "**v2.1b3** - Refactored CNN model code - Fixed bugs"
+#~ msgstr ""
+
+#~ msgid "Fix UI Bugs."
+#~ msgstr "UIに関するバグを修正."
+
+#~ msgid "Fixed UI bugs."
+#~ msgstr "UIに関するバグを修正."
+
+#~ msgid "Modified Darknet architecture"
+#~ msgstr "Darknetのアーキテクチャを変更"
 

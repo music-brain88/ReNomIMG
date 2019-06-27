@@ -10,7 +10,8 @@ from tqdm import tqdm
 from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
-
+from renom_img.api.utility.exceptions.check_exceptions import *
+from renom_img.api.utility.exceptions.exceptions import InvalidValueError, InvalidOptimizerError
 
 def adddoc(cls):
     """Insert parent doc strings to inherited class.
@@ -45,6 +46,9 @@ class Base(rm.Model):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False, load_target=None):
 
+        # for Exceptions check
+        check_for_common_init_params(class_map,imsize,load_pretrained_weight,train_whole_network,load_target)
+
         # 0. General setting.
         self.default_optimizer = rm.Sgd(0.001, 0.9)
 
@@ -71,8 +75,6 @@ class Base(rm.Model):
         # 4. Load pretrained weight.
         self.load_pretrained_weight = load_pretrained_weight
         if load_pretrained_weight and load_target is not None:
-            assert self.WEIGHT_URL, \
-                "The class '{}' has no pretrained weight.".format(self.__class__.__name__)
 
             if isinstance(load_pretrained_weight, bool):
                 weight_path = self.__class__.__name__ + '.h5'
@@ -81,11 +83,16 @@ class Base(rm.Model):
 
             if not os.path.exists(weight_path):
                 download(self.WEIGHT_URL, weight_path)
-            load_target.load_pretrained_weight(weight_path)
+            try:
+                load_target.load_pretrained_weight(weight_path)
+            except:
+                os.remove(weight_path)
+                download(self.WEIGHT_URL, weight_path)
+                load_target.load_pretrained_weight(weight_path)
 
     def regularize(self):
         """
-        Regularization term to a loss function.
+        Adds a regularization term to the loss function.
 
         Example:
             >>> x = numpy.random.rand(1, 3, 224, 224)
@@ -96,14 +103,17 @@ class Base(rm.Model):
             >>> reg_loss = loss + model.regularize() # Add weight decay term.
         """
         reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
+        try:
+            for layer in self.iter_models():
+                if hasattr(layer, "params") and hasattr(layer.params, "w") and not isinstance(layer,rm.BatchNormalize):
+                    reg += rm.sum(layer.params.w * layer.params.w)
+        except Exception as e:
+            raise InvalidValueError("Error encountered in calculating regularization term for loss function. Please check if model is appropriately defined and model contains only acceptable values for the weight parameters.")
 
         return (self.decay_rate / 2) * reg
 
     def preprocess(self, x):
-        """Performs preprocess for a given array.
+        """Performs preprocessing for a given array.
 
         Args:
             x(ndarray, Node): Image array for preprocessing.
@@ -114,15 +124,15 @@ class Base(rm.Model):
             valid_img_path_list=None, valid_annotation_list=None,
             epoch=136, batch_size=64, optimizer=None, augmentation=None, callback_end_epoch=None):
         """
-        This function performs training with given data and hyper parameters.
+        This function performs training with the given data and hyperparameters.
 
         Args:
-            train_img_path_list(list): List of image path.
+            train_img_path_list(list): List of image paths.
             train_annotation_list(list): List of annotations.
-            valid_img_path_list(list): List of image path for validation.
+            valid_img_path_list(list): List of image paths for validation.
             valid_annotation_list(list): List of annotations for validation.
-            epoch(int): Number of training epoch.
-            batch_size(int): Number of batch size.
+            epoch(int): Number of training epochs.
+            batch_size(int): Batch size.
             augmentation(Augmentation): Augmentation object.
             callback_end_epoch(function): Given function will be called at the end of each epoch.
 
@@ -130,11 +140,12 @@ class Base(rm.Model):
             (tuple): Training loss list and validation loss list.
 
         Example:
-            >>> train_img_path_list, train_annot_list = ... # Define own data.
-            >>> valid_img_path_list, valid_annot_list = ...
-            >>> model = ${class}() # Any algorithm which provided by ReNomIMG here.
+            >>> train_img_path_list, train_annot_list = ... # Define train data
+            >>> valid_img_path_list, valid_annot_list = ... # Define validation data
+            >>> class_map = ... # Define class map
+            >>> model = ${class}(class_map) # Specify any algorithm provided by ReNomIMG API here
             >>> model.fit(
-            ...     # Feeds image and annotation data.
+            ...     # Feeds image and annotation data
             ...     train_img_path_list,
             ...     train_annot_list,
             ...     valid_img_path_list,
@@ -143,9 +154,9 @@ class Base(rm.Model):
             ...     batch_size=8)
             >>> 
 
-        Following arguments will be given to the function ``callback_end_epoch``.
+        The following arguments will be given to the function ``callback_end_epoch``.
 
-        - **epoch** (int) - Number of current epoch.
+        - **epoch** (int) - Current epoch number.
         - **model** (Model) - Model object.
         - **avg_train_loss_list** (list) - List of average train loss of each epoch.
         - **avg_valid_loss_list** (list) - List of average valid loss of each epoch.
@@ -162,14 +173,15 @@ class Base(rm.Model):
         valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
 
         # Number of batch iteration.
-        batch_loop = int(np.ceil(len(train_dist) / batch_size))
+        batch_loop = len(train_dist) // batch_size
 
         # Optimizer settings.
         if optimizer is None:
             opt = self.default_optimizer
         else:
             opt = optimizer
-        assert opt is not None
+        if opt is None:
+            raise InvalidOptimizerError("Optimizer is not defined. Please define a valid optimizer.")
         if isinstance(opt, BaseOptimizer):
             opt.setup(batch_loop, epoch)
 
@@ -189,7 +201,8 @@ class Base(rm.Model):
 
                 # Modify optimizer.
                 if isinstance(opt, BaseOptimizer):
-                    opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list,loss.as_ndarray())
+                    opt.set_information(i, e, avg_train_loss_list,
+                                        avg_valid_loss_list, loss.as_ndarray())
 
                 reg_loss.grad().update(opt)
                 try:
@@ -231,8 +244,8 @@ class Base(rm.Model):
 
     def predict(self, img_list):
         """Perform prediction.
-        Argument can be an image array, image path list or a image path.
-        The form of return value depends on your task(classification, detection or segmentation).
+        Argument can be an image array, image path list or an image path.
+        The form of the return value depends on your task (classification, detection or segmentation).
 
         Args:
             img_list(ndarray, list, string): Image array, image path list or image path.
@@ -254,19 +267,13 @@ class Base(rm.Model):
         """
         pass
 
-    def _freeze(self):
-        pass
-
     def forward(self, x):
         """
         Performs forward propagation.
-        You can call this function using ``__call__`` method.
+        You can call this function using the ``__call__`` method.
 
         Args:
             x(ndarray, Node): Input to ${class}.
         """
-        assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
-            "Or, please load a pre-trained model using the 'load()' method."
-        self._freeze()
-        return self.model(x)
+        check_common_forward(x)
+        return self._model(x)

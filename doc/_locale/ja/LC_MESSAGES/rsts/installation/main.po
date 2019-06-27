@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-07 09:23+0900\n"
+"POT-Creation-Date: 2019-06-14 20:15+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,8 @@ msgid "Install ReNomIMG"
 msgstr "ReNomIMGのインストール"
 
 #: ../../rsts/installation/main.rst:4
-msgid "There are 3 ways for installing ReNomIMG."
+#, fuzzy
+msgid "There are 3 ways to install ReNomIMG."
 msgstr "ReNomIMGのインストール方法は, 以下3つの方法があります."
 
 #: ../../rsts/installation/main.rst:8
@@ -30,9 +31,10 @@ msgid "Install by pip."
 msgstr "pipによるインストール"
 
 #: ../../rsts/installation/main.rst:10
+#, fuzzy
 msgid ""
-"You can install ReNomIMG by ``pip`` command. This is the simplest way for"
-" installation."
+"You can install ReNomIMG with the ``pip`` command. This is the simplest "
+"way for installation."
 msgstr "ReNomIMGはpipコマンドによりインストールできます. これが最も簡単なインストール方法です. "
 
 #: ../../rsts/installation/main.rst:12
@@ -44,19 +46,23 @@ msgid "For python3.6"
 msgstr "python3.6"
 
 #: ../../rsts/installation/main.rst:27
+#, fuzzy
 msgid ""
-"This is ``linux OS`` only. If your OS is windows or MAC that are not "
-"recommended system, please install ReNomIMG from binary code."
+"This command is for ``Linux OS`` environments only. If your OS is Windows"
+" or Mac, which are not recommended for ReNomIMG, please install ReNomIMG "
+"from binary code according to the instructions below."
 msgstr ""
 "この方法はlinux OSのみ利用できます. 推奨環境ではありませんが, WindowsかMacをご利用の場合は, "
 "バイナリコードからインストールして下さい. "
 
 #: ../../rsts/installation/main.rst:30
-msgid "If you have following error,"
+#, fuzzy
+msgid "If you get the following error,"
 msgstr "もし以下のようなエラーが出た場合は, "
 
 #: ../../rsts/installation/main.rst:36
-msgid "please install python3-tk using following command."
+#, fuzzy
+msgid "please install python3-tk using the following command."
 msgstr "下記のようなコマンドを用いて, python3-tkをインストールしてください."
 
 #: ../../rsts/installation/main.rst:45
@@ -64,7 +70,8 @@ msgid "Install from binary."
 msgstr "バイナリによるインストール"
 
 #: ../../rsts/installation/main.rst:47
-msgid "If you install ReNomIMG from binay, Node.js is required."
+#, fuzzy
+msgid "To install ReNomIMG from binary, Node.js is required."
 msgstr "バイナリからインストールする場合にはNode.jsが必要です. "
 
 #: ../../rsts/installation/main.rst:59
@@ -76,9 +83,10 @@ msgid "Docker Image."
 msgstr "Dockerイメージ"
 
 #: ../../rsts/installation/main.rst:64
+#, fuzzy
 msgid ""
-"You can use ReNomIMG using Docker. Dockerfiles and running scripts are in"
-" the \"ReNomIMG/docker\" directory."
+"You can use ReNomIMG via Docker. Dockerfiles and running scripts are in "
+"the \"ReNomIMG/docker\" directory."
 msgstr ""
 "ReNomIMGはDockerから利用できます. Dockerfilesと起動用のスクリプトは\"ReNomIMG/docker\" "
 "ディレクトリにあります. "
@@ -88,23 +96,28 @@ msgid "**Build docker image**"
 msgstr "**dockerイメージのビルド**"
 
 #: ../../rsts/installation/main.rst:71
-msgid "For building Docker image, please run following command."
+#, fuzzy
+msgid "For building a Docker image, please run following command."
 msgstr "Dockerイメージをビルドするためには, 以下のコマンドを実行して下さい. "
 
 #: ../../rsts/installation/main.rst:79
-msgid "Then a docker image will be created."
-msgstr "そうしましたらDockerイメージが作成されます. "
+msgid "This will create the docker image."
+msgstr ""
 
 #: ../../rsts/installation/main.rst:82
 msgid "**Run docker image**"
 msgstr "**Deckerイメージの実行**"
 
 #: ../../rsts/installation/main.rst:84
-msgid "For running ReNomIMG server on Docker image, please use the script run.sh."
+#, fuzzy
+msgid ""
+"For running the ReNomIMG server on a Docker image, please use the script "
+"run.sh."
 msgstr "Dockerイメージ上でReNomIMGサーバを起動するためには, run.sh スクリプトを利用して下さい. "
 
 #: ../../rsts/installation/main.rst:92
-msgid "The script accept some arguments."
+#, fuzzy
+msgid "This script accepts the following arguments."
 msgstr "スクリプトには引数を指定できます. "
 
 #: ../../rsts/installation/main.rst:94
@@ -114,9 +127,10 @@ msgid ""
 msgstr "-d: データソースのディレクトリへのパス. このディレクトリには画像ファイルとラベルファイルが存在します. "
 
 #: ../../rsts/installation/main.rst:95
+#, fuzzy
 msgid ""
-"-s : Path to the data storage directory. Sqlite DB, trained weight and "
-"pretrained weight will be arranged into this directory."
+"-s : Path to the data storage directory. Sqlite DB, trained weights and "
+"pretrained weights will be stored in this directory."
 msgstr ""
 "-s : データストレージのディレクトリへのパス. Sqlite DBと学習済み重み, "
 "そしれ事前学習済みの重みがこのフォルダには用意されています. "
@@ -126,14 +140,16 @@ msgid "-p : The port number."
 msgstr "-p : ポート番号"
 
 #: ../../rsts/installation/main.rst:98
-msgid "An Example is bellow."
+#, fuzzy
+msgid "An example is shown below."
 msgstr "以下に例を示します. "
 
 #: ../../rsts/installation/main.rst:104
+#, fuzzy
 msgid ""
 "If no arguments are passed, directories named ``datasrc`` and ``storage``"
-" will be created in current directory, and the application uses ``8080`` "
-"port."
+" will be created in the current directory, and the application will use "
+"port number ``8080``."
 msgstr ""
 "引数を指定しない場合には, datasrcとstorageという名前のディレクトリがカレントディレクトリに作成されます. "
 "アプリケーションは8080ポートを利用します. "
@@ -155,7 +171,7 @@ msgid "python : >=3.5"
 msgstr ""
 
 #: ../../rsts/installation/main.rst:115
-msgid "`ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : >= 2.7"
+msgid "`ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : = 2.7.3"
 msgstr ""
 
 #: ../../rsts/installation/main.rst:117
@@ -163,11 +179,17 @@ msgstr ""
 msgid ""
 "For required python packages, please refer to the `requirements.txt "
 "<https://github.com/ReNom-dev-"
-"team/ReNomIMG/blob/release/2.0/requirements.txt>`_ ."
+"team/ReNomIMG/blob/release/2.1/requirements.txt>`_ ."
 msgstr ""
 "その他必要なPythonパッケージについては, `requirements.txt <https://github.com/ReNom-dev-"
 "team/ReNomIMG/blob/release/1.0/requirements.txt>`_ を参照してください."
 
 #~ msgid "`ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : >= 2.6"
+#~ msgstr ""
+
+#~ msgid "Then a docker image will be created."
+#~ msgstr "そうしましたらDockerイメージが作成されます. "
+
+#~ msgid "`ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : >= 2.7"
 #~ msgstr ""
 

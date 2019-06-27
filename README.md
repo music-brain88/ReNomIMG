@@ -1,47 +1,82 @@
-# ReNomIMG v2.1.1 beta
+# ReNomIMG
 
-ReNom IMG is model developing tool for image recognition tasks.
+ReNomIMG is an image recognition model development tool.
 
-### ReNomIMG - https://www.renom.jp/packages/renomimg/index.html
+- https://www.renom.jp/packages/renomimg/index.html
 
 
-## Change v2.1b0 => v2.1b1
-- Modify img loader to accept binary image.
+## Version
+
+v2.1.3 beta
+
+
+## Changes
+
+v2.1b2 => v2.1b3
+
+- Refactored CNN algorithm code
+- Modified Yolov2 loss function and updated pretrained weights
+- Fixed bugs
+
+Due to CNN algorithm refactoring, models created or trained in v2.1b2 and earlier cannot be
+loaded directly into v2.1b3.
+
+Please refer to the change log at the renom.jp URL below for a complete change history:
+
+- https://www.renom.jp/packages/renomimg/rsts/change.html
 
 
 ## Recommended Environment
+
 - OS: Ubuntu 16.04
 - Browser: Google Chrome(version 63.0.3239.132)
 - Python: >=3.5
+- ReNom: 2.7.3
 
-## Install
-ReNomIMG requires ReNom.
+ReNomIMG v2.1b3 requires ReNom version 2.7.3.
+If you haven't installed ReNom, first install it from https://github.com/ReNom-dev-team/ReNom.git.
 
-If you haven't installed ReNom, you need to install ReNom from www.renom.jp.
+## Requirements
 
-## Install ReNomIMG package
-Linux user can install ReNomIMG from Wheel package.
+For required python modules please refer to requirements.txt.
 
-Other os user can't install from Wheel package but can install from source.
+
+### Important note
+
+ReNom products can only handle filenames with alphanumeric characters and hyphens.
+
+
+## Installation
+
+ReNomIMG v2.1b3 requires ReNom 2.7.3, which can be installed from https://github.com/ReNom-dev-team/ReNom.git.
+
+
+### Installing the ReNomIMG package
+
+Linux users can install ReNomIMG from the following Wheel package.
+
+Users on a different OS must install from source (refer to instructions below).
 
 The Wheel package is provided at:
 
 `https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-VERSION-cp36-cp36m-linux_x86_64.whl`
 
-(VERSION is stands for actual version number e.g. 0.0.1)
+(VERSION should be replaced with the actual version number, e.g. 0.0.1)
 
 You can install the wheel package with pip3 command::
 
 - For Python3.5
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b1-cp35-cp35m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b3-cp35-cp35m-linux_x86_64.whl`
 
 - For Python3.6
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b1-cp36-cp36m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b3-cp36-cp36m-linux_x86_64.whl`
 
 
-#### Wheels of past version
+#### Wheels for past versions
 
 For python 3.5
+- [v2.1b2](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b2-cp35-cp35m-linux_x86_64.whl)
+- [v2.1b1](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b1-cp35-cp35m-linux_x86_64.whl)
 - [v2.1b0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b0-cp35-cp35m-linux_x86_64.whl)
 - [v2.0.4](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.4-cp35-cp35m-linux_x86_64.whl)
 - [v2.0.3](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.3-cp35-cp35m-linux_x86_64.whl)
@@ -50,6 +85,8 @@ For python 3.5
 - [v2.0.0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.0-cp35-cp35m-linux_x86_64.whl)
 
 For python 3.6
+- [v2.1b2](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b2-cp36-cp36m-linux_x86_64.whl)
+- [v2.1b1](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b1-cp36-cp36m-linux_x86_64.whl)
 - [v2.1b0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b0-cp36-cp36m-linux_x86_64.whl)
 - [v2.0.4](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.4-cp36-cp36m-linux_x86_64.whl)
 - [v2.0.3](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.3-cp36-cp36m-linux_x86_64.whl)
@@ -58,32 +95,32 @@ For python 3.6
 - [v2.0.0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.0-cp36-cp36m-linux_x86_64.whl)
 
 
+### Installing from source
 
-### Install from source
-For installing ReNomIMG, download the repository from following url.
+For installing ReNomIMG from source, download the repository from the following URL.
 
 `git clone https://github.com/ReNom-dev-team/ReNomIMG.git`
 
-And move into ReNomIMG directory.
+Next, move into the ReNomIMG directory.
 
 `cd ReNomIMG`
 
-Then install all required packages.
+First install all required packages via pip.
 
 `pip install -r requirements.txt`
 
-And install renom module using following command.
+Next, install the ReNomIMG module using the following command.
 
 `pip install -e .`
 
-At last, build extension modules.
+Finally, build the extension modules.
 
 `python setup.py build`
 
 
-## How to use ReNomIMG
+## How to use
 
-Please follow this link. 
+Please refer to the following link for detailed instructions: 
 
 - ReNomIMG - renom.jp
 
@@ -91,27 +128,28 @@ http://renom.jp/packages/renomimg/index.html
 
 
 ### Quick start - Start with example data.
-Following command setups example dataset[PASCAL VOC].
-You can immediately try ReNomIMG with this example dataset.
+
+The following command prepares an example dataset [PASCAL VOC].
+You can try ReNomIMG right away with this example dataset.
 
 `renom_img setup_example`
 
-This command will create `datasrc` and `storage` directory.
+This command will create the `datasrc` and `storage` directories.
 
 ### Quck start - How to start
 
-1.Type following command in ReNomIMG directory.
+Type the following command in the ReNomIMG directory.
 
 `python -m renom_img`
 
-Or, following command is available from 0.7beta.
+Alternatively, use the following command (available from 0.7beta onward).
 
 `renom_img`
 
-Second command can be called in any folder and creates `datasrc` folder in current directory.
-Please set your dataset to the created directory.
+The second command can be called from any directory and creates the `datasrc` folder in the current directory.
+Please place your dataset inside the created directory.
 
-If the server starts, you will see a message like below.
+After the server starts, you should see a message like the following.
 
 <img src='./js/static/img/server_run.png' width='60%'/>
 

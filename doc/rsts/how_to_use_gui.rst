@@ -1,83 +1,79 @@
-How to Use ReNomIMG GUI tool
+How to use the ReNomIMG GUI
 ============================
 
 Start the Application
 ----------------------
 
 ReNomIMG is a single page web application.
-If your installation have done successfully, 
-you can run application in any directory with following commands.
+After installation is finished, you can run the application
+in any directory with the following commands.
 
 .. code-block :: shell
 
-    cd workspace # Workspace can be any directory in your pc. 
-    renom_img # This command will starts ReNomIMG GUI server.
+    cd workspace # The workspace can be any directory in your PC.
+    renom_img # This command starts the ReNomIMG GUI server.
 
-For the command ``renom_img``, you can give following arguments.
+The command ``renom_img`` accepts the following arguments.
 
-* --host : This specifies server address.
-* --port : This specifies port number of the server.
+* ``--host`` : This specifies the server address.
+* ``--port`` : This specifies the server port number.
 
-For example, following code runs ReNomIMG with port 8888.
+For example, the following command runs ReNomIMG on port 8888.
 
 .. code-block :: shell
 
-    renom_img --port 8888 # Running ReNomIMG with port 8888
+    renom_img --port 8888 # Run ReNomIMG on port 8888
 
-If the application server runs, open web browser and type the 
-server address to the address bar like this.
+After starting the application server, open your web browser and type the
+server address into the address bar.
 
 .. image:: /_static/image/how_to_use_start.png
 
-Then the application will be appeared.
+The ReNomIMG GUI will load in your web browser.
 
 
 .. _dir_structure:
 
-Place your dataset
+Provide Image and Label Data
 ------------------
 
-When the server starts, ``datasrc`` directory and ``storage`` directory
-will be created in the server running directory.
+When the server starts, it will create ``datasrc`` and ``storage`` directories
+in the current running directory if they don't already exist.
 
-The ``datasrc`` directory has following folder structure.
+The ``datasrc`` directory has the following folder structure.
 
 .. code-block :: shell
 
     datasrc/
-      ├── img   # Set training img files here.
-      ├── label 
-      │   ├── classification # Set classification training label files here
-      │   ├── detection	     # Set detection training label files here
-      │   └── segmentation   # Set segmentation training label files here
+      ├── img   # Place training img files here.
+      ├── label
+      │   ├── classification # Place classification training label files here
+      │   ├── detection      # Place detection training label files here
+      │   └── segmentation   # Place segmentation training label files here
       └── prediction_set
-            ├── img     # Set prediction img files here.
-            └── output  # Prediction result will be output here.
-            	  ├── classification # Set classification training label files here.
-            	  ├── detection      # Set detection training label files here.
-            	  │     ├── csv
-                  │     └── xml
-            	  └── segmentation   # Set segmentation training label files here.
+          └── img   # Place prediction img files here.
 
-As written in the above comments, please set training image data to ``datasrc/img``,
-set training label data to ``datasrc/label``.
+As shown in the structure above, please place the training image data in ``datasrc/img``,
+and the training label data in ``datasrc/label``.
 
 .. note::
 
-    The name of image file and corresponded label file name have to be same.
-    For example, the image file name is ``image01.jpg``, corresponded label file name
-    have to be ``image01.xml``.
+    The name of the image file and corresponding label file name must be the same.
+    For example, for object detection data if an image file name is ``image01.jpg``,
+    the corresponding label file name must be ``image01.xml``.
 
 
-Format of the Detection data
+Format of Detection data
 ~~~~~~~~~~~~~~~~~~~
+
+Object detection image and label files should conform to the formats below.
 
 **Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` formatted image files.
 
 **Format of label files** : ReNomIMG only accepts ``xml`` formatted label files.
-The format of xml file is bellow.
+The format of the xml file is shown below.
 
-**put xml files here**:``<ReNomIMG dir>datasrc/label/detection/<sample.xml>``
+**Place xml files here**: ``<ReNomIMG dir>/datasrc/label/detection/<sample.xml>``
 
 .. code-block :: shell
 
@@ -98,22 +94,26 @@ The format of xml file is bellow.
     	</object>
     </annotation>
 
-ReNomIMG accepts PASCAL VOC formatted object detection data.
+ReNomIMG accepts the PASCAL VOC format for object detection data.
 
 | **The PASCAL Visual Object Classes**
 | http://host.robots.ox.ac.uk/pascal/VOC/
 | 
 |
 
-Format of the Classification data
+Format of Classification data
 ~~~~~~~~~~~~~~~~~~~
 
+Classification image and label files should conform to the formats below.
+
+**Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` formatted image files.
+
 **Format of label files** : ReNomIMG only accepts ``txt`` formatted label files.
-The format of text file is bellow.
+The format of the text file is shown below.
 
-Please Save as ``target.txt``
+Please save the file as ``target.txt``.
 
-**put here**:``<ReNomIMG dir>datasrc/label/classification/target.txt``
+**Place label file here**: ``<ReNomIMG dir>/datasrc/label/classification/target.txt``
 
 .. code-block :: shell
 
@@ -149,34 +149,36 @@ Please Save as ``target.txt``
     pigeon_image_0021.jpg pigeon
     pigeon_image_0029.jpg pigeon
 
- 
-ReNomIMG accepts PASCAL VOC formatted object detection data.
+
+ReNomIMG accepts the PASCAL VOC format for classification data.
 
 | **The PASCAL Visual Object Classes**
 | http://host.robots.ox.ac.uk/pascal/VOC/
 | 
 |
 
-Format of the Segmentation data
+Format of Segmentation data
 ~~~~~~~~~~~~~~~~~~~
 
-.. warning::
-    Segmentation require two kind of labels. 
-    ``PNG`` files and ``class_map.txt`` 
+Semantic segmentation image and label files should conform to the formats below.
 
 **Format of image files** : ReNomIMG only accepts ``JPEG`` and ``PNG`` formatted image files.
 
-**Format of label files** : ReNomIMG only accepts ``txt`` and ``PNG`` formatted label files.
-The format of txt file is bellow.
+.. warning::
+    Segmentation requires two kinds of label data.
+    ``PNG`` files (one per image) and ``class_map.txt`` (one per dataset).
 
-Please Save as ``class_map.txt`` .
+**Format of label files** : ReNomIMG only accepts ``txt`` formatted files for
+class labels and ``PNG`` files for image label data. The format of the txt file is shown below.
 
-**Put file here**:``<ReNomIMG dir>/datasrc/label/segmentation/class_map.txt``
+Please save the class label list as ``class_map.txt``.
 
-Good example
+**Place class label file here**: ``<ReNomIMG dir>/datasrc/label/segmentation/class_map.txt``
 
-* Class number id must be start 0 and  set background.
-* Class number id must be serial number.
+**Example of good data**
+
+* Class id number starts at 0, which is set to the background class.
+* Class id numbers are serially numbered.
 
 .. code-block :: shell
 
@@ -211,11 +213,11 @@ Good example
 
 .. role:: red
 
-:red:`Bad example`
+:red:`Example of incorrect data`
 
-* Class number id does not start 0.
-* Class name does not have background.
-* Class number does not have serial number.
+* Class id number does not start at 0.
+* Class names do not include a background class.
+* Class numbers are not serially numbered.
 
 .. code-block :: shell
 
@@ -240,12 +242,13 @@ Good example
        train 950
        tv/monitor 1000
 
-Sample of Segementation  PNG label file
+The following is a sample segmentation label PNG file. The class id numbers
+have been mapped to colors with a color map for visualization purposes.
 
 .. image:: /_static/image/009592.png
 
 
-ReNomIMG accepts PASCAL VOC formatted object detection data.
+ReNomIMG accepts the PASCAL VOC format for semantic segmentation data.
 
 | **The PASCAL Visual Object Classes**
 | http://host.robots.ox.ac.uk/pascal/VOC/
@@ -253,136 +256,138 @@ ReNomIMG accepts PASCAL VOC formatted object detection data.
 |
 
 .. note:: 
-    The name of image file and corresponded label file name have to be same.
-    For example, the image file name is ``image01.jpg``, corresponded label file name
-    have to be ``image01.png``.
+    The name of the image file and corresponding label file name must be the same.
+    For example, if the image file name is ``image01.jpg``, the corresponding label file name
+    must be ``image01.png``.
 
 
-Create Detection Model
+Create Model
 ----------------------
 
-So far, the server and dataset are prepared. Let's build a object detection model.
-For building a model, you have to specify ``dataset`` and ``hyper parameters``.
+The application server and dataset are now both ready, so let's build an object detection model.
+To build a model, you must specify the dataset and the training hyper-parameters.
 
 Create Dataset
 ~~~~~~~~~~~~~~
 
-For training a machine learning model, you have to prepare training dataset and validation dataset.
-Training dataset is used for training model, and validation dataset is used for
-evaluating a model in terms of how accurately predict data that have not used in training.
+To train a machine learning model, you should prepare training and validation sub-datasets.
+The training sub-dataset is used for training the model, and the validation sub-dataset is used for
+evaluating how accurately the model can predict data that has not been used in training.
 
-In ReNomIMG, training dataset and validation dataset will be **randomly** sampled from the data
+In ReNomIMG, the training and validation sub-datasets will be **randomly** sampled from the data
 that is in the ``datasrc`` directory.
 
 .. image:: /_static/image/how_to_use_gui_datasrc.png
 
-According to the above figure, you can create ``dataset`` from datasrc.
-Once a dataset is created its content will never be change.
+As shown in the figure above, you can create a dataset from the datasrc images.
+Once a dataset is created its contents will never change.
 
-For creating a ``dataset``, please move to dataset setting modal. Following figures
-guide you to the dataset page.
+For creating a dataset, please open the dataset modal. The following figures
+guide you through this step.
 
 .. image:: /_static/image/how_to_use_gui_dataset_create_button01.png
 
-Then following page will be appeared.
+The following page is displayed next.
 
 .. image:: /_static/image/how_to_use_gui_dataset_create_button02.png
 
-As you can see, you can specify the ``dataset name``, ``description`` and ``ratio of training data``.
+As shown above, you can specify the dataset name, description and ratio of training to validation data.
 
-After filling all forms, please push the ``confirm`` button to confirm the content that 
-the dataset includes.
+After entering this information, click the ``Confirm`` button to generate the sub-datasets.
+
+The following visual will be shown. You can confirm what classes exist in the dataset,
+their ratios, and the total number of images.
 
 .. image:: /_static/image/how_to_use_gui_dataset_create_button03.png
 
-Then following graph will be appeared. You can confirm what classes are included 
-in the dataset and how many tags are they.
 
-At last, for saving the dataset, please push the ``submit`` button.
+Finally, to save the dataset click the ``Submit`` button.
 
-You can confirm created datasets in the dataset page.
-For going to the dataset page, please follow the figure below.
+You can confirm all datasets you have created on the dataset page.
+To access the dataset page, please follow the steps shown below.
 
 .. image:: /_static/image/how_to_use_gui_dataset_create_button04.png
 
 .. image:: /_static/image/how_to_use_gui_dataset_create_button05.png
 
-In the above figure, 2 datasets are already created. 
+In the figure above, 2 datasets have already been created.
 
-Hyper parameter setting
+Configure Hyper-parameters
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-So far you got all the materials, let's build a model and run training.
-For creating a model please push the button ``New``.
+After completing the steps above, you can build a model and start training it.
+To create a model, click the button ``+New`` button.
 
 .. image:: /_static/image/how_to_use_gui_model_create01.png
 
-Then you can see a hyper parameter setting modal like following figure.
+This will open a hyper-parameter configuration modal, as shown below.
 
 .. image:: /_static/image/how_to_use_gui_model_create02.png
 
-As you can see in above figure, you can specify following parameters.
+As seen in the figure, you can specify the following parameters.
 
 * **Dataset Name** ... Select the dataset for training.
-* **CNN architecture** ... Select the object detection algorithm.
-* **Batch Size** ... Set higher number, the learning speed become **fast**. Set lower number, the behavior  become like **Stochastic Gradient Descent(or just SGD)**
-* **Total Eopch** ... Training your network on each item of the set once is an epoch.
-* **Train Whole network** ... If this is  checked, whole network weight will be trained.
-* **Image size** ... Image size for training.
+* **Algorithm** ... Select the CNN algorithm.
+* **Batch Size** ... Set the batch size. A larger number can speed up training but requires more memory.
+* **Total Epoch** ... Set the number of times your model should pass through the dataset during training. All images are seen once in every epoch.
+* **Image Width** ... Image width for resizing images during training.
+* **Image Height** ... Image height for resizing images during training.
+* **Load pretrain weight** ... Check this box to load the pretrained weights for the algorithm as initial weight values. If unchecked, the weights are randomly initialized.
+* **Train Whole network** ... Check this box to train all layers of the model. If unchecked, the pretrained layers will be frozen during training.
 .. note::
 
-    Depending on your GPU device, larger image size or batch size causes memory overflow.
+    Depending on your GPU device, a larger image size or batch size may cause a memory overflow.
 
 
-Training Model
+Train the Model
 ~~~~~~~~~~~~~~
 
-Finishing hyper parameter settings, then **push run button to start training!**
+After configuring the hyper-parameters, **click the Create button to start training!**
 
-If the training starts, model will be appeared in model list and progress bar will be shown.
+As training begins, the model will be added to the model list and the train progress bar will also appear.
 
 .. image:: /_static/image/how_to_use_gui_model_create03.png
 
 .. note::
 
-  Detection, Segmentation and Classification task take same process.
+  The same procedure for building and training a model can be used for Detection, Segmentation and Classification.
 
 
-Perform Prediction
+Perform Predictions
 ------------------
 
-After finishing the training, we can use the model for predicting new image data.
+After training is finished, we can use the model for making predictions with new image data.
 
-In the 'Train Page' you can see `Deploy` button. The deployed model will be used for performing prediction.
-If any model is deployed you will see following view.
+Click the ``Deploy`` button shown in the `Model Detail` window on the `Train Page`
+to select which model to use for performing predictions on new data.
+The currently deployed model is shown at the top of the model list with a status of 'Deployed'.
 
 .. image:: /_static/image/how_to_use_gui_prediction_deploy_button.png
 
-Then please move to 'Predict Page' using the side bar menu.
-The following picture is a 'Prediction Page'.
+After deployment, open the `Predict` page using the side bar menu.
+The following figure shows the `Predict` page.
 
 .. image:: /_static/image/how_to_use_gui_prediction_button.png
     :scale: 80 %
 
 
-You will see `Run Prediction` button. Pushing this button runs the prediction using deployed model.
+To run the prediction using the deployed model, click the ``Run Prediction`` button.
 
 .. note::
 
-    The input image of the prediction will be the images that aligned to `datasrc/prediction_set/img`.
-    Required directory structure is described in :ref:`Place your dataset<dir_structure>` .
+    The images used for predictions are all those contained in the `datasrc/prediction_set/img` directory.
+    The directory structure is described in :ref:`Provide your dataset<dir_structure>`.
 
 
-After the prediction you will see the result on the screen like following picture.
+After the predictions are made, the results are displayed in the window.
 
 
 .. image:: /_static/image/how_to_use_gui_prediction_result.png
     :scale: 80 %
 
 
-Also you can download the result as csv file. The button placed on the right top of the
-prediction result allows you to download the result.
-
+You can also download the prediction results as a csv file. Click the ``Download`` button
+on the top right to download the file.
 
 .. image:: /_static/image/how_to_use_gui_prediction_download_button.png
     :scale: 70 %
@@ -391,7 +396,7 @@ prediction result allows you to download the result.
 Uninstall ReNomIMG
 ------------------
 
-You can uninstall ReNomIMG by following pip command.
+You can uninstall ReNomIMG with the following pip command.
 
 .. code-block :: shell
 

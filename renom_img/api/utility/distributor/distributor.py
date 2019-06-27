@@ -80,7 +80,7 @@ class ImageDistributorBase(object):
         Input data format is specified with task.
         """
         N = len(self)
-        batch_loop = int(np.ceil(N / batch_size))
+        batch_loop = max((N // batch_size),1)
         builder = callback
 
         # User can override builder giving 'callback' to this method.
