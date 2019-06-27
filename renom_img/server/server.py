@@ -1596,7 +1596,11 @@ def get_models(task_name):
     if state == "running":
         models = storage.fetch_running_models(task_id)
     elif state == "deployed":
-        models = storage.fetch_deployed_model(task_id)
+        m = storage.fetch_deployed_model(task_id)
+        if m is None:
+            models = []
+        else:
+            models = [m]
     else:
         models = storage.fetch_models_of_task(task_id)
 
