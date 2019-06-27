@@ -111,6 +111,27 @@ class StandardTernausNetInit(StandardInit):
                             'range':[32,2048]}
         self.standards['multiple'] = 32
 
+class StandardDeeplabv3plusInit(StandardInit):
+    def __init__(self):
+        super(StandardDeeplabv3plusInit, self).__init__()
+        self.build_standards()
+
+    def build_standards(self):
+        self.standards['imsize']={
+                            'range':[321]}
+        self.standards['scale_factor']={
+                            'type':[int],
+                            'value':[16]}
+        self.standards['atrous_rates']={
+                            'type':[list],
+                            'value':[[6,12,18]]}
+        self.standards['lr_initial']={
+                            'type':[float,np.float32,np.float64],
+                            'range':[0.0,1.0]}
+        self.standards['lr_power']={
+                            'type':[float,np.float32,np.float64],
+                            'range':[0.0,1.0]}
+
 class StandardForward:
     def __init__(self):
         self.standards = {}

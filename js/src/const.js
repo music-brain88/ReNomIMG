@@ -309,11 +309,11 @@ export const ALGORITHM = {
         ...COMMON_PARAMS,
         ...override('IMAGE_WIDTH', {
           disabled: true,
-          default: 321,
+          default: 321
         }),
         ...override('IMAGE_HEIGHT', {
           disabled: true,
-          default: 321,
+          default: 321
         }),
         ...override('LOAD_PRETRAINED_WEIGHT', {
           title: 'Load pretrain weight',
@@ -326,15 +326,7 @@ export const ALGORITHM = {
           title: 'Train Whole Network',
           key: 'train_whole',
           type: 'checkbox',
-          default: true,
-        }),
-        ...override('BATCH_SIZE', {
-          title: 'Batch Size',
-          key: 'batch_size',
-          type: 'number',
-          default: 1,
-          min: 1,
-          max: 16,
+          default: true
         })
       }
     }

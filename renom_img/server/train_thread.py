@@ -20,6 +20,7 @@ from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.detection.ssd import SSD
 from renom_img.api.segmentation.unet import UNet
 from renom_img.api.segmentation.fcn import FCN8s, FCN16s, FCN32s
+from renom_img.api.segmentation.deeplab import Deeplabv3plus
 from renom_img.api.utility.load import parse_xml_detection
 from renom_img.api.utility.evaluate.detection import get_ap_and_map, get_prec_rec_iou
 from renom_img.api.utility.evaluate.classification import precision_recall_f1_score
@@ -380,6 +381,8 @@ class TrainThread(object):
 
         elif self.algorithm_id == Algorithm.FCN.value:
             self._setting_fcn()
+        elif self.algorithm_id == Algorithm.DEEPLABV3PLUS.value:
+            self._setting_deeplabv3plus()
         elif self.algorithm_id == Algorithm.UNET.value:
             self._setting_unet()
         else:
@@ -648,6 +651,26 @@ class TrainThread(object):
             class_map=self.class_map,
             imsize=self.imsize,
             load_pretrained_weight=self.get_weight_path(FCN),
+            train_whole_network=self.train_whole
+        )
+        self.train_dist = ImageDistributor(
+            self.train_img,
+            self.train_target,
+            augmentation=self.augmentation,
+            target_builder=self.model.build_data()
+        )
+        self.valid_dist = ImageDistributor(
+            self.valid_img,
+            self.valid_target,
+            target_builder=self.model.build_data()
+        )
+
+    def _setting_deeplabv3plus(self):
+        assert self.task_id == Task.SEGMENTATION.value, self.task_id
+        self.model = Deeplabv3plus(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.get_weight_path(Deeplabv3plus),
             train_whole_network=self.train_whole
         )
         self.train_dist = ImageDistributor(
