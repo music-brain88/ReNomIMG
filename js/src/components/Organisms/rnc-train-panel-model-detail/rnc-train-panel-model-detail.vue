@@ -7,7 +7,7 @@
     <template slot="header-slot">
       Model Detail
       <div
-        v-if="getDeployedModel && getDeployedModel.id === getSelectedModel.id"
+        v-if="getDeployedModel && getSelectedModel && getDeployedModel.id === getSelectedModel.id"
         id="deploy-button"
         @click="undeploy"
       >
