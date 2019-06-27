@@ -77,7 +77,6 @@ export default {
 
           context.commit('addModel', model)
           context.dispatch('loadBestValidResult', id)
-
         }
       }, error_handler_creator(context))
   },

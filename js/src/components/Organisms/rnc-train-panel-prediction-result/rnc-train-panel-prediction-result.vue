@@ -236,7 +236,7 @@ export default {
 
       const dataset = this.dataset
       if (!dataset) return
-      console.log("【dataset.valid_data】")
+      console.log('【dataset.valid_data】')
       console.log(dataset.valid_data)
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
@@ -265,7 +265,6 @@ export default {
 
 <style lang='scss' scoped>
 @import './../../../../static/css/unified.scss';
-
 
 .rnc-title-frame {
   .component-header {
