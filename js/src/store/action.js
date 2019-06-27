@@ -141,6 +141,7 @@ export default {
         console.log(response.data)
 
         if (response.status === 204) return
+        if (!response.data.models[0]) return
         const m = response.data.models[0]
 
         const algorithm_id = m.algorithm_id
@@ -165,7 +166,7 @@ export default {
         // ADD muraishi
         model.last_prediction_result = m.last_prediction_result
 
-        this.commit('setDeployedModel', model)
+        context.commit('setDeployedModel', model)
 
         // TODO muraishi : after '/renom_img/v2/api/detection/prediction' is solved
         // this.dispatch('loadPredictionResult', model.id)
