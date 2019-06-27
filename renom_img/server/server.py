@@ -454,6 +454,7 @@ def ndarray_to_list(data):
 
 def split_by_ratio(data, perm, ratio, length):
     print("***data:", data)
+    print("***len(data):", len(data))
     print("***perm:", perm)
     print("***ratio:", ratio)
     print("***length:", length)
@@ -1499,11 +1500,18 @@ def create_dataset(task_name):
     n_imgs = len(file_names)
     perm = np.random.permutation(n_imgs)
 
+    print("***len(file_names):", len(file_names))
+    print("***len(img_files):", len(img_files))
+    print("***len(parsed_target):", len(parsed_target))
+    print("***len(perm):", len(perm))
+
+    print("<split_by_ratio img_files>")
     train_img, valid_img = split_by_ratio(img_files, perm, ratio, n_imgs)
     train_img = ndarray_to_list(train_img)
     valid_img = ndarray_to_list(valid_img)
     valid_img_size = [list(Image.open(i).size) for i in valid_img]
 
+    print("<split_by_ratio parsed_target>")
     train_target, valid_target = split_by_ratio(parsed_target, perm, ratio, n_imgs)
     train_target = ndarray_to_list(train_target)
     valid_target = ndarray_to_list(valid_target)
@@ -1629,6 +1637,12 @@ def get_models(task_name):
     print("*** model of get_models:", models)
     if models is not None:
         ret = {'models': [model_to_light_dict(m) for m in models]}
+    # if models is not None and state != "deployed":
+    #     print("<*** NOT deployed>")
+    #     ret = {'models': [model_to_light_dict(m) for m in models]}
+    # elif models is not None and state == "deployed":
+    #     print("<*** deployed>")
+    #     ret = {'models': [model_to_light_dict(models)]}
     else:
         ret = {'models': []}
     return create_response(ret, status=200)
