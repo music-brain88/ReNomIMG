@@ -104,10 +104,19 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
       }
     }
     if (i === last_index) {
-      // Add white image to empty space.
-      one_page.push({ index: -1, img: brank, size: [max_ratio - accumurated_ratio, 1] })
-      for (let j = nth_line_in_page; j <= 2; j++) {
-        one_page.push({ index: -1, img: brank, size: [max_ratio, 1] })
+      let brank_width = undefined
+      let brank_height = (parent_height / 3)
+
+      if (accumurated_ratio < max_ratio || one_page.length === 0) {
+        brank_width = (max_ratio - accumurated_ratio) * (parent_height / 3)
+        one_page.push({ index: -1, img: brank, size: [brank_width, brank_height] })
+      }
+      if (nth_line_in_page < 3) {
+        brank_width = parent_width
+        let nth_brank_line = (3 - nth_line_in_page)
+        for ( let j = 0 ; j < nth_brank_line; j++) {
+          one_page.push({ index: -1, img: brank, size: [brank_width, brank_height] })
+        }
       }
     }
   }
