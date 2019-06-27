@@ -26,8 +26,12 @@ export default {
     context.commit('flushFilter')
     context.dispatch('loadDatasetsOfCurrentTask')
     // TODO: context.dispatch('loadTestDatasetsOfCurrentTask')
-    await context.dispatch('loadModelsOfCurrentTask')
+    await context.dispatch('loadModelsOfCurrentTask', 'all')
+    // await context.dispatch('loadModelsOfCurrentTask', 'running')// TODO: 必要？タイミングは？
+    // TODO:↓村石さんので一度試してみるけど念の為。
+    // await context.dispatch('loadModelsOfCurrentTask', 'deployed')// TODO: 必要？タイミングは？
     await context.dispatch('loadDeployedModel')
+    // TODO: await context.dispatch('loadDeployedModel')
     context.commit('showLoadingMask', false)
     context.dispatch('startAllPolling')
   },
@@ -38,10 +42,11 @@ export default {
   async loadModelsOfCurrentTask (context, payload) {
     // TODO: const task = context.getters.getCurrentTask
     // TODO: const url = '/api/renom_img/v2/model/load/task/' + task
-    const url = '/api/renom_img/v2/api/detection/models'
+    const state = payload
+    const url = '/api/renom_img/v2/api/detection/models?state=' + state
     return axios.get(url)
       .then(function (response) {
-        console.log('【loadModelsOfCurrentTask】')
+        console.log('【loadModelsOfCurrentTask】<<' + state + '>>')
         console.log(response.data)
 
         if (response.status === 204) return
@@ -122,9 +127,8 @@ export default {
       }, error_handler_creator(context))
   },
 
-
   async loadDeployedModel (context, payload) {
-    const task_id = context.getters.getCurrentTask
+    // const task_id = context.getters.getCurrentTask
     const url = '/api/renom_img/v2/api/detection/models?state=deployed'
     return axios.get(url)
       .then(function (response) {
@@ -160,7 +164,6 @@ export default {
 
         // TODO muraishi : after '/renom_img/v2/api/detection/prediction' is solved
         // this.dispatch('loadPredictionResult', model.id)
-
       }, error_handler_creator(context))
   },
 
@@ -662,7 +665,6 @@ export default {
   },
   */
 
-
   /** ***
    * POST and create the tempDataset
    */
@@ -757,7 +759,9 @@ export default {
     const url = '/api/renom_img/v2/api/detection/models/' + model.id
 
     this.commit('setDeployedModel', model)
-    return axios.put(url).then(function (response) {
+    return axios.put(url, {
+      deploy: true
+    }).then(function (response) {
       console.log('【deployModel】')
       console.log(response)
     }, error_handler_creator(context))
@@ -767,12 +771,28 @@ export default {
     // TODO: const url = '/api/renom_img/v2/model/undeploy/' + task_id
     const url = '/api/renom_img/v2/api/detection/models/' + task_id
     this.commit('unDeployModel')
-    return axios.put(url).then(function (response) {
+    return axios.put(url, {
+      deploy: false
+    }).then(function (response) {
       console.log('【unDeployModel】')
       console.log(response)
     }, error_handler_creator(context))
   },
 
+  /* TODO: ↓旧ソース。後で消します。
+  async loadDeployedModel (context, payload) {
+    const task_id = context.getters.getCurrentTask
+    const url = '/api/renom_img/v2/model/load/deployed/task/' + task_id
+    return axios.get(url).then((response) => {
+      const id = response.data.deployed_id
+      if (id) {
+        const model = context.getters.getModelById(id)
+        this.commit('setDeployedModel', model)
+        this.dispatch('loadPredictionResult', model.id)
+      }
+    }, error_handler_creator(context))
+  },
+  */
 
   async downloadPredictionResult (context, payload) {
     const model = payload

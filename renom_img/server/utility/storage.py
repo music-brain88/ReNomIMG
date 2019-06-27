@@ -127,6 +127,7 @@ class Storage:
             model = session.query(Model).filter(Model.id == model_id).first()
             task = session.query(Task).filter(Task.id == model.task_id).first()
             if model:
+                print("***deployed_model_id UPDATE:", model.id)
                 task.deployed_model_id = model.id
         return
 
@@ -134,6 +135,7 @@ class Storage:
         with SessionContext() as session:
             task = session.query(Task).filter(Task.id == task_id).first()
             if task:
+                print("***deployed_model_id UPDATE: None")
                 task.deployed_model_id = None
         return
 

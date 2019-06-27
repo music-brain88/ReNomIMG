@@ -7,7 +7,7 @@
     <template slot="header-slot">
       Model Detail
       <div
-        v-if="getDeployedModel && getDeployedModel === getSelectedModel"
+        v-if="getDeployedModel && getDeployedModel.id === getSelectedModel.id"
         id="deploy-button"
         @click="undeploy"
       >
@@ -129,6 +129,20 @@ export default {
       }
     }
   },
+  // watch: {
+  //   getSelectedModel: function () {
+  //     console.log('***getDeployedModel★★:' + this.getDeployedModel)
+  //     console.dir(this.getDeployedModel)
+  //     console.log('***getSelectedModel★★:' + this.getSelectedModel)
+  //     console.dir(this.getSelectedModel)
+  //   },
+  //   getDeployedModel: function () {
+  //     console.log('***getDeployedModel★★:' + this.getDeployedModel)
+  //     console.dir(this.getDeployedModel)
+  //     console.log('***getSelectedModel★★:' + this.getSelectedModel)
+  //     console.dir(this.getSelectedModel)
+  //   }
+  // },
   methods: {
     ...mapMutations([
       'setDeployedModel',
