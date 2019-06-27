@@ -42,8 +42,9 @@ export default {
   async loadModelsOfCurrentTask (context, payload) {
     // TODO: const task = context.getters.getCurrentTask
     // TODO: const url = '/api/renom_img/v2/model/load/task/' + task
+    const task_name = context.getters.getCurrentTaskName
     const state = payload
-    const url = '/api/renom_img/v2/api/detection/models?state=' + state
+    const url = '/api/renom_img/v2/api/' + task_name + '/models?state=' + state
     return axios.get(url)
       .then(function (response) {
         console.log('【loadModelsOfCurrentTask】<<' + state + '>>')
@@ -85,8 +86,9 @@ export default {
    * TODO muraishi: 1
    */
   async loadModelsOfCurrentTaskDetail (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const model_id = payload
-    const url = '/api/renom_img/v2/api/detection/models/' + model_id
+    const url = '/api/renom_img/v2/api/' + task_name + '/models/' + model_id
     return axios.get(url)
       .then(function (response) {
         console.log('【loadModelsOfCurrentTaskDetail】')
@@ -128,7 +130,8 @@ export default {
 
   async loadDeployedModel (context, payload) {
     // const task_id = context.getters.getCurrentTask
-    const url = '/api/renom_img/v2/api/detection/models?state=deployed'
+    const task_name = context.getters.getCurrentTaskName
+    const url = '/api/renom_img/v2/api/' + task_name + '/models?state=deployed'
     return axios.get(url)
       .then(function (response) {
         console.log('【loadDeployedModel】')
@@ -162,7 +165,7 @@ export default {
 
         context.commit('setDeployedModel', model)
 
-        // TODO muraishi : after '/renom_img/v2/api/detection/prediction' is solved
+        // TODO muraishi : after '/renom_img/v2/api/' + task_name + '/prediction' is solved
         // this.dispatch('loadPredictionResult', model.id)
       }, error_handler_creator(context))
   },
@@ -173,7 +176,8 @@ export default {
   async loadDatasetsOfCurrentTask (context) {
     // TODO: const task_id = context.getters.getCurrentTask
     // TODO: const url = '/api/renom_img/v2/dataset/load/task/' + task_id
-    const url = '/api/renom_img/v2/api/detection/datasets'
+    const task_name = context.getters.getCurrentTaskName
+    const url = '/api/renom_img/v2/api/' + task_name + '/datasets'
     return axios.get(url)
       .then(function (response) {
         console.log('【loadDatasetsOfCurrentTask】')
@@ -205,8 +209,9 @@ export default {
    *muraishi :2
    */
   async loadDatasetsOfCurrentTaskDetail (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const dataset_id = payload
-    const url = '/api/renom_img/v2/api/detection/datasets/' + dataset_id
+    const url = '/api/renom_img/v2/api/' + task_name + '/datasets/' + dataset_id
     return axios.get(url)
       .then(function (response) {
         console.log('【loadDatasetsOfCurrentTaskDetail】')
@@ -266,7 +271,8 @@ export default {
    */
   async createModel (context, payload) {
     // TODO: const url = '/api/renom_img/v2/model/create'
-    const url = '/api/renom_img/v2/api/detection/models'
+    const task_name = context.getters.getCurrentTaskName
+    const url = '/api/renom_img/v2/api/' + task_name + '/models'
     const hyper_params = payload.hyper_params
     const algorithm_id = payload.algorithm_id
     const dataset_id = payload.dataset_id
@@ -310,9 +316,10 @@ export default {
    *
    */
   async removeModel (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/model/remove/' + model_id
-    const url = '/api/renom_img/v2/api/detection/models/' + model_id
+    const url = '/api/renom_img/v2/api/' + task_name + '/models/' + model_id
     return axios.delete(url)
       .then(function (response) {
         console.log('【removeModel】')
@@ -327,9 +334,10 @@ export default {
    *
    */
   async runTrainThread (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/model/thread/run/' + model_id
-    const url = '/api/renom_img/v2/api/detection/train'
+    const url = '/api/renom_img/v2/api/' + task_name + '/train'
     // const param = new FormData()
     // param.append('model_id', model_id)
     console.log('【runTrainThread の model_id】', model_id)
@@ -351,9 +359,10 @@ export default {
    *
    */
   async pollingTrain (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/polling/train/model/' + model_id
-    const url = '/api/renom_img/v2/api/detection/train?model_id=' + model_id
+    const url = '/api/renom_img/v2/api/' + task_name + '/train?model_id=' + model_id
     const request_source = { 'train': model_id }
     const current_requests = context.state.polling_request_jobs.train
 
@@ -434,9 +443,10 @@ export default {
   },
 
   async runPredictionThread (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/model/thread/prediction/run/' + model_id
-    const url = '/api/renom_img/v2/api/detection/prediction'
+    const url = '/api/renom_img/v2/api/' + task_name + '/prediction'
     // TODO: const param = new FormData()
     // TODO: param.append('model_id', model_id)
 
@@ -456,9 +466,10 @@ export default {
   },
 
   async pollingPrediction (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/polling/prediction/model/' + model_id
-    const url = '/api/renom_img/v2/api/detection/prediction?model_id=' + model_id
+    const url = '/api/renom_img/v2/api/' + task_name + '/prediction?model_id=' + model_id
     const request_source = { 'prediction': model_id }
     const current_requests = context.state.polling_request_jobs.prediction
 
@@ -546,9 +557,10 @@ export default {
    *
    */
   async stopModelTrain (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const model_id = payload
     // TODO: const url = '/api/renom_img/v2/model/stop/' + model_id
-    const url = '/api/renom_img/v2/api/detection/train'
+    const url = '/api/renom_img/v2/api/' + task_name + '/train'
     // TODO: const param = new FormData()
     // TODO: param.append('model_id', model_id)
     // TODO: deleteの時の値の渡し方がバラバラだがOK？
@@ -606,7 +618,8 @@ export default {
    * PUT the tempDataset : not using in current version v2.2
    */
   async createDataset (context, payload) {
-    const url = '/api/renom_img/v2/api/detection/datasets/' + payload.test_dataset_id
+    const task_name = context.getters.getCurrentTaskName
+    const url = '/api/renom_img/v2/api/' + task_name + '/datasets/' + payload.test_dataset_id
 
     // TODO: const url = '/api/renom_img/v2/dataset/create'
     // const param = new FormData()
@@ -670,7 +683,8 @@ export default {
    */
   async confirmDataset (context, payload) {
     // TODO: const url = '/api/renom_img/v2/dataset/confirm'
-    const url = '/api/renom_img/v2/api/detection/datasets'
+    const task_name = context.getters.getCurrentTaskName
+    const url = '/api/renom_img/v2/api/' + task_name + '/datasets'
 
     const hash = payload.hash
     const name = payload.name
@@ -728,8 +742,9 @@ export default {
    *
    */
   async deleteDataset (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const dataset_id = payload
-    const url = '/api/renom_img/v2/api/detection/datasets/' + dataset_id
+    const url = '/api/renom_img/v2/api/' + task_name + '/datasets/' + dataset_id
     console.log('*** id:' + dataset_id)
     console.dir(dataset_id)
 
@@ -765,7 +780,8 @@ export default {
   */
 
   async loadSegmentationTargetArray (context, payload) {
-    const url = '/api/target/segmentation'
+    const task_name = context.getters.getCurrentTaskName
+    const url = '/api/target/' + task_name
     const name = payload.name
     const size = payload.size
     const callback = payload.callback
@@ -783,9 +799,10 @@ export default {
     }, error_handler_creator(context))
   },
   async deployModel (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const model = payload
     // TODO: const url = '/api/renom_img/v2/model/deploy/' + model.id
-    const url = '/api/renom_img/v2/api/detection/models/' + model.id
+    const url = '/api/renom_img/v2/api/' + task_name + '/models/' + model.id
 
     this.commit('setDeployedModel', model)
     return axios.put(url, {
@@ -796,9 +813,12 @@ export default {
     }, error_handler_creator(context))
   },
   async unDeployModel (context, payload) {
-    const task_id = context.getters.getCurrentTask
+    // TODO: const task_id = context.getters.getCurrentTask
     // TODO: const url = '/api/renom_img/v2/model/undeploy/' + task_id
-    const url = '/api/renom_img/v2/api/detection/models/' + task_id
+    const task_name = context.getters.getCurrentTaskName
+    const model = payload
+    const url = '/api/renom_img/v2/api/' + task_name + '/models/' + model.id
+    console.log('*** model.id <unDeployModel>:' + model.id)
     this.commit('unDeployModel')
     return axios.put(url, {
       deploy: false
@@ -824,10 +844,11 @@ export default {
   */
 
   async downloadPredictionResult (context, payload) {
+    const task_name = context.getters.getCurrentTaskName
     const model = payload
     const format = 'csv'// 現状はcsvのみですが、今後増える想定です。
     // const url = '/api/renom_img/v2/model/' + model.id + '/export/'
-    const url = '/api/renom_img/v2/api/detection/prediction/result?model_id=' + model.id + '&format=' + format
+    const url = '/api/renom_img/v2/api/' + task_name + '/prediction/result?model_id=' + model.id + '&format=' + format
     window.open(url, '__blank')
   },
 }

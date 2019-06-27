@@ -222,6 +222,15 @@ export default {
       return 'Segmentation'
     }
   },
+  getCurrentTaskName (state, getters) {
+    if (state.current_task === TASK_ID.CLASSIFICATION) {
+      return 'classification'
+    } else if (state.current_task === TASK_ID.DETECTION) {
+      return 'detection'
+    } else if (state.current_task === TASK_ID.SEGMENTATION) {
+      return 'segmentation'
+    }
+  },
   getCurrentPageTitle (state, getters) {
     if (state.current_page === PAGE_ID.TRAIN) {
       return 'Train'
