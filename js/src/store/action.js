@@ -704,9 +704,12 @@ export default {
       console.log(response.data)
 
       if (response.status === 204) return
-      const class_map = response.data.class_map
-      const valid_data = response.data.valid_data
-      const class_info = response.data.class_info
+      const class_map = response.data.dataset.class_map
+      const valid_data = response.data.dataset.valid_data
+      const class_info = response.data.dataset.class_info
+      console.log('*** class_map ***' + class_map)
+      console.log('*** valid_data ***' + valid_data)
+      console.log('*** class_info ***' + class_info)
 
       // The dataset id will be available when the dataset registered to DB.
       // So tentatively, insert -1.
@@ -714,6 +717,9 @@ export default {
       dataset.class_map = class_map
       dataset.valid_data = valid_data
       dataset.class_info = class_info
+
+      console.log('*** dataset ***' + dataset)
+      console.dir(dataset)
       context.commit('setConfirmingDataset', dataset)
       context.commit('setConfirmingFlag', false)
     }, error_handler_creator(context, () => {
