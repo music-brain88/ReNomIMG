@@ -23,7 +23,7 @@
     >
       <template slot="modal-contents">
         <rnc-modal-both v-if="show_modal.add_both" />
-        <rnc-modal-dataset v-if="show_modal.add_dataset" />
+        <!-- TODO: <rnc-modal-dataset v-if="show_modal.add_dataset" />-->
         <rnc-modal-filter v-if="show_modal.add_filter" />
         <rnc-modal-image v-if="show_modal.show_image" />
         <rnc-modal-prediction-image v-if="show_modal.show_prediction_image" />
@@ -52,7 +52,7 @@ import RncModalConfirm from './components/Organisms/rnc-modal-confirm/rnc-modal-
 
 import RncModalTogglemask from './components/Atoms/rnc-modal-togglemask/rnc-modal-togglemask.vue'
 import RncModalBoth from './components/Organisms/rnc-modal-both/rnc-modal-both'
-import RncModalDataset from './components/Organisms/rnc-modal-dataset/rnc-modal-dataset'
+// TODO: import RncModalDataset from './components/Organisms/rnc-modal-dataset/rnc-modal-dataset'
 import RncModalFilter from './components/Organisms/rnc-modal-filter/rnc-modal-filter'
 import RncModalImage from './components/Organisms/rnc-modal-image/rnc-modal-image'
 import RncModalPredictionImage from './components/Organisms/rnc-modal-prediction-image/rnc-modal-prediction-image'
@@ -67,7 +67,7 @@ export default {
     'rnc-modal-confirm': RncModalConfirm,
     'rnc-modal-togglemask': RncModalTogglemask,
     'rnc-modal-both': RncModalBoth,
-    'rnc-modal-dataset': RncModalDataset,
+    // TODO: 'rnc-modal-dataset': RncModalDataset,
     'rnc-modal-filter': RncModalFilter,
     'rnc-modal-image': RncModalImage,
     'rnc-modal-prediction-image': RncModalPredictionImage,

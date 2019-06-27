@@ -104,8 +104,8 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
       }
     }
     if (i === last_index) {
-      let brank_width = undefined
-      let brank_height = (parent_height / 3)
+      let brank_width
+      const brank_height = (parent_height / 3)
 
       if (accumurated_ratio < max_ratio || one_page.length === 0) {
         brank_width = (max_ratio - accumurated_ratio) * (parent_height / 3)
@@ -113,8 +113,8 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
       }
       if (nth_line_in_page < 3) {
         brank_width = parent_width
-        let nth_brank_line = (3 - nth_line_in_page)
-        for ( let j = 0 ; j < nth_brank_line; j++) {
+        const nth_brank_line = (3 - nth_line_in_page)
+        for (let j = 0; j < nth_brank_line; j++) {
           one_page.push({ index: -1, img: brank, size: [brank_width, brank_height] })
         }
       }
