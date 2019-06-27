@@ -12,6 +12,7 @@
             <rnc-input
               :input-max-length="nameMaxLength"
               :input-min-length="nameMinLength"
+              :disabled="submitable"
               v-model="nameText"
               class="input-value"
               place-holder="dataset(Required)"
@@ -33,6 +34,7 @@
               :is-textarea="true"
               :input-max-length="descriptionMaxLength"
               :place-holder="'description(Optional)'"
+              :disabled="submitable"
               :rows="3"
               v-model="descriptionText"
               class="input-value"
@@ -55,6 +57,7 @@
               :input-min-value="0.3"
               :input-max-value="0.99"
               :only-number="true"
+              :disabled="submitable"
               v-model="ratio"
               class="input-value"
               step="0.1"
@@ -70,7 +73,7 @@
         </div>
       </div>
       <rnc-button
-        :disabled="!confirmable"
+        :disabled="!confirmable || submitable"
         class="confirm-button"
         button-label="Confirm"
         @click="onConfirmDataset"
@@ -167,7 +170,14 @@
       <rnc-button
         :disabled="!submitable"
         button-label="Submit"
+        class="submit-button"
         @click="onAddDataset"
+      />
+      <rnc-button
+        :disabled="!submitable"
+        :cancel="cancel"
+        button-label="Back"
+        @click="backDataset"
       />
     </div>
     <!----------Right page of creating dataset-->
@@ -207,7 +217,8 @@ export default {
       vali_params_ratio: '',
       showNameErrorMessage: false,
       showDescriptionErrorMessage: false,
-      showRatioErrorMessage: false
+      showRatioErrorMessage: false,
+      cancel: true
     }
   },
   computed: {
@@ -229,6 +240,7 @@ export default {
       return true
     },
     submitable: function () {
+      // TODO: console.log('*** this.confirming_flag ***' + this.confirming_flag)
       if (!this.confirming_dataset || this.confirming_flag) {
         return false
       }
@@ -282,9 +294,20 @@ export default {
       }
     },
   },
+  // TODO: watch: {
+  // TODO:   confirming_flag: function () {
+  // TODO:     console.log('*** this.confirming_flag ***' + this.confirming_flag)
+  // TODO:     console.log('*** this.confirming_dataset ***' + this.confirming_dataset)
+  // TODO:     console.dir(this.confirming_dataset)
+  // TODO:   }
+  // TODO: },
   beforeMount: function () {
     this.reset()
   },
+  beforeDestroy: function () {
+    this.backDataset()
+  },
+
   methods: {
     ...mapMutations([
       'setConfirmingFlag',
@@ -292,9 +315,10 @@ export default {
     ]),
     ...mapActions([
       'createDataset',
-      'createTestDataset',
+      // TODO: 'createTestDataset',
       'confirmDataset',
-      'confirmTestDataset'
+      // TODO: 'confirmTestDataset',
+      'deleteDataset'
     ]),
     onUpdateName: function (params) {
       this.vali_params_name = params['errorMessage']
@@ -319,11 +343,11 @@ export default {
       this.timeStamp = date.getTime()
       this.setConfirmingFlag(true)
       if (this.isTestDataset) {
-        this.confirmTestDataset({
-          'name': this.nameText,
-          'ratio': this.ratio,
-          'description': this.descriptionText,
-        })
+        // TODO: this.confirmTestDataset({
+        // TODO:   'name': this.nameText,
+        // TODO:   'ratio': this.ratio,
+        // TODO:   'description': this.descriptionText,
+        // TODO: })
       } else {
         let test_dataset_id = this.test_dataset.id
         if (!test_dataset_id) {
@@ -340,13 +364,13 @@ export default {
     },
     onAddDataset: function () {
       if (this.isTestDataset) {
-        this.createTestDataset({
-          'name': this.nameText,
-          'ratio': this.ratio,
-          'description': this.descriptionText,
-        }).then(() => {
-          this.reset()
-        })
+        // TODO: this.createTestDataset({
+        // TODO:   'name': this.nameText,
+        // TODO:   'ratio': this.ratio,
+        // TODO:   'description': this.descriptionText,
+        // TODO: }).then(() => {
+        // TODO:   this.reset()
+        // TODO: })
       } else {
         let test_dataset_id = this.test_dataset.id
         if (!test_dataset_id) {
@@ -364,6 +388,12 @@ export default {
         })
       }
     },
+    backDataset: function () {
+      if (this.confirming_dataset) {
+        this.deleteDataset(this.confirming_dataset.id)
+      }
+    },
+
     reset: function () {
       this.nameText = ''
       this.descriptionText = ''
@@ -549,6 +579,9 @@ export default {
           }
         }
       }
+    }
+    .submit-button {
+      margin-right: $margin-micro;
     }
   }
 

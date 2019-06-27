@@ -707,6 +707,7 @@ export default {
       const class_map = response.data.dataset.class_map
       const valid_data = response.data.dataset.valid_data
       const class_info = response.data.dataset.class_info
+      const id = response.data.dataset.id
       console.log('*** class_map ***' + class_map)
       console.log('*** valid_data ***' + valid_data)
       console.log('*** class_info ***' + class_info)
@@ -717,12 +718,34 @@ export default {
       dataset.class_map = class_map
       dataset.valid_data = valid_data
       dataset.class_info = class_info
+      dataset.id = id
 
       console.log('*** dataset ***' + dataset)
       console.dir(dataset)
       context.commit('setConfirmingDataset', dataset)
       context.commit('setConfirmingFlag', false)
     }, error_handler_creator(context, () => {
+      context.commit('setConfirmingDataset', null)
+      context.commit('setConfirmingFlag', false)
+    }))
+  },
+
+  /** ***
+   *
+   */
+  async deleteDataset (context, payload) {
+    const dataset_id = payload
+    const url = '/api/renom_img/v2/api/detection/datasets/' + dataset_id
+    console.log('*** id:' + dataset_id)
+    console.dir(dataset_id)
+
+    return axios.delete(url).then(function (response) {
+      console.log('【deleteDataset】')
+      console.log(response.data)
+      context.commit('setConfirmingDataset', null)
+      context.commit('setConfirmingFlag', false)
+    }, error_handler_creator(context, () => {
+      context.commit('setConfirmingDataset', null)
       context.commit('setConfirmingFlag', false)
     }))
   },
