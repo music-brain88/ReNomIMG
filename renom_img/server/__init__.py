@@ -76,3 +76,4 @@ class Algorithm(enum.Enum):
 
     UNET = 60
     FCN = 61
+    DEEPLABV3PLUS = 62

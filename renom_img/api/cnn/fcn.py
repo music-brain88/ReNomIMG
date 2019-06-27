@@ -12,6 +12,7 @@ from renom.config import precision
 from renom.layers.function.pool2d import pool_base, max_pool2d
 from renom.layers.function.utils import tuplize
 from renom_img.api.cnn import CnnBase
+from renom_img.api.utility.exceptions.exceptions import *
 
 class PoolBase(object):
 
@@ -21,10 +22,6 @@ class PoolBase(object):
         self._ceil_mode = ceil_mode
 
     def __call__(self, x):
-        assert len(x.shape) == 4, "The dimension of input array must be 4. Actual dim is {}".format(x.ndim)
-        assert all([s > 0 for s in x.shape[2:]]), \
-            "The shape of input array {} is too small. Please give an array which size is lager than 0.".format(
-                x.shape)
         return self.forward(x)
 
 
@@ -190,7 +187,10 @@ class CNN_FCN8s(CnnBase):
         self.upscore8.set_auto_update(self.train_final_upscore)
 
     def load_pretrained_weight(self,path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
 
 class CNN_FCN16s(CnnBase):
 
@@ -273,7 +273,10 @@ class CNN_FCN16s(CnnBase):
         self.upscore16.set_auto_update(self.train_final_upscore)
 
     def load_pretrained_weight(self,path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
 
 class CNN_FCN32s(CnnBase):
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN32s.h5".format(__version__)
@@ -336,4 +339,7 @@ class CNN_FCN32s(CnnBase):
         self.train_final_upscore=upscore
 
     def load_pretrained_weight(self,path):
-        self.load(path)
+        try:
+            self.load(path)
+        except:
+            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))

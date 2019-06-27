@@ -1,6 +1,6 @@
 import numpy as np
 from renom_img.api.utility.augmentation.process import MODE
-
+from renom_img.api.utility.exceptions.exceptions import InvalidInputValueError
 
 class Augmentation(object):
     """
@@ -68,8 +68,9 @@ class Augmentation(object):
                 ]
 
         """
-        assert_msg = "{} is not supported transformation mode. {} are available."
-        assert mode in MODE, assert_msg.format(mode, MODE)
+        assert_msg = "{} is not a supported transformation mode. Please select a mode from the following: {}."
+        if mode not in MODE:
+            raise InvalidInputValueError(assert_msg.format(mode, MODE))
         for process in self._process_list:
             if np.random.rand() >= 0.9:
                 continue

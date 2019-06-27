@@ -301,6 +301,35 @@ export const ALGORITHM = {
         }
       }
     },
+    Deeplabv3plus: {
+      id: 62,
+      key: 'deeplabv3plus',
+      title: 'Deeplabv3+',
+      params: {
+        ...COMMON_PARAMS,
+        ...override('IMAGE_WIDTH', {
+          disabled: true,
+          default: 321
+        }),
+        ...override('IMAGE_HEIGHT', {
+          disabled: true,
+          default: 321
+        }),
+        ...override('LOAD_PRETRAINED_WEIGHT', {
+          title: 'Load pretrain weight',
+          key: 'load_pretrained_weight',
+          disabled: false,
+          default: true,
+          type: 'checkbox'
+        }),
+        ...override('TRAIN_WHOLE', {
+          title: 'Train Whole Network',
+          key: 'train_whole',
+          type: 'checkbox',
+          default: true
+        })
+      }
+    }
     /*
     TernousNet: {
       id: 64,

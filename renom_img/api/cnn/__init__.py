@@ -1,4 +1,5 @@
 import renom as rm
+from renom_img.api.utility.exceptions.exceptions import MissingInputError, FunctionNotImplementedError
 
 
 class CnnBase(rm.Model):
@@ -10,12 +11,12 @@ class CnnBase(rm.Model):
         self.output_size = None
 
     def __call__(self, *args, **kwargs):
-        assert not (None in [self.train_whole, self.output_size]), \
-            "Please set attributes `train_whole` and 'output_size' before running __call__."
+        if (None in [self.train_whole, self.output_size]):
+            raise MissingInputError("Please set attributes `train_whole` and 'output_size' before running __call__.")
         return super(CnnBase, self).__call__(*args, **kwargs)
 
     def set_output_size(self, output_size):
-        raise NotImplemented
+        raise FunctionNotImplementedError("This function has not been implemented.")
 
     def set_train_whole(self, whole):
         self.train_whole = whole
@@ -24,4 +25,4 @@ class CnnBase(rm.Model):
         pass
 
     def load_pretrained_weight(self, path):
-        raise NotImplemented
+        raise FunctionNotImplementedError("This function has not been implemented.")
