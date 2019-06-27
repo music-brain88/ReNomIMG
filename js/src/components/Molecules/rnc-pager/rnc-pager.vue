@@ -139,7 +139,7 @@ export default {
 <style lang='scss'>
 #pager {
   width: 100%;
-  height: 5%;
+  height: 100%;
   display: flex;
   align-items: center;
   .right-arrow {
