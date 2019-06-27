@@ -108,7 +108,7 @@ class SemanticSegmentation(Base):
 
                 # grdient
                 with self.train():
-                    loss = self.loss(self.model(train_x), train_y, class_weight=class_weight)
+                    loss = self.loss(self(train_x), train_y, class_weight=class_weight)
                     reg_loss = loss + self.regularize()
 
                 try:
