@@ -227,7 +227,6 @@ class XceptionBlock(rm.Model):
         self.relu=rm.Relu()
             
     def forward(self, x):
-        #print('--flow1_0: x.shape = ', x.shape)
         if self.residual:
             residual = x
             out = self.relu(x)
@@ -240,7 +239,6 @@ class XceptionBlock(rm.Model):
         out = self.conv1_point(out)
         out = self.bn1_point(out)
         out = self.relu(out)
-        #print('--flow1_1: x.shape = ', out.shape)        
         out = self.conv2_depth(out)
         out = self.bn2_depth(out)
         if not self.residual:
@@ -248,21 +246,16 @@ class XceptionBlock(rm.Model):
         out = self.conv2_point(out)
         out = self.bn2_point(out)
         out = self.relu(out)
-        #print('--flow1_2: x.shape = ', out.shape)        
         out = self.conv3_depth(out)
         out = self.bn3_depth(out)
         if not self.residual:
             out = self.relu(out)
         out = self.conv3_point(out)
         out = self.bn3_point(out)
-        #print('--flow1_3: x.shape = ', out.shape)        
 
         if self.downsample is not None:
-            #print('--flow1_downsample_0: x.shape = ', x.shape)        
             residual = self.downsample(x)
-            #print('--flow1_downsample_1: x.shape = ', residual.shape)      
         if self.residual:
-            #print('--flow1_residual: out.shape = ', out.shape, ' residual.shape = ', residual.shape)           
             out += residual
         else:
             out = self.relu(out)
@@ -295,36 +288,37 @@ class AsppModule(rm.Model):
         self.relu = rm.Relu()
     
     def forward(self, x):
-        #print('--aspp: x.shape = ', x.shape)            
         aspp0 = self.aspp0_conv(x)
         aspp0 = self.aspp0_bn(aspp0)
         aspp0 = self.relu(aspp0)
-        #print('--aspp0: x.shape = ', aspp0.shape)         
+
         aspp1 = self.aspp1_conv(x)
         aspp1 = self.aspp1_bn(aspp1)
         aspp1 = self.relu(aspp1)
-        #print('--aspp1: x.shape = ', aspp1.shape)   
+
         aspp2 = self.aspp2_conv(x)
         aspp2 = self.aspp2_bn(aspp2)
         aspp2 = self.relu(aspp2)
-        #print('--aspp2: x.shape = ', aspp2.shape)     
+
         aspp3 = self.aspp3_conv(x)
         aspp3 = self.aspp3_bn(aspp3)
         aspp3 = self.relu(aspp3)
-        #print('--aspp3: x.shape = ', aspp3.shape)           
+
         image_pool = self.avg_pool(x)
         image_pool = self.image_pool_conv(image_pool)
         image_pool = self.image_pool_bn(image_pool)
         image_pool = self.relu(image_pool)
         image_pool = self.image_pool_resize(image_pool)
-        #print('--aspp_image: image_pool.shape = ', image_pool.shape)                
+
         x = rm.concat(image_pool, aspp0, aspp1, aspp2, aspp3)
         
         return x
 
 
 class CnnDeeplabv3plus(CnnBase):
-        
+            
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/Deeplabv3plus.h5".format(__version__)
+
     def __init__(self, num_class, imsize=(513,513), scale_factor=16, atrous_rates=[6,12,18], decoder=False):
 
         super(CnnDeeplabv3plus, self).__init__()
@@ -383,35 +377,33 @@ class CnnDeeplabv3plus(CnnBase):
 
     
     def forward(self, x):
-#        self._freeze_bn()
         image = x
-        #print('--flow0_0: input.shape = ', x.shape)
         x = self.conv1_1(x)
         x = self.bn1_1(x)
         x = self.relu(x)
-        #print('--flow0_1: x.shape = ', x.shape)
+
         x = self.conv1_2(x)
         x = self.bn1_2(x)
         x = self.relu(x)
-        #print('--before flow1: x.shape = ', x.shape)
+
         x = self.flow1(x)
         x = self.flow2(x)
         x = self.flow3(x)
+
         x = self.aspp(x)
         
         x = self.concat_conv(x)
         x = self.concat_bn(x)
         x = self.relu(x)
         x = self.dropout(x)
+
         x = self.final_conv(x)
-        #print('--final_resize: x.shape = ', x.shape)        
         x = self.final_resize(x)
         self._freeze()
         return x
 
     def set_output_size(self, output_size):
         self.output_size = output_size
-        #self.fc._output_size = output_size
 
     def _freeze(self):
         self.conv1_1.set_auto_update(self.train_whole)
@@ -421,8 +413,6 @@ class CnnDeeplabv3plus(CnnBase):
         self.flow1.set_auto_update(self.train_whole)
         self.flow2.set_auto_update(self.train_whole)
         self.flow3.set_auto_update(self.train_whole)
-#        self.aspp.image_pool_resize.set_auto_update(False)
-#        self.final_resize.set_auto_update(False)
         self.aspp.image_pool_resize.params.w._auto_update = False
         self.final_resize.params.w._auto_update = False
 

@@ -11,6 +11,7 @@ from renom_img.api import adddoc
 from renom_img.api.segmentation import SemanticSegmentation
 from renom_img.api.utility.optimizer import OptimizerDeeplab
 from renom_img.api.utility.load import load_img
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 RESIZE_METHOD = Image.BILINEAR
 
@@ -52,19 +53,6 @@ class TargetBuilderDeeplab():
 
         return np.asarray(x_list).transpose(0, 3, 1, 2).astype(np.float32), np.asarray(y_list)
 
-    def resize_by_padding(self, img_list, label_list):
-        x_list = []
-        y_list = []
-        for i, (img, label) in enumerate(zip(img_list, label_list)):
-            _, h, w = img.shape
-            padded_img = np.pad(img, ((0,0),(0,self.imsize[0]-h),(0,self.imsize[1]-w)), 'mean')
-            x_list.append(padded_img)
-            _, h, w = label.shape
-            padded_label = np.pad(label,((0,0),(0,self.imsize[0]-h),(0,self.imsize[1]-w)),'constant',constant_values=0)
-            y_list.append(padded_label)
-
-        return np.asarray(x_list).astype(np.float32), np.asarray(y_list)
-
     def load_annotation(self, path):
         """ Loads annotation data
 
@@ -78,10 +66,8 @@ class TargetBuilderDeeplab():
         img = Image.open(path)
         img.load()
         w, h = img.size
-        # img = np.array(img.resize(self.imsize, RESIZE_METHOD))
         img = np.array(img)
-        assert np.sum(np.histogram(img, bins=list(range(256)))[0][N:-1]) == 0
-        assert img.ndim == 2
+        check_segmentation_label(img, N)
         return img, img.shape[0], img.shape[1]
 
     def _load(self, path):
@@ -89,7 +75,6 @@ class TargetBuilderDeeplab():
         img.load()
         w, h = img.size
         img = img.convert('RGB')
-        # img = img.resize(self.imsize, RESIZE_METHOD)
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, w, h
 
@@ -104,6 +89,7 @@ class TargetBuilderDeeplab():
             (tuple): Batch of images and ndarray whose shape is **(batch size, #classes, width, height)**
 
         """
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path,self.imsize)[None]
                                     for path in img_path_list])
@@ -130,10 +116,10 @@ class TargetBuilderDeeplab():
             label_list.append(annot[:n_class])
         if augmentation is not None:
             img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
-            data,label = self.resize_by_padding(img_list, label_list)
+            data,label = self.resize(img_list, label_list)
             return self.preprocess(data),label
         else:
-            data,label = self.resize_by_padding(img_list, label_list)   
+            data,label = self.resize(img_list, label_list)   
             return self.preprocess(data),label
 
 
@@ -141,38 +127,39 @@ class TargetBuilderDeeplab():
 class Deeplabv3plus(SemanticSegmentation):
     """Deeplabv3+ model with modified aligned Xception65 backbone.
 
-    If the argument load_pretrained_weight is True, pretrained weight will be downloaded.
-    The pretrained weight is trained using Imagenet.
-
     Args:
-        class_map: Array of class names.
-        imsize(int or tuple): Input image size.
-        load_pretrained_weight(bool): Loads pretrained Xception65 backbone if True.
-        train_whole_network(bool): Trains all layers in model if True.
+        class_map (list, dict): List of class names.
+          If False, final upscore layer is fixed to bilinear upsampling.
+        imsize (int, tuple): Input image size.
+        scale_factor (int): Reduction factor for output feature maps before upsampling. Current implementation only supports 16.
+        atrous_rates (list): List of dilation factors in ASPP module atrous convolution layers. Current implementation only supports [6,12,18].
+        lr_initial (float): Initial learning rate for poly learning rate schedule. The default value is 1e-4.
+        lr_power (float): Exponential factor for poly learning rate schedule. The default value is 0.9
+        load_pretrained_weight (bool, str): Argument specifying whether or not to load pretrained weight values.
+          If True, pretrained weights will be downloaded to the current directory and loaded as the initial weight values.
+          If a string is given, weight values will be loaded and initialized from the weights in the given file name.
+        train_whole_network (bool): Flag specifying whether to freeze or train the base encoder layers of the model during training.
+          If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     References:
         Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation
         Liang-Chieh Chen, Yukun Zhu, George Papandreou, Florian Schroff, Hartwig Adam
         https://arxiv.org/abs/1802.02611
     """
+    WEIGHT_URL = CnnDeeplabv3plus.WEIGHT_URL
 
-    #WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/Deeplabv3plus.h5".format(
-    #    __version__)
-
-    def __init__(self, class_map=[], imsize=(513, 513), scale_factor=16, atrous_rates = [6,12,18], lr_initial=1e-4, lr_power=0.9, load_pretrained_weight=False, train_whole_network=False):
-
+    def __init__(self, class_map=[], imsize=(321, 321), scale_factor=16, atrous_rates = [6,12,18], lr_initial=1e-4, lr_power=0.9, load_pretrained_weight=False, train_whole_network=False):
+        check_deeplabv3plus_init(imsize, scale_factor, atrous_rates, lr_initial, lr_power)
         self.lr_initial = lr_initial
         self.lr_power = lr_power
-        #if isinstance(imsize, tuple):
-        #    assert imsize[0] == imsize[1], "Current Deeplabv3+ implementation only accepts square image sizes"
         self.scale_factor = scale_factor
         self.imsize = imsize
         self.atrous_rates = atrous_rates
-        self.model = CnnDeeplabv3plus(21, self.imsize, self.scale_factor, self.atrous_rates)
-        super(Deeplabv3plus, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self.model)
+        self._model = CnnDeeplabv3plus(21, self.imsize, self.scale_factor, self.atrous_rates)
+        super(Deeplabv3plus, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
         
         self.default_optimizer = OptimizerDeeplab(self.lr_initial, self.lr_power)
         self.decay_rate = 4e-5
