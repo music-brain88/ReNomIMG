@@ -157,7 +157,7 @@ class AppObserver(TrainObserverBase):
 
     def end(self, train_result):
         self.ts.state = State.STOPPED
-        self.sync_state()
+        self.ts.sync_state()
         self.ts.updated = True
         if is_cuda_active():
             release_mem_pool()
