@@ -478,8 +478,6 @@ def dataset_confirm():
     elif task_id == Task.SEGMENTATION.value:
         train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
         valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
-        print('train_tag_num = ', train_tag_num)
-        print('valid_tag_num = ', valid_tag_num)
 
     if task_id == Task.SEGMENTATION.value: 
         class_info = {
