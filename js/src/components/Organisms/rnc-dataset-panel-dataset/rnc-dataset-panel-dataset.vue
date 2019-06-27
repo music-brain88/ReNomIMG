@@ -32,7 +32,7 @@
                 <div
                   v-for="(item, key) in datasets"
                   ref="key"
-                  :class="{selected: current_dataset===item}"
+                  :class="{selected: selected_dataset===item}"
                   :key="key"
                   class="dataset-item"
                   @click="clickedDatasetsItem(item)"
@@ -168,7 +168,6 @@ export default {
   },
   data: function () {
     return {
-      current_dataset: undefined,
       clicked_dataset_id: undefined,
       isHover: false,
       bar_move: true
@@ -191,71 +190,59 @@ export default {
         return false
       }
     },
-    id: function () {
-      // const d = this.current_dataset
+    selected_dataset: function () {
       if (!this.datasets) return
-      const d = this.datasets[this.clicked_dataset_id]
+      let index = this.datasets.findIndex(n => n.id === this.clicked_dataset_id)
+
+      return this.datasets[index]
+    },
+    id: function () {
+      const d = this.selected_dataset
 
       if (!d) return
       return d.id
     },
     name: function () {
-      // const d = this.current_dataset
-      if (!this.datasets) return
-      const d = this.datasets[this.clicked_dataset_id]
+      const d = this.selected_dataset
 
       if (!d) return
       return d.name
     },
     ratio: function () {
-      // const d = this.current_dataset
-      if (!this.datasets) return
-      const d = this.datasets[this.clicked_dataset_id]
+      const d = this.selected_dataset
 
       if (!d) return
       return d.ratio
     },
     description: function () {
-      // const d = this.current_dataset
-      if (!this.datasets) return
-      const d = this.datasets[this.clicked_dataset_id]
+      const d = this.selected_dataset
 
       if (!d) return
       return d.description
     },
     train_num: function () {
-      // const dataset = this.current_dataset
-      if (!this.datasets) return
-      const d = this.datasets[this.clicked_dataset_id]
+      const d = this.selected_dataset
 
       if (!d) return
       return d.class_info.train_img_num
-      // TODO muraishi: .class_info
     },
     valid_num: function () {
-      // const dataset = this.current_dataset
-      if (!this.datasets) return
-      const d = this.datasets[this.clicked_dataset_id]
+      const d = this.selected_dataset
 
       if (!d) return
       return d.class_info.valid_img_num
-      // TODO muraishi: .class_info
     },
     class_items: function () {
-      // const dataset = this.current_dataset
-      if (!this.datasets) return
-      const d = this.datasets[this.clicked_dataset_id]
+      const d = this.selected_dataset
 
       if (!d) return
       const info = d.class_info
-      // TODO muraishi: .class_info
 
       if (!info) return
       const t = info.train_ratio
       const v = info.valid_ratio
       const c = info.class_ratio
       const n = info.class_map
-      // TODO muraishi: .class_map
 
       if (!t) return
 
@@ -288,19 +275,19 @@ export default {
     getCurrentTask: function () {
       this.reset()
     },
-    current_dataset: function () {
+    selected_dataset: function () {
       this.bar_move = false
       // 少し時間を開けて、モーションが正常稼働しない不具合を解消
       setTimeout(this.barMoveTrue, 50)
     }
   },
   mounted: function () {
-    this.current_dataset = this.datasets[0]
+
   },
   methods: {
     ...mapActions(['loadDatasetsOfCurrentTaskDetail']),
     reset: function () {
-      this.current_dataset = undefined
+      this.selected_dataset = undefined
     },
     barMoveTrue: function () {
       this.bar_move = true
