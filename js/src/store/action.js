@@ -78,11 +78,6 @@ export default {
           context.commit('addModel', model)
           context.dispatch('loadBestValidResult', id)
 
-          // ADD muraishi
-          // model.deployed_model = m.deployed_model
-          // if(model.deployed_model){
-          //   context.commit('setDeployedModel', model)
-          // }
         }
       }, error_handler_creator(context))
   },

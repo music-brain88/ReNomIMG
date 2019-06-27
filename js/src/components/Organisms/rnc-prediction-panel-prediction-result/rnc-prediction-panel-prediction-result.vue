@@ -291,13 +291,6 @@ export default {
   margin-right: 10px;
 }
 
-.pager {
-  padding-right: $padding-small;
-  #pager {
-    justify-content: flex-end;
-  }
-}
-
 #prediction-button-area {
   display: flex;
   align-items: center;
@@ -349,6 +342,13 @@ export default {
 #prediction-area {
   width: 100%;
   height: 100%;
+  .pager {
+    padding-right: $padding-small;
+    height: 5%;
+    #pager {
+      justify-content: flex-end;
+    }
+  }
   #img-container{
     width: 100%;
     height: 95%;

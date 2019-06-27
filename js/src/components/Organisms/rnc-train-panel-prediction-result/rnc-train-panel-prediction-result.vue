@@ -164,6 +164,8 @@ export default {
       const page_num = Math.max(Math.min(current_page, max_page_num), 0)
       this.setImagePageOfValid(page_num)
       current_page = this.getImagePageOfValid
+      console.log('【dataset.page】')
+      console.log(JSON.stringify(dataset.page[current_page]))
       return dataset.page[current_page]
     },
     pageMax: function () {
@@ -234,7 +236,8 @@ export default {
 
       const dataset = this.dataset
       if (!dataset) return
-
+      console.log("【dataset.valid_data】")
+      console.log(dataset.valid_data)
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
       this.$worker.run(setup_image_list,
@@ -263,64 +266,72 @@ export default {
 <style lang='scss' scoped>
 @import './../../../../static/css/unified.scss';
 
-#valid-prediction-button-area {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-  width: 30%;
-  input {
-    display: none;
-    -webkit-appearance: none;
-  }
-  label {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: $component-header-font-family;
-    font-size: 90%;
-    margin-right: 10px;
-  }
-  input[type="checkbox"] {
-    content: "";
-    display: block;
-    height: 12px;
-    width: 12px;
-    border: 1px solid white;
-    border-radius: 6px;
-  }
-  input[type="checkbox"]:checked {
-    content: "";
-    display: block;
-    border: 1px solid white;
-    background-color: white;
-  }
-  input[type="checkbox"]:disabled {
-    content: "";
-    display: block;
-    border: 1px solid gray;
-    background-color: gray;
-  }
-  input[type="checkbox"]:focus {
-      outline:none;
-  }
-}
 
-.pager {
-  padding-right: $padding-small;
-  #pager {
-    justify-content: flex-end;
+.rnc-title-frame {
+  .component-header {
+    #valid-prediction-button-area {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+      width: 30%;
+      input {
+        display: none;
+        -webkit-appearance: none;
+      }
+      label {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: $component-header-font-family;
+        font-size: 90%;
+        margin-right: 10px;
+      }
+      input[type="checkbox"] {
+        content: "";
+        display: block;
+        height: 12px;
+        width: 12px;
+        border: 1px solid white;
+        border-radius: 6px;
+      }
+      input[type="checkbox"]:checked {
+        content: "";
+        display: block;
+        border: 1px solid white;
+        background-color: white;
+      }
+      input[type="checkbox"]:disabled {
+        content: "";
+        display: block;
+        border: 1px solid gray;
+        background-color: gray;
+      }
+      input[type="checkbox"]:focus {
+          outline:none;
+      }
+    }
   }
-}
 
-#img-container{
-  width: 100%;
-  height: 95%;
-  display: flex;
-  flex-wrap: wrap;
-  div:hover {
-    cursor: pointer;
+  .frame-content {
+    .pager {
+      padding-right: $padding-small;
+      height: 5%;
+      #pager {
+        justify-content: flex-end;
+      }
+    }
+
+    #img-container{
+      width: 100%;
+      height: 95%;
+      display: flex;
+      flex-wrap: wrap;
+      div:hover {
+        cursor: pointer;
+      }
+    }
   }
 }
 </style>
