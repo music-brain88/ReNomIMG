@@ -127,7 +127,7 @@ def check_model_exists(model, model_id):
 
 
 def check_weight_exists(filepath, model_id):
-    if os.path.isfile(filepath):
+    if not os.path.isfile(filepath):
         raise WeightNotFoundError("Model {} is exists, but weight file is not found.".format(model_id))
 
 
@@ -330,6 +330,12 @@ def check_model_deployed(model):
     return False
 
 
+def check_img_ext(name):
+    if name.suffix in [".jpg", ".jpeg", ".png", ".bmp"]:
+        return True
+    return False
+
+
 # To use dataset list, because dataset detail Information is not shown in dataset list.
 def dataset_to_light_dict(dataset):
     return {
@@ -365,9 +371,11 @@ def dataset_to_dict(dataset):
 
 # To use model list, model detail information is not shown in model list.
 def model_to_light_dict(model):
-    best_epoch_valid_result = model["best_epoch_valid_result"]
-    # print("***best_epoch_valid_result***", best_epoch_valid_result)
-    if best_epoch_valid_result:
+    # check best_epoch_valid_result exists
+    if model["best_epoch_valid_result"] is None:
+        best_epoch_valid_result = {}
+    else:
+        best_epoch_valid_result = model["best_epoch_valid_result"]
         best_epoch_valid_result["prediction"] = []
 
     return {
@@ -451,6 +459,7 @@ def ndarray_to_list(data):
 
 def split_by_ratio(data, perm, ratio, length):
     print("***data:", data)
+    print("***len(data):", len(data))
     print("***perm:", perm)
     print("***ratio:", ratio)
     print("***length:", length)
@@ -477,7 +486,7 @@ def parse_classification_target(file_names, img_dir):
                   if (img_dir / p).is_file() and (p.name in target_file_list)]
 
     parsed_target = [target[name.name] for name in file_names]
-    return parsed_target, class_map
+    return parsed_target, class_map, file_names
 
 
 def parse_detection_target(file_names, img_dir):
@@ -488,7 +497,7 @@ def parse_detection_target(file_names, img_dir):
 
     xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
     parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
-    return parsed_target, class_map
+    return parsed_target, class_map, file_names
 
 
 def parse_segmentation_target(file_names, img_dir):
@@ -500,7 +509,7 @@ def parse_segmentation_target(file_names, img_dir):
     parsed_target = [str(segmentation_label_dir / name.with_suffix(".png"))
                      for name in file_names]
     class_map = parse_classmap_file(str(segmentation_label_dir / "class_map.txt"))
-    return parsed_target, class_map
+    return parsed_target, class_map, file_names
 
 
 def strip_path(filename):
@@ -636,7 +645,6 @@ def export_csv(model_id):
         model = storage.fetch_model(model_id)
         prediction = model["last_prediction_result"]
         task_id = model["task_id"]
-        print(task_id)
         ret = []
         if task_id == Task.CLASSIFICATION.value:
             img_path = prediction["img"]
@@ -1470,7 +1478,7 @@ def create_dataset(task_name):
     check_dir_exists(label_dir)
 
     file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
-                  if name.is_file()]
+                  if name.is_file() and check_img_ext(name)]
 
     # ckeck test dataset exists
     if test_dataset_id > 0:
@@ -1485,21 +1493,28 @@ def create_dataset(task_name):
     # parse label data
     # TODO: create parser
     if task_id == Task.CLASSIFICATION.value:
-        parsed_target, class_map = parse_classification_target(file_names, img_dir)
+        parsed_target, class_map, file_names = parse_classification_target(file_names, img_dir)
     elif task_id == Task.DETECTION.value:
-        parsed_target, class_map = parse_detection_target(file_names, img_dir)
+        parsed_target, class_map, file_names = parse_detection_target(file_names, img_dir)
     elif task_id == Task.SEGMENTATION.value:
-        parsed_target, class_map = parse_segmentation_target(file_names, img_dir)
+        parsed_target, class_map, file_names = parse_segmentation_target(file_names, img_dir)
 
     # Split into train and valid.
     n_imgs = len(file_names)
     perm = np.random.permutation(n_imgs)
 
+    print("***len(file_names):", len(file_names))
+    print("***len(img_files):", len(img_files))
+    print("***len(parsed_target):", len(parsed_target))
+    print("***len(perm):", len(perm))
+
+    print("<split_by_ratio img_files>")
     train_img, valid_img = split_by_ratio(img_files, perm, ratio, n_imgs)
     train_img = ndarray_to_list(train_img)
     valid_img = ndarray_to_list(valid_img)
     valid_img_size = [list(Image.open(i).size) for i in valid_img]
 
+    print("<split_by_ratio parsed_target>")
     train_target, valid_target = split_by_ratio(parsed_target, perm, ratio, n_imgs)
     train_target = ndarray_to_list(train_target)
     valid_target = ndarray_to_list(valid_target)
@@ -1617,14 +1632,26 @@ def get_models(task_name):
     if state == "running":
         models = storage.fetch_running_models(task_id)
     elif state == "deployed":
-        models = storage.fetch_deployed_model(task_id)
+        m = storage.fetch_deployed_model(task_id)
+        if m is None:
+            models = []
+        else:
+            models = [m]
     else:
         models = storage.fetch_models_of_task(task_id)
 
-    print("*** state:", state)
+    print("*** state of get_models:", state)
     print("*** model of get_models:", models)
-
-    ret = {'models': [model_to_light_dict(m) for m in models]}
+    if models is not None:
+        ret = {'models': [model_to_light_dict(m) for m in models]}
+    # if models is not None and state != "deployed":
+    #     print("<*** NOT deployed>")
+    #     ret = {'models': [model_to_light_dict(m) for m in models]}
+    # elif models is not None and state == "deployed":
+    #     print("<*** deployed>")
+    #     ret = {'models': [model_to_light_dict(models)]}
+    else:
+        ret = {'models': []}
     return create_response(ret, status=200)
 
 # 旧ソース
@@ -2006,7 +2033,6 @@ def get_prediction_result(task_name):
 
     model = storage.fetch_model(model_id)
     prediction = model["last_prediction_result"]
-    print(prediction)
 
     # Shaping data by task & format.
     resolver = get_formatter_resolver(task_id)

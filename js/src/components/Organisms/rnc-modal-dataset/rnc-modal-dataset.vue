@@ -237,7 +237,6 @@ export default {
     info: function () {
       const dataset = this.confirming_dataset
       if (!dataset) return
-      // TODO muraishi: .class_info
       const info = dataset.class_info
       return info
     },
@@ -259,7 +258,6 @@ export default {
     class_items: function () {
       const dataset = this.confirming_dataset
       if (!dataset) return
-      // TODO muraishi: .class_map
       const class_map = dataset.class_map
       if (!this.info) return
       const train_list = this.info.train_ratio

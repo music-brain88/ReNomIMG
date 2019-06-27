@@ -143,7 +143,7 @@ class Storage:
         model = None
         with SessionContext() as session:
             task = session.query(Task).filter(Task.id == task_id).first()
-            if task:
+            if task and task.deployed_model_id is not None:
                 model = session.query(Model).filter(Model.id == task.deployed_model_id)
                 if model.first():
                     model = self.remove_instance_state_key(model)[0]
