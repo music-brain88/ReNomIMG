@@ -185,7 +185,6 @@ def error_message_dataset_desc(desc):
 
 
 def check_create_dataset_params(params):
-    print(params)
     messages = []
     # check params has name.
     name = params.get("name", None)
@@ -327,6 +326,12 @@ def check_dir_exists(dirname):
 def check_model_deployed(model):
     deployed_model = storage.fetch_deployed_model(model["task_id"])
     if deployed_model is not None and model["id"] == deployed_model["id"]:
+        return True
+    return False
+
+
+def check_img_ext(name):
+    if name.suffix in [".jpg", ".jpeg", ".png", ".bmp"]:
         return True
     return False
 
@@ -481,7 +486,7 @@ def parse_classification_target(file_names, img_dir):
                   if (img_dir / p).is_file() and (p.name in target_file_list)]
 
     parsed_target = [target[name.name] for name in file_names]
-    return parsed_target, class_map
+    return parsed_target, class_map, file_names
 
 
 def parse_detection_target(file_names, img_dir):
@@ -492,7 +497,7 @@ def parse_detection_target(file_names, img_dir):
 
     xml_files = [str(detection_label_dir / name.with_suffix('.xml')) for name in file_names]
     parsed_target, class_map = parse_xml_detection(xml_files, num_thread=8)
-    return parsed_target, class_map
+    return parsed_target, class_map, file_names
 
 
 def parse_segmentation_target(file_names, img_dir):
@@ -504,7 +509,7 @@ def parse_segmentation_target(file_names, img_dir):
     parsed_target = [str(segmentation_label_dir / name.with_suffix(".png"))
                      for name in file_names]
     class_map = parse_classmap_file(str(segmentation_label_dir / "class_map.txt"))
-    return parsed_target, class_map
+    return parsed_target, class_map, file_names
 
 
 def strip_path(filename):
@@ -640,7 +645,6 @@ def export_csv(model_id):
         model = storage.fetch_model(model_id)
         prediction = model["last_prediction_result"]
         task_id = model["task_id"]
-        print(task_id)
         ret = []
         if task_id == Task.CLASSIFICATION.value:
             img_path = prediction["img"]
@@ -1453,7 +1457,6 @@ def create_dataset(task_name):
     """
     task_id = get_task_id_by_name(task_name)
     req_params = request.json
-    print(req_params)
     check_create_dataset_params(req_params)
 
     # Receive params here.
@@ -1475,7 +1478,7 @@ def create_dataset(task_name):
     check_dir_exists(label_dir)
 
     file_names = [name.relative_to(img_dir) for name in img_dir.iterdir()
-                  if name.is_file()]
+                  if name.is_file() and check_img_ext(name)]
 
     # ckeck test dataset exists
     if test_dataset_id > 0:
@@ -1490,11 +1493,11 @@ def create_dataset(task_name):
     # parse label data
     # TODO: create parser
     if task_id == Task.CLASSIFICATION.value:
-        parsed_target, class_map = parse_classification_target(file_names, img_dir)
+        parsed_target, class_map, file_names = parse_classification_target(file_names, img_dir)
     elif task_id == Task.DETECTION.value:
-        parsed_target, class_map = parse_detection_target(file_names, img_dir)
+        parsed_target, class_map, file_names = parse_detection_target(file_names, img_dir)
     elif task_id == Task.SEGMENTATION.value:
-        parsed_target, class_map = parse_segmentation_target(file_names, img_dir)
+        parsed_target, class_map, file_names = parse_segmentation_target(file_names, img_dir)
 
     # Split into train and valid.
     n_imgs = len(file_names)
@@ -2030,7 +2033,6 @@ def get_prediction_result(task_name):
 
     model = storage.fetch_model(model_id)
     prediction = model["last_prediction_result"]
-    print(prediction)
 
     # Shaping data by task & format.
     resolver = get_formatter_resolver(task_id)
