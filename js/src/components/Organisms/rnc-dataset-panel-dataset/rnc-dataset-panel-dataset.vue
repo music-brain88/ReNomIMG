@@ -170,7 +170,7 @@ export default {
     return {
       clicked_dataset_id: undefined,
       isHover: false,
-      bar_move: true
+      bar_move: false
     }
   },
   computed: {
@@ -193,7 +193,8 @@ export default {
     selected_dataset: function () {
       if (!this.datasets) return
       let index = this.datasets.findIndex(n => n.id === this.clicked_dataset_id)
-
+      // 少し時間を開けて、モーションが正常稼働しない不具合を解消
+      setTimeout(this.barMoveTrue, 50)
       return this.datasets[index]
     },
     id: function () {
@@ -274,11 +275,6 @@ export default {
   watch: {
     getCurrentTask: function () {
       this.reset()
-    },
-    selected_dataset: function () {
-      this.bar_move = false
-      // 少し時間を開けて、モーションが正常稼働しない不具合を解消
-      setTimeout(this.barMoveTrue, 50)
     }
   },
   mounted: function () {
@@ -295,6 +291,7 @@ export default {
     clickedDatasetsItem: function (dataset) {
       this.loadDatasetsOfCurrentTaskDetail(dataset.id)
       this.clicked_dataset_id = dataset.id
+      this.bar_move = false
     }
   }
 }
