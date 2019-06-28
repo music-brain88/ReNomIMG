@@ -77,7 +77,7 @@ export default {
           model.last_prediction_result = m.last_prediction_result
 
           context.commit('addModel', model)
-          context.dispatch('loadBestValidResult', id)
+          // TODO: context.dispatch('loadBestValidResult', id)
         }
       }, error_handler_creator(context))
   },
@@ -124,7 +124,7 @@ export default {
         // TODO muraishi: no need updateModel?? if dont have to contain model details
         context.commit('updateModel', model)
         context.commit('setSelectedModel', model)
-        context.dispatch('loadBestValidResult', id)
+        // TODO: context.dispatch('loadBestValidResult', id)
       }, error_handler_creator(context))
   },
 
@@ -407,6 +407,7 @@ export default {
         model.last_batch_loss = r.last_batch_loss
         model.train_loss_list = (r.train_loss_list) ? r.train_loss_list : []
         model.valid_loss_list = (r.valid_loss_list) ? r.valid_loss_list : []
+        model.best_epoch_valid_result = r.best_epoch_valid_result
 
         if (state === STATE.STOPPED) {
 
@@ -414,7 +415,9 @@ export default {
           context.dispatch('pollingTrain', model_id)
         }
         if (load_best) {
-          context.dispatch('loadBestValidResult', model_id)
+          // TODO: context.dispatch('loadBestValidResult', model_id)
+          context.commit('forceUpdateModelList')
+          context.commit('forceUpdatePredictionPage')
         }
       }
     }, error_handler_creator(context, function () {
@@ -424,12 +427,14 @@ export default {
   /** ***
    *
    */
+  /* TODO: 「best_epoch_valid_result」は直接値を含めて返ってくる仕様に変更
   async loadBestValidResult (context, payload) {
-    const model_id = payload.model_id
-
+    const model_id = payload
+    console.log('*** model_id of 【loadBestValidResult】:', model_id)
     const model = context.getters.getModelById(model_id)
 
     if (model) {
+      console.log('*** commit実行 of 【loadBestValidResult】')
       model.best_epoch_valid_result = payload.best_result
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
@@ -447,6 +452,7 @@ export default {
     //   }
     // }, error_handler_creator(context))
   },
+*/
 
   async runPredictionThread (context, payload) {
     const task_name = context.getters.getCurrentTaskName
@@ -464,8 +470,8 @@ export default {
       model_id: model_id
     })
       .then(function (response) {
-        // TODO: console.log('【runPredictionThread】')
-        // TODO: console.log(response)
+        console.log('【runPredictionThread】')
+        console.log(response)
 
         context.dispatch('startAllPolling')
       }, error_handler_creator(context))
@@ -487,8 +493,8 @@ export default {
     // Register request.
     context.commit('addPollingJob', request_source)
     return axios.get(url).then(function (response) {
-      // TODO: console.log('【pollingPrediction】')
-      // TODO: console.log(response.data)
+      console.log('【pollingPrediction】')
+      console.log(response.data)
 
       // This 'response' can be empty.
 
@@ -583,12 +589,12 @@ export default {
    *
    */
   async startAllPolling (context, payload) {
-    // TODO: console.log('### startAllPolling STRAT ###')
+    console.log('### startAllPolling STRAT ###')
     const model_list = context.state.models.filter(m => m.id >= 0)
     const current_train_requests = context.state.polling_request_jobs.train
     const current_prediction_requests = context.state.polling_request_jobs.prediction
 
-    // TODO: console.log('### model_list of 【startAllPolling】 ###:' + model_list)
+    console.log('### model_list of 【startAllPolling】 ###:', model_list)
     // TODO: console.dir(model_list)
 
     for (const m of model_list) {
@@ -606,9 +612,9 @@ export default {
           }
         }
 
-        // TODO: console.log('### need_run_request of 【startAllPolling】 ###:' + need_run_request)
+        console.log('### need_run_request(pollingTrain) of 【startAllPolling】 ###:' + need_run_request)
         if (need_run_request) {
-          // TODO: console.log('### dispatch【pollingTrain】###')
+          console.log('### dispatch【pollingTrain】###')
           context.dispatch('pollingTrain', m.id)
         }
       } else if (
@@ -622,7 +628,9 @@ export default {
             need_run_request = false
           }
         }
+        console.log('### need_run_request(pollingPrediction) of 【startAllPolling】 ###:' + need_run_request)
         if (need_run_request) {
+          console.log('### dispatch【pollingPrediction】###')
           context.dispatch('pollingPrediction', m.id)
         }
       }
