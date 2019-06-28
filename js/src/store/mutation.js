@@ -37,6 +37,8 @@ export default {
     state.group_by = key
   },
   setSelectedModel (state, payload) {
+    console.log('MUTATION:setSelectedModel')
+    console.log(payload)
     const task_id = state.current_task
     state.selected_model = Object.assign({ ...state.selected_model }, { [task_id]: payload })
   },
@@ -80,8 +82,24 @@ export default {
     state.confirming_test_dataset = payload
   },
   addDataset (state, payload) {
+    console.log('MUTATION:addDataset')
+    console.log(payload)
     if (state.datasets.find(n => n.id === payload.id) === undefined) {
       state.datasets = [payload, ...state.datasets]
+    }
+  },
+  updateDataset (state, payload) {
+    console.log('MUTATION:updateDataset')
+    console.log(payload)
+    const new_dataset = payload
+    if (state.datasets.find(n => n.id === new_dataset.id) === undefined) {
+      state.datasets = [new_dataset, ...state.datasets]
+    } else {
+      const old_datasets = state.datasets
+      const index = old_datasets.findIndex(n => n.id === new_dataset.id)
+      old_datasets.splice(index, 1, new_dataset)
+
+      state.datasets = old_datasets
     }
   },
   addTestDataset (state, payload) {
@@ -92,6 +110,21 @@ export default {
   addModel (state, payload) {
     if (state.models.find(n => n.id === payload.id) === undefined) {
       state.models = [payload, ...state.models]
+    }
+  },
+  updateModel (state, payload) {
+    console.log('MUTATION:updateModel')
+    console.log(payload)
+    const new_model = payload
+    if (state.models.find(n => n.id === new_model.id) === undefined) {
+      state.models = [new_model, ...state.models]
+    } else {
+      const old_models = state.models
+      const index = old_models.findIndex(n => n.id === new_model.id)
+      old_models.splice(index, 1, new_model)
+      console.log('newly maded models', old_models)
+
+      state.models = old_models
     }
   },
   rmModel (state, payload) {

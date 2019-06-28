@@ -14,6 +14,7 @@ from renom_img.server.utility.DAO import Session
 from renom_img.server.utility.DAO import engine
 from renom_img.server.utility.table import *
 from renom_img.server import Task as TaskConst
+from renom_img.server import State
 TOTAL_ALOGORITHM_NUMBER = 3
 TOTAL_TASK = 3
 
@@ -126,6 +127,7 @@ class Storage:
             model = session.query(Model).filter(Model.id == model_id).first()
             task = session.query(Task).filter(Task.id == model.task_id).first()
             if model:
+                print("***deployed_model_id UPDATE:", model.id)
                 task.deployed_model_id = model.id
         return
 
@@ -133,6 +135,7 @@ class Storage:
         with SessionContext() as session:
             task = session.query(Task).filter(Task.id == task_id).first()
             if task:
+                print("***deployed_model_id UPDATE: None")
                 task.deployed_model_id = None
         return
 
@@ -140,7 +143,7 @@ class Storage:
         model = None
         with SessionContext() as session:
             task = session.query(Task).filter(Task.id == task_id).first()
-            if task:
+            if task and task.deployed_model_id is not None:
                 model = session.query(Model).filter(Model.id == task.deployed_model_id)
                 if model.first():
                     model = self.remove_instance_state_key(model)[0]
@@ -214,7 +217,9 @@ class Storage:
         with SessionContext() as session:
             result = session.query(Dataset).filter(Dataset.id == id)
             dict_result = self.remove_instance_state_key(result)
-            assert dict_result
+            # assert dict_result
+            if len(dict_result) == 0:
+                return None
             return dict_result[0]
 
     def register_dataset(self, task_id, name, description, ratio,
@@ -277,6 +282,19 @@ class Storage:
                         res_dict[key] = value
             dict_result.append(res_dict)
         return dict_result
+
+    def remove_dataset(self, id):
+        with SessionContext() as session:
+            result = session.query(Dataset).filter(Dataset.id == id).first()
+            if result:
+                session.delete(result)
+        return
+
+    def fetch_running_models(self, task_id):
+        with SessionContext() as session:
+            result = session.query(Model).filter(Model.task_id == task_id).filter(Model.state == State.STARTED.value)
+            dict_result = self.remove_instance_state_key(result)
+            return dict_result
 
 
 global storage

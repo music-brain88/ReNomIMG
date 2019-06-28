@@ -170,7 +170,8 @@ class TrainThread(object):
     semaphore = EventSemaphore(MAX_THREAD_NUM)  # Cancellable semaphore.
     # semaphore = Semaphore(MAX_THREAD_NUM)
 
-    def __new__(cls, model_id):
+    @classmethod
+    def add_thread(cls, model_id):
         ret = super(TrainThread, cls).__new__(cls)
         cls.jobs[model_id] = ret
         return ret

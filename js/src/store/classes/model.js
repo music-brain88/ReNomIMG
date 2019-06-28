@@ -27,7 +27,9 @@ export default class Model {
     this.valid_loss_list = []
 
     this.best_epoch_valid_result = null
-    this.prediction_result = null
+
+    // CHANEGE muraishi
+    this.last_prediction_result = null
 
     this.model_list = []
   }
@@ -140,6 +142,7 @@ export default class Model {
   }
   getValidResult (index) {
     const task = this.task_id
+    // TODO muraishi: best_epoch_valid_result.prediction
     const ret = this.best_epoch_valid_result
     if (!ret) return
     const pred = ret.prediction
@@ -155,7 +158,9 @@ export default class Model {
   }
   getPredictionResult (index) {
     const task = this.task_id
-    const ret = this.prediction_result
+
+    // CHANEGE muraishi
+    const ret = this.last_prediction_result
     if (!ret) return
     const pred = ret.prediction
     if (!pred) return
