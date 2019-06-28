@@ -586,7 +586,7 @@ def error_handler(func):
             e = ServiceUnavailableError("DB tempolary unavailable.")
             logging_error(e)
             return create_error_response(e, status=503)
-        except (DirectoryNotFound, Exception) as e:
+        except (DirectoryNotFound, ReNomIMGError,  Exception) as e:
             logging_error(e)
             return create_error_response(e, status=500)
     return wrapped
