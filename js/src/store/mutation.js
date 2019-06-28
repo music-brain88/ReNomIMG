@@ -37,8 +37,8 @@ export default {
     state.group_by = key
   },
   setSelectedModel (state, payload) {
-    console.log('MUTATION:setSelectedModel')
-    console.log(payload)
+    // TODO: console.log('MUTATION:setSelectedModel')
+    // TODO: console.log(payload)
     const task_id = state.current_task
     state.selected_model = Object.assign({ ...state.selected_model }, { [task_id]: payload })
   },
@@ -82,15 +82,15 @@ export default {
     state.confirming_test_dataset = payload
   },
   addDataset (state, payload) {
-    console.log('MUTATION:addDataset')
-    console.log(payload)
+    // TODO: console.log('MUTATION:addDataset')
+    // TODO: console.log(payload)
     if (state.datasets.find(n => n.id === payload.id) === undefined) {
       state.datasets = [payload, ...state.datasets]
     }
   },
   updateDataset (state, payload) {
-    console.log('MUTATION:updateDataset')
-    console.log(payload)
+    // TODO: console.log('MUTATION:updateDataset')
+    // TODO: console.log(payload)
     const new_dataset = payload
     if (state.datasets.find(n => n.id === new_dataset.id) === undefined) {
       state.datasets = [new_dataset, ...state.datasets]
@@ -109,12 +109,13 @@ export default {
   },
   addModel (state, payload) {
     if (state.models.find(n => n.id === payload.id) === undefined) {
+      // TODO: console.log('payload of MUTATION【addModel】', payload)
       state.models = [payload, ...state.models]
     }
   },
   updateModel (state, payload) {
-    console.log('MUTATION:updateModel')
-    console.log(payload)
+    // TODO: console.log('MUTATION:【updateModel】')
+    // TODO: console.log(payload)
     const new_model = payload
     if (state.models.find(n => n.id === new_model.id) === undefined) {
       state.models = [new_model, ...state.models]
@@ -122,7 +123,7 @@ export default {
       const old_models = state.models
       const index = old_models.findIndex(n => n.id === new_model.id)
       old_models.splice(index, 1, new_model)
-      console.log('newly maded models', old_models)
+      // TODO: console.log('newly maded models', old_models)
 
       state.models = old_models
     }
@@ -144,13 +145,13 @@ export default {
     state.filters = state.filters.filter(f => f !== payload)
   },
   addPollingJob (state, payload) {
-    console.log('###### MUTATION 【addPollingJob】START#######')
+    // TODO: console.log('###### MUTATION 【addPollingJob】START#######')
     const key = Object.keys(payload)[0]
     const model_id = payload[key]
     state.polling_request_jobs[key] = [...state.polling_request_jobs[key], model_id]
   },
   rmPollingJob (state, payload) {
-    console.log('###### MUTATION 【rmPollingJob】START#######')
+    // TODO: console.log('###### MUTATION 【rmPollingJob】START#######')
     const key = Object.keys(payload)[0]
     const model_id = payload[key]
     state.polling_request_jobs[key] = state.polling_request_jobs[key].filter(n => n !== model_id)
