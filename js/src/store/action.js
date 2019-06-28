@@ -7,8 +7,11 @@ function error_handler_creator (context, callback = undefined) {
   return function (error) {
     const status = error.response.status
     if ([200, 400, 403, 404, 405, 500, 503].includes(status)) {
-      const message = error.response.data.error.message
-      context.commit('showAlert', '【' + status + ' Error】: ' + message)
+      if (error.response.data || error.response.data.error){
+        console.log("error.response.data.error", error.response.data.error)
+        const message = error.response.data.error.message
+        context.commit('showAlert', '【' + status + ' Error】: ' + message)
+      }
     }
     if (callback) {
       callback()
@@ -28,7 +31,6 @@ export default {
     // TODO: context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask', 'all')
     // await context.dispatch('loadModelsOfCurrentTask', 'running')// TODO: 必要？タイミングは？
-    // TODO:↓村石さんので一度試してみるけど念の為。
     // await context.dispatch('loadModelsOfCurrentTask', 'deployed')// TODO: 必要？タイミングは？
     await context.dispatch('loadDeployedModel')
     // TODO: await context.dispatch('loadDeployedModel')
@@ -47,9 +49,6 @@ export default {
     const url = '/api/renom_img/v2/api/' + task_name + '/models?state=' + state
     return axios.get(url)
       .then(function (response) {
-        console.log('【loadModelsOfCurrentTask】<<' + state + '>>')
-        console.log(response.data)
-
         if (response.status === 204) return
         // const model_list = response.data.model_list  // TODO:名称変更していた。
         const model_list = response.data.models
@@ -72,18 +71,16 @@ export default {
           model.valid_loss_list = m.valid_loss_list
           model.best_epoch_valid_result = m.best_epoch_valid_result
           model.last_batch_loss = m.last_batch_loss
-
-          // ADD muraishi
           model.last_prediction_result = m.last_prediction_result
-
           context.commit('addModel', model)
-          context.dispatch('loadBestValidResult', id)
+
+          // context.dispatch('forceUpdatePage', id)
         }
       }, error_handler_creator(context))
   },
 
   /** ***
-   * TODO muraishi: 1
+   *
    */
   async loadModelsOfCurrentTaskDetail (context, payload) {
     const task_name = context.getters.getCurrentTaskName
@@ -91,12 +88,7 @@ export default {
     const url = '/api/renom_img/v2/api/' + task_name + '/models/' + model_id
     return axios.get(url)
       .then(function (response) {
-        console.log('【loadModelsOfCurrentTaskDetail】')
-        console.log(response.data)
-
         if (response.status === 204) return
-
-        // ADD muraishi
         const m = response.data.model
 
         const algorithm_id = m.algorithm_id
@@ -117,14 +109,13 @@ export default {
         model.valid_loss_list = m.valid_loss_list
         model.best_epoch_valid_result = m.best_epoch_valid_result
         model.last_batch_loss = m.last_batch_loss
-
-        // ADD muraishi
         model.last_prediction_result = m.last_prediction_result
-
-        // TODO muraishi: no need updateModel?? if dont have to contain model details
         context.commit('updateModel', model)
-        context.commit('setSelectedModel', model)
-        context.dispatch('loadBestValidResult', id)
+
+        //　TODO muraishi : 呼び出し元でやる
+        // context.commit('setSelectedModel', model)
+        // context.dispatch('forceUpdatePage', model.id)
+
       }, error_handler_creator(context))
   },
 
@@ -134,9 +125,6 @@ export default {
     const url = '/api/renom_img/v2/api/' + task_name + '/models?state=deployed'
     return axios.get(url)
       .then(function (response) {
-        console.log('【loadDeployedModel】')
-        console.log(response.data)
-
         if (response.status === 204) return
         if (!response.data.models[0]) return
         const m = response.data.models[0]
@@ -159,14 +147,13 @@ export default {
         model.valid_loss_list = m.valid_loss_list
         model.best_epoch_valid_result = m.best_epoch_valid_result
         model.last_batch_loss = m.last_batch_loss
-
-        // ADD muraishi
         model.last_prediction_result = m.last_prediction_result
+        context.commit('updateModel', model)
 
-        context.commit('setDeployedModel', model)
+        const deployed_model = context.getters.getModelById(model.id)
+        context.commit('setDeployedModel', deployed_model)
 
-        // TODO muraishi : after '/renom_img/v2/api/' + task_name + '/prediction' is solved
-        // this.dispatch('loadPredictionResult', model.id)
+        // this.dispatch('forceUpdatePage', deployed_model.id)
       }, error_handler_creator(context))
   },
 
@@ -180,11 +167,7 @@ export default {
     const url = '/api/renom_img/v2/api/' + task_name + '/datasets'
     return axios.get(url)
       .then(function (response) {
-        console.log('【loadDatasetsOfCurrentTask】')
-        console.log(response.data)
-
         if (response.status === 204) return
-        // for (const ds of response.data.dataset_list) { // TODO: 名称変更していた
         for (const ds of response.data.datasets) {
           const id = ds.id
           const class_map = ds.class_map
@@ -206,7 +189,7 @@ export default {
   },
 
   /** ***
-   *muraishi :2
+   *
    */
   async loadDatasetsOfCurrentTaskDetail (context, payload) {
     const task_name = context.getters.getCurrentTaskName
@@ -214,11 +197,7 @@ export default {
     const url = '/api/renom_img/v2/api/' + task_name + '/datasets/' + dataset_id
     return axios.get(url)
       .then(function (response) {
-        console.log('【loadDatasetsOfCurrentTaskDetail】')
-        console.log(response.data)
         if (response.status === 204) return
-
-        // ADD muraishi
         const ds = response.data.dataset
 
         const id = ds.id
@@ -240,7 +219,7 @@ export default {
   },
 
   /** ***
-   *TODO:
+   *TODO: not using currently
 
   async loadTestDatasetsOfCurrentTask (context) {
     const task_id = context.getters.getCurrentTask
@@ -267,7 +246,7 @@ export default {
    */
 
   /** ***
-   * TODO muraishi
+   *
    */
   async createModel (context, payload) {
     // TODO: const url = '/api/renom_img/v2/model/create'
@@ -287,13 +266,6 @@ export default {
     // param.append('dataset_id', dataset_id)
     // param.append('task_id', task_id)
     // param.append('algorithm_id', algorithm_id)
-    console.log('**createModel param**')
-    // console.log(param)
-    console.log('dataset_id: ' + dataset_id)
-    console.log('task_id: ' + task_id)
-    console.log('algorithm_id: ' + algorithm_id)
-    console.log('hyper_parameters: ' + JSON.stringify(hyper_params))
-    console.log('素のhyper_parameters: ' + hyper_params)
     return axios.post(url, {
       hyper_parameters: hyper_params,
       dataset_id: dataset_id,
@@ -301,12 +273,8 @@ export default {
       algorithm_id: algorithm_id,
     })
       .then(function (response) {
-        console.log('【createModel】')
-        console.log(response.data)
-
         if (response.status === 204) return
         const id = response.data.model.id
-        console.log('*****id: ' + id)
         model.id = id
         model.state = STATE.RESERVED
         context.dispatch('runTrainThread', id)
@@ -322,9 +290,6 @@ export default {
     const url = '/api/renom_img/v2/api/' + task_name + '/models/' + model_id
     return axios.delete(url)
       .then(function (response) {
-        console.log('【removeModel】')
-        console.log(response)
-
         if (response.status === 204) return
         context.commit('rmModel', model_id)
       }, error_handler_creator(context))
@@ -340,15 +305,12 @@ export default {
     const url = '/api/renom_img/v2/api/' + task_name + '/train'
     // const param = new FormData()
     // param.append('model_id', model_id)
-    console.log('【runTrainThread の model_id】', model_id)
+
 
     return axios.post(url, {
       model_id: model_id
     })
       .then(function (response) {
-        console.log('【runTrainThread】')
-        console.log(response)
-
         const model = context.getters.getModelById(model_id)
         model.state = STATE.CREATED // TODO: Remove this line.
         context.dispatch('startAllPolling')
@@ -374,9 +336,6 @@ export default {
     // Register request.
     context.commit('addPollingJob', request_source)
     return axios.get(url).then(function (response) {
-      console.log('【pollingTrain】')
-      console.log(response.data)
-
       // This 'response' can be empty.
 
       // Check and run other model's polling.
@@ -409,38 +368,15 @@ export default {
           context.dispatch('pollingTrain', model_id)
         }
         if (load_best) {
-          context.dispatch('loadBestValidResult', model_id)
+          context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
+          // context.dispatch('forceUpdatePage', model_id)
         }
       }
     }, error_handler_creator(context, function () {
       // Need to reload Model State.
     }))
   },
-  /** ***
-   *
-   */
-  async loadBestValidResult (context, payload) {
-    const model_id = payload
 
-    // TODO: commitは必要か？
-    const model = context.getters.getModelById(model_id)
-    if (model) {
-      context.commit('forceUpdateModelList')
-      context.commit('forceUpdatePredictionPage')
-    }
-
-    // TODO: const url = '/api/renom_img/v2/model/load/best/result/' + model_id
-    // return axios.get(url).then(function (response) {
-    //   const model = context.getters.getModelById(model_id)
-    //   if (model) {
-    //     const r = response.data
-    //     const best_result = r.best_result
-    //     model.best_epoch_valid_result = best_result
-    //     context.commit('forceUpdateModelList')
-    //     context.commit('forceUpdatePredictionPage')
-    //   }
-    // }, error_handler_creator(context))
-  },
 
   async runPredictionThread (context, payload) {
     const task_name = context.getters.getCurrentTaskName
@@ -458,9 +394,6 @@ export default {
       model_id: model_id
     })
       .then(function (response) {
-        console.log('【runPredictionThread】')
-        console.log(response)
-
         context.dispatch('startAllPolling')
       }, error_handler_creator(context))
   },
@@ -481,9 +414,6 @@ export default {
     // Register request.
     context.commit('addPollingJob', request_source)
     return axios.get(url).then(function (response) {
-      console.log('【pollingPrediction】')
-      console.log(response.data)
-
       // This 'response' can be empty.
 
       // Check and run other model's polling.
@@ -511,7 +441,10 @@ export default {
           context.dispatch('pollingPrediction', model_id)
         }
         if (need_pull) {
-          context.dispatch('loadPredictionResult', model_id)
+          context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
+          context.commit('forceUpdatePredictionPage')
+
+          // context.dispatch('forceUpdatePage', model_id)
         }
       }
     }, error_handler_creator(context, function () {
@@ -519,24 +452,13 @@ export default {
     }))
   },
 
-  async loadPredictionResult (context, payload) {
+  async forceUpdatePage (context, payload) {
     const model_id = payload
-
     const model = context.getters.getModelById(model_id)
     if (model) {
+      context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
     }
-
-    // TODO: const url = '/api/renom_img/v2/model/load/prediction/result/' + model_id
-    // return axios.get(url).then(function (response) {
-    //   const model = context.getters.getModelById(model_id)
-    //   if (model) {
-    //     const r = response.data
-    //     const result = r.result
-    //     model.last_prediction_result = result
-    //     context.commit('forceUpdatePredictionPage')
-    //   }
-    // }, error_handler_creator(context))
   },
 
   /** ***
@@ -568,13 +490,12 @@ export default {
     return axios.delete(url, {
       model_id: model_id
     }).then(function (response) {
-      console.log('【stopModelTrain】')
-      console.log(response)
+
     }, error_handler_creator(context))
   },
 
   /** ***
-   *
+   * disern the kind of job (Train or Predict)
    */
   async startAllPolling (context, payload) {
     const model_list = context.state.models.filter(m => m.id >= 0)
@@ -615,6 +536,53 @@ export default {
   },
 
   /** ***
+   *
+   */
+  // async loadBestValidResult (context, payload) {
+    // const model_id = payload
+
+    // const model = context.getters.getModelById(model_id)
+    // if (model) {
+    //   context.commit('forceUpdateModelList')
+    //   context.commit('forceUpdatePredictionPage')
+    // }
+
+    // TODO: const url = '/api/renom_img/v2/model/load/best/result/' + model_id
+    // return axios.get(url).then(function (response) {
+    //   const model = context.getters.getModelById(model_id)
+    //   if (model) {
+    //     const r = response.data
+    //     const best_result = r.best_result
+    //     model.best_epoch_valid_result = best_result
+    //     context.commit('forceUpdateModelList')
+    //     context.commit('forceUpdatePredictionPage')
+    //   }
+    // }, error_handler_creator(context))
+  // },
+
+  // async loadPredictionResult (context, payload) {
+  //   const model_id = payload
+  //
+  //   const model = context.getters.getModelById(model_id)
+  //   if (model) {
+  //     context.commit('forceUpdatePredictionPage')
+  //   }
+
+    // TODO: const url = '/api/renom_img/v2/model/load/prediction/result/' + model_id
+    // return axios.get(url).then(function (response) {
+    //   const model = context.getters.getModelById(model_id)
+    //   if (model) {
+    //     const r = response.data
+    //     const result = r.result
+    //     model.last_prediction_result = result
+    //     context.commit('forceUpdatePredictionPage')
+    //   }
+    // }, error_handler_creator(context))
+  // },
+
+
+
+  /** ***
    * PUT the tempDataset : not using in current version v2.2
    */
   async createDataset (context, payload) {
@@ -637,9 +605,6 @@ export default {
     // param.append('test_dataset_id', test_dataset_id)
     // return axios.post(url, param)
     return axios.put(url).then(function (response) {
-      console.log('【createDataset】')
-      console.log(response.data)
-
       if (response.status === 204) return
       const dataset = context.state.confirming_dataset
       dataset.id = response.data.dataset_id
@@ -708,17 +673,11 @@ export default {
       description: encodeURIComponent(description),
       test_dataset_id: test_dataset_id
     }).then(function (response) {
-      console.log('【confirmDataset】')
-      console.log(response.data)
-
       if (response.status === 204) return
       const class_map = response.data.dataset.class_map
       const valid_data = response.data.dataset.valid_data
       const class_info = response.data.dataset.class_info
       const id = response.data.dataset.id
-      console.log('*** class_map ***' + class_map)
-      console.log('*** valid_data ***' + valid_data)
-      console.log('*** class_info ***' + class_info)
 
       // The dataset id will be available when the dataset registered to DB.
       // So tentatively, insert -1.
@@ -728,7 +687,6 @@ export default {
       dataset.class_info = class_info
       dataset.id = id
 
-      console.log('*** dataset ***' + dataset)
       console.dir(dataset)
       context.commit('setConfirmingDataset', dataset)
       context.commit('setConfirmingFlag', false)
@@ -745,12 +703,9 @@ export default {
     const task_name = context.getters.getCurrentTaskName
     const dataset_id = payload
     const url = '/api/renom_img/v2/api/' + task_name + '/datasets/' + dataset_id
-    console.log('*** id:' + dataset_id)
     console.dir(dataset_id)
 
     return axios.delete(url).then(function (response) {
-      console.log('【deleteDataset】')
-      console.log(response.data)
       context.commit('setConfirmingDataset', null)
       context.commit('setConfirmingFlag', false)
     }, error_handler_creator(context, () => {
@@ -792,9 +747,6 @@ export default {
       size: size,
       name: name
     }).then(response => {
-      console.log('【loadSegmentationTargetArray】')
-      console.log(response)
-
       callback(response)
     }, error_handler_creator(context))
   },
@@ -808,8 +760,7 @@ export default {
     return axios.put(url, {
       deploy: true
     }).then(function (response) {
-      console.log('【deployModel】')
-      console.log(response)
+
     }, error_handler_creator(context))
   },
   async unDeployModel (context, payload) {
@@ -818,13 +769,11 @@ export default {
     const task_name = context.getters.getCurrentTaskName
     const model = payload
     const url = '/api/renom_img/v2/api/' + task_name + '/models/' + model.id
-    console.log('*** model.id <unDeployModel>:' + model.id)
     this.commit('unDeployModel')
     return axios.put(url, {
       deploy: false
     }).then(function (response) {
-      console.log('【unDeployModel】')
-      console.log(response)
+
     }, error_handler_creator(context))
   },
 

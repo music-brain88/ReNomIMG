@@ -241,7 +241,8 @@ export default {
       'getSelectedModel',
       'getGroupTitles',
       'getTitleMetric1',
-      'getTitleMetric2'
+      'getTitleMetric2',
+      'getModelById'
     ]),
     isDescending: function () {
       return this.sort_order_direction === SORT_DIRECTION.DESCENDING
@@ -293,6 +294,10 @@ export default {
     clickedModelItem: function (model) {
       this.loadModelsOfCurrentTaskDetail(model.id)
       this.loadDatasetsOfCurrentTaskDetail(model.dataset_id)
+
+      // set selected_model form updated state.models
+      const selected_model = this.getModelById(model.id)
+      this.setSelectedModel(selected_model)
     },
     setOrder: function (key) {
       if (this.isSortBy(key)) {
