@@ -361,18 +361,22 @@ export default {
   async pollingTrain (context, payload) {
     const task_name = context.getters.getCurrentTaskName
     const model_id = payload
+    console.log('### model_id of 【pollingTrain】:' + model_id)
     // TODO: const url = '/api/renom_img/v2/polling/train/model/' + model_id
     const url = '/api/renom_img/v2/api/' + task_name + '/train?model_id=' + model_id
     const request_source = { 'train': model_id }
     const current_requests = context.state.polling_request_jobs.train
 
     // If polling for the model is already performed, do nothing.
+    console.log('### current_requests of 【pollingTrain】:' + current_requests)
     if (current_requests.indexOf(model_id) >= 0) {
+      console.log('###【pollingTrain】RETURN:')
       return
     }
 
     // Register request.
     context.commit('addPollingJob', request_source)
+    console.log('###【pollingTrain】GET START:')
     return axios.get(url).then(function (response) {
       console.log('【pollingTrain】')
       console.log(response.data)
@@ -577,11 +581,17 @@ export default {
    *
    */
   async startAllPolling (context, payload) {
+    console.log('### startAllPolling STRAT ###')
     const model_list = context.state.models.filter(m => m.id >= 0)
     const current_train_requests = context.state.polling_request_jobs.train
     const current_prediction_requests = context.state.polling_request_jobs.prediction
 
+    console.log('### model_list of 【startAllPolling】 ###:' + model_list)
+    console.dir(model_list)
+
     for (const m of model_list) {
+      console.log('### m.state of 【startAllPolling】 ###:' + m.state)
+      console.log('### m.id of 【startAllPolling】 ###:' + m.id)
       if (
         m.state === STATE.CREATED ||
         m.state === STATE.RESERVED ||
@@ -593,7 +603,10 @@ export default {
             need_run_request = false
           }
         }
+
+        console.log('### need_run_request of 【startAllPolling】 ###:' + need_run_request)
         if (need_run_request) {
+          console.log('### dispatch【pollingTrain】###')
           context.dispatch('pollingTrain', m.id)
         }
       } else if (
@@ -618,8 +631,11 @@ export default {
    * PUT the tempDataset : not using in current version v2.2
    */
   async createDataset (context, payload) {
+    console.log('dataset_id of createDataset' + payload.dataset_id)
+
     const task_name = context.getters.getCurrentTaskName
-    const url = '/api/renom_img/v2/api/' + task_name + '/datasets/' + payload.test_dataset_id
+    const dataset_id = payload.dataset_id
+    const url = '/api/renom_img/v2/api/' + task_name + '/datasets/' + dataset_id
 
     // TODO: const url = '/api/renom_img/v2/dataset/create'
     // const param = new FormData()
@@ -638,12 +654,13 @@ export default {
     // return axios.post(url, param)
     return axios.put(url).then(function (response) {
       console.log('【createDataset】')
-      console.log(response.data)
+      console.log(response)
 
       if (response.status === 204) return
-      const dataset = context.state.confirming_dataset
-      dataset.id = response.data.dataset_id
-      context.commit('addDataset', dataset)
+      // TODO: const dataset = context.state.confirming_dataset
+      // TODO: dataset.id = response.data.dataset_id
+      // TODO: context.commit('addDataset', dataset)
+      context.dispatch('loadDatasetsOfCurrentTaskDetail', dataset_id)
     }, error_handler_creator(context))
   },
 
@@ -728,7 +745,7 @@ export default {
       dataset.class_info = class_info
       dataset.id = id
 
-      console.log('*** dataset ***' + dataset)
+      console.log('*** dataset of confirmDataset response ***' + dataset)
       console.dir(dataset)
       context.commit('setConfirmingDataset', dataset)
       context.commit('setConfirmingFlag', false)

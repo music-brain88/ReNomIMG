@@ -144,11 +144,13 @@ export default {
     state.filters = state.filters.filter(f => f !== payload)
   },
   addPollingJob (state, payload) {
+    console.log('###### MUTATION 【addPollingJob】START#######')
     const key = Object.keys(payload)[0]
     const model_id = payload[key]
     state.polling_request_jobs[key] = [...state.polling_request_jobs[key], model_id]
   },
   rmPollingJob (state, payload) {
+    console.log('###### MUTATION 【rmPollingJob】START#######')
     const key = Object.keys(payload)[0]
     const model_id = payload[key]
     state.polling_request_jobs[key] = state.polling_request_jobs[key].filter(n => n !== model_id)
