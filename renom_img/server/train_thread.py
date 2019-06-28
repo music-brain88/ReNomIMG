@@ -170,6 +170,11 @@ class TrainThread(object):
     semaphore = EventSemaphore(MAX_THREAD_NUM)  # Cancellable semaphore.
     # semaphore = Semaphore(MAX_THREAD_NUM)
 
+    def __new__(cls, model_id):
+        ret = super(TrainThread, cls).__new__(cls)
+        cls.jobs[model_id] = ret
+        return ret
+
     @classmethod
     def add_thread(cls, model_id):
         ret = super(TrainThread, cls).__new__(cls)
@@ -254,12 +259,13 @@ class TrainThread(object):
 
     def run(self):
         observer = AppObserver(self)
-        trainer = ObservableTrainer(self.model)
-        trainer.add_observer(observer)
-        trainer.train(self.train_dist, self.valid_dist, self.total_epoch, self.batch_size)
+        self.trainer = ObservableTrainer(self.model)
+        self.trainer.add_observer(observer)
+        self.trainer.train(self.train_dist, self.valid_dist, self.total_epoch, self.batch_size)
 
     def stop(self):
         self.stop_event.set()
+        self.trainer.stop()
         self.running_state = RunningState.STOPPING
         self.sync_state()
 

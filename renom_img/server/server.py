@@ -963,7 +963,7 @@ def dataset_confirm():
         train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
         valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
 
-    if task_id == Task.SEGMENTATION.value: 
+    if task_id == Task.SEGMENTATION.value:
         class_info = {
             "class_map": class_map,
             "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
@@ -1845,7 +1845,7 @@ def get_train_status(task_name):
     task_exists(task_name)
     # get query params
     req_params = request.params
-    model_id = req_params.model_id
+    model_id = int(req_params.model_id)
 
     threads = TrainThread.jobs
     active_train_thread = threads.get(model_id, None)
