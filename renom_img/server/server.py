@@ -1796,6 +1796,7 @@ def get_train_status(task_name):
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
             "best_result_changed": False,
+            "best_epoch_valid_result": saved_model["best_epoch_valid_result"],
             "train_loss_list": saved_model["train_loss_list"],
             "valid_loss_list": saved_model["valid_loss_list"],
         }
@@ -1825,6 +1826,7 @@ def get_train_status(task_name):
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
             "best_result_changed": False,
+            "best_epoch_valid_result": {},
             "train_loss_list": [],
             "valid_loss_list": [],
         }
@@ -1846,6 +1848,7 @@ def get_train_status(task_name):
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
             "best_result_changed": active_train_thread.best_valid_changed,
+            "best_epoch_valid_result": active_train_thread.best_epoch_valid_result,
             "train_loss_list": active_train_thread.train_loss_list,
             "valid_loss_list": active_train_thread.valid_loss_list,
         }
