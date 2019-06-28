@@ -246,12 +246,13 @@ class TrainThread(object):
 
     def run(self):
         observer = AppObserver(self)
-        trainer = ObservableTrainer(self.model)
-        trainer.add_observer(observer)
-        trainer.train(self.train_dist, self.valid_dist, self.total_epoch, self.batch_size)
+        self.trainer = ObservableTrainer(self.model)
+        self.trainer.add_observer(observer)
+        self.trainer.train(self.train_dist, self.valid_dist, self.total_epoch, self.batch_size)
 
     def stop(self):
         self.stop_event.set()
+        self.trainer.stop()
         self.running_state = RunningState.STOPPING
         self.sync_state()
 
