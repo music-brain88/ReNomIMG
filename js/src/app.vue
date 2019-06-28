@@ -90,7 +90,7 @@ export default {
           'icon': 'fa-area-chart'
         }
       ],
-      version: '2.1.1 beta',
+      version: '2.2.0 beta',
       copyright: '©︎2019 GRID INC. ALL rights reserved.'
     }
   },
