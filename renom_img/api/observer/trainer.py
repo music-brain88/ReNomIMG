@@ -135,10 +135,15 @@ class ObservableTrainer():
             if is_cuda_active():
                 release_mem_pool()
             display_loss = 0
+
+            if self.stop_flag is True:
+                return
             # start of training
             notify = {'epoch':epoch,'total_epoch':total_epoch}
             self.notify_start_train_batches(notify)
             for batch,val in enumerate(train_dist.batch(batch_size),1):
+                if self.stop_flag is True:
+                    return
                 notify = {'batch':batch,'total_batch':train_batch_loop}
                 self.notify_start_batch(notify)
                 if isinstance(self.model, Yolov2):
@@ -157,6 +162,8 @@ class ObservableTrainer():
                             loss = self.model.loss(self.model(train_x),train_y)
                         reg_loss = loss + self.model.regularize()
                     reg_loss.grad().update(opt)
+                    if self.stop_flag is True:
+                        return
                     try:
                         loss = loss.as_ndarray()[0]
                     except:
@@ -170,22 +177,29 @@ class ObservableTrainer():
                     display_loss+=loss
                 if isinstance(opt, BaseOptimizer):
                     opt.set_information(batch,epoch,avg_train_loss_list,avg_valid_loss_list,loss)
+                if self.stop_flag is True:
+                    return
                 # notify about batch update
                 notify = {'loss':loss}
                 self.notify_end_batch(notify)
 
             avg_train_loss_list.append(display_loss/batch)
             # notify about batches end
+            if self.stop_flag is True:
+                return
             notify = {'avg_train_loss':display_loss/batch}
             self.notify_end_train_batches(notify)
 
             #validation block
             valid_prediction,valid_target,avg_valid_loss = self.validation(valid_dist,batch_size)
+            if valid_prediction is None:
+                return
             avg_valid_loss_list.append(avg_valid_loss)
 
             #Evaluation block
             self.evaluation(valid_prediction,valid_target)
-
+            if self.stop_flag is True:
+                return
         # end of training
         self.notify_end({'avg_train_loss_list':avg_train_loss_list,'avg_valid_loss_list':avg_valid_loss_list})
 
@@ -196,6 +210,8 @@ class ObservableTrainer():
         valid_target = []
         valid_batch_loop = int(np.ceil(len(valid_dist) / batch_size))
         for batch,val in enumerate(valid_dist.batch(batch_size,shuffle=False),1):
+            if self.stop_flag is True:
+                return None, None, None
             notify = {'batch':batch,'total_batch':valid_batch_loop}
             self.notify_start_batch(notify)
             if is_cuda_active():
@@ -224,6 +240,8 @@ class ObservableTrainer():
                 validation_prediction.append(valid_prediction_in_batch.as_ndarray())
             if not isinstance(self.model,Detection):
                 valid_target.append(valid_y)
+            if self.stop_flag is True:
+                return None,None,None
             notify = {'loss':loss}
             self.notify_end_batch(notify)
 
@@ -231,6 +249,8 @@ class ObservableTrainer():
             valid_target = valid_dist.get_resized_annotation_list(self.model.imsize)
 
         self.notify_end_valid_batches({'avg_valid_loss':display_loss/batch})
+        if self.stop_flag is True:
+            return
         validation_prediction = np.concatenate(validation_prediction,axis=0)
 
         return validation_prediction,valid_target,(display_loss/batch)
