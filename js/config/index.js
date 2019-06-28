@@ -11,7 +11,7 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      "/api": "http://localhost:8080",
+      "/renom_img": "http://localhost:8080",
       "/dataset": "http://localhost:8080",
       "/datasrc": "http://localhost:8080",
       "/css": "http://localhost:8080"
