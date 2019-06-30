@@ -224,11 +224,18 @@ class TrainThread(object):
             assert self.model is not None
             self.sync_state()
             self.run()
-        except Exception as e:
+        except ReNomIMGError as e:
             traceback.print_exc()
             self.state = State.STOPPED
             self.running_state = RunningState.STOPPING
             self.error_msg = e
+            self.model = None
+            self.sync_state()
+        except Exception as e:
+            traceback.print_exc()
+            self.state = State.STOPPED
+            self.running_state = RunningState.STOPPING
+            self.error_msg = UnknownError()
             self.model = None
             self.sync_state()
         finally:
