@@ -213,12 +213,10 @@ def check_yolov2_forward(anchor, x):
     try:
         assert len(anchor) >= std['anchor']['range'][0] and len(
             anchor) <= std['anchor']['range'][1], "Invalid legnth for anchor argument. Please provide an object with length between {} and {}.".format(std['anchor']['range'][0], std['anchor']['range'][1])
-
-#        assert all(k.dtype in std['anchor']['value'] for k in anchor), "Invalid value for anchor argument. Please provide {} or {} values.".format(std['anchor']['value'][0], std['anchor']['value'][1])
+        assert all(k.dtype in std['anchor']['value'] for k in anchor), "Invalid value for anchor argument. Please provide {} or {} values.".format(std['anchor']['value'][0], std['anchor']['value'][1])
     except Exception as e:
         raise InvalidInputValueError(str(e))
 
-    if not all(k.dtype in std['anchor']['value'] for k in anchor): raise InvalidInputValueError("no assertion error needed!") 
 
 def check_common_learning_rate(lr):
     obj = StandardLR()
