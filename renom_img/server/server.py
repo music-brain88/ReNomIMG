@@ -51,7 +51,7 @@ from renom_img.server.utility.error import ReNomIMGServerError, ForbiddenError, 
     MethodNotAllowedError, ServiceUnavailableError, \
     InvalidRequestParamError, DatasetNotFoundError, ModelNotFoundError, WeightNotFoundError, \
     ModelRunningError, MemoryOverflowError, DirectoryNotFound, TaskNotFoundError
-
+from renom_img.api.utility.exceptions.exceptions import ReNomIMGError
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
 executor = Executor(max_workers=2)
