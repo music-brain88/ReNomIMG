@@ -78,6 +78,7 @@ export default class Model {
       if (this.best_epoch_valid_result) {
         if (this.best_epoch_valid_result.recall !== undefined) {
           m1 = this.best_epoch_valid_result.recall.toFixed(2)
+          // TODO: console.log('m1 of getResultOfMetric1' + m1)
         }
       }
       return {
@@ -88,6 +89,7 @@ export default class Model {
       if (this.best_epoch_valid_result) {
         if (this.best_epoch_valid_result.mAP !== undefined) {
           m1 = this.best_epoch_valid_result.mAP.toFixed(2)
+          // TODO: console.log('m1 of getResultOfMetric1' + m1)
         }
       }
       return {
@@ -98,6 +100,7 @@ export default class Model {
       if (this.best_epoch_valid_result) {
         if (this.best_epoch_valid_result.recall !== undefined) {
           m1 = this.best_epoch_valid_result.recall.toFixed(2)
+          // TODO: console.log('m1 of getResultOfMetric1' + m1)
         }
       }
       return {

@@ -345,11 +345,9 @@ def dataset_to_light_dict(dataset):
         'task_id': dataset["task_id"],
         'ratio': dataset["ratio"],
         'class_map': [],
-        # 'class_map': dataset["class_map"],
         'class_info': dataset["class_info"],
-        'train_data': {},   # TODO:元のにはなかった
+        'train_data': {},
         'valid_data': {},
-        # 'valid_data': dataset["valid_data"],
         'test_dataset_id': dataset["test_dataset_id"]
     }
 
@@ -387,11 +385,8 @@ def model_to_light_dict(model):
         "state": model["state"],
         "running_state": model["running_state"],
         "train_loss_list": [],
-        # "train_loss_list": model["train_loss_list"],
         "valid_loss_list": [],
-        # "valid_loss_list": model["valid_loss_list"],
         "best_epoch_valid_result": best_epoch_valid_result,  # modify only evaluation value return
-        # "best_epoch_valid_result": model["best_epoch_valid_result"],
         "total_epoch": model["total_epoch"],
         "nth_epoch": model["nth_epoch"],
         "total_batch": model["total_batch"],
@@ -458,11 +453,6 @@ def ndarray_to_list(data):
 
 
 def split_by_ratio(data, perm, ratio, length):
-    print("***data:", data)
-    print("***len(data):", len(data))
-    print("***perm:", perm)
-    print("***ratio:", ratio)
-    print("***length:", length)
     return np.split(np.array([data[index] for index in perm]), [int(ratio * length)])
 
 
@@ -1430,7 +1420,7 @@ def get_deployed_model_info(task_id):
 
 
 ### New API ###
-@route("/api/renom_img/v2/api/<task_name>/datasets", method="GET")
+@route("/renom_img/v2/api/<task_name>/datasets", method="GET")
 @error_handler
 def get_datasets(task_name):
     """
@@ -1441,27 +1431,8 @@ def get_datasets(task_name):
     ret = {"datasets": [dataset_to_light_dict(d) for d in datasets]}
     return create_response(ret, status=200)
 
-    # TODO：旧書式の下記の書き方だと正常にデータ取得可能。色々変わっている模様。
-    # datasets = storage.fetch_datasets_of_task(task_id)
-    # return {
-    #     "datasets": [
-    #         {
-    #             'id': d["id"],
-    #             'name': d["name"],
-    #             'class_map': d["class_map"],
-    #             'task_id': d["task_id"],
-    #             'valid_data': d["valid_data"],
-    #             'ratio': d["ratio"],
-    #             'description': d["description"],
-    #             'test_dataset_id': d["test_dataset_id"],
-    #             'class_info': d["class_info"],
-    #         }
-    #         for d in datasets
-    #     ]
-    # }
 
-
-@route("/api/renom_img/v2/api/<task_name>/datasets", method="POST")
+@route("/renom_img/v2/api/<task_name>/datasets", method="POST")
 @error_handler
 def create_dataset(task_name):
     """
@@ -1515,18 +1486,11 @@ def create_dataset(task_name):
     n_imgs = len(file_names)
     perm = np.random.permutation(n_imgs)
 
-    print("***len(file_names):", len(file_names))
-    print("***len(img_files):", len(img_files))
-    print("***len(parsed_target):", len(parsed_target))
-    print("***len(perm):", len(perm))
-
-    print("<split_by_ratio img_files>")
     train_img, valid_img = split_by_ratio(img_files, perm, ratio, n_imgs)
     train_img = ndarray_to_list(train_img)
     valid_img = ndarray_to_list(valid_img)
     valid_img_size = [list(Image.open(i).size) for i in valid_img]
 
-    print("<split_by_ratio parsed_target>")
     train_target, valid_target = split_by_ratio(parsed_target, perm, ratio, n_imgs)
     train_target = ndarray_to_list(train_target)
     valid_target = ndarray_to_list(valid_target)
@@ -1587,12 +1551,12 @@ def create_dataset(task_name):
         }
     }
     response = create_response(ret, status=201)
-    location = "/api/renom_img/v2/api/detection/datasets/{}".format(dataset_id)
+    location = "/renom_img/v2/api/detection/datasets/{}".format(dataset_id)
     response.set_header('Location', location)
     return response
 
 
-@route("/api/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="GET")
+@route("/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="GET")
 @error_handler
 def get_dataset(task_name, dataset_id):
     """
@@ -1605,7 +1569,7 @@ def get_dataset(task_name, dataset_id):
     return create_response(ret, status=200)
 
 
-@route("/api/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="PUT")
+@route("/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="PUT")
 @error_handler
 def update_dataset(task_name, dataset_id):
     """
@@ -1618,7 +1582,7 @@ def update_dataset(task_name, dataset_id):
     return "Update dataset is not available now."
 
 
-@route("/api/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="DELETE")
+@route("/renom_img/v2/api/<task_name>/datasets/<dataset_id:int>", method="DELETE")
 @error_handler
 def delete_dataset(task_name, dataset_id):
     """
@@ -1631,7 +1595,7 @@ def delete_dataset(task_name, dataset_id):
     return create_response({}, status=204)
 
 
-@route("/api/renom_img/v2/api/<task_name>/models", method="GET")
+@route("/renom_img/v2/api/<task_name>/models", method="GET")
 @error_handler
 def get_models(task_name):
     """
@@ -1652,56 +1616,23 @@ def get_models(task_name):
     else:
         models = storage.fetch_models_of_task(task_id)
 
-    print("*** state of get_models:", state)
-    print("*** model of get_models:", models)
     if models is not None:
         ret = {'models': [model_to_light_dict(m) for m in models]}
-    # if models is not None and state != "deployed":
-    #     print("<*** NOT deployed>")
-    #     ret = {'models': [model_to_light_dict(m) for m in models]}
-    # elif models is not None and state == "deployed":
-    #     print("<*** deployed>")
-    #     ret = {'models': [model_to_light_dict(models)]}
     else:
         ret = {'models': []}
     return create_response(ret, status=200)
 
-# 旧ソース
-# def models_load_of_task(task_id):
-#     models = storage.fetch_models_of_task(task_id)
-#     # Remove best_valid_changed because it is very large.
-#     models = [
-#         {k: v if k not in [
-#             "best_epoch_valid_result",
-#             "last_prediction_result"] else {} for k, v in m.items()}
-#         for m in models
-#     ]
-#     return {'model_list': models}
 
-
-
-@route("/api/renom_img/v2/api/<task_name>/models", method="POST")
+@route("/renom_img/v2/api/<task_name>/models", method="POST")
 @error_handler
 def create_model(task_name):
-    # TODO: print("***server:create_model START")
     """
     create model
     """
     task_id = get_task_id_by_name(task_name)
-    # TODO: print("***task_id:", task_id)
-    # TODO: print("***request:", request)
-    # TODO: print("***request.params:", request.params)
-    # TODO: req_params = request.params
-
-    # TODO: print("***algorithm_id:", json.loads(req_params.algorithm_id))
-    # TODO: print("***dataset_id:", req_params.dataset_id)
-    # TODO: print("***hyper_params:", json.loads(req_params.hyper_params))
-    # TODO: print("***hyper_parameters:", json.loads(req_params.hyper_parameters))
-
 
     # req_json = request.params
     req_json = request.json
-    print("***req_json:", req_json)
     check_create_model_params(req_json)
 
     hyper_params = req_json['hyper_parameters']
@@ -1721,12 +1652,12 @@ def create_model(task_name):
         }
     }
     response = create_response(ret, status=201)
-    location = "/api/renom_img/v2/api/{}/models/{}".format(task_name, new_id)
+    location = "/renom_img/v2/api/{}/models/{}".format(task_name, new_id)
     response.set_header('Location', location)
     return response
 
 
-@route("/api/renom_img/v2/api/<task_name>/models/<model_id:int>", method="GET")
+@route("/renom_img/v2/api/<task_name>/models/<model_id:int>", method="GET")
 @error_handler
 def get_model(task_name, model_id):
     """
@@ -1739,7 +1670,7 @@ def get_model(task_name, model_id):
     return create_response(ret, status=200)
 
 
-@route("/api/renom_img/v2/api/<task_name>/models/<model_id:int>", method="PUT")
+@route("/renom_img/v2/api/<task_name>/models/<model_id:int>", method="PUT")
 @error_handler
 def update_model(task_name, model_id):
     """
@@ -1751,20 +1682,15 @@ def update_model(task_name, model_id):
     check_upadte_model_params(req_params)
 
     model = storage.fetch_model(model_id)
-    print("***model of update_model:", model)
-    print("***model_id of update_model:", model_id)
 
     check_model_exists(model, model_id)
 
     # if deploy value exists
-    print("***req_params of update_model:", req_params)
     deploy = req_params.pop("deploy", False)
     if deploy:
-        print("*** Deploy ***")
         check_model_running(model_id)
         storage.deploy_model(model_id)
     else:
-        print("*** Un Deploy ***")
         storage.undeploy_model(task_id)
 
     # update deploy status in v2.2.
@@ -1772,7 +1698,7 @@ def update_model(task_name, model_id):
     return create_response({}, status=204)
 
 
-@route("/api/renom_img/v2/api/<task_name>/models/<model_id:int>", method="DELETE")
+@route("/renom_img/v2/api/<task_name>/models/<model_id:int>", method="DELETE")
 @error_handler
 def delete_model(task_name, model_id):
     """
@@ -1791,7 +1717,7 @@ def delete_model(task_name, model_id):
     return create_response({}, status=204)
 
 
-@route("/api/renom_img/v2/api/<task_name>/models/<model_id:int>/weight", method="GET")
+@route("/renom_img/v2/api/<task_name>/models/<model_id:int>/weight", method="GET")
 @error_handler
 def download_model_weight(task_name, model_id):
     """
@@ -1808,7 +1734,7 @@ def download_model_weight(task_name, model_id):
     return static_file(file_name, root=".", download=download_filename)
 
 
-@route("/api/renom_img/v2/api/<task_name>/train", method="POST")
+@route("/renom_img/v2/api/<task_name>/train", method="POST")
 @error_handler
 def run_train(task_name):
     """
@@ -1828,15 +1754,15 @@ def run_train(task_name):
     # TODO: set train_id to thread
     # train_id = 1
     # response = create_response({"train": {"train_id": train_id}}, status=201)
-    # location = "/api/renom_img/v2/api/detection/train/{}".format(train_id)
+    # location = "/renom_img/v2/api/detection/train/{}".format(train_id)
     # response.set_header('Location', location)
     response = create_response({"status": "success"}, status=201)
     return response
 
 
 # TODO: getting train status from train_id.
-# @route("/api/renom_img/v2/api/<task_name>/train/<train_id:int>", method="GET")
-@route("/api/renom_img/v2/api/<task_name>/train", method="GET")
+# @route("/renom_img/v2/api/<task_name>/train/<train_id:int>", method="GET")
+@route("/renom_img/v2/api/<task_name>/train", method="GET")
 @error_handler
 def get_train_status(task_name):
     """
@@ -1870,6 +1796,7 @@ def get_train_status(task_name):
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
             "best_result_changed": False,
+            "best_epoch_valid_result": saved_model["best_epoch_valid_result"],
             "train_loss_list": saved_model["train_loss_list"],
             "valid_loss_list": saved_model["valid_loss_list"],
         }
@@ -1899,6 +1826,7 @@ def get_train_status(task_name):
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
             "best_result_changed": False,
+            "best_epoch_valid_result": {},
             "train_loss_list": [],
             "valid_loss_list": [],
         }
@@ -1920,14 +1848,15 @@ def get_train_status(task_name):
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
             "best_result_changed": active_train_thread.best_valid_changed,
+            "best_epoch_valid_result": active_train_thread.best_epoch_valid_result,
             "train_loss_list": active_train_thread.train_loss_list,
             "valid_loss_list": active_train_thread.valid_loss_list,
         }
 
 
 # TODO: Stop train from train_id.
-# @route("/api/renom_img/v2/api/detection/train/<train_id:int>", method="DELETE")
-@route("/api/renom_img/v2/api/<task_name>/train", method="DELETE")
+# @route("/renom_img/v2/api/detection/train/<train_id:int>", method="DELETE")
+@route("/renom_img/v2/api/<task_name>/train", method="DELETE")
 @error_handler
 def stop_train(task_name):
     """
@@ -1946,7 +1875,7 @@ def stop_train(task_name):
     return create_response({}, status=204)
 
 
-@route("/api/renom_img/v2/api/<task_name>/prediction", method="GET")
+@route("/renom_img/v2/api/<task_name>/prediction", method="GET")
 @error_handler
 def get_prediction_status(task_name):
     """
@@ -1997,7 +1926,7 @@ def get_prediction_status(task_name):
         }
 
 
-@route("/api/renom_img/v2/api/<task_name>/prediction", method="POST")
+@route("/renom_img/v2/api/<task_name>/prediction", method="POST")
 @error_handler
 def run_prediction(task_name):
     """
@@ -2011,8 +1940,6 @@ def run_prediction(task_name):
 
     file_name = saved_model['best_epoch_weight']
 
-    print("***model_id of run_prediction:", model_id)
-    print("***file_name of run_prediction:", file_name)
     check_weight_exists(file_name, model_id)
 
     thread = PredictionThread(model_id)
@@ -2021,13 +1948,13 @@ def run_prediction(task_name):
 
     # prediction_id = 1
     # response = create_response({"prediction": {"prediction_id": prediction_id}}, status=201)
-    # location = "/api/renom_img/v2/api/detection/prediction/{}".format(prediction_id)
+    # location = "/renom_img/v2/api/detection/prediction/{}".format(prediction_id)
     # response.set_header('Location', location)
     response = create_response({"status": "success"}, status=201)
     return response
 
 
-@route("/api/renom_img/v2/api/<task_name>/prediction/result", method="GET")
+@route("/renom_img/v2/api/<task_name>/prediction/result", method="GET")
 @error_handler
 def get_prediction_result(task_name):
     """
