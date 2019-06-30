@@ -226,6 +226,7 @@ class TrainThread(object):
             self.sync_state()
             self.run()
         except InvalidInputValueError as e:
+            print('invalidinputvalue block')
             traceback.print_exc()
             self.state = State.STOPPED
             self.running_state = RunningState.STOPPING
@@ -233,6 +234,7 @@ class TrainThread(object):
             self.model = None
             self.sync_state()
         except Exception as e:
+            print('regular exception block')
             traceback.print_exc()
             self.state = State.STOPPED
             self.running_state = RunningState.STOPPING
