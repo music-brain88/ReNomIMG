@@ -51,7 +51,7 @@ from renom_img.server.utility.error import ReNomIMGServerError, ForbiddenError, 
     MethodNotAllowedError, ServiceUnavailableError, \
     InvalidRequestParamError, DatasetNotFoundError, ModelNotFoundError, WeightNotFoundError, \
     ModelRunningError, MemoryOverflowError, DirectoryNotFound, TaskNotFoundError
-
+from renom_img.api.utility.exceptions.exceptions import ReNomIMGError
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
 executor = Executor(max_workers=2)
@@ -79,8 +79,8 @@ def create_response(body, status=200):
 
 
 def create_error_response(error, status=500):
-    if not isinstance(error, ReNomIMGServerError):
-        error = ReNomIMGServerError("Unkown error occured.")
+    if not isinstance(error, (ReNomIMGServerError, ReNomIMGError)):
+        error = ReNomIMGServerError("Unknown error occured.")
     body = {"error": {"code": error.code, "message": error.message}}
     return create_response(body, status=status)
 
@@ -573,7 +573,7 @@ def error_handler(func):
             logging_error(e)
             return create_error_response(e, status=404)
         except SQLAlchemyError as e:
-            e = ServiceUnavailableError("DB tempolary unavailable.")
+            e = ServiceUnavailableError("DB temporarily unavailable.")
             logging_error(e)
             return create_error_response(e, status=503)
         except (DirectoryNotFound, ReNomIMGError,  Exception) as e:
