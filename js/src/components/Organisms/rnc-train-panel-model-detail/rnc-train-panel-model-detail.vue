@@ -61,6 +61,11 @@
 
           <rnc-key-value
             :key-text=" model.getResultOfMetric1().metric "
+            :value-text=" model.getResultOfMetric1().value "
+            class="item"
+          />
+          <rnc-key-value
+            :key-text=" model.getResultOfMetric2().metric "
             :value-text=" model.getResultOfMetric2().value "
             class="item"
           />
