@@ -807,21 +807,14 @@ export default {
   */
 
   async loadSegmentationTargetArray (context, payload) {
-    const task_name = context.getters.getCurrentTaskName
-    const url = '/api/target/' + task_name
     const name = payload.name
-    const size = payload.size
-    const callback = payload.callback
-    // TODO: const param = new FormData()
-    // TODO: param.append('size', JSON.stringify(size))
-    // TODO: param.append('name', name)
-    return axios.post(url, {
-      size: size,
-      name: name
-    }).then(response => {
-      // TODO: console.log('【loadSegmentationTargetArray】')
-      // TODO: console.log(response)
+    const width = payload.size.width
+    const height = payload.size.height
+    const query = 'filename=' + name + '&width=' + width + '&height=' + height
+    const url = '/renom_img/v2/api/segmentation/datasets/1/mask?' + query
 
+    const callback = payload.callback
+    return axios.get(url).then(response => {
       callback(response)
     }, error_handler_creator(context))
   },

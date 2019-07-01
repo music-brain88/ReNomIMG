@@ -349,10 +349,10 @@ export default {
         if (!model || draw_item.name === undefined) return
         this.loadSegmentationTargetArray({
           name: draw_item.name,
-          size: [
-            parseInt(model.hyper_parameters.imsize_w),
-            parseInt(model.hyper_parameters.imsize_h),
-          ],
+          size: {
+            width : parseInt(model.hyper_parameters.imsize_w),
+            height : parseInt(model.hyper_parameters.imsize_h),
+          },
           callback: (response) => {
             this.$worker.run(render_segmentation, [response.data]).then((ret) => {
               var canvas = this.$refs.canvas
