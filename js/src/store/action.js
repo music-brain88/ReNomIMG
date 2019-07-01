@@ -393,7 +393,7 @@ export default {
       const model = context.getters.getModelById(model_id)
       if (model) {
         const r = response.data
-        // TODO: console.log('★★★★★★★★★★r of 【pollingTrain】', r)
+        console.log('★★★★★★★★★★r of 【pollingTrain】', r)
         const state = r.state
         const load_best = response.data.best_result_changed
 
