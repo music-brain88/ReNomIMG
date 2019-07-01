@@ -80,7 +80,7 @@ class AppObserver(TrainObserverBase):
         self.ts.updated = True
 
     def start_evaluate(self):
-        pass
+        self.ts.best_valid_changed = False
 
     def end_evaluate(self, notification):
         loss = self.ts.valid_loss_list[-1]
