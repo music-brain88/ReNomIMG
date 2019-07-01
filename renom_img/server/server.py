@@ -1595,6 +1595,30 @@ def delete_dataset(task_name, dataset_id):
     return create_response({}, status=204)
 
 
+# Segmentation target image data
+@route("/renom_img/v2/api/segmentation/datasets/<dataset_id:int>/mask", method="GET")
+@error_handler
+def get_dataset(dataset_id):
+    """
+    get dataset
+    """
+    req_params = request.params
+    path = req_params.filename
+    path = pathlib.Path(path)
+
+    d = storage.fetch_dataset(dataset_id)
+    check_dataset_exists(d, dataset_id)
+
+    size = [int(req_params.size[0]), int(req_params.size[1])]
+
+    file_dir = path.with_suffix('.png').relative_to('datasrc/img')
+    file_dir = 'datasrc/label/segmentation' / file_dir
+    img = np.array(Image.open(file_dir).resize(size)).astype(np.uint8)
+    img[img == 255] = 0
+    img = img.tolist()
+    return {"class": img}
+
+
 @route("/renom_img/v2/api/<task_name>/models", method="GET")
 @error_handler
 def get_models(task_name):
