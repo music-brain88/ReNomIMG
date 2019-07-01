@@ -30,7 +30,7 @@ from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.optimizer import BaseOptimizer
-from renom_img.api.utility.exceptions.exceptions import ReNomIMGError 
+from renom_img.api.utility.exceptions.exceptions import ReNomIMGError
 from renom_img.api.observer.trainer import TrainObserverBase, ObservableTrainer
 
 from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
@@ -51,6 +51,7 @@ class AppObserver(TrainObserverBase):
     def start_train_batches(self, notification):
         self.ts.running_state = RunningState.TRAINING
         self.ts.nth_epoch = notification["epoch"]
+        self.ts.sync_state()
         self.ts.updated = True
 
     def start_batch(self, notification):
@@ -70,6 +71,7 @@ class AppObserver(TrainObserverBase):
 
     def start_valid_batches(self):
         self.ts.running_state = RunningState.VALIDATING
+        self.ts.sync_state()
         self.ts.updated = True
 
     def end_valid_batches(self, notification):
@@ -95,6 +97,8 @@ class AppObserver(TrainObserverBase):
                         "f1": float(notification["evaluation_matrix"]["f1"]),
                         "loss": float(loss)
                     }
+                    self.ts.sync_best_valid_result()
+                    self.ts.updated = True
             else:
                 self.ts.best_valid_changed = True
                 self.ts.save_best_model()
@@ -106,6 +110,8 @@ class AppObserver(TrainObserverBase):
                     "f1": float(notification["evaluation_matrix"]["f1"]),
                     "loss": float(loss)
                 }
+                self.ts.sync_best_valid_result()
+                self.ts.updated = True
 
         elif self.ts.task_id == Task.DETECTION.value:
             if self.ts.best_epoch_valid_result:
@@ -119,6 +125,8 @@ class AppObserver(TrainObserverBase):
                         "IOU": float(notification["evaluation_matrix"]["iou"]),
                         "loss": float(loss)
                     }
+                    self.ts.sync_best_valid_result()
+                    self.ts.updated = True
             else:
                 self.ts.best_valid_changed = True
                 self.ts.save_best_model()
@@ -129,6 +137,8 @@ class AppObserver(TrainObserverBase):
                     "IOU": float(notification["evaluation_matrix"]["iou"]),
                     "loss": float(loss)
                 }
+                self.ts.sync_best_valid_result()
+                self.ts.updated = True
 
         elif self.ts.task_id == Task.SEGMENTATION.value:
             if self.ts.best_epoch_valid_result:
@@ -143,6 +153,8 @@ class AppObserver(TrainObserverBase):
                         "f1": float(notification["evaluation_matrix"]["f1"]),
                         "loss": float(loss)
                     }
+                    self.ts.sync_best_valid_result()
+                    self.ts.updated = True
             else:
                 self.ts.best_valid_changed = True
                 self.ts.save_best_model()
@@ -154,8 +166,8 @@ class AppObserver(TrainObserverBase):
                     "f1": float(notification["evaluation_matrix"]["f1"]),
                     "loss": float(loss)
                 }
-        self.ts.sync_best_valid_result()
-        self.ts.updated = True
+                self.ts.sync_best_valid_result()
+                self.ts.updated = True
 
     def end(self, train_result):
         self.ts.state = State.STOPPED
