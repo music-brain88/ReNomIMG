@@ -350,8 +350,8 @@ export default {
         this.loadSegmentationTargetArray({
           name: draw_item.name,
           size: {
-            width : parseInt(model.hyper_parameters.imsize_w),
-            height : parseInt(model.hyper_parameters.imsize_h),
+            width: parseInt(model.hyper_parameters.imsize_w),
+            height: parseInt(model.hyper_parameters.imsize_h),
           },
           callback: (response) => {
             this.$worker.run(render_segmentation, [response.data]).then((ret) => {

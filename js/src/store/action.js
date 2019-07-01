@@ -7,8 +7,7 @@ function error_handler_creator (context, callback = undefined) {
   return function (error) {
     const status = error.response.status
     if ([200, 400, 403, 404, 405, 500, 503].includes(status)) {
-      if (error.response.data || error.response.data.error){
-        console.log("error.response.data.error", error.response.data.error)
+      if (error.response.data || error.response.data.error) {
         const message = error.response.data.error.message
         context.commit('showAlert', '【' + status + ' Error】: ' + message)
       }
@@ -112,10 +111,9 @@ export default {
         model.last_prediction_result = m.last_prediction_result
         context.commit('updateModel', model)
 
-        //　TODO muraishi : 呼び出し元でやる
+        // TODO muraishi : 呼び出し元でやる
         // context.commit('setSelectedModel', model)
         // context.dispatch('forceUpdatePage', model.id)
-
       }, error_handler_creator(context))
   },
 
@@ -306,7 +304,6 @@ export default {
     // const param = new FormData()
     // param.append('model_id', model_id)
 
-
     return axios.post(url, {
       model_id: model_id
     })
@@ -382,7 +379,6 @@ export default {
       // Need to reload Model State.
     }))
   },
-
 
   async runPredictionThread (context, payload) {
     const task_name = context.getters.getCurrentTaskName
@@ -556,25 +552,25 @@ export default {
    * TODO: 「best_epoch_valid_result」は直接値を含めて返ってくる仕様に変更
    */
   // async loadBestValidResult (context, payload) {
-    // const model_id = payload
-
-    // const model = context.getters.getModelById(model_id)
-    // if (model) {
-    //   context.commit('forceUpdateModelList')
-    //   context.commit('forceUpdatePredictionPage')
-    // }
-
-    // TODO: const url = '/api/renom_img/v2/model/load/best/result/' + model_id
-    // return axios.get(url).then(function (response) {
-    //   const model = context.getters.getModelById(model_id)
-    //   if (model) {
-    //     const r = response.data
-    //     const best_result = r.best_result
-    //     model.best_epoch_valid_result = best_result
-    //     context.commit('forceUpdateModelList')
-    //     context.commit('forceUpdatePredictionPage')
-    //   }
-    // }, error_handler_creator(context))
+  //   const model_id = payload
+  //
+  //   const model = context.getters.getModelById(model_id)
+  //   if (model) {
+  //     context.commit('forceUpdateModelList')
+  //     context.commit('forceUpdatePredictionPage')
+  //   }
+  //
+  //   TODO: const url = '/api/renom_img/v2/model/load/best/result/' + model_id
+  //   return axios.get(url).then(function (response) {
+  //     const model = context.getters.getModelById(model_id)
+  //     if (model) {
+  //       const r = response.data
+  //       const best_result = r.best_result
+  //       model.best_epoch_valid_result = best_result
+  //       context.commit('forceUpdateModelList')
+  //       context.commit('forceUpdatePredictionPage')
+  //     }
+  //   }, error_handler_creator(context))
   // },
 
   // async loadPredictionResult (context, payload) {
@@ -584,20 +580,18 @@ export default {
   //   if (model) {
   //     context.commit('forceUpdatePredictionPage')
   //   }
-
-    // TODO: const url = '/api/renom_img/v2/model/load/prediction/result/' + model_id
-    // return axios.get(url).then(function (response) {
-    //   const model = context.getters.getModelById(model_id)
-    //   if (model) {
-    //     const r = response.data
-    //     const result = r.result
-    //     model.last_prediction_result = result
-    //     context.commit('forceUpdatePredictionPage')
-    //   }
-    // }, error_handler_creator(context))
+  //
+  //   TODO: const url = '/api/renom_img/v2/model/load/prediction/result/' + model_id
+  //   return axios.get(url).then(function (response) {
+  //     const model = context.getters.getModelById(model_id)
+  //     if (model) {
+  //       const r = response.data
+  //       const result = r.result
+  //       model.last_prediction_result = result
+  //       context.commit('forceUpdatePredictionPage')
+  //     }
+  //   }, error_handler_creator(context))
   // },
-
-
 
   /** ***
    * PUT the tempDataset : not using in current version v2.2
