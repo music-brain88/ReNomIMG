@@ -1609,7 +1609,7 @@ def get_segmentation_mask_data(dataset_id):
     d = storage.fetch_dataset(dataset_id)
     check_dataset_exists(d, dataset_id)
 
-    size = [int(req_params.size[0]), int(req_params.size[1])]
+    size = [int(req_params.width), int(req_params.height)]
 
     file_dir = path.with_suffix('.png').relative_to('datasrc/img')
     file_dir = 'datasrc/label/segmentation' / file_dir
