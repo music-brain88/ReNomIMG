@@ -1598,7 +1598,7 @@ def delete_dataset(task_name, dataset_id):
 # Segmentation target image data
 @route("/renom_img/v2/api/segmentation/datasets/<dataset_id:int>/mask", method="GET")
 @error_handler
-def get_dataset(dataset_id):
+def get_segmentation_mask_data(dataset_id):
     """
     get dataset
     """
