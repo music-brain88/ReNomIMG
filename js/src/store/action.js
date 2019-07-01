@@ -322,8 +322,8 @@ export default {
     const url = '/renom_img/v2/api/' + task_name + '/models/' + model_id
     return axios.delete(url)
       .then(function (response) {
-        // TODO: console.log('【removeModel】')
-        // TODO: console.log(response)
+        console.log('ACTION【removeModel】')
+        console.log(response)
 
         if (response.status === 204) return
         context.commit('rmModel', model_id)

@@ -130,6 +130,7 @@ export default {
   },
   rmModel (state, payload) {
     if (state.models.find(n => n.id === payload.id) === undefined) {
+      console.log('***MUTATION【rmModel】')
       state.models = state.models.filter(m => m.id !== payload)
     }
   },
