@@ -89,6 +89,7 @@ export default {
       .then(function (response) {
         if (response.status === 204) return
         const m = response.data.model
+        console.log('response in 【loadModelsOfCurrentTaskDetail】', m)
 
         const algorithm_id = m.algorithm_id
         const task_id = m.task_id
@@ -110,6 +111,8 @@ export default {
         model.last_batch_loss = m.last_batch_loss
         model.last_prediction_result = m.last_prediction_result
         context.commit('updateModel', model)
+
+        // console.log("details model", model)
 
         // TODO muraishi : 呼び出し元でやる
         // context.commit('setSelectedModel', model)
@@ -418,7 +421,6 @@ export default {
     context.commit('addPollingJob', request_source)
     return axios.get(url).then(function (response) {
       // This 'response' can be empty.
-      console.log('here in response')
       // Check and run other model's polling.
       context.dispatch('startAllPolling', payload)
 
@@ -431,9 +433,9 @@ export default {
         const r = response.data
         const state = r.state
         const need_pull = response.data.need_pull
-	console.log('if there is model')
-	console.log('response.data', r)
-	console.log('need_pull', need_pull)
+	// console.log('if there is model')
+	// console.log('response.data', r)
+	// console.log('need_pull', need_pull)
         // Update model.
         model.state = r.state
         model.running_state = r.running_state
