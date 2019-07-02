@@ -1843,7 +1843,7 @@ def get_train_status(task_name):
             "total_epoch": active_train_thread.total_epoch,
             "nth_epoch": active_train_thread.nth_epoch + 1,
             "total_batch": active_train_thread.total_batch,
-            "nth_batch": active_train_thread.nth_batch + 1,
+            "nth_batch": active_train_thread.nth_batch,
             "last_batch_loss": active_train_thread.last_batch_loss,
             "total_valid_batch": 0,
             "nth_valid_batch": 0,
@@ -1908,7 +1908,7 @@ def get_prediction_status(task_name):
             "state": active_prediction_thread.state.value,
             "running_state": active_prediction_thread.running_state.value,
             "total_batch": active_prediction_thread.total_batch,
-            "nth_batch": active_prediction_thread.nth_batch + 1,
+            "nth_batch": active_prediction_thread.nth_batch,
         }
     else:
         for _ in range(10):
@@ -1922,7 +1922,7 @@ def get_prediction_status(task_name):
             "state": active_prediction_thread.state.value,
             "running_state": active_prediction_thread.running_state.value,
             "total_batch": active_prediction_thread.total_batch,
-            "nth_batch": active_prediction_thread.nth_batch + 1,
+            "nth_batch": active_prediction_thread.nth_batch,
         }
 
 
