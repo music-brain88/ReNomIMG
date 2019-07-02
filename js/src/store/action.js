@@ -451,7 +451,11 @@ export default {
         if (need_pull){
           console.log('2. when need_pull === true')
           context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
-          context.commit('forceUpdatePredictionPage')
+          // context.commit('forceUpdatePredictionPage')
+          const deployed_model = context.getters.getModelById(model_id)
+          context.commit('setDeployedModel', deployed_model)
+          console.log('deployed model', context.getters.getDeployedModel)
+	  context.commit('forceUpdatePredictionPage')
           // context.dispatch('forceUpdatePage', model_id)
         }
       }
@@ -463,6 +467,7 @@ export default {
   async forceUpdatePage (context, payload) {
     const model_id = payload
     const model = context.getters.getModelById(model_id)
+    console.log("here in forceUpdatePafe")
     if (model) {
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
