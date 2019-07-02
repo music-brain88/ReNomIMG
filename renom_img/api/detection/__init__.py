@@ -8,6 +8,7 @@ from renom_img.api.utility.load import load_img
 from renom_img.api import Base
 from renom_img.api.utility.target import DataBuilderClassification
 from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.exceptions.exceptions import FunctionNotImplementedError
 
 
 class Detection(Base):
@@ -97,7 +98,7 @@ class Detection(Base):
             >>> z = model(x)
             >>> loss = model.loss(z, y)
         """
-        raise NotImplementedError
+        raise FunctionNotImplementedError("The loss function has not been implemented for the {} class.".format(self.__class__))
 
     def build_data(self):
         """
@@ -113,6 +114,6 @@ class Detection(Base):
             >>> z = model(x)
             >>> loss = model.loss(z, y)
         """
-        raise NotImplementedError
+        raise FunctionNotImplementedError("The build_data function has not been implemented for the {} class.".format(self.__class__))
 
 

@@ -37,6 +37,12 @@ class PredictionThread(object):
         cls.jobs[model_id] = ret
         return ret
 
+    @classmethod
+    def add_thread(cls, model_id):
+        ret = super(PredictionThread, cls).__new__(cls)
+        cls.jobs[model_id] = ret
+        return ret
+
     def set_future(self, future_obj):
         self.future = future_obj
 

@@ -88,7 +88,10 @@ class SemanticSegmentation(Base):
             opt = self.default_optimizer
         else:
             opt = optimizer
-        assert opt is not None
+        try:
+            assert opt is not None,"Provided Optimizer is not valid. Optimizer must an instance of rm.optimizer. Provided {}".format(opt)
+        except Exception as e:
+            raise InvalidOptimizerError(str(e))
         if isinstance(opt, BaseOptimizer):
             opt.setup(batch_loop, epoch)
 
@@ -105,7 +108,7 @@ class SemanticSegmentation(Base):
 
                 # grdient
                 with self.train():
-                    loss = self.loss(self.model(train_x), train_y, class_weight=class_weight)
+                    loss = self.loss(self(train_x), train_y, class_weight=class_weight)
                     reg_loss = loss + self.regularize()
 
                 try:
@@ -123,7 +126,7 @@ class SemanticSegmentation(Base):
 
             if valid_img_path_list is not None:
                 bar.n = 0
-                bar.total = len(valid_dist) // batch_size
+                bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)

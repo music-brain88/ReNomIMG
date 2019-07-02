@@ -19,10 +19,21 @@ DATASET_PREDICTION_IMG_DIR = DATASET_PREDICTION_DIR / "img"
 
 MAX_THREAD_NUM = 1
 
-DATASET_NAME_MAX_LENGTH = 20
+DATASET_NAME_MAX_LENGTH = 128
 DATASET_NAME_MIN_LENGTH = 1
-DATASET_DESCRIPTION_MAX_LENGTH = 500
+DATASET_DESCRIPTION_MAX_LENGTH = 1024
 DATASET_DESCRIPTION_MIN_LENGTH = 0
+DATASET_RATIO_MAX = 0.9
+DATASET_RATIO_MIN = 0.1
+
+EPOCH_MAX = 1000
+EPOCH_MIN = 1
+BATCH_MAX = 128
+BATCH_MIN = 1
+CELL_MAX = 10
+CELL_MIN = 2
+BBOX_MAX = 5
+BBOX_MIN = 1
 
 
 def create_directories():
@@ -76,3 +87,14 @@ class Algorithm(enum.Enum):
 
     UNET = 60
     FCN = 61
+    DEEPLABV3PLUS = 62
+
+
+TASK_ID_BY_NAME = {
+    "classification": Task.CLASSIFICATION.value,
+    "detection": Task.DETECTION.value,
+    "segmentation": Task.SEGMENTATION.value,
+}
+
+# name, description, min, max
+ERROR_MESSAGE_TEMPLATE = "{} {}. Please input {} ~ {}."

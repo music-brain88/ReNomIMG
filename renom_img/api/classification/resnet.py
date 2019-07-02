@@ -15,7 +15,7 @@ from renom_img.api.utility.target import DataBuilderClassification
 from renom_img.api.utility.optimizer import OptimizerResNet
 
 RESIZE_METHOD = Image.BILINEAR
-
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 class TargetBuilderResNet():
     '''
@@ -103,6 +103,7 @@ class TargetBuilderResNet():
         Returns:
             (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path, self.imsize)[None]
                                    for path in img_path_list])
@@ -161,17 +162,18 @@ class ResNet18(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-
-        self.model = CnnResNet(1, BasicBlock, [2, 2, 2, 2])
+        #Exception checking
+        check_resnet_init(plateau)
+        self._model = CnnResNet(1, BasicBlock, [2, 2, 2, 2])
         super(ResNet18, self).__init__(class_map, imsize,
-                                       load_pretrained_weight, train_whole_network, self.model)
+                                       load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
         self.default_optimizer = OptimizerResNet(plateau)
-        self.model.fc.params = {}
+        self._model.fc.params = {}
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
@@ -210,16 +212,18 @@ class ResNet34(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        #Exception checking
+        check_resnet_init(plateau)
 
-        self.model = CnnResNet(1, BasicBlock, [3, 4, 6, 3])
+        self._model = CnnResNet(1, BasicBlock, [3, 4, 6, 3])
         super(ResNet34, self).__init__(class_map, imsize,
-                                       load_pretrained_weight, train_whole_network, self.model)
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+                                       load_pretrained_weight, train_whole_network, self._model)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
         self.default_optimizer = OptimizerResNet(plateau)
-        self.model.fc.params = {}
+        self._model.fc.params = {}
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
@@ -258,16 +262,18 @@ class ResNet50(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        #Exception checking
+        check_resnet_init(plateau)
 
-        self.model = CnnResNet(1, Bottleneck, [3, 4, 6, 3])
+        self._model = CnnResNet(1, Bottleneck, [3, 4, 6, 3])
         super(ResNet50, self).__init__(class_map, imsize,
-                                       load_pretrained_weight, train_whole_network, self.model)
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+                                       load_pretrained_weight, train_whole_network, self._model)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
         self.default_optimizer = OptimizerResNet(plateau)
-        self.model.fc.params = {}
+        self._model.fc.params = {}
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
@@ -306,16 +312,18 @@ class ResNet101(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        #Exception checking
+        check_resnet_init(plateau)
 
-        self.model = CnnResNet(1, Bottleneck, [3, 4, 23, 3])
+        self._model = CnnResNet(1, Bottleneck, [3, 4, 23, 3])
         super(ResNet101, self).__init__(class_map, imsize,
-                                        load_pretrained_weight, train_whole_network, self.model)
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+                                        load_pretrained_weight, train_whole_network, self._model)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
         self.default_optimizer = OptimizerResNet(plateau)
-        self.model.fc.params = {}
+        self._model.fc.params = {}
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
@@ -354,16 +362,18 @@ class ResNet152(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        #Exception checking
+        check_resnet_init(plateau)
 
-        self.model = CnnResNet(1, Bottleneck, [3, 8, 36, 3])
+        self._model = CnnResNet(1, Bottleneck, [3, 8, 36, 3])
         super(ResNet152, self).__init__(class_map, imsize,
-                                        load_pretrained_weight, train_whole_network, self.model)
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+                                        load_pretrained_weight, train_whole_network, self._model)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.decay_rate = 0.0001
         self.default_optimizer = OptimizerResNet(plateau)
-        self.model.fc.params = {}
+        self._model.fc.params = {}
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)

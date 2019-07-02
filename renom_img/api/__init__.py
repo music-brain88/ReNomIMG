@@ -10,7 +10,8 @@ from tqdm import tqdm
 from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
-
+from renom_img.api.utility.exceptions.check_exceptions import *
+from renom_img.api.utility.exceptions.exceptions import InvalidValueError, InvalidOptimizerError
 
 def adddoc(cls):
     """Insert parent doc strings to inherited class.
@@ -45,6 +46,9 @@ class Base(rm.Model):
     def __init__(self, class_map=None, imsize=(224, 224),
                  load_pretrained_weight=False, train_whole_network=False, load_target=None):
 
+        # for Exceptions check
+        check_for_common_init_params(class_map,imsize,load_pretrained_weight,train_whole_network,load_target)
+
         # 0. General setting.
         self.default_optimizer = rm.Sgd(0.001, 0.9)
 
@@ -71,8 +75,6 @@ class Base(rm.Model):
         # 4. Load pretrained weight.
         self.load_pretrained_weight = load_pretrained_weight
         if load_pretrained_weight and load_target is not None:
-            assert self.WEIGHT_URL, \
-                "The class '{}' has no pretrained weight.".format(self.__class__.__name__)
 
             if isinstance(load_pretrained_weight, bool):
                 weight_path = self.__class__.__name__ + '.h5'
@@ -84,10 +86,10 @@ class Base(rm.Model):
             try:
                 load_target.load_pretrained_weight(weight_path)
             except:
-                os.remove(weight_path)
-                download(self.WEIGHT_URL, weight_path)
-                load_target.load_pretrained_weight(weight_path)
-
+                weight_path_new = self.__class__.__name__ + '_new.h5'
+                download(self.WEIGHT_URL, weight_path_new)
+                load_target.load_pretrained_weight(weight_path_new)
+ 
     def regularize(self):
         """
         Adds a regularization term to the loss function.
@@ -101,9 +103,12 @@ class Base(rm.Model):
             >>> reg_loss = loss + model.regularize() # Add weight decay term.
         """
         reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w"):
-                reg += rm.sum(layer.params.w * layer.params.w)
+        try:
+            for layer in self.iter_models():
+                if hasattr(layer, "params") and hasattr(layer.params, "w") and not isinstance(layer,rm.BatchNormalize):
+                    reg += rm.sum(layer.params.w * layer.params.w)
+        except Exception as e:
+            raise InvalidValueError("Error encountered in calculating regularization term for loss function. Please check if model is appropriately defined and model contains only acceptable values for the weight parameters.")
 
         return (self.decay_rate / 2) * reg
 
@@ -175,7 +180,8 @@ class Base(rm.Model):
             opt = self.default_optimizer
         else:
             opt = optimizer
-        assert opt is not None
+        if opt is None:
+            raise InvalidOptimizerError("Optimizer is not defined. Please define a valid optimizer.")
         if isinstance(opt, BaseOptimizer):
             opt.setup(batch_loop, epoch)
 
@@ -212,7 +218,7 @@ class Base(rm.Model):
 
             if valid_img_path_list is not None:
                 bar.n = 0
-                bar.total = len(valid_dist) // batch_size
+                bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
                 for i, (valid_x, valid_y) in enumerate(valid_dist.batch(batch_size, target_builder=self.build_data())):
                     self.set_models(inference=True)
@@ -261,9 +267,6 @@ class Base(rm.Model):
         """
         pass
 
-    def _freeze(self):
-        pass
-
     def forward(self, x):
         """
         Performs forward propagation.
@@ -272,8 +275,5 @@ class Base(rm.Model):
         Args:
             x(ndarray, Node): Input to ${class}.
         """
-        assert len(self.class_map) > 0, \
-            "Class map is empty. Please set the attribute class_map when instantiating a model. " +\
-            "Or, please load a pre-trained model using the 'load()' method."
-        self._freeze()
-        return self.model(x)
+        check_common_forward(x)
+        return self._model(x)

@@ -1,5 +1,6 @@
 import numpy as np
 from PIL import Image
+from renom_img.api.utility.exceptions.exceptions import InvalidInputValueError, FunctionNotImplementedError
 from scipy.ndimage.interpolation import map_coordinates
 from scipy.ndimage.filters import gaussian_filter
 import matplotlib.colors as cl
@@ -25,8 +26,9 @@ class ProcessBase(object):
         return self.transform(x, y, mode)
 
     def transform(self, x, y=None, mode="classification"):
-        assert_msg = "{} is not supported transformation mode. {} are available."
-        assert mode in MODE, assert_msg.format(mode, MODE)
+        assert_msg = "{} is not a supported transformation mode. Please select a mode from the following: {}."
+        if mode not in MODE:
+            raise InvalidInputValueError(assert_msg.format(mode, MODE))
 
         if mode == MODE[0]:
             # Returns only x.
@@ -38,14 +40,14 @@ class ProcessBase(object):
 
     def _transform_classification(self, x, y):
         """Format must be 1d array or list of integer."""
-        raise NotImplemented
+        raise FunctionNotImplementedError("This transformation has not been implemented.")
 
     def _transform_detection(self, x, y):
         """Format must be list of dictionary"""
-        raise NotImplemented
+        raise FunctionNotImplementedError("This transformation has not been implemented.")
 
     def _transform_segmentation(self, x, y):
-        raise NotImplemented
+        raise FunctionNotImplementedError("This transformation has not been implemented.")
 
 
 class Flip(ProcessBase):
@@ -54,7 +56,6 @@ class Flip(ProcessBase):
         super(Flip, self).__init__()
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -68,7 +69,6 @@ class Flip(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -111,7 +111,6 @@ class Flip(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -170,7 +169,6 @@ class HorizontalFlip(ProcessBase):
         self.prob = prob
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -262,7 +260,6 @@ class VerticalFlip(ProcessBase):
         self.prob = prob
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -363,7 +360,6 @@ class RandomCrop(ProcessBase):
         )
 
     def _transform_classification(self, x, y):  # according to the ResNet paper
-        # assert len(x.shape) == 4
         img_list = []
         n = len(x)
         for i in range(n):
@@ -402,7 +398,6 @@ class RandomCrop(ProcessBase):
             return False
 
     def _transform_detection(self, x, y):  # according to ssd paper
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -501,7 +496,6 @@ class RandomCrop(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         img_list = []
         new_y = []
         n = len(x)
@@ -562,7 +556,8 @@ class CenterCrop(ProcessBase):
 
     def __init__(self, size=(224, 224)):
         super(CenterCrop, self).__init__()
-        assert len(size) == 2, "crop size should be a tuple, for example (224,224)"
+        if not len(size) == 2:
+            raise InvalidInputValueError("Invalid crop size provided. Please provide a tuple for the crop size, such as (224,224).")
         self.size = size
 
     def cal_overlap(self, b1_x1, b1_y1, b1_x2, b1_y2, b2_x1, b2_y1, b2_x2, b2_y2):
@@ -686,7 +681,6 @@ class Shift(ProcessBase):
         self._v = vertivcal
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -711,7 +705,6 @@ class Shift(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 1
         img_list = []
         new_y = []
         n = len(x)
@@ -762,7 +755,6 @@ class Shift(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         label_list = []
@@ -833,7 +825,6 @@ class Rotate(ProcessBase):
         super(Rotate, self).__init__()
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -850,7 +841,6 @@ class Rotate(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -905,7 +895,6 @@ class Rotate(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         new_x = []
         new_y = []
@@ -963,7 +952,6 @@ class WhiteNoise(ProcessBase):
         self._std = std
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         img_list = []
         n = len(x)
         for i in range(n):
@@ -971,7 +959,6 @@ class WhiteNoise(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         img_list = []
         n = len(x)
         for i in range(n):
@@ -979,7 +966,6 @@ class WhiteNoise(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         img_list = []
         n = len(x)
         for i in range(n):
@@ -1350,7 +1336,6 @@ class ContrastNorm(ProcessBase):
             return self._alpha
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1368,7 +1353,6 @@ class ContrastNorm(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1386,7 +1370,6 @@ class ContrastNorm(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1447,7 +1430,6 @@ class RandomBrightness(ProcessBase):
         self._delta = delta
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1461,7 +1443,6 @@ class RandomBrightness(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1475,7 +1456,6 @@ class RandomBrightness(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1535,7 +1515,6 @@ class RandomHue(ProcessBase):
                                [1.0, -1.107, 1.705]])
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1551,7 +1530,6 @@ class RandomHue(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1567,7 +1545,6 @@ class RandomHue(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1624,7 +1601,6 @@ class RandomSaturation(ProcessBase):
         self.coef = np.array([[[0.299, 0.587, 0.114]]])
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1638,7 +1614,6 @@ class RandomSaturation(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1652,7 +1627,6 @@ class RandomSaturation(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1707,7 +1681,6 @@ class RandomLighting(ProcessBase):
                        (2, 0, 1), (2, 1, 0))
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1722,7 +1695,6 @@ class RandomLighting(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1737,7 +1709,6 @@ class RandomLighting(ProcessBase):
         return img_list, y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1789,7 +1760,6 @@ class RandomExpand(ProcessBase):
         super(RandomExpand, self).__init__()
 
     def _transform_classification(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         for i in range(n):
@@ -1805,7 +1775,6 @@ class RandomExpand(ProcessBase):
         return img_list, y
 
     def _transform_detection(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []
@@ -1830,7 +1799,6 @@ class RandomExpand(ProcessBase):
         return img_list, new_y
 
     def _transform_segmentation(self, x, y):
-        # assert len(x.shape) == 4
         n = len(x)
         img_list = []
         new_y = []

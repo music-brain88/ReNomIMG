@@ -1,7 +1,9 @@
 @import url('http://fonts.googleapis.com/css?family=Open+Sans');
 
+
 // App window size settings.
-$app-window-width: 1280px;
+$app-window-width: 100%;
+$max-width: 1280px;
 // $app-window-width: calc(100vw - 20px);
 $app-window-height: 100vh;
 
@@ -17,9 +19,9 @@ $header-height: 40px;
 $header-min-height: 40px;
 $header-background-color: #063662;
 $header-product-name-font-family: Open Sans Regular;
-$header-product-name-font-size: 15pt;
+$header-product-name-font-size: 1rem;
 $header-title-font-family: Open Sans Regular;
-$header-title-font-size: 15pt;
+$header-title-font-size: 1rem;
 $header-title-margin-left: 15pt;
 $header-font-color: #ffffff;
 
@@ -29,15 +31,13 @@ $slide-window-background-color: #063662;
 $slide-window-width-min: 150px;
 
 //// Page Tab Settings.
-$tab-content-height: calc(#{$header-height} * 0.7);
+$tab-content-height: calc(#{$header-height} * 0.72);
 $tab-content-min-height: $header-min-height;
 $tab-content-width: calc(#{$app-window-width}/4.5);
 
 //// App Page Container Settings.
 $app-container-padding-top: 10px;
 $app-container-padding-bottom: 10px;
-$app-container-padding-left: 10px;
-$app-container-padding-right: 10px;
 
 //// Component Frame Settings
 // $component-header-height: calc(#{$header-height}*0.85);
@@ -58,15 +58,19 @@ $component-font-size-small: 0.8rem;
 $component-font-color-title: #999;
 $component-font-color: #555;
 
-$component-block-margin: 5px;
+$component-block-padding: 8px;
 $component-block-padding-left: 16px;
 $component-block-padding-right: 5px;
 $component-block-width: calc(#{$app-window-width} / 12);
 $component-block-height: calc(
   (#{$app-window-height}
    - #{$header-height}
-   - #{$tab-content-height}) / 12);
-$component-block-height-min: 70px;
+   - #{$app-container-padding-top}
+   - #{$app-container-padding-bottom}
+   - #{$tab-content-height} * 2
+   - #{$footer-height})
+   / 12);
+$component-block-height-min: 50px;
 $component-background-color: #ffffff;
 
 //// Component Progress Bar Area Settings.
@@ -103,7 +107,7 @@ $modal-content-padding: 10px;
 // Model Filter Item Settings.
 $model-filter-margin: 5px;
 $model-filter-height: calc(#{$component-block-height}*0.65);
-$model-filter-min-height: calc(#{$component-block-height-min}*0.65);
+$model-filter-min-height: $component-block-height-min;
 
 // Model Llist Settings.
 $model-list-margin: 5px;
@@ -111,8 +115,8 @@ $model-list-add-button-background-color: #3498DB;
 
 // Model Item Settings.
 $model-item-height: calc(#{$component-block-height} * 0.65);
-$model-item-height-min: calc(#{$component-block-height-min} * 0.65);
-$model-item-margin: 5px;
+$model-item-height-min: $component-block-height-min;
+// $model-item-margin: 5px;
 
 // Model Item Button Settings.
 $model-item-remove-button-color: #BF360C;
@@ -132,39 +136,56 @@ $dataset-table-test-dataset-id-width: 10%;
 $dataset-table-valid-data-width: 15%;
 $dataset-table-item-height: 25px;
 
-// Class Colors
-.color-created {
-  background-color: #99A3A4;
-}
 
-.color-reserved {
-  background-color: #F1C40F;
-}
-
+$color-created: #99A3A4;
+$color-reserved: #F1C40F;
 $color-train:#0762AD;
-
 $color-valid:#EF8200;
-
 $color-best-epoch: red;
 
-// The color is specified by algorithm ID(0 ~ 9).
+//The color is specified by algorithm
+$color-no-model: #229954; // green when no model exists
+$color-0: #903e84;
+$color-1: #423885;
+$color-2: #136eab;
+$color-3: #009453;
+$color-4: #92b447;
+$color-5: #dfd238;
+
+// Class Colors
+.color-train {
+  background-color: $color-train;
+}
+.color-valid {
+  background-color: $color-valid;
+}
+.color-created {
+  background-color: $color-created;
+}
+.color-reserved {
+  background-color: $color-reserved;
+}
+
+.color-no-model{
+  background-color: $color-no-model;
+}
 .color-0 {
-  background-color: #903e84;
+  background-color: $color-0;
 }
 .color-1 {
-  background-color: #423885;
+  background-color: $color-1;
 }
 .color-2 {
-  background-color: #136eab;
+  background-color: $color-2;
 }
 .color-3 {
-  background-color: #009453;
+  background-color: $color-3;
 }
 .color-4 {
-  background-color: #92b447;
+  background-color: $color-4;
 }
 .color-5 {
-  background-color: #dfd238;
+  background-color: $color-5;
 }
 .color-6 {
   background-color: black;
@@ -179,6 +200,31 @@ $color-best-epoch: red;
   background-color: black;
 }
 
+
+//▼▼▼▼▼▼▼▼▼▼▼▼使用しない▼▼▼▼▼▼▼▼▼▼▼▼
+// .created {
+//   background-color: $color-created;
+// }
+// .reserved {
+//   background-color: $color-reserved;
+// }
+// .train {
+//   background-color: $color-train;
+// }
+// .valid {
+//   background-color: $color-valid;
+// }
+//
+// .yolo-v1 {
+//   background-color: $color-0;
+// }
+// .yolo-v2 {
+//   background-color: $color-1;
+// }
+// .ssd {
+//   background-color: $color-2;
+// }
+//▲▲▲▲▲▲▲▲▲▲▲▲▲使用しない▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 //// Animation Settings
 .fade-enter-active, .fade-leave-active {
@@ -211,17 +257,23 @@ $color-best-epoch: red;
 }
 .scrollbar-container{
   width: 100%;
+  height: 100%;
   overflow: auto;
 }
 
 // Button Setting
+
+.rnc-button {
+  height: 100%;
+}
+
 
 input[type='button'] {
   height: 28px;
   background-color: $component-header-sub-color;
   color: white;
   border: none;
-  padding: 5px;
+  padding: 0px;
   width: 100px;
   cursor: pointer;
 
@@ -229,13 +281,21 @@ input[type='button'] {
   &:hover {
     background-color: $component-header-sub-color-hover;
   }
-  &:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-  }
   &:active {
     background-color: #02669999;
   }
+  &:disabled {
+    border: 1px solid #999999;
+    background-color: #fff;
+    color: #999;
+    cursor:not-allowed;
+  }
+  &.button-size {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+  }
+
 
   // Style Cancel
   &.cancel {
@@ -244,11 +304,170 @@ input[type='button'] {
       background-color: #777;
     }
     &:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
+      border: 1px solid #999;
+      background-color: #fff;
+      color: #999;
+      cursor:not-allowed;
     }
     &:active {
       background-color: #bbb;
     }
   }
+}
+
+
+
+
+
+
+
+
+//****以下、臨時的にRGのものを入れています。****
+
+
+// width & height
+$full-screen-width: 100%;
+$full-screen-height: 100%;
+$max-width: 1280px;
+
+// colors
+$background-gray: #f3f3f1;
+$white: #ffffff;
+$light-gray: #bbbbbb;
+$gray: #999999;
+$black: #666666;
+$dark-blue: #063662;
+$blue: #136eab;
+$line-blue: #3F79AE;
+$copyright-blue: #02294C;
+$err_red: #FF4500;
+$component-font-color-title: #999;
+$modal-mask-color: rgba(0, 0, 0, 0.6);
+
+// font-size
+$fs-regular: 0.9rem;
+$fs-small: 0.8rem;
+$fs-micro: 0.6rem;
+
+// text height
+$text-height-regular: 32px;
+$text-height-middle: 28px;
+$text-height-small: 24px;
+$text-height-micro: 20px;
+
+// margin
+$margin-micro: 4px;
+$margin-small: 8px;
+$margin-middle: 16px;
+$margin-large: 32px;
+
+// padding
+$padding-micro: 4px;
+$padding-small: 8px;
+$padding-middle: 16px;
+$padding-large: 32px;
+$padding-extra-large: 40px;
+
+// border witdh
+$border-width-regular: 1px;
+$border-width-bold: 2px;
+
+// modal
+$modal-opacity: 0.5;
+$modal-content-width: 70%;
+$modal-content-height: 80%;
+//$modal-content-padding: 32px; // IMGに同じ名前の変数有り
+$modal-tab-width: 200px;
+$modal-tab-height: 32px;
+
+
+// added by muraishi 20190607
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #fff !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+
+// added by uyama 20190530
+select, input {
+  // -webkit-appearance: none;
+  box-sizing: border-box;
+  align-items: center;
+  white-space: pre;
+  -webkit-rtl-ordering: logical;
+  color: $component-font-color;
+  cursor: text;
+  border-width: 1px;
+  border-style: solid;
+  border-color: $gray;
+  border-image: initial;
+}
+.form-warn{
+  animation: notifyAnimation;
+  border: 1px solid $err_red;
+  animation-fill-mode: forwards;
+  @keyframes notifyAnimation {
+    100% {
+      outline-color: $err_red;
+    }
+  }
+}
+
+.rnc-input {
+  .input-value {
+    .input-in {
+      width: 100%;
+      &::placeHolder {
+        color: $light-gray;
+      }
+      &:disabled {
+        color: $light-gray;
+        border-color: $light-gray;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+
+
+
+
+
+/**
+* 以下はテストのため、臨時的に作成しました
+*/
+$button-width: 50px;
+$button-height: 30px;
+.rnc-button-close{
+  width: $button-width;
+  height: $button-height;
+  border: none;
+  background-color: $blue;
+  line-height: $button-height;
+  font-size: $fs-regular;
+  color: $white;
+  cursor:pointer;
+}
+
+.bx--btn--danger{
+  background-color: red;
+}
+.bx--btn--danger--primary{
+  background-color: red;
+}
+button:disabled {
+  border: $border-width-regular solid $light-gray;
+  background-color: $white;
+  line-height: calc(#{$button-height} - #{$border-width-regular}*2);
+  color: $gray;
+  cursor:not-allowed;
 }

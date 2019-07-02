@@ -13,6 +13,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.target import DataBuilderClassification
 from renom_img.api.cnn.resnext import CnnResNeXt, Bottleneck
 from renom_img.api.utility.optimizer import OptimizerResNeXt
+from renom_img.api.utility.exceptions.check_exceptions import *
 
 RESIZE_METHOD = Image.BILINEAR
 
@@ -106,6 +107,7 @@ class TargetBuilderResNeXt():
         Returns:
             (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path, self.imsize)[None]
                                    for path in img_path_list])
@@ -167,19 +169,21 @@ class ResNeXt50(Classification):
         __version__)
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        # exceptions checking
+        check_resnext_init(plateau,cardinality)
 
         self.cardinality = cardinality
 
-        self.model = CnnResNeXt(1, Bottleneck, [3, 4, 6, 3], self.cardinality)
+        self._model = CnnResNeXt(1, Bottleneck, [3, 4, 6, 3], self.cardinality)
         super(ResNeXt50, self).__init__(class_map, imsize,
-                                        load_pretrained_weight, train_whole_network, self.model)
+                                        load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerResNeXt(plateau)
         self.decay_rate = 0.0001
-        self.model.fc.params = {}
+        self._model.fc.params = {}
 
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
@@ -220,19 +224,21 @@ class ResNeXt101(Classification):
         __version__)
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
+        # exceptions checking
+        check_resnext_init(plateau,cardinality)
 
         self.cardinality = cardinality
 
-        self.model = CnnResNeXt(1, Bottleneck, [3, 4, 23, 3], self.cardinality)
+        self._model = CnnResNeXt(1, Bottleneck, [3, 4, 23, 3], self.cardinality)
         super(ResNeXt101, self).__init__(class_map, imsize,
-                                         load_pretrained_weight, train_whole_network, self.model)
+                                         load_pretrained_weight, train_whole_network, self._model)
 
-        self.model.set_output_size(self.num_class)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size(self.num_class)
+        self._model.set_train_whole(train_whole_network)
 
         self.default_optimizer = OptimizerResNeXt(plateau)
         self.decay_rate = 0.0001
-        self.model.fc.params = {}
+        self._model.fc.params = {}
 
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)

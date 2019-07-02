@@ -17,7 +17,8 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.nms import nms
 from renom_img.api.utility.optimizer import BaseOptimizer, OptimizerYolov2
-
+from renom_img.api.utility.exceptions.check_exceptions import *
+from renom_img.api.utility.exceptions.exceptions import WeightLoadError, InvalidOptimizerError
 
 class BestAnchorBoxFinder(object):
     def __init__(self, ANCHORS):
@@ -205,7 +206,7 @@ class TargetBuilderYolov2():
         self.anchor = anchor
         self.num_anchor = num_anchor
         self.bestAnchorBoxFinder = BestAnchorBoxFinder(self.anchor)
-        self.buffer = 50
+        self.buffer = 50 
 
     def __call__(self, *args, **kwargs):
         return self.build(*args, **kwargs)
@@ -222,6 +223,7 @@ class TargetBuilderYolov2():
             augmentation (Augmentation): Augmentation object.
             nth (int): Current batch index.
         """
+        check_missing_param(self.class_map)
         if annotation_list is None:
             img_array = np.vstack([load_img(path,self.imsize_list[0])[None]
                                     for path in img_path_list])
@@ -309,51 +311,110 @@ class Yolov2(Detection):
 
     def __init__(self, class_map=None, anchor=None,
                  imsize=(320, 320), load_pretrained_weight=False, train_whole_network=False):
+        # Exceptions checking
+        check_yolov2_init(imsize)
 
-        assert (imsize[0] / 32.) % 1 == 0 and (imsize[1] / 32.) % 1 == 0, \
-            "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
-              exp),imsize=(320, 320)."
-
-
-        self.model = CnnYolov2()
+        self._model = CnnYolov2()
         super(Yolov2, self).__init__(class_map, imsize,
-                                     load_pretrained_weight, train_whole_network, self.model)
+                                     load_pretrained_weight, train_whole_network, self._model)
         self.anchor = [] if not isinstance(anchor, AnchorYolov2) else anchor.anchor
         self.anchor_size = imsize if not isinstance(anchor, AnchorYolov2) else anchor.imsize
         self.num_anchor = 0 if anchor is None else len(anchor)
         self.default_optimizer = OptimizerYolov2()
 
 
-        self.model.set_output_size((self.num_class + 5)*self.num_anchor,self.class_map,self.num_anchor)
-        self.model.set_train_whole(train_whole_network)
+        self._model.set_output_size((self.num_class + 5)*self.num_anchor,self.class_map,self.num_anchor)
+        self._model.set_train_whole(train_whole_network)
+        self.decay_rate = 0.0005
 
+    def load(self, filename):
+        """Load saved weights to model.
 
-
-    def regularize(self):
-        """Regularization term. You can use this function to add a regularization term to
-        the loss function.
-
-        In Yolo v2, a weight decay of 0.0005 will be used in the calculation.
+        Args:
+            filename (str): File name of saved model.
 
         Example:
-            >>> import numpy as np
-            >>> from renom_img.api.detection.yolo_v2 import Yolov2
-            >>> x = np.random.rand(1, 3, 224, 224)
-            >>> y = np.random.rand(1, (5*2+20)*7*7)
-            >>> class_map = ...
-            >>> model = Yolov2(class_map)
-            >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # The weight decay term is added here.
+            >>> model = rm.Dense(2)
+            >>> model.load("model.hd5")
         """
-        reg = 0
-        for layer in self.iter_models():
-            if hasattr(layer, "params") and hasattr(layer.params, "w") and isinstance(layer, rm.Conv2d):
-                reg += rm.sum(layer.params.w * layer.params.w)
-        return (0.0005 / 2.) * reg
+        import h5py
+        f = h5py.File(filename, 'r+')
+        values = f['values']
+        types = f['types']
+
+        names = sorted(values.keys())
+
+        try:
+            self._try_load(names,values,types)
+        except AttributeError as e:
+            try:
+                names,values,types = self._mapping(names,values,types)
+                self._try_load(names,values,types)
+            except Exception as e:
+                raise WeightLoadError('The {} weight file can not be loaded into the {} model.'.format(filename, self.__class__.__name__))
+
+    def _mapping(self,names,values,types):
+        for name in names:
+            if "._freezed_network" in name:
+                values[name.replace("._freezed_network","._model._base")] = values.pop(name)
+                types[name.replace("._freezed_network","._model._base")] = types.pop(name)
+            elif "root." in name:
+                values[name.replace("root.","root._model.")] = values.pop(name)
+                types[name.replace("root.","root._model.")] = types.pop(name)
+
+        names = [n.replace("root.","root._model.") for n in names]
+        names = [n.replace("._freezed_network","._base") for n in names]
+
+        return sorted(names),values,types
+
+    def _try_load(self,names,values,types):
+
+        def get_attr(root, names):
+            names = names.split('.')[1:]
+            ret = root
+            for name in names:
+                ret = getattr(ret, name)
+            return ret
+
+        target = self
+        for name in names:
+            target = get_attr(self, name)
+
+            values_grp = values[name]
+            types_grp = types[name]
+
+            for k, v in values_grp.items():
+                v = v.value
+                if isinstance(v, np.ndarray):
+                    type = types_grp.get(k, None)
+                    if type:
+                        if type.value == 'renom.Variable':
+                            auto_update = types_grp[k + '._auto_update'].value
+                            v = rm.Variable(v, auto_update=auto_update)
+                        else:
+                            v = rm.Node(v)
+
+                if k.startswith('__dict__.'):
+                    obj = target
+                    name = k.split(".", 1)[1]
+                else:
+                    obj = target.params
+                    name = k
+
+                setattr(obj, name, v)
+
 
     def forward(self, x):
-        self.model.set_anchor(self.num_anchor)
-        return self.model(x)
+        """
+        Performs forward propagation.
+        You can call this function using the ``__call__`` method.
+
+        Args:
+            x(ndarray, Node): Input to ${class}.
+        """
+        check_yolov2_forward(self.anchor,x)
+        self._model.set_anchor(self.num_anchor)
+        return self._model(x)
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
@@ -471,11 +532,6 @@ class Yolov2(Detection):
         """
         if imsize_list is None:
             imsize_list = [self.imsize]
-        else:
-            for ims in imsize_list:
-                assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
-                    "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
-                    exp),imsize=[(288, 288), (320, 320)]."
 
         size_N = len(imsize_list)
         perm = np.random.permutation(size_N)
@@ -673,10 +729,7 @@ class Yolov2(Detection):
         if imsize_list is None:
             imsize_list = [self.imsize]
         else:
-            for ims in imsize_list:
-                assert (ims[0] / 32.) % 1 == 0 and (ims[1] / 32.) % 1 == 0, \
-                    "Yolo v2 only accepts 'imsize' argument which is list of multiple of 32. \
-                    exp),imsize=[(288, 288), (320, 320)]."
+            check_yolov2_init(imsize)
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=8)
         if valid_img_path_list is not None and valid_annotation_list is not None:
@@ -693,7 +746,8 @@ class Yolov2(Detection):
             opt =self.default_optimizer
         else:
             opt = optimizer
-        assert opt is not None
+        if opt is None:
+            raise InvalidOptimizerError("Optimizer is not defined. Please define a valid optimizer.")
 
         if isinstance(opt, BaseOptimizer):          
             opt.setup(batch_loop, epoch)
@@ -731,7 +785,7 @@ class Yolov2(Detection):
                 if is_cuda_active():
                     release_mem_pool()
                 bar.n = 0
-                bar.total = len(valid_dist) // batch_size
+                bar.total = int(np.ceil(len(valid_dist) / batch_size))
                 display_loss = 0
                 for i, (valid_x,buffer_data, valid_y) in enumerate(valid_dist.batch(batch_size, shuffle=False, target_builder=self.build_data())):
                     self.set_models(inference=True)

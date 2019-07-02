@@ -2,7 +2,7 @@ import renom as rm
 
 from renom_img import __version__
 from renom_img.api.cnn import CnnBase
-
+from renom_img.api.utility.exceptions.exceptions import *
 
 class CnnYolov1(CnnBase):
 
@@ -126,4 +126,7 @@ class CnnYolov1(CnnBase):
                 layer.params = {}
 
     def load_pretrained_weight(self, path):
-        self.feature_extractor.load(path)
+        try:
+            self.feature_extractor.load(path)
+        except:
+            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
