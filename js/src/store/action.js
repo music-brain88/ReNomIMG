@@ -396,6 +396,7 @@ export default {
       model_id: model_id
     })
       .then(function (response) {
+        console.log('response in runpridictThread', response)
         context.dispatch('startAllPolling')
       }, error_handler_creator(context))
   },
@@ -407,7 +408,7 @@ export default {
     const url = '/renom_img/v2/api/' + task_name + '/prediction?model_id=' + model_id
     const request_source = { 'prediction': model_id }
     const current_requests = context.state.polling_request_jobs.prediction
-
+    console.log('here is in pollingPrediction!')
     // If polling for the model is already performed, do nothing.
     if (current_requests.indexOf(model_id) >= 0) {
       return
@@ -417,7 +418,7 @@ export default {
     context.commit('addPollingJob', request_source)
     return axios.get(url).then(function (response) {
       // This 'response' can be empty.
-
+      console.log('here in response')
       // Check and run other model's polling.
       context.dispatch('startAllPolling', payload)
 
@@ -430,7 +431,9 @@ export default {
         const r = response.data
         const state = r.state
         const need_pull = response.data.need_pull
-
+	console.log('if there is model')
+	console.log('response.data', r)
+	console.log('need_pull', need_pull)
         // Update model.
         model.state = r.state
         model.running_state = r.running_state
@@ -438,14 +441,15 @@ export default {
         model.nth_prediction_batch = r.nth_batch
 
         if (state === STATE.STOPPED) {
-
+          console.log('1-A. When State === stopped')
         } else {
+          console.log('1-B. else')
           context.dispatch('pollingPrediction', model_id)
         }
-        if (need_pull) {
+        if (need_pull){
+          console.log('2. when need_pull === true')
           context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
           context.commit('forceUpdatePredictionPage')
-
           // context.dispatch('forceUpdatePage', model_id)
         }
       }

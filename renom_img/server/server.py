@@ -1908,7 +1908,9 @@ def get_prediction_status(task_name):
     task_exists(task_name)
     # get query params
     req_params = request.params
-    model_id = req_params.model_id
+    # model_id = req_params.model_id
+    model_id = int(req_params.model_id)
+    print("model_id in get_prediction_status", model_id)
 
     saved_model = storage.fetch_model(model_id)
     check_model_exists(saved_model, model_id)
@@ -1917,6 +1919,7 @@ def get_prediction_status(task_name):
     active_prediction_thread = threads.get(model_id, None)
     if active_prediction_thread is None:
         time.sleep(0.5)  # Avoid many request.
+        print('A')
         return {
             "need_pull": False,
             "state": State.STOPPED.value,
@@ -1927,6 +1930,7 @@ def get_prediction_status(task_name):
     elif active_prediction_thread.state == State.PRED_RESERVED or \
             active_prediction_thread.state == State.PRED_CREATED:
         time.sleep(0.5)  # Avoid many request.
+        print('B')
         return {
             "need_pull": active_prediction_thread.need_pull,
             "state": active_prediction_thread.state.value,
@@ -1935,8 +1939,9 @@ def get_prediction_status(task_name):
             "nth_batch": active_prediction_thread.nth_batch,
         }
     else:
+        print('C')
         for _ in range(10):
-            time.sleep(0.5)  # Avoid many request.
+            time.sleep(0.5)  # Avoid many requet.
             if active_prediction_thread.updated:
                 break
             active_prediction_thread.consume_error()
@@ -1958,7 +1963,9 @@ def run_prediction(task_name):
     """
     task_exists(task_name)
     req_params = request.json
+    print("req_params", req_params)
     model_id = req_params.get("model_id", None)
+    print("model_id", model_id)
     saved_model = storage.fetch_model(model_id)
     check_model_exists(saved_model, model_id)
 
@@ -1988,7 +1995,8 @@ def get_prediction_result(task_name):
     task_id = get_task_id_by_name(task_name)
     # get query params
     req_params = request.params
-    model_id = req_params.model_id
+    # model_id = req_params.model_id
+    model_id = int(req_params.model_id)
     format = req_params.format
     check_export_format(format)
 
