@@ -227,9 +227,9 @@ class EvaluatorDetection(EvaluatorBase):
         prec, rec, n_pred, n_pos_list = get_prec_and_rec(
             self.prediction, self.target, self.num_class, iou_thresh)
         AP, mAP = get_ap_and_map(prec, rec, round_off)
-        iou = self.iou()
+        iou = self.iou(iou_thresh)
         class_names = list(AP.keys())
-        mean_iou = self.mean_iou()
+        mean_iou = self.mean_iou(iou_thresh)
 
         headers = ["AP", "IoU", "  #pred/#target"]
         rows = []
