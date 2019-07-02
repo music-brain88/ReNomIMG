@@ -30,6 +30,7 @@ from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.optimizer import BaseOptimizer
+from renom_img.api.utility.exceptions.exceptions import ReNomIMGError 
 from renom_img.api.observer.trainer import TrainObserverBase, ObservableTrainer
 
 from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
@@ -170,6 +171,11 @@ class TrainThread(object):
     semaphore = EventSemaphore(MAX_THREAD_NUM)  # Cancellable semaphore.
     # semaphore = Semaphore(MAX_THREAD_NUM)
 
+    def __new__(cls, model_id):
+        ret = super(TrainThread, cls).__new__(cls)
+        cls.jobs[model_id] = ret
+        return ret
+
     @classmethod
     def add_thread(cls, model_id):
         ret = super(TrainThread, cls).__new__(cls)
@@ -219,11 +225,18 @@ class TrainThread(object):
             assert self.model is not None
             self.sync_state()
             self.run()
-        except Exception as e:
+        except ReNomIMGError as e:
             traceback.print_exc()
             self.state = State.STOPPED
             self.running_state = RunningState.STOPPING
             self.error_msg = e
+            self.model = None
+            self.sync_state()
+        except Exception as e:
+            traceback.print_exc()
+            self.state = State.STOPPED
+            self.running_state = RunningState.STOPPING
+            self.error_msg = UnknownError()
             self.model = None
             self.sync_state()
         finally:

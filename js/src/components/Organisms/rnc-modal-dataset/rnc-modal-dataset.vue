@@ -377,11 +377,12 @@ export default {
           test_dataset_id = -1
         }
         this.createDataset({
-          'hash': this.timeStamp,
-          'name': this.nameText,
-          'ratio': this.ratio,
-          'description': this.descriptionText,
-          'test_dataset_id': test_dataset_id,
+          // TODO: 'hash': this.timeStamp,
+          // TODO: 'name': this.nameText,
+          // TODO: 'ratio': this.ratio,
+          // TODO: 'description': this.descriptionText,
+          // TODO: 'test_dataset_id': test_dataset_id,
+          'dataset_id': this.confirming_dataset.id
         }).then(() => {
           this.reset()
           this.$parent.showAddModel()

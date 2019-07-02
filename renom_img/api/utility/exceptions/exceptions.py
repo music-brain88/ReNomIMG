@@ -9,81 +9,111 @@ class ReNomIMGError(Exception):
         self.message += msg
         self.message += '\n'
 
-    def _status_code(self):
-        return self.status_code
+    def _code(self):
+        return self.code
+
 
 class UnknownError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-01"
+    
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-01"
         super(UnknownError,self).__init__(msg)
 
+
 class MissingInputError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-02"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-02"
         super(MissingInputError,self).__init__(msg)
 
+
 class InvalidInputTypeError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-03"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-03"
         super(InvalidInputTypeError,self).__init__(msg)
 
+
 class InvalidInputValueError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-04"
+    
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-04"
         super(InvalidInputValueError,self).__init__(msg)
 
+
 class WeightNotFoundError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-05"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-05"
         super(WeightNotFoundError,self).__init__(msg)
 
+
 class WeightLoadError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-06"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-06"
         super(WeightLoadError,self).__init__(msg)
 
+
 class WeightURLOpenError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-07"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-07"
         super(WeightURLOpenError, self).__init__(msg)
 
+
 class WeightRetrieveError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-08"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-08"
         super(WeightRetrieveError, self).__init__(msg)
 
+
 class InvalidLearningRateError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-09"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-09"
         super(InvalidLearningRateError,self).__init__(msg)
 
+
 class InvalidOptimizerError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-10"
+
     def __init__(self,msg=None):
-        self.status_code = "IMG-0202-ER-R001-10"
         super(InvalidOptimizerError,self).__init__(msg)
 
+
 class InvalidValueError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-11"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-11"
         super(InvalidValueError,self).__init__(msg)
 
+
 class InvalidLossValueError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-12"
+
     def __init__(self,msg=None):
-        self.status_code = "IMG-0202-ER-R001-12"
         super(InvalidLossValueError,self).__init__(msg) 
 
+
 class OutOfMemoryError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-13"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-13"
         super(OutOfMemoryError,self).__init__(msg)
 
+
 class FunctionNotImplementedError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-14"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-14"
         super(FunctionNotImplementedError,self).__init__(msg)
 
+
 class ServerConnectionError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-15"
+
     def __init__(self, msg=None):
-        self.status_code = "IMG-0202-ER-R001-15"
         super(ServerConnectionError,self).__init__(msg)
 
