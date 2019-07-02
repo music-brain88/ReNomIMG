@@ -322,10 +322,10 @@ export default {
     const url = '/renom_img/v2/api/' + task_name + '/models/' + model_id
     return axios.delete(url)
       .then(function (response) {
-        // TODO: console.log('【removeModel】')
-        // TODO: console.log(response)
+        console.log('ACTION【removeModel】')
+        console.log(response)
 
-        if (response.status === 204) return
+        // TODO: if (response.status === 204) return
         context.commit('rmModel', model_id)
       }, error_handler_creator(context))
   },
@@ -393,7 +393,7 @@ export default {
       const model = context.getters.getModelById(model_id)
       if (model) {
         const r = response.data
-        // TODO: console.log('★★★★★★★★★★r of 【pollingTrain】', r)
+        console.log('★★★★★★★★★★r of 【pollingTrain】', r)
         const state = r.state
         const load_best = response.data.best_result_changed
 
@@ -578,7 +578,7 @@ export default {
     // TODO: deleteの時の値の渡し方がバラバラだがOK？
 
     return axios.delete(url, {
-      model_id: model_id
+      data: { model_id: model_id }
     }).then(function (response) {
       // TODO: console.log('【stopModelTrain】')
       // TODO: console.log(response)
