@@ -325,7 +325,7 @@ export default {
         console.log('ACTION【removeModel】')
         console.log(response)
 
-        if (response.status === 204) return
+        // TODO: if (response.status === 204) return
         context.commit('rmModel', model_id)
       }, error_handler_creator(context))
   },
@@ -578,7 +578,7 @@ export default {
     // TODO: deleteの時の値の渡し方がバラバラだがOK？
 
     return axios.delete(url, {
-      model_id: model_id
+      data: { model_id: model_id }
     }).then(function (response) {
       // TODO: console.log('【stopModelTrain】')
       // TODO: console.log(response)
