@@ -206,7 +206,7 @@ export default {
         const model = this.SelectedModelObj
         // TODO muraishi : best_epoch_valid_result
         const best_epoch = model.best_epoch_valid_result
-        best_epoch_nth = (best_epoch && best_epoch.nth_epoch) ? best_epoch.nth_epoch + 1 : 1
+        best_epoch_nth = (best_epoch && best_epoch.nth_epoch) ? best_epoch.nth_epoch : 0
         best_epoch_loss = (best_epoch && best_epoch.loss) ? best_epoch.loss : 0
 
         // TODO muraishi : train_loss_list
