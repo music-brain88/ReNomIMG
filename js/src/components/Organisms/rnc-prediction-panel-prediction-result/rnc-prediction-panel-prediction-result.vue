@@ -177,20 +177,26 @@ export default {
       // TODO: console.log('***** model of getImages:' + model)
       if (model) {
         const dataset = model.last_prediction_result
+        console.log('~~~~~~~~~~~~~~~')
+        console.log('dataset in getImages', dataset)
         if (!dataset) {
           return []
         }
-        if (!this.page) {
+        console.log('this.page', this.page)
+        if (this.page.length === 0) {
           // Setup image page if it has not been set.
           this.$nextTick(() => this.setUpImages())
         }
 
         // Clip page number.
         let current_page = this.getImagePageOfPrediction
+        console.log('current_page 1', current_page)
         const max_page_num = this.page.length - 1
         const page_num = Math.max(Math.min(current_page, max_page_num), 0)
         this.setImagePageOfPrediction(page_num)
         current_page = this.getImagePageOfPrediction
+	console.log('current_page 2', current_page)
+	console.log('this.page[current_page]', this.page[current_page])
         return this.page[current_page]
       }
       return []
@@ -203,7 +209,11 @@ export default {
     showResult () {
       const images = this.getImages
       const model = this.model
+      console.log('images', images)
+      console.log('model', model)
       if (!model || !images) return false
+      console.log('model.isStopped', model.isStopped())
+      console.log('images.length', images.length)
       return model.isStopped() && (images.length > 0)
     },
     pretidtionProgress () {
@@ -251,19 +261,19 @@ export default {
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
 
       const model = this.model
-      // TODO: console.log('***** model of setUpImages:' + model)
+      // TODO : console.log('***** model of setUpImages:' + model)
       if (!model) return
 
       const dataset = model.last_prediction_result
-      // TODO: console.log('***** dataset of setUpImages:' + dataset)
+      console.log('***** dataset of setUpImages:' + dataset)
       if (!dataset) return
 
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
-      // TODO: console.log('***** $worker START of setUpImages:')
+      console.log('***** $worker START of setUpImages:')
       this.$worker.run(setup_image_list, [dataset, parent_width, parent_height, child_margin])
         .then((ret) => {
-          // TODO: console.log('***** ret:' + ret)
+          console.log('***** ret:' + ret)
           this.page = ret
         })
     },

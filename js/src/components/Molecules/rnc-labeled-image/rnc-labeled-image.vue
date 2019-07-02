@@ -5,6 +5,11 @@
     class="image-frame"
     @click="onImageClick()"
   >
+    <img
+      v-if="showImage"
+      :src="img"
+      :style="modifiedSize"
+    >
     <canvas
       v-if="isTaskSegmentation"
       ref="canvas"
@@ -39,11 +44,11 @@
         {{ cls }}
       </div>
     </div>
-    <img
+    <!-- <img
       v-if="showImage"
       :src="img"
       :style="modifiedSize"
-    >
+    > -->
   </div>
 </template>
 
@@ -169,6 +174,9 @@ export default {
       if (pred === undefined || !this.showPredict) {
         pred = []
       }
+      console.log('pred in labeled-images', pred)
+      console.log('targ in labeled-images', targ)
+      console.log('box in labeled-images', pred.concat(targ))
       return pred.concat(targ)
     },
     // TODO muraishi: use data for calssification
@@ -217,6 +225,10 @@ export default {
         }
       })
     },
+    img : function() {
+     console.log('img', this.img)
+     console.log('show_imag', this.showImage)
+    }
   },
   beforeUpdate: function () {
     /**
@@ -234,7 +246,7 @@ export default {
     const container = this.$refs.wrapper
     if (!container) return
     this.image_width = this.modifiedWidth
-    this.image_height = this.modifiedHeight
+    this.image_height = this.modifiedHeigh
   },
   methods: {
     ...mapActions([
@@ -291,7 +303,9 @@ export default {
       }
     },
     styleBox: function (box) {
+      if (!box || !box.box) return
       const class_id = box.class
+      console.log('box in stleBox', box)
       const x1 = (box.box[0] - box.box[2] / 2) * 100
       const y1 = (box.box[1] - box.box[3] / 2) * 100
       const w = box.box[2] * 100
