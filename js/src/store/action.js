@@ -200,6 +200,8 @@ export default {
       .then(function (response) {
         if (response.status === 204) return
         const ds = response.data.dataset
+        console.log('response in 【loadModelsOfCurrentTaskDetail】', m)
+
 
         const id = ds.id
         const class_map = ds.class_map
@@ -375,7 +377,6 @@ export default {
         }
         if (load_best) {
           context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
-          // context.dispatch('forceUpdatePage', model_id)
         }
       }
     }, error_handler_creator(context, function () {
@@ -443,25 +444,29 @@ export default {
         model.nth_prediction_batch = r.nth_batch
 
         if (state === STATE.STOPPED) {
-          console.log('1-A. When State === stopped')
+          console.log('A. When State === stopped')
         } else {
-          console.log('1-B. else')
+          console.log('B. else')
           context.dispatch('pollingPrediction', model_id)
         }
         if (need_pull){
-          console.log('2. when need_pull === true')
-          context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
-          // context.commit('forceUpdatePredictionPage')
-          const deployed_model = context.getters.getModelById(model_id)
-          context.commit('setDeployedModel', deployed_model)
-          console.log('deployed model', context.getters.getDeployedModel)
-	  context.commit('forceUpdatePredictionPage')
-          // context.dispatch('forceUpdatePage', model_id)
+          console.log('C. when need_pull === true')
+          context.dispatch('updatePredictionResult', model_id)
         }
       }
     }, error_handler_creator(context, function () {
       // Need to reload Model State.
     }))
+  },
+
+  async updatePredictionResult (context, payload) {
+    const model_id = payload
+    await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
+    // context.commit('forceUpdatePredictionPage')
+    const deployed_model = context.getters.getModelById(model_id)
+    context.commit('setDeployedModel', deployed_model)
+    context.commit('forceUpdatePredictionPage')
+    console.log('deployed model', context.getters.getDeployedModel)
   },
 
   async forceUpdatePage (context, payload) {
