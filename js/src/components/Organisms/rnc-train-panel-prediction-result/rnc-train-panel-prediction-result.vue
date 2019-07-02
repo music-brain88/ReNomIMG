@@ -253,6 +253,8 @@ export default {
       if (!model || !dataset) return
       const pred = model.getValidResult(index)
       const targ = dataset.getValidTarget(index)
+      console.log('pred in trainValidResult', JSON.stringify(pred))
+      console.log('targ in trainValidResult',  JSON.stringify(targ))
       return {
         index: index,
         target: targ,

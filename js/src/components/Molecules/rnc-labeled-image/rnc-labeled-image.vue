@@ -174,9 +174,7 @@ export default {
       if (pred === undefined || !this.showPredict) {
         pred = []
       }
-      console.log('pred in labeled-images', pred)
-      console.log('targ in labeled-images', targ)
-      console.log('box in labeled-images', pred.concat(targ))
+      console.log('box in labeled-images', JSON.stringify(pred.concat(targ)))
       return pred.concat(targ)
     },
     // TODO muraishi: use data for calssification
