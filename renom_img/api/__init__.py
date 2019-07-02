@@ -86,10 +86,10 @@ class Base(rm.Model):
             try:
                 load_target.load_pretrained_weight(weight_path)
             except:
-                os.remove(weight_path)
-                download(self.WEIGHT_URL, weight_path)
-                load_target.load_pretrained_weight(weight_path)
-
+                weight_path_new = self.__class__.__name__ + '_new.h5'
+                download(self.WEIGHT_URL, weight_path_new)
+                load_target.load_pretrained_weight(weight_path_new)
+ 
     def regularize(self):
         """
         Adds a regularization term to the loss function.
