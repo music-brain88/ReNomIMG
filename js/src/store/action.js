@@ -376,7 +376,7 @@ export default {
           context.dispatch('pollingTrain', model_id)
         }
         if (load_best) {
-          context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
+          context.dispatch('updateBestValidResult', model_id)
         }
       }
     }, error_handler_creator(context, function () {
@@ -459,14 +459,31 @@ export default {
     }))
   },
 
+
+  async updateBestValidResult (context, payload) {
+    const model_id = payload
+    await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
+
+    if (context.status.selected_model &&
+        context.status.selected_model.id === model_id) {
+
+          const selected_model = context.getters.getModelById(model_id)
+          context.commit('setDeployedModel', selected_model)
+          // context.commit('forceUpdatePredictionPage')
+    }
+    context.commit('forceUpdateModelList')
+    console.log('【selectedModel】', context.getters.getSelectedModel)
+  },
+
+
   async updatePredictionResult (context, payload) {
     const model_id = payload
     await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
-    // context.commit('forceUpdatePredictionPage')
+
     const deployed_model = context.getters.getModelById(model_id)
     context.commit('setDeployedModel', deployed_model)
     context.commit('forceUpdatePredictionPage')
-    console.log('deployed model', context.getters.getDeployedModel)
+    console.log('【deployedModel】', context.getters.getDeployedModel)
   },
 
   async forceUpdatePage (context, payload) {

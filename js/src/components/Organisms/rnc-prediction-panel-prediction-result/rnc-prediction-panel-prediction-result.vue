@@ -159,6 +159,7 @@ export default {
     ]),
     model: function () {
       const model = this.getDeployedModel
+      console.log('【deployedModel】 in predictionPanel', model)
       if (model) {
         return model
       }
