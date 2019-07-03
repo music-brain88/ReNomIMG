@@ -157,7 +157,10 @@
               id="dataset-class-bars"
               :class="{'bar-anime': bar_move}"
               >
-              <div class="bar">
+              <div
+                class="bar"
+                style="width: 80%;"
+              >
                 <rnc-bar-dataset
                   :train-num="train_num"
                   :valid-num="valid_num"
