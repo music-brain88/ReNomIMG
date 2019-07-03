@@ -167,7 +167,6 @@
             </div>
             </div>
             </div>
-          </div>
           <!-- <div
             v-for="(item, key) in class_items"
             v-else
