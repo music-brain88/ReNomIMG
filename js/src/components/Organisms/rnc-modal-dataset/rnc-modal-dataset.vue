@@ -153,15 +153,13 @@
             id="class-ratio-bars"
             :key="key"
           >
-            <div>
-              <div>
-                <rnc-bar-dataset
-                  :train-num="train_num"
-                  :valid-num="valid_num"
-                  :class-name="item[0]"
-                  :class-ratio="item[1]"
-                />
-              </div>
+            <div style="width: 80%;">
+              <rnc-bar-dataset
+              :train-num="train_num"
+              :valid-num="valid_num"
+              :class-name="item[0]"
+              :class-ratio="item[1]"
+              />
             </div>
           </div>
           <!-- <div
