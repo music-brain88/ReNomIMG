@@ -531,7 +531,7 @@ export default {
         }
       }
       #breakdown {
-        width: calc(100% - 5.281);
+        width: calc(100% - 20px);
         margin-top: 2%;
         height: calc(100% - 5% - 3% - 1.6rem - 3% - 1.6rem - 6% - 20px - 2% - 40px - 2%);
         overflow: auto;
@@ -540,7 +540,6 @@ export default {
           width: 100%;
           display: flex;
           margin: 6px 0;
-          overflow: hidden auto;
           span:nth-child(1) {
             width: 20%;
             display: flex;
