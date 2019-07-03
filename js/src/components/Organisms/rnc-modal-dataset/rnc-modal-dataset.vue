@@ -299,8 +299,8 @@ export default {
       const class_list = this.info.class_ratio
       return train_list.map((t, index) => [
         class_map[index],
-        (t) * class_list[index] * 100,
-        valid_list[index] * class_list[index] * 100
+        (t) * class_list[index],
+        valid_list[index] * class_list[index]
       ])
     },
     train_num_style: function () {
