@@ -540,6 +540,7 @@ export default {
           width: 100%;
           display: flex;
           margin: 6px 0;
+          overflow: hidden auto;
           span:nth-child(1) {
             width: 20%;
             display: flex;
