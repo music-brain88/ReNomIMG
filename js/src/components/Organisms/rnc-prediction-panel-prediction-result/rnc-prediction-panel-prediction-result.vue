@@ -173,7 +173,6 @@ export default {
     },
     getImages: function () {
       const model = this.model
-      // TODO: console.log('***** model of getImages:' + model)
       if (model) {
         const dataset = model.last_prediction_result
         if (!dataset) {
@@ -250,7 +249,6 @@ export default {
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
 
       const model = this.model
-      // TODO : console.log('***** model of setUpImages:' + model)
       if (!model) return
 
       const dataset = model.last_prediction_result
@@ -273,7 +271,6 @@ export default {
         target: undefined,
         predict: pred
       }
-      console.log("[getResult of prediction]", ret)
       return ret
     },
     onDownload: function () {

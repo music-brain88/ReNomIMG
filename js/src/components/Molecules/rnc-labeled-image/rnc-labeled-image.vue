@@ -44,11 +44,6 @@
         {{ cls }}
       </div>
     </div>
-    <!-- <img
-      v-if="showImage"
-      :src="img"
-      :style="modifiedSize"
-    > -->
   </div>
 </template>
 
