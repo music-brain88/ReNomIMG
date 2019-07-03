@@ -53,12 +53,12 @@ class GuidedGradCam():
         >>> class_id = 243
         >>>
         >>> #Generate Grad-CAM maps
-        >>> input_map, L, result = gc(x, size, class_id=class_id, mode='normal')
+        >>> input_map, L, result = grad_cam(x, size, class_id=class_id, mode='normal')
         >>> #Visualize results (original image, guided backpropagation, Grad-CAM saliency map, Guided Grad-CAM visualization)
         >>> visualize_grad_cam(img, input_map, L, result)
         >>>
         >>> #Generate Grad-CAM++ maps
-        >>> input_map, L, result = gc(x, size, class_id=class_id, mode='plus')
+        >>> input_map, L, result = grad_cam(x, size, class_id=class_id, mode='plus')
         >>> #Visualize results (original image, guided backpropagation, Grad-CAM++ saliency map, Guided Grad-CAM++ visualization)
         >>> visualize_grad_cam(img, input_map, L, result)
 

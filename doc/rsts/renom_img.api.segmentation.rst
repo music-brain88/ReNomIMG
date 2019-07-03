@@ -16,3 +16,7 @@ renom\_img.api.segmentation
     :show-inheritance:
     :inherited-members:
 
+.. automodule:: renom_img.api.segmentation.deeplab
+    :members: Deeplabv3plus
+    :show-inheritance:
+    :inherited-members:

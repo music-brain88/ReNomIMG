@@ -6,14 +6,14 @@ Change Log
 - Added Deeplabv3 segmentation algorithm
 - Refactored GUI components
 - Refactored backend server
+- Refactored CNN model architecture code
 - Modified Yolov1 and Yolov2 pretrained weights 
 - Fixed bugs
 
 **v2.1b3**
 
-- Refactored CNN model architecture code
-- Modified Yolov2 loss function and pretrained weights
 - Fixed bugs
+- Revised documentation
 
 **v2.1b2**
 

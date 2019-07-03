@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-14 20:15+0900\n"
+"POT-Creation-Date: 2019-07-03 22:02+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,12 +28,14 @@ msgstr "Yolov1 物体検出アルゴリズム"
 #: of renom_img.api.detection.ssd.SSD renom_img.api.detection.ssd.SSD.fit
 #: renom_img.api.detection.ssd.SSD.forward
 #: renom_img.api.detection.ssd.SSD.get_bbox
-#: renom_img.api.detection.ssd.SSD.loss renom_img.api.detection.ssd.SSD.predict
+#: renom_img.api.detection.ssd.SSD.load renom_img.api.detection.ssd.SSD.loss
+#: renom_img.api.detection.ssd.SSD.predict
 #: renom_img.api.detection.ssd.SSD.preprocess
 #: renom_img.api.detection.yolo_v1.Yolov1
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
 #: renom_img.api.detection.yolo_v1.Yolov1.forward
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
+#: renom_img.api.detection.yolo_v1.Yolov1.load
 #: renom_img.api.detection.yolo_v1.Yolov1.loss
 #: renom_img.api.detection.yolo_v1.Yolov1.predict
 #: renom_img.api.detection.yolo_v1.Yolov1.preprocess
@@ -41,6 +43,7 @@ msgstr "Yolov1 物体検出アルゴリズム"
 #: renom_img.api.detection.yolo_v2.Yolov2.fit
 #: renom_img.api.detection.yolo_v2.Yolov2.forward
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox
+#: renom_img.api.detection.yolo_v2.Yolov2.load
 #: renom_img.api.detection.yolo_v2.Yolov2.loss
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 #: renom_img.api.detection.yolo_v2.Yolov2.preprocess
@@ -71,9 +74,7 @@ msgid ""
 "and loaded as the initial weight values. If a string is given, weight "
 "values will be loaded and initialized from the weights in the given file "
 "name."
-msgstr ""
-"Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。"
-"文字列が渡された場合には、そのファイルから重みが読み込みされます。"
+msgstr "Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。文字列が渡された場合には、そのファイルから重みが読み込みされます。"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1:16
 #: renom_img.api.detection.yolo_v2.Yolov2:16
@@ -84,20 +85,49 @@ msgid ""
 msgstr "モデル全体を学習させる場合はTrue、そうでなければFalse"
 
 #: of renom_img.api.detection.ssd.SSD:21
+#: renom_img.api.detection.ssd.SSD.build_data:8
+#: renom_img.api.detection.ssd.SSD.fit:24
+#: renom_img.api.detection.ssd.SSD.forward:11
+#: renom_img.api.detection.ssd.SSD.get_bbox:4
+#: renom_img.api.detection.ssd.SSD.load:7
+#: renom_img.api.detection.ssd.SSD.loss:18
+#: renom_img.api.detection.ssd.SSD.predict:35
+#: renom_img.api.detection.ssd.SSD.regularize:4
 #: renom_img.api.detection.yolo_v1.Yolov1:22
+#: renom_img.api.detection.yolo_v1.Yolov1.build_data:8
+#: renom_img.api.detection.yolo_v1.Yolov1.fit:24
+#: renom_img.api.detection.yolo_v1.Yolov1.forward:11
+#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:35
+#: renom_img.api.detection.yolo_v1.Yolov1.load:7
+#: renom_img.api.detection.yolo_v1.Yolov1.loss:12
+#: renom_img.api.detection.yolo_v1.Yolov1.predict:35
+#: renom_img.api.detection.yolo_v1.Yolov1.regularize:4
 #: renom_img.api.detection.yolo_v2.Yolov2:21
+#: renom_img.api.detection.yolo_v2.Yolov2.build_data:8
+#: renom_img.api.detection.yolo_v2.Yolov2.fit:29
+#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:4
+#: renom_img.api.detection.yolo_v2.Yolov2.load:7
+#: renom_img.api.detection.yolo_v2.Yolov2.loss:12
+#: renom_img.api.detection.yolo_v2.Yolov2.predict:35
+#: renom_img.api.detection.yolo_v2.Yolov2.regularize:4
+msgid "Example"
+msgstr "例"
+
+#: of renom_img.api.detection.ssd.SSD:31
+#: renom_img.api.detection.yolo_v1.Yolov1:32
+#: renom_img.api.detection.yolo_v2.Yolov2:32
 msgid "References"
 msgstr "引用"
 
-#: of renom_img.api.detection.yolo_v1.Yolov1:23
+#: of renom_img.api.detection.yolo_v1.Yolov1:33
 msgid "Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1:24
+#: of renom_img.api.detection.yolo_v1.Yolov1:34
 msgid "**You Only Look Once: Unified, Real-Time Object Detection**"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v1.Yolov1:25
+#: of renom_img.api.detection.yolo_v1.Yolov1:35
 msgid "https://arxiv.org/abs/1506.02640"
 msgstr ""
 
@@ -108,10 +138,12 @@ msgid ""
 msgstr "この関数はYolov1クラスでで指定された形式の入力データとターゲットデータを返却します。"
 
 #: of renom_img.api.detection.ssd.SSD.build_data
-#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.get_bbox
+#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.forward
+#: renom_img.api.detection.ssd.SSD.get_bbox
 #: renom_img.api.detection.ssd.SSD.loss renom_img.api.detection.ssd.SSD.predict
 #: renom_img.api.detection.yolo_v1.Yolov1.build_data
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
+#: renom_img.api.detection.yolo_v1.Yolov1.forward
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
 #: renom_img.api.detection.yolo_v1.Yolov1.loss
 #: renom_img.api.detection.yolo_v1.Yolov1.predict
@@ -130,10 +162,12 @@ msgid "Returns function which creates input data and target data."
 msgstr "入力データとターゲットデータを作成する関数を返却します。"
 
 #: of renom_img.api.detection.ssd.SSD.build_data
-#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.get_bbox
+#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.forward
+#: renom_img.api.detection.ssd.SSD.get_bbox
 #: renom_img.api.detection.ssd.SSD.predict
 #: renom_img.api.detection.yolo_v1.Yolov1.build_data
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
+#: renom_img.api.detection.yolo_v1.Yolov1.forward
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox
 #: renom_img.api.detection.yolo_v1.Yolov1.loss
 #: renom_img.api.detection.yolo_v1.Yolov1.predict
@@ -144,27 +178,6 @@ msgstr "入力データとターゲットデータを作成する関数を返却
 #: renom_img.api.detection.yolo_v2.Yolov2.predict
 msgid "Return type"
 msgstr "戻り値の型"
-
-#: of renom_img.api.detection.ssd.SSD.build_data:8
-#: renom_img.api.detection.ssd.SSD.fit:24
-#: renom_img.api.detection.ssd.SSD.get_bbox:4
-#: renom_img.api.detection.ssd.SSD.loss:18
-#: renom_img.api.detection.ssd.SSD.predict:35
-#: renom_img.api.detection.ssd.SSD.regularize:7
-#: renom_img.api.detection.yolo_v1.Yolov1.build_data:8
-#: renom_img.api.detection.yolo_v1.Yolov1.fit:24
-#: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:35
-#: renom_img.api.detection.yolo_v1.Yolov1.loss:12
-#: renom_img.api.detection.yolo_v1.Yolov1.predict:35
-#: renom_img.api.detection.yolo_v1.Yolov1.regularize:7
-#: renom_img.api.detection.yolo_v2.Yolov2.build_data:8
-#: renom_img.api.detection.yolo_v2.Yolov2.fit:29
-#: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:4
-#: renom_img.api.detection.yolo_v2.Yolov2.loss:12
-#: renom_img.api.detection.yolo_v2.Yolov2.predict:35
-#: renom_img.api.detection.yolo_v2.Yolov2.regularize:7
-msgid "Example"
-msgstr "例"
 
 #: of renom_img.api.detection.ssd.SSD.fit:1
 #: renom_img.api.detection.yolo_v1.Yolov1.fit:1
@@ -267,6 +280,10 @@ msgstr "順伝播を実行します。この関数は__call__メソッドによ�
 msgid "Input to Yolov1."
 msgstr "Yolov1への入力"
 
+#: of renom_img.api.detection.yolo_v1.Yolov1.forward:7
+msgid "Returns raw output of Yolov1."
+msgstr "Yolo v1の生の出力を返却します。"
+
 #: of renom_img.api.detection.ssd.SSD.get_bbox:1
 #: renom_img.api.detection.yolo_v1.Yolov1.get_bbox:1
 #: renom_img.api.detection.yolo_v2.Yolov2.get_bbox:1
@@ -299,8 +316,7 @@ msgid ""
 " return value is shown below. Box coordinates and size will be returned "
 "as ratios to the original image size. Therefore, the values of 'box' are "
 "in the range [0 ~ 1]."
-msgstr ""
-"予測した結果得られたbbox、スコア、各画像に対応するクラスの配列。戻り値のフォーマットは下に記載してある通りです。ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0~1]です。"
+msgstr "予測した結果得られたbbox、スコア、各画像に対応するクラスの配列。戻り値のフォーマットは下に記載してある通りです。ボックスの座標とサイズは元画像のサイズとの比で返されます。よって、boxの範囲は[0~1]です。"
 
 #: of renom_img.api.detection.ssd.SSD.get_bbox:37
 #: renom_img.api.detection.ssd.SSD.predict:43
@@ -311,6 +327,18 @@ msgid ""
 "Box coordinates and size will be returned as ratios to the original image"
 " size. Therefore, the values of 'box' are in the range [0 ~ 1]."
 msgstr "ボックスの座標と大きさは元画像のサイズに対する比で返されます。よって、boxの範囲は[0 ~ 1]です。"
+
+#: of renom_img.api.detection.ssd.SSD.load:1
+#: renom_img.api.detection.yolo_v1.Yolov1.load:1
+#: renom_img.api.detection.yolo_v2.Yolov2.load:1
+msgid "Load saved weights to model."
+msgstr "事前学習済み重みをロードする"
+
+#: of renom_img.api.detection.ssd.SSD.load:3
+#: renom_img.api.detection.yolo_v1.Yolov1.load:3
+#: renom_img.api.detection.yolo_v2.Yolov2.load:3
+msgid "File name of saved model."
+msgstr "事前学習済み重みのファイル名"
 
 #: of renom_img.api.detection.yolo_v1.Yolov1.loss:1
 msgid "Loss function specified for yolov1."
@@ -382,14 +410,8 @@ msgstr "前処理用の画像データ配列"
 #: of renom_img.api.detection.ssd.SSD.regularize:1
 #: renom_img.api.detection.yolo_v1.Yolov1.regularize:1
 #: renom_img.api.detection.yolo_v2.Yolov2.regularize:1
-msgid ""
-"Regularization term. You can use this function to add a regularization "
-"term to the loss function."
+msgid "Adds a regularization term to the loss function."
 msgstr "正則化項。この関数は損失関数に正則化項を加えるために利用できます。"
-
-#: of renom_img.api.detection.yolo_v1.Yolov1.regularize:4
-msgid "In Yolov1, a weight decay of 0.0005 will be used in the calculation."
-msgstr "Yolo v1では重み減衰として0.0005が利用されます。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2:1
 msgid "Yolov2 object detection algorithm."
@@ -415,32 +437,27 @@ msgid ""
 "True, pretrained weights will be downloaded to the current directory and "
 "loaded as the initial weight values. If a string is given, weight values "
 "will be loaded and initialized from the weights in the given file name."
-msgstr ""
-"Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。"
-"文字列が渡された場合には、そのファイルから重みが読み込みされます。"
+msgstr "Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。文字列が渡された場合には、そのファイルから重みが読み込みされます。"
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:22
+#: of renom_img.api.detection.yolo_v2.Yolov2:33
 msgid "Joseph Redmon, Ali Farhadi"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:23
+#: of renom_img.api.detection.yolo_v2.Yolov2:34
 msgid "**YOLO9000: Better, Faster, Stronger**"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:24
+#: of renom_img.api.detection.yolo_v2.Yolov2:35
 msgid "https://arxiv.org/abs/1612.08242"
 msgstr ""
 
-#: of renom_img.api.detection.yolo_v2.Yolov2:29
+#: of renom_img.api.detection.yolo_v2.Yolov2:40
 msgid ""
 "If you save this model using the 'save' method, anchor information (list "
 "of anchors and their base sizes) will be saved. Therefore, when you load "
 "your own saved model, you do not need to provide the 'anchor' and "
 "'anchor_size' arguments."
-msgstr ""
-"saveメソッドを利用して保存する場合、アンカー情報(アンカーのリストと"
-"それらの基本サイズ)が保存されます。従って、保存したモデルをい"
-"ロードする場合にはancoorとanchor_sizeを指定する必要はありません。"
+msgstr "saveメソッドを利用して保存する場合、アンカー情報(アンカーのリストとそれらの基本サイズ)が保存されます。従って、保存したモデルをいロードする場合にはancoorとanchor_sizeを指定する必要はありません。"
 
 #: of renom_img.api.detection.yolo_v2.Yolov2.build_data:1
 msgid ""
@@ -500,10 +517,6 @@ msgstr "モデルの出力"
 msgid "Target array."
 msgstr "ターゲットデータ"
 
-#: of renom_img.api.detection.yolo_v2.Yolov2.regularize:4
-msgid "In Yolo v2, a weight decay of 0.0005 will be used in the calculation."
-msgstr "Yolov2では重み減衰として0.0005が利用されます。"
-
 #: of renom_img.api.detection.ssd.SSD:1
 msgid "SSD object detection algorithm."
 msgstr "SSD 物体検出アルゴリズム"
@@ -526,9 +539,7 @@ msgid ""
 "True, pretrained weights will be downloaded to the current directory and "
 "loaded into the model. If a string is provided, pretrained weightwill be "
 "loaded from the specified filename. The default is False."
-msgstr ""
-"Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。"
-"文字列が渡された場合には、そのファイルから重みが読み込みされます。"
+msgstr "Trueの場合事前学習済みの重みがカレントディレクトリにダウンロードされます。文字列が渡された場合には、そのファイルから重みが読み込みされます。"
 
 #: of renom_img.api.detection.ssd.SSD:15
 msgid ""
@@ -538,17 +549,17 @@ msgid ""
 " weights. The default is False."
 msgstr "モデル全体を学習させる場合はTrue、そうでなければFalse"
 
-#: of renom_img.api.detection.ssd.SSD:22
+#: of renom_img.api.detection.ssd.SSD:32
 msgid ""
 "Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed,"
 " Cheng-Yang Fu, Alexander C. Berg"
 msgstr ""
 
-#: of renom_img.api.detection.ssd.SSD:23
+#: of renom_img.api.detection.ssd.SSD:33
 msgid "**SSD: Single Shot MultiBox Detector**"
 msgstr ""
 
-#: of renom_img.api.detection.ssd.SSD:24
+#: of renom_img.api.detection.ssd.SSD:34
 msgid "https://arxiv.org/abs/1512.02325"
 msgstr ""
 
@@ -562,6 +573,10 @@ msgstr "この関数はSSDで指定された入力データとターゲットデ
 msgid "Input to SSD."
 msgstr "SSDへの入力"
 
+#: of renom_img.api.detection.ssd.SSD.forward:7
+msgid "Returns raw output of SSD."
+msgstr ""
+
 #: of renom_img.api.detection.ssd.SSD.loss:1
 msgid "Loss function specified for SSD."
 msgstr "SSDで指定された損失関数"
@@ -572,9 +587,7 @@ msgid ""
 "the matching with true boxes, most of the prior boxes are negative. To "
 "eliminate imbalance between positive and negative boxes this ratio is "
 "used by the loss function. The default value is 3.0."
-msgstr ""
-"ハードネガティブマイニングのポジティブ及びネガティブの割合を設定します。"
-"損失関数に使用されます。デフォルト値は3.0。"
+msgstr "ハードネガティブマイニングのポジティブ及びネガティブの割合を設定します。損失関数に使用されます。デフォルト値は3.0。"
 
 #: of renom_img.api.detection.ssd.SSD.loss:12
 msgid "Loss between x and y"
@@ -604,10 +617,6 @@ msgstr "信頼スコアの閾値。予測さればボックスのうち、信頼
 #: of renom_img.api.detection.ssd.SSD.predict:9
 msgid "The threshold for non-maximum supression. The default is 0.45."
 msgstr "nmsの閾値。デファルト値は0.4。"
-
-#: of renom_img.api.detection.ssd.SSD.regularize:4
-msgid "In SSD, a weight decay of 0.0005 will be used in the calculatiomn."
-msgstr "SSDでは重み減衰として0.0005が利用されます。"
 
 #~ msgid "Image path list."
 #~ msgstr "画像のパスのリスト"
@@ -981,4 +990,13 @@ msgstr "SSDでは重み減衰として0.0005が利用されます。"
 
 #~ msgid "The threshold for non maximum supression. Defaults is 0.45"
 #~ msgstr "nmsの閾値。デファルト値は0.45。"
+
+#~ msgid "In Yolov1, a weight decay of 0.0005 will be used in the calculation."
+#~ msgstr "Yolo v1では重み減衰として0.0005が利用されます。"
+
+#~ msgid "In Yolo v2, a weight decay of 0.0005 will be used in the calculation."
+#~ msgstr "Yolov2では重み減衰として0.0005が利用されます。"
+
+#~ msgid "In SSD, a weight decay of 0.0005 will be used in the calculatiomn."
+#~ msgstr "SSDでは重み減衰として0.0005が利用されます。"
 
