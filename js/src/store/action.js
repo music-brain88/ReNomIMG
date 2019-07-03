@@ -425,8 +425,8 @@ export default {
     const model_id = payload
     await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
 
-    if (context.status.selected_model &&
-        context.status.selected_model.id === model_id) {
+    if (context.state.selected_model &&
+        context.state.selected_model.id === model_id) {
 
           const selected_model = context.getters.getModelById(model_id)
           context.commit('setDeployedModel', selected_model)
