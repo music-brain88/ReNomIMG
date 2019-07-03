@@ -179,7 +179,7 @@ export default {
         if (!dataset) {
           return []
         }
-        if (!this.page) {
+        if (!this.page || this.page.length === 0) {
           // Setup image page if it has not been set.
           this.$nextTick(() => this.setUpImages())
         }
@@ -244,7 +244,7 @@ export default {
     },
     setUpImages: function () {
       const parent_div = this.$refs.container
-      if (!parent_div) return
+      if (!parent_div || parent_div === undefined) return
       const parent_height = parent_div.clientHeight
       const parent_width = parent_div.clientWidth
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
