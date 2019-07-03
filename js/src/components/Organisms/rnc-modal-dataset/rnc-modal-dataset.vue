@@ -107,7 +107,13 @@
             </div>
           </div>
         </div>
-        <div
+        <rnc-bar-dataset
+          id="dataset-ratio-bar"
+          :class="{'bar-anime': confirming_dataset}"
+          :train-num="train_num"
+          :valid-num="valid_num"
+        />
+        <!-- <div
           id="dataset-ratio-bar"
           :class="{'bar-anime': confirming_dataset}"
           @mouseenter="isHovering=true"
@@ -129,7 +135,7 @@
               Valid
             </span>
           </section>
-        </div>
+        </div> -->
         <div id="breakdown">
           <div
             v-if="confirming_flag"
@@ -141,7 +147,7 @@
             </div>
             Loading Dataset...
           </div>
-          <div
+          <!-- <div
             v-for="(item, key) in class_items"
             v-else
             id="class-ratio-bars"
@@ -164,7 +170,7 @@
                 class="color-valid"
               />
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
       <rnc-button
@@ -192,13 +198,15 @@ import { DATASET_NAME_MAX_LENGTH, DATASET_NAME_MIN_LENGTH,
 import RncButton from '../../Atoms/rnc-button/rnc-button.vue'
 import RncSelect from '../../Atoms/rnc-select/rnc-select.vue'
 import RncInput from '../../Atoms/rnc-input/rnc-input.vue'
+import RncBarDataset from '../../Atoms/rnc-bar-dataset/rnc-bar-dataset';
 
 export default {
   name: 'ModalAddDataset',
   components: {
     'rnc-button': RncButton,
     'rnc-select': RncSelect,
-    'rnc-input': RncInput
+    'rnc-input': RncInput,
+    'rnc-bar-dataset': RncBarDataset
   },
   data: function () {
     return {
