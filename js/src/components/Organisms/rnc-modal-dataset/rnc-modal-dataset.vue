@@ -532,7 +532,7 @@ export default {
         }
       }
       #breakdown {
-        width: 100%;
+        width: calc(100% - 5.281);
         margin-top: 2%;
         height: calc(100% - 5% - 3% - 1.6rem - 3% - 1.6rem - 6% - 20px - 2% - 40px - 2%);
         overflow: auto;
