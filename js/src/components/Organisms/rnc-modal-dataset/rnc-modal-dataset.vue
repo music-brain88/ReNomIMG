@@ -531,8 +531,9 @@ export default {
         }
       }
       #breakdown {
-        width: calc(100% - 20px);
+        width: calc(100% - 30px);
         margin-top: 2%;
+        margin-left: auto;
         height: calc(100% - 5% - 3% - 1.6rem - 3% - 1.6rem - 6% - 20px - 2% - 40px - 2%);
         overflow: auto;
         #class-ratio-bars {
