@@ -747,7 +747,7 @@ class Yolov2(Detection):
         else:
             valid_dist = None
 
-        batch_loop = len(train_dist) // batch_size
+        batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
         avg_valid_loss_list = []
     
@@ -774,17 +774,18 @@ class Yolov2(Detection):
                 if isinstance(opt, BaseOptimizer):
                     opt.set_information(i,e,avg_train_loss_list, avg_valid_loss_list)
 
-                with self.train():
-                    loss = self.loss(self(train_x), buffers,train_y)
-                    reg_loss = loss + self.regularize()
-                reg_loss.grad().update(opt)
-                try:
-                    loss = float(loss.as_ndarray()[0])
-                except:
-                    loss = float(loss.as_ndarray())
+                if (self._model.hasbn and len(train_x) > 1) or (not self._model.has_bn and len(train_x)>0):
+                    with self.train():
+                        loss = self.loss(self(train_x), buffers,train_y)
+                        reg_loss = loss + self.regularize()
+                    reg_loss.grad().update(opt)
+                    try:
+                        loss = float(loss.as_ndarray()[0])
+                    except:
+                        loss = float(loss.as_ndarray())
 
-                display_loss += loss
-                bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
+                    display_loss += loss
+                    bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
             avg_train_loss = display_loss / (i + 1)
 

@@ -108,7 +108,8 @@ export default {
     },
     ...mapGetters([
       'getAlgorithmTitleFromId',
-      'getSelectedModel'
+      'getSelectedModel',
+      'getModelById'
     ]),
     zoom: function () {
       const zoom = d3.zoom()
@@ -185,11 +186,12 @@ export default {
     // ADD muraishi
     ...mapActions([
       'loadModelsOfCurrentTaskDetail',
-      'loadDatasetsOfCurrentTaskDetail']),
+      'loadDatasetsOfCurrentTaskDetail',
+      'updateSelectedModel'
+    ]),
 
     drawLearningCurve: function () {
       if (!this.kind) return
-      if (!this.SelectedModelObj) return
 
       d3.select('#learning-curve-canvas').select('svg').remove() // Remove SVG if it has been created.
       const margin = this.margin
@@ -606,12 +608,8 @@ export default {
           this.TooltipDisplay = false
         })
         .on('click', (m) => {
-          // CHANGE muraishi
-          this.clickedModelItem(m)
+          this.updateSelectedModel(m)
         })
-        // .on('click', (m) => {
-        //   this.setSelectedModel(m)
-        // })
       // d3.select('#model-scatter-canvas')
       //   .on('contextmenu', this.resetZoom)
     },
@@ -649,6 +647,10 @@ export default {
     clickedModelItem: function (model) {
       this.loadModelsOfCurrentTaskDetail(model.id)
       this.loadDatasetsOfCurrentTaskDetail(model.dataset_id)
+
+      // set selected_model form updated state.models
+      const selected_model = this.getModelById(model.id)
+      this.setSelectedModel(selected_model)
     }
   }
 }
