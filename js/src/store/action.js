@@ -191,7 +191,6 @@ export default {
         if (response.status === 204) return
         const ds = response.data.dataset
 
-
         const id = ds.id
         const class_map = ds.class_map
         const valid_data = ds.valid_data
@@ -420,29 +419,32 @@ export default {
     }))
   },
 
-
   async updateBestValidResult (context, payload) {
     const model_id = payload
     await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
 
-    if (context.state.selected_model &&
-        context.state.selected_model.id === model_id) {
+    const model = context.getters.getModelById(model_id)
 
-          const selected_model = context.getters.getModelById(model_id)
-          context.commit('setDeployedModel', selected_model)
-          // context.commit('forceUpdatePredictionPage')
+    if (model) {
+      if (context.state.selected_model &&
+          context.state.selected_model.id === model_id) {
+            context.commit('setSelectedModel', model)
+      }
+      context.commit('forceUpdateModelList')
+      context.commit('forceUpdatePredictionPage')
     }
-    context.commit('forceUpdateModelList')
   },
-
 
   async updatePredictionResult (context, payload) {
     const model_id = payload
     await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
 
     const deployed_model = context.getters.getModelById(model_id)
-    context.commit('setDeployedModel', deployed_model)
-    context.commit('forceUpdatePredictionPage')
+    if (deployed_model) {
+      context.commit('setDeployedModel', deployed_model)
+      context.commit('forceUpdateModelList')
+      context.commit('forceUpdatePredictionPage')
+    }
   },
 
   async forceUpdatePage (context, payload) {
