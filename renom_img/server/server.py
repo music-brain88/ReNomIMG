@@ -1595,6 +1595,30 @@ def delete_dataset(task_name, dataset_id):
     return create_response({}, status=204)
 
 
+# Segmentation target image data
+@route("/renom_img/v2/api/segmentation/datasets/<dataset_id:int>/mask", method="GET")
+@error_handler
+def get_segmentation_mask_data(dataset_id):
+    """
+    get dataset
+    """
+    req_params = request.params
+    path = req_params.filename
+    path = pathlib.Path(path)
+
+    d = storage.fetch_dataset(dataset_id)
+    check_dataset_exists(d, dataset_id)
+
+    size = [int(req_params.width), int(req_params.height)]
+
+    file_dir = path.with_suffix('.png').relative_to('datasrc/img')
+    file_dir = 'datasrc/label/segmentation' / file_dir
+    img = np.array(Image.open(file_dir).resize(size)).astype(np.uint8)
+    img[img == 255] = 0
+    img = img.tolist()
+    return {"class": img}
+
+
 @route("/renom_img/v2/api/<task_name>/models", method="GET")
 @error_handler
 def get_models(task_name):
@@ -1884,7 +1908,9 @@ def get_prediction_status(task_name):
     task_exists(task_name)
     # get query params
     req_params = request.params
-    model_id = req_params.model_id
+    # model_id = req_params.model_id
+    model_id = int(req_params.model_id)
+    print("model_id in get_prediction_status", model_id)
 
     saved_model = storage.fetch_model(model_id)
     check_model_exists(saved_model, model_id)
@@ -1893,6 +1919,7 @@ def get_prediction_status(task_name):
     active_prediction_thread = threads.get(model_id, None)
     if active_prediction_thread is None:
         time.sleep(0.5)  # Avoid many request.
+        print('A')
         return {
             "need_pull": False,
             "state": State.STOPPED.value,
@@ -1903,6 +1930,7 @@ def get_prediction_status(task_name):
     elif active_prediction_thread.state == State.PRED_RESERVED or \
             active_prediction_thread.state == State.PRED_CREATED:
         time.sleep(0.5)  # Avoid many request.
+        print('B')
         return {
             "need_pull": active_prediction_thread.need_pull,
             "state": active_prediction_thread.state.value,
@@ -1911,8 +1939,9 @@ def get_prediction_status(task_name):
             "nth_batch": active_prediction_thread.nth_batch,
         }
     else:
+        print('C')
         for _ in range(10):
-            time.sleep(0.5)  # Avoid many request.
+            time.sleep(0.5)  # Avoid many requet.
             if active_prediction_thread.updated:
                 break
             active_prediction_thread.consume_error()
@@ -1934,7 +1963,9 @@ def run_prediction(task_name):
     """
     task_exists(task_name)
     req_params = request.json
+    print("req_params", req_params)
     model_id = req_params.get("model_id", None)
+    print("model_id", model_id)
     saved_model = storage.fetch_model(model_id)
     check_model_exists(saved_model, model_id)
 
@@ -1964,7 +1995,8 @@ def get_prediction_result(task_name):
     task_id = get_task_id_by_name(task_name)
     # get query params
     req_params = request.params
-    model_id = req_params.model_id
+    # model_id = req_params.model_id
+    model_id = int(req_params.model_id)
     format = req_params.format
     check_export_format(format)
 

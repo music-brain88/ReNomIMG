@@ -241,7 +241,8 @@ export default {
       'getSelectedModel',
       'getGroupTitles',
       'getTitleMetric1',
-      'getTitleMetric2'
+      'getTitleMetric2',
+      'getModelById'
     ]),
     isDescending: function () {
       return this.sort_order_direction === SORT_DIRECTION.DESCENDING
@@ -293,6 +294,10 @@ export default {
     clickedModelItem: function (model) {
       this.loadModelsOfCurrentTaskDetail(model.id)
       this.loadDatasetsOfCurrentTaskDetail(model.dataset_id)
+
+      // set selected_model form updated state.models
+      const selected_model = this.getModelById(model.id)
+      this.setSelectedModel(selected_model)
     },
     setOrder: function (key) {
       if (this.isSortBy(key)) {
@@ -307,7 +312,7 @@ export default {
     rmModel: function (model_id) {
       const func = this.removeModel
       this.showConfirm({
-        message: "Are you sure to <span style='color: #f00;}'>remove</span> this model?",
+        message: "Are you sure you want to <span style='color: #f00;}'>remove</span> this model?",
         callback: function () { func(model_id) }
       })
     },

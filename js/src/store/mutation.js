@@ -37,8 +37,6 @@ export default {
     state.group_by = key
   },
   setSelectedModel (state, payload) {
-    // TODO: console.log('MUTATION:setSelectedModel')
-    // TODO: console.log(payload)
     const task_id = state.current_task
     state.selected_model = Object.assign({ ...state.selected_model }, { [task_id]: payload })
   },
@@ -114,8 +112,6 @@ export default {
     }
   },
   updateModel (state, payload) {
-    // TODO: console.log('MUTATION:【updateModel】')
-    // TODO: console.log(payload)
     const new_model = payload
     if (state.models.find(n => n.id === new_model.id) === undefined) {
       state.models = [new_model, ...state.models]
@@ -123,14 +119,12 @@ export default {
       const old_models = state.models
       const index = old_models.findIndex(n => n.id === new_model.id)
       old_models.splice(index, 1, new_model)
-      // TODO: console.log('newly maded models', old_models)
 
       state.models = old_models
     }
   },
   rmModel (state, payload) {
     if (state.models.find(n => n.id === payload.id) === undefined) {
-      console.log('***MUTATION【rmModel】')
       state.models = state.models.filter(m => m.id !== payload)
     }
   },
@@ -146,13 +140,11 @@ export default {
     state.filters = state.filters.filter(f => f !== payload)
   },
   addPollingJob (state, payload) {
-    // TODO: console.log('###### MUTATION 【addPollingJob】START#######')
     const key = Object.keys(payload)[0]
     const model_id = payload[key]
     state.polling_request_jobs[key] = [...state.polling_request_jobs[key], model_id]
   },
   rmPollingJob (state, payload) {
-    // TODO: console.log('###### MUTATION 【rmPollingJob】START#######')
     const key = Object.keys(payload)[0]
     const model_id = payload[key]
     state.polling_request_jobs[key] = state.polling_request_jobs[key].filter(n => n !== model_id)
