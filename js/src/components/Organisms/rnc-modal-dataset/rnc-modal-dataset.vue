@@ -107,29 +107,12 @@
             </div>
           </div>
         </div>
-        <div
+        <rnc-bar-dataset
           id="dataset-ratio-bar"
           :class="{'bar-anime': confirming_dataset}"
-          @mouseenter="isHovering=true"
-          @mouseleave="isHovering=false"
-        >
-          <section
-            :style="train_num_style"
-            class="color-train"
-          >
-            <span>
-              Train
-            </span>
-          </section>
-          <section
-            :style="valid_num_style"
-            class="color-valid"
-          >
-            <span>
-              Valid
-            </span>
-          </section>
-        </div>
+          :train-num="train_num"
+          :valid-num="valid_num"
+        />
         <div id="breakdown">
           <div
             v-if="confirming_flag"
@@ -147,21 +130,12 @@
             id="class-ratio-bars"
             :key="key"
           >
-            <span>
-              {{ item[0] }}
-            </span>
-            <div
-              :class="{'bar-anime': confirming_dataset}"
-              :style="{width: item[1] + item[2] + '%'}"
-              class="bar"
-            >
-              <section
-                :style="{width: item[1]/(item[1] + item[2])*100 + '%'}"
-                class="color-train"
-              />
-              <section
-                :style="{width: item[2]/(item[1] + item[2])*100 + '%'}"
-                class="color-valid"
+            <div class="class-detail-bar">
+              <rnc-bar-dataset
+                :train-num="train_num"
+                :valid-num="valid_num"
+                :class-name="item[0]"
+                :class-ratio="item[1]"
               />
             </div>
           </div>
@@ -192,13 +166,15 @@ import { DATASET_NAME_MAX_LENGTH, DATASET_NAME_MIN_LENGTH,
 import RncButton from '../../Atoms/rnc-button/rnc-button.vue'
 import RncSelect from '../../Atoms/rnc-select/rnc-select.vue'
 import RncInput from '../../Atoms/rnc-input/rnc-input.vue'
+import RncBarDataset from '../../Atoms/rnc-bar-dataset/rnc-bar-dataset'
 
 export default {
   name: 'ModalAddDataset',
   components: {
     'rnc-button': RncButton,
     'rnc-select': RncSelect,
-    'rnc-input': RncInput
+    'rnc-input': RncInput,
+    'rnc-bar-dataset': RncBarDataset
   },
   data: function () {
     return {
@@ -277,8 +253,8 @@ export default {
       const class_list = this.info.class_ratio
       return train_list.map((t, index) => [
         class_map[index],
-        (t) * class_list[index] * 100,
-        valid_list[index] * class_list[index] * 100
+        (t) * class_list[index],
+        valid_list[index] * class_list[index]
       ])
     },
     train_num_style: function () {
@@ -499,7 +475,7 @@ export default {
         margin: 16px 16px 3px 16px;
 
         .num-item {
-          width: 30%;
+          width: 100%;
           display: flex;
           .num-title {
           }
@@ -509,22 +485,29 @@ export default {
         }
       }
       #breakdown {
-        width: 100%;
+        width: calc(100% - 30px);
         margin-top: 2%;
+        margin-left: auto;
         height: calc(100% - 5% - 3% - 1.6rem - 3% - 1.6rem - 6% - 20px - 2% - 40px - 2%);
         overflow: auto;
         #class-ratio-bars {
-          height: 18px;
+          height: 14px;
           width: 100%;
           display: flex;
+          margin: 6px 0;
           span:nth-child(1) {
             width: 20%;
             display: flex;
             justify-content: flex-end;
             margin-right: 5px;
           }
-          .bar {
-            height: 10px;
+          #dataset-class-bars {
+            width: 100%;
+          }
+          .class-detail-bar {
+            height: 12px;
+            width: calc(100% - 40px);
+            margin-left: auto;
             display: flex;
           }
           section {
