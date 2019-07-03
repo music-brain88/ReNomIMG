@@ -112,7 +112,8 @@ export default {
         model.last_prediction_result = m.last_prediction_result
         context.commit('updateModel', model)
 
-        // console.log("details model", model)
+        console.log("new added model", model)
+        console.log("updated models", context.state.models[model.id])
 
         // TODO muraishi : 呼び出し元でやる
         // context.commit('setSelectedModel', model)
@@ -200,7 +201,6 @@ export default {
       .then(function (response) {
         if (response.status === 204) return
         const ds = response.data.dataset
-        console.log('response in 【loadModelsOfCurrentTaskDetail】', m)
 
 
         const id = ds.id
@@ -354,7 +354,6 @@ export default {
       const model = context.getters.getModelById(model_id)
       if (model) {
         const r = response.data
-        console.log('★★★★★★★★★★r of 【pollingTrain】', r)
         const state = r.state
         const load_best = response.data.best_result_changed
 
@@ -400,7 +399,6 @@ export default {
       model_id: model_id
     })
       .then(function (response) {
-        console.log('response in runpridictThread', response)
         context.dispatch('startAllPolling')
       }, error_handler_creator(context))
   },
@@ -412,7 +410,6 @@ export default {
     const url = '/renom_img/v2/api/' + task_name + '/prediction?model_id=' + model_id
     const request_source = { 'prediction': model_id }
     const current_requests = context.state.polling_request_jobs.prediction
-    console.log('here is in pollingPrediction!')
     // If polling for the model is already performed, do nothing.
     if (current_requests.indexOf(model_id) >= 0) {
       return
@@ -434,9 +431,6 @@ export default {
         const r = response.data
         const state = r.state
         const need_pull = response.data.need_pull
-	// console.log('if there is model')
-	// console.log('response.data', r)
-	// console.log('need_pull', need_pull)
         // Update model.
         model.state = r.state
         model.running_state = r.running_state
@@ -472,7 +466,7 @@ export default {
           // context.commit('forceUpdatePredictionPage')
     }
     context.commit('forceUpdateModelList')
-    console.log('【selectedModel】', context.getters.getSelectedModel)
+    console.log('【selectedModel】updateBestValidResult', context.getters.getSelectedModel)
   },
 
 
@@ -483,13 +477,12 @@ export default {
     const deployed_model = context.getters.getModelById(model_id)
     context.commit('setDeployedModel', deployed_model)
     context.commit('forceUpdatePredictionPage')
-    console.log('【deployedModel】', context.getters.getDeployedModel)
+    console.log('【deployedModel】updatePredictionResult', context.getters.getDeployedModel)
   },
 
   async forceUpdatePage (context, payload) {
     const model_id = payload
     const model = context.getters.getModelById(model_id)
-    console.log("here in forceUpdatePafe")
     if (model) {
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
