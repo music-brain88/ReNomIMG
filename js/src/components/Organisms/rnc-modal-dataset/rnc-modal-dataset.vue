@@ -536,7 +536,7 @@ export default {
         height: calc(100% - 5% - 3% - 1.6rem - 3% - 1.6rem - 6% - 20px - 2% - 40px - 2%);
         overflow: auto;
         #class-ratio-bars {
-          height: 18px;
+          height: 12px;
           width: 100%;
           display: flex;
           span:nth-child(1) {
