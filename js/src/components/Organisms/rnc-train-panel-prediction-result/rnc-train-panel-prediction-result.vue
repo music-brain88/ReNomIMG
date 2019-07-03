@@ -150,8 +150,6 @@ export default {
       */
       const dataset = this.dataset
       if (!dataset) return
-      // TODO: console.log('***dataset***')
-      // TODO: console.log(dataset)
 
       if (dataset.page.length === 0) {
         // Setup image page if it has not been set.
@@ -164,8 +162,6 @@ export default {
       const page_num = Math.max(Math.min(current_page, max_page_num), 0)
       this.setImagePageOfValid(page_num)
       current_page = this.getImagePageOfValid
-      // TODO: console.log('【dataset.page】')
-      // TODO: console.log(JSON.stringify(dataset.page[current_page]))
       return dataset.page[current_page]
     },
     pageMax: function () {
@@ -236,8 +232,6 @@ export default {
 
       const dataset = this.dataset
       if (!dataset) return
-      // TODO: console.log('【dataset.valid_data】')
-      // TODO: console.log(dataset.valid_data)
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
       this.$worker.run(setup_image_list,
@@ -253,11 +247,12 @@ export default {
       if (!model || !dataset) return
       const pred = model.getValidResult(index)
       const targ = dataset.getValidTarget(index)
-      return {
+      const ret = {
         index: index,
         target: targ,
         predict: pred
       }
+      return ret
     },
   }
 }

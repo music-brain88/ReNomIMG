@@ -108,7 +108,8 @@ export default {
     },
     ...mapGetters([
       'getAlgorithmTitleFromId',
-      'getSelectedModel'
+      'getSelectedModel',
+      'getModelById'
     ]),
     zoom: function () {
       const zoom = d3.zoom()
@@ -648,6 +649,10 @@ export default {
     clickedModelItem: function (model) {
       this.loadModelsOfCurrentTaskDetail(model.id)
       this.loadDatasetsOfCurrentTaskDetail(model.dataset_id)
+
+      // set selected_model form updated state.models
+      const selected_model = this.getModelById(model.id)
+      this.setSelectedModel(selected_model)
     }
   }
 }

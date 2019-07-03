@@ -173,13 +173,12 @@ export default {
     },
     getImages: function () {
       const model = this.model
-      // TODO: console.log('***** model of getImages:' + model)
       if (model) {
         const dataset = model.last_prediction_result
         if (!dataset) {
           return []
         }
-        if (!this.page) {
+        if (this.page.length === 0) {
           // Setup image page if it has not been set.
           this.$nextTick(() => this.setUpImages())
         }
@@ -250,19 +249,15 @@ export default {
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
 
       const model = this.model
-      // TODO: console.log('***** model of setUpImages:' + model)
       if (!model) return
 
       const dataset = model.last_prediction_result
-      // TODO: console.log('***** dataset of setUpImages:' + dataset)
       if (!dataset) return
 
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
-      // TODO: console.log('***** $worker START of setUpImages:')
       this.$worker.run(setup_image_list, [dataset, parent_width, parent_height, child_margin])
         .then((ret) => {
-          // TODO: console.log('***** ret:' + ret)
           this.page = ret
         })
     },
@@ -271,11 +266,12 @@ export default {
       const model = this.model
       if (!model) return
       const pred = model.last_prediction_result.prediction[index]
-      return {
+      const ret = {
         index: index,
         target: undefined,
         predict: pred
       }
+      return ret
     },
     onDownload: function () {
       const page = this.page
