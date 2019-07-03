@@ -238,6 +238,8 @@ export default {
 
       const dataset = this.dataset
       if (!dataset) return
+      if (!dataset.valid_data || dataset.valid_data.length === 0) return
+      
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
       this.$worker.run(setup_image_list,
