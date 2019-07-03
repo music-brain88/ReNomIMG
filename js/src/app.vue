@@ -112,6 +112,17 @@ export default {
   created: function () {
     this.init()
   },
+  mounted () {
+    this.$nextTick(function () {
+      if (this.$route.path === '/dataset') {
+        this.setCurrentPage(1)
+      } else if (this.$route.path === '/') {
+        this.setCurrentPage(0)
+      } else if (this.$route.path === '/predict') {
+        this.setCurrentPage(2)
+      }
+    })
+  },
   methods: {
     ...mapActions(['init']),
     ...mapMutations(['setCurrentPage', 'showSlideMenu', 'showModal']),
