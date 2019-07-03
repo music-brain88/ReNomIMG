@@ -551,9 +551,12 @@ export default {
             display: flex;
             justify-content: flex-end;
             margin-right: 5px;
+            #dataset-class-bars {
+              width: 100%;
+            }
           }
           .bar {
-            height: 20px;
+            height: 16px;
             width: 94%;
             display: flex;
           }
