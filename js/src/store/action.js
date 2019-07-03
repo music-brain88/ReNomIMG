@@ -455,6 +455,16 @@ export default {
     }
   },
 
+  async updateSelectedModel (context, payload) {
+    const model = payload
+    await context.dispatch('loadModelsOfCurrentTaskDetail', model.id)
+    await context.dispatch('loadDatasetsOfCurrentTaskDetail', model.dataset_id)
+
+    // set selected_model form updated state.models
+    const selected_model = context.getters.getModelById(model.id)
+    context.commit('setSelectedModel', selected_model)
+  },
+
   /** ***
    *
    */

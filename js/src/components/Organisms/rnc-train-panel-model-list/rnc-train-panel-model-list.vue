@@ -153,7 +153,7 @@
           :result-of-metric2="deployedModelListItem.ResultOfMetric2"
           :selected-model-id="deployedModelListItem.SelectedModelId"
           :is-deployed-model="true"
-          @clicked-model-item="clickedModelItem($event)"
+          @clicked-model-item="updateSelectedModel($event)"
         />
         <!-- CHANGE muraishi -->
         <!-- @clicked-model-item="setSelectedModel($event)" -->
@@ -189,7 +189,7 @@
           :selected-model-id="item.SelectedModelId"
 
           @rm-model="rmModel($event.id)"
-          @clicked-model-item="clickedModelItem($event)"
+          @clicked-model-item="updateSelectedModel($event)"
         />
         <!-- CHANGE muraishi -->
         <!-- @clicked-model-item="setSelectedModel($event)" -->
@@ -266,7 +266,7 @@ export default {
 
   mounted: function () {
     if (this.ModelListItemArray[0]) {
-      this.clickedModelItem(this.ModelListItemArray[0].Model)
+      this.updateSelectedModel(this.ModelListItemArray[0].Model)
     }
   },
 
@@ -284,6 +284,7 @@ export default {
     // ADD muraishi
     ...mapActions([
       'removeModel',
+      'updateSelectedModel',
       'loadModelsOfCurrentTaskDetail',
       'loadDatasetsOfCurrentTaskDetail']),
 
