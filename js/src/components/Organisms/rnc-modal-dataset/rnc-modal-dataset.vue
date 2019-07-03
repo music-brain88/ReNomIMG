@@ -113,29 +113,6 @@
           :train-num="train_num"
           :valid-num="valid_num"
         />
-        <!-- <div
-          id="dataset-ratio-bar"
-          :class="{'bar-anime': confirming_dataset}"
-          @mouseenter="isHovering=true"
-          @mouseleave="isHovering=false"
-        >
-          <section
-            :style="train_num_style"
-            class="color-train"
-          >
-            <span>
-              Train
-            </span>
-          </section>
-          <section
-            :style="valid_num_style"
-            class="color-valid"
-          >
-            <span>
-              Valid
-            </span>
-          </section>
-        </div> -->
         <div id="breakdown">
           <div
             v-if="confirming_flag"
@@ -162,30 +139,6 @@
               />
             </div>
           </div>
-          <!-- <div
-            v-for="(item, key) in class_items"
-            v-else
-            id="class-ratio-bars"
-            :key="key"
-          >
-            <span>
-              {{ item[0] }}
-            </span>
-            <div
-              :class="{'bar-anime': confirming_dataset}"
-              :style="{width: item[1] + item[2] + '%'}"
-              class="bar"
-            >
-              <section
-                :style="{width: item[1]/(item[1] + item[2])*100 + '%'}"
-                class="color-train"
-              />
-              <section
-                :style="{width: item[2]/(item[1] + item[2])*100 + '%'}"
-                class="color-valid"
-              />
-            </div>
-          </div> -->
         </div>
       </div>
       <rnc-button
