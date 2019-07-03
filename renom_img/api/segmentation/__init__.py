@@ -79,7 +79,7 @@ class SemanticSegmentation(Base):
             train_img_path_list, train_annotation_list, augmentation=augmentation)
         valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
 
-        batch_loop = len(train_dist) // batch_size
+        batch_loop = int(np.ceil(len(train_dist) / batch_size))
         avg_train_loss_list = []
         avg_valid_loss_list = []
 

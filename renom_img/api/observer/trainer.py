@@ -158,13 +158,20 @@ class ObservableTrainer():
 
                 self.model.set_models(inference=False)
                 if (self.model._model.has_bn and len(train_x)>1) or (not self.model._model.has_bn and len(train_x)>0):
-                    with self.model.train():
-                        if isinstance(self.model,Yolov2):
-                            loss = self.model.loss(self.model(train_x),buffers,train_y)
+                    try:
+                        with self.model.train():
+                            if isinstance(self.model,Yolov2):
+                                loss = self.model.loss(self.model(train_x),buffers,train_y)
+                            else:
+                                loss = self.model.loss(self.model(train_x),train_y)
+                            reg_loss = loss + self.model.regularize()
+                        reg_loss.grad().update(opt)
+                    except Exception as ex:
+                        if isinstance(ex,ReNomIMGError):
+                            raise ex
                         else:
-                            loss = self.model.loss(self.model(train_x),train_y)
-                        reg_loss = loss + self.model.regularize()
-                    reg_loss.grad().update(opt)
+                        # in future we can check for memory usage here to raise OutofmemoryError explicitly
+                            raise CudaError(str(ex))
                     if self.stop_flag is True:
                         return
                     try:
@@ -227,10 +234,16 @@ class ObservableTrainer():
             self.model.set_models(inference=True)
 
             valid_prediction_in_batch = self.model(valid_x)
-            if isinstance(self.model,Yolov2):
-                loss = self.model.loss(valid_prediction_in_batch,buffers,valid_y)
-            else:
-                loss = self.model.loss(valid_prediction_in_batch,valid_y)
+            try:
+                if isinstance(self.model,Yolov2):
+                    loss = self.model.loss(valid_prediction_in_batch,buffers,valid_y)
+                else:
+                    loss = self.model.loss(valid_prediction_in_batch,valid_y)
+            except Exception as ex:
+                if isinstance(ex,ReNomIMGError):
+                    raise ex
+                else:
+                    raise CudaError(str(ex))
             try:
                 loss = loss.as_ndarray()[0]
             except:
