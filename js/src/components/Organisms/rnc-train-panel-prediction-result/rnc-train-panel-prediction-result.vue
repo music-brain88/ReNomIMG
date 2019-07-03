@@ -72,7 +72,7 @@
           :max-height="image_cell_height"
           :img="item.img"
           :result="getResult(item)"
-          :model="getSelectedModel"
+          :model="model"
           :dataset="dataset"
         />
       </div>
@@ -133,8 +133,14 @@ export default {
       'isTaskDetection',
       'isTaskSegmentation',
     ]),
-    dataset: function () {
+    model: function () {
       const model = this.getSelectedModel
+      if (model) {
+        return model
+      }
+    },
+    dataset: function () {
+      const model = this.model
       if (model) return this.datasets.find(d => d.id === model.dataset_id)
     },
     showImage: function () {
@@ -151,7 +157,7 @@ export default {
       const dataset = this.dataset
       if (!dataset) return
 
-      if (dataset.page.length === 0) {
+      if (!dataset.page || dataset.page.length === 0) {
         // Setup image page if it has not been set.
         this.$nextTick(() => this.setUpValidImages())
       }
@@ -225,13 +231,14 @@ export default {
         ]
       */
       const parent_div = this.$refs.container
-      if (parent_div === undefined) return
+      if (!parent_div || parent_div === undefined) return
       const parent_height = parent_div.clientHeight
       const parent_width = parent_div.clientWidth
       const child_margin = Math.min(this.vh(0.25), this.vw(0.25))
 
       const dataset = this.dataset
       if (!dataset) return
+      if (!dataset.valid_data || dataset.valid_data.length === 0) return
       // Using vue-worker here.
       // See https://github.com/israelss/vue-worker
       this.$worker.run(setup_image_list,
@@ -242,7 +249,7 @@ export default {
     },
     getResult: function (item) {
       const index = item.index
-      const model = this.getSelectedModel
+      const model = this.model
       const dataset = this.dataset
       if (!model || !dataset) return
       const pred = model.getValidResult(index)

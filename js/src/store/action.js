@@ -427,7 +427,7 @@ export default {
       await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
       if (context.state.selected_model &&
           context.state.selected_model.id === model_id) {
-            context.commit('setSelectedModel', model)
+          context.commit('setSelectedModel', model)
       }
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
@@ -453,6 +453,15 @@ export default {
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
     }
+  },
+
+  async updateSelectedModel (context, payload) {
+    const model = payload
+    context.dispatch('loadDatasetsOfCurrentTaskDetail', model.dataset_id)
+    await context.dispatch('loadModelsOfCurrentTaskDetail', model.id)
+    // set selected_model form updated state.models
+    const selected_model = context.getters.getModelById(model.id)
+    context.commit('setSelectedModel', selected_model)
   },
 
   /** ***
@@ -576,7 +585,6 @@ export default {
    * PUT the tempDataset : not using in current version v2.2
    */
   async createDataset (context, payload) {
-
     const task_name = context.getters.getCurrentTaskName
     const dataset_id = payload.dataset_id
     const url = '/renom_img/v2/api/' + task_name + '/datasets/' + dataset_id

@@ -186,7 +186,9 @@ export default {
     // ADD muraishi
     ...mapActions([
       'loadModelsOfCurrentTaskDetail',
-      'loadDatasetsOfCurrentTaskDetail']),
+      'loadDatasetsOfCurrentTaskDetail',
+      'updateSelectedModel'
+    ]),
 
     drawLearningCurve: function () {
       if (!this.kind) return
@@ -606,12 +608,8 @@ export default {
           this.TooltipDisplay = false
         })
         .on('click', (m) => {
-          // CHANGE muraishi
-          this.clickedModelItem(m)
+          this.updateSelectedModel(m)
         })
-        // .on('click', (m) => {
-        //   this.setSelectedModel(m)
-        // })
       // d3.select('#model-scatter-canvas')
       //   .on('contextmenu', this.resetZoom)
     },

@@ -111,11 +111,11 @@ export default {
     },
     showPredict: {
       type: Boolean,
-      default: false
+      default: true
     },
     showTarget: {
       type: Boolean,
-      default: true
+      default: false
     },
     showImage: {
       type: Boolean,
@@ -169,7 +169,6 @@ export default {
       if (pred === undefined || !this.showPredict) {
         pred = []
       }
-      console.log('box in labeled-images', JSON.stringify(pred.concat(targ)))
       return pred.concat(targ)
     },
     // TODO muraishi: use data for calssification
@@ -217,10 +216,6 @@ export default {
           this.drawSeg()
         }
       })
-    },
-    img : function() {
-     console.log('img', this.img)
-     console.log('show_imag', this.showImage)
     }
   },
   beforeUpdate: function () {
@@ -238,8 +233,13 @@ export default {
   mounted: function () {
     const container = this.$refs.wrapper
     if (!container) return
+
     this.image_width = this.modifiedWidth
     this.image_height = this.modifiedHeigh
+
+    if (this.isTaskSegmentation) {
+      this.drawSeg()
+    }
   },
   methods: {
     ...mapActions([
@@ -298,7 +298,6 @@ export default {
     styleBox: function (box) {
       if (!box || !box.box) return
       const class_id = box.class
-      console.log('box in stleBox', box)
       const x1 = (box.box[0] - box.box[2] / 2) * 100
       const y1 = (box.box[1] - box.box[3] / 2) * 100
       const w = box.box[2] * 100
