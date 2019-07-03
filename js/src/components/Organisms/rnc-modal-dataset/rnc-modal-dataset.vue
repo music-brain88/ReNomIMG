@@ -153,7 +153,7 @@
             id="class-ratio-bars"
             :key="key"
           >
-            <div class="bar">
+            <div class="class-detail-bar">
               <rnc-bar-dataset
               :train-num="train_num"
               :valid-num="valid_num"
@@ -552,9 +552,10 @@ export default {
           #dataset-class-bars {
             width: 100%;
           }
-          .bar {
+          .class-detail-bar {
             height: 12px;
             width: calc(100% - 20px);
+            margin-left: auto;
             display: flex;
           }
           section {
