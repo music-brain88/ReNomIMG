@@ -90,7 +90,7 @@ class AppObserver(TrainObserverBase):
                     self.ts.best_valid_changed = True
                     self.ts.save_best_model()
                     self.ts.best_epoch_valid_result = {
-                        "nth_epoch": self.ts.nth_epoch,
+                        "nth_epoch": self.ts.nth_epoch + 1,
                         "prediction": notification["prediction"],
                         "recall": float(notification["evaluation_matrix"]["recall"]),
                         "precision": float(notification["evaluation_matrix"]["precision"]),
@@ -103,7 +103,7 @@ class AppObserver(TrainObserverBase):
                 self.ts.best_valid_changed = True
                 self.ts.save_best_model()
                 self.ts.best_epoch_valid_result = {
-                    "nth_epoch": self.ts.nth_epoch,
+                    "nth_epoch": self.ts.nth_epoch + 1,
                     "prediction": notification["prediction"],
                     "recall": float(notification["evaluation_matrix"]["recall"]),
                     "precision": float(notification["evaluation_matrix"]["precision"]),
@@ -119,7 +119,7 @@ class AppObserver(TrainObserverBase):
                     self.ts.best_valid_changed = True
                     self.ts.save_best_model()
                     self.ts.best_epoch_valid_result = {
-                        "nth_epoch": self.ts.nth_epoch,
+                        "nth_epoch": self.ts.nth_epoch + 1,
                         "prediction": notification["prediction"],
                         "mAP": float(notification["evaluation_matrix"]["mAP"]),
                         "IOU": float(notification["evaluation_matrix"]["iou"]),
@@ -131,7 +131,7 @@ class AppObserver(TrainObserverBase):
                 self.ts.best_valid_changed = True
                 self.ts.save_best_model()
                 self.ts.best_epoch_valid_result = {
-                    "nth_epoch": self.ts.nth_epoch,
+                    "nth_epoch": self.ts.nth_epoch + 1,
                     "prediction": notification["prediction"],
                     "mAP": float(notification["evaluation_matrix"]["mAP"]),
                     "IOU": float(notification["evaluation_matrix"]["iou"]),
@@ -146,7 +146,7 @@ class AppObserver(TrainObserverBase):
                     self.ts.best_valid_changed = True
                     self.ts.save_best_model()
                     self.ts.best_epoch_valid_result = {
-                        "nth_epoch": self.ts.nth_epoch,
+                        "nth_epoch": self.ts.nth_epoch + 1,
                         "prediction": notification["prediction"],
                         "recall": float(notification["evaluation_matrix"]["recall"]),
                         "precision": float(notification["evaluation_matrix"]["precision"]),
@@ -159,7 +159,7 @@ class AppObserver(TrainObserverBase):
                 self.ts.best_valid_changed = True
                 self.ts.save_best_model()
                 self.ts.best_epoch_valid_result = {
-                    "nth_epoch": self.ts.nth_epoch,
+                    "nth_epoch": self.ts.nth_epoch + 1,
                     "prediction": notification["prediction"],
                     "recall": float(notification["evaluation_matrix"]["recall"]),
                     "precision": float(notification["evaluation_matrix"]["precision"]),
