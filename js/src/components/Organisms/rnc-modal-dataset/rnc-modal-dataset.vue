@@ -147,12 +147,25 @@
             </div>
             Loading Dataset...
           </div>
-          <rnc-bar-dataset
+          <div
             v-for="(item, key) in class_items"
             v-else
             id="class-ratio-bars"
             :key="key"
           />
+          <div
+            id="dataset-class-bars"
+            :class="{'bar-anime': bar_move}"
+          >
+            <div class="bar">
+              <rnc-bar-dataset
+                :train-num="train_num"
+                :valid-num="valid_num"
+                :class-name="item[0]"
+                :class-ratio="item[1]"
+              />
+            </div>
+          </div>
           <!-- <div
             v-for="(item, key) in class_items"
             v-else
@@ -204,7 +217,7 @@ import { DATASET_NAME_MAX_LENGTH, DATASET_NAME_MIN_LENGTH,
 import RncButton from '../../Atoms/rnc-button/rnc-button.vue'
 import RncSelect from '../../Atoms/rnc-select/rnc-select.vue'
 import RncInput from '../../Atoms/rnc-input/rnc-input.vue'
-import RncBarDataset from '../../Atoms/rnc-bar-dataset/rnc-bar-dataset';
+import RncBarDataset from '../../Atoms/rnc-bar-dataset/rnc-bar-dataset'
 
 export default {
   name: 'ModalAddDataset',
