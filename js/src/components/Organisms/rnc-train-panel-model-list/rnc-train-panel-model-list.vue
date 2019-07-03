@@ -347,6 +347,8 @@ export default {
     },
     getLastBatchLoss (model) {
       if (model.getBestLoss()) {
+        // console.log('*** model.getBestLoss(): ', model.getBestLoss())
+        // console.log('*** model.getBestLoss().toFixed(2): ', model.getBestLoss().toFixed(2))
         return model.getBestLoss().toFixed(2)
       } else {
         return '-'

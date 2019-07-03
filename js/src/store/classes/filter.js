@@ -15,9 +15,14 @@ export default class Filter {
       const key = item.key
       if (item.type === 'condition') {
         const model_value = m.best_epoch_valid_result
+        // 表示が四捨五入されているため、表示と合わせて比較処理を行います。
+        const value = Number(model_value[key]).toFixed(2)
+        // console.log('***[model_value[key] of filter_func]：', model_value[key])
+        // console.log('***[value of filter_func]：', value)
+        // console.log('***[parseFloat(threshold) of filter_func]：', parseFloat(threshold))
+
         if (condition === '>=') { // Less equal than
           if (model_value) {
-            const value = model_value[key]
             if (value) return value >= parseFloat(threshold)
             else return false
           } else {
@@ -25,15 +30,13 @@ export default class Filter {
           }
         } else if (condition === '==') { // Equan
           if (model_value) {
-            const value = model_value[key]
-            if (value) return value === parseFloat(threshold)
+            if (value) return value === parseFloat(threshold).toFixed(2) // toFixedをして型を揃えています
             else return false
           } else {
             return false
           }
         } else if (condition === '<=') { // Grater equal than
           if (model_value) {
-            const value = model_value[key]
             if (value) return value <= parseFloat(threshold)
             else return true
           } else {
