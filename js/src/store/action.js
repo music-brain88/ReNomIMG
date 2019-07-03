@@ -421,11 +421,10 @@ export default {
 
   async updateBestValidResult (context, payload) {
     const model_id = payload
-    await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
-
     const model = context.getters.getModelById(model_id)
 
     if (model) {
+      await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
       if (context.state.selected_model &&
           context.state.selected_model.id === model_id) {
             context.commit('setSelectedModel', model)
@@ -437,10 +436,10 @@ export default {
 
   async updatePredictionResult (context, payload) {
     const model_id = payload
-    await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
-
     const deployed_model = context.getters.getModelById(model_id)
+
     if (deployed_model) {
+      await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
       context.commit('setDeployedModel', deployed_model)
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
