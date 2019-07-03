@@ -222,6 +222,7 @@ class CNN_TernausNet(CnnBase):
 
     def __init__(self, num_class):
         super(CNN_TernausNet, self).__init__()
+        self.has_bn = False
         self.block1 = layer_factory(channel_list=[64])
         self.block2 = layer_factory(channel_list=[128])
         self.block3 = layer_factory(channel_list=[256, 256])

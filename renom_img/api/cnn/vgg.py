@@ -28,6 +28,7 @@ class CNN_VGG19(CnnBase):
 
     def __init__(self, num_class=1000):
         super(CNN_VGG19, self).__init__()
+        self.has_bn = False
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=4)
@@ -78,6 +79,7 @@ class CNN_VGG16(CnnBase):
 
     def __init__(self, num_class=1000):
         super(CNN_VGG16, self).__init__()
+        self.has_bn = False
         self.block1 = layer_factory(channel=64, conv_layer_num=2)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
         self.block3 = layer_factory(channel=256, conv_layer_num=3)
@@ -127,6 +129,7 @@ class CNN_VGG16_NODENSE(CnnBase):
 
     def __init__(self, num_class=1000):
         super(CNN_VGG16_NODENSE, self).__init__()
+        self.has_bn=False
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
         self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
         self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
@@ -172,6 +175,7 @@ class CNN_VGG11(CnnBase):
 
     def __init__(self, num_class=1000):
         super(CNN_VGG11, self).__init__()
+        self.has_bn = False
         self.block1 = layer_factory(channel=64, conv_layer_num=1)
         self.block2 = layer_factory(channel=128, conv_layer_num=1)
         self.block3 = layer_factory(channel=256, conv_layer_num=2)
