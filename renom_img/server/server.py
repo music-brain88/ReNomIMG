@@ -1865,7 +1865,7 @@ def get_train_status(task_name):
             "state": active_train_thread.state.value,
             "running_state": active_train_thread.running_state.value,
             "total_epoch": active_train_thread.total_epoch,
-            "nth_epoch": active_train_thread.nth_epoch + 1,
+            "nth_epoch": active_train_thread.nth_epoch,
             "total_batch": active_train_thread.total_batch,
             "nth_batch": active_train_thread.nth_batch,
             "last_batch_loss": active_train_thread.last_batch_loss,
