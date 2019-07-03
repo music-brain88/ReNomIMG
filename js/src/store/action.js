@@ -831,10 +831,10 @@ export default {
     // TODO: const url = '/api/renom_img/v2/model/deploy/' + model.id
     const url = '/renom_img/v2/api/' + task_name + '/models/' + model.id
 
-    this.commit('setDeployedModel', model)
     return axios.put(url, {
       deploy: true
     }).then(function (response) {
+      this.commit('setDeployedModel', model)
       // TODO: console.log('【deployModel】')
       // TODO: console.log(response)
     }, error_handler_creator(context))
@@ -846,10 +846,10 @@ export default {
     const model = payload
     const url = '/renom_img/v2/api/' + task_name + '/models/' + model.id
     // TODO: console.log('*** model.id <unDeployModel>:' + model.id)
-    this.commit('unDeployModel')
     return axios.put(url, {
       deploy: false
     }).then(function (response) {
+      this.commit('unDeployModel')
       // TODO: console.log('【unDeployModel】')
       // TODO: console.log(response)
     }, error_handler_creator(context))
