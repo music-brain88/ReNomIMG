@@ -188,7 +188,7 @@ export default {
       'loadModelsOfCurrentTaskDetail',
       'loadDatasetsOfCurrentTaskDetail',
       'updateSelectedModel'
-      ]),
+    ]),
 
     drawLearningCurve: function () {
       if (!this.kind) return
