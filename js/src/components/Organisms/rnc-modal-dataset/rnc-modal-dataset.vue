@@ -495,7 +495,7 @@ export default {
       margin-top: 5px;
       margin-bottom: 5px;
       #dataset-ratio-bar {
-        width: calc(100% - 0px);
+        width: calc(100% - 30px);
         height: 20px;
         margin-bottom: 2%;
         display: flex;
