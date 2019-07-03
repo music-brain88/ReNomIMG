@@ -549,7 +549,7 @@ export default {
             width: 100%;
           }
           .bar {
-            height: 16px;
+            height: 12px;
             width: 94%;
             display: flex;
           }
