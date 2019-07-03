@@ -355,6 +355,7 @@ export default {
         draw_item = this.result.target
         if (!model || draw_item.name === undefined) return
         this.loadSegmentationTargetArray({
+          dataset_id: model.dataset_id,
           name: draw_item.name,
           size: {
             width: parseInt(model.hyper_parameters.imsize_w),

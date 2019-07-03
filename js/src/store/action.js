@@ -410,7 +410,7 @@ export default {
         } else {
           context.dispatch('pollingPrediction', model_id)
         }
-        if (need_pull){
+        if (need_pull) {
           context.dispatch('updatePredictionResult', model_id)
         }
       }
@@ -702,11 +702,12 @@ export default {
   */
 
   async loadSegmentationTargetArray (context, payload) {
+    const dataset_id = payload.dataset_id
     const name = payload.name
     const width = payload.size.width
     const height = payload.size.height
     const query = 'filename=' + name + '&width=' + width + '&height=' + height
-    const url = '/renom_img/v2/api/segmentation/datasets/1/mask?' + query
+    const url = '/renom_img/v2/api/segmentation/datasets/' + dataset_id + '/mask?' + query
 
     const callback = payload.callback
     return axios.get(url).then(response => {
@@ -716,25 +717,21 @@ export default {
   async deployModel (context, payload) {
     const task_name = context.getters.getCurrentTaskName
     const model = payload
-    // TODO: const url = '/api/renom_img/v2/model/deploy/' + model.id
     const url = '/renom_img/v2/api/' + task_name + '/models/' + model.id
-
-    this.commit('setDeployedModel', model)
     return axios.put(url, {
       deploy: true
     }).then(function (response) {
-
+      this.commit('setDeployedModel', model)
     }, error_handler_creator(context))
   },
   async unDeployModel (context, payload) {
     const task_name = context.getters.getCurrentTaskName
     const model = payload
     const url = '/renom_img/v2/api/' + task_name + '/models/' + model.id
-    this.commit('unDeployModel')
     return axios.put(url, {
       deploy: false
     }).then(function (response) {
-
+      this.commit('unDeployModel')
     }, error_handler_creator(context))
   },
 
