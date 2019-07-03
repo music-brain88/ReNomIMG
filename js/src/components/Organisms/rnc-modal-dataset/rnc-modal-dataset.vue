@@ -152,11 +152,8 @@
             v-else
             id="class-ratio-bars"
             :key="key"
+            :class="{'bar-anime': bar_move}"
           >
-            <div
-              id="dataset-class-bars"
-              :class="{'bar-anime': bar_move}"
-              >
               <div
                 class="bar"
                 style="width: 80%;"
@@ -167,7 +164,6 @@
                   :class-name="item[0]"
                   :class-ratio="item[1]"
                 />
-            </div>
             </div>
             </div>
           <!-- <div
