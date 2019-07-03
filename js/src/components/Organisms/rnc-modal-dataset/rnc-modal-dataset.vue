@@ -551,9 +551,9 @@ export default {
             display: flex;
             justify-content: flex-end;
             margin-right: 5px;
-            #dataset-class-bars {
-              width: 100%;
-            }
+          }
+          #dataset-class-bars {
+            width: 100%;
           }
           .bar {
             height: 16px;
