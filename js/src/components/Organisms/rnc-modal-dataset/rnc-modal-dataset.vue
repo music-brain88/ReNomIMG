@@ -153,12 +153,16 @@
             id="class-ratio-bars"
             :key="key"
           >
-            <rnc-bar-dataset
-              :train-num="train_num"
-              :valid-num="valid_num"
-              :class-name="item[0]"
-              :class-ratio="item[1]"
-            />
+            <div>
+              <div>
+                <rnc-bar-dataset
+                  :train-num="train_num"
+                  :valid-num="valid_num"
+                  :class-name="item[0]"
+                  :class-ratio="item[1]"
+                />
+              </div>
+            </div>
           </div>
           <!-- <div
             v-for="(item, key) in class_items"
