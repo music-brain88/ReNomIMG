@@ -147,6 +147,12 @@
             </div>
             Loading Dataset...
           </div>
+          <rnc-bar-dataset
+            v-for="(item, key) in class_items"
+            v-else
+            id="class-ratio-bars"
+            :key="key"
+          />
           <!-- <div
             v-for="(item, key) in class_items"
             v-else
@@ -507,7 +513,7 @@ export default {
         margin: 16px 16px 3px 16px;
 
         .num-item {
-          width: 30%;
+          width: 100%;
           display: flex;
           .num-title {
           }
