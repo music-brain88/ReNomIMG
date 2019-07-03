@@ -117,3 +117,10 @@ class ServerConnectionError(ReNomIMGError):
     def __init__(self, msg=None):
         super(ServerConnectionError,self).__init__(msg)
 
+class InvalidTrainingThreadError(ReNomIMGError):
+    code = "IMG-0202-ER-R001-16"
+
+    def __init__(self, msg=None):
+        super(InvalidTrainingThreadError,self).__init__(msg)
+
+

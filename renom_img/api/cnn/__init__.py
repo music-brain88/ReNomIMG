@@ -9,6 +9,7 @@ class CnnBase(rm.Model):
     def __init__(self):
         self.train_whole = None
         self.output_size = None
+        self.has_bn = True
 
     def __call__(self, *args, **kwargs):
         if (None in [self.train_whole, self.output_size]):

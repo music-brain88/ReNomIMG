@@ -106,20 +106,21 @@ class SemanticSegmentation(Base):
                 if isinstance(opt, BaseOptimizer):
                     opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list)
 
+                if (self.contains_bn and len(train_x) >1) or (not self.contains_bn and len(train_x)>0):
                 # grdient
-                with self.train():
-                    loss = self.loss(self(train_x), train_y, class_weight=class_weight)
-                    reg_loss = loss + self.regularize()
+                    with self.train():
+                        loss = self.loss(self(train_x), train_y, class_weight=class_weight)
+                        reg_loss = loss + self.regularize()
 
-                try:
-                    loss = loss.as_ndarray()[0]
-                except:
-                    loss = loss.as_ndarray()
-                loss = float(loss)
-                reg_loss.grad().update(opt)
+                    try:
+                        loss = loss.as_ndarray()[0]
+                    except:
+                        loss = loss.as_ndarray()
+                    loss = float(loss)
+                    reg_loss.grad().update(opt)
 
-                display_loss += loss
-                bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
+                    display_loss += loss
+                    bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
             avg_train_loss = display_loss / (i + 1)
             avg_train_loss_list.append(avg_train_loss)
