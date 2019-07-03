@@ -153,12 +153,14 @@
             id="class-ratio-bars"
             :key="key"
           >
-                <rnc-bar-dataset
-                  :train-num="train_num"
-                  :valid-num="valid_num"
-                  :class-name="item[0]"
-                  :class-ratio="item[1]"
-                />
+            <div class="bar">
+              <rnc-bar-dataset
+              :train-num="train_num"
+              :valid-num="valid_num"
+              :class-name="item[0]"
+              :class-ratio="item[1]"
+              />
+            </div>
 
             </div>
           <!-- <div
@@ -493,7 +495,7 @@ export default {
       margin-top: 5px;
       margin-bottom: 5px;
       #dataset-ratio-bar {
-        width: calc(100% - 30px);
+        width: calc(100% - 0px);
         height: 20px;
         margin-bottom: 2%;
         display: flex;
@@ -552,7 +554,7 @@ export default {
           }
           .bar {
             height: 12px;
-            width: 94%;
+            width: calc(100% - 20px);
             display: flex;
           }
           section {
