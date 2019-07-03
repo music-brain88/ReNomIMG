@@ -163,7 +163,7 @@ export default {
       const func = this.deployModel
       this.showConfirm({
         message: '<span style="line-height: 1.2rem;">' +
-          'Are you sure to <span style="color: #f00;">deploy</span> this model?<br>' +
+          'Are you sure you want to <span style="color: #f00;">deploy</span> this model?<br>' +
           '**This means undeploying current deployed model.</span>',
         callback: function () { func(model) }
       })
@@ -173,7 +173,7 @@ export default {
       const model = this.getDeployedModel
       const func = this.unDeployModel
       this.showConfirm({
-        message: 'Are you sure to <span style="color: #f00;">undeploy</span> this model?',
+        message: 'Are you sure you want to <span style="color: #f00;">undeploy</span> this model?',
         callback: function () { func(model) }
       })
     }
