@@ -554,7 +554,7 @@ export default {
           }
           .class-detail-bar {
             height: 12px;
-            width: calc(100% - 20px);
+            width: calc(100% - 40px);
             margin-left: auto;
             display: flex;
           }
