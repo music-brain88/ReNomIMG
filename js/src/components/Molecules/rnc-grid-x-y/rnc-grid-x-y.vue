@@ -189,7 +189,6 @@ export default {
 
     drawLearningCurve: function () {
       if (!this.kind) return
-      if (!this.SelectedModelObj) return
 
       d3.select('#learning-curve-canvas').select('svg').remove() // Remove SVG if it has been created.
       const margin = this.margin
