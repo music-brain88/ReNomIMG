@@ -52,7 +52,8 @@ class CnnSSD(CnnBase):
     
     def __init__(self, weight_decay=None):
         super(CnnSSD, self).__init__()
-
+        self.has_bn = False
+        
         self._feature_extractor = CNN_VGG16()
         self._freezed_network = rm.Sequential([self._feature_extractor.block1,
                                              self._feature_extractor.block2])

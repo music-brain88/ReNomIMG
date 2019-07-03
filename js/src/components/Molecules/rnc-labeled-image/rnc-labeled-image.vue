@@ -5,6 +5,11 @@
     class="image-frame"
     @click="onImageClick()"
   >
+    <img
+      v-if="showImage"
+      :src="img"
+      :style="modifiedSize"
+    >
     <canvas
       v-if="isTaskSegmentation"
       ref="canvas"
@@ -39,11 +44,6 @@
         {{ cls }}
       </div>
     </div>
-    <img
-      v-if="showImage"
-      :src="img"
-      :style="modifiedSize"
-    >
   </div>
 </template>
 
@@ -169,6 +169,7 @@ export default {
       if (pred === undefined || !this.showPredict) {
         pred = []
       }
+      console.log('box in labeled-images', JSON.stringify(pred.concat(targ)))
       return pred.concat(targ)
     },
     // TODO muraishi: use data for calssification
@@ -217,6 +218,10 @@ export default {
         }
       })
     },
+    img : function() {
+     console.log('img', this.img)
+     console.log('show_imag', this.showImage)
+    }
   },
   beforeUpdate: function () {
     /**
@@ -234,7 +239,7 @@ export default {
     const container = this.$refs.wrapper
     if (!container) return
     this.image_width = this.modifiedWidth
-    this.image_height = this.modifiedHeight
+    this.image_height = this.modifiedHeigh
   },
   methods: {
     ...mapActions([
@@ -291,7 +296,9 @@ export default {
       }
     },
     styleBox: function (box) {
+      if (!box || !box.box) return
       const class_id = box.class
+      console.log('box in stleBox', box)
       const x1 = (box.box[0] - box.box[2] / 2) * 100
       const y1 = (box.box[1] - box.box[3] / 2) * 100
       const w = box.box[2] * 100
@@ -348,11 +355,12 @@ export default {
         draw_item = this.result.target
         if (!model || draw_item.name === undefined) return
         this.loadSegmentationTargetArray({
+          dataset_id: model.dataset_id,
           name: draw_item.name,
-          size: [
-            parseInt(model.hyper_parameters.imsize_w),
-            parseInt(model.hyper_parameters.imsize_h),
-          ],
+          size: {
+            width: parseInt(model.hyper_parameters.imsize_w),
+            height: parseInt(model.hyper_parameters.imsize_h),
+          },
           callback: (response) => {
             this.$worker.run(render_segmentation, [response.data]).then((ret) => {
               var canvas = this.$refs.canvas

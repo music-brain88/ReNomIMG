@@ -51,7 +51,8 @@ class Base(rm.Model):
 
         # 0. General setting.
         self.default_optimizer = rm.Sgd(0.001, 0.9)
-
+        # flag for presence of BN layer
+        self.contains_bn = load_target.has_bn
         # 1. Cast class_map to list and encodes the class names to ascii.
         if class_map is None:
             self.class_map = []
@@ -173,7 +174,7 @@ class Base(rm.Model):
         valid_dist = ImageDistributor(valid_img_path_list, valid_annotation_list)
 
         # Number of batch iteration.
-        batch_loop = len(train_dist) // batch_size
+        batch_loop = int(np.ceil(len(train_dist) / batch_size))
 
         # Optimizer settings.
         if optimizer is None:
@@ -194,24 +195,25 @@ class Base(rm.Model):
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
 
+                if (self.contains_bn and len(train_x) > 1) or (not self.contains_bn and len(train_x)>0):
                 # Gradient descent.
-                with self.train():
-                    loss = self.loss(self(train_x), train_y)
-                    reg_loss = loss + self.regularize()
+                    with self.train():
+                        loss = self.loss(self(train_x), train_y)
+                        reg_loss = loss + self.regularize()
 
-                # Modify optimizer.
-                if isinstance(opt, BaseOptimizer):
-                    opt.set_information(i, e, avg_train_loss_list,
+                    # Modify optimizer.
+                    if isinstance(opt, BaseOptimizer):
+                        opt.set_information(i, e, avg_train_loss_list,
                                         avg_valid_loss_list, loss.as_ndarray())
 
-                reg_loss.grad().update(opt)
-                try:
-                    loss = loss.as_ndarray()[0]
-                except:
-                    loss = loss.as_ndarray()
-                loss = float(loss)
-                display_loss += loss
-                bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
+                    reg_loss.grad().update(opt)
+                    try:
+                        loss = loss.as_ndarray()[0]
+                    except:
+                        loss = loss.as_ndarray()
+                    loss = float(loss)
+                    display_loss += loss
+                    bar.set_description("Epoch:{:03d} Train Loss:{:5.3f}".format(e, loss))
                 bar.update(1)
             avg_train_loss = display_loss / (i + 1)
             avg_train_loss_list.append(avg_train_loss)

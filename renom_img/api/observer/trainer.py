@@ -56,7 +56,10 @@ class ObservableTrainer():
         self.stop_flag = False
 
     def add_observer(self,observer):
-        self.observers.append(observer)
+        if isinstance(observer,TrainObserverBase):
+            self.observers.append(observer)
+        else:
+            raise InvalidTrainingThreadError("Train thread must be an instance of TrainObserverBase class.")
 
     def remove_observer(self,observer):
         self.observers.remove(observer)
@@ -121,7 +124,7 @@ class ObservableTrainer():
         except Exception as e:
             raise InvalidOptimizerError(str(e))
 
-        train_batch_loop = len(train_dist)//batch_size
+        train_batch_loop = int(np.ceil(len(train_dist)/batch_size))
 
         if isinstance(opt, BaseOptimizer):
             opt.setup(train_batch_loop, total_epoch)
@@ -154,14 +157,21 @@ class ObservableTrainer():
                     train_x,train_y = val[0],val[1]
 
                 self.model.set_models(inference=False)
-                if len(train_x)>0:
-                    with self.model.train():
-                        if isinstance(self.model,Yolov2):
-                            loss = self.model.loss(self.model(train_x),buffers,train_y)
+                if (self.model._model.has_bn and len(train_x)>1) or (not self.model._model.has_bn and len(train_x)>0):
+                    try:
+                        with self.model.train():
+                            if isinstance(self.model,Yolov2):
+                                loss = self.model.loss(self.model(train_x),buffers,train_y)
+                            else:
+                                loss = self.model.loss(self.model(train_x),train_y)
+                            reg_loss = loss + self.model.regularize()
+                        reg_loss.grad().update(opt)
+                    except Exception as ex:
+                        if isinstance(ex,ReNomIMGError):
+                            raise ex
                         else:
-                            loss = self.model.loss(self.model(train_x),train_y)
-                        reg_loss = loss + self.model.regularize()
-                    reg_loss.grad().update(opt)
+                        # in future we can check for memory usage here to raise OutofmemoryError explicitly
+                            raise CudaError(str(ex))
                     if self.stop_flag is True:
                         return
                     try:
@@ -175,13 +185,13 @@ class ObservableTrainer():
                     except Exception as e:
                         raise InvalidLossValueError(str(e))
                     display_loss+=loss
-                if isinstance(opt, BaseOptimizer):
-                    opt.set_information(batch,epoch,avg_train_loss_list,avg_valid_loss_list,loss)
-                if self.stop_flag is True:
-                    return
-                # notify about batch update
-                notify = {'loss':loss}
-                self.notify_end_batch(notify)
+                    if isinstance(opt, BaseOptimizer):
+                        opt.set_information(batch,epoch,avg_train_loss_list,avg_valid_loss_list,loss)
+                    if self.stop_flag is True:
+                        return
+                    # notify about batch update
+                    notify = {'loss':loss}
+                    self.notify_end_batch(notify)
 
             avg_train_loss_list.append(display_loss/batch)
             # notify about batches end
@@ -224,10 +234,16 @@ class ObservableTrainer():
             self.model.set_models(inference=True)
 
             valid_prediction_in_batch = self.model(valid_x)
-            if isinstance(self.model,Yolov2):
-                loss = self.model.loss(valid_prediction_in_batch,buffers,valid_y)
-            else:
-                loss = self.model.loss(valid_prediction_in_batch,valid_y)
+            try:
+                if isinstance(self.model,Yolov2):
+                    loss = self.model.loss(valid_prediction_in_batch,buffers,valid_y)
+                else:
+                    loss = self.model.loss(valid_prediction_in_batch,valid_y)
+            except Exception as ex:
+                if isinstance(ex,ReNomIMGError):
+                    raise ex
+                else:
+                    raise CudaError(str(ex))
             try:
                 loss = loss.as_ndarray()[0]
             except:

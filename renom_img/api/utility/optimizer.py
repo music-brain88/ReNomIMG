@@ -270,9 +270,9 @@ class OptimizerYolov2(BaseOptimizer):
 
     def setup(self, total_batch_iteration, total_epoch_iteration):
         super(OptimizerYolov2, self).setup(total_batch_iteration, total_epoch_iteration)
-        self.burn_in = 1000
+        self.burn_in = int(self.total_iteration * 0.012)
         self.scale=[0.1,0.1]
-        self.steps=[40000,60000]
+        self.steps=[int(self.total_iteration*0.45),int(self.total_iteration*0.7)]
         self.power=4
         self.learning_rate = 0.001
         self.opt._lr = self.learning_rate

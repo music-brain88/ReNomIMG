@@ -93,6 +93,7 @@ class CNN_FCN8s(CnnBase):
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN8s.h5".format(__version__)
     def __init__(self, num_class):
         super(CNN_FCN8s, self).__init__()
+        self.has_bn = False
         self.train_final_upscore=False
         init_deconv = DeconvInitializer()
         self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
@@ -197,6 +198,7 @@ class CNN_FCN16s(CnnBase):
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN16s.h5".format(__version__)
     def __init__(self, num_class):
         super(CNN_FCN16s, self).__init__()
+        self.has_bn = False
         self.train_final_upscore=False
         init_deconv = DeconvInitializer()
         self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
@@ -282,6 +284,7 @@ class CNN_FCN32s(CnnBase):
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN32s.h5".format(__version__)
     def __init__(self, num_class):
         super(CNN_FCN32s, self).__init__()
+        self.has_bn =False
         self.train_final_upscore=False
         init_deconv = DeconvInitializer()
         self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
