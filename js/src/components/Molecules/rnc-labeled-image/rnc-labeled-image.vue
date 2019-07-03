@@ -111,11 +111,11 @@ export default {
     },
     showPredict: {
       type: Boolean,
-      default: false
+      default: true
     },
     showTarget: {
       type: Boolean,
-      default: true
+      default: false
     },
     showImage: {
       type: Boolean,
@@ -238,8 +238,13 @@ export default {
   mounted: function () {
     const container = this.$refs.wrapper
     if (!container) return
+    
     this.image_width = this.modifiedWidth
     this.image_height = this.modifiedHeigh
+
+    if (this.isTaskSegmentation) {
+      this.drawSeg()
+    }
   },
   methods: {
     ...mapActions([

@@ -608,12 +608,8 @@ export default {
           this.TooltipDisplay = false
         })
         .on('click', (m) => {
-          // CHANGE muraishi
           this.updateSelectedModel(m)
         })
-        // .on('click', (m) => {
-        //   this.setSelectedModel(m)
-        // })
       // d3.select('#model-scatter-canvas')
       //   .on('contextmenu', this.resetZoom)
     },
