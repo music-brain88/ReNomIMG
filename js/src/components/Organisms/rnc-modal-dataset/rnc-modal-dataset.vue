@@ -152,15 +152,21 @@
             v-else
             id="class-ratio-bars"
             :key="key"
+
+          >
+          <div
+            id="dataset-class-bars"
             :class="{'bar-anime': bar_move}"
           >
+            <div class="bar">
                 <rnc-bar-dataset
                   :train-num="train_num"
                   :valid-num="valid_num"
                   :class-name="item[0]"
                   :class-ratio="item[1]"
                 />
-
+            </div>
+          </div>
             </div>
           <!-- <div
             v-for="(item, key) in class_items"
@@ -547,7 +553,8 @@ export default {
             margin-right: 5px;
           }
           .bar {
-            height: 10px;
+            height: 20px;
+            width: 94%;
             display: flex;
           }
           section {
