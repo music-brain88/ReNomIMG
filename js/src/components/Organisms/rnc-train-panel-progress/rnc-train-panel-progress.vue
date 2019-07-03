@@ -119,7 +119,7 @@ export default {
     callModal: function (model_id) {
       const func = this.stopModelTrain
       this.showConfirm({
-        message: "Are you sure to <span style='color: #f00;}'>stop</span> this model?",
+        message: "Are you sure you want to <span style='color: #f00;}'>stop</span> this model?",
         callback: function () { func(model_id) }
       })
     },
