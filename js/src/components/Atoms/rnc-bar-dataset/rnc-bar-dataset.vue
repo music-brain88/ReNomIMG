@@ -87,6 +87,7 @@ export default {
     },
 
     barStyle () {
+      console.log("############", this.classRatio)
       const ratio = this.classRatio
       const ret = {
         'height': 100 + '%',
