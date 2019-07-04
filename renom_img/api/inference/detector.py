@@ -41,7 +41,7 @@ class Detector(object):
         return self._model(x)
 
     def pull(self):
-        """Pull trained weight from ReNomIMG server.
+        """Pull trained weights from ReNomIMG server.
         Trained weight will be downloaded into current directory.
 
         Example:

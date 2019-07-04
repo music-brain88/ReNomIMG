@@ -132,6 +132,15 @@ class Yolov1(Detection):
           the base layers of the model during training. If True, trains all layers
           of the model. If False, the convolutional base is frozen during training.
 
+    Example:
+        >>> from renom_img.api.detection.yolo_v1 import Yolov1
+        >>> from renom_img.api.utility.load import parse_xml_detection
+        >>>
+        >>> train_label_path_list = ...  # Provide list of training label paths
+        >>> annotation_list, class_map = parse_xml_detection(train_label_path_list)
+        >>>
+        >>> model = Yolov1(class_map, cells=7, bbox=2, imsize=(224,224), load_pretrained_weight=True, train_whole_network=True)
+
     References:
         | Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi
         | **You Only Look Once: Unified, Real-Time Object Detection**

@@ -167,7 +167,11 @@ export default {
     // TODO muraishi : dispatch datasetDetail when setDeployedModel occor
     dataset: function () {
       const model = this.model
-      if (model) return this.datasets.find(d => d.id === model.dataset_id)
+      if (!model) return
+
+      let ret = this.datasets.find(d => d.id === model.dataset_id)
+      console.log('dataset in predictionResult', ret)
+      return ret
     },
     showImage: function () {
       return this.show_image || !this.isTaskSegmentation

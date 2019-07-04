@@ -147,6 +147,12 @@ class ResNet18(Classification):
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
+    Example:
+        >>> from renom_img.api.classification.resnet import ResNet18
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = ResNet18(class_map, imsize=(224,224), plateau=True, load_pretrained_weight=True, train_whole_network=True)
+
     Note:
         If the argument num_class is not equal to 1000, the last dense layer will be reset because
         the pretrained weight was trained on a 1000-class dataset.
@@ -196,6 +202,12 @@ class ResNet34(Classification):
           If a string is given, weight values will be loaded and initialized from the weights in the given file name.
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
+
+    Example:
+        >>> from renom_img.api.classification.resnet import ResNet34
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = ResNet34(class_map, imsize=(224,224), plateau=True, load_pretrained_weight=True, train_whole_network=True)
 
     Note:
         If the argument num_class is not equal to 1000, the last dense layer will be reset because
@@ -247,6 +259,12 @@ class ResNet50(Classification):
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
+    Example:
+        >>> from renom_img.api.classification.resnet import ResNet50
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = ResNet50(class_map, imsize=(224,224), plateau=True, load_pretrained_weight=True, train_whole_network=True)
+
     Note:
         If the argument num_class is not equal to 1000, the last dense layer will be reset because
         the pretrained weight was trained on a 1000-class dataset.
@@ -297,6 +315,12 @@ class ResNet101(Classification):
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
+    Example:
+        >>> from renom_img.api.classification.resnet import ResNet101
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = ResNet101(class_map, imsize=(224,224), plateau=True, load_pretrained_weight=True, train_whole_network=True)
+
     Note:
         If the argument num_class is not equal to 1000, the last dense layer will be reset because
         the pretrained weight was trained on a 1000-class dataset.
@@ -346,6 +370,12 @@ class ResNet152(Classification):
           If a string is given, weight values will be loaded and initialized from the weights in the given file name.
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
+
+    Example:
+        >>> from renom_img.api.classification.resnet import ResNet152
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = ResNet152(class_map, imsize=(224,224), plateau=True, load_pretrained_weight=True, train_whole_network=True)
 
     Note:
         If the argument num_class is not equal to 1000, the last dense layer will be reset because
