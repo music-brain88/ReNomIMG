@@ -27,11 +27,8 @@ export default {
     // context.commit('resetState')
     context.commit('flushFilter')
     context.dispatch('loadDatasetsOfCurrentTask')
-    // TODO: context.dispatch('loadTestDatasetsOfCurrentTask')
     await context.dispatch('loadModelsOfCurrentTask', 'all')
-    // await context.dispatch('loadModelsOfCurrentTask', 'running')// TODO: 必要？タイミングは？
-    // await context.dispatch('loadModelsOfCurrentTask', 'deployed')// TODO: 必要？タイミングは？
-    await context.dispatch('loadDeployedModel')
+    await context.dispatch('loadModelsOfCurrentTask', 'deployed')
     context.commit('showLoadingMask', false)
     context.dispatch('startAllPolling')
   },
@@ -41,8 +38,8 @@ export default {
    */
   async loadModelsOfCurrentTask (context, payload) {
     const task_name = context.getters.getCurrentTaskName
-    const state = payload
-    const url = '/renom_img/v2/api/' + task_name + '/models?state=' + state
+    const m_state = payload
+    const url = '/renom_img/v2/api/' + task_name + '/models?state=' + m_state
     return axios.get(url)
       .then(function (response) {
         if (response.status === 204) return
@@ -67,8 +64,14 @@ export default {
           model.best_epoch_valid_result = m.best_epoch_valid_result
           model.last_batch_loss = m.last_batch_loss
           model.last_prediction_result = m.last_prediction_result
-          context.commit('addModel', model)
 
+          if (m_state !== 'deployed') {
+            context.commit('addModel', model)
+          } else {
+            context.commit('updateModel', model)
+            const deployed_model = context.getters.getModelById(model.id)
+            context.commit('setDeployedModel', deployed_model)
+          }
           // context.dispatch('forceUpdatePage', id)
         }
       }, error_handler_creator(context))
@@ -110,43 +113,6 @@ export default {
         // TODO muraishi : 呼び出し元でやる
         // context.commit('setSelectedModel', model)
         // context.dispatch('forceUpdatePage', model.id)
-      }, error_handler_creator(context))
-  },
-
-  async loadDeployedModel (context, payload) {
-    const task_name = context.getters.getCurrentTaskName
-    const url = '/renom_img/v2/api/' + task_name + '/models?state=deployed'
-    return axios.get(url)
-      .then(function (response) {
-        if (response.status === 204) return
-        if (!response.data.models[0]) return
-        const m = response.data.models[0]
-
-        const algorithm_id = m.algorithm_id
-        const task_id = m.task_id
-        const state = m.state
-        const id = m.id
-        const hyper_params = m.hyper_parameters
-        const dataset_id = m.dataset_id
-        const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
-
-        model.id = id
-        model.state = state
-        model.total_epoch = m.total_epoch
-        model.nth_epoch = m.nth_epoch
-        model.total_batch = m.total_batch
-        model.nth_batch = m.nth_batch
-        model.train_loss_list = m.train_loss_list
-        model.valid_loss_list = m.valid_loss_list
-        model.best_epoch_valid_result = m.best_epoch_valid_result
-        model.last_batch_loss = m.last_batch_loss
-        model.last_prediction_result = m.last_prediction_result
-        context.commit('updateModel', model)
-
-        const deployed_model = context.getters.getModelById(model.id)
-        context.commit('setDeployedModel', deployed_model)
-
-        // this.dispatch('forceUpdatePage', deployed_model.id)
       }, error_handler_creator(context))
   },
 
@@ -208,33 +174,6 @@ export default {
         context.commit('updateDataset', loaded_dataset)
       }, error_handler_creator(context))
   },
-
-  /** ***
-   *TODO: not using currently
-
-  async loadTestDatasetsOfCurrentTask (context) {
-    const task_id = context.getters.getCurrentTask
-    const url = '/api/renom_img/v2/test_dataset/load/task/' + task_id
-    return axios.get(url)
-      .then(function (response) {
-        if (response.status === 204) return
-        for (const ds of response.data.test_dataset_list) {
-          const id = ds.id
-          const class_map = ds.class_map
-          const test_data = ds.test_data
-          const task = ds.task_id
-          const name = ds.name
-          const ratio = ds.ratio
-          const description = ds.description
-          const loaded_dataset = new TestDataset(task, name, ratio, description)
-          loaded_dataset.id = id
-          loaded_dataset.class_map = class_map
-          loaded_dataset.test_data = test_data
-          context.commit('addTestDataset', loaded_dataset)
-        }
-      }, error_handler_creator(context))
-  },
-   */
 
   /** ***
    *
@@ -429,7 +368,7 @@ export default {
 
       if (context.state.selected_model &&
           context.state.selected_model.id === model_id) {
-          context.commit('setSelectedModel', new_model)
+        context.commit('setSelectedModel', new_model)
       }
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
@@ -471,25 +410,10 @@ export default {
   /** ***
    *
    */
-  async startWeightDownload (context, payload) {
-
-  },
-
-  /** ***
-   *
-   */
-  async pollingWeightDownload (context, payload) {
-
-  },
-
-  /** ***
-   *
-   */
   async stopModelTrain (context, payload) {
     const task_name = context.getters.getCurrentTaskName
     const model_id = payload
     const url = '/renom_img/v2/api/' + task_name + '/train'
-    // TODO: deleteの時の値の渡し方がバラバラだがOK？
 
     return axios.delete(url, {
       data: { model_id: model_id }
@@ -541,51 +465,6 @@ export default {
   },
 
   /** ***
-   * TODO: 「best_epoch_valid_result」は直接値を含めて返ってくる仕様に変更
-   */
-  // async loadBestValidResult (context, payload) {
-  //   const model_id = payload
-  //
-  //   const model = context.getters.getModelById(model_id)
-  //   if (model) {
-  //     context.commit('forceUpdateModelList')
-  //     context.commit('forceUpdatePredictionPage')
-  //   }
-  //
-  //   TODO: const url = '/api/renom_img/v2/model/load/best/result/' + model_id
-  //   return axios.get(url).then(function (response) {
-  //     const model = context.getters.getModelById(model_id)
-  //     if (model) {
-  //       const r = response.data
-  //       const best_result = r.best_result
-  //       model.best_epoch_valid_result = best_result
-  //       context.commit('forceUpdateModelList')
-  //       context.commit('forceUpdatePredictionPage')
-  //     }
-  //   }, error_handler_creator(context))
-  // },
-
-  // async loadPredictionResult (context, payload) {
-  //   const model_id = payload
-  //
-  //   const model = context.getters.getModelById(model_id)
-  //   if (model) {
-  //     context.commit('forceUpdatePredictionPage')
-  //   }
-  //
-  //   TODO: const url = '/api/renom_img/v2/model/load/prediction/result/' + model_id
-  //   return axios.get(url).then(function (response) {
-  //     const model = context.getters.getModelById(model_id)
-  //     if (model) {
-  //       const r = response.data
-  //       const result = r.result
-  //       model.last_prediction_result = result
-  //       context.commit('forceUpdatePredictionPage')
-  //     }
-  //   }, error_handler_creator(context))
-  // },
-
-  /** ***
    * PUT the tempDataset : not using in current version v2.2
    */
   async createDataset (context, payload) {
@@ -598,37 +477,6 @@ export default {
       context.dispatch('loadDatasetsOfCurrentTaskDetail', dataset_id)
     }, error_handler_creator(context))
   },
-
-  /** ***
-   * TODO:
-
-  async createTestDataset (context, payload) {
-    const url = '/api/renom_img/v2/test_dataset/confirm'
-    const name = payload.name
-    const ratio = payload.ratio
-    const task_id = context.getters.getCurrentTask
-    const description = 'test'
-
-    const test_dataset = new TestDataset(task_id, name, ratio, description)
-
-    const param = new FormData()
-    param.append('name', encodeURIComponent(name))
-    param.append('ratio', ratio)
-    param.append('task_id', task_id)
-    param.append('description', encodeURIComponent(description))
-
-    context.commit('addTestDataset', test_dataset)
-    return axios.post(url, param).then(function (response) {
-      if (response.status === 204) return
-      const id = response.data.id
-      const class_map = response.data.class_map
-      const test_data = response.data.test_data
-      test_dataset.id = id
-      test_dataset.class_map = class_map
-      test_dataset.test_data = test_data
-    }, error_handler_creator(context))
-  },
-  */
 
   /** ***
    * POST and create the tempDataset
@@ -693,26 +541,6 @@ export default {
     }))
   },
 
-  /* TODO:
-  async confirmTestDataset (context, payload) {
-    const url = '/api/renom_img/v2/test_dataset/confirm'
-    const name = payload.name
-    const ratio = payload.ratio
-    const task_id = context.getters.getCurrentTask
-    const description = payload.description
-    const param = new FormData()
-    param.append('name', encodeURIComponent(name))
-    param.append('ratio', ratio)
-    param.append('task_id', task_id)
-    param.append('description', encodeURIComponent(description))
-    return axios.post(url, param).then(function (response) {
-      if (response.status === 204) return
-      const class_info = response.data
-      context.commit('setConfirmTestDataset', class_info)
-    }, error_handler_creator(context))
-  },
-  */
-
   async loadSegmentationTargetArray (context, payload) {
     const dataset_id = payload.dataset_id
     const name = payload.name
@@ -746,21 +574,6 @@ export default {
       context.commit('unDeployModel')
     }, error_handler_creator(context))
   },
-
-  /* TODO: ↓旧ソース。後で消します。
-  async loadDeployedModel (context, payload) {
-    const task_id = context.getters.getCurrentTask
-    const url = '/api/renom_img/v2/model/load/deployed/task/' + task_id
-    return axios.get(url).then((response) => {
-      const id = response.data.deployed_id
-      if (id) {
-        const model = context.getters.getModelById(id)
-        this.commit('setDeployedModel', model)
-        this.dispatch('loadPredictionResult', model.id)
-      }
-    }, error_handler_creator(context))
-  },
-  */
 
   async downloadPredictionResult (context, payload) {
     const task_name = context.getters.getCurrentTaskName

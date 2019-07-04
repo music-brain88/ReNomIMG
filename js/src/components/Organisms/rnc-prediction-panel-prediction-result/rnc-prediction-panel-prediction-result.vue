@@ -159,7 +159,7 @@ export default {
     ]),
     model: function () {
       const model = this.getDeployedModel
-      console.log('this.getDeployedModel', this.getDeployedModel)
+      // console.log('this.getDeployedModel', this.getDeployedModel)
       if (model) {
         return model
       }
@@ -269,7 +269,7 @@ export default {
       const model = this.model
       if (!model) return
       const pred = model.last_prediction_result.prediction[index]
-      console.log('pred', pred)
+      // console.log('pred', pred)
       const ret = {
         index: index,
         target: undefined,
