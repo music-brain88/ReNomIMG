@@ -1997,13 +1997,16 @@ def get_prediction_result(task_name):
     req_params = request.params
     # model_id = req_params.model_id
     model_id = int(req_params.model_id)
+    # print("### model_id of get_prediction_result:", model_id)
     format = req_params.format
+    # print("### format of get_prediction_result:", format)
     check_export_format(format)
 
     filename = 'prediction.csv'
 
     model = storage.fetch_model(model_id)
     prediction = model["last_prediction_result"]
+    # print("### prediction of get_prediction_result:", prediction)
 
     # Shaping data by task & format.
     resolver = get_formatter_resolver(task_id)
