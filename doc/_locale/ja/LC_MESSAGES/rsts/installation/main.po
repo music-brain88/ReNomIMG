@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-14 20:15+0900\n"
+"POT-Creation-Date: 2019-07-04 14:39+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -167,7 +167,7 @@ msgid "OS : Ubuntu 16.04"
 msgstr ""
 
 #: ../../rsts/installation/main.rst:114
-msgid "python : >=3.5"
+msgid "python : 3.5 or 3.6"
 msgstr ""
 
 #: ../../rsts/installation/main.rst:115
@@ -191,5 +191,8 @@ msgstr ""
 #~ msgstr "そうしましたらDockerイメージが作成されます. "
 
 #~ msgid "`ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : >= 2.7"
+#~ msgstr ""
+
+#~ msgid "python : >=3.5"
 #~ msgstr ""
 

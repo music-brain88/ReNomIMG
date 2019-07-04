@@ -14,7 +14,7 @@ v2.2.0 beta
 
 v2.1b3 => v2.2b0
 
-- Added Deeplabv3 segmentation algorithm
+- Added Deeplabv3 segmentation algorithm to API
 - Modified Yolov2 loss function and updated pretrained weights
 - Refactored GUI components
 - Refactored backend server
@@ -32,10 +32,11 @@ Please refer to the change log at the renom.jp URL below for a complete change h
 - Python: 3.5 or 3.6
 - ReNom: 2.7.3
 
-ReNomIMG v2.2b0 requires ReNom version 2.7.3.
-If you haven't installed ReNom, first install it from https://github.com/ReNom-dev-team/ReNom.git.
 
 ## Requirements
+
+ReNomIMG v2.2b0 requires ReNom version 2.7.3.
+If you haven't installed ReNom, first install it from https://github.com/ReNom-dev-team/ReNom.git.
 
 For required python modules please refer to requirements.txt.
 
