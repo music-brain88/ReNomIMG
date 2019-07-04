@@ -9,7 +9,7 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2
 from renom_img.api.detection.ssd import SSD
-from renom_img.api.utility.exception.exception import ServerConnectionError, MissingInputError
+from renom_img.api.utility.exceptions.exceptions import ServerConnectionError, MissingInputError
 
 class Detector(object):
     """This class allows you to pull models trained in the ReNomIMG GUI.
