@@ -1998,20 +1998,23 @@ def get_prediction_result(task_name):
     # model_id = req_params.model_id
     model_id = int(req_params.model_id)
     # print("### model_id of get_prediction_result:", model_id)
-    format = req_params.format
+    pred_format = req_params.format
     # print("### format of get_prediction_result:", format)
-    check_export_format(format)
+    check_export_format(pred_format)
 
     filename = 'prediction.csv'
 
     model = storage.fetch_model(model_id)
     prediction = model["last_prediction_result"]
     # print("### prediction of get_prediction_result:", prediction)
+    print(type(prediction))
 
     # Shaping data by task & format.
     resolver = get_formatter_resolver(task_id)
-    formatter = resolver.resolve(format)
-    df = formatter.format(prediction)
+    print(type(resolver))
+    formatter = resolver.resolve(pred_format)
+    print(type(formatter))
+    df = formatter.to_df(prediction)
 
     # Export shaped data.
     # It is better to create writer for increasing format.

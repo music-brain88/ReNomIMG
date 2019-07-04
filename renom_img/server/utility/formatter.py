@@ -32,7 +32,7 @@ class FormatterBase(with_metaclass(ABCMeta, object)):
         pass
 
     @abstractmethod
-    def format(self, data):
+    def to_df(self, data):
         pass
 
 
@@ -40,7 +40,7 @@ class DetectionCsvFormatter(FormatterBase):
     def __init__(self):
         self.format = "csv"
 
-    def format(data):
+    def to_df(self, data):
         img_path = data["img"]
         sizes = data["size"]
         prediction = data["prediction"]
@@ -60,7 +60,7 @@ class ClassificationCsvFormatter(FormatterBase):
     def __init__(self):
         self.format = "csv"
 
-    def format(data):
+    def to_df(self, data):
         img_path = data["img"]
         sizes = data["size"]
         prediction = data["prediction"]
@@ -81,7 +81,7 @@ class SegmentationCsvFormatter(FormatterBase):
     def __init__(self):
         self.format = "csv"
 
-    def format(data):
+    def to_df(self, data):
         img_path = data["img"]
         sizes = data["size"]
         prediction = data["prediction"]
