@@ -135,7 +135,7 @@
                 :train-num="train_num"
                 :valid-num="valid_num"
                 :class-name="item[0]"
-                :class-ratio="item[1]"
+                :class-ratio="item[3]"
               />
             </div>
           </div>
@@ -254,7 +254,8 @@ export default {
       return train_list.map((t, index) => [
         class_map[index],
         (t) * class_list[index],
-        valid_list[index] * class_list[index]
+        valid_list[index] * class_list[index],
+        class_list[index]
       ])
     },
     train_num_style: function () {
