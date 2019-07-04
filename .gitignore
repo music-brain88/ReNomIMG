@@ -119,3 +119,6 @@ test/python/outputs/
 
 # pytest cache
 .pytest_cache
+
+# Storybook Notes
+/js/src/components/**/*.md
