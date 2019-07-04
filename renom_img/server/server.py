@@ -134,7 +134,7 @@ def check_weight_exists(filepath, model_id):
 def check_model_running(model_id):
     thread = TrainThread.jobs.get(model_id, None)
     if thread is not None:
-        raise ModelRunningError("Model {} is running, please wait or stop train.")
+        raise ModelRunningError("Model {} is running, please wait or stop train.".format(model_id))
 
 
 def error_message_dataset_name(name):
