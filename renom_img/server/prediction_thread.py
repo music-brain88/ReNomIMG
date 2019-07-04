@@ -228,6 +228,8 @@ class PredictionThread(object):
 
         elif self.algorithm_id == Algorithm.FCN.value:
             self._setting_fcn()
+        elif self.algorithm_id == Algorithm.DEEPLABV3PLUS.value:
+            self._setting_deeplabv3plus()
         elif self.algorithm_id == Algorithm.UNET.value:
             self._setting_unet()
         else:
@@ -397,6 +399,15 @@ class PredictionThread(object):
             class_map=self.class_map,
             imsize=self.imsize,
             load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+
+    def _setting_deeplabv3plus(self):
+        assert self.task_id == Task.SEGMENTATION.value, self.task_id
+        self.model = Deeplabv3plus(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.get_weight_path(Deeplabv3plus),
             train_whole_network=self.train_whole
         )
 
