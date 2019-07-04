@@ -408,7 +408,7 @@ class PredictionThread(object):
         self.model = Deeplabv3plus(
             class_map=self.class_map,
             imsize=self.imsize,
-            load_pretrained_weight=self.get_weight_path(Deeplabv3plus),
+            load_pretrained_weight=self.load_pretrained_weight,
             train_whole_network=self.train_whole
         )
 
