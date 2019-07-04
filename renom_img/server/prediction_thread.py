@@ -20,6 +20,7 @@ from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.detection.ssd import SSD
 from renom_img.api.segmentation.unet import UNet
 from renom_img.api.segmentation.fcn import FCN8s, FCN16s, FCN32s
+from renom_img.api.segmentation.deeplab import Deeplabv3plus
 
 from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
 from renom_img.server.utility.storage import storage
@@ -228,6 +229,8 @@ class PredictionThread(object):
 
         elif self.algorithm_id == Algorithm.FCN.value:
             self._setting_fcn()
+        elif self.algorithm_id == Algorithm.DEEPLABV3PLUS.value:
+            self._setting_deeplabv3plus()
         elif self.algorithm_id == Algorithm.UNET.value:
             self._setting_unet()
         else:
@@ -394,6 +397,15 @@ class PredictionThread(object):
             FCN = FCN32s
 
         self.model = FCN(
+            class_map=self.class_map,
+            imsize=self.imsize,
+            load_pretrained_weight=self.load_pretrained_weight,
+            train_whole_network=self.train_whole
+        )
+
+    def _setting_deeplabv3plus(self):
+        assert self.task_id == Task.SEGMENTATION.value, self.task_id
+        self.model = Deeplabv3plus(
             class_map=self.class_map,
             imsize=self.imsize,
             load_pretrained_weight=self.load_pretrained_weight,
