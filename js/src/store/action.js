@@ -286,7 +286,9 @@ export default {
           context.dispatch('pollingTrain', model_id)
         }
         if (load_best) {
-          context.dispatch('updateBestValidResult', model_id)
+          context.commit('forceUpdateModelList')
+          context.commit('forceUpdatePredictionPage')
+          // context.dispatch('updateBestValidResult', model_id) // 使用禁止
         }
       }
     }, error_handler_creator(context, function () {
@@ -358,6 +360,7 @@ export default {
     }))
   },
 
+  /* 不要な処理のため使用しない
   async updateBestValidResult (context, payload) {
     const model_id = payload
     const old_model = context.getters.getModelById(model_id)
@@ -374,6 +377,7 @@ export default {
       context.commit('forceUpdatePredictionPage')
     }
   },
+  */
 
   async updatePredictionResult (context, payload) {
     const model_id = payload
