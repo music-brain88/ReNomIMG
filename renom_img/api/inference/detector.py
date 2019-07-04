@@ -88,7 +88,6 @@ class Detector(object):
             img_h = ret["hyper_parameters"]["imsize_h"]
             self._model = SSD(imsize=(img_h, img_w))
             self._model.load(filename)
-            self._model._network.num_class = self._model.num_class
 
         self._model_info = {
             "Algorithm": self._alg_name,
