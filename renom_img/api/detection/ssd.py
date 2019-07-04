@@ -247,6 +247,15 @@ class SSD(Detection):
             If True, all network layers will be trained. If False, the backbone network layers
             will be set to inference mode, and no updates will be performed for the backbone network weights. The default is False.
 
+    Example:
+        >>> from renom_img.api.detection.ssd import SSD
+        >>> from renom_img.api.utility.load import parse_xml_detection
+        >>>
+        >>> train_label_path_list = ...  # provide list of paths to training data
+        >>> annotation_list, class_map = parse_xml_detection(train_label_path_list)
+        >>>
+        >>> model = SSD(class_map, imsize=(300,300), load_pretrained_weight=True, train_whole_network=True)
+
     References:
         | Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed, Cheng-Yang Fu, Alexander C. Berg 
         | **SSD: Single Shot MultiBox Detector**

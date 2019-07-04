@@ -13,13 +13,13 @@ For python3.5
 
     .. code-block:: shell
 
-        pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b3-cp35-cp35m-linux_x86_64.whl
+        pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.2b0-cp35-cp35m-linux_x86_64.whl
 
 For python3.6
 
     .. code-block:: shell
 
-        pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.1b3-cp36-cp36m-linux_x86_64.whl
+        pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.2b0-cp36-cp36m-linux_x86_64.whl
 
 
     .. note::
@@ -111,7 +111,7 @@ the current directory, and the application will use port number ``8080``.
 **Requirements**
 
   - OS : Ubuntu 16.04
-  - python : >=3.5
+  - python : 3.5 or 3.6
   - `ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : = 2.7.3
 
 For required python packages, please refer to the `requirements.txt <https://github.com/ReNom-dev-team/ReNomIMG/blob/release/2.1/requirements.txt>`_ .

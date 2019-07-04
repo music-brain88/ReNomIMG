@@ -153,6 +153,12 @@ class ResNeXt50(Classification):
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
+    Example:
+        >>> from renom_img.api.classification.resnext import ResNeXt50
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = ResNeXt50(class_map, imsize=(224,224), plateau=True, load_pretrained_weight=True, train_whole_network=True)
+
     Note:
         If the argument num_class is not equal to 1000, the last dense layer will be reset because
         the pretrained weight was trained on a 1000-class dataset.
@@ -207,6 +213,12 @@ class ResNeXt101(Classification):
           If a string is given, weight values will be loaded and initialized from the weights in the given file name.
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
+
+    Example:
+        >>> from renom_img.api.classification.resnext import ResNeXt101
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = ResNeXt101(class_map, imsize=(224,224), plateau=True, load_pretrained_weight=True, train_whole_network=True)
 
     Note:
         If the argument num_class is not equal to 1000, the last dense layer will be reset because

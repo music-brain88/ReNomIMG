@@ -87,21 +87,24 @@ class Base(rm.Model):
             try:
                 load_target.load_pretrained_weight(weight_path)
             except:
-                weight_path_new = self.__class__.__name__ + '_new.h5'
+                weight_path_new = self.__class__.__name__ + '_v2_2b0.h5'
                 download(self.WEIGHT_URL, weight_path_new)
                 load_target.load_pretrained_weight(weight_path_new)
- 
+
     def regularize(self):
         """
         Adds a regularization term to the loss function.
 
         Example:
-            >>> x = numpy.random.rand(1, 3, 224, 224)
-            >>> y = numpy.random.rand(1, (5*2+20)*7*7)
-            >>> class_map = ["background", "person", "dog", "cat"]
+            >>> x = numpy.random.rand(1, 3, 224, 224)  # Input image
+            >>> y = ...  # Ground-truth label
+            >>>
+            >>> class_map = ['cat', 'dog']
             >>> model = ${class}(class_map)
-            >>> loss = model.loss(x, y)
-            >>> reg_loss = loss + model.regularize() # Add weight decay term.
+            >>>
+            >>> z = model(x)  # Forward propagation
+            >>> loss = model.loss(z, y)  # Loss calculation
+            >>> reg_loss = loss + model.regularize()  # Add weight decay term.
         """
         reg = 0
         try:
@@ -276,6 +279,19 @@ class Base(rm.Model):
 
         Args:
             x(ndarray, Node): Input to ${class}.
+
+        Returns:
+            (Node): Returns raw output of ${class}.
+
+        Example:
+            >>> import numpy as np
+            >>> x = np.random.rand(1, 3, 224, 224)
+            >>>
+            >>> class_map = ["dog", "cat"]
+            >>> model = ${class}(class_map)
+            >>>
+            >>> y = model.forward(x) # Forward propagation.
+            >>> y = model(x)  # Same as above result.
         """
         check_common_forward(x)
         return self._model(x)
