@@ -167,7 +167,7 @@ export default {
     dataset: function () {
       const model = this.model
       if (!model) return
- 
+
       let ret = this.datasets.find(d => d.id === model.dataset_id)
       console.log('dataset in predictionResult', ret)
       return ret
