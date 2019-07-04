@@ -75,7 +75,7 @@ class Detection(Base):
                 bar.close()
                 return results
             else:
-                return self.get_bbox(self(img_builder(img_path_list=[img_list])).as_ndarray(),score_threshold,nms_threshold)
+                return self.get_bbox(self(img_builder(img_path_list=[img_list])).as_ndarray(),score_threshold,nms_threshold)[0]
         else:
             img_array = img_list
         return self.get_bbox(self(img_array).as_ndarray(),
