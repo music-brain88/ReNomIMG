@@ -20,6 +20,7 @@ from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
 from renom_img.api.detection.ssd import SSD
 from renom_img.api.segmentation.unet import UNet
 from renom_img.api.segmentation.fcn import FCN8s, FCN16s, FCN32s
+from renom_img.api.segmentation.deeplab import Deeplabv3plus
 
 from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
 from renom_img.server.utility.storage import storage
