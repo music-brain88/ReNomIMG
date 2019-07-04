@@ -294,6 +294,16 @@ class Yolov2(Detection):
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
 
+    Example:
+        >>> from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
+        >>> from renom_img.api.utility.load import parse_xml_detection
+        >>>
+        >>> train_label_path_list = ...  # provide list of paths to training data
+        >>> annotation_list, class_map = parse_xml_detection(train_label_path_list)
+        >>> my_anchor = create_anchor(annotation_list)
+        >>>
+        >>> model = Yolov2(class_map, anchor=my_anchor, imsize=(320,320), load_pretrained_weight=True, train_whole_network=True)
+
     References:
         | Joseph Redmon, Ali Farhadi
         | **YOLO9000: Better, Faster, Stronger**

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-14 21:05+0900\n"
+"POT-Creation-Date: 2019-07-03 22:02+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,8 @@ msgstr ""
 msgid "renom\\_img.api.segmentation"
 msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN16s:1
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:1
+#: renom_img.api.segmentation.fcn.FCN16s:1
 #: renom_img.api.segmentation.fcn.FCN32s:1
 #: renom_img.api.segmentation.fcn.FCN8s:1
 #: renom_img.api.segmentation.ternausnet.TernausNet:1
@@ -33,7 +34,12 @@ msgstr ""
 msgid "Fully convolutional network (16s) for semantic segmentation"
 msgstr "セマンティックセグメンテーション用の全畳み込みネットワーク(16s)"
 
-#: of renom_img.api.segmentation.fcn.FCN16s
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.fit
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.forward
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.loss
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.preprocess
+#: renom_img.api.segmentation.fcn.FCN16s
 #: renom_img.api.segmentation.fcn.FCN16s.fit
 #: renom_img.api.segmentation.fcn.FCN16s.forward
 #: renom_img.api.segmentation.fcn.FCN16s.loss
@@ -61,7 +67,8 @@ msgstr "セマンティックセグメンテーション用の全畳み込みネ
 msgid "Parameters"
 msgstr "パラメーター"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:3
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:3
+#: renom_img.api.segmentation.fcn.FCN16s:3
 #: renom_img.api.segmentation.fcn.FCN32s:3
 #: renom_img.api.segmentation.fcn.FCN8s:3
 #: renom_img.api.segmentation.ternausnet.TernausNet:3
@@ -76,8 +83,7 @@ msgid ""
 "Whether or not to train final upscore layer. If True, final upscore layer"
 " is initialized to bilinear upsampling and made trainable. If False, "
 "final upscore layer is fixed to bilinear upsampling."
-msgstr ""
-"最後のアップサンプル層を学習する場合はTrue、さもなければFalse"
+msgstr "最後のアップサンプル層を学習する場合はTrue、さもなければFalse"
 
 #: of renom_img.api.segmentation.fcn.FCN16s:8
 #: renom_img.api.segmentation.fcn.FCN32s:8
@@ -87,7 +93,8 @@ msgstr ""
 msgid "Input image size."
 msgstr "入力の画像サイズ"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:10
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:15
+#: renom_img.api.segmentation.fcn.FCN16s:10
 #: renom_img.api.segmentation.fcn.FCN32s:10
 #: renom_img.api.segmentation.fcn.FCN8s:10
 #: renom_img.api.segmentation.ternausnet.TernausNet:7
@@ -98,7 +105,8 @@ msgid ""
 "will be loaded and initialized from the weights in the given file name."
 msgstr "事前学習済みの重みを利用する場合はTrue、さもなければFalse"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:14
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:19
+#: renom_img.api.segmentation.fcn.FCN16s:14
 #: renom_img.api.segmentation.fcn.FCN32s:14
 #: renom_img.api.segmentation.fcn.FCN8s:14
 #: renom_img.api.segmentation.ternausnet.TernausNet:11
@@ -109,51 +117,62 @@ msgid ""
 "False, the convolutional encoder base is frozen during training."
 msgstr "モデル全体の学習を行う場合はTrue、さもなければFalse"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:19
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:24
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:24
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.forward:11
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.regularize:4
+#: renom_img.api.segmentation.fcn.FCN16s:19
 #: renom_img.api.segmentation.fcn.FCN16s.fit:24
+#: renom_img.api.segmentation.fcn.FCN16s.forward:11
 #: renom_img.api.segmentation.fcn.FCN16s.regularize:4
 #: renom_img.api.segmentation.fcn.FCN32s:19
 #: renom_img.api.segmentation.fcn.FCN32s.fit:24
+#: renom_img.api.segmentation.fcn.FCN32s.forward:11
 #: renom_img.api.segmentation.fcn.FCN32s.regularize:4
 #: renom_img.api.segmentation.fcn.FCN8s:19
 #: renom_img.api.segmentation.fcn.FCN8s.fit:24
+#: renom_img.api.segmentation.fcn.FCN8s.forward:11
 #: renom_img.api.segmentation.fcn.FCN8s.regularize:4
 #: renom_img.api.segmentation.ternausnet.TernausNet:16
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:24
+#: renom_img.api.segmentation.ternausnet.TernausNet.forward:11
 #: renom_img.api.segmentation.ternausnet.TernausNet.regularize:4
 #: renom_img.api.segmentation.unet.UNet:16
 #: renom_img.api.segmentation.unet.UNet.fit:24
+#: renom_img.api.segmentation.unet.UNet.forward:11
 #: renom_img.api.segmentation.unet.UNet.regularize:4
 msgid "Example"
 msgstr "例"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:32
-#: renom_img.api.segmentation.fcn.FCN32s:32
-#: renom_img.api.segmentation.fcn.FCN8s:32
-#: renom_img.api.segmentation.ternausnet.TernausNet:29
-#: renom_img.api.segmentation.unet.UNet:29
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:31
+#: renom_img.api.segmentation.fcn.FCN16s:26
+#: renom_img.api.segmentation.fcn.FCN32s:26
+#: renom_img.api.segmentation.fcn.FCN8s:26
+#: renom_img.api.segmentation.ternausnet.TernausNet:23
+#: renom_img.api.segmentation.unet.UNet:23
 msgid "References"
 msgstr "参照"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:33
-#: renom_img.api.segmentation.fcn.FCN32s:33
-#: renom_img.api.segmentation.fcn.FCN8s:33
+#: of renom_img.api.segmentation.fcn.FCN16s:27
+#: renom_img.api.segmentation.fcn.FCN32s:27
+#: renom_img.api.segmentation.fcn.FCN8s:27
 msgid "Jonathan Long, Evan Shelhamer, Trevor Darrell"
 msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN16s:34
-#: renom_img.api.segmentation.fcn.FCN32s:34
-#: renom_img.api.segmentation.fcn.FCN8s:34
+#: of renom_img.api.segmentation.fcn.FCN16s:28
+#: renom_img.api.segmentation.fcn.FCN32s:28
+#: renom_img.api.segmentation.fcn.FCN8s:28
 msgid "**Fully Convolutional Networks for Semantic Segmentation**"
 msgstr "**セマンティックセグメンテーション用の全畳み込みネットワーク**"
 
-#: of renom_img.api.segmentation.fcn.FCN16s:35
-#: renom_img.api.segmentation.fcn.FCN32s:35
-#: renom_img.api.segmentation.fcn.FCN8s:35
+#: of renom_img.api.segmentation.fcn.FCN16s:29
+#: renom_img.api.segmentation.fcn.FCN32s:29
+#: renom_img.api.segmentation.fcn.FCN8s:29
 msgid "https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf"
 msgstr ""
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:1
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:1
+#: renom_img.api.segmentation.fcn.FCN16s.fit:1
 #: renom_img.api.segmentation.fcn.FCN32s.fit:1
 #: renom_img.api.segmentation.fcn.FCN8s.fit:1
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:1
@@ -161,7 +180,8 @@ msgstr ""
 msgid "This function performs training with the given data and hyperparameters."
 msgstr "この関数は与えられたデータとパラメータをもとに、モデルの学習を行います。"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:3
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:3
+#: renom_img.api.segmentation.fcn.FCN16s.fit:3
 #: renom_img.api.segmentation.fcn.FCN32s.fit:3
 #: renom_img.api.segmentation.fcn.FCN8s.fit:3
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:3
@@ -169,7 +189,8 @@ msgstr "この関数は与えられたデータとパラメータをもとに、
 msgid "List of image paths."
 msgstr "画像ファイルのパスのリスト"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:5
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:5
+#: renom_img.api.segmentation.fcn.FCN16s.fit:5
 #: renom_img.api.segmentation.fcn.FCN32s.fit:5
 #: renom_img.api.segmentation.fcn.FCN8s.fit:5
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:5
@@ -177,7 +198,8 @@ msgstr "画像ファイルのパスのリスト"
 msgid "List of annotations."
 msgstr "アノテーションファイルのパスのリスト"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:7
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:7
+#: renom_img.api.segmentation.fcn.FCN16s.fit:7
 #: renom_img.api.segmentation.fcn.FCN32s.fit:7
 #: renom_img.api.segmentation.fcn.FCN8s.fit:7
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:7
@@ -185,7 +207,8 @@ msgstr "アノテーションファイルのパスのリスト"
 msgid "List of image paths for validation."
 msgstr "バリデーション用の画像パスのリスト"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:9
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:9
+#: renom_img.api.segmentation.fcn.FCN16s.fit:9
 #: renom_img.api.segmentation.fcn.FCN32s.fit:9
 #: renom_img.api.segmentation.fcn.FCN8s.fit:9
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:9
@@ -193,7 +216,8 @@ msgstr "バリデーション用の画像パスのリスト"
 msgid "List of annotations for validation."
 msgstr "バリデーション用のアノテーションファイルのパスリスト"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:11
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:11
+#: renom_img.api.segmentation.fcn.FCN16s.fit:11
 #: renom_img.api.segmentation.fcn.FCN32s.fit:11
 #: renom_img.api.segmentation.fcn.FCN8s.fit:11
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:11
@@ -201,7 +225,8 @@ msgstr "バリデーション用のアノテーションファイルのパスリ
 msgid "Number of training epochs."
 msgstr "学習エポック数"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:13
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:13
+#: renom_img.api.segmentation.fcn.FCN16s.fit:13
 #: renom_img.api.segmentation.fcn.FCN32s.fit:13
 #: renom_img.api.segmentation.fcn.FCN8s.fit:13
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:13
@@ -209,7 +234,8 @@ msgstr "学習エポック数"
 msgid "Batch size."
 msgstr "バッチサイズ"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:15
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:15
+#: renom_img.api.segmentation.fcn.FCN16s.fit:15
 #: renom_img.api.segmentation.fcn.FCN32s.fit:15
 #: renom_img.api.segmentation.fcn.FCN8s.fit:15
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:15
@@ -217,7 +243,8 @@ msgstr "バッチサイズ"
 msgid "Augmentation object."
 msgstr "Augmentationオブジェクト"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:17
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:17
+#: renom_img.api.segmentation.fcn.FCN16s.fit:17
 #: renom_img.api.segmentation.fcn.FCN32s.fit:17
 #: renom_img.api.segmentation.fcn.FCN8s.fit:17
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:17
@@ -225,25 +252,35 @@ msgstr "Augmentationオブジェクト"
 msgid "Given function will be called at the end of each epoch."
 msgstr "与えられた関数が各エポックの最後に呼ばれます"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.forward
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.loss
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.predict
+#: renom_img.api.segmentation.fcn.FCN16s.fit
+#: renom_img.api.segmentation.fcn.FCN16s.forward
 #: renom_img.api.segmentation.fcn.FCN16s.loss
 #: renom_img.api.segmentation.fcn.FCN16s.predict
 #: renom_img.api.segmentation.fcn.FCN32s.fit
+#: renom_img.api.segmentation.fcn.FCN32s.forward
 #: renom_img.api.segmentation.fcn.FCN32s.loss
 #: renom_img.api.segmentation.fcn.FCN32s.predict
 #: renom_img.api.segmentation.fcn.FCN8s.fit
+#: renom_img.api.segmentation.fcn.FCN8s.forward
 #: renom_img.api.segmentation.fcn.FCN8s.loss
 #: renom_img.api.segmentation.fcn.FCN8s.predict
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit
+#: renom_img.api.segmentation.ternausnet.TernausNet.forward
 #: renom_img.api.segmentation.ternausnet.TernausNet.loss
 #: renom_img.api.segmentation.ternausnet.TernausNet.predict
 #: renom_img.api.segmentation.unet.UNet.fit
+#: renom_img.api.segmentation.unet.UNet.forward
 #: renom_img.api.segmentation.unet.UNet.loss
 #: renom_img.api.segmentation.unet.UNet.predict
 msgid "Returns"
 msgstr "戻り値"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:20
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:20
+#: renom_img.api.segmentation.fcn.FCN16s.fit:20
 #: renom_img.api.segmentation.fcn.FCN32s.fit:20
 #: renom_img.api.segmentation.fcn.FCN8s.fit:20
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:20
@@ -251,25 +288,35 @@ msgstr "戻り値"
 msgid "Training loss list and validation loss list."
 msgstr "学習誤差とバリデーション誤差のリスト"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.forward
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.loss
+#: renom_img.api.segmentation.deeplab.Deeplabv3plus.predict
+#: renom_img.api.segmentation.fcn.FCN16s.fit
+#: renom_img.api.segmentation.fcn.FCN16s.forward
 #: renom_img.api.segmentation.fcn.FCN16s.loss
 #: renom_img.api.segmentation.fcn.FCN16s.predict
 #: renom_img.api.segmentation.fcn.FCN32s.fit
+#: renom_img.api.segmentation.fcn.FCN32s.forward
 #: renom_img.api.segmentation.fcn.FCN32s.loss
 #: renom_img.api.segmentation.fcn.FCN32s.predict
 #: renom_img.api.segmentation.fcn.FCN8s.fit
+#: renom_img.api.segmentation.fcn.FCN8s.forward
 #: renom_img.api.segmentation.fcn.FCN8s.loss
 #: renom_img.api.segmentation.fcn.FCN8s.predict
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit
+#: renom_img.api.segmentation.ternausnet.TernausNet.forward
 #: renom_img.api.segmentation.ternausnet.TernausNet.loss
 #: renom_img.api.segmentation.ternausnet.TernausNet.predict
 #: renom_img.api.segmentation.unet.UNet.fit
+#: renom_img.api.segmentation.unet.UNet.forward
 #: renom_img.api.segmentation.unet.UNet.loss
 #: renom_img.api.segmentation.unet.UNet.predict
 msgid "Return type"
 msgstr "戻り値の型"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:39
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:39
+#: renom_img.api.segmentation.fcn.FCN16s.fit:39
 #: renom_img.api.segmentation.fcn.FCN32s.fit:39
 #: renom_img.api.segmentation.fcn.FCN8s.fit:39
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:39
@@ -279,7 +326,8 @@ msgid ""
 "``callback_end_epoch``."
 msgstr "以下の引数が ``callback_end_epoch`` に与えられます。"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:41
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:41
+#: renom_img.api.segmentation.fcn.FCN16s.fit:41
 #: renom_img.api.segmentation.fcn.FCN32s.fit:41
 #: renom_img.api.segmentation.fcn.FCN8s.fit:41
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:41
@@ -287,7 +335,8 @@ msgstr "以下の引数が ``callback_end_epoch`` に与えられます。"
 msgid "**epoch** (int) - Current epoch number."
 msgstr "**epoch** (int) - 現在のエポック数"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:42
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:42
+#: renom_img.api.segmentation.fcn.FCN16s.fit:42
 #: renom_img.api.segmentation.fcn.FCN32s.fit:42
 #: renom_img.api.segmentation.fcn.FCN8s.fit:42
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:42
@@ -295,7 +344,8 @@ msgstr "**epoch** (int) - 現在のエポック数"
 msgid "**model** (Model) - Model object."
 msgstr "**model** (Model) - モデルオブジェクト"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:43
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:43
+#: renom_img.api.segmentation.fcn.FCN16s.fit:43
 #: renom_img.api.segmentation.fcn.FCN32s.fit:43
 #: renom_img.api.segmentation.fcn.FCN8s.fit:43
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:43
@@ -303,7 +353,8 @@ msgstr "**model** (Model) - モデルオブジェクト"
 msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
 msgstr "**avg_train_loss_list** (list) -　各エポックの学習誤差の平均のリスト"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.fit:44
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.fit:44
+#: renom_img.api.segmentation.fcn.FCN16s.fit:44
 #: renom_img.api.segmentation.fcn.FCN32s.fit:44
 #: renom_img.api.segmentation.fcn.FCN8s.fit:44
 #: renom_img.api.segmentation.ternausnet.TernausNet.fit:44
@@ -311,7 +362,8 @@ msgstr "**avg_train_loss_list** (list) -　各エポックの学習誤差の平�
 msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
 msgstr "**avg_valid_loss_list** (list) - 各エポックのバリデーション誤差の平均のリスト"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.forward:1
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.forward:1
+#: renom_img.api.segmentation.fcn.FCN16s.forward:1
 #: renom_img.api.segmentation.fcn.FCN32s.forward:1
 #: renom_img.api.segmentation.fcn.FCN8s.forward:1
 #: renom_img.api.segmentation.ternausnet.TernausNet.forward:1
@@ -325,11 +377,16 @@ msgstr "順伝播を行います。これは ``__call__`` 関数によって呼�
 msgid "Input to FCN16s."
 msgstr "FCN16sに対する入力"
 
+#: of renom_img.api.segmentation.fcn.FCN16s.forward:7
+msgid "Returns raw output of FCN16s."
+msgstr "FCN16sの生の出力を返します。"
+
 #: of renom_img.api.segmentation.fcn.FCN16s.loss:1
 msgid "Loss function of FCN16s algorithm."
 msgstr "FCN16sで指定された損失関数"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.loss:3
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.loss:3
+#: renom_img.api.segmentation.fcn.FCN16s.loss:3
 #: renom_img.api.segmentation.fcn.FCN32s.loss:3
 #: renom_img.api.segmentation.fcn.FCN8s.loss:3
 #: renom_img.api.segmentation.ternausnet.TernausNet.loss:3
@@ -337,7 +394,8 @@ msgstr "FCN16sで指定された損失関数"
 msgid "Output of model."
 msgstr "ニューラルネッチワークの出力データ"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.loss:5
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.loss:5
+#: renom_img.api.segmentation.fcn.FCN16s.loss:5
 #: renom_img.api.segmentation.fcn.FCN32s.loss:5
 #: renom_img.api.segmentation.fcn.FCN8s.loss:5
 #: renom_img.api.segmentation.ternausnet.TernausNet.loss:5
@@ -345,7 +403,8 @@ msgstr "ニューラルネッチワークの出力データ"
 msgid "Target array."
 msgstr "教師データ"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.loss:8
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.loss:8
+#: renom_img.api.segmentation.fcn.FCN16s.loss:8
 #: renom_img.api.segmentation.fcn.FCN32s.loss:8
 #: renom_img.api.segmentation.fcn.FCN8s.loss:8
 #: renom_img.api.segmentation.ternausnet.TernausNet.loss:8
@@ -353,7 +412,8 @@ msgstr "教師データ"
 msgid "Loss between x and y."
 msgstr "xとy間の損失"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.predict:1
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.predict:1
+#: renom_img.api.segmentation.fcn.FCN16s.predict:1
 #: renom_img.api.segmentation.fcn.FCN32s.predict:1
 #: renom_img.api.segmentation.fcn.FCN8s.predict:1
 #: renom_img.api.segmentation.ternausnet.TernausNet.predict:1
@@ -366,7 +426,8 @@ msgstr ""
 "一枚の画像もしくは画像のパスが与えられた場合、 **(幅、高さ)** "
 "の形のarrayが返されます。複数の画像もしくは画像のパスが与えられた場合は、 **(幅、高さ)** の形のarrayが入ったリストが返されます。"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.preprocess:1
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.preprocess:1
+#: renom_img.api.segmentation.fcn.FCN16s.preprocess:1
 #: renom_img.api.segmentation.fcn.FCN32s.preprocess:1
 #: renom_img.api.segmentation.fcn.FCN8s.preprocess:1
 #: renom_img.api.segmentation.ternausnet.TernausNet.preprocess:1
@@ -374,7 +435,8 @@ msgstr ""
 msgid "Performs preprocessing for a given array."
 msgstr "与えられたarrayに対して前処理を行います。"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.preprocess:3
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.preprocess:3
+#: renom_img.api.segmentation.fcn.FCN16s.preprocess:3
 #: renom_img.api.segmentation.fcn.FCN32s.preprocess:3
 #: renom_img.api.segmentation.fcn.FCN8s.preprocess:3
 #: renom_img.api.segmentation.ternausnet.TernausNet.preprocess:3
@@ -382,7 +444,8 @@ msgstr "与えられたarrayに対して前処理を行います。"
 msgid "Image array for preprocessing."
 msgstr "前処理を行うための画像のarray"
 
-#: of renom_img.api.segmentation.fcn.FCN16s.regularize:1
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.regularize:1
+#: renom_img.api.segmentation.fcn.FCN16s.regularize:1
 #: renom_img.api.segmentation.fcn.FCN32s.regularize:1
 #: renom_img.api.segmentation.fcn.FCN8s.regularize:1
 #: renom_img.api.segmentation.ternausnet.TernausNet.regularize:1
@@ -398,6 +461,10 @@ msgstr "セマンティックセグメンテーション用の全畳み込みネ
 msgid "Input to FCN32s."
 msgstr "FCN32sに対する入力"
 
+#: of renom_img.api.segmentation.fcn.FCN32s.forward:7
+msgid "Returns raw output of FCN32s."
+msgstr "FCN32sの生の出力を返します。"
+
 #: of renom_img.api.segmentation.fcn.FCN32s.loss:1
 msgid "Loss function of FCN32s algorithm."
 msgstr "FCN32sの損失関数"
@@ -409,6 +476,10 @@ msgstr "セマンティックセグメンテーション用の全畳み込みネ
 #: of renom_img.api.segmentation.fcn.FCN8s.forward:4
 msgid "Input to FCN8s."
 msgstr "FCN8sに対する入力"
+
+#: of renom_img.api.segmentation.fcn.FCN8s.forward:7
+msgid "Returns raw output of FCN8s."
+msgstr "FCN8sの生の出力を返します。"
 
 #: of renom_img.api.segmentation.fcn.FCN8s.loss:1
 msgid "Loss function of FCN8s algorithm."
@@ -426,26 +497,27 @@ msgid ""
 "of pretrained weights provided by the user. If a string is given, weight "
 "values will be loaded and initialized from the weights in the given "
 "filename."
-msgstr ""
-"事前学習済みの重みを使用するかどうかを指定します。"
-"U-Netには事前学習済みの重みが用意されていないため、Falseに設定するか、"
-"ユーザが自分で学習した重みのファイル名へのパスを指定します。"
+msgstr "事前学習済みの重みを使用するかどうかを指定します。U-Netには事前学習済みの重みが用意されていないため、Falseに設定するか、ユーザが自分で学習した重みのファイル名へのパスを指定します。"
 
-#: of renom_img.api.segmentation.unet.UNet:30
+#: of renom_img.api.segmentation.unet.UNet:24
 msgid "Olaf Ronneberger, Philipp Fischer, Thomas Brox"
 msgstr ""
 
-#: of renom_img.api.segmentation.unet.UNet:31
+#: of renom_img.api.segmentation.unet.UNet:25
 msgid "**U-Net: Convolutional Networks for Biomedical Image Segmentation**"
 msgstr "**セマンティックセグメンテーション用の全畳み込みネットワーク**"
 
-#: of renom_img.api.segmentation.unet.UNet:32
+#: of renom_img.api.segmentation.unet.UNet:26
 msgid "https://arxiv.org/pdf/1505.04597.pdf"
 msgstr ""
 
 #: of renom_img.api.segmentation.unet.UNet.forward:4
 msgid "Input to UNet."
 msgstr "U-Netに対する入力"
+
+#: of renom_img.api.segmentation.unet.UNet.forward:7
+msgid "Returns raw output of UNet."
+msgstr "UNetの生の出力を返します。"
 
 #: of renom_img.api.segmentation.unet.UNet.loss:1
 msgid "Loss function of UNet algorithm."
@@ -457,17 +529,17 @@ msgid ""
 "Segmentation"
 msgstr "TernausNet: ImageNetデータセットで事前学習されたVGG11 エンコーダを搭載したU-Net."
 
-#: of renom_img.api.segmentation.ternausnet.TernausNet:30
+#: of renom_img.api.segmentation.ternausnet.TernausNet:24
 msgid "Vladimir Iglovikov, Alexey Shvets"
 msgstr ""
 
-#: of renom_img.api.segmentation.ternausnet.TernausNet:31
+#: of renom_img.api.segmentation.ternausnet.TernausNet:25
 msgid ""
 "**TernausNet: U-Net with VGG11 Encoder Pre-Trained on ImageNet for Image "
 "Segmentation**"
 msgstr "**TernausNet: ImageNetデータセットで事前学習されたVGG11 エンコーダを搭載したU-Net.**"
 
-#: of renom_img.api.segmentation.ternausnet.TernausNet:32
+#: of renom_img.api.segmentation.ternausnet.TernausNet:26
 msgid "https://arxiv.org/pdf/1801.05746.pdf"
 msgstr ""
 
@@ -475,9 +547,87 @@ msgstr ""
 msgid "Input to TernausNet."
 msgstr "TernausNetに対する入力"
 
+#: of renom_img.api.segmentation.ternausnet.TernausNet.forward:7
+msgid "Returns raw output of TernausNet."
+msgstr "TernausNetの生の出力を返します。"
+
 #: of renom_img.api.segmentation.ternausnet.TernausNet.loss:1
 msgid "Loss function of TernausNet algorithm."
 msgstr "TernausNetのための損失関数"
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:1
+msgid "Deeplabv3+ model with modified aligned Xception65 backbone."
+msgstr "Deeplabv3+モデル。バックボーンにXception65 CNNを利用しています。"
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:5
+msgid ""
+"Image size after rescaling. Must be set to (321,321) in current "
+"implementation, which only supports a fixed rescaled size of 321x321."
+msgstr "リサイズ後の画像サイズ。現バージョンでは(321,321)の画像サイズのみサポートします。"
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:7
+msgid ""
+"Reduction factor for output feature maps before upsampling. Current "
+"implementation only supports a value of 16."
+msgstr "特徴マップの入力画像サイズに対する縮小割合。現バージョンでは16のみサポートします。"
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:9
+msgid ""
+"List of dilation factors in ASPP module atrous convolution layers. "
+"Current implementation only supports values of [6,12,18]."
+msgstr "ASPPモジュールのdilation変数。現バージョンでは[6,12,18]のみをサポートします。"
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:11
+msgid ""
+"Initial learning rate for poly learning rate schedule. The default value "
+"is 1e-4."
+msgstr "学習率の初期値。"
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:13
+msgid ""
+"Exponential factor for poly learning rate schedule. The default value is "
+"0.9"
+msgstr "学習率スケジュールの計算に使う変数。"
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:32
+msgid "Liang-Chieh Chen, George Papandreou, Florian Schroff, Hartwig Adam"
+msgstr ""
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:33
+msgid "**Rethinking Atrous Convolution for Semantic Image Segmentation**"
+msgstr "" 
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:34
+msgid "https://arxiv.org/abs/1706.05587"
+msgstr ""
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:36
+msgid ""
+"Liang-Chieh Chen, Yukun Zhu, George Papandreou, Florian Schroff, Hartwig "
+"Adam"
+msgstr ""
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:37
+msgid ""
+"**Encoder-Decoder with Atrous Separable Convolution for Semantic Image "
+"Segmentation**"
+msgstr ""
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus:38
+msgid "https://arxiv.org/abs/1802.02611"
+msgstr ""
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.forward:4
+msgid "Input to Deeplabv3plus."
+msgstr "Deeplabv3plusに対する入力"
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.forward:7
+msgid "Returns raw output of Deeplabv3plus."
+msgstr "Deeplabv3plusの生の出力を返します。"
+
+#: of renom_img.api.segmentation.deeplab.Deeplabv3plus.loss:1
+msgid "Loss function of Deeplabv3plus algorithm."
+msgstr "Deeplabv3plusのための損失関数"
 
 #~ msgid "renom\\_img.api.segmentation package"
 #~ msgstr ""

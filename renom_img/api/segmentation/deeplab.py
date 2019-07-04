@@ -140,6 +140,12 @@ class Deeplabv3plus(SemanticSegmentation):
         train_whole_network (bool): Flag specifying whether to freeze or train the base encoder layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
+    Example:
+        >>> from renom_img.api.segmentation.deeplab import Deeplabv3plus
+        >>>
+        >>> class_map = ['background', 'object']
+        >>> model = Deeplabv3plus(class_map, imsize=(224,224), lr_initial=1e-3, lr_power=0.9, load_pretrained_weight=True, train_whole_network=True)
+
     References:
         | Liang-Chieh Chen, George Papandreou, Florian Schroff, Hartwig Adam
         | **Rethinking Atrous Convolution for Semantic Image Segmentation**
