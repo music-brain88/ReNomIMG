@@ -1,7 +1,7 @@
 <template>
   <transition name="fade">
     <div
-      v-if="showLodingMask"
+      v-if="showLoadingMask"
       id="rnc-loading-mask"
     >
       <div id="loader-container">
@@ -22,7 +22,7 @@
 export default {
   name: 'RncLoadingMask',
   props: {
-    showLodingMask: {
+    showLoadingMask: {
       type: Boolean,
       default: false
     },

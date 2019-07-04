@@ -429,7 +429,7 @@ export default {
 
       if (context.state.selected_model &&
           context.state.selected_model.id === model_id) {
-          context.commit('setSelectedModel', new_model)
+        context.commit('setSelectedModel', new_model)
       }
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
