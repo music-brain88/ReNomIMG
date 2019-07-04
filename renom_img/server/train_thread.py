@@ -279,6 +279,7 @@ class TrainThread(object):
     def stop(self):
         self.stop_event.set()
         self.trainer.stop()
+        self.trainer = None
         self.running_state = RunningState.STOPPING
         self.sync_state()
 
