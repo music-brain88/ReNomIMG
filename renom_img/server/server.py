@@ -387,7 +387,7 @@ def model_to_light_dict(model):
         "train_loss_list": [],
         "valid_loss_list": [],
         "best_epoch_valid_result": best_epoch_valid_result,  # modify only evaluation value return
-        "best_epoch_weight": model["best_epoch_weight"],
+        "best_epoch_weight": os.path.basename(model["best_epoch_weight"]),
         "total_epoch": model["total_epoch"],
         "nth_epoch": model["nth_epoch"],
         "total_batch": model["total_batch"],
@@ -412,7 +412,7 @@ def model_to_dict(model):
         "train_loss_list": model["train_loss_list"],
         "valid_loss_list": model["valid_loss_list"],
         "best_epoch_valid_result": model["best_epoch_valid_result"],
-        "best_epoch_weight": model["best_epoch_weight"],
+        "best_epoch_weight": os.path.basename(model["best_epoch_weight"]),
         "total_epoch": model["total_epoch"],
         "nth_epoch": model["nth_epoch"],
         "total_batch": model["total_batch"],
