@@ -66,7 +66,7 @@ class SemanticSegmentation(Base):
                 bar.close()
                 return results
             else:
-                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))).as_ndarray(), axis=1)
+                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))).as_ndarray(), axis=1)[0]
         else:
             img_array = img_list
         return np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1)
