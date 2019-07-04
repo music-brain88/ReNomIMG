@@ -421,13 +421,15 @@ export default {
 
   async updateBestValidResult (context, payload) {
     const model_id = payload
-    const model = context.getters.getModelById(model_id)
+    const old_model = context.getters.getModelById(model_id)
 
-    if (model) {
+    if (old_model) {
       await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
+      const new_model = context.getters.getModelById(model_id)
+
       if (context.state.selected_model &&
           context.state.selected_model.id === model_id) {
-          context.commit('setSelectedModel', model)
+          context.commit('setSelectedModel', new_model)
       }
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
@@ -436,11 +438,13 @@ export default {
 
   async updatePredictionResult (context, payload) {
     const model_id = payload
-    const deployed_model = context.getters.getModelById(model_id)
+    const old_deployed_model = context.getters.getModelById(model_id)
 
-    if (deployed_model) {
+    if (old_deployed_model) {
       await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
-      context.commit('setDeployedModel', deployed_model)
+      const new_deployed_model = context.getters.getModelById(model_id)
+
+      context.commit('setDeployedModel', new_deployed_model)
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
     }
@@ -729,7 +733,7 @@ export default {
     return axios.put(url, {
       deploy: true
     }).then(function (response) {
-      this.commit('setDeployedModel', model)
+      context.commit('setDeployedModel', model)
     }, error_handler_creator(context))
   },
   async unDeployModel (context, payload) {
@@ -739,7 +743,7 @@ export default {
     return axios.put(url, {
       deploy: false
     }).then(function (response) {
-      this.commit('unDeployModel')
+      context.commit('unDeployModel')
     }, error_handler_creator(context))
   },
 
