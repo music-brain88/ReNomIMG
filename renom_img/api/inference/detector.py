@@ -51,16 +51,19 @@ class Detector(object):
 
         """
         url = self._url + ':' + self._port
-        download_weight_api = "/api/renom_img/v2/deployed_model/task/1"
-        download_param_api = "/api/renom_img/v2/deployed_model_info/task/1"
-        download_weight_api = url + download_weight_api
+        download_param_api = "/renom_img/v2/api/detection/models?state=deployed"
         download_param_api = url + download_param_api
 
         ret = self.error_handler(lambda: requests.get(download_param_api).json())
         if ret.get('error_msg', False):
             raise ServerConnectionError(ret.get('error_msg'))
 
-        filename = os.path.basename(ret["filename"])
+        ret = ret["models"][0]
+        model_id = ret["id"]
+        filename = ret["best_epoch_weight"]
+
+        download_weight_api = "/renom_img/v2/api/detection/models/{}/weight".format(model_id)
+        download_weight_api = url + download_weight_api
 
         if not os.path.exists(filename):
             self.error_handler(lambda: download(download_weight_api, filename))
