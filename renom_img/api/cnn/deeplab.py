@@ -377,7 +377,6 @@ class CnnDeeplabv3plus(CnnBase):
 
     
     def forward(self, x):
-        image = x
         x = self.conv1_1(x)
         x = self.bn1_1(x)
         x = self.relu(x)
