@@ -427,7 +427,7 @@ export default {
       await context.dispatch('loadModelsOfCurrentTaskDetail', model_id)
       if (context.state.selected_model &&
           context.state.selected_model.id === model_id) {
-          context.commit('setSelectedModel', model)
+        context.commit('setSelectedModel', model)
       }
       context.commit('forceUpdateModelList')
       context.commit('forceUpdatePredictionPage')
@@ -729,7 +729,7 @@ export default {
     return axios.put(url, {
       deploy: true
     }).then(function (response) {
-      this.commit('setDeployedModel', model)
+      context.commit('setDeployedModel', model)
     }, error_handler_creator(context))
   },
   async unDeployModel (context, payload) {
@@ -739,7 +739,7 @@ export default {
     return axios.put(url, {
       deploy: false
     }).then(function (response) {
-      this.commit('unDeployModel')
+      context.commit('unDeployModel')
     }, error_handler_creator(context))
   },
 
