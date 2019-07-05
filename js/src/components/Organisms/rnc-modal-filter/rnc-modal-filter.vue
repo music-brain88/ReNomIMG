@@ -141,7 +141,7 @@ import RncButton from '../../Atoms/rnc-button/rnc-button.vue'
 import RncSelect from '../../Atoms/rnc-select/rnc-select.vue'
 import RncInput from '../../Atoms/rnc-input/rnc-input.vue'
 import RncButtonClose from '../../Atoms/rnc-button-close/rnc-button-close.vue'
-import { FILTER_INPUT_MAX_LENGHT, FILTER_INPUT_MIN_LENGHT } from './../../../const.js'
+import { FILTER_INPUT_MAX_LENGTH, FILTER_INPUT_MIN_LENGTH } from './../../../const.js'
 
 export default {
   name: 'RncModalFilter',
@@ -167,8 +167,8 @@ export default {
         max: 1,
       },
       error_message: '',
-      input_min_lenght: FILTER_INPUT_MIN_LENGHT,
-      input_max_length: FILTER_INPUT_MIN_LENGHT
+      input_min_length: FILTER_INPUT_MIN_LENGTH,
+      input_max_length: FILTER_INPUT_MAX_LENGTH
     }
   },
   computed: {
