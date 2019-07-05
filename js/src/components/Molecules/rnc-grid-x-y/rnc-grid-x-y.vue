@@ -144,22 +144,7 @@ export default {
       }
     },
     getSelectedModel: function () {
-      const svg = d3.select('#model-scatter-canvas').select('svg')
-      if (!svg) return
-      const canvas = document.getElementById('model-scatter-canvas')
-      if (!canvas) return
-      const canvas_width = canvas.clientWidth
-      const canvas_height = canvas.clientHeight
-      const circle_radius = Math.min(canvas_width * 0.02, canvas_height * 0.02)
-      svg.selectAll('circle')
-        .attr('r', (m) => {
-          const model = this.getSelectedModel
-          if (model === m) {
-            return circle_radius * 1.6
-          } else {
-            return circle_radius
-          }
-        })
+      this.drawModelScatter()
     }
   },
   mounted: function () {
@@ -524,7 +509,10 @@ export default {
 
       // Line graph
       const PlotLayer = svg.append('g').attr('clip-path', 'url(#model-scatter-clip)')
-
+      let selected_model_id = 0
+      if (this.getSelectedModel) {
+        selected_model_id = this.getSelectedModel.id
+      }
       // Plot Models.
       this.PlotModel = PlotLayer.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
@@ -532,7 +520,13 @@ export default {
         .data(model_list)
         .enter()
         .append('circle')
-        .attr('r', circle_radius)
+        .attr('r', function (d) {
+          if (d.id === selected_model_id) {
+            return circle_radius * 1.6
+          } else {
+            return circle_radius
+          }
+        })
         .attr('cx', (m) => {
           // TODO: Modify data distribution
           const metric = m.getResultOfMetric1()
