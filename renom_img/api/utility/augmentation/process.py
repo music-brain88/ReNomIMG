@@ -557,7 +557,8 @@ class CenterCrop(ProcessBase):
     def __init__(self, size=(224, 224)):
         super(CenterCrop, self).__init__()
         if not len(size) == 2:
-            raise InvalidInputValueError("Invalid crop size provided. Please provide a tuple for the crop size, such as (224,224).")
+            raise InvalidInputValueError(
+                "Invalid crop size provided. Please provide a tuple for the crop size, such as (224,224).")
         self.size = size
 
     def cal_overlap(self, b1_x1, b1_y1, b1_x2, b1_y2, b2_x1, b2_y1, b2_x2, b2_y2):

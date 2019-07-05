@@ -15,6 +15,7 @@ from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.cnn import CnnBase
 
+
 def conv_block(growth_rate):
     return rm.Sequential([
         rm.BatchNormalize(epsilon=0.001, mode='feature'),
@@ -33,6 +34,7 @@ def transition_layer(growth_rate):
         rm.Conv2d(growth_rate, filter=1, padding=0, stride=1),
         rm.AveragePool2d(filter=2, stride=2)
     ])
+
 
 class CNN_DenseNet(CnnBase):
     """
@@ -96,6 +98,3 @@ class CNN_DenseNet(CnnBase):
     def set_output_size(self, output_size):
         self.output_size = output_size
         self.fc._output_size = output_size
-
-    
-

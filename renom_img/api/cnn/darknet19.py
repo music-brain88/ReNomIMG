@@ -76,7 +76,8 @@ class Darknet19Base(rm.Model):
 
 
 class CnnDarknet19(CnnBase):
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/Darknet19.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/Darknet19.h5".format(
+        __version__)
 
     def __init__(self):
         super(CnnDarknet19, self).__init__()
@@ -88,10 +89,8 @@ class CnnDarknet19(CnnBase):
         self._last._channel = output_size
         self._last.params = {
             "w": rm.Variable(self._last._initializer((self.output_size, 1024, 1, 1)), auto_update=True),
-            "b": rm.Variable(self._last._initializer((1, self.output_size, 1, 1)), auto_update =False),
+            "b": rm.Variable(self._last._initializer((1, self.output_size, 1, 1)), auto_update=False),
         }
-
-
 
     def forward(self, x):
         self._freeze()
@@ -105,5 +104,5 @@ class CnnDarknet19(CnnBase):
     def _freeze(self):
         self._base.set_auto_update(self.train_whole)
 
-    def load_pretrained_weight(self,path):
+    def load_pretrained_weight(self, path):
         self.load(path)

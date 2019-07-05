@@ -24,6 +24,7 @@ import renom.cuda as cu
 if cu.has_cuda():
     from renom.cuda.gpuvalue import GPUValue, get_gpu
 
+
 def transpose_out_size(size, k, s, p, d=(1, 1), ceil_mode=False):
     if ceil_mode:
         return (np.array(s) * (np.array(size) - 1) + np.array(k) + (np.array(k) - 1) *
@@ -216,9 +217,11 @@ def layer_factory_deconv(channel_list=[512, 256]):
     layers.append(rm.Relu())
     return rm.Sequential(layers)
 
+
 class CNN_TernausNet(CnnBase):
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/TernausNet.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/TernausNet.h5".format(
+        __version__)
 
     def __init__(self, num_class):
         super(CNN_TernausNet, self).__init__()
@@ -283,5 +286,5 @@ class CNN_TernausNet(CnnBase):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
-
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))

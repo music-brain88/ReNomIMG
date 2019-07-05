@@ -360,8 +360,6 @@ class CNN_InceptionV3(CnnBase):
         self.aux1[-1]._output_size = output_size
 
 
-
-
 class CNN_InceptionV2(CnnBase):
     def __init__(self, num_class):
         self.base1 = rm.Sequential([

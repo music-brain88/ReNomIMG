@@ -155,7 +155,8 @@ class VGG11(Classification):
 
         self._model = CNN_VGG11()
         if load_pretrained_weight:
-            raise FunctionNotImplementedError("The pretrained weights for %s are not currently available. Please set `load_pretrained_weight` to False.".format(self.__class__.__name__))
+            raise FunctionNotImplementedError(
+                "The pretrained weights for %s are not currently available. Please set `load_pretrained_weight` to False.".format(self.__class__.__name__))
         super(VGG11, self).__init__(class_map, imsize, load_pretrained_weight,
                                     train_whole_network, self._model)
 

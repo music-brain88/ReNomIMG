@@ -61,7 +61,7 @@ class SemanticSegmentation(Base):
                 bar.total = int(np.ceil(len(img_list) / batch_size))
                 for batch_num in range(0, len(img_list), batch_size):
                     results.extend(np.argmax(rm.softmax(
-                        self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))).as_ndarray(), axis=1))
+                        self(img_builder(img_path_list=img_list[batch_num:batch_num + batch_size]))).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
@@ -89,7 +89,8 @@ class SemanticSegmentation(Base):
         else:
             opt = optimizer
         try:
-            assert opt is not None,"Provided Optimizer is not valid. Optimizer must an instance of rm.optimizer. Provided {}".format(opt)
+            assert opt is not None, "Provided Optimizer is not valid. Optimizer must an instance of rm.optimizer. Provided {}".format(
+                opt)
         except Exception as e:
             raise InvalidOptimizerError(str(e))
         if isinstance(opt, BaseOptimizer):
@@ -106,8 +107,8 @@ class SemanticSegmentation(Base):
                 if isinstance(opt, BaseOptimizer):
                     opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list)
 
-                if (self.contains_bn and len(train_x) >1) or (not self.contains_bn and len(train_x)>0):
-                # grdient
+                if (self.contains_bn and len(train_x) > 1) or (not self.contains_bn and len(train_x) > 0):
+                    # grdient
                     with self.train():
                         loss = self.loss(self(train_x), train_y, class_weight=class_weight)
                         reg_loss = loss + self.regularize()

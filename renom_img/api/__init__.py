@@ -13,6 +13,7 @@ from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.exceptions.check_exceptions import *
 from renom_img.api.utility.exceptions.exceptions import InvalidValueError, InvalidOptimizerError
 
+
 def adddoc(cls):
     """Insert parent doc strings to inherited class.
     """
@@ -47,7 +48,8 @@ class Base(rm.Model):
                  load_pretrained_weight=False, train_whole_network=False, load_target=None):
 
         # for Exceptions check
-        check_for_common_init_params(class_map,imsize,load_pretrained_weight,train_whole_network,load_target)
+        check_for_common_init_params(
+            class_map, imsize, load_pretrained_weight, train_whole_network, load_target)
 
         # 0. General setting.
         self.default_optimizer = rm.Sgd(0.001, 0.9)
@@ -109,10 +111,11 @@ class Base(rm.Model):
         reg = 0
         try:
             for layer in self.iter_models():
-                if hasattr(layer, "params") and hasattr(layer.params, "w") and not isinstance(layer,rm.BatchNormalize):
+                if hasattr(layer, "params") and hasattr(layer.params, "w") and not isinstance(layer, rm.BatchNormalize):
                     reg += rm.sum(layer.params.w * layer.params.w)
         except Exception as e:
-            raise InvalidValueError("Error encountered in calculating regularization term for loss function. Please check if model is appropriately defined and model contains only acceptable values for the weight parameters.")
+            raise InvalidValueError(
+                "Error encountered in calculating regularization term for loss function. Please check if model is appropriately defined and model contains only acceptable values for the weight parameters.")
 
         return (self.decay_rate / 2) * reg
 
@@ -185,7 +188,8 @@ class Base(rm.Model):
         else:
             opt = optimizer
         if opt is None:
-            raise InvalidOptimizerError("Optimizer is not defined. Please define a valid optimizer.")
+            raise InvalidOptimizerError(
+                "Optimizer is not defined. Please define a valid optimizer.")
         if isinstance(opt, BaseOptimizer):
             opt.setup(batch_loop, epoch)
 
@@ -198,8 +202,8 @@ class Base(rm.Model):
             for i, (train_x, train_y) in enumerate(train_dist.batch(batch_size, target_builder=self.build_data())):
                 self.set_models(inference=False)
 
-                if (self.contains_bn and len(train_x) > 1) or (not self.contains_bn and len(train_x)>0):
-                # Gradient descent.
+                if (self.contains_bn and len(train_x) > 1) or (not self.contains_bn and len(train_x) > 0):
+                    # Gradient descent.
                     with self.train():
                         loss = self.loss(self(train_x), train_y)
                         reg_loss = loss + self.regularize()
@@ -207,7 +211,7 @@ class Base(rm.Model):
                     # Modify optimizer.
                     if isinstance(opt, BaseOptimizer):
                         opt.set_information(i, e, avg_train_loss_list,
-                                        avg_valid_loss_list, loss.as_ndarray())
+                                            avg_valid_loss_list, loss.as_ndarray())
 
                     reg_loss.grad().update(opt)
                     try:

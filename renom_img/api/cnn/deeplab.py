@@ -17,6 +17,7 @@ import renom.cuda as cu
 if cu.has_cuda():
     from renom.cuda.gpuvalue import GPUValue, get_gpu
 
+
 def transpose_out_size(size, k, s, p, d=(1, 1), ceil_mode=False):
     if ceil_mode:
         return (np.array(s) * (np.array(size) - 1) + np.array(k) + (np.array(k) - 1) *
@@ -207,25 +208,28 @@ class DeconvInitializer(Initializer):
 
 class XceptionBlock(rm.Model):
     def __init__(self, channels, stride=1, padding=1, dilation=1, downsample=None, residual=False):
-        self.downsample=downsample
-        self.residual=residual
+        self.downsample = downsample
+        self.residual = residual
 
-        self.conv1_depth=rm.GroupConv2d(channel=channels[0], filter=3, stride=1, padding=padding, dilation=dilation, groups=channels[0], ignore_bias=True)
+        self.conv1_depth = rm.GroupConv2d(
+            channel=channels[0], filter=3, stride=1, padding=padding, dilation=dilation, groups=channels[0], ignore_bias=True)
         self.bn1_depth = rm.BatchNormalize(mode='feature', epsilon=1e-3)
-        self.conv1_point=rm.Conv2d(channel=channels[1], filter=1, ignore_bias=True)
+        self.conv1_point = rm.Conv2d(channel=channels[1], filter=1, ignore_bias=True)
         self.bn1_point = rm.BatchNormalize(mode='feature', epsilon=1e-3)
-        
-        self.conv2_depth=rm.GroupConv2d(channel=channels[1], filter=3, stride=1, padding=padding, dilation=dilation, groups=channels[1], ignore_bias=True)
+
+        self.conv2_depth = rm.GroupConv2d(
+            channel=channels[1], filter=3, stride=1, padding=padding, dilation=dilation, groups=channels[1], ignore_bias=True)
         self.bn2_depth = rm.BatchNormalize(mode='feature', epsilon=1e-3)
-        self.conv2_point=rm.Conv2d(channel=channels[2], filter=1, ignore_bias=True)
+        self.conv2_point = rm.Conv2d(channel=channels[2], filter=1, ignore_bias=True)
         self.bn2_point = rm.BatchNormalize(mode='feature', epsilon=1e-3)
-        
-        self.conv3_depth=rm.GroupConv2d(channel=channels[2], filter=3, stride=stride, padding=padding, dilation=dilation, groups=channels[2], ignore_bias=True)
+
+        self.conv3_depth = rm.GroupConv2d(
+            channel=channels[2], filter=3, stride=stride, padding=padding, dilation=dilation, groups=channels[2], ignore_bias=True)
         self.bn3_depth = rm.BatchNormalize(mode='feature', epsilon=1e-3)
-        self.conv3_point=rm.Conv2d(channel=channels[3], filter=1, ignore_bias=True)
+        self.conv3_point = rm.Conv2d(channel=channels[3], filter=1, ignore_bias=True)
         self.bn3_point = rm.BatchNormalize(mode='feature', epsilon=1e-3)
-        self.relu=rm.Relu()
-            
+        self.relu = rm.Relu()
+
     def forward(self, x):
         if self.residual:
             residual = x
@@ -262,31 +266,36 @@ class XceptionBlock(rm.Model):
 
         return out
 
+
 class AsppModule(rm.Model):
-    def __init__(self, num_class, filter_size=(33,33), atrous_rates=[6,12,18]):
-        
+    def __init__(self, num_class, filter_size=(33, 33), atrous_rates=[6, 12, 18]):
+
         # aspp0
         self.aspp0_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
-        self.aspp0_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5) 
+        self.aspp0_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
         # aspp1
-        self.aspp1_conv = rm.Conv2d(channel=256, filter=3, stride=1, padding=atrous_rates[0], dilation=atrous_rates[0], ignore_bias=True)
+        self.aspp1_conv = rm.Conv2d(channel=256, filter=3, stride=1,
+                                    padding=atrous_rates[0], dilation=atrous_rates[0], ignore_bias=True)
         self.aspp1_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
         # aspp2
-        self.aspp2_conv = rm.Conv2d(channel=256, filter=3, stride=1, padding=atrous_rates[1], dilation=atrous_rates[1], ignore_bias=True)
-        self.aspp2_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5) 
+        self.aspp2_conv = rm.Conv2d(channel=256, filter=3, stride=1,
+                                    padding=atrous_rates[1], dilation=atrous_rates[1], ignore_bias=True)
+        self.aspp2_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
         # aspp3
-        self.aspp3_conv = rm.Conv2d(channel=256, filter=3, stride=1, padding=atrous_rates[2], dilation=atrous_rates[2], ignore_bias=True)
-        self.aspp3_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)        
+        self.aspp3_conv = rm.Conv2d(channel=256, filter=3, stride=1,
+                                    padding=atrous_rates[2], dilation=atrous_rates[2], ignore_bias=True)
+        self.aspp3_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
         # Image Pooling
         self.avg_pool = rm.AveragePool2d(filter=filter_size)
         self.image_pool_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
         self.image_pool_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
-                
-        self.image_pool_resize = rm.GroupConv2d(channel=256, filter=filter_size[0], stride=1, padding=int(filter_size[0]-1), ignore_bias=True, initializer=np.ones, groups=256)   
-        
+
+        self.image_pool_resize = rm.GroupConv2d(channel=256, filter=filter_size[0], stride=1, padding=int(
+            filter_size[0] - 1), ignore_bias=True, initializer=np.ones, groups=256)
+
         # Common
         self.relu = rm.Relu()
-    
+
     def forward(self, x):
         aspp0 = self.aspp0_conv(x)
         aspp0 = self.aspp0_bn(aspp0)
@@ -311,71 +320,76 @@ class AsppModule(rm.Model):
         image_pool = self.image_pool_resize(image_pool)
 
         x = rm.concat(image_pool, aspp0, aspp1, aspp2, aspp3)
-        
+
         return x
 
 
 class CnnDeeplabv3plus(CnnBase):
-            
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/Deeplabv3plus.h5".format(__version__)
 
-    def __init__(self, num_class, imsize=(513,513), scale_factor=16, atrous_rates=[6,12,18], decoder=False):
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/Deeplabv3plus.h5".format(
+        __version__)
+
+    def __init__(self, num_class, imsize=(513, 513), scale_factor=16, atrous_rates=[6, 12, 18], decoder=False):
 
         super(CnnDeeplabv3plus, self).__init__()
-        
+
         self.conv1_1 = rm.Conv2d(32, filter=3, stride=2, padding=1, ignore_bias=True)
         self.bn1_1 = rm.BatchNormalize(mode='feature', epsilon=1e-3)
         self.conv1_2 = rm.Conv2d(64, filter=3, stride=1, padding=1, ignore_bias=True)
         self.bn1_2 = rm.BatchNormalize(mode='feature', epsilon=1e-3)
         self.relu = rm.Relu()
-        self.dilation = int(32/scale_factor)
-        
-        self.flow1 = self._make_flow(XceptionBlock, units=3, channels=[64,128,256,728], stride=2, dilation =1, type='Entry')
-        self.flow2 = self._make_flow(XceptionBlock, units=16, channels=[728, 728, 728, 728], stride=1, dilation = 1, type='Middle')
-        self.flow3 = self._make_flow(XceptionBlock, units=2, channels=[728,1024,1536,2048], stride=1, dilation = 1, type='Exit')
-        self.avg_pool_filter = (int(np.ceil(imsize[0]/scale_factor)), int(np.ceil(imsize[1]/scale_factor))) 
+        self.dilation = int(32 / scale_factor)
+
+        self.flow1 = self._make_flow(XceptionBlock, units=3, channels=[
+                                     64, 128, 256, 728], stride=2, dilation=1, type='Entry')
+        self.flow2 = self._make_flow(XceptionBlock, units=16, channels=[
+                                     728, 728, 728, 728], stride=1, dilation=1, type='Middle')
+        self.flow3 = self._make_flow(XceptionBlock, units=2, channels=[
+                                     728, 1024, 1536, 2048], stride=1, dilation=1, type='Exit')
+        self.avg_pool_filter = (
+            int(np.ceil(imsize[0] / scale_factor)), int(np.ceil(imsize[1] / scale_factor)))
         self.aspp = AsppModule(num_class, self.avg_pool_filter, atrous_rates)
-        
+
         self.concat_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
         self.concat_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
         self.dropout = rm.Dropout(dropout_ratio=0.1)
         self.final_conv = rm.Conv2d(channel=num_class, filter=1, ignore_bias=False)
-        self.final_resize = Deconv2d(num_class, filter=32, stride=16, padding=16, ignore_bias=True, initializer=DeconvInitializer(), ceil_mode=True)
-        
+        self.final_resize = Deconv2d(num_class, filter=32, stride=16, padding=16,
+                                     ignore_bias=True, initializer=DeconvInitializer(), ceil_mode=True)
+
     def _make_flow(self, block, units, channels, stride=1, padding=1, dilation=1, type=None):
         layers = []
-        
+
         for i in range(units):
             downsample = None
-            residual=True
-            
+            residual = True
+
             if type == 'Entry':
-                c = list([channels[i], channels[i+1], channels[i+1], channels[i+1]])
+                c = list([channels[i], channels[i + 1], channels[i + 1], channels[i + 1]])
                 downsample = rm.Sequential([
                     rm.Conv2d(c[-1], filter=1, stride=stride, ignore_bias=True),
                     rm.BatchNormalize(epsilon=1e-3, mode='feature')])
                 layers.append(block(c, stride, padding, dilation, downsample, residual))
-                              
+
             elif type == 'Middle':
                 c = channels
                 layers.append(block(c, stride, padding, dilation, downsample, residual))
-                              
+
             elif type == 'Exit':
-                if i==0:
-                    c = list([channels[i], channels[i], channels[i+1], channels[i+1]])
+                if i == 0:
+                    c = list([channels[i], channels[i], channels[i + 1], channels[i + 1]])
                     downsample = rm.Sequential([
                         rm.Conv2d(c[-1], filter=1, stride=stride, ignore_bias=True),
                         rm.BatchNormalize(epsilon=1e-3, mode='feature')])
                 else:
-                    c = list([channels[i], channels[i+1], channels[i+1], channels[i+2]])
-                    residual=False
+                    c = list([channels[i], channels[i + 1], channels[i + 1], channels[i + 2]])
+                    residual = False
                     padding = self.dilation
                     dilation = self.dilation
                 layers.append(block(c, stride, padding, dilation, downsample, residual))
-                              
+
         return rm.Sequential(layers)
 
-    
     def forward(self, x):
         image = x
         x = self.conv1_1(x)
@@ -391,7 +405,7 @@ class CnnDeeplabv3plus(CnnBase):
         x = self.flow3(x)
 
         x = self.aspp(x)
-        
+
         x = self.concat_conv(x)
         x = self.concat_bn(x)
         x = self.relu(x)
@@ -418,10 +432,10 @@ class CnnDeeplabv3plus(CnnBase):
 
     def _freeze_bn(self):
         for l in self.iter_models():
-           if 'BatchNormalize' in l.__class__.__name__ and l._epsilon == 0.001: 
-               l.set_models(inference=True)
-               l.params.w._auto_update = False
-               l.params.b._auto_update = False
+            if 'BatchNormalize' in l.__class__.__name__ and l._epsilon == 0.001:
+                l.set_models(inference=True)
+                l.params.w._auto_update = False
+                l.params.b._auto_update = False
 
     def load_pretrained_weight(self, path):
         self.load(path)

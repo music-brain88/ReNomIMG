@@ -65,6 +65,7 @@ temp_dataset = {}
 
 MAX_RETURN_DATA_NUM = 150
 
+
 def get_train_thread_count():
     return len([th for th in train_thread_pool.values() if th[0].running()])
 
@@ -114,7 +115,8 @@ def get_task_id_by_name(task_name):
 
 def task_exists(task_name):
     if task_name not in TASK_ID_BY_NAME.keys():
-        raise TaskNotFoundError("Task {} is not available. Please select from {}.".format(task_name, list(TASK_ID_BY_NAME.keys())))
+        raise TaskNotFoundError("Task {} is not available. Please select from {}.".format(
+            task_name, list(TASK_ID_BY_NAME.keys())))
 
 
 def check_dataset_exists(dataset, dataset_id):
@@ -129,7 +131,8 @@ def check_model_exists(model, model_id):
 
 def check_weight_exists(filepath, model_id):
     if not os.path.isfile(filepath):
-        raise WeightNotFoundError("Model {} is exists, but weight file is not found.".format(model_id))
+        raise WeightNotFoundError(
+            "Model {} is exists, but weight file is not found.".format(model_id))
 
 
 def check_model_running(model_id):
@@ -143,13 +146,16 @@ def error_message_dataset_name(name):
     param_name = "Dataset name"
     if name is None:
         desc = "is required"
-        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_NAME_MIN_LENGTH, DATASET_NAME_MAX_LENGTH)
+        message = ERROR_MESSAGE_TEMPLATE.format(
+            param_name, desc, DATASET_NAME_MIN_LENGTH, DATASET_NAME_MAX_LENGTH)
     elif len(name) < DATASET_NAME_MIN_LENGTH:
         desc = "too short"
-        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_NAME_MIN_LENGTH, DATASET_NAME_MAX_LENGTH)
+        message = ERROR_MESSAGE_TEMPLATE.format(
+            param_name, desc, DATASET_NAME_MIN_LENGTH, DATASET_NAME_MAX_LENGTH)
     elif len(name) > DATASET_NAME_MAX_LENGTH:
         desc = "too long"
-        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_NAME_MIN_LENGTH, DATASET_NAME_MAX_LENGTH)
+        message = ERROR_MESSAGE_TEMPLATE.format(
+            param_name, desc, DATASET_NAME_MIN_LENGTH, DATASET_NAME_MAX_LENGTH)
     return message
 
 
@@ -158,16 +164,20 @@ def error_message_dataset_ratio(ratio):
     param_name = "Dataset ratio"
     if ratio is None:
         desc = "is required"
-        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
+        message = ERROR_MESSAGE_TEMPLATE.format(
+            param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
     elif not is_float(ratio):
         desc = "must be float value"
-        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
+        message = ERROR_MESSAGE_TEMPLATE.format(
+            param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
     elif float(ratio) < DATASET_RATIO_MIN:
         desc = "is too small"
-        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
+        message = ERROR_MESSAGE_TEMPLATE.format(
+            param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
     elif float(ratio) > DATASET_RATIO_MAX:
         desc = "is too large"
-        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
+        message = ERROR_MESSAGE_TEMPLATE.format(
+            param_name, desc, DATASET_RATIO_MIN, DATASET_RATIO_MAX)
     return message
 
 
@@ -178,10 +188,12 @@ def error_message_dataset_desc(desc):
         return message
     if len(desc) < DATASET_DESCRIPTION_MIN_LENGTH:
         desc = "too short"
-        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_DESCRIPTION_MIN_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH)
+        message = ERROR_MESSAGE_TEMPLATE.format(
+            param_name, desc, DATASET_DESCRIPTION_MIN_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH)
     elif len(desc) > DATASET_DESCRIPTION_MAX_LENGTH:
         desc = "too long"
-        message = ERROR_MESSAGE_TEMPLATE.format(param_name, desc, DATASET_DESCRIPTION_MIN_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH)
+        message = ERROR_MESSAGE_TEMPLATE.format(
+            param_name, desc, DATASET_DESCRIPTION_MIN_LENGTH, DATASET_DESCRIPTION_MAX_LENGTH)
     return message
 
 
@@ -221,11 +233,14 @@ def error_message_model_dataset_id(dataset_id):
 def error_message_model_algorithm_id(algorithm_id):
     message = ""
     if algorithm_id is None:
-        message = "Algorithm id is required. Please select from {}.".format([{a.name: a.value} for a in Algorithm])
+        message = "Algorithm id is required. Please select from {}.".format(
+            [{a.name: a.value} for a in Algorithm])
     elif not is_int(algorithm_id):
-        message = "Algorithm id is must be integer. Please select from {}.".format([{a.name: a.value} for a in Algorithm])
+        message = "Algorithm id is must be integer. Please select from {}.".format(
+            [{a.name: a.value} for a in Algorithm])
     elif is_int(algorithm_id) not in [a.value for a in Algorithm]:
-        message = "Algorithm id is not exists. Please select from {}.".format([{a.name: a.value} for a in Algorithm])
+        message = "Algorithm id is not exists. Please select from {}.".format(
+            [{a.name: a.value} for a in Algorithm])
     return message
 
 
@@ -410,7 +425,7 @@ def model_to_light_dict(model):
 def model_to_dict(model):
     if not model["best_epoch_valid_result"] is None:
         short_data = {
-           k:v for k, v in model["best_epoch_valid_result"].items()
+            k: v for k, v in model["best_epoch_valid_result"].items()
         }
         short_data["prediction"] = model["best_epoch_valid_result"]["prediction"][:MAX_RETURN_DATA_NUM]
 
@@ -976,8 +991,8 @@ def dataset_confirm():
         class_info = {
             "class_map": class_map,
             "class_ratio": ((train_tag_num + valid_tag_num) / np.sum(train_tag_num + valid_tag_num)).tolist(),
-            "train_ratio": np.divide(train_tag_num, (train_tag_num + valid_tag_num), out=np.zeros_like(train_tag_num), where=(train_tag_num+valid_tag_num)!=0).tolist(),
-            "valid_ratio": np.divide(valid_tag_num, (train_tag_num + valid_tag_num), out=np.zeros_like(valid_tag_num), where=(train_tag_num+valid_tag_num)!=0).tolist(),
+            "train_ratio": np.divide(train_tag_num, (train_tag_num + valid_tag_num), out=np.zeros_like(train_tag_num), where=(train_tag_num + valid_tag_num) != 0).tolist(),
+            "valid_ratio": np.divide(valid_tag_num, (train_tag_num + valid_tag_num), out=np.zeros_like(valid_tag_num), where=(train_tag_num + valid_tag_num) != 0).tolist(),
             "test_ratio": test_ratio,
             "train_img_num": len(train_img),
             "valid_img_num": len(valid_img),
@@ -1486,7 +1501,7 @@ def create_dataset(task_name):
     if test_dataset_id > 0:
         test_dataset = storage.fetch_test_dataset(test_dataset_id)
         test_dataset_files = set([pathlib.Path(test_path).relative_to(img_dir)
-                            for test_path in test_dataset['data']['img']])
+                                  for test_path in test_dataset['data']['img']])
         # Remove test files.
         file_names = file_names - test_dataset_files
 
@@ -1529,7 +1544,8 @@ def create_dataset(task_name):
         train_tag_num = parse_image_segmentation(train_target, len(class_map), 8)
         valid_tag_num = parse_image_segmentation(valid_target, len(class_map), 8)
 
-    class_info = class_info_to_dict(class_map, train_tag_num, valid_tag_num, test_ratio, train_img, valid_img)
+    class_info = class_info_to_dict(class_map, train_tag_num,
+                                    valid_tag_num, test_ratio, train_img, valid_img)
 
     train_data = {
         'img': train_img,
