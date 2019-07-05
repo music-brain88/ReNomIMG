@@ -160,8 +160,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
-import { DATASET_NAME_MAX_LENGTH, DATASET_NAME_MIN_LENGTH,
-  DATASET_DESCRIPTION_MAX_LENGTH, DATASET_DESCRIPTION_MIN_LENGTH } from './../../../const.js'
+import { INPUT_LENGTH } from './../../../const.js'
 
 import RncButton from '../../Atoms/rnc-button/rnc-button.vue'
 import RncSelect from '../../Atoms/rnc-select/rnc-select.vue'
@@ -205,10 +204,10 @@ export default {
     ...mapGetters([
       'getFilteredTestDatasetList',
     ]),
-    nameMaxLength: function () { return DATASET_NAME_MAX_LENGTH },
-    nameMinLength: function () { return DATASET_NAME_MIN_LENGTH },
-    descriptionMaxLength: function () { return DATASET_DESCRIPTION_MAX_LENGTH },
-    descriptionMinLength: function () { return DATASET_DESCRIPTION_MIN_LENGTH },
+    nameMaxLength: function () { return INPUT_LENGTH.DATASET.NAME.MAX },
+    nameMinLength: function () { return INPUT_LENGTH.DATASET.NAME.MIN },
+    descriptionMaxLength: function () { return INPUT_LENGTH.DATASET.DESCRIPTION.MAX },
+    descriptionMinLength: function () { return INPUT_LENGTH.DATASET.DESCRIPTION.MIN },
     confirmable: function () {
       if (!this.nameText || this.confirming_flag || this.vali_params_name || this.vali_params_ratio || this.vali_params_description) {
         return false
