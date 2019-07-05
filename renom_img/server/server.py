@@ -63,6 +63,7 @@ respopnse_cache = {}
 # {hash: dataset}
 temp_dataset = {}
 
+MAX_RETURN_DATA_NUM = 150
 
 def get_train_thread_count():
     return len([th for th in train_thread_pool.values() if th[0].running()])
@@ -353,6 +354,11 @@ def dataset_to_light_dict(dataset):
 
 
 def dataset_to_dict(dataset):
+    short_data = {
+        "img": dataset["valid_data"]["img"][:MAX_RETURN_DATA_NUM],
+        "target": dataset["valid_data"]["target"][:MAX_RETURN_DATA_NUM],
+        "size": dataset["valid_data"]["size"][:MAX_RETURN_DATA_NUM],
+    }
     return {
         'id': dataset["id"],
         'name': dataset["name"],
@@ -362,7 +368,8 @@ def dataset_to_dict(dataset):
         'class_map': dataset["class_map"],
         'class_info': dataset["class_info"],
         'train_data': dataset["train_data"],
-        'valid_data': dataset["valid_data"],
+        # 'valid_data': dataset["valid_data"],
+        'valid_data': short_data,
         'test_dataset_id': dataset["test_dataset_id"],
     }
 
@@ -401,6 +408,15 @@ def model_to_light_dict(model):
 
 
 def model_to_dict(model):
+    if not model["best_epoch_valid_result"] is None:
+        short_data = {
+           k:v for k, v in model["best_epoch_valid_result"].items()
+        }
+        short_data["prediction"] = model["best_epoch_valid_result"]["prediction"][:MAX_RETURN_DATA_NUM]
+
+    else:
+        short_data = model["best_epoch_valid_result"]
+
     return {
         "id": model["id"],
         "task_id": model["task_id"],
@@ -411,7 +427,8 @@ def model_to_dict(model):
         "running_state": model["running_state"],
         "train_loss_list": model["train_loss_list"],
         "valid_loss_list": model["valid_loss_list"],
-        "best_epoch_valid_result": model["best_epoch_valid_result"],
+        # "best_epoch_valid_result": model["best_epoch_valid_result"], #
+        "best_epoch_valid_result": short_data,
         "best_epoch_weight": os.path.basename(model["best_epoch_weight"]),
         "total_epoch": model["total_epoch"],
         "nth_epoch": model["nth_epoch"],
