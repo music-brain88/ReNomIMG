@@ -74,7 +74,7 @@ ReNomIMG provides the following algorithms.
 
   .. - U-Net
   - FCN
-  - Deeplabv3
+  .. - Deeplabv3
   .. - TernousNet
 
 * Classification

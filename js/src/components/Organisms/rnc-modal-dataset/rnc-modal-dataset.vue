@@ -132,8 +132,8 @@
           >
             <div class="class-detail-bar">
               <rnc-bar-dataset
-                :train-num="train_num"
-                :valid-num="valid_num"
+                :train-num="item[1]"
+                :valid-num="item[2]"
                 :class-name="item[0]"
                 :class-ratio="item[3]"
               />
@@ -253,8 +253,8 @@ export default {
       const class_list = this.info.class_ratio
       return train_list.map((t, index) => [
         class_map[index],
-        (t) * class_list[index],
-        valid_list[index] * class_list[index],
+        t * class_list[index] * 100,
+        valid_list[index] * class_list[index] * 100,
         class_list[index]
       ])
     },

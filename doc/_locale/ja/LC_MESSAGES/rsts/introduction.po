@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-03 13:00+0900\n"
+"POT-Creation-Date: 2019-07-05 02:24+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -158,10 +158,6 @@ msgstr "セグメンテーション"
 
 #: ../../rsts/introduction.rst:76
 msgid "FCN"
-msgstr ""
-
-#: ../../rsts/introduction.rst:77
-msgid "Deeplabv3"
 msgstr ""
 
 #: ../../rsts/introduction.rst:80
@@ -427,4 +423,7 @@ msgstr "VGG16モデルの作成"
 #~ " training configuration** and **pushing the"
 #~ " run button**."
 #~ msgstr "GUIツールを利用して、物体認識モデルを作成することができます.ユーザーはトレーニングデータの用意と、訓練の設定、RUNボタンの押下のみです."
+
+#~ msgid "Deeplabv3"
+#~ msgstr ""
 

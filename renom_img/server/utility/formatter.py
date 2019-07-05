@@ -9,11 +9,11 @@ from renom_img.server import Task
 
 def get_formatter_resolver(task_id):
     if task_id == Task.CLASSIFICATION.value:
-        pass
+        resolver = FormatterResolver([ClassificationCsvFormatter()])
     elif task_id == Task.DETECTION.value:
         resolver = FormatterResolver([DetectionCsvFormatter()])
     elif task_id == Task.SEGMENTATION.value:
-        pass
+        resolver = FormatterResolver([SegmentationCsvFormatter()])
     return resolver
 
 
@@ -32,7 +32,7 @@ class FormatterBase(with_metaclass(ABCMeta, object)):
         pass
 
     @abstractmethod
-    def format(self, data):
+    def to_df(self, data):
         pass
 
 
@@ -40,7 +40,7 @@ class DetectionCsvFormatter(FormatterBase):
     def __init__(self):
         self.format = "csv"
 
-    def format(data):
+    def to_df(self, data):
         img_path = data["img"]
         sizes = data["size"]
         prediction = data["prediction"]
@@ -52,5 +52,47 @@ class DetectionCsvFormatter(FormatterBase):
                 'size': size,
                 'predictions': pred
             })
+        df = pd.DataFrame.from_dict(json_normalize(ret), orient='columns')
+        return df
+
+
+class ClassificationCsvFormatter(FormatterBase):
+    def __init__(self):
+        self.format = "csv"
+
+    def to_df(self, data):
+        img_path = data["img"]
+        sizes = data["size"]
+        prediction = data["prediction"]
+
+        ret = []
+        for img, size, pred in zip(img_path, sizes, prediction):
+            ret.append({
+                'path': img,
+                'size': size,
+                'predictions': pred["class"]
+            })
+
+        df = pd.DataFrame.from_dict(json_normalize(ret), orient='columns')
+        return df
+
+
+class SegmentationCsvFormatter(FormatterBase):
+    def __init__(self):
+        self.format = "csv"
+
+    def to_df(self, data):
+        img_path = data["img"]
+        sizes = data["size"]
+        prediction = data["prediction"]
+
+        ret = []
+        for img, size, pred in zip(img_path, sizes, prediction):
+            ret.append({
+                'path': img,
+                'size': size,
+                'predictions': pred
+            })
+
         df = pd.DataFrame.from_dict(json_normalize(ret), orient='columns')
         return df
