@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-04 14:39+0900\n"
+"POT-Creation-Date: 2019-07-05 13:27+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,6 @@ msgid "Install ReNomIMG"
 msgstr "ReNomIMGのインストール"
 
 #: ../../rsts/installation/main.rst:4
-#, fuzzy
 msgid "There are 3 ways to install ReNomIMG."
 msgstr "ReNomIMGのインストール方法は, 以下3つの方法があります."
 
@@ -31,7 +30,6 @@ msgid "Install by pip."
 msgstr "pipによるインストール"
 
 #: ../../rsts/installation/main.rst:10
-#, fuzzy
 msgid ""
 "You can install ReNomIMG with the ``pip`` command. This is the simplest "
 "way for installation."
@@ -46,7 +44,6 @@ msgid "For python3.6"
 msgstr "python3.6"
 
 #: ../../rsts/installation/main.rst:27
-#, fuzzy
 msgid ""
 "This command is for ``Linux OS`` environments only. If your OS is Windows"
 " or Mac, which are not recommended for ReNomIMG, please install ReNomIMG "
@@ -56,12 +53,10 @@ msgstr ""
 "バイナリコードからインストールして下さい. "
 
 #: ../../rsts/installation/main.rst:30
-#, fuzzy
 msgid "If you get the following error,"
 msgstr "もし以下のようなエラーが出た場合は, "
 
 #: ../../rsts/installation/main.rst:36
-#, fuzzy
 msgid "please install python3-tk using the following command."
 msgstr "下記のようなコマンドを用いて, python3-tkをインストールしてください."
 
@@ -70,7 +65,6 @@ msgid "Install from binary."
 msgstr "バイナリによるインストール"
 
 #: ../../rsts/installation/main.rst:47
-#, fuzzy
 msgid "To install ReNomIMG from binary, Node.js is required."
 msgstr "バイナリからインストールする場合にはNode.jsが必要です. "
 
@@ -83,7 +77,6 @@ msgid "Docker Image."
 msgstr "Dockerイメージ"
 
 #: ../../rsts/installation/main.rst:64
-#, fuzzy
 msgid ""
 "You can use ReNomIMG via Docker. Dockerfiles and running scripts are in "
 "the \"ReNomIMG/docker\" directory."
@@ -96,27 +89,24 @@ msgid "**Build docker image**"
 msgstr "**dockerイメージのビルド**"
 
 #: ../../rsts/installation/main.rst:71
-#, fuzzy
 msgid "For building a Docker image, please run following command."
 msgstr "Dockerイメージをビルドするためには, 以下のコマンドを実行して下さい. "
 
 #: ../../rsts/installation/main.rst:79
 msgid "This will create the docker image."
-msgstr ""
+msgstr "これでDockerイメージが作成されます。"
 
 #: ../../rsts/installation/main.rst:82
 msgid "**Run docker image**"
-msgstr "**Deckerイメージの実行**"
+msgstr "**Dockerイメージの実行**"
 
 #: ../../rsts/installation/main.rst:84
-#, fuzzy
 msgid ""
 "For running the ReNomIMG server on a Docker image, please use the script "
 "run.sh."
 msgstr "Dockerイメージ上でReNomIMGサーバを起動するためには, run.sh スクリプトを利用して下さい. "
 
 #: ../../rsts/installation/main.rst:92
-#, fuzzy
 msgid "This script accepts the following arguments."
 msgstr "スクリプトには引数を指定できます. "
 
@@ -127,7 +117,6 @@ msgid ""
 msgstr "-d: データソースのディレクトリへのパス. このディレクトリには画像ファイルとラベルファイルが存在します. "
 
 #: ../../rsts/installation/main.rst:95
-#, fuzzy
 msgid ""
 "-s : Path to the data storage directory. Sqlite DB, trained weights and "
 "pretrained weights will be stored in this directory."
@@ -140,12 +129,10 @@ msgid "-p : The port number."
 msgstr "-p : ポート番号"
 
 #: ../../rsts/installation/main.rst:98
-#, fuzzy
 msgid "An example is shown below."
 msgstr "以下に例を示します. "
 
 #: ../../rsts/installation/main.rst:104
-#, fuzzy
 msgid ""
 "If no arguments are passed, directories named ``datasrc`` and ``storage``"
 " will be created in the current directory, and the application will use "
@@ -175,14 +162,13 @@ msgid "`ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : = 2.7.3"
 msgstr ""
 
 #: ../../rsts/installation/main.rst:117
-#, fuzzy
 msgid ""
 "For required python packages, please refer to the `requirements.txt "
 "<https://github.com/ReNom-dev-"
-"team/ReNomIMG/blob/release/2.1/requirements.txt>`_ ."
+"team/ReNomIMG/blob/release/2.2/requirements.txt>`_ ."
 msgstr ""
-"その他必要なPythonパッケージについては, `requirements.txt <https://github.com/ReNom-dev-"
-"team/ReNomIMG/blob/release/1.0/requirements.txt>`_ を参照してください."
+"その他必要なPythonパッケージについては, "
+"`requirements.txt <https://github.com/ReNom-dev-team/ReNomIMG/blob/release/2.2/requirements.txt>`_ を参照してください。"
 
 #~ msgid "`ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : >= 2.6"
 #~ msgstr ""
