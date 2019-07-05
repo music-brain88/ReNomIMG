@@ -141,7 +141,7 @@ import RncButton from '../../Atoms/rnc-button/rnc-button.vue'
 import RncSelect from '../../Atoms/rnc-select/rnc-select.vue'
 import RncInput from '../../Atoms/rnc-input/rnc-input.vue'
 import RncButtonClose from '../../Atoms/rnc-button-close/rnc-button-close.vue'
-import { INPUT_LENGTH.FILTER } from './../../../const.js'
+import { INPUT_LENGTH } from './../../../const.js'
 
 export default {
   name: 'RncModalFilter',

@@ -160,7 +160,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
-import { INPUT_LENGTH.DATASET } from './../../../const.js'
+import { INPUT_LENGTH } from './../../../const.js'
 
 import RncButton from '../../Atoms/rnc-button/rnc-button.vue'
 import RncSelect from '../../Atoms/rnc-select/rnc-select.vue'
