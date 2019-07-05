@@ -163,7 +163,7 @@ export default {
     }
   },
   showLoadingMask (state, payload) {
-    console.log('MUTATION[showLoadingMask] START')
+    // console.log('MUTATION[showLoadingMask] START')
     state.show_loading_mask = payload
   },
   setImageModalData (state, payload) {

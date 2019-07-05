@@ -275,14 +275,14 @@ export const ALGORITHM = {
           title: 'Load pretrain weight',
           key: 'load_pretrained_weight',
           disabled: false,
-          default: false,
+          default: true,
           type: 'checkbox'
         }),
         ...override('TRAIN_WHOLE', {
           title: 'Train Whole Network',
           key: 'train_whole',
           type: 'checkbox',
-          default: true,
+          default: false,
         }),
         ...override('BATCH_SIZE', {
           title: 'Batch Size',
