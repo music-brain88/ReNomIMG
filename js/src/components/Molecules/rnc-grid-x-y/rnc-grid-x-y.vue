@@ -302,31 +302,34 @@ export default {
 
       // Line graph
       const LineLayer = svg.append('g').attr('clip-path', 'url(#learning-curve-clip)')
-
-      this.TrainLine = LineLayer.append('path')
-        .attr('id', 'train-line')
-        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .datum(train_loss_list)
-        .attr('fill', 'none')
-        .attr('stroke', train_color)
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-          .x((d, index) => { return this.scaleX(index + 1) })
-          .y((d) => { return this.scaleY(d) })
-          .curve(d3.curveLinear)
-        )
-      this.ValidLine = LineLayer.append('path')
-        .attr('id', 'valid-line')
-        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .datum(valid_loss_list)
-        .attr('fill', 'none')
-        .attr('stroke', valid_color)
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-          .x((d, index) => { return this.scaleX(index + 1) })
-          .y((d) => { return this.scaleY(d) })
-          .curve(d3.curveLinear)
-        )
+      if (!this.switchTrainGraph) {
+        this.TrainLine = LineLayer.append('path')
+          .attr('id', 'train-line')
+          .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+          .datum(train_loss_list)
+          .attr('fill', 'none')
+          .attr('stroke', train_color)
+          .attr('stroke-width', 1.5)
+          .attr('d', d3.line()
+            .x((d, index) => { return this.scaleX(index + 1) })
+            .y((d) => { return this.scaleY(d) })
+            .curve(d3.curveLinear)
+          )
+      }
+      if (!this.switchValidGraph) {
+        this.ValidLine = LineLayer.append('path')
+          .attr('id', 'valid-line')
+          .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+          .datum(valid_loss_list)
+          .attr('fill', 'none')
+          .attr('stroke', valid_color)
+          .attr('stroke-width', 1.5)
+          .attr('d', d3.line()
+            .x((d, index) => { return this.scaleX(index + 1) })
+            .y((d) => { return this.scaleY(d) })
+            .curve(d3.curveLinear)
+          )
+      }
 
       this.BestEpoc = LineLayer.append('line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
@@ -365,80 +368,82 @@ export default {
 
       // Scatter graph
       const ScatterLayer = svg.append('g').attr('clip-path', 'url(#learning-curve-clip)')
+      if (!this.switchTrainGraph) {
+        this.TrainScatter = ScatterLayer.append('g')
+          .attr('id', 'train-scatter')
+          .selectAll('circle')
+          .data(train_loss_list)
+          .enter()
+          .append('circle')
+          .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+          .attr('cx', (d, index) => { return this.scaleX(index + 1) })
+          .attr('cy', (d) => {
+            return this.scaleY(d)
+          })
+          .attr('fill', train_color)
+          .attr('r', 1.5)
 
-      this.TrainScatter = ScatterLayer.append('g')
-        .attr('id', 'train-scatter')
-        .selectAll('circle')
-        .data(train_loss_list)
-        .enter()
-        .append('circle')
-        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('cx', (d, index) => { return this.scaleX(index + 1) })
-        .attr('cy', (d) => {
-          return this.scaleY(d)
-        })
-        .attr('fill', train_color)
-        .attr('r', 1.5)
+          .on('mouseenter', (d, index) => {
+            // find svg id and get mouse position
+            const x = d3.event.layerX + 10
+            const y = d3.event.layerY + 10
 
-        .on('mouseenter', (d, index) => {
-          // find svg id and get mouse position
-          const x = d3.event.layerX + 10
-          const y = d3.event.layerY + 10
+            this.TooltipLeft = x
+            this.TooltipTop = y
+            this.TextArray = [
+              {
+                'key': 'Epoch',
+                'value': (index + 1)
+              },
+              {
+                'key': 'Train Loss',
+                'value': d.toFixed(2)
+              }
+            ]
+            this.TooltipKind = 'train'
+            this.TooltipDisplay = true
+          })
+          .on('mouseleave', () => {
+            this.TooltipDisplay = false
+          })
+      }
 
-          this.TooltipLeft = x
-          this.TooltipTop = y
-          this.TextArray = [
-            {
-              'key': 'Epoch',
-              'value': (index + 1)
-            },
-            {
-              'key': 'Train Loss',
-              'value': d.toFixed(2)
-            }
-          ]
-          this.TooltipKind = 'train'
-          this.TooltipDisplay = true
-        })
-        .on('mouseleave', () => {
-          this.TooltipDisplay = false
-        })
+      if (!this.switchValidGraph) {
+        this.ValidScatter = ScatterLayer.append('g')
+          .attr('id', 'valid-scatter')
+          .selectAll('circle')
+          .data(valid_loss_list)
+          .enter()
+          .append('circle')
+          .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+          .attr('cx', (d, index) => { return this.scaleX(index + 1) })
+          .attr('cy', (d) => { return this.scaleY(d) })
+          .attr('fill', valid_color)
+          .attr('r', 1.5)
 
-      this.ValidScatter = ScatterLayer.append('g')
-        .attr('id', 'valid-scatter')
-        .selectAll('circle')
-        .data(valid_loss_list)
-        .enter()
-        .append('circle')
-        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('cx', (d, index) => { return this.scaleX(index + 1) })
-        .attr('cy', (d) => { return this.scaleY(d) })
-        .attr('fill', valid_color)
-        .attr('r', 1.5)
+          .on('mousemove', (d, index) => {
+            const x = d3.event.layerX + 10
+            const y = d3.event.layerY + 10
 
-        .on('mousemove', (d, index) => {
-          const x = d3.event.layerX + 10
-          const y = d3.event.layerY + 10
-
-          this.TooltipLeft = x
-          this.TooltipTop = y
-          this.TextArray = [
-            {
-              'key': 'Epoch',
-              'value': (index + 1)
-            },
-            {
-              'key': 'Valid Loss',
-              'value': d.toFixed(2)
-            }
-          ]
-          this.TooltipKind = 'valid'
-          this.TooltipDisplay = true
-        })
-        .on('mouseleave', () => {
-          this.TooltipDisplay = false
-        })
-
+            this.TooltipLeft = x
+            this.TooltipTop = y
+            this.TextArray = [
+              {
+                'key': 'Epoch',
+                'value': (index + 1)
+              },
+              {
+                'key': 'Valid Loss',
+                'value': d.toFixed(2)
+              }
+            ]
+            this.TooltipKind = 'valid'
+            this.TooltipDisplay = true
+          })
+          .on('mouseleave', () => {
+            this.TooltipDisplay = false
+          })
+      }
       // d3.select('#learning-curve-canvas')
       //   .on('contextmenu', this.resetZoom)
     },
