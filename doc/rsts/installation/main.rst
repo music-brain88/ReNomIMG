@@ -114,4 +114,4 @@ the current directory, and the application will use port number ``8080``.
   - python : 3.5 or 3.6
   - `ReNomDL <https://github.com/ReNom-dev-team/ReNom.git>`_ : = 2.7.3
 
-For required python packages, please refer to the `requirements.txt <https://github.com/ReNom-dev-team/ReNomIMG/blob/release/2.1/requirements.txt>`_ .
+For required python packages, please refer to the `requirements.txt <https://github.com/ReNom-dev-team/ReNomIMG/blob/release/2.2/requirements.txt>`_ .
