@@ -48,6 +48,8 @@
             :key="value_input_key"
 
             :input-type="'text'"
+            :input-min-length="1"
+            :input-max-length="5"
             :input-min-value="itemObject.min"
             :input-max-value="itemObject.max"
             :only-number="true"
