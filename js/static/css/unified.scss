@@ -422,6 +422,8 @@ select, input {
 }
 
 .rnc-input {
+  width: 100%;
+  align-items: center;
   .input-value {
     .input-in {
       width: 100%;
@@ -433,6 +435,10 @@ select, input {
         border-color: $light-gray;
         cursor: not-allowed;
       }
+    }
+    .checkbox {
+      width: 10px;
+      cursor: pointer;
     }
   }
 }
