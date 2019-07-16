@@ -65,6 +65,7 @@ ENV RENOM_PRECISION=32
 # install ReNomDL
 RUN git clone -b v2.7.3 https://github.com/ReNom-dev-team/ReNom.git \
  && cd ReNom \
+ && pip install numpy \
  && pip install -r requirements.txt \
  && python3.6 setup.py build_ext -if \
  && pip install -e .
