@@ -87,5 +87,5 @@ container_image:
   script:
     - cd ..
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-    - docker build -t registry.gitlab.com/grid-devs/renomimg/$CI_COMMIT_REF_NAME:$CONTAINER_TAG -f ReNomIMG/test/docker/Dockerfile .
-    - docker push registry.gitlab.com/grid-devs/renomimg/$CI_COMMIT_REF_NAME:$CONTAINER_TAG
+    - docker build -t registry.gitlab.com/grid-devs/renomimg/test:$CONTAINER_TAG -f ReNomIMG/test/docker/Dockerfile .
+    - docker push registry.gitlab.com/grid-devs/renomimg/test:$CONTAINER_TAG
