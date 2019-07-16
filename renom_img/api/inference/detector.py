@@ -11,6 +11,7 @@ from renom_img.api.detection.yolo_v2 import Yolov2
 from renom_img.api.detection.ssd import SSD
 from renom_img.api.utility.exceptions.exceptions import ServerConnectionError, MissingInputError
 
+
 class Detector(object):
     """This class allows you to pull models trained in the ReNomIMG GUI.
 
@@ -37,7 +38,8 @@ class Detector(object):
 
     def __call__(self, x):
         if self._model is None:
-            raise MissingInputError("Model is not defined. Please use detector.pull() to download model with trained weights before running this command.")
+            raise MissingInputError(
+                "Model is not defined. Please use detector.pull() to download model with trained weights before running this command.")
         return self._model(x)
 
     def pull(self):
@@ -112,7 +114,8 @@ class Detector(object):
             }
         """
         if self._model is None:
-            raise MissingInputError("Model is not defined. Please use detector.pull() to download model with trained weights before running this command.")
+            raise MissingInputError(
+                "Model is not defined. Please use detector.pull() to download model with trained weights before running this command.")
         return self._model.predict(img_list)
 
     @property

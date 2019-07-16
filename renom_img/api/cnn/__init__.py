@@ -13,7 +13,8 @@ class CnnBase(rm.Model):
 
     def __call__(self, *args, **kwargs):
         if (None in [self.train_whole, self.output_size]):
-            raise MissingInputError("Please set attributes `train_whole` and 'output_size' before running __call__.")
+            raise MissingInputError(
+                "Please set attributes `train_whole` and 'output_size' before running __call__.")
         return super(CnnBase, self).__call__(*args, **kwargs)
 
     def set_output_size(self, output_size):

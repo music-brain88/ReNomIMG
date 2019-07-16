@@ -217,7 +217,7 @@ export default {
       })
     }
   },
-  beforeUpdate: function () {
+  updated: function () {
     /**
       If the task is segmentation, drawing function will be called in
       each update.
@@ -345,6 +345,7 @@ export default {
         }
         this.$worker.run(render_segmentation, [draw_item]).then((ret) => {
           canvas = this.$refs.canvas
+          if (!canvas) return
           cxt = canvas.getContext('bitmaprenderer')
           cxt.transferFromImageBitmap(ret)
         })
@@ -362,6 +363,7 @@ export default {
           callback: (response) => {
             this.$worker.run(render_segmentation, [response.data]).then((ret) => {
               var canvas = this.$refs.canvas
+              if (!canvas) return
               var cxt = canvas.getContext('bitmaprenderer')
               cxt.transferFromImageBitmap(ret)
             })

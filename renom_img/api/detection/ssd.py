@@ -20,6 +20,7 @@ from renom_img.api.utility.optimizer import OptimizerSSD
 from renom_img.api.utility.exceptions.check_exceptions import *
 from renom_img.api.utility.exceptions.exceptions import WeightLoadError
 
+
 def calc_iou(prior, box):
     """
     Ensure both arguments are point formed boxes.
@@ -82,6 +83,7 @@ class PriorBox(object):
         output = np.concatenate([min_xy, max_xy], axis=1)
         return output
 
+
 class TargetBuilderSSD():
     """
     This function returns a function which creates input data and target data specified for SSD.
@@ -97,14 +99,14 @@ class TargetBuilderSSD():
 
     """
 
-    def __init__(self, class_map,imsize,prior,prior_box,num_prior, threshold):
+    def __init__(self, class_map, imsize, prior, prior_box, num_prior, threshold):
         self.class_map = class_map
         self.num_class = len(self.class_map) + 1
         self.imsize = imsize
         self.prior = prior
         self.prior_box = prior_box
         self.num_prior = num_prior
-        self.overlap_threshold = threshold 
+        self.overlap_threshold = threshold
 
     def __call__(self, *args, **kwargs):
         return self.build(*args, **kwargs)
@@ -193,8 +195,8 @@ class TargetBuilderSSD():
         """
         check_missing_param(self.class_map)
         if annotation_list is None:
-            img_array = np.vstack([load_img(path,self.imsize)[None]
-                                    for path in img_path_list])
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
             return img_array
 
@@ -229,7 +231,7 @@ class TargetBuilderSSD():
             targets.append(target)
         # target (N, class, prior box)
         return self.preprocess(img_data), np.array(targets)
- 
+
 
 class SSD(Detection):
     """ SSD object detection algorithm.
@@ -269,7 +271,7 @@ class SSD(Detection):
     def __init__(self, class_map=None, imsize=(300, 300),
                  overlap_threshold=0.5, load_pretrained_weight=False, train_whole_network=False):
         # check for exceptions
-        check_ssd_init(overlap_threshold,imsize)
+        check_ssd_init(overlap_threshold, imsize)
 
         self._model = CnnSSD()
         super(SSD, self).__init__(class_map, imsize,
@@ -286,10 +288,9 @@ class SSD(Detection):
         self.default_optimizer = OptimizerSSD()
         self.decay_rate = 0.00004
 
-
     def build_data(self):
 
-       return TargetBuilderSSD(self.class_map, self.imsize, self.prior,self.prior_box, self.num_prior, self.overlap_threshold)
+        return TargetBuilderSSD(self.class_map, self.imsize, self.prior, self.prior_box, self.num_prior, self.overlap_threshold)
 
     def load(self, filename):
         """Load saved weights to model.
@@ -309,29 +310,32 @@ class SSD(Detection):
         names = sorted(values.keys())
 
         try:
-            self._try_load(names,values,types)
+            self._try_load(names, values, types)
         except AttributeError as e:
             try:
-                names,values,types = self._mapping(names,values,types)
-                self._try_load(names,values,types)
+                names, values, types = self._mapping(names, values, types)
+                self._try_load(names, values, types)
             except Exception as e:
-                raise WeightLoadError('The {} weight file can not be loaded into the {} model.'.format(filename, self.__class__.__name__))
+                raise WeightLoadError('The {} weight file can not be loaded into the {} model.'.format(
+                    filename, self.__class__.__name__))
 
-    def _mapping(self,names,values,types):
+    def _mapping(self, names, values, types):
         for name in names:
             if "._network" in name:
-                values[name.replace("._network","._model")] = values.pop(name)
-                types[name.replace("._network","._model")] = types.pop(name)
+                values[name.replace("._network", "._model")] = values.pop(name)
+                types[name.replace("._network", "._model")] = types.pop(name)
             elif "._freezed_network" in name:
-                values[name.replace("._freezed_network","._model._freezed_network")] = values.pop(name)
-                types[name.replace("._freezed_network","._model._freezed_network")] = types.pop(name)
+                values[name.replace("._freezed_network", "._model._freezed_network")
+                       ] = values.pop(name)
+                types[name.replace("._freezed_network", "._model._freezed_network")
+                      ] = types.pop(name)
 
-        names = [n.replace("._network","._model") for n in names]
-        names = [n.replace("._freezed_network","._model._freezed_network") for n in names]
+        names = [n.replace("._network", "._model") for n in names]
+        names = [n.replace("._freezed_network", "._model._freezed_network") for n in names]
 
-        return sorted(names),values,types
+        return sorted(names), values, types
 
-    def _try_load(self,names,values,types):
+    def _try_load(self, names, values, types):
 
         def get_attr(root, names):
             names = names.split('.')[1:]
@@ -367,7 +371,6 @@ class SSD(Detection):
 
                 setattr(obj, name, v)
 
-
     def decode_box(self, loc):
         prior = self.prior_box
         prior_wh = prior[:, 2:] - prior[:, :2]
@@ -380,11 +383,10 @@ class SSD(Detection):
         boxes[:, 2:] += boxes[:, :2]
         return boxes
 
-
     def loss(self, x, y, neg_pos_ratio=3.0):
         """
         Loss function specified for SSD.
-        
+
         Args:
             x(Node, nd_array): Output data of neural network.
             y(Node, nd_array): Target data.
@@ -474,7 +476,6 @@ class SSD(Detection):
 
         """
         return super(SSD, self).predict(img_list, batch_size, score_threshold, nms_threshold)
-
 
     def get_bbox(self, z, score_threshold=0.6, nms_threshold=0.45):
         """

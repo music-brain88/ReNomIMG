@@ -34,7 +34,7 @@ class Classification(Base):
                 bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
                 for batch_num in range(0, len(img_list), batch_size):
                     results.extend(np.argmax(rm.softmax(
-                        self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))).as_ndarray(), axis=1))
+                        self(img_builder(img_path_list=img_list[batch_num:batch_num + batch_size]))).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results

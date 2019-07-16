@@ -13,6 +13,7 @@ from renom_img.api.segmentation import SemanticSegmentation
 from renom_img.api.cnn import CnnBase
 from renom_img.api.utility.exceptions.exceptions import *
 
+
 class CNN_UNet(CnnBase):
 
     def __init__(self, num_class=1):
@@ -103,7 +104,3 @@ class CNN_UNet(CnnBase):
     def set_output_size(self, output_size):
         self.output_size = output_size
         self.conv9._channel = output_size
-
-
-
-

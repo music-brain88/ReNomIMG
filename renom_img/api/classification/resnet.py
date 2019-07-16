@@ -17,6 +17,7 @@ from renom_img.api.utility.optimizer import OptimizerResNet
 RESIZE_METHOD = Image.BILINEAR
 from renom_img.api.utility.exceptions.check_exceptions import *
 
+
 class TargetBuilderResNet():
     '''
     Target Builder for ResNet
@@ -168,7 +169,7 @@ class ResNet18(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-        #Exception checking
+        # Exception checking
         check_resnet_init(plateau)
         self._model = CnnResNet(1, BasicBlock, [2, 2, 2, 2])
         super(ResNet18, self).__init__(class_map, imsize,
@@ -224,7 +225,7 @@ class ResNet34(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-        #Exception checking
+        # Exception checking
         check_resnet_init(plateau)
 
         self._model = CnnResNet(1, BasicBlock, [3, 4, 6, 3])
@@ -280,7 +281,7 @@ class ResNet50(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-        #Exception checking
+        # Exception checking
         check_resnet_init(plateau)
 
         self._model = CnnResNet(1, Bottleneck, [3, 4, 6, 3])
@@ -336,7 +337,7 @@ class ResNet101(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-        #Exception checking
+        # Exception checking
         check_resnet_init(plateau)
 
         self._model = CnnResNet(1, Bottleneck, [3, 4, 23, 3])
@@ -392,7 +393,7 @@ class ResNet152(Classification):
         __version__)
 
     def __init__(self, class_map=None, imsize=(224, 224), plateau=False, load_pretrained_weight=False, train_whole_network=False):
-        #Exception checking
+        # Exception checking
         check_resnet_init(plateau)
 
         self._model = CnnResNet(1, Bottleneck, [3, 8, 36, 3])

@@ -67,15 +67,15 @@ class Detection(Base):
                 results = []
                 bar = tqdm()
                 bar.total = int(np.ceil(len(img_list) / batch_size))
-                for batch_num in range(0,len(img_list),batch_size):
-                    results.extend(self.get_bbox(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size])).as_ndarray(),
-                                                     score_threshold,
-                                                     nms_threshold))
+                for batch_num in range(0, len(img_list), batch_size):
+                    results.extend(self.get_bbox(self(img_builder(img_path_list=img_list[batch_num:batch_num + batch_size])).as_ndarray(),
+                                                 score_threshold,
+                                                 nms_threshold))
                     bar.update(1)
                 bar.close()
                 return results
             else:
-                return self.get_bbox(self(img_builder(img_path_list=[img_list])).as_ndarray(),score_threshold,nms_threshold)[0]
+                return self.get_bbox(self(img_builder(img_path_list=[img_list])).as_ndarray(), score_threshold, nms_threshold)[0]
         else:
             img_array = img_list
         return self.get_bbox(self(img_array).as_ndarray(),
@@ -98,7 +98,8 @@ class Detection(Base):
             >>> z = model(x)
             >>> loss = model.loss(z, y)
         """
-        raise FunctionNotImplementedError("The loss function has not been implemented for the {} class.".format(self.__class__))
+        raise FunctionNotImplementedError(
+            "The loss function has not been implemented for the {} class.".format(self.__class__))
 
     def build_data(self):
         """
@@ -114,6 +115,5 @@ class Detection(Base):
             >>> z = model(x)
             >>> loss = model.loss(z, y)
         """
-        raise FunctionNotImplementedError("The build_data function has not been implemented for the {} class.".format(self.__class__))
-
-
+        raise FunctionNotImplementedError(
+            "The build_data function has not been implemented for the {} class.".format(self.__class__))

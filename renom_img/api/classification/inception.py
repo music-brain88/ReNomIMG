@@ -16,6 +16,7 @@ from renom_img.api.cnn.inception import CNN_InceptionV1, CNN_InceptionV2, CNN_In
 
 RESIZE_METHOD = Image.BILINEAR
 
+
 class TargetBuilderInception():
     def __init__(self, class_map, imsize):
         self.class_map = class_map
@@ -26,7 +27,7 @@ class TargetBuilderInception():
 
     def preprocess(self, x):
 
-        return x/255.
+        return x / 255.
 
     def resize_img(self, img_list, label_list):
         im_list = []
@@ -57,7 +58,6 @@ class TargetBuilderInception():
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
-
     def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
 
@@ -71,8 +71,8 @@ class TargetBuilderInception():
             (tuple): Batch of images and corresponding one hot labels for each image in a batch
         """
         if annotation_list is None:
-            img_array = np.vstack([load_img(path,self.imsize)[None]
-                                    for path in img_path_list])
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
             return img_array
         # Check the class mapping.
@@ -129,7 +129,6 @@ class InceptionV1(Classification):
 
         self.default_optimizer = OptimizerInception(1)
         self.decay_rate = 0.0005
- 
 
         self._model.aux1.params = {}
         self._model.aux2.params = {}
@@ -145,17 +144,17 @@ class InceptionV1(Classification):
             if isinstance(img_list, (tuple, list)):
                 results = []
                 bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
-                for batch_num in range(0,len(img_list),batch_size):
-                    results.extend(np.argmax(rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))[2]).as_ndarray(), axis=1))
+                for batch_num in range(0, len(img_list), batch_size):
+                    results.extend(np.argmax(rm.softmax(self(img_builder(
+                        img_path_list=img_list[batch_num:batch_num + batch_size]))[2]).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
             else:
-                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))[2]).as_ndarray(),axis=1)[0]
+                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))[2]).as_ndarray(), axis=1)[0]
         else:
             img_array = img_list
         return np.argmax(rm.softmax(self(img_array)[2]).as_ndarray(), axis=1)
-
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
@@ -206,20 +205,21 @@ class InceptionV3(Classification):
             if isinstance(img_list, (tuple, list)):
                 results = []
                 bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
-                for batch_num in range(0,len(img_list),batch_size):
-                    results.extend(np.argmax(rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))[1]).as_ndarray(), axis=1))
+                for batch_num in range(0, len(img_list), batch_size):
+                    results.extend(np.argmax(rm.softmax(self(img_builder(
+                        img_path_list=img_list[batch_num:batch_num + batch_size]))[1]).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
             else:
-                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))[1]).as_ndarray(),axis=1)[0]
+                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))[1]).as_ndarray(), axis=1)[0]
         else:
             img_array = img_list
         return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
 
-
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
+
 
 class InceptionV2(Classification):
     """ Inception V2 model
@@ -258,7 +258,6 @@ class InceptionV2(Classification):
     def loss(self, x, y):
         return rm.softmax_cross_entropy(x[0], y) + rm.softmax_cross_entropy(x[1], y)
 
-
     def predict(self, img_list, batch_size=1):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
@@ -266,19 +265,21 @@ class InceptionV2(Classification):
             if isinstance(img_list, (tuple, list)):
                 results = []
                 bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
-                for batch_num in range(0,len(img_list),batch_size):
-                    results.extend(np.argmax(rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num+batch_size]))[1]).as_ndarray(), axis=1))
+                for batch_num in range(0, len(img_list), batch_size):
+                    results.extend(np.argmax(rm.softmax(self(img_builder(
+                        img_path_list=img_list[batch_num:batch_num + batch_size]))[1]).as_ndarray(), axis=1))
                     bar.update(1)
                 bar.close()
                 return results
             else:
-                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))[1]).as_ndarray(),axis=1)[0]
+                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))[1]).as_ndarray(), axis=1)[0]
         else:
             img_array = img_list
         return np.argmax(rm.softmax(self(img_array)[1]).as_ndarray(), axis=1)
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
+
 
 class InceptionV4(Classification):
     """ Inception V4 model
@@ -316,5 +317,3 @@ class InceptionV4(Classification):
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
-
-

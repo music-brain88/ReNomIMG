@@ -16,6 +16,7 @@ from renom_img.api.utility.optimizer import OptimizerDenseNet
 
 RESIZE_METHOD = Image.BILINEAR
 
+
 class TargetBuilderDenseNet():
     def __init__(self, class_map, imsize):
         self.class_map = class_map
@@ -25,7 +26,7 @@ class TargetBuilderDenseNet():
         return self.build(*args, **kwargs)
 
     def preprocess(self, x):
-        return x/255.
+        return x / 255.
 
     def resize_img(self, img_list, label_list):
         im_list = []
@@ -56,7 +57,6 @@ class TargetBuilderDenseNet():
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
-
     def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
 
@@ -71,10 +71,10 @@ class TargetBuilderDenseNet():
         """
         if annotation_list is None:
             img_array = np.vstack([load_img(path, self.imsize)[None]
-                                    for path in img_path_list])
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
             return img_array
- 
+
         # Check the class mapping.
         n_class = len(self.class_map)
 
@@ -118,8 +118,6 @@ class DenseNet121(Classification):
         https://arxiv.org/pdf/1608.06993.pdf
     """
 
-
-
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
         layer_per_block = [6, 12, 24, 16]
@@ -127,7 +125,8 @@ class DenseNet121(Classification):
         self._model = CNN_DenseNet(1, layer_per_block,
                                    growth_rate)
 
-        super(DenseNet121, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
+        super(DenseNet121, self).__init__(class_map, imsize,
+                                          load_pretrained_weight, train_whole_network, self._model)
 
         self._model.set_train_whole(train_whole_network)
         self._model.set_output_size(self.num_class)
@@ -136,6 +135,7 @@ class DenseNet121(Classification):
 
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
+
 
 class DenseNet169(Classification):
     """ DenseNet169 Model
@@ -159,8 +159,6 @@ class DenseNet169(Classification):
         https://arxiv.org/pdf/1608.06993.pdf
     """
 
-
-
     def __init__(self, class_map=[], imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
 
         layer_per_block = [6, 12, 32, 32]
@@ -169,7 +167,8 @@ class DenseNet169(Classification):
         self._model = CNN_DenseNet(1, layer_per_block,
                                    growth_rate)
 
-        super(DenseNet169, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
+        super(DenseNet169, self).__init__(class_map, imsize,
+                                          load_pretrained_weight, train_whole_network, self._model)
 
         self._model.set_train_whole(train_whole_network)
         self._model.set_output_size(self.num_class)
@@ -178,6 +177,7 @@ class DenseNet169(Classification):
 
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
+
 
 class DenseNet201(Classification):
     """ DenseNet201 Model
@@ -210,7 +210,8 @@ class DenseNet201(Classification):
         self._model = CNN_DenseNet(1, layer_per_block,
                                    growth_rate)
 
-        super(DenseNet201, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
+        super(DenseNet201, self).__init__(class_map, imsize,
+                                          load_pretrained_weight, train_whole_network, self._model)
 
         self._model.set_train_whole(train_whole_network)
         self._model.set_output_size(self.num_class)
@@ -219,4 +220,3 @@ class DenseNet201(Classification):
 
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
-

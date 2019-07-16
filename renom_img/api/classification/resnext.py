@@ -176,7 +176,7 @@ class ResNeXt50(Classification):
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
         # exceptions checking
-        check_resnext_init(plateau,cardinality)
+        check_resnext_init(plateau, cardinality)
 
         self.cardinality = cardinality
 
@@ -237,7 +237,7 @@ class ResNeXt101(Classification):
 
     def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
         # exceptions checking
-        check_resnext_init(plateau,cardinality)
+        check_resnext_init(plateau, cardinality)
 
         self.cardinality = cardinality
 

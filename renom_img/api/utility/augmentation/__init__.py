@@ -2,6 +2,7 @@ import numpy as np
 from renom_img.api.utility.augmentation.process import MODE
 from renom_img.api.utility.exceptions.exceptions import InvalidInputValueError
 
+
 class Augmentation(object):
     """
     | This class is for applying augmentation to images.

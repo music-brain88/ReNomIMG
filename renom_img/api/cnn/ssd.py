@@ -11,6 +11,7 @@ from renom_img.api.utility.load import prepare_detection_data, load_img
 from renom_img.api.utility.distributor.distributor import ImageDistributor
 from renom_img.api.utility.exceptions.exceptions import *
 
+
 def layer_factory(channel=32, conv_layer_num=2):
     layers = []
     for _ in range(conv_layer_num):
@@ -18,6 +19,7 @@ def layer_factory(channel=32, conv_layer_num=2):
         layers.append(rm.Relu())
     layers.append(rm.MaxPool2d(filter=2, stride=2))
     return rm.Sequential(layers)
+
 
 class CNN_VGG16(rm.Model):
 
@@ -47,17 +49,18 @@ class CNN_VGG16(rm.Model):
         t = self.fc3(t)
         return t
 
+
 class CnnSSD(CnnBase):
-    WEIGHT_URL =  "http://renom.jp/docs/downloads/weights/{}/detection/SSD.h5".format(__version__)
-    
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/SSD.h5".format(__version__)
+
     def __init__(self, weight_decay=None):
         super(CnnSSD, self).__init__()
         self.has_bn = False
-        
+
         self._feature_extractor = CNN_VGG16()
         self._freezed_network = rm.Sequential([self._feature_extractor.block1,
-                                             self._feature_extractor.block2])
-        
+                                               self._feature_extractor.block2])
+
         block3 = self._feature_extractor.block3
         self.conv3_1 = block3._layers[0]
         self.conv3_2 = block3._layers[2]
@@ -230,24 +233,21 @@ class CnnSSD(CnnBase):
         ], axis=2)
         return predictions
 
-
     def set_output_size(self, output_size):
         self.output_size = output_size
-        self.conv4_3_mbox_conf._channel = 4 * output_size     
+        self.conv4_3_mbox_conf._channel = 4 * output_size
         self.fc7_mbox_conf._channel = 6 * output_size
-        self.conv8_2_mbox_conf._channel =  6 * output_size
+        self.conv8_2_mbox_conf._channel = 6 * output_size
         self.conv9_2_mbox_conf._channel = 6 * output_size
         self.conv10_2_mbox_conf._channel = 4 * output_size
         self.conv11_2_mbox_conf._channel = 4 * output_size
 
-
     def reset_deeper_layer(self):
         pass
 
-    def load_pretrained_weight(self,path):
+    def load_pretrained_weight(self, path):
         try:
             self._feature_extractor.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
-
- 
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))

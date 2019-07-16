@@ -16,6 +16,7 @@ from renom_img.api.utility.optimizer import OptimizerDarknet19
 
 RESIZE_METHOD = Image.BILINEAR
 
+
 class TargetBuilderDarknet19():
     def __init__(self, class_map, imsize):
         self.class_map = class_map
@@ -25,7 +26,7 @@ class TargetBuilderDarknet19():
         return self.build(*args, **kwargs)
 
     def preprocess(self, x):
-        return x/255.
+        return x / 255.
 
     def resize_img(self, img_list, label_list):
         im_list = []
@@ -56,7 +57,6 @@ class TargetBuilderDarknet19():
         img = np.asarray(img).transpose(2, 0, 1).astype(np.float32)
         return img, self.imsize[0] / float(w), self.imsize[1] / h
 
-
     def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         """ Builds an array of images and corresponding labels
 
@@ -71,7 +71,7 @@ class TargetBuilderDarknet19():
         """
         if annotation_list is None:
             img_array = np.vstack([load_img(path, self.imsize)[None]
-                                    for path in img_path_list])
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
             return img_array
 
@@ -94,6 +94,7 @@ class TargetBuilderDarknet19():
 
         return self.preprocess(np.array(img_list)), np.array(label_list)
 
+
 class Darknet19(Classification):
     WEIGHT_URL = CnnDarknet19.WEIGHT_URL
 
@@ -101,7 +102,8 @@ class Darknet19(Classification):
 
         self._model = CnnDarknet19()
 
-        super(Darknet19, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
+        super(Darknet19, self).__init__(class_map, imsize,
+                                        load_pretrained_weight, train_whole_network, self._model)
 
         self._model.set_train_whole(train_whole_network)
         self._model.set_output_size(self.num_class)
@@ -110,4 +112,3 @@ class Darknet19(Classification):
 
     def build_data(self):
         return TargetBuilderDarknet19(self.class_map, self.imsize)
-
