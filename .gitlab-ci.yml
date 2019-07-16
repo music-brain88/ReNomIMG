@@ -3,6 +3,7 @@ image: node:10.15
 stages:
   - pages
   - document
+  - container
 
 before_script:
   - echo "deb http://deb.debian.org/debian jessie main" > /etc/apt/sources.list
@@ -74,3 +75,17 @@ sphinx:
     - ssh -p "$RENOM_JP_PORT" renom123@"$RENOM_JP_HOST" rm -rf "$DEPLOY_DIR"/renomimg
     - ssh -p "$RENOM_JP_PORT" renom123@"$RENOM_JP_HOST" cp -r "$TEST_DEPLOY_DIR"/renomimg "$DEPLOY_DIR"/renomimg
 
+
+container_image:
+  stage: container
+  when: manual
+  image: docker:latest
+  services:
+   - docker:dind
+  variables:
+    CONTAINER_TAG: "0.0"
+  script:
+    - cd ..
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker build -t registry.gitlab.com/grid-devs/renomimg/$CI_COMMIT_REF_NAME:$CONTAINER_TAG -f ReNomIMG/test/docker/Dockerfile .
+    - docker push registry.gitlab.com/grid-devs/renomimg/$CI_COMMIT_REF_NAME:$CONTAINER_TAG
