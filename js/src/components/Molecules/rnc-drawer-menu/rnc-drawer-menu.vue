@@ -23,7 +23,7 @@
       </div>
       <div
         id="slide-mask"
-        @click="$emit('showDrawerMenu')"
+        @click="$emit('show-drawer-menu')"
       />
     </div>
   </transition>
@@ -82,7 +82,7 @@ export default {
         console.warn(`The '$router' is not present in the Component. The path is: ${path}, and the page is: ${page}`)
       }
 
-      this.$emit('showDrawerMenu')
+      this.$emit('show-drawer-menu')
 
       return path
     }

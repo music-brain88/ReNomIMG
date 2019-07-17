@@ -50,10 +50,12 @@ export default {
       type: Number,
       default: undefined
     },
-    animated: {
-      type: Boolean,
-      default: undefined
-    },
+    // : not using currenty
+    // animated: {
+    //   type: Boolean,
+    //   default: undefined
+    // },
+
     // if break down bar
     className: {
       type: String,

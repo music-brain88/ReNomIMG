@@ -1,4 +1,4 @@
-import { SORT_DIRECTION, GROUPBY, SORTBY, TASK_ID, PAGE_ID } from '@/const.js'
+import { SORT_DIRECTION, GROUPBY, SORTBY, TASK_ID, PAGE_ID } from './../const.js'
 
 export default {
 

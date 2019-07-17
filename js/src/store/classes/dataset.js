@@ -1,4 +1,4 @@
-import { TASK_ID } from '@/const.js'
+import { TASK_ID } from './../../const.js'
 
 export class Dataset {
   constructor (task_id, name, ratio, description, test_dataset_id) {

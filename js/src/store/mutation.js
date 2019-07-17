@@ -1,4 +1,4 @@
-import { SORT_DIRECTION, PAGE_ID, TASK_ID, SORTBY } from '@/const.js'
+import { SORT_DIRECTION, PAGE_ID, TASK_ID, SORTBY } from './../const.js'
 
 export default {
   resetState (state, payload) {
