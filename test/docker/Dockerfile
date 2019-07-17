@@ -78,4 +78,7 @@ RUN useradd --create-home --shell /bin/bash --groups sudo $sshusername
 RUN echo $sshusername:$sshuserpass | chpasswd \
  && echo "${user_name} ALL=NOPASSWD: ALL" >> /etc/sudoers
 
-CMD ReNomIMG/test/docker/run.sh
+RUN mkdir /img_workdir
+WORKDIR /img_workdir
+
+CMD /ReNomIMG/test/docker/run.sh
