@@ -75,7 +75,7 @@ RUN cd ReNomIMG \
 ARG sshusername="test"
 ARG sshuserpass="password"
 RUN useradd -m -s /bin/bash $sshusername
-RUN echo '$sshusername:$sshuserpass' | chpasswd
+RUN echo $sshusername:$sshuserpass | chpasswd
 WORKDIR /home/$sshusername
 
 # add workdir
