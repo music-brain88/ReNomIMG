@@ -71,15 +71,13 @@ RUN cd ReNomIMG \
  && python3.6 setup.py build \
  && pip install -e .
 
-# run sshd
-EXPOSE 22
-RUN /usr/sbin/sshd -D
-
 # useradd
-RUN useradd -m -s /bin/bash test
-RUN echo 'test:testpassword' | chpasswd
-USER test
-WORKDIR /home/test
+ARG sshusername="test"
+ARG sshuserpass="password"
+RUN useradd -m -s /bin/bash $sshusername
+RUN echo '${sshusername}:${sshuserpass}' | chpasswd
+USER $sshusername
+WORKDIR /home/$sshusername
 
 # add workdir
 RUN mkdir workspace
