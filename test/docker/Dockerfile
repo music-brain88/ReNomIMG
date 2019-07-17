@@ -3,9 +3,9 @@ FROM nvidia/cuda:9.1-cudnn7-devel-ubuntu16.04
 # update apt info & install packages
 RUN apt-get update \
  && apt-get install -y \
-    # ssh-server
-    openssh-server \
     # common
+    sudo \
+    openssh-server \
     git \
     vim \
     curl \
@@ -74,11 +74,8 @@ RUN cd ReNomIMG \
 # useradd
 ARG sshusername="test"
 ARG sshuserpass="password"
-RUN useradd -m -s /bin/bash $sshusername
-RUN echo $sshusername:$sshuserpass | chpasswd
-WORKDIR /home/$sshusername
+RUN useradd --create-home --shell /bin/bash --groups sudo $sshusername
+RUN echo $sshusername:$sshuserpass | chpasswd \
+ && echo "${user_name} ALL=NOPASSWD: ALL" >> /etc/sudoers
 
-# add workdir
-RUN mkdir workspace
-
-CMD bash
+CMD ReNomIMG/test/docker/run.sh
