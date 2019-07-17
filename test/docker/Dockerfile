@@ -50,12 +50,6 @@ RUN npm install -g n
 # node 11.x.x is unusable
 RUN n 10.15.3
 
-# useradd
-RUN useradd -m -s /bin/bash test
-RUN echo 'test:testpassword' | chpasswd
-USER test
-WORKDIR /home/test
-
 # export env
 ENV PATH="/usr/local/cuda/bin:$PATH"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib:/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
@@ -63,9 +57,9 @@ ENV CUDA_HOME="/usr/local/cuda"
 ENV RENOM_PRECISION=32
 
 # install ReNomDL
-RUN git clone -b v2.7.3 https://github.com/ReNom-dev-team/ReNom.git \
+ARG ver_dl="v2.7.3"
+RUN git clone -b $ver_dl https://github.com/ReNom-dev-team/ReNom.git \
  && cd ReNom \
- && pip install numpy \
  && pip install -r requirements.txt \
  && python3.6 setup.py build_ext -if \
  && pip install -e .
@@ -76,5 +70,18 @@ RUN cd ReNomIMG \
  && pip install -r requirements.txt \
  && python3.6 setup.py build \
  && pip install -e .
+
+# run sshd
+EXPOSE 22
+RUN /usr/sbin/sshd -D
+
+# useradd
+RUN useradd -m -s /bin/bash test
+RUN echo 'test:testpassword' | chpasswd
+USER test
+WORKDIR /home/test
+
+# add workdir
+RUN mkdir workspace
 
 CMD bash
