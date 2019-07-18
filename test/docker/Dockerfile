@@ -76,7 +76,7 @@ ARG sshusername="test"
 ARG sshuserpass="password"
 RUN useradd --create-home --shell /bin/bash --groups sudo $sshusername
 RUN echo $sshusername:$sshuserpass | chpasswd \
- && echo "${user_name} ALL=NOPASSWD: ALL" >> /etc/sudoers
+ && echo $user_name ALL=NOPASSWD: ALL >> /etc/sudoers
 
 RUN mkdir /img_workdir
 WORKDIR /img_workdir
