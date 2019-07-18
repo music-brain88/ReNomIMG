@@ -786,7 +786,7 @@ class Yolov2(Detection):
                 if isinstance(opt, BaseOptimizer):
                     opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list)
 
-                if (self._model.hasbn and len(train_x) > 1) or (not self._model.has_bn and len(train_x) > 0):
+                if (self._model.has_bn and len(train_x) > 1) or (not self._model.has_bn and len(train_x) > 0):
                     with self.train():
                         loss = self.loss(self(train_x), buffers, train_y)
                         reg_loss = loss + self.regularize()
