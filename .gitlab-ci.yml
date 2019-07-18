@@ -89,5 +89,5 @@ container_image:
   script:
     - cd ..
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-    - docker build --build-arg sshusername=$SSH_USER_NAME --build-arg sshuserpass=$SSH_USER_PASS -t registry.gitlab.com/grid-devs/renomimg/test:$CONTAINER_TAG -f ReNomIMG/test/docker/Dockerfile .
+    - docker build --build-arg sshusername=$SSH_USER_NAME --build-arg sshuserpass=$SSH_USER_PASS -t registry.gitlab.com/grid-devs/renomimg/img_test_base:$CONTAINER_TAG -f ReNomIMG/test/docker/Dockerfile .
     - docker push registry.gitlab.com/grid-devs/renomimg/img_test_base:$CONTAINER_TAG
