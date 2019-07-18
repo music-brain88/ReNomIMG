@@ -5,17 +5,19 @@ stages:
   - document
   - container
 
-# before_script:
-#   - echo "deb http://deb.debian.org/debian jessie main" > /etc/apt/sources.list
-#   - echo "deb http://security.debian.org jessie/updates main" >> /etc/apt/sources.list
-#   - echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu trusty main" >> /etc/apt/sources.list
-#   - echo "deb-src http://ppa.launchpad.net/deadsnakes/ppa/ubuntu trusty main" >> /etc/apt/sources.list
-#   - apt-get update
-#   - apt-get -y upgrade
-#   - apt-get install -y --allow-unauthenticated python3.5-dev
+.before_script_template: &pages_sphinx_template
+  before_script:
+    - echo "deb http://deb.debian.org/debian jessie main" > /etc/apt/sources.list
+    - echo "deb http://security.debian.org jessie/updates main" >> /etc/apt/sources.list
+    - echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu trusty main" >> /etc/apt/sources.list
+    - echo "deb-src http://ppa.launchpad.net/deadsnakes/ppa/ubuntu trusty main" >> /etc/apt/sources.list
+    - apt-get update
+    - apt-get -y upgrade
+    - apt-get install -y --allow-unauthenticated python3.5-dev
 
 pages:
   stage: pages
+  <<: *pages_sphinx_template
   script:
     - wget https://www.python.org/ftp/python/3.6.0/Python-3.6.0.tar.xz
     - tar Jxfv Python-3.6.0.tar.xz
@@ -53,6 +55,7 @@ pages:
 
 sphinx:
   stage: document
+  <<: *pages_sphinx_template
   when: manual
   script:
     - apt-get update -qq && apt-get install -y -qq pandoc openssh-client
@@ -76,7 +79,7 @@ sphinx:
     - ssh -p "$RENOM_JP_PORT" renom123@"$RENOM_JP_HOST" cp -r "$TEST_DEPLOY_DIR"/renomimg "$DEPLOY_DIR"/renomimg
 
 
-container_image:
+container_build:
   stage: container
   when: manual
   image: docker:latest

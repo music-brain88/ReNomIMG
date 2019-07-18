@@ -30,5 +30,6 @@ sudo docker push registry.gitlab.com/grid-devs/renomimg/img_test:<version>
 テスト用サーバで実行
 
 ```
+sudo docker login registry.gitlab.com
 sudo docker-compose up -d
 ```
