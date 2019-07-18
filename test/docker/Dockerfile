@@ -56,16 +56,16 @@ RUN wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tgz \
  && ln -s /opt/python3.6.8/bin/python3.6 /usr/local/bin/python3.6 \
  && ln -s /opt/python3.6.8/bin/pip3.6 /usr/local/bin/pip
 
- # useradd
- ARG sshusername="test"
- ARG sshuserpass="password"
- RUN useradd --create-home --shell /bin/bash --groups sudo $sshusername
- RUN echo $sshusername:$sshuserpass | chpasswd \
-  && echo $user_name ALL=NOPASSWD: ALL >> /etc/sudoers
+# useradd
+ARG sshusername="test"
+ARG sshuserpass="password"
+RUN useradd --create-home --shell /bin/bash --groups sudo $sshusername
+RUN echo $sshusername:$sshuserpass | chpasswd \
+ && echo $user_name ALL=NOPASSWD: ALL >> /etc/sudoers
 
- # make app workspace
- RUN mkdir /img_workdir
- WORKDIR /img_workdir
+# make app workspace
+RUN mkdir /img_workdir
+WORKDIR /img_workdir
 
 # install ReNomDL
 ARG ver_dl="v2.7.3"
