@@ -12,7 +12,7 @@ sudo docker pull registry.gitlab.com/grid-devs/renomimg/img_test_base:<version>
 - datasrc
 
 ```
-sudo docker run -v <path_to_datasrc>/datasrc:/img_workdir/datasrc -p <binded renom_img port>:8080 -p <binded ssh port>:22 --name="img_test_base" registry.gitlab.com/grid-devs/renomimg/img_test_base:<version>
+sudo docker run -d -v <path_to_datasrc>/datasrc:/img_workdir/datasrc -p <binded renom_img port>:8080 -p <binded ssh port>:22 --name="img_test_base" registry.gitlab.com/grid-devs/renomimg/img_test_base:<version>
 ```
 
 # テスト用コンテナを登録
