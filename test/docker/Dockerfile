@@ -1,5 +1,11 @@
 FROM nvidia/cuda:9.1-cudnn7-devel-ubuntu16.04
 
+# export env
+ENV PATH="/usr/local/cuda/bin:$PATH"
+ENV LD_LIBRARY_PATH="/usr/local/cuda/lib:/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+ENV CUDA_HOME="/usr/local/cuda"
+ENV RENOM_PRECISION=32
+
 # update apt info & install packages
 RUN apt-get update \
  && apt-get install -y \
@@ -33,6 +39,13 @@ RUN apt-get update \
 # mkdir sshd
 RUN mkdir /var/run/sshd
 
+# install n
+RUN npm install -g n
+
+# install node stabled version
+# node 11.x.x is unusable
+RUN n 10.15.3
+
 # install python3.6.8
 RUN wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tgz \
  && tar xf Python-3.6.8.tgz \
@@ -43,18 +56,16 @@ RUN wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tgz \
  && ln -s /opt/python3.6.8/bin/python3.6 /usr/local/bin/python3.6 \
  && ln -s /opt/python3.6.8/bin/pip3.6 /usr/local/bin/pip
 
-# install n
-RUN npm install -g n
+ # useradd
+ ARG sshusername="test"
+ ARG sshuserpass="password"
+ RUN useradd --create-home --shell /bin/bash --groups sudo $sshusername
+ RUN echo $sshusername:$sshuserpass | chpasswd \
+  && echo $user_name ALL=NOPASSWD: ALL >> /etc/sudoers
 
-# install node stabled version
-# node 11.x.x is unusable
-RUN n 10.15.3
-
-# export env
-ENV PATH="/usr/local/cuda/bin:$PATH"
-ENV LD_LIBRARY_PATH="/usr/local/cuda/lib:/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
-ENV CUDA_HOME="/usr/local/cuda"
-ENV RENOM_PRECISION=32
+ # make app workspace
+ RUN mkdir /img_workdir
+ WORKDIR /img_workdir
 
 # install ReNomDL
 ARG ver_dl="v2.7.3"
@@ -70,15 +81,5 @@ RUN cd ReNomIMG \
  && pip install -r requirements.txt \
  && python3.6 setup.py build \
  && pip install -e .
-
-# useradd
-ARG sshusername="test"
-ARG sshuserpass="password"
-RUN useradd --create-home --shell /bin/bash --groups sudo $sshusername
-RUN echo $sshusername:$sshuserpass | chpasswd \
- && echo $user_name ALL=NOPASSWD: ALL >> /etc/sudoers
-
-RUN mkdir /img_workdir
-WORKDIR /img_workdir
 
 CMD /ReNomIMG/test/docker/run.sh
