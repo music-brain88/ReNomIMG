@@ -74,6 +74,7 @@ ReNomIMG provides the following algorithms.
 
   .. - U-Net
   - FCN
+  .. - Deeplabv3
   .. - TernousNet
 
 * Classification
@@ -97,11 +98,9 @@ An example of defining and training a model is shown below. With ReNomIMG you ca
 
 .. code-block :: python
     :linenos:
-    :emphasize-lines: 15,16,19
+    :emphasize-lines: 13,14,17
 
     from renom_img.api.classification.vgg import VGG16
-    from renom_img.api.utility.load import parse_xml_detection
-    from renom_img.api.utility.misc.display import draw_box
 
     ## Data preparation
     train_image_path_list = ...

@@ -254,6 +254,7 @@ class TrainThread(object):
         finally:
             release_mem_pool()
             TrainThread.semaphore.release()
+            self.trainer = None
             self.state = State.STOPPED
             self.running_state = RunningState.STOPPING
             self.sync_state()

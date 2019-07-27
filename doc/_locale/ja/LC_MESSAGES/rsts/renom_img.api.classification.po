@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-16 22:06+0900\n"
+"POT-Creation-Date: 2019-07-03 22:02+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,33 +21,70 @@ msgstr ""
 msgid "renom\\_img.api.classification"
 msgstr ""
 
-#: of renom_img.api.classification.resnet.ResNet101:1
-#: renom_img.api.classification.resnet.ResNet152:1
-#: renom_img.api.classification.resnet.ResNet18:1
-#: renom_img.api.classification.resnet.ResNet34:1
-#: renom_img.api.classification.resnet.ResNet50:1
-#: renom_img.api.classification.resnext.ResNeXt101:1
-#: renom_img.api.classification.resnext.ResNeXt50:1
-#: renom_img.api.classification.vgg.VGG11:1
-#: renom_img.api.classification.vgg.VGG16:1
-#: renom_img.api.classification.vgg.VGG19:1
-msgid "Bases: :class:`renom_img.api.classification.Classification`"
-msgstr ""
-
 #: of renom_img.api.classification.vgg.VGG11:1
 msgid "VGG11 model."
 msgstr "VGG11モデル"
 
 #: of renom_img.api.classification.resnet.ResNet101
+#: renom_img.api.classification.resnet.ResNet101.fit
+#: renom_img.api.classification.resnet.ResNet101.forward
+#: renom_img.api.classification.resnet.ResNet101.loss
+#: renom_img.api.classification.resnet.ResNet101.predict
+#: renom_img.api.classification.resnet.ResNet101.preprocess
 #: renom_img.api.classification.resnet.ResNet152
+#: renom_img.api.classification.resnet.ResNet152.fit
+#: renom_img.api.classification.resnet.ResNet152.forward
+#: renom_img.api.classification.resnet.ResNet152.loss
+#: renom_img.api.classification.resnet.ResNet152.predict
+#: renom_img.api.classification.resnet.ResNet152.preprocess
 #: renom_img.api.classification.resnet.ResNet18
+#: renom_img.api.classification.resnet.ResNet18.fit
+#: renom_img.api.classification.resnet.ResNet18.forward
+#: renom_img.api.classification.resnet.ResNet18.loss
+#: renom_img.api.classification.resnet.ResNet18.predict
+#: renom_img.api.classification.resnet.ResNet18.preprocess
 #: renom_img.api.classification.resnet.ResNet34
+#: renom_img.api.classification.resnet.ResNet34.fit
+#: renom_img.api.classification.resnet.ResNet34.forward
+#: renom_img.api.classification.resnet.ResNet34.loss
+#: renom_img.api.classification.resnet.ResNet34.predict
+#: renom_img.api.classification.resnet.ResNet34.preprocess
 #: renom_img.api.classification.resnet.ResNet50
+#: renom_img.api.classification.resnet.ResNet50.fit
+#: renom_img.api.classification.resnet.ResNet50.forward
+#: renom_img.api.classification.resnet.ResNet50.loss
+#: renom_img.api.classification.resnet.ResNet50.predict
+#: renom_img.api.classification.resnet.ResNet50.preprocess
 #: renom_img.api.classification.resnext.ResNeXt101
+#: renom_img.api.classification.resnext.ResNeXt101.fit
+#: renom_img.api.classification.resnext.ResNeXt101.forward
+#: renom_img.api.classification.resnext.ResNeXt101.loss
+#: renom_img.api.classification.resnext.ResNeXt101.predict
+#: renom_img.api.classification.resnext.ResNeXt101.preprocess
 #: renom_img.api.classification.resnext.ResNeXt50
+#: renom_img.api.classification.resnext.ResNeXt50.fit
+#: renom_img.api.classification.resnext.ResNeXt50.forward
+#: renom_img.api.classification.resnext.ResNeXt50.loss
+#: renom_img.api.classification.resnext.ResNeXt50.predict
+#: renom_img.api.classification.resnext.ResNeXt50.preprocess
 #: renom_img.api.classification.vgg.VGG11
+#: renom_img.api.classification.vgg.VGG11.fit
+#: renom_img.api.classification.vgg.VGG11.forward
+#: renom_img.api.classification.vgg.VGG11.loss
+#: renom_img.api.classification.vgg.VGG11.predict
+#: renom_img.api.classification.vgg.VGG11.preprocess
 #: renom_img.api.classification.vgg.VGG16
+#: renom_img.api.classification.vgg.VGG16.fit
+#: renom_img.api.classification.vgg.VGG16.forward
+#: renom_img.api.classification.vgg.VGG16.loss
+#: renom_img.api.classification.vgg.VGG16.predict
+#: renom_img.api.classification.vgg.VGG16.preprocess
 #: renom_img.api.classification.vgg.VGG19
+#: renom_img.api.classification.vgg.VGG19.fit
+#: renom_img.api.classification.vgg.VGG19.forward
+#: renom_img.api.classification.vgg.VGG19.loss
+#: renom_img.api.classification.vgg.VGG19.predict
+#: renom_img.api.classification.vgg.VGG19.preprocess
 msgid "Parameters"
 msgstr "パラメータ"
 
@@ -92,50 +129,109 @@ msgid ""
 "convolutional base is frozen during training."
 msgstr "モデル全体を学習させる場合はTrue、そうでなければFalse"
 
-#: of renom_img.api.classification.resnet.ResNet101:23
-#: renom_img.api.classification.resnet.ResNet152:23
-#: renom_img.api.classification.resnet.ResNet18:23
-#: renom_img.api.classification.resnet.ResNet34:23
-#: renom_img.api.classification.resnet.ResNet50:23
-#: renom_img.api.classification.resnext.ResNeXt101:25
-#: renom_img.api.classification.resnext.ResNeXt50:25
-#: renom_img.api.classification.vgg.VGG11:17
-#: renom_img.api.classification.vgg.VGG16:20
-#: renom_img.api.classification.vgg.VGG19:20
-msgid ""
-"If the argument num_class is not equal to 1000, the last dense layer will"
-" be reset because the pretrained weight was trained on a 1000-class "
-"dataset."
-msgstr "事前学習のデータセットは1000クラスのため、もし引数num_classが1000でなかった場合は最後のDense層はリセットされます。"
+#: of renom_img.api.classification.resnet.ResNet101:22
+#: renom_img.api.classification.resnet.ResNet101.build_data:8
+#: renom_img.api.classification.resnet.ResNet101.fit:24
+#: renom_img.api.classification.resnet.ResNet101.forward:11
+#: renom_img.api.classification.resnet.ResNet101.loss:12
+#: renom_img.api.classification.resnet.ResNet101.regularize:4
+#: renom_img.api.classification.resnet.ResNet152:22
+#: renom_img.api.classification.resnet.ResNet152.build_data:8
+#: renom_img.api.classification.resnet.ResNet152.fit:24
+#: renom_img.api.classification.resnet.ResNet152.forward:11
+#: renom_img.api.classification.resnet.ResNet152.loss:12
+#: renom_img.api.classification.resnet.ResNet152.regularize:4
+#: renom_img.api.classification.resnet.ResNet18:22
+#: renom_img.api.classification.resnet.ResNet18.build_data:8
+#: renom_img.api.classification.resnet.ResNet18.fit:24
+#: renom_img.api.classification.resnet.ResNet18.forward:11
+#: renom_img.api.classification.resnet.ResNet18.loss:12
+#: renom_img.api.classification.resnet.ResNet18.regularize:4
+#: renom_img.api.classification.resnet.ResNet34:22
+#: renom_img.api.classification.resnet.ResNet34.build_data:8
+#: renom_img.api.classification.resnet.ResNet34.fit:24
+#: renom_img.api.classification.resnet.ResNet34.forward:11
+#: renom_img.api.classification.resnet.ResNet34.loss:12
+#: renom_img.api.classification.resnet.ResNet34.regularize:4
+#: renom_img.api.classification.resnet.ResNet50:22
+#: renom_img.api.classification.resnet.ResNet50.build_data:8
+#: renom_img.api.classification.resnet.ResNet50.fit:24
+#: renom_img.api.classification.resnet.ResNet50.forward:11
+#: renom_img.api.classification.resnet.ResNet50.loss:12
+#: renom_img.api.classification.resnet.ResNet50.regularize:4
+#: renom_img.api.classification.resnext.ResNeXt101:24
+#: renom_img.api.classification.resnext.ResNeXt101.build_data:8
+#: renom_img.api.classification.resnext.ResNeXt101.fit:24
+#: renom_img.api.classification.resnext.ResNeXt101.forward:11
+#: renom_img.api.classification.resnext.ResNeXt101.loss:12
+#: renom_img.api.classification.resnext.ResNeXt101.regularize:4
+#: renom_img.api.classification.resnext.ResNeXt50:24
+#: renom_img.api.classification.resnext.ResNeXt50.build_data:8
+#: renom_img.api.classification.resnext.ResNeXt50.fit:24
+#: renom_img.api.classification.resnext.ResNeXt50.forward:11
+#: renom_img.api.classification.resnext.ResNeXt50.loss:12
+#: renom_img.api.classification.resnext.ResNeXt50.regularize:4
+#: renom_img.api.classification.vgg.VGG11:16
+#: renom_img.api.classification.vgg.VGG11.build_data:8
+#: renom_img.api.classification.vgg.VGG11.fit:24
+#: renom_img.api.classification.vgg.VGG11.forward:11
+#: renom_img.api.classification.vgg.VGG11.loss:12
+#: renom_img.api.classification.vgg.VGG11.regularize:4
+#: renom_img.api.classification.vgg.VGG16:19
+#: renom_img.api.classification.vgg.VGG16.build_data:8
+#: renom_img.api.classification.vgg.VGG16.fit:24
+#: renom_img.api.classification.vgg.VGG16.forward:11
+#: renom_img.api.classification.vgg.VGG16.loss:12
+#: renom_img.api.classification.vgg.VGG16.regularize:4
+#: renom_img.api.classification.vgg.VGG19:19
+#: renom_img.api.classification.vgg.VGG19.build_data:8
+#: renom_img.api.classification.vgg.VGG19.fit:24
+#: renom_img.api.classification.vgg.VGG19.forward:11
+#: renom_img.api.classification.vgg.VGG19.loss:12
+#: renom_img.api.classification.vgg.VGG19.regularize:4
+msgid "Example"
+msgstr "例"
 
-#: of renom_img.api.classification.resnet.ResNet101:27
-#: renom_img.api.classification.resnet.ResNet152:27
-#: renom_img.api.classification.resnet.ResNet18:27
-#: renom_img.api.classification.resnet.ResNet34:27
-#: renom_img.api.classification.resnet.ResNet50:27
-#: renom_img.api.classification.resnext.ResNeXt101:29
-#: renom_img.api.classification.resnext.ResNeXt50:29
-#: renom_img.api.classification.vgg.VGG11:21
-#: renom_img.api.classification.vgg.VGG16:24
-#: renom_img.api.classification.vgg.VGG19:24
+#: of renom_img.api.classification.vgg.VGG11:24
+msgid ""
+"VGG11 does not currently have pretrained weights available, so you must "
+"use randomly initialized weights or provide user-trained weights. If you "
+"would like to initialize your model with ImageNet pretrained weights, "
+"please use VGG16, VGG19 or any ResNet/ResNeXt model in ReNom."
+msgstr ""
+"VGG11には現在事前学習済みの重みが用意されていないため、"
+" ``load_pretrained_weight`` を ``False`` に設定する必要があります。"
+"ImageNetで学習された重みを初期値として利用するには、VGG16、VGG19"
+"またはResNet/ResNeXt系のReNomモデルを利用してください。"
+
+#: of renom_img.api.classification.resnet.ResNet101:34
+#: renom_img.api.classification.resnet.ResNet152:34
+#: renom_img.api.classification.resnet.ResNet18:34
+#: renom_img.api.classification.resnet.ResNet34:34
+#: renom_img.api.classification.resnet.ResNet50:34
+#: renom_img.api.classification.resnext.ResNeXt101:36
+#: renom_img.api.classification.resnext.ResNeXt50:36
+#: renom_img.api.classification.vgg.VGG11:29
+#: renom_img.api.classification.vgg.VGG16:31
+#: renom_img.api.classification.vgg.VGG19:31
 msgid "References"
 msgstr "参照"
 
-#: of renom_img.api.classification.vgg.VGG11:22
-#: renom_img.api.classification.vgg.VGG16:25
-#: renom_img.api.classification.vgg.VGG19:25
+#: of renom_img.api.classification.vgg.VGG11:30
+#: renom_img.api.classification.vgg.VGG16:32
+#: renom_img.api.classification.vgg.VGG19:32
 msgid "Karen Simonyan, Andrew Zisserman"
 msgstr ""
 
-#: of renom_img.api.classification.vgg.VGG11:23
-#: renom_img.api.classification.vgg.VGG16:26
-#: renom_img.api.classification.vgg.VGG19:26
+#: of renom_img.api.classification.vgg.VGG11:31
+#: renom_img.api.classification.vgg.VGG16:33
+#: renom_img.api.classification.vgg.VGG19:33
 msgid "**Very Deep Convolutional Networks for Large-Scale Image Recognition**"
 msgstr ""
 
-#: of renom_img.api.classification.vgg.VGG11:24
-#: renom_img.api.classification.vgg.VGG16:27
-#: renom_img.api.classification.vgg.VGG19:27
+#: of renom_img.api.classification.vgg.VGG11:32
+#: renom_img.api.classification.vgg.VGG16:34
+#: renom_img.api.classification.vgg.VGG19:34
 msgid "https://arxiv.org/abs/1409.1556"
 msgstr ""
 
@@ -146,15 +242,55 @@ msgid ""
 msgstr "この関数はVGG11用の入力データと出力データを作成します。"
 
 #: of renom_img.api.classification.resnet.ResNet101.build_data
+#: renom_img.api.classification.resnet.ResNet101.fit
+#: renom_img.api.classification.resnet.ResNet101.forward
+#: renom_img.api.classification.resnet.ResNet101.loss
+#: renom_img.api.classification.resnet.ResNet101.predict
 #: renom_img.api.classification.resnet.ResNet152.build_data
+#: renom_img.api.classification.resnet.ResNet152.fit
+#: renom_img.api.classification.resnet.ResNet152.forward
+#: renom_img.api.classification.resnet.ResNet152.loss
+#: renom_img.api.classification.resnet.ResNet152.predict
 #: renom_img.api.classification.resnet.ResNet18.build_data
+#: renom_img.api.classification.resnet.ResNet18.fit
+#: renom_img.api.classification.resnet.ResNet18.forward
+#: renom_img.api.classification.resnet.ResNet18.loss
+#: renom_img.api.classification.resnet.ResNet18.predict
 #: renom_img.api.classification.resnet.ResNet34.build_data
+#: renom_img.api.classification.resnet.ResNet34.fit
+#: renom_img.api.classification.resnet.ResNet34.forward
+#: renom_img.api.classification.resnet.ResNet34.loss
+#: renom_img.api.classification.resnet.ResNet34.predict
 #: renom_img.api.classification.resnet.ResNet50.build_data
+#: renom_img.api.classification.resnet.ResNet50.fit
+#: renom_img.api.classification.resnet.ResNet50.forward
+#: renom_img.api.classification.resnet.ResNet50.loss
+#: renom_img.api.classification.resnet.ResNet50.predict
 #: renom_img.api.classification.resnext.ResNeXt101.build_data
+#: renom_img.api.classification.resnext.ResNeXt101.fit
+#: renom_img.api.classification.resnext.ResNeXt101.forward
+#: renom_img.api.classification.resnext.ResNeXt101.loss
+#: renom_img.api.classification.resnext.ResNeXt101.predict
 #: renom_img.api.classification.resnext.ResNeXt50.build_data
+#: renom_img.api.classification.resnext.ResNeXt50.fit
+#: renom_img.api.classification.resnext.ResNeXt50.forward
+#: renom_img.api.classification.resnext.ResNeXt50.loss
+#: renom_img.api.classification.resnext.ResNeXt50.predict
 #: renom_img.api.classification.vgg.VGG11.build_data
+#: renom_img.api.classification.vgg.VGG11.fit
+#: renom_img.api.classification.vgg.VGG11.forward
+#: renom_img.api.classification.vgg.VGG11.loss
+#: renom_img.api.classification.vgg.VGG11.predict
 #: renom_img.api.classification.vgg.VGG16.build_data
+#: renom_img.api.classification.vgg.VGG16.fit
+#: renom_img.api.classification.vgg.VGG16.forward
+#: renom_img.api.classification.vgg.VGG16.loss
+#: renom_img.api.classification.vgg.VGG16.predict
 #: renom_img.api.classification.vgg.VGG19.build_data
+#: renom_img.api.classification.vgg.VGG19.fit
+#: renom_img.api.classification.vgg.VGG19.forward
+#: renom_img.api.classification.vgg.VGG19.loss
+#: renom_img.api.classification.vgg.VGG19.predict
 msgid "Returns"
 msgstr "戻り値"
 
@@ -172,30 +308,400 @@ msgid "Returns function which creates input data and target data."
 msgstr "入力データと出力データを作成する関数を返します。"
 
 #: of renom_img.api.classification.resnet.ResNet101.build_data
+#: renom_img.api.classification.resnet.ResNet101.fit
+#: renom_img.api.classification.resnet.ResNet101.forward
+#: renom_img.api.classification.resnet.ResNet101.loss
+#: renom_img.api.classification.resnet.ResNet101.predict
 #: renom_img.api.classification.resnet.ResNet152.build_data
+#: renom_img.api.classification.resnet.ResNet152.fit
+#: renom_img.api.classification.resnet.ResNet152.forward
+#: renom_img.api.classification.resnet.ResNet152.loss
+#: renom_img.api.classification.resnet.ResNet152.predict
 #: renom_img.api.classification.resnet.ResNet18.build_data
+#: renom_img.api.classification.resnet.ResNet18.fit
+#: renom_img.api.classification.resnet.ResNet18.forward
+#: renom_img.api.classification.resnet.ResNet18.loss
+#: renom_img.api.classification.resnet.ResNet18.predict
 #: renom_img.api.classification.resnet.ResNet34.build_data
+#: renom_img.api.classification.resnet.ResNet34.fit
+#: renom_img.api.classification.resnet.ResNet34.forward
+#: renom_img.api.classification.resnet.ResNet34.loss
+#: renom_img.api.classification.resnet.ResNet34.predict
 #: renom_img.api.classification.resnet.ResNet50.build_data
+#: renom_img.api.classification.resnet.ResNet50.fit
+#: renom_img.api.classification.resnet.ResNet50.forward
+#: renom_img.api.classification.resnet.ResNet50.loss
+#: renom_img.api.classification.resnet.ResNet50.predict
 #: renom_img.api.classification.resnext.ResNeXt101.build_data
+#: renom_img.api.classification.resnext.ResNeXt101.fit
+#: renom_img.api.classification.resnext.ResNeXt101.forward
+#: renom_img.api.classification.resnext.ResNeXt101.loss
+#: renom_img.api.classification.resnext.ResNeXt101.predict
 #: renom_img.api.classification.resnext.ResNeXt50.build_data
+#: renom_img.api.classification.resnext.ResNeXt50.fit
+#: renom_img.api.classification.resnext.ResNeXt50.forward
+#: renom_img.api.classification.resnext.ResNeXt50.loss
+#: renom_img.api.classification.resnext.ResNeXt50.predict
 #: renom_img.api.classification.vgg.VGG11.build_data
+#: renom_img.api.classification.vgg.VGG11.fit
+#: renom_img.api.classification.vgg.VGG11.forward
+#: renom_img.api.classification.vgg.VGG11.loss
+#: renom_img.api.classification.vgg.VGG11.predict
 #: renom_img.api.classification.vgg.VGG16.build_data
+#: renom_img.api.classification.vgg.VGG16.fit
+#: renom_img.api.classification.vgg.VGG16.forward
+#: renom_img.api.classification.vgg.VGG16.loss
+#: renom_img.api.classification.vgg.VGG16.predict
 #: renom_img.api.classification.vgg.VGG19.build_data
+#: renom_img.api.classification.vgg.VGG19.fit
+#: renom_img.api.classification.vgg.VGG19.forward
+#: renom_img.api.classification.vgg.VGG19.loss
+#: renom_img.api.classification.vgg.VGG19.predict
 msgid "Return type"
 msgstr "戻り値の型"
 
-#: of renom_img.api.classification.resnet.ResNet101.build_data:8
-#: renom_img.api.classification.resnet.ResNet152.build_data:8
-#: renom_img.api.classification.resnet.ResNet18.build_data:8
-#: renom_img.api.classification.resnet.ResNet34.build_data:8
-#: renom_img.api.classification.resnet.ResNet50.build_data:8
-#: renom_img.api.classification.resnext.ResNeXt101.build_data:8
-#: renom_img.api.classification.resnext.ResNeXt50.build_data:8
-#: renom_img.api.classification.vgg.VGG11.build_data:8
-#: renom_img.api.classification.vgg.VGG16.build_data:8
-#: renom_img.api.classification.vgg.VGG19.build_data:8
-msgid "Example"
-msgstr "例"
+#: of renom_img.api.classification.resnet.ResNet101.fit:1
+#: renom_img.api.classification.resnet.ResNet152.fit:1
+#: renom_img.api.classification.resnet.ResNet18.fit:1
+#: renom_img.api.classification.resnet.ResNet34.fit:1
+#: renom_img.api.classification.resnet.ResNet50.fit:1
+#: renom_img.api.classification.resnext.ResNeXt101.fit:1
+#: renom_img.api.classification.resnext.ResNeXt50.fit:1
+#: renom_img.api.classification.vgg.VGG11.fit:1
+#: renom_img.api.classification.vgg.VGG16.fit:1
+#: renom_img.api.classification.vgg.VGG19.fit:1
+msgid "This function performs training with the given data and hyperparameters."
+msgstr "この関数は与えられたデータを元に学習を行います。"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:3
+#: renom_img.api.classification.resnet.ResNet152.fit:3
+#: renom_img.api.classification.resnet.ResNet18.fit:3
+#: renom_img.api.classification.resnet.ResNet34.fit:3
+#: renom_img.api.classification.resnet.ResNet50.fit:3
+#: renom_img.api.classification.resnext.ResNeXt101.fit:3
+#: renom_img.api.classification.resnext.ResNeXt50.fit:3
+#: renom_img.api.classification.vgg.VGG11.fit:3
+#: renom_img.api.classification.vgg.VGG16.fit:3
+#: renom_img.api.classification.vgg.VGG19.fit:3
+msgid "List of image paths."
+msgstr "クラス名の配列"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:5
+#: renom_img.api.classification.resnet.ResNet152.fit:5
+#: renom_img.api.classification.resnet.ResNet18.fit:5
+#: renom_img.api.classification.resnet.ResNet34.fit:5
+#: renom_img.api.classification.resnet.ResNet50.fit:5
+#: renom_img.api.classification.resnext.ResNeXt101.fit:5
+#: renom_img.api.classification.resnext.ResNeXt50.fit:5
+#: renom_img.api.classification.vgg.VGG11.fit:5
+#: renom_img.api.classification.vgg.VGG16.fit:5
+#: renom_img.api.classification.vgg.VGG19.fit:5
+msgid "List of annotations."
+msgstr "クラス名の配列"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:7
+#: renom_img.api.classification.resnet.ResNet152.fit:7
+#: renom_img.api.classification.resnet.ResNet18.fit:7
+#: renom_img.api.classification.resnet.ResNet34.fit:7
+#: renom_img.api.classification.resnet.ResNet50.fit:7
+#: renom_img.api.classification.resnext.ResNeXt101.fit:7
+#: renom_img.api.classification.resnext.ResNeXt50.fit:7
+#: renom_img.api.classification.vgg.VGG11.fit:7
+#: renom_img.api.classification.vgg.VGG16.fit:7
+#: renom_img.api.classification.vgg.VGG19.fit:7
+msgid "List of image paths for validation."
+msgstr "バリデーションの画像のパスのリスト"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:9
+#: renom_img.api.classification.resnet.ResNet152.fit:9
+#: renom_img.api.classification.resnet.ResNet18.fit:9
+#: renom_img.api.classification.resnet.ResNet34.fit:9
+#: renom_img.api.classification.resnet.ResNet50.fit:9
+#: renom_img.api.classification.resnext.ResNeXt101.fit:9
+#: renom_img.api.classification.resnext.ResNeXt50.fit:9
+#: renom_img.api.classification.vgg.VGG11.fit:9
+#: renom_img.api.classification.vgg.VGG16.fit:9
+#: renom_img.api.classification.vgg.VGG19.fit:9
+msgid "List of annotations for validation."
+msgstr "バリデーション用のアノテーションのリスト"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:11
+#: renom_img.api.classification.resnet.ResNet152.fit:11
+#: renom_img.api.classification.resnet.ResNet18.fit:11
+#: renom_img.api.classification.resnet.ResNet34.fit:11
+#: renom_img.api.classification.resnet.ResNet50.fit:11
+#: renom_img.api.classification.resnext.ResNeXt101.fit:11
+#: renom_img.api.classification.resnext.ResNeXt50.fit:11
+#: renom_img.api.classification.vgg.VGG11.fit:11
+#: renom_img.api.classification.vgg.VGG16.fit:11
+#: renom_img.api.classification.vgg.VGG19.fit:11
+msgid "Number of training epochs."
+msgstr "学習時のエポック数"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:13
+#: renom_img.api.classification.resnet.ResNet152.fit:13
+#: renom_img.api.classification.resnet.ResNet18.fit:13
+#: renom_img.api.classification.resnet.ResNet34.fit:13
+#: renom_img.api.classification.resnet.ResNet50.fit:13
+#: renom_img.api.classification.resnext.ResNeXt101.fit:13
+#: renom_img.api.classification.resnext.ResNeXt50.fit:13
+#: renom_img.api.classification.vgg.VGG11.fit:13
+#: renom_img.api.classification.vgg.VGG16.fit:13
+#: renom_img.api.classification.vgg.VGG19.fit:13
+msgid "Batch size."
+msgstr "バッチサイズ"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:15
+#: renom_img.api.classification.resnet.ResNet152.fit:15
+#: renom_img.api.classification.resnet.ResNet18.fit:15
+#: renom_img.api.classification.resnet.ResNet34.fit:15
+#: renom_img.api.classification.resnet.ResNet50.fit:15
+#: renom_img.api.classification.resnext.ResNeXt101.fit:15
+#: renom_img.api.classification.resnext.ResNeXt50.fit:15
+#: renom_img.api.classification.vgg.VGG11.fit:15
+#: renom_img.api.classification.vgg.VGG16.fit:15
+#: renom_img.api.classification.vgg.VGG19.fit:15
+msgid "Augmentation object."
+msgstr "Augmentationオブジェクト"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:17
+#: renom_img.api.classification.resnet.ResNet152.fit:17
+#: renom_img.api.classification.resnet.ResNet18.fit:17
+#: renom_img.api.classification.resnet.ResNet34.fit:17
+#: renom_img.api.classification.resnet.ResNet50.fit:17
+#: renom_img.api.classification.resnext.ResNeXt101.fit:17
+#: renom_img.api.classification.resnext.ResNeXt50.fit:17
+#: renom_img.api.classification.vgg.VGG11.fit:17
+#: renom_img.api.classification.vgg.VGG16.fit:17
+#: renom_img.api.classification.vgg.VGG19.fit:17
+msgid "Given function will be called at the end of each epoch."
+msgstr "与えらえた関数は各エポックの終了時に呼ばれます。"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:20
+#: renom_img.api.classification.resnet.ResNet152.fit:20
+#: renom_img.api.classification.resnet.ResNet18.fit:20
+#: renom_img.api.classification.resnet.ResNet34.fit:20
+#: renom_img.api.classification.resnet.ResNet50.fit:20
+#: renom_img.api.classification.resnext.ResNeXt101.fit:20
+#: renom_img.api.classification.resnext.ResNeXt50.fit:20
+#: renom_img.api.classification.vgg.VGG11.fit:20
+#: renom_img.api.classification.vgg.VGG16.fit:20
+#: renom_img.api.classification.vgg.VGG19.fit:20
+msgid "Training loss list and validation loss list."
+msgstr "学習誤差のリストとバリデーション誤差のリスト"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:39
+#: renom_img.api.classification.resnet.ResNet152.fit:39
+#: renom_img.api.classification.resnet.ResNet18.fit:39
+#: renom_img.api.classification.resnet.ResNet34.fit:39
+#: renom_img.api.classification.resnet.ResNet50.fit:39
+#: renom_img.api.classification.resnext.ResNeXt101.fit:39
+#: renom_img.api.classification.resnext.ResNeXt50.fit:39
+#: renom_img.api.classification.vgg.VGG11.fit:39
+#: renom_img.api.classification.vgg.VGG16.fit:39
+#: renom_img.api.classification.vgg.VGG19.fit:39
+msgid ""
+"The following arguments will be given to the function "
+"``callback_end_epoch``."
+msgstr "以下の引数はcallback_end_epochに指定された関数に渡されます。"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:41
+#: renom_img.api.classification.resnet.ResNet152.fit:41
+#: renom_img.api.classification.resnet.ResNet18.fit:41
+#: renom_img.api.classification.resnet.ResNet34.fit:41
+#: renom_img.api.classification.resnet.ResNet50.fit:41
+#: renom_img.api.classification.resnext.ResNeXt101.fit:41
+#: renom_img.api.classification.resnext.ResNeXt50.fit:41
+#: renom_img.api.classification.vgg.VGG11.fit:41
+#: renom_img.api.classification.vgg.VGG16.fit:41
+#: renom_img.api.classification.vgg.VGG19.fit:41
+msgid "**epoch** (int) - Current epoch number."
+msgstr "**epoch** (int) - 現在のエポック数"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:42
+#: renom_img.api.classification.resnet.ResNet152.fit:42
+#: renom_img.api.classification.resnet.ResNet18.fit:42
+#: renom_img.api.classification.resnet.ResNet34.fit:42
+#: renom_img.api.classification.resnet.ResNet50.fit:42
+#: renom_img.api.classification.resnext.ResNeXt101.fit:42
+#: renom_img.api.classification.resnext.ResNeXt50.fit:42
+#: renom_img.api.classification.vgg.VGG11.fit:42
+#: renom_img.api.classification.vgg.VGG16.fit:42
+#: renom_img.api.classification.vgg.VGG19.fit:42
+msgid "**model** (Model) - Model object."
+msgstr "**model** (Model) - モデルオブジェクト"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:43
+#: renom_img.api.classification.resnet.ResNet152.fit:43
+#: renom_img.api.classification.resnet.ResNet18.fit:43
+#: renom_img.api.classification.resnet.ResNet34.fit:43
+#: renom_img.api.classification.resnet.ResNet50.fit:43
+#: renom_img.api.classification.resnext.ResNeXt101.fit:43
+#: renom_img.api.classification.resnext.ResNeXt50.fit:43
+#: renom_img.api.classification.vgg.VGG11.fit:43
+#: renom_img.api.classification.vgg.VGG16.fit:43
+#: renom_img.api.classification.vgg.VGG19.fit:43
+msgid "**avg_train_loss_list** (list) - List of average train loss of each epoch."
+msgstr "**avg_train_loss_list** (list) - 各エポックの平均学習誤差のリスト"
+
+#: of renom_img.api.classification.resnet.ResNet101.fit:44
+#: renom_img.api.classification.resnet.ResNet152.fit:44
+#: renom_img.api.classification.resnet.ResNet18.fit:44
+#: renom_img.api.classification.resnet.ResNet34.fit:44
+#: renom_img.api.classification.resnet.ResNet50.fit:44
+#: renom_img.api.classification.resnext.ResNeXt101.fit:44
+#: renom_img.api.classification.resnext.ResNeXt50.fit:44
+#: renom_img.api.classification.vgg.VGG11.fit:44
+#: renom_img.api.classification.vgg.VGG16.fit:44
+#: renom_img.api.classification.vgg.VGG19.fit:44
+msgid "**avg_valid_loss_list** (list) - List of average valid loss of each epoch."
+msgstr "**avg_train_loss_list** (list) - 各エポックの平均バリデーション誤差のリスト"
+
+#: of renom_img.api.classification.resnet.ResNet101.forward:1
+#: renom_img.api.classification.resnet.ResNet152.forward:1
+#: renom_img.api.classification.resnet.ResNet18.forward:1
+#: renom_img.api.classification.resnet.ResNet34.forward:1
+#: renom_img.api.classification.resnet.ResNet50.forward:1
+#: renom_img.api.classification.resnext.ResNeXt101.forward:1
+#: renom_img.api.classification.resnext.ResNeXt50.forward:1
+#: renom_img.api.classification.vgg.VGG11.forward:1
+#: renom_img.api.classification.vgg.VGG16.forward:1
+#: renom_img.api.classification.vgg.VGG19.forward:1
+msgid ""
+"Performs forward propagation. You can call this function using the "
+"``__call__`` method."
+msgstr "順伝播を実行します。この関数は__call__メソッドにより呼ぶことができます。"
+
+#: of renom_img.api.classification.vgg.VGG11.forward:4
+msgid "Input to VGG11."
+msgstr "VGG11への入力"
+
+#: of renom_img.api.classification.vgg.VGG11.forward:7
+msgid "Returns raw output of VGG11."
+msgstr "VGG11の生の出力を返します。"
+
+#: of renom_img.api.classification.vgg.VGG11.loss:1
+msgid "Loss function of VGG11 algorithm."
+msgstr "VGG11アルゴリズムの誤差関数"
+
+#: of renom_img.api.classification.resnet.ResNet101.loss:3
+#: renom_img.api.classification.resnet.ResNet152.loss:3
+#: renom_img.api.classification.resnet.ResNet18.loss:3
+#: renom_img.api.classification.resnet.ResNet34.loss:3
+#: renom_img.api.classification.resnet.ResNet50.loss:3
+#: renom_img.api.classification.resnext.ResNeXt101.loss:3
+#: renom_img.api.classification.resnext.ResNeXt50.loss:3
+#: renom_img.api.classification.vgg.VGG11.loss:3
+#: renom_img.api.classification.vgg.VGG16.loss:3
+#: renom_img.api.classification.vgg.VGG19.loss:3
+msgid "Output of model."
+msgstr "モデルの出力"
+
+#: of renom_img.api.classification.resnet.ResNet101.loss:5
+#: renom_img.api.classification.resnet.ResNet152.loss:5
+#: renom_img.api.classification.resnet.ResNet18.loss:5
+#: renom_img.api.classification.resnet.ResNet34.loss:5
+#: renom_img.api.classification.resnet.ResNet50.loss:5
+#: renom_img.api.classification.resnext.ResNeXt101.loss:5
+#: renom_img.api.classification.resnext.ResNeXt50.loss:5
+#: renom_img.api.classification.vgg.VGG11.loss:5
+#: renom_img.api.classification.vgg.VGG16.loss:5
+#: renom_img.api.classification.vgg.VGG19.loss:5
+msgid "Target array."
+msgstr "ターゲット配列"
+
+#: of renom_img.api.classification.resnet.ResNet101.loss:8
+#: renom_img.api.classification.resnet.ResNet152.loss:8
+#: renom_img.api.classification.resnet.ResNet18.loss:8
+#: renom_img.api.classification.resnet.ResNet34.loss:8
+#: renom_img.api.classification.resnet.ResNet50.loss:8
+#: renom_img.api.classification.resnext.ResNeXt101.loss:8
+#: renom_img.api.classification.resnext.ResNeXt50.loss:8
+#: renom_img.api.classification.vgg.VGG11.loss:8
+#: renom_img.api.classification.vgg.VGG16.loss:8
+#: renom_img.api.classification.vgg.VGG19.loss:8
+msgid "Loss between x and y."
+msgstr "xとy間の誤差"
+
+#: of renom_img.api.classification.resnet.ResNet101.predict:1
+#: renom_img.api.classification.resnet.ResNet152.predict:1
+#: renom_img.api.classification.resnet.ResNet18.predict:1
+#: renom_img.api.classification.resnet.ResNet34.predict:1
+#: renom_img.api.classification.resnet.ResNet50.predict:1
+#: renom_img.api.classification.resnext.ResNeXt101.predict:1
+#: renom_img.api.classification.resnext.ResNeXt50.predict:1
+#: renom_img.api.classification.vgg.VGG11.predict:1
+#: renom_img.api.classification.vgg.VGG16.predict:1
+#: renom_img.api.classification.vgg.VGG19.predict:1
+msgid ""
+"Perform prediction. Argument can be an image array, image path list or a "
+"image path."
+msgstr "予測を実行します。引数には画像の配列、画像のパスのリストもしくは画像のパスが可能です。"
+
+#: of renom_img.api.classification.resnet.ResNet101.predict:4
+#: renom_img.api.classification.resnet.ResNet152.predict:4
+#: renom_img.api.classification.resnet.ResNet18.predict:4
+#: renom_img.api.classification.resnet.ResNet34.predict:4
+#: renom_img.api.classification.resnet.ResNet50.predict:4
+#: renom_img.api.classification.resnext.ResNeXt101.predict:4
+#: renom_img.api.classification.resnext.ResNeXt50.predict:4
+#: renom_img.api.classification.vgg.VGG11.predict:4
+#: renom_img.api.classification.vgg.VGG16.predict:4
+#: renom_img.api.classification.vgg.VGG19.predict:4
+msgid "Image array, image path list or image path."
+msgstr "画像の配列、画像のパスのリストもしくは画像のパス"
+
+#: of renom_img.api.classification.resnet.ResNet101.predict:7
+#: renom_img.api.classification.resnet.ResNet152.predict:7
+#: renom_img.api.classification.resnet.ResNet18.predict:7
+#: renom_img.api.classification.resnet.ResNet34.predict:7
+#: renom_img.api.classification.resnet.ResNet50.predict:7
+#: renom_img.api.classification.resnext.ResNeXt101.predict:7
+#: renom_img.api.classification.resnext.ResNeXt50.predict:7
+#: renom_img.api.classification.vgg.VGG11.predict:7
+#: renom_img.api.classification.vgg.VGG16.predict:7
+#: renom_img.api.classification.vgg.VGG19.predict:7
+msgid "List of class of each image."
+msgstr "クラス名の配列"
+
+#: of renom_img.api.classification.resnet.ResNet101.preprocess:1
+#: renom_img.api.classification.resnet.ResNet152.preprocess:1
+#: renom_img.api.classification.resnet.ResNet18.preprocess:1
+#: renom_img.api.classification.resnet.ResNet34.preprocess:1
+#: renom_img.api.classification.resnet.ResNet50.preprocess:1
+#: renom_img.api.classification.resnext.ResNeXt101.preprocess:1
+#: renom_img.api.classification.resnext.ResNeXt50.preprocess:1
+#: renom_img.api.classification.vgg.VGG11.preprocess:1
+#: renom_img.api.classification.vgg.VGG16.preprocess:1
+#: renom_img.api.classification.vgg.VGG19.preprocess:1
+msgid "Performs preprocessing for a given array."
+msgstr "与えられた配列に対して、前処理を実行します。"
+
+#: of renom_img.api.classification.resnet.ResNet101.preprocess:3
+#: renom_img.api.classification.resnet.ResNet152.preprocess:3
+#: renom_img.api.classification.resnet.ResNet18.preprocess:3
+#: renom_img.api.classification.resnet.ResNet34.preprocess:3
+#: renom_img.api.classification.resnet.ResNet50.preprocess:3
+#: renom_img.api.classification.resnext.ResNeXt101.preprocess:3
+#: renom_img.api.classification.resnext.ResNeXt50.preprocess:3
+#: renom_img.api.classification.vgg.VGG11.preprocess:3
+#: renom_img.api.classification.vgg.VGG16.preprocess:3
+#: renom_img.api.classification.vgg.VGG19.preprocess:3
+msgid "Image array for preprocessing."
+msgstr "前処理用の画像の配列"
+
+#: of renom_img.api.classification.resnet.ResNet101.regularize:1
+#: renom_img.api.classification.resnet.ResNet152.regularize:1
+#: renom_img.api.classification.resnet.ResNet18.regularize:1
+#: renom_img.api.classification.resnet.ResNet34.regularize:1
+#: renom_img.api.classification.resnet.ResNet50.regularize:1
+#: renom_img.api.classification.resnext.ResNeXt101.regularize:1
+#: renom_img.api.classification.resnext.ResNeXt50.regularize:1
+#: renom_img.api.classification.vgg.VGG11.regularize:1
+#: renom_img.api.classification.vgg.VGG16.regularize:1
+#: renom_img.api.classification.vgg.VGG19.regularize:1
+msgid "Adds a regularization term to the loss function."
+msgstr "誤差関数のL2正則化項"
 
 #: of renom_img.api.classification.vgg.VGG16:1
 msgid "VGG16 model."
@@ -246,11 +752,38 @@ msgid ""
 "convolutional base is frozen during training."
 msgstr "モデル全体を学習させる場合はTrue、そうでなければFalse"
 
+#: of renom_img.api.classification.resnet.ResNet101:30
+#: renom_img.api.classification.resnet.ResNet152:30
+#: renom_img.api.classification.resnet.ResNet18:30
+#: renom_img.api.classification.resnet.ResNet34:30
+#: renom_img.api.classification.resnet.ResNet50:30
+#: renom_img.api.classification.resnext.ResNeXt101:32
+#: renom_img.api.classification.resnext.ResNeXt50:32
+#: renom_img.api.classification.vgg.VGG16:27
+#: renom_img.api.classification.vgg.VGG19:27
+msgid ""
+"If the argument num_class is not equal to 1000, the last dense layer will"
+" be reset because the pretrained weight was trained on a 1000-class "
+"dataset."
+msgstr "事前学習のデータセットは1000クラスのため、もし引数num_classが1000でなかった場合は最後のDense層はリセットされます。"
+
 #: of renom_img.api.classification.vgg.VGG16.build_data:1
 msgid ""
 "This function returns a function which creates input data and target data"
 " specified for VGG16."
 msgstr "この関数はVGG16用の入力データとターゲットデータを作成する関数を返します。"
+
+#: of renom_img.api.classification.vgg.VGG16.forward:4
+msgid "Input to VGG16."
+msgstr "VGG16への入力"
+
+#: of renom_img.api.classification.vgg.VGG16.forward:7
+msgid "Returns raw output of VGG16."
+msgstr "VGG16への生の出力を返します。"
+
+#: of renom_img.api.classification.vgg.VGG16.loss:1
+msgid "Loss function of VGG16 algorithm."
+msgstr "VGG16アルゴリズムの誤差関数"
 
 #: of renom_img.api.classification.vgg.VGG19:1
 msgid "VGG19 model."
@@ -262,9 +795,21 @@ msgid ""
 " specified for VGG19."
 msgstr "この関数はVGG19用の入力データとターゲットデータを作成する関数を返します。"
 
-#: of renom_img.api.classification.resnet.ResNet18:1
-msgid "ResNet18 model."
-msgstr "ResNet18モデル"
+#: of renom_img.api.classification.vgg.VGG19.forward:4
+msgid "Input to VGG19."
+msgstr "VGG19モデル"
+
+#: of renom_img.api.classification.vgg.VGG19.forward:7
+msgid "Returns raw output of VGG19."
+msgstr "VGG19の生の出力を返します。"
+
+#: of renom_img.api.classification.vgg.VGG19.loss:1
+msgid "Loss function of VGG19 algorithm."
+msgstr "VGG19アルゴリズムの誤差関数"
+
+#: of renom_img.api.classification.resnet.ResNet101:1
+msgid "ResNet101 model."
+msgstr "ResNet101モデル"
 
 #: of renom_img.api.classification.resnet.ResNet101:10
 #: renom_img.api.classification.resnet.ResNet152:10
@@ -279,65 +824,47 @@ msgid ""
 "loss reaches a plateau."
 msgstr "エラープラトーが発生する場合に学習率を調整するかどうかを指定します。Trueならば、誤差がエラープラトーに入った場合、学習率を自動的に下げます。"
 
-#: of renom_img.api.classification.resnet.ResNet101:28
-#: renom_img.api.classification.resnet.ResNet152:28
-#: renom_img.api.classification.resnet.ResNet18:28
-#: renom_img.api.classification.resnet.ResNet34:28
-#: renom_img.api.classification.resnet.ResNet50:28
+#: of renom_img.api.classification.resnet.ResNet101:35
+#: renom_img.api.classification.resnet.ResNet152:35
+#: renom_img.api.classification.resnet.ResNet18:35
+#: renom_img.api.classification.resnet.ResNet34:35
+#: renom_img.api.classification.resnet.ResNet50:35
 msgid "Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun"
 msgstr ""
 
-#: of renom_img.api.classification.resnet.ResNet101:29
-#: renom_img.api.classification.resnet.ResNet152:29
-#: renom_img.api.classification.resnet.ResNet18:29
-#: renom_img.api.classification.resnet.ResNet34:29
-#: renom_img.api.classification.resnet.ResNet50:29
+#: of renom_img.api.classification.resnet.ResNet101:36
+#: renom_img.api.classification.resnet.ResNet152:36
+#: renom_img.api.classification.resnet.ResNet18:36
+#: renom_img.api.classification.resnet.ResNet34:36
+#: renom_img.api.classification.resnet.ResNet50:36
 msgid "**Deep Residual Learning for Image Recognition**"
 msgstr ""
 
-#: of renom_img.api.classification.resnet.ResNet101:30
-#: renom_img.api.classification.resnet.ResNet152:30
-#: renom_img.api.classification.resnet.ResNet18:30
-#: renom_img.api.classification.resnet.ResNet34:30
-#: renom_img.api.classification.resnet.ResNet50:30
+#: of renom_img.api.classification.resnet.ResNet101:37
+#: renom_img.api.classification.resnet.ResNet152:37
+#: renom_img.api.classification.resnet.ResNet18:37
+#: renom_img.api.classification.resnet.ResNet34:37
+#: renom_img.api.classification.resnet.ResNet50:37
 msgid "https://arxiv.org/abs/1512.03385"
 msgstr ""
-
-#: of renom_img.api.classification.resnet.ResNet18.build_data:1
-msgid ""
-"This function returns a function which creates input data and target data"
-" specified for ResNet18."
-msgstr "この関数はResNet18用の入力データとターゲットデータを作成する関数を返します。"
-
-#: of renom_img.api.classification.resnet.ResNet34:1
-msgid "ResNet34 model."
-msgstr "ResNet34モデル"
-
-#: of renom_img.api.classification.resnet.ResNet34.build_data:1
-msgid ""
-"This function returns a function which creates input data and target data"
-" specified for ResNet34."
-msgstr "この関数はResNet34用の入力データとターゲットデータを作成する関数を返します。"
-
-#: of renom_img.api.classification.resnet.ResNet50:1
-msgid "ResNet50 model."
-msgstr "ResNet50モデル"
-
-#: of renom_img.api.classification.resnet.ResNet50.build_data:1
-msgid ""
-"This function returns a function which creates input data and target data"
-" specified for ResNet50."
-msgstr "この関数はResNet50用の入力データとターゲットデータを作成する関数を返します。"
-
-#: of renom_img.api.classification.resnet.ResNet101:1
-msgid "ResNet101 model."
-msgstr "ResNet101モデル"
 
 #: of renom_img.api.classification.resnet.ResNet101.build_data:1
 msgid ""
 "This function returns a function which creates input data and target data"
 " specified for ResNet101."
 msgstr "この関数はResNet101用の入力データと出力データを作成します。"
+
+#: of renom_img.api.classification.resnet.ResNet101.forward:4
+msgid "Input to ResNet101."
+msgstr "ResNet101への入力"
+
+#: of renom_img.api.classification.resnet.ResNet101.forward:7
+msgid "Returns raw output of ResNet101."
+msgstr "ResNet101の生の出力を返します。"
+
+#: of renom_img.api.classification.resnet.ResNet101.loss:1
+msgid "Loss function of ResNet101 algorithm."
+msgstr "ResNet101アルゴリズムの誤差関数"
 
 #: of renom_img.api.classification.resnet.ResNet152:1
 msgid "ResNet152 model."
@@ -349,29 +876,129 @@ msgid ""
 " specified for ResNet152."
 msgstr "この関数はResNet152用の入力データとターゲットデータを作成する関数を返します。"
 
-#: of renom_img.api.classification.resnext.ResNeXt50:1
-msgid "ResNeXt50 model."
-msgstr "ResNeXt50モデル"
+#: of renom_img.api.classification.resnet.ResNet152.forward:4
+msgid "Input to ResNet152."
+msgstr "ResNet152モデル"
+
+#: of renom_img.api.classification.resnet.ResNet152.forward:7
+msgid "Returns raw output of ResNet152."
+msgstr "ResNet152の生の出力を返します。"
+
+#: of renom_img.api.classification.resnet.ResNet152.loss:1
+msgid "Loss function of ResNet152 algorithm."
+msgstr "ResNet152アルゴリズムの誤差関数"
+
+#: of renom_img.api.classification.resnet.ResNet18:1
+msgid "ResNet18 model."
+msgstr "ResNet18モデル"
+
+#: of renom_img.api.classification.resnet.ResNet18.build_data:1
+msgid ""
+"This function returns a function which creates input data and target data"
+" specified for ResNet18."
+msgstr "この関数はResNet18用の入力データとターゲットデータを作成する関数を返します。"
+
+#: of renom_img.api.classification.resnet.ResNet18.forward:4
+msgid "Input to ResNet18."
+msgstr "ResNet18への入力"
+
+#: of renom_img.api.classification.resnet.ResNet18.forward:7
+msgid "Returns raw output of ResNet18."
+msgstr "ResNet18の生の出力を返します。"
+
+#: of renom_img.api.classification.resnet.ResNet18.loss:1
+msgid "Loss function of ResNet18 algorithm."
+msgstr "ResNet18アルゴリズムの誤差関数"
+
+#: of renom_img.api.classification.resnet.ResNet34:1
+msgid "ResNet34 model."
+msgstr "ResNet34モデル"
+
+#: of renom_img.api.classification.resnet.ResNet34.build_data:1
+msgid ""
+"This function returns a function which creates input data and target data"
+" specified for ResNet34."
+msgstr "この関数はResNet34用の入力データとターゲットデータを作成する関数を返します。"
+
+#: of renom_img.api.classification.resnet.ResNet34.forward:4
+msgid "Input to ResNet34."
+msgstr "ResNet34への入力"
+
+#: of renom_img.api.classification.resnet.ResNet34.forward:7
+msgid "Returns raw output of ResNet34."
+msgstr "ResNet34の生の出力を返します。"
+
+#: of renom_img.api.classification.resnet.ResNet34.loss:1
+msgid "Loss function of ResNet34 algorithm."
+msgstr "ResNet34アルゴリズムの誤差関数"
+
+#: of renom_img.api.classification.resnet.ResNet50:1
+msgid "ResNet50 model."
+msgstr "ResNet50モデル"
+
+#: of renom_img.api.classification.resnet.ResNet50.build_data:1
+msgid ""
+"This function returns a function which creates input data and target data"
+" specified for ResNet50."
+msgstr "この関数はResNet50用の入力データとターゲットデータを作成する関数を返します。"
+
+#: of renom_img.api.classification.resnet.ResNet50.forward:4
+msgid "Input to ResNet50."
+msgstr "ResNet50への入力"
+
+#: of renom_img.api.classification.resnet.ResNet50.forward:7
+msgid "Returns raw output of ResNet50."
+msgstr "ResNet50の生の出力を返します。"
+
+#: of renom_img.api.classification.resnet.ResNet50.loss:1
+msgid "Loss function of ResNet50 algorithm."
+msgstr "ResNet50アルゴリズムの誤差関数"
+
+#: of renom_img.api.classification.resnext.ResNeXt101:1
+msgid "ResNeXt101 model."
+msgstr "ResNeXt101モデル"
 
 #: of renom_img.api.classification.resnext.ResNeXt101:10
 #: renom_img.api.classification.resnext.ResNeXt50:10
 msgid "Number of groups in group convolution layers (default = 32)"
 msgstr "グループ畳み込み層のグループ数"
 
-#: of renom_img.api.classification.resnext.ResNeXt101:30
-#: renom_img.api.classification.resnext.ResNeXt50:30
+#: of renom_img.api.classification.resnext.ResNeXt101:37
+#: renom_img.api.classification.resnext.ResNeXt50:37
 msgid "Saining Xie, Ross Girshick, Piotr Dollar, Zhuowen Tu, Kaiming He"
 msgstr ""
 
-#: of renom_img.api.classification.resnext.ResNeXt101:31
-#: renom_img.api.classification.resnext.ResNeXt50:31
+#: of renom_img.api.classification.resnext.ResNeXt101:38
+#: renom_img.api.classification.resnext.ResNeXt50:38
 msgid "**Aggregated Residual Transformations for Deep Neural Networks**"
 msgstr ""
 
-#: of renom_img.api.classification.resnext.ResNeXt101:32
-#: renom_img.api.classification.resnext.ResNeXt50:32
+#: of renom_img.api.classification.resnext.ResNeXt101:39
+#: renom_img.api.classification.resnext.ResNeXt50:39
 msgid "https://arxiv.org/abs/1611.05431"
 msgstr ""
+
+#: of renom_img.api.classification.resnext.ResNeXt101.build_data:1
+msgid ""
+"This function returns a function which creates input data and target data"
+" specified for ResNeXt101."
+msgstr "この関数はResNeXt101用の入力データと出力データを作成します。"
+
+#: of renom_img.api.classification.resnext.ResNeXt101.forward:4
+msgid "Input to ResNeXt101."
+msgstr "ResNeXt101への入力"
+
+#: of renom_img.api.classification.resnext.ResNeXt101.forward:7
+msgid "Returns raw output of ResNeXt101."
+msgstr "ResNeXt101の生の出力を返します。"
+
+#: of renom_img.api.classification.resnext.ResNeXt101.loss:1
+msgid "Loss function of ResNeXt101 algorithm."
+msgstr "ResNeXt101アルゴリズムの誤差関数"
+
+#: of renom_img.api.classification.resnext.ResNeXt50:1
+msgid "ResNeXt50 model."
+msgstr "ResNeXt50モデル"
 
 #: of renom_img.api.classification.resnext.ResNeXt50.build_data:1
 msgid ""
@@ -379,15 +1006,17 @@ msgid ""
 " specified for ResNeXt50."
 msgstr "この関数はResNeXt50用の入力データとターゲットデータを作成する関数を返します。"
 
-#: of renom_img.api.classification.resnext.ResNeXt101:1
-msgid "ResNeXt101 model."
-msgstr "ResNeXt101モデル"
+#: of renom_img.api.classification.resnext.ResNeXt50.forward:4
+msgid "Input to ResNeXt50."
+msgstr "ResNeXt50への入力"
 
-#: of renom_img.api.classification.resnext.ResNeXt101.build_data:1
-msgid ""
-"This function returns a function which creates input data and target data"
-" specified for ResNeXt101."
-msgstr "この関数はResNeXt101用の入力データと出力データを作成します。"
+#: of renom_img.api.classification.resnext.ResNeXt50.forward:7
+msgid "Returns raw output of ResNeXt50."
+msgstr "ResNeXt50の生の出力を返します。"
+
+#: of renom_img.api.classification.resnext.ResNeXt50.loss:1
+msgid "Loss function of ResNeXt50 algorithm."
+msgstr "ResNeXt50アルゴリズムの誤差関数"
 
 #~ msgid "Bases: :class:`renom.layers.function.parameterized.Sequential`"
 #~ msgstr ""

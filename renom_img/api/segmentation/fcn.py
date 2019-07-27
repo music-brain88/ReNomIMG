@@ -162,17 +162,10 @@ class FCN32s(SemanticSegmentation):
           If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     Example:
-        >>> import renom as rm
-        >>> import numpy as np
         >>> from renom_img.api.segmentation.fcn import FCN32s
-        >>> n, c, h, w = (2, 12, 64, 64)
-        >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> class_map = ["background", "person", "cat", "dog"]
-        >>> model = FCN32s(class_map)
-        >>> t = model(x)
-        >>> t.shape
-        (2, 4, 64, 64)
-
+        >>>
+        >>> class_map = ['cat', 'dog']
+        >>> model = FCN32s(class_map, train_final_upscore=False, imsize=(224,224), load_pretrained_weight=True, train_whole_network=True)
 
     References:
         | Jonathan Long, Evan Shelhamer, Trevor Darrell
@@ -217,16 +210,10 @@ class FCN16s(SemanticSegmentation):
           If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     Example:
-        >>> import renom as rm
-        >>> import numpy as np
         >>> from renom_img.api.segmentation.fcn import FCN16s
-        >>> n, c, h, w = (2, 12, 64, 64)
-        >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> class_map = ["background", "person", "cat", "dog"]
-        >>> model = FCN16s(class_map)
-        >>> t = model(x)
-        >>> t.shape
-        (2, 4, 64, 64)
+        >>>
+        >>> class_map = ['cat', 'dog']
+        >>> model = FCN16s(class_map, train_final_upscore=False, imsize=(224,224), load_pretrained_weight=True, train_whole_network=True)
 
     References:
         | Jonathan Long, Evan Shelhamer, Trevor Darrell
@@ -270,16 +257,10 @@ class FCN8s(SemanticSegmentation):
           If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     Example:
-        >>> import renom as rm
-        >>> import numpy as np
         >>> from renom_img.api.segmentation.fcn import FCN8s
-        >>> n, c, h, w = (2, 12, 64, 64)
-        >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> class_map = ["background", "person", "cat", "dog"]
-        >>> model = FCN8s(class_map)
-        >>> t = model(x)
-        >>> t.shape
-        (2, 4, 64, 64)
+        >>>
+        >>> class_map = ['cat', 'dog']
+        >>> model = FCN8s(class_map, train_final_upscore=False, imsize=(224,224), load_pretrained_weight=True, train_whole_network=True)
 
     References:
         | Jonathan Long, Evan Shelhamer, Trevor Darrell

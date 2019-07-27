@@ -14,6 +14,7 @@ from renom.layers.function.utils import tuplize
 from renom_img.api.cnn import CnnBase
 from renom_img.api.utility.exceptions.exceptions import *
 
+
 class PoolBase(object):
 
     def __init__(self, filter=3,
@@ -88,13 +89,16 @@ class DeconvInitializer(Initializer):
             (1 - abs(og[1] - center) / factor)
         return filter.astype(precision)
 
+
 class CNN_FCN8s(CnnBase):
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN8s.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN8s.h5".format(
+        __version__)
+
     def __init__(self, num_class):
         super(CNN_FCN8s, self).__init__()
         self.has_bn = False
-        self.train_final_upscore=False
+        self.train_final_upscore = False
         init_deconv = DeconvInitializer()
         self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
@@ -167,7 +171,7 @@ class CNN_FCN8s(CnnBase):
         return t
 
     def set_output_size(self, output_size):
-        self.output_size=output_size
+        self.output_size = output_size
         self.score_fr._channel = output_size
         self.score_pool3._channel = output_size
         self.score_pool4._channel = output_size
@@ -175,9 +179,9 @@ class CNN_FCN8s(CnnBase):
         self.upscore_pool4._channel = output_size
         self.upscore8._channel = output_size
 
-    def set_train_whole(self,whole,upscore):
-        self.train_whole =whole
-        self.train_final_upscore=upscore
+    def set_train_whole(self, whole, upscore):
+        self.train_whole = whole
+        self.train_final_upscore = upscore
 
     def _freeze(self):
         self.block1.set_auto_update(self.train_whole)
@@ -187,19 +191,23 @@ class CNN_FCN8s(CnnBase):
         self.block5.set_auto_update(self.train_whole)
         self.upscore8.set_auto_update(self.train_final_upscore)
 
-    def load_pretrained_weight(self,path):
+    def load_pretrained_weight(self, path):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))
+
 
 class CNN_FCN16s(CnnBase):
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN16s.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN16s.h5".format(
+        __version__)
+
     def __init__(self, num_class):
         super(CNN_FCN16s, self).__init__()
         self.has_bn = False
-        self.train_final_upscore=False
+        self.train_final_upscore = False
         init_deconv = DeconvInitializer()
         self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
@@ -262,9 +270,9 @@ class CNN_FCN16s(CnnBase):
         self.upscore2._channel = output_size
         self.upscore16._channel = output_size
 
-    def set_train_whole(self,whole,upscore):
-        self.train_whole =whole
-        self.train_final_upscore=upscore
+    def set_train_whole(self, whole, upscore):
+        self.train_whole = whole
+        self.train_final_upscore = upscore
 
     def _freeze(self):
         self.block1.set_auto_update(self.train_whole)
@@ -274,18 +282,22 @@ class CNN_FCN16s(CnnBase):
         self.block5.set_auto_update(self.train_whole)
         self.upscore16.set_auto_update(self.train_final_upscore)
 
-    def load_pretrained_weight(self,path):
+    def load_pretrained_weight(self, path):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))
+
 
 class CNN_FCN32s(CnnBase):
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN32s.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/segmentation/FCN32s.h5".format(
+        __version__)
+
     def __init__(self, num_class):
         super(CNN_FCN32s, self).__init__()
-        self.has_bn =False
-        self.train_final_upscore=False
+        self.has_bn = False
+        self.train_final_upscore = False
         init_deconv = DeconvInitializer()
         self.block1 = layer_factory(channel=64, conv_layer_num=2, first=True)
         self.block2 = layer_factory(channel=128, conv_layer_num=2)
@@ -325,9 +337,9 @@ class CNN_FCN32s(CnnBase):
         return t
 
     def set_output_size(self, output_size):
-        self.output_size=output_size
-        self.score_fr._channel=output_size
-        self.upscore._channel=output_size
+        self.output_size = output_size
+        self.score_fr._channel = output_size
+        self.upscore._channel = output_size
 
     def _freeze(self):
         self.block1.set_auto_update(self.train_whole)
@@ -337,12 +349,13 @@ class CNN_FCN32s(CnnBase):
         self.block5.set_auto_update(self.train_whole)
         self.upscore.set_auto_update(self.train_final_upscore)
 
-    def set_train_whole(self,whole,upscore):
-        self.train_whole =whole
-        self.train_final_upscore=upscore
+    def set_train_whole(self, whole, upscore):
+        self.train_whole = whole
+        self.train_final_upscore = upscore
 
-    def load_pretrained_weight(self,path):
+    def load_pretrained_weight(self, path):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))

@@ -9,7 +9,8 @@ from renom_img.api.utility.misc.download import download
 from renom_img.api.detection.yolo_v1 import Yolov1
 from renom_img.api.detection.yolo_v2 import Yolov2
 from renom_img.api.detection.ssd import SSD
-from renom_img.api.utility.exception.exception import ServerConnectionError, MissingInputError
+from renom_img.api.utility.exceptions.exceptions import ServerConnectionError, MissingInputError
+
 
 class Detector(object):
     """This class allows you to pull models trained in the ReNomIMG GUI.
@@ -37,11 +38,12 @@ class Detector(object):
 
     def __call__(self, x):
         if self._model is None:
-            raise MissingInputError("Model is not defined. Please use detector.pull() to download model with trained weights before running this command.")
+            raise MissingInputError(
+                "Model is not defined. Please use detector.pull() to download model with trained weights before running this command.")
         return self._model(x)
 
     def pull(self):
-        """Pull trained weight from ReNomIMG server.
+        """Pull trained weights from ReNomIMG server.
         Trained weight will be downloaded into current directory.
 
         Example:
@@ -51,16 +53,19 @@ class Detector(object):
 
         """
         url = self._url + ':' + self._port
-        download_weight_api = "/api/renom_img/v2/deployed_model/task/1"
-        download_param_api = "/api/renom_img/v2/deployed_model_info/task/1"
-        download_weight_api = url + download_weight_api
+        download_param_api = "/renom_img/v2/api/detection/models?state=deployed"
         download_param_api = url + download_param_api
 
         ret = self.error_handler(lambda: requests.get(download_param_api).json())
         if ret.get('error_msg', False):
             raise ServerConnectionError(ret.get('error_msg'))
 
-        filename = os.path.basename(ret["filename"])
+        ret = ret["models"][0]
+        model_id = ret["id"]
+        filename = ret["best_epoch_weight"]
+
+        download_weight_api = "/renom_img/v2/api/detection/models/{}/weight".format(model_id)
+        download_weight_api = url + download_weight_api
 
         if not os.path.exists(filename):
             self.error_handler(lambda: download(download_weight_api, filename))
@@ -85,7 +90,6 @@ class Detector(object):
             img_h = ret["hyper_parameters"]["imsize_h"]
             self._model = SSD(imsize=(img_h, img_w))
             self._model.load(filename)
-            self._model._network.num_class = self._model.num_class
 
         self._model_info = {
             "Algorithm": self._alg_name,
@@ -110,7 +114,8 @@ class Detector(object):
             }
         """
         if self._model is None:
-            raise MissingInputError("Model is not defined. Please use detector.pull() to download model with trained weights before running this command.")
+            raise MissingInputError(
+                "Model is not defined. Please use detector.pull() to download model with trained weights before running this command.")
         return self._model.predict(img_list)
 
     @property

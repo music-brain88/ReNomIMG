@@ -1,7 +1,21 @@
-export const DATASET_NAME_MAX_LENGTH = 20
-export const DATASET_NAME_MIN_LENGTH = 1
-export const DATASET_DESCRIPTION_MAX_LENGTH = 500
-export const DATASET_DESCRIPTION_MIN_LENGTH = 0
+export const INPUT_LENGTH = {
+  DATASET: {
+    NAME: {
+      MIN: 1,
+      MAX: 20
+    },
+    DESCRIPTION: {
+      MIN: 0,
+      MAX: 500
+    }
+  },
+  FILTER: {
+    VALUE: {
+      MIN: 1,
+      MAX: 7
+    }
+  }
+}
 
 export const TASK_ID = {
   CLASSIFICATION: 0,
@@ -275,14 +289,14 @@ export const ALGORITHM = {
           title: 'Load pretrain weight',
           key: 'load_pretrained_weight',
           disabled: false,
-          default: false,
+          default: true,
           type: 'checkbox'
         }),
         ...override('TRAIN_WHOLE', {
           title: 'Train Whole Network',
           key: 'train_whole',
           type: 'checkbox',
-          default: true,
+          default: false,
         }),
         ...override('BATCH_SIZE', {
           title: 'Batch Size',
@@ -300,7 +314,7 @@ export const ALGORITHM = {
           options: ['8', '16', '32']
         }
       }
-    },
+    } /*,
     Deeplabv3plus: {
       id: 62,
       key: 'deeplabv3plus',
@@ -330,6 +344,7 @@ export const ALGORITHM = {
         })
       }
     }
+    */
     /*
     TernousNet: {
       id: 64,

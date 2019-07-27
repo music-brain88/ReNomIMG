@@ -25,15 +25,12 @@ renom\_img.api.classification
 
 .. automodule:: renom_img.api.classification.vgg
     :members: VGG11, VGG16, VGG19
-    :undoc-members:
-    :show-inheritance:
+    :inherited-members:
 
 .. automodule:: renom_img.api.classification.resnet
     :members: ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
-    :undoc-members:
-    :show-inheritance:
+    :inherited-members:
 
 .. automodule:: renom_img.api.classification.resnext
     :members: ResNeXt50, ResNeXt101
-    :undoc-members:
-    :show-inheritance:
+    :inherited-members:

@@ -144,16 +144,10 @@ class UNet(SemanticSegmentation):
           If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
 
     Example:
-        >>> import renom as rm
-        >>> import numpy as np
         >>> from renom_img.api.segmentation.unet import UNet
-        >>> n, c, h, w = (2, 12, 64, 64)
-        >>> x = rm.Variable(np.random.rand(n, c, h, w))
-        >>> class_map = ["background", "person", "cat", "dog"]
-        >>> model = UNet(class_map)
-        >>> t = model(x)
-        >>> t.shape
-        (2, 4, 64, 64)
+        >>>
+        >>> class_map = ['background', 'object']
+        >>> model = UNet(class_map, imsize=(224,224), load_pretrained_weight=False, train_whole_network=True)
 
     References:
         | Olaf Ronneberger, Philipp Fischer, Thomas Brox
@@ -168,7 +162,8 @@ class UNet(SemanticSegmentation):
         self._model = CNN_UNet(1)
 
         if load_pretrained_weight:
-            raise FunctionNotImplementedError("The pretrained weights for %s are not currently available. Please set `load_pretrained_weight` to False.".format(self.__class__.__name__))
+            raise FunctionNotImplementedError(
+                "The pretrained weights for %s are not currently available. Please set `load_pretrained_weight` to False.".format(self.__class__.__name__))
 
         super(UNet, self).__init__(class_map, imsize,
                                    load_pretrained_weight, train_whole_network, self._model)

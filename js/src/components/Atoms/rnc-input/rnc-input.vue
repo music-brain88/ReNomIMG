@@ -5,7 +5,7 @@
         v-if="!isTextarea"
         :type="inputType"
         :disabled="disabled"
-        :class="{'form-warn': (invalidInput || length_error || value_error || text_type_error)}"
+        :class="{'form-warn': (invalidInput || length_error || value_error || text_type_error), 'checkbox': inputType === 'checkbox'}"
         :place-holder="placeHolder"
         v-model="internalValue"
         class="input-in"
@@ -207,10 +207,6 @@ export default {
 <style lang="scss" scoped>
 @import './../../../../static/css/unified.scss';
 
-.rnc-input {
-  width: 100%;
-  align-items: center;
-}
 // .vali-params {
 //   color: $err_red;
 //   font-size: $fs-small;

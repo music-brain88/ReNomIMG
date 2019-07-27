@@ -15,6 +15,7 @@ from renom_img.api.utility.exceptions.check_exceptions import *
 
 RESIZE_METHOD = Image.BILINEAR
 
+
 class TargetBuilderDeeplab():
     def __init__(self, class_map, imsize):
         self.class_map = class_map
@@ -31,7 +32,7 @@ class TargetBuilderDeeplab():
         Returns:
             (ndarray): Preprocessed data.
         """
-        x = 2.*x/255. - 1.0
+        x = 2. * x / 255. - 1.0
         return x
 
     def resize(self, img_list, label_list):
@@ -91,8 +92,8 @@ class TargetBuilderDeeplab():
         """
         check_missing_param(self.class_map)
         if annotation_list is None:
-            img_array = np.vstack([load_img(path,self.imsize)[None]
-                                    for path in img_path_list])
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
 
             return img_array
@@ -105,7 +106,7 @@ class TargetBuilderDeeplab():
         for img_path, an_path in zip(img_path_list, annotation_list):
             img, sw, sh = self._load(img_path)
             label, asw, ash = self.load_annotation(an_path)
-            annot = np.zeros((n_class+1, label.shape[0], label.shape[1]))
+            annot = np.zeros((n_class + 1, label.shape[0], label.shape[1]))
             for i in range(label.shape[0]):
                 for j in range(label.shape[1]):
                     if int(label[i][j]) >= n_class:
@@ -116,11 +117,11 @@ class TargetBuilderDeeplab():
             label_list.append(annot[:n_class])
         if augmentation is not None:
             img_list, label_list = augmentation(img_list, label_list, mode="segmentation")
-            data,label = self.resize(img_list, label_list)
-            return self.preprocess(data),label
+            data, label = self.resize(img_list, label_list)
+            return self.preprocess(data), label
         else:
-            data,label = self.resize(img_list, label_list)   
-            return self.preprocess(data),label
+            data, label = self.resize(img_list, label_list)
+            return self.preprocess(data), label
 
 
 @adddoc
@@ -139,6 +140,12 @@ class Deeplabv3plus(SemanticSegmentation):
           If a string is given, weight values will be loaded and initialized from the weights in the given file name.
         train_whole_network (bool): Flag specifying whether to freeze or train the base encoder layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional encoder base is frozen during training.
+
+    Example:
+        >>> from renom_img.api.segmentation.deeplab import Deeplabv3plus
+        >>>
+        >>> class_map = ['background', 'object']
+        >>> model = Deeplabv3plus(class_map, imsize=(224,224), lr_initial=1e-3, lr_power=0.9, load_pretrained_weight=True, train_whole_network=True)
 
     References:
         | Liang-Chieh Chen, George Papandreou, Florian Schroff, Hartwig Adam
@@ -161,11 +168,12 @@ class Deeplabv3plus(SemanticSegmentation):
         self.imsize = imsize
         self.atrous_rates = atrous_rates
         self._model = CnnDeeplabv3plus(21, self.imsize, self.scale_factor, self.atrous_rates)
-        super(Deeplabv3plus, self).__init__(class_map, imsize, load_pretrained_weight, train_whole_network, self._model)
+        super(Deeplabv3plus, self).__init__(class_map, imsize,
+                                            load_pretrained_weight, train_whole_network, self._model)
 
         self._model.set_output_size(self.num_class)
         self._model.set_train_whole(train_whole_network)
-        
+
         self.default_optimizer = OptimizerDeeplab(self.lr_initial, self.lr_power)
         self.decay_rate = 4e-5
 
@@ -181,5 +189,5 @@ class Deeplabv3plus(SemanticSegmentation):
             loss = rm.sum(loss)
         else:
             loss = rm.softmax_cross_entropy(x, y) * float(len(x))
-        non_void_pixels = rm.sum(y[y==1])
-        return loss/non_void_pixels
+        non_void_pixels = rm.sum(y[y == 1])
+        return loss / non_void_pixels

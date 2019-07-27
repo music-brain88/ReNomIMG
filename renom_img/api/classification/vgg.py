@@ -131,9 +131,16 @@ class VGG11(Classification):
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If true, trains all layers of the model. If False, the convolutional base is frozen during training.
 
+    Example:
+        >>> from renom_img.api.classification.vgg import VGG11
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = VGG11(class_map, imsize=(224,224), load_pretrained_weight=False, train_whole_network=True)
+
     Note:
-        If the argument num_class is not equal to 1000, the last dense layer will be reset because
-        the pretrained weight was trained on a 1000-class dataset.
+        VGG11 does not currently have pretrained weights available, so you must use randomly initialized weights or
+        provide user-trained weights. If you would like to initialize your model with ImageNet pretrained weights,
+        please use VGG16, VGG19 or any ResNet/ResNeXt model in ReNom.
 
     References:
         | Karen Simonyan, Andrew Zisserman
@@ -148,7 +155,8 @@ class VGG11(Classification):
 
         self._model = CNN_VGG11()
         if load_pretrained_weight:
-            raise FunctionNotImplementedError("The pretrained weights for %s are not currently available. Please set `load_pretrained_weight` to False.".format(self.__class__.__name__))
+            raise FunctionNotImplementedError(
+                "The pretrained weights for %s are not currently available. Please set `load_pretrained_weight` to False.".format(self.__class__.__name__))
         super(VGG11, self).__init__(class_map, imsize, load_pretrained_weight,
                                     train_whole_network, self._model)
 
@@ -181,6 +189,12 @@ class VGG16(Classification):
           If a string is given, weight values will be loaded and initialized from the weights in the given file name.
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
+
+    Example:
+        >>> from renom_img.api.classification.vgg import VGG16
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = VGG16(class_map, imsize=(224,224), load_pretrained_weight=True, train_whole_network=True)
 
     Note:
         If the argument num_class is not equal to 1000, the last dense layer will be reset because
@@ -254,6 +268,12 @@ class VGG19(Classification):
           If a string is given, weight values will be loaded and initialized from the weights in the given file name.
         train_whole_network (bool): Flag specifying whether to freeze or train the base layers of the model during training.
           If True, trains all layers of the model. If False, the convolutional base is frozen during training.
+
+    Example:
+        >>> from renom_img.api.classification.vgg import VGG19
+        >>>
+        >>> class_map = ["dog", "cat"]
+        >>> model = VGG19(class_map, imsize=(224,224), load_pretrained_weight=True, train_whole_network=True)
 
     Note:
         If the argument num_class is not equal to 1000, the last dense layer will be reset because

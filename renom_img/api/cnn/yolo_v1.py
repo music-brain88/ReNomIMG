@@ -4,6 +4,7 @@ from renom_img import __version__
 from renom_img.api.cnn import CnnBase
 from renom_img.api.utility.exceptions.exceptions import *
 
+
 class CnnYolov1(CnnBase):
 
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/detection/Yolov1.h5".format(__version__)
@@ -129,4 +130,5 @@ class CnnYolov1(CnnBase):
         try:
             self.feature_extractor.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))

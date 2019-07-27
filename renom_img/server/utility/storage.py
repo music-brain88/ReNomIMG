@@ -292,7 +292,8 @@ class Storage:
 
     def fetch_running_models(self, task_id):
         with SessionContext() as session:
-            result = session.query(Model).filter(Model.task_id == task_id).filter(Model.state == State.STARTED.value)
+            result = session.query(Model).filter(Model.task_id == task_id).filter(
+                Model.state == State.STARTED.value)
             dict_result = self.remove_instance_state_key(result)
             return dict_result
 

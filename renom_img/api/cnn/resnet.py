@@ -15,8 +15,6 @@ from renom_img.api.cnn import CnnBase
 from renom_img.api.utility.exceptions.exceptions import *
 
 
-
-
 def conv3x3(out_planes, stride=1):
     """3x3 convolution with padding"""
     return rm.Conv2d(out_planes, filter=3, stride=stride, padding=1, ignore_bias=True)
@@ -91,6 +89,7 @@ class Bottleneck(rm.Model):
 
         return out
 
+
 class CnnResNet(CnnBase):
 
     def __init__(self, num_classes, block, layers):
@@ -153,10 +152,9 @@ class CnnResNet(CnnBase):
         self.layer3.set_auto_update(self.train_whole)
         self.layer4.set_auto_update(self.train_whole)
 
-    def load_pretrained_weight(self,path):
+    def load_pretrained_weight(self, path):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
-
-
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))

@@ -16,12 +16,14 @@ from renom_img.api.utility.load import prepare_detection_data, load_img, resize_
 from renom_img.api.utility.exceptions.check_exceptions import *
 from renom_img.api.utility.exceptions.exceptions import WeightLoadError
 
+
 def make_box(box):
     x1 = box[:, :, :, 0] - box[:, :, :, 2] / 2.
     y1 = box[:, :, :, 1] - box[:, :, :, 3] / 2.
     x2 = box[:, :, :, 0] + box[:, :, :, 2] / 2.
     y2 = box[:, :, :, 1] + box[:, :, :, 3] / 2.
     return [x1, y1, x2, y2]
+
 
 def calc_iou(box1, box2):
     b1_x1, b1_y1, b1_x2, b1_y2 = box1
@@ -83,8 +85,8 @@ class TargetBuilderYolov1():
     def build(self, img_path_list, annotation_list=None, augmentation=None, **kwargs):
         check_missing_param(self.class_map)
         if annotation_list is None:
-            img_array = np.vstack([load_img(path,self.imsize)[None]
-                                    for path in img_path_list])
+            img_array = np.vstack([load_img(path, self.imsize)[None]
+                                   for path in img_path_list])
             img_array = self.preprocess(img_array)
             return img_array
 
@@ -116,6 +118,7 @@ class TargetBuilderYolov1():
 
         return self.preprocess(img_data), target.reshape(N, -1)
 
+
 class Yolov1(Detection):
     """ Yolov1 object detection algorithm.
 
@@ -132,6 +135,15 @@ class Yolov1(Detection):
           the base layers of the model during training. If True, trains all layers
           of the model. If False, the convolutional base is frozen during training.
 
+    Example:
+        >>> from renom_img.api.detection.yolo_v1 import Yolov1
+        >>> from renom_img.api.utility.load import parse_xml_detection
+        >>>
+        >>> train_label_path_list = ...  # Provide list of training label paths
+        >>> annotation_list, class_map = parse_xml_detection(train_label_path_list)
+        >>>
+        >>> model = Yolov1(class_map, cells=7, bbox=2, imsize=(224,224), load_pretrained_weight=True, train_whole_network=True)
+
     References:
         | Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi
         | **You Only Look Once: Unified, Real-Time Object Detection**
@@ -147,7 +159,7 @@ class Yolov1(Detection):
 
     def __init__(self, class_map=None, cells=7, bbox=2, imsize=(224, 224), load_pretrained_weight=False, train_whole_network=False):
         # exceptions checking
-        check_yolov1_init(cells,bbox)
+        check_yolov1_init(cells, bbox)
         if not hasattr(cells, "__getitem__"):
             cells = (cells, cells)
 
@@ -179,29 +191,32 @@ class Yolov1(Detection):
         names = sorted(values.keys())
 
         try:
-            self._try_load(names,values,types)
+            self._try_load(names, values, types)
         except AttributeError as e:
             try:
-                names,values,types = self._mapping(names,values,types)
-                self._try_load(names,values,types)
+                names, values, types = self._mapping(names, values, types)
+                self._try_load(names, values, types)
             except Exception as e:
-                raise WeightLoadError('The {} weight file can not be loaded into the {} model.'.format(filename, self.__class__.__name__))
+                raise WeightLoadError('The {} weight file can not be loaded into the {} model.'.format(
+                    filename, self.__class__.__name__))
 
-    def _mapping(self,names,values,types):
+    def _mapping(self, names, values, types):
         for name in names:
             if "._network" in name:
-                values[name.replace("._network","._model.classifier")] = values.pop(name)
-                types[name.replace("._network","._model.classifier")] = types.pop(name)
+                values[name.replace("._network", "._model.classifier")] = values.pop(name)
+                types[name.replace("._network", "._model.classifier")] = types.pop(name)
             elif "._freezed_network" in name:
-                values[name.replace("._freezed_network","._model.feature_extractor")] = values.pop(name)
-                types[name.replace("._freezed_network","._model.feature_extractor")] = types.pop(name)
+                values[name.replace("._freezed_network",
+                                    "._model.feature_extractor")] = values.pop(name)
+                types[name.replace("._freezed_network", "._model.feature_extractor")
+                      ] = types.pop(name)
 
-        names = [n.replace("._network","._model.classifier") for n in names]
-        names = [n.replace("._freezed_network","._model.feature_extractor") for n in names]
+        names = [n.replace("._network", "._model.classifier") for n in names]
+        names = [n.replace("._freezed_network", "._model.feature_extractor") for n in names]
 
-        return sorted(names),values,types
+        return sorted(names), values, types
 
-    def _try_load(self,names,values,types):
+    def _try_load(self, names, values, types):
 
         def get_attr(root, names):
             names = names.split('.')[1:]
@@ -236,9 +251,6 @@ class Yolov1(Detection):
                     name = k
 
                 setattr(obj, name, v)
-
-
-
 
     def get_bbox(self, z, score_threshold=0.3, nms_threshold=0.4):
         """
@@ -340,7 +352,7 @@ class Yolov1(Detection):
 
         result = [[] for _ in range(N)]
         max_class = np.argmax(probs, axis=2)
-        max_probs = np.clip(np.max(probs, axis=2),0,1)
+        max_probs = np.clip(np.max(probs, axis=2), 0, 1)
         indexes = np.nonzero(max_probs)
         for i in range(len(indexes[0])):
             # Note: Take care types.

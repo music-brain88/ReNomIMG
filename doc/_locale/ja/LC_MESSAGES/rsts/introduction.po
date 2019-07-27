@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-16 07:59+0900\n"
+"POT-Creation-Date: 2019-07-05 02:24+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -126,9 +126,7 @@ msgid ""
 "segmentation, and image classification models. Users can do this simply "
 "by **preparing training data**, **selecting the training configuration** "
 "and **pushing the run button**."
-msgstr ""
-"GUIツールを利用して、物体認識モデルを作成することができます。ユーザーはト"
-"レーニングデータの用意と、訓練の設定、RUNボタンの押下のみです。"
+msgstr "GUIツールを利用して、物体認識モデルを作成することができます。ユーザーはトレーニングデータの用意と、訓練の設定、RUNボタンの押下のみです。"
 
 #: ../../rsts/introduction.rst:63
 msgid "ReNomIMG Algorithms"
@@ -162,46 +160,46 @@ msgstr "セグメンテーション"
 msgid "FCN"
 msgstr ""
 
-#: ../../rsts/introduction.rst:79
+#: ../../rsts/introduction.rst:80
 msgid "Classification"
 msgstr "画像分類"
 
-#: ../../rsts/introduction.rst:81
+#: ../../rsts/introduction.rst:82
 msgid "ResNet"
 msgstr ""
 
-#: ../../rsts/introduction.rst:82
+#: ../../rsts/introduction.rst:83
 msgid "ResNeXt"
 msgstr ""
 
-#: ../../rsts/introduction.rst:83
+#: ../../rsts/introduction.rst:84
 msgid "VGG"
 msgstr ""
 
-#: ../../rsts/introduction.rst:87
+#: ../../rsts/introduction.rst:88
 msgid "Python API"
 msgstr ""
 
-#: ../../rsts/introduction.rst:89
+#: ../../rsts/introduction.rst:90
 msgid ""
 "ReNomIMG includes a flexible python API that provides a simple interface "
 "for popular **object detection**, **semantic segmentation**, and **image "
 "classification models**."
 msgstr "ReNomIMG APIは現代的な物体認識モデルのみでなく、分類モデル、セグメンテーションモデル作成用のAPIも提供してくれます。"
 
-#: ../../rsts/introduction.rst:92
+#: ../../rsts/introduction.rst:93
 msgid ""
 "Pre-trained weights are also available, allowing users to efficiently "
 "train high-performing models."
 msgstr "加えて、これら全てのモデルは事前学習の重みを持ちます。これによりモデルはより正確になります。"
 
-#: ../../rsts/introduction.rst:94
+#: ../../rsts/introduction.rst:95
 msgid ""
 "An example of defining and training a model is shown below. With ReNomIMG"
 " you can build a model, train it, and make predictions in just 3 lines."
 msgstr "サンプルのソースコードを以下に示します。ReNomIMGを使うと、モデルの作成と訓練が３行で可能になります。"
 
-#: ../../rsts/introduction.rst:96
+#: ../../rsts/introduction.rst:97
 msgid "**Building a VGG16 Model**"
 msgstr "VGG16モデルの作成"
 
@@ -425,4 +423,7 @@ msgstr "VGG16モデルの作成"
 #~ " training configuration** and **pushing the"
 #~ " run button**."
 #~ msgstr "GUIツールを利用して、物体認識モデルを作成することができます.ユーザーはトレーニングデータの用意と、訓練の設定、RUNボタンの押下のみです."
+
+#~ msgid "Deeplabv3"
+#~ msgstr ""
 

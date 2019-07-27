@@ -14,6 +14,7 @@ from renom_img.api.utility.target import DataBuilderClassification
 from renom_img.api.cnn import CnnBase
 from renom_img.api.utility.exceptions.exceptions import *
 
+
 class Bottleneck(rm.Model):
     expansion = 2
 
@@ -51,6 +52,7 @@ class Bottleneck(rm.Model):
         out = self.relu(out)
 
         return out
+
 
 class CnnResNeXt(CnnBase):
 
@@ -111,7 +113,6 @@ class CnnResNeXt(CnnBase):
         self.output_size = output_size
         self.fc._output_size = output_size
 
-
     def _freeze(self):
         self.conv1.set_auto_update(self.train_whole)
         self.bn1.set_auto_update(self.train_whole)
@@ -124,6 +125,5 @@ class CnnResNeXt(CnnBase):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
-
-
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))

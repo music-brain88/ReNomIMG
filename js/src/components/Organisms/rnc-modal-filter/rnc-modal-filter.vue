@@ -48,6 +48,8 @@
             :key="value_input_key"
 
             :input-type="'text'"
+            :input-min-length="input_min_length"
+            :input-max-length="input_max_length"
             :input-min-value="itemObject.min"
             :input-max-value="itemObject.max"
             :only-number="true"
@@ -139,6 +141,7 @@ import RncButton from '../../Atoms/rnc-button/rnc-button.vue'
 import RncSelect from '../../Atoms/rnc-select/rnc-select.vue'
 import RncInput from '../../Atoms/rnc-input/rnc-input.vue'
 import RncButtonClose from '../../Atoms/rnc-button-close/rnc-button-close.vue'
+import { INPUT_LENGTH } from './../../../const.js'
 
 export default {
   name: 'RncModalFilter',
@@ -163,7 +166,9 @@ export default {
         min: 0,
         max: 1,
       },
-      error_message: ''
+      error_message: '',
+      input_min_length: INPUT_LENGTH.FILTER.VALUE.MIN,
+      input_max_length: INPUT_LENGTH.FILTER.VALUE.MAX
     }
   },
   computed: {

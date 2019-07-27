@@ -175,8 +175,7 @@ export default {
     cls: function () {
       const dataset = this.dataset
       if (!this.isTaskClassification || !dataset) return
-      // TODO muraishi: .class_map
-      const class_map = dataset.class_map
+      const class_map = dataset.class_info.class_map
       if (this.showTarget) {
         const targ = this.result.target
         if (!targ) return
@@ -218,7 +217,7 @@ export default {
       })
     }
   },
-  beforeUpdate: function () {
+  updated: function () {
     /**
       If the task is segmentation, drawing function will be called in
       each update.
@@ -346,6 +345,7 @@ export default {
         }
         this.$worker.run(render_segmentation, [draw_item]).then((ret) => {
           canvas = this.$refs.canvas
+          if (!canvas) return
           cxt = canvas.getContext('bitmaprenderer')
           cxt.transferFromImageBitmap(ret)
         })
@@ -363,6 +363,7 @@ export default {
           callback: (response) => {
             this.$worker.run(render_segmentation, [response.data]).then((ret) => {
               var canvas = this.$refs.canvas
+              if (!canvas) return
               var cxt = canvas.getContext('bitmaprenderer')
               cxt.transferFromImageBitmap(ret)
             })

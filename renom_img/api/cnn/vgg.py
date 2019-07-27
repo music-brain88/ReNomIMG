@@ -22,9 +22,11 @@ def layer_factory(channel=32, conv_layer_num=2):
     layers.append(rm.MaxPool2d(filter=2, stride=2))
     return rm.Sequential(layers)
 
+
 class CNN_VGG19(CnnBase):
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG19.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG19.h5".format(
+        __version__)
 
     def __init__(self, num_class=1000):
         super(CNN_VGG19, self).__init__()
@@ -71,11 +73,14 @@ class CNN_VGG19(CnnBase):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))
+
 
 class CNN_VGG16(CnnBase):
 
-    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG16.h5".format(__version__)
+    WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/VGG16.h5".format(
+        __version__)
 
     def __init__(self, num_class=1000):
         super(CNN_VGG16, self).__init__()
@@ -122,14 +127,15 @@ class CNN_VGG16(CnnBase):
         try:
             self.load(path)
         except:
-            raise WeightLoadError('The pretrained weights path {} can not be loaded into the class {}.'.format(path,self.__class__))
+            raise WeightLoadError(
+                'The pretrained weights path {} can not be loaded into the class {}.'.format(path, self.__class__))
 
 
 class CNN_VGG16_NODENSE(CnnBase):
 
     def __init__(self, num_class=1000):
         super(CNN_VGG16_NODENSE, self).__init__()
-        self.has_bn=False
+        self.has_bn = False
         self.conv1_1 = rm.Conv2d(64, padding=1, filter=3)
         self.conv1_2 = rm.Conv2d(64, padding=1, filter=3)
         self.conv2_1 = rm.Conv2d(128, padding=1, filter=3)
@@ -170,6 +176,7 @@ class CNN_VGG16_NODENSE(CnnBase):
         t = rm.max_pool2d(t, filter=2, stride=2)
 
         return t
+
 
 class CNN_VGG11(CnnBase):
 
@@ -213,5 +220,3 @@ class CNN_VGG11(CnnBase):
     def set_output_size(self, output_size):
         self.output_size = output_size
         self.fc3._output_size = output_size
-
-
