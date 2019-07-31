@@ -143,6 +143,10 @@ export default {
         }, {})).map(d => [d[0], parseFloat(d[1]) / parseFloat(model_list.length), d[1]])
       return model_list
     },
+
+    /*
+     * Get all of algorithm info for the currnt task by refering const.js 'ALGORITHM'
+     */
     getAlgorithList: function () {
       const task = this.getCurrentTask
       let arr
@@ -155,6 +159,10 @@ export default {
       }
       return arr.map(d => { return { title: d.title, key: d.key, id: d.id } })
     },
+
+    /*
+     * Get algorithm colors by checking the objects obtained in getAlgorithmList.
+     */
     getAlgColorClass: function (alg_id) {
       const id = alg_id % 10
       return 'color-' + id

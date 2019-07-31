@@ -1,13 +1,13 @@
 import Model from './classes/model'
 import axios from 'axios'
-import { STATE } from '@/const.js'
+import { STATE } from './../const.js'
 import { Dataset } from './classes/dataset'
 
 function error_handler_creator (context, callback = undefined) {
   return function (error) {
     const status = error.response.status
     if ([200, 400, 403, 404, 405, 500, 503].includes(status)) {
-      if (error.response.data || error.response.data.error) {
+      if (error.response.data && error.response.data.error) {
         const message = error.response.data.error.message
         context.commit('showAlert', '【' + status + ' Error】: ' + message)
       }
