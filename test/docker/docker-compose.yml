@@ -1,0 +1,10 @@
+version: '3'
+  services:
+    test_a:
+      image: registry.gitlab.com/grid-devs/renomimg/img_test:<version>
+      container_name: <container name>
+      ports:
+        - "<binded renom_img port>:8080"
+        - "<binded ssh port>:22"
+      environment:
+        - "NVIDIA_VISIBLE_DEVICES=<visible gpu number>"  # visible gpu setting
