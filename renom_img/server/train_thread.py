@@ -370,14 +370,14 @@ class TrainThread(object):
             self.augmentation = Augmentation([
                 Rotate(),
                 Flip(),
-                ContrastNorm(),
+                ContrastNorm()
             ])
         else:
             self.augmentation = Augmentation([
                 Shift(10, 10),
                 Rotate(),
                 Flip(),
-                ContrastNorm(),
+                ContrastNorm()
             ])
 
     def _prepare_model(self):

@@ -1505,8 +1505,6 @@ def create_dataset(task_name):
         # Remove test files.
         file_names = file_names - test_dataset_files
 
-    img_files = [str(img_dir / name) for name in file_names]
-
     # parse label data
     # TODO: create parser
     if task_id == Task.CLASSIFICATION.value:
@@ -1515,6 +1513,8 @@ def create_dataset(task_name):
         parsed_target, class_map, file_names = parse_detection_target(file_names, img_dir)
     elif task_id == Task.SEGMENTATION.value:
         parsed_target, class_map, file_names = parse_segmentation_target(file_names, img_dir)
+
+    img_files = [str(img_dir / name) for name in file_names]
 
     # Split into train and valid.
     n_imgs = len(file_names)
