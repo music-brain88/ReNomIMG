@@ -1,4 +1,4 @@
-import { SORT_DIRECTION, FILTER, GROUPBY, STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from '@/const.js'
+import { SORT_DIRECTION, FILTER, GROUPBY, STATE, PAGE_ID, ALGORITHM, SORTBY, TASK_ID, getKeyByValue, getKeyByValueIncludes } from './../const.js'
 
 /* eslint no-unused-vars: 0 */
 import Model from './classes/model'

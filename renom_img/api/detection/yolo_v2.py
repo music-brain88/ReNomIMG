@@ -749,8 +749,10 @@ class Yolov2(Detection):
 
         if imsize_list is None:
             imsize_list = [self.imsize]
+#           no need for checking here, cause it is already checked from init function. 
         else:
-            check_yolov2_init(imsize)
+            for ims in imsize_list:
+                check_yolov2_init(ims)
         train_dist = ImageDistributor(
             train_img_path_list, train_annotation_list, augmentation=augmentation, num_worker=8)
         if valid_img_path_list is not None and valid_annotation_list is not None:
@@ -786,7 +788,7 @@ class Yolov2(Detection):
                 if isinstance(opt, BaseOptimizer):
                     opt.set_information(i, e, avg_train_loss_list, avg_valid_loss_list)
 
-                if (self._model.hasbn and len(train_x) > 1) or (not self._model.has_bn and len(train_x) > 0):
+                if (self._model.has_bn and len(train_x) > 1) or (not self._model.has_bn and len(train_x) > 0):
                     with self.train():
                         loss = self.loss(self(train_x), buffers, train_y)
                         reg_loss = loss + self.regularize()

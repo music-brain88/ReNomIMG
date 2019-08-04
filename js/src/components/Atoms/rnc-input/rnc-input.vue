@@ -59,7 +59,7 @@ export default {
       default: ''
     },
 
-    // fot String type input
+    // for String type input
     inputMaxLength: {
       type: Number,
       default: undefined
@@ -69,7 +69,7 @@ export default {
       default: undefined
     },
 
-    // fot Number type input
+    // for Number type input
     inputMaxValue: {
       type: Number,
       default: undefined

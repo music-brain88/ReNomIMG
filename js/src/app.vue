@@ -6,7 +6,7 @@
       <rnc-drawer-menu
         :menu-obj="MenuObj"
         :show-menu="getShowSlideMenu"
-        @showDrawerMenu="showDrawerMenu"
+        @show-drawer-menu="showDrawerMenu"
       />
       <div class="paging-area">
         <transition name="fade">
