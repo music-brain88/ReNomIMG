@@ -150,7 +150,7 @@ export default {
 }
 
 * {
-  user-select: none;
+  user-select: text;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -o-box-sizing: border-box;
