@@ -54,7 +54,7 @@ from renom_img.server.utility.error import ReNomIMGServerError, ForbiddenError, 
 from renom_img.api.utility.exceptions.exceptions import ReNomIMGError
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
-executor = Executor(max_workers=2)
+executor = Executor(max_workers=1)
 train_thread_pool = {}
 prediction_thread_pool = {}
 respopnse_cache = {}
