@@ -178,11 +178,11 @@ export default {
       const class_map = dataset.class_info.class_map
       if (this.showTarget) {
         const targ = this.result.target
-        if (!targ) return
+        if (targ === undefined || targ === null) return
         return class_map[targ]
       } else if (this.showPredict) {
         const pred = this.result.predict
-        if (!pred) return
+        if (pred === undefined || pred === null) return
         return class_map[pred.class]
       }
     }
