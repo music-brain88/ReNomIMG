@@ -7,7 +7,7 @@ ReNomIMG is an image recognition model development tool.
 
 ## Version
 
-v2.2b1
+v2.2.1 beta
 
 
 ## Changes
