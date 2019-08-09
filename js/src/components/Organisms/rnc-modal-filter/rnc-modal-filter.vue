@@ -24,22 +24,14 @@
             :disabled="true"
             :option-info="['==']"
             v-model="condition"
-          >
-            <template slot="default-item">
-              ==
-            </template>
-          </rnc-select>
+          />
           <rnc-select
             v-if="itemObject.type !== 'select'"
             :key="2"
 
             :option-info="['>=', '==', '<=']"
             v-model="condition"
-          >
-            <template slot="default-item">
-              ==
-            </template>
-          </rnc-select>
+          />
         </div>
 
         <div id="value">
