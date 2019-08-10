@@ -32,7 +32,7 @@ Please refer to the change log at the renom.jp URL below for a complete change h
 
 ## Requirements
 
-ReNomIMG v2.2b0 requires ReNom version 2.7.3.
+ReNomIMG v2.2b1 requires ReNom version 2.7.3.
 If you haven't installed ReNom, first install it from https://github.com/ReNom-dev-team/ReNom.git.
 
 For required python modules please refer to requirements.txt.
