@@ -8,9 +8,6 @@
 </template>
 
 <script>
-
-import {isNaNhandler} from '../../../utils/errorHandling.js'
-
 export default {
   name: 'RncImage',
   props: {
@@ -41,13 +38,7 @@ export default {
   },
   computed: {
     modifiedSize: function () {
-      isNaNhandler(this.maxWidth, `'maxWidth' must be Number`);
-      isNaNhandler(this.maxHeight,`'maxHeight' must be Number`);
-      isNaNhandler(this.imgWidth, `'imgWidth' must be Number`);
-      isNaNhandler(this.imgHeight,`'imgHeight' must be Number`);
-      
       let w, h
-
       if (this.maxWidth === 0) {
         if (this.maxHeight === 0) {
           w = this.imgWidth

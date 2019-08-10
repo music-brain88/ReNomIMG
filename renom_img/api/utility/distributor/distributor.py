@@ -3,7 +3,7 @@ import threading
 import numpy as np
 from PIL import Image
 from queue import Queue
-from concurrent.futures import ProcessPoolExecutor as Executor
+from concurrent.futures import ThreadPoolExecutor as Executor
 
 from renom_img.api.utility.load import load_img
 

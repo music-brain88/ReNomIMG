@@ -1,4 +1,4 @@
-import { TASK_ID, STATE, RUNNING_STATE } from '@/const.js'
+import { TASK_ID, STATE, RUNNING_STATE } from './../../const.js'
 
 export default class Model {
   constructor (algorithm_id, task_id, hyper_parameters, dataset_id) {

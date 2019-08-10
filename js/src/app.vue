@@ -6,7 +6,7 @@
       <rnc-drawer-menu
         :menu-obj="MenuObj"
         :show-menu="getShowSlideMenu"
-        @showDrawerMenu="showDrawerMenu"
+        @show-drawer-menu="showDrawerMenu"
       />
       <div class="paging-area">
         <transition name="fade">
@@ -90,7 +90,7 @@ export default {
           'icon': 'fa-area-chart'
         }
       ],
-      version: '2.2.0 beta',
+      version: '2.2.1 beta',
       copyright: '©︎2019 GRID INC. ALL rights reserved.'
     }
   },
@@ -150,7 +150,7 @@ export default {
 }
 
 * {
-  user-select: none;
+  user-select: text;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -o-box-sizing: border-box;

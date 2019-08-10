@@ -54,7 +54,7 @@ from renom_img.server.utility.error import ReNomIMGServerError, ForbiddenError, 
 from renom_img.api.utility.exceptions.exceptions import ReNomIMGError
 
 # Thread(Future object) is stored to thread_pool as pair of "thread_id:[future, thread_obj]".
-executor = Executor(max_workers=2)
+executor = Executor(max_workers=1)
 train_thread_pool = {}
 prediction_thread_pool = {}
 respopnse_cache = {}
@@ -1505,8 +1505,6 @@ def create_dataset(task_name):
         # Remove test files.
         file_names = file_names - test_dataset_files
 
-    img_files = [str(img_dir / name) for name in file_names]
-
     # parse label data
     # TODO: create parser
     if task_id == Task.CLASSIFICATION.value:
@@ -1515,6 +1513,8 @@ def create_dataset(task_name):
         parsed_target, class_map, file_names = parse_detection_target(file_names, img_dir)
     elif task_id == Task.SEGMENTATION.value:
         parsed_target, class_map, file_names = parse_segmentation_target(file_names, img_dir)
+
+    img_files = [str(img_dir / name) for name in file_names]
 
     # Split into train and valid.
     n_imgs = len(file_names)

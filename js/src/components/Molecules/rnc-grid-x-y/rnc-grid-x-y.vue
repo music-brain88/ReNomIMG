@@ -144,22 +144,7 @@ export default {
       }
     },
     getSelectedModel: function () {
-      const svg = d3.select('#model-scatter-canvas').select('svg')
-      if (!svg) return
-      const canvas = document.getElementById('model-scatter-canvas')
-      if (!canvas) return
-      const canvas_width = canvas.clientWidth
-      const canvas_height = canvas.clientHeight
-      const circle_radius = Math.min(canvas_width * 0.02, canvas_height * 0.02)
-      svg.selectAll('circle')
-        .attr('r', (m) => {
-          const model = this.getSelectedModel
-          if (model === m) {
-            return circle_radius * 1.6
-          } else {
-            return circle_radius
-          }
-        })
+      this.drawModelScatter()
     }
   },
   mounted: function () {
@@ -302,31 +287,34 @@ export default {
 
       // Line graph
       const LineLayer = svg.append('g').attr('clip-path', 'url(#learning-curve-clip)')
-
-      this.TrainLine = LineLayer.append('path')
-        .attr('id', 'train-line')
-        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .datum(train_loss_list)
-        .attr('fill', 'none')
-        .attr('stroke', train_color)
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-          .x((d, index) => { return this.scaleX(index + 1) })
-          .y((d) => { return this.scaleY(d) })
-          .curve(d3.curveLinear)
-        )
-      this.ValidLine = LineLayer.append('path')
-        .attr('id', 'valid-line')
-        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .datum(valid_loss_list)
-        .attr('fill', 'none')
-        .attr('stroke', valid_color)
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-          .x((d, index) => { return this.scaleX(index + 1) })
-          .y((d) => { return this.scaleY(d) })
-          .curve(d3.curveLinear)
-        )
+      if (!this.switchTrainGraph) {
+        this.TrainLine = LineLayer.append('path')
+          .attr('id', 'train-line')
+          .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+          .datum(train_loss_list)
+          .attr('fill', 'none')
+          .attr('stroke', train_color)
+          .attr('stroke-width', 1.5)
+          .attr('d', d3.line()
+            .x((d, index) => { return this.scaleX(index + 1) })
+            .y((d) => { return this.scaleY(d) })
+            .curve(d3.curveLinear)
+          )
+      }
+      if (!this.switchValidGraph) {
+        this.ValidLine = LineLayer.append('path')
+          .attr('id', 'valid-line')
+          .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+          .datum(valid_loss_list)
+          .attr('fill', 'none')
+          .attr('stroke', valid_color)
+          .attr('stroke-width', 1.5)
+          .attr('d', d3.line()
+            .x((d, index) => { return this.scaleX(index + 1) })
+            .y((d) => { return this.scaleY(d) })
+            .curve(d3.curveLinear)
+          )
+      }
 
       this.BestEpoc = LineLayer.append('line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
@@ -365,80 +353,82 @@ export default {
 
       // Scatter graph
       const ScatterLayer = svg.append('g').attr('clip-path', 'url(#learning-curve-clip)')
+      if (!this.switchTrainGraph) {
+        this.TrainScatter = ScatterLayer.append('g')
+          .attr('id', 'train-scatter')
+          .selectAll('circle')
+          .data(train_loss_list)
+          .enter()
+          .append('circle')
+          .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+          .attr('cx', (d, index) => { return this.scaleX(index + 1) })
+          .attr('cy', (d) => {
+            return this.scaleY(d)
+          })
+          .attr('fill', train_color)
+          .attr('r', 1.5)
 
-      this.TrainScatter = ScatterLayer.append('g')
-        .attr('id', 'train-scatter')
-        .selectAll('circle')
-        .data(train_loss_list)
-        .enter()
-        .append('circle')
-        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('cx', (d, index) => { return this.scaleX(index + 1) })
-        .attr('cy', (d) => {
-          return this.scaleY(d)
-        })
-        .attr('fill', train_color)
-        .attr('r', 1.5)
+          .on('mouseenter', (d, index) => {
+            // find svg id and get mouse position
+            const x = d3.event.layerX + 10
+            const y = d3.event.layerY + 10
 
-        .on('mouseenter', (d, index) => {
-          // find svg id and get mouse position
-          const x = d3.event.layerX + 10
-          const y = d3.event.layerY + 10
+            this.TooltipLeft = x
+            this.TooltipTop = y
+            this.TextArray = [
+              {
+                'key': 'Epoch',
+                'value': (index + 1)
+              },
+              {
+                'key': 'Train Loss',
+                'value': d.toFixed(2)
+              }
+            ]
+            this.TooltipKind = 'train'
+            this.TooltipDisplay = true
+          })
+          .on('mouseleave', () => {
+            this.TooltipDisplay = false
+          })
+      }
 
-          this.TooltipLeft = x
-          this.TooltipTop = y
-          this.TextArray = [
-            {
-              'key': 'Epoch',
-              'value': (index + 1)
-            },
-            {
-              'key': 'Train Loss',
-              'value': d.toFixed(2)
-            }
-          ]
-          this.TooltipKind = 'train'
-          this.TooltipDisplay = true
-        })
-        .on('mouseleave', () => {
-          this.TooltipDisplay = false
-        })
+      if (!this.switchValidGraph) {
+        this.ValidScatter = ScatterLayer.append('g')
+          .attr('id', 'valid-scatter')
+          .selectAll('circle')
+          .data(valid_loss_list)
+          .enter()
+          .append('circle')
+          .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
+          .attr('cx', (d, index) => { return this.scaleX(index + 1) })
+          .attr('cy', (d) => { return this.scaleY(d) })
+          .attr('fill', valid_color)
+          .attr('r', 1.5)
 
-      this.ValidScatter = ScatterLayer.append('g')
-        .attr('id', 'valid-scatter')
-        .selectAll('circle')
-        .data(valid_loss_list)
-        .enter()
-        .append('circle')
-        .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
-        .attr('cx', (d, index) => { return this.scaleX(index + 1) })
-        .attr('cy', (d) => { return this.scaleY(d) })
-        .attr('fill', valid_color)
-        .attr('r', 1.5)
+          .on('mousemove', (d, index) => {
+            const x = d3.event.layerX + 10
+            const y = d3.event.layerY + 10
 
-        .on('mousemove', (d, index) => {
-          const x = d3.event.layerX + 10
-          const y = d3.event.layerY + 10
-
-          this.TooltipLeft = x
-          this.TooltipTop = y
-          this.TextArray = [
-            {
-              'key': 'Epoch',
-              'value': (index + 1)
-            },
-            {
-              'key': 'Valid Loss',
-              'value': d.toFixed(2)
-            }
-          ]
-          this.TooltipKind = 'valid'
-          this.TooltipDisplay = true
-        })
-        .on('mouseleave', () => {
-          this.TooltipDisplay = false
-        })
-
+            this.TooltipLeft = x
+            this.TooltipTop = y
+            this.TextArray = [
+              {
+                'key': 'Epoch',
+                'value': (index + 1)
+              },
+              {
+                'key': 'Valid Loss',
+                'value': d.toFixed(2)
+              }
+            ]
+            this.TooltipKind = 'valid'
+            this.TooltipDisplay = true
+          })
+          .on('mouseleave', () => {
+            this.TooltipDisplay = false
+          })
+      }
       // d3.select('#learning-curve-canvas')
       //   .on('contextmenu', this.resetZoom)
     },
@@ -524,7 +514,10 @@ export default {
 
       // Line graph
       const PlotLayer = svg.append('g').attr('clip-path', 'url(#model-scatter-clip)')
-
+      let selected_model_id = 0
+      if (this.getSelectedModel) {
+        selected_model_id = this.getSelectedModel.id
+      }
       // Plot Models.
       this.PlotModel = PlotLayer.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
@@ -532,7 +525,13 @@ export default {
         .data(model_list)
         .enter()
         .append('circle')
-        .attr('r', circle_radius)
+        .attr('r', function (d) {
+          if (d.id === selected_model_id) {
+            return circle_radius * 1.6
+          } else {
+            return circle_radius
+          }
+        })
         .attr('cx', (m) => {
           // TODO: Modify data distribution
           const metric = m.getResultOfMetric1()

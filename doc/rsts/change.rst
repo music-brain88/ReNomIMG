@@ -1,6 +1,12 @@
 Change Log
 ===========
 
+
+**v2.2b1**
+
+- Made GUI text selectable
+- Fixed bugs
+
 **v2.2b0**
 
 - Added Deeplabv3 segmentation algorithm to API
