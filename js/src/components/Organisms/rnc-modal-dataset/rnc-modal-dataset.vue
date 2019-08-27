@@ -12,10 +12,10 @@
             <rnc-input
               :input-max-length="nameMaxLength"
               :input-min-length="nameMinLength"
+              :place-holder="'dataset(Required)'"
               :disabled="submitable"
               v-model="nameText"
               class="input-value"
-              place-holder="dataset(Required)"
               @rnc-input="onUpdateName"
             />
           </div>
@@ -76,7 +76,7 @@
         :disabled="!confirmable || submitable"
         class="confirm-button"
         button-label="Confirm"
-        @click="onConfirmDataset"
+        @click-button="onConfirmDataset"
       />
     </div>
     <!----------Left page of creating dataset-->
@@ -109,7 +109,7 @@
         </div>
         <rnc-bar-dataset
           id="dataset-ratio-bar"
-          :class="{'bar-anime': confirming_dataset}"
+          :class="{'grow-x-anime': confirming_dataset}"
           :train-num="train_num"
           :valid-num="valid_num"
         />
@@ -145,13 +145,13 @@
         :disabled="!submitable"
         button-label="Submit"
         class="submit-button"
-        @click="onAddDataset"
+        @click-button="onAddDataset"
       />
       <rnc-button
         :disabled="!submitable"
         :cancel="cancel"
         button-label="Back"
-        @click="backDataset"
+        @click-button="backDataset"
       />
     </div>
     <!----------Right page of creating dataset-->
@@ -168,7 +168,7 @@ import RncInput from '../../Atoms/rnc-input/rnc-input.vue'
 import RncBarDataset from '../../Atoms/rnc-bar-dataset/rnc-bar-dataset'
 
 export default {
-  name: 'ModalAddDataset',
+  name: 'RncModalDataset',
   components: {
     'rnc-button': RncButton,
     'rnc-select': RncSelect,
@@ -393,12 +393,12 @@ export default {
   width: 100%;
   height: 100%;
   padding: 10px;
-  font-size: $component-font-size-small;
+  font-size: $fs-small;
   .title {
     width: 100%;
     height: 5%;
     color: gray;
-    font-size: $component-font-size;
+    font-size: $fs-regular;
     align-items: center;
     justify-content: space-between;
   }
@@ -415,7 +415,7 @@ export default {
         margin: $margin-middle;
         .item {
           height: 10%;
-          color: $component-font-color;
+          color: $black;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -425,7 +425,7 @@ export default {
           }
         }
         .vali-mes {
-          color: $err_red;
+          color: $red;
           font-size: $fs-small;
           text-align: right;
           margin-top: $margin-micro;
@@ -434,7 +434,7 @@ export default {
     }
   }
   #dataset-confirm {
-    color: $component-font-color;
+    color: $black;
     width: 50%;
     height: calc(100% - 10px);
     display: flex;
@@ -583,19 +583,7 @@ export default {
     animation: growXValid 0.8s linear;
     animation-fill-mode: both;
   }
-  .bar-anime {
-    animation: growX 0.8s;
-    animation-fill-mode: both;
-    animation-iteration-count: 1;
-  }
-  @keyframes growX {
-    0% {
-      transform: translateX(-50%) scaleX(0);
-    }
-    100% {
-      transform: translateX(0) scaleX(1);
-    }
-  }
+
   .show-short-period {
     animation: notifyAnimation ease-in 3s;
   }

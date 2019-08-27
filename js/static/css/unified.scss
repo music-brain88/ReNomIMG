@@ -1,5 +1,146 @@
+/*
+Copyright 2019, Grid.
+
+This source code is licensed under the ReNom Subscription Agreement, version 1.0.
+ReNom Subscription Agreement Ver. 1.0 (https://www.renom.jp/info/license/index.html)
+*/
+
 @import url('http://fonts.googleapis.com/css?family=Open+Sans');
 
+/**
+* mixins
+*/
+@mixin prefix($name, $argument) {
+  -webkit-#{$name}: #{$argument};
+  -ms-#{$name}: #{$argument};
+  -moz-#{$name}: #{$argument};
+  -o-#{$name}: #{$argument};
+  #{$name}: #{$argument};
+}
+
+@mixin transform-center() {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  @include prefix("transform", "translateY(-50%) translateX(-50%)");
+}
+
+// width & height
+$full-screen-width: 100%;
+$full-screen-height: 100%;
+
+// colors
+$background-gray: #f3f3f1;
+$white: #ffffff;
+$ex-light-gray: #f8f8f8;
+$light-gray: #d0d0d0;
+$gray: #999999;
+$black: #666666;
+$light-blue: #6699BB;
+$blue: #026699;
+$little-dark-blue: #01517a;
+$dark-blue: #063662;
+$line-blue: #3F79AE;
+$copyright-blue: #02294C;
+// #FF5533の色は直接指定している箇所も有るので注意
+$red: #FF5533;
+$dark-red: #BF360C;
+$item-hover-color: #E5E7E9;
+
+// font-size
+$fs-regular: 0.9rem;
+$fs-small: 0.8rem;
+$fs-micro: 0.6rem;
+
+// text height
+$text-height-regular: 32px;
+$text-height-middle: 28px;
+$text-height-small: 24px;
+$text-height-micro: 20px;
+$text-height-ex-micro: 16px;
+
+// margin
+$margin-micro: 4px;
+$margin-small: 8px;
+$margin-middle: 16px;
+$margin-large: 32px;
+
+// padding
+$padding-micro: 4px;
+$padding-small: 8px;
+$padding-middle: 16px;
+$padding-large: 32px;
+$padding-extra-large: 40px;
+
+// border witdh
+$border-width-regular: 1px;
+$border-width-bold: 2px;
+
+// modal
+$modal-opacity: 0.5;
+$modal-content-width: 70%;
+$modal-content-height: 80%;
+//$modal-content-padding: 32px; // IMGに同じ名前の変数有り
+$modal-tab-width: 200px;
+$modal-tab-height: 32px;
+
+// page list area
+$list-width: 20%;
+// page main content
+$content-width: 80%;
+// main content left
+$panel-left-width: 60%;
+// main content right
+$panel-right-width: 40%;
+
+// content height
+$content-height: 1440px;
+$dashboard-height: 360px;
+$model-map-height: 360px;
+$model-detail-height: 360px;
+$learning-curve-height: 360px;
+$prediction-sample-height: 480px;
+$features-height: 190px;
+$model-list-item-height: 132px;
+
+/**
+* table
+*/
+$th-td-width: 120px;
+
+.table-wrapper {
+  overflow: auto;
+}
+table {
+  position: relative;
+}
+tr {
+}
+td, th {
+  height: $text-height-regular;
+  padding: 0 $padding-middle;
+  border-bottom: $border-width-regular solid $light-gray;
+  line-height: $text-height-regular;
+  font-size: $fs-small;
+  color: $gray;
+  text-align: center;
+  white-space: nowrap;
+  background: $white;
+}
+th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/**
+* flex
+*/
+.flex {
+  @include prefix('display', 'flex');
+}
+
+// ****************以下、IMG****************
 
 // App window size settings.
 $app-window-width: 100%;
@@ -9,25 +150,19 @@ $app-window-height: 100vh;
 
 // App footer
 $footer-height: 72px;
-$footer-background: #063662;
-$footer-background-dark: #02294c;
 
 //// App header Settings.
 // $header-height: calc(100vh * 0.04);
 // $header-height: 40px;
 $header-height: 40px;
 $header-min-height: 40px;
-$header-background-color: #063662;
 $header-product-name-font-family: Open Sans Regular;
 $header-product-name-font-size: 1rem;
 $header-title-font-family: Open Sans Regular;
 $header-title-font-size: 1rem;
 $header-title-margin-left: 15pt;
-$header-font-color: #ffffff;
 
 //// Slide window Settings.
-$slide-window-mask-color: rgba(0, 0, 0, 0.6);
-$slide-window-background-color: #063662;
 $slide-window-width-min: 150px;
 
 //// Page Tab Settings.
@@ -44,19 +179,11 @@ $app-container-padding-bottom: 10px;
 $component-header-height: 32px;
 $component-header-min-height: 32px;
 $component-header-margin-bottom: 10px;
-$component-header-background-color: #063662;
 // $component-header-font-family: Open Sans Regular;
 $component-header-font-family: Open Sans, sans-serif;
-$component-header-font-color: #ffffff;
 $component-header-font-size: 0.9rem;
-$component-header-sub-color: #026699;
-$component-header-sub-color-hover: #01517a;
 // $component-font-family: Open Sans Lite;
 $component-font-family: Open Sans, sans-serif;
-$component-font-size: 0.9rem;
-$component-font-size-small: 0.8rem;
-$component-font-color-title: #999;
-$component-font-color: #555;
 
 $component-block-padding: 8px;
 $component-block-padding-left: 16px;
@@ -71,7 +198,6 @@ $component-block-height: calc(
    - #{$footer-height})
    / 12);
 $component-block-height-min: 50px;
-$component-background-color: #ffffff;
 
 //// Component Progress Bar Area Settings.
 $total-model-title-padding-bottom: 10px;
@@ -84,15 +210,11 @@ $progress-bar-area-margin-top: 40px;
 $progress-bar-height: 20px;
 $progress-bar-margin-bottom: 2px;
 $progress-bar-stop-button-font-size: 1.1rem;
-$progress-bar-stop-button-color: #ddd;
-$progress-bar-stop-button-color-hover: #999;
-$progress-bar-background-color: #ddd;
 $progress-bar-margin: 5px;
 
 
 // Component Scatter model plot Settings.
 $scatter-padding: 20px;
-$scatter-grid-color: #ddd;
 $scatter-circle-radius: 10;
 
 // Component Model Detail
@@ -101,7 +223,8 @@ $model-detail-item-margin-right: 50px;
 $model-detail-item-margin-bottom: 15px;
 
 //// Modal Settings.
-$modal-mask-color: rgba(0, 0, 0, 0.6);
+$modal-mask-color: rgba(0, 0, 0, 0.5);
+$modal-loading-mask-color: rgba(0, 0, 0, 0.7);
 $modal-content-padding: 10px;
 
 // Model Filter Item Settings.
@@ -111,22 +234,11 @@ $model-filter-min-height: $component-block-height-min;
 
 // Model Llist Settings.
 $model-list-margin: 5px;
-$model-list-add-button-background-color: #3498DB;
 
 // Model Item Settings.
 $model-item-height: calc(#{$component-block-height} * 0.65);
 $model-item-height-min: $component-block-height-min;
 // $model-item-margin: 5px;
-
-// Model Item Button Settings.
-$model-item-remove-button-color: #BF360C;
-
-// Model Item Reaction colors.
-$model-item-hover-color: #E5E7E9;
-
-// Both Modal Settings.
-$modal-tab-color-not-selected: #063662;
-
 
 //// Dataset page Setting.
 $dataset-table-padding: 10px;
@@ -141,10 +253,10 @@ $color-created: #99A3A4;
 $color-reserved: #F1C40F;
 $color-train:#0762AD;
 $color-valid:#EF8200;
-$color-best-epoch: red;
 
 //The color is specified by algorithm
-$color-no-model: #229954; // green when no model exists
+$color-no-model: #708090;
+$color-user-defined: #a9a9a9;
 $color-0: #903e84;
 $color-1: #423885;
 $color-2: #136eab;
@@ -166,6 +278,9 @@ $color-5: #dfd238;
   background-color: $color-reserved;
 }
 
+.color-user-defined{
+  background-color: $color-user-defined;
+}
 .color-no-model{
   background-color: $color-no-model;
 }
@@ -200,32 +315,6 @@ $color-5: #dfd238;
   background-color: black;
 }
 
-
-//▼▼▼▼▼▼▼▼▼▼▼▼使用しない▼▼▼▼▼▼▼▼▼▼▼▼
-// .created {
-//   background-color: $color-created;
-// }
-// .reserved {
-//   background-color: $color-reserved;
-// }
-// .train {
-//   background-color: $color-train;
-// }
-// .valid {
-//   background-color: $color-valid;
-// }
-//
-// .yolo-v1 {
-//   background-color: $color-0;
-// }
-// .yolo-v2 {
-//   background-color: $color-1;
-// }
-// .ssd {
-//   background-color: $color-2;
-// }
-//▲▲▲▲▲▲▲▲▲▲▲▲▲使用しない▲▲▲▲▲▲▲▲▲▲▲▲▲
-
 //// Animation Settings
 .fade-enter-active, .fade-leave-active {
   transition: opacity .2s;
@@ -243,8 +332,10 @@ $color-5: #dfd238;
 }
 
 //// Scroll bar setting
+$scroll-bar-width: 5px;
 ::-webkit-scrollbar {
-    width: 5px;
+  height: $scroll-bar-width;
+  width: $scroll-bar-width;
 }
 ::-webkit-scrollbar-track {
   border-radius: 5px;
@@ -261,149 +352,31 @@ $color-5: #dfd238;
   overflow: auto;
 }
 
-// Button Setting
-
-.rnc-button {
-  height: 100%;
-}
-
-
-input[type='button'] {
-  height: 28px;
-  background-color: $component-header-sub-color;
-  color: white;
-  border: none;
-  padding: 0px;
-  width: 100px;
-  cursor: pointer;
-
-  // Style Default
-  &:hover {
-    background-color: $component-header-sub-color-hover;
-  }
-  &:active {
-    background-color: #02669999;
-  }
-  &:disabled {
-    border: 1px solid #999999;
-    background-color: #fff;
-    color: #999;
-    cursor:not-allowed;
-  }
-  &.button-size {
-    width: 100%;
-    height: 100%;
-    padding: 0px;
-  }
-
-
-  // Style Cancel
-  &.cancel {
-    background-color: #999;
-    &:hover {
-      background-color: #777;
-    }
-    &:disabled {
-      border: 1px solid #999;
-      background-color: #fff;
-      color: #999;
-      cursor:not-allowed;
-    }
-    &:active {
-      background-color: #bbb;
-    }
-  }
-}
-
-
-
-
-
-
-
-
-//****以下、臨時的にRGのものを入れています。****
-
-
-// width & height
-$full-screen-width: 100%;
-$full-screen-height: 100%;
-$max-width: 1280px;
-
-// colors
-$background-gray: #f3f3f1;
-$white: #ffffff;
-$light-gray: #bbbbbb;
-$gray: #999999;
-$black: #666666;
-$dark-blue: #063662;
-$blue: #136eab;
-$line-blue: #3F79AE;
-$copyright-blue: #02294C;
-$err_red: #FF4500;
-$component-font-color-title: #999;
-$modal-mask-color: rgba(0, 0, 0, 0.6);
-
-// font-size
-$fs-regular: 0.9rem;
-$fs-small: 0.8rem;
-$fs-micro: 0.6rem;
-
-// text height
-$text-height-regular: 32px;
-$text-height-middle: 28px;
-$text-height-small: 24px;
-$text-height-micro: 20px;
-
-// margin
-$margin-micro: 4px;
-$margin-small: 8px;
-$margin-middle: 16px;
-$margin-large: 32px;
-
-// padding
-$padding-micro: 4px;
-$padding-small: 8px;
-$padding-middle: 16px;
-$padding-large: 32px;
-$padding-extra-large: 40px;
-
-// border witdh
-$border-width-regular: 1px;
-$border-width-bold: 2px;
-
-// modal
-$modal-opacity: 0.5;
-$modal-content-width: 70%;
-$modal-content-height: 80%;
-//$modal-content-padding: 32px; // IMGに同じ名前の変数有り
-$modal-tab-width: 200px;
-$modal-tab-height: 32px;
-
-
 // added by muraishi 20190607
+/*
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #fff !important;
   -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
-
+*/
 
 // added by uyama 20190530
-select, input {
+
+select, input, textarea {
   // -webkit-appearance: none;
   box-sizing: border-box;
   align-items: center;
-  white-space: pre;
+  white-space: pre-wrap;
   -webkit-rtl-ordering: logical;
-  color: $component-font-color;
+  color: $black;
   cursor: text;
   border-width: 1px;
   border-style: solid;
@@ -412,68 +385,131 @@ select, input {
 }
 .form-warn{
   animation: notifyAnimation;
-  border: 1px solid $err_red;
+  border: 1px solid $red;
   animation-fill-mode: forwards;
   @keyframes notifyAnimation {
     100% {
-      outline-color: $err_red;
+      outline-color: $red;
     }
   }
 }
 
-.rnc-input {
-  width: 100%;
-  align-items: center;
-  .input-value {
-    .input-in {
-      width: 100%;
-      &::placeHolder {
-        color: $light-gray;
-      }
-      &:disabled {
-        color: $light-gray;
-        border-color: $light-gray;
-        cursor: not-allowed;
-      }
-    }
-    .checkbox {
-      width: 10px;
-      cursor: pointer;
-    }
+/* x-anime */
+.grow-x-anime {
+  animation: growX 0.8s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+@keyframes growX {
+  0% { transform: translateX(-50%) scaleX(0); }
+  100% { transform: translateX(0) scaleX(1); }
+}
+.grow-x-anime-small {
+  animation: growSmallX 0.8s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+@keyframes growSmallX {
+  0% {
+    transform: translateX(84%) scaleX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) scaleX(1);
+    opacity: 0.2;
   }
 }
 
-
-
-
-
-
-/**
-* 以下はテストのため、臨時的に作成しました
+/* y-anime */
+.grow-y-anime-large {
+  animation: growLargeY 0.8s;
+  animation-iteration-count: 1;
+}
+@keyframes growLargeY {
+  0% { transform: translateY(89%) scaleY(0); opacity: 0; }
+  100% { transform: translateY(0) scaleY(1); }
+}
+.grow-y-anime-regular {
+  animation: growRegularY 0.8s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+@keyframes growRegularY {
+  0% {
+    transform: translateY(85%) scaleY(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+    opacity: 0.2;
+  }
+}
+.grow-y-anime-small {
+  animation: growSmallY 0.8s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+@keyframes growSmallY {
+  0% {
+    transform: translateY(16%) scaleY(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+    opacity: 0.2;
+  }
+}
+/*
+@keyframes downY {
+  0% { transform: translateY(-50%) scaleY(0); }
+  100% { transform: translateY(0) scaleY(1); }
+}
 */
-$button-width: 50px;
-$button-height: 30px;
-.rnc-button-close{
-  width: $button-width;
-  height: $button-height;
-  border: none;
-  background-color: $blue;
-  line-height: $button-height;
-  font-size: $fs-regular;
-  color: $white;
-  cursor:pointer;
+
+/* circle-anime */
+.training-blink {
+  animation-name: anime1;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+}
+@keyframes anime1 {
+  0% { stroke-width: 0; }
+  50% { stroke-width: 5; }
+  100% { stroke-width: 0; }
+}
+.appear-circle-anime {
+  animation-name: appearCircle;
+  animation-duration: 0.8s;
+  animation-iteration-count: 1;
+}
+@keyframes appearCircle {
+  0% {
+    r: 1.5;
+    opacity: 0;
+  }
+}
+.appear-circle-anime-after {
+  animation-name: appearCircleAfter;
+  animation-duration: 1.6s;
+  animation-iteration-count: 1;
+}
+@keyframes appearCircleAfter {
+  0% {
+    r: 1.5;
+    opacity: 0;
+  }
+  50% {
+    r: 1.5;
+    opacity: 0;
+  }
 }
 
-.bx--btn--danger{
-  background-color: red;
+/* area-anime */
+.appear-opacity-anime {
+  animation-name: appearOpacity;
+  animation-duration: 1.6s;
+  animation-iteration-count: 1;
 }
-.bx--btn--danger--primary{
-  background-color: red;
-}
-button:disabled {
-  border: $border-width-regular solid $light-gray;
-  background-color: $white;
-  line-height: calc(#{$button-height} - #{$border-width-regular}*2);
-  color: $gray;
-  cursor:not-allowed;
+@keyframes appearOpacity {
+  0% { opacity: 0; }
 }

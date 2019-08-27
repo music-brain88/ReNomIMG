@@ -24,14 +24,22 @@
             :disabled="true"
             :option-info="['==']"
             v-model="condition"
-          />
+          >
+            <template slot="default-item">
+              Select
+            </template>
+          </rnc-select>
           <rnc-select
             v-if="itemObject.type !== 'select'"
             :key="2"
 
             :option-info="['>=', '==', '<=']"
             v-model="condition"
-          />
+          >
+            <template slot="default-item">
+              Select
+            </template>
+          </rnc-select>
         </div>
 
         <div id="value">
@@ -71,7 +79,7 @@
             id="rnc-button"
             :button-label="'Add'"
             :disabled="addIsDisabled"
-            @click="createFilter"
+            @click-button="createFilter"
           />
         </div>
       </div>
@@ -266,7 +274,7 @@ export default {
   padding: 8px;
   #model-filter-title {
     height: 7%;
-    color: $component-font-color-title;
+    color: $gray;
   }
   #model-filter-content {
     width: 70%;
@@ -305,7 +313,7 @@ export default {
         }
         .vali-mes {
           margin-top: $margin-micro;
-          color: $err_red;
+          color: $red;
           font-size: $fs-small;
           text-align: right;
         }

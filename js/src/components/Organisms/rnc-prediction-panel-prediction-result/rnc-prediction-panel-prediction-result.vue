@@ -27,12 +27,12 @@
           @change="show_prediction = $event.target.checked"
         />
 
-        <input
+        <rnc-button
+          :button-label="'> Download'"
+          :button-size-change="true"
           :disabled="!(!isPredicting && showResult)"
-          type="button"
-          value="Download"
-          @click="onDownload"
-        >
+          @click-button="onDownload"
+        />
       </div>
     </template>
 
@@ -108,10 +108,11 @@
 <script>
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 import { setup_image_list } from '../../../utils.js'
+import RncButtonSwitch from './../../Atoms/rnc-button-switch/rnc-button-switch.vue'
+import RncButton from './../../Atoms/rnc-button/rnc-button.vue'
 import RncTitleFrame from './../../Molecules/rnc-title-frame/rnc-title-frame.vue'
 import RncLabeledImage from './../../Molecules/rnc-labeled-image/rnc-labeled-image.vue'
 import RncPager from './../../Molecules/rnc-pager/rnc-pager.vue'
-import RncButtonSwitch from './../../Atoms/rnc-button-switch/rnc-button-switch.vue'
 
 // const RESERVED = '-1'  // TODO:「'RESERVED' is assigned a value but never used 」のため取り急ぎコメントアウト
 // const CREATED = '-2'
@@ -119,10 +120,11 @@ import RncButtonSwitch from './../../Atoms/rnc-button-switch/rnc-button-switch.v
 export default {
   name: 'RncPredictionPanelPredictionResult',
   components: {
+    'rnc-button-switch': RncButtonSwitch,
+    'rnc-button': RncButton,
     'rnc-title-frame': RncTitleFrame,
     'rnc-labeled-image': RncLabeledImage,
-    'rnc-pager': RncPager,
-    'rnc-button-switch': RncButtonSwitch
+    'rnc-pager': RncPager
   },
   props: {
     widthWeight: {

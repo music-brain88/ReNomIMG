@@ -27,12 +27,12 @@ export default {
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: $progress-bar-stop-button-color;
+  color: $light-gray;
   font-size: $progress-bar-stop-button-font-size;
   i {
     cursor: pointer;
     &:hover {
-      color: $progress-bar-stop-button-color-hover;
+      color: $gray;
     }
   }
 }

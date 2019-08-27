@@ -71,7 +71,7 @@ import { mapGetters, mapMutations, mapActions } from 'vuex'
 import { TASK_ID } from '../../../const.js'
 
 export default {
-  name: 'AppHeader',
+  name: 'RncHeader',
   props: {
     ProductName: {
       type: String,
@@ -112,8 +112,8 @@ export default {
   width: 100%;
   height: $header-height;
   min-height: $header-min-height;
-  background-color: $header-background-color;
-  color: $header-font-color;
+  background-color: $dark-blue;
+  color: $white;
   display: flex;
   justify-content: space-between;
 

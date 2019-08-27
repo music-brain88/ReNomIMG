@@ -69,13 +69,13 @@ export default {
     + #{$component-header-height}
   );
   .component-header {
-    width: calc(100% - $component-block-padding-left);
+    width: 100%;
     height: $component-header-height;
     min-height: $component-header-min-height;
     margin-bottom: $component-header-margin-bottom;
     padding-left: $component-block-padding-left;
-    background-color: $component-header-background-color;
-    color: $component-header-font-color;
+    background-color: $dark-blue;
+    color: $white;
     line-height: normal;
     font-family: $component-header-font-family;
     font-size: $component-header-font-size;
@@ -87,7 +87,7 @@ export default {
     justify-content: space-between;
   }
   .frame-content {
-    background-color: $component-background-color;
+    background-color: $white;
     height: calc(
       100% - #{$component-header-margin-bottom}
       - #{$component-header-height}

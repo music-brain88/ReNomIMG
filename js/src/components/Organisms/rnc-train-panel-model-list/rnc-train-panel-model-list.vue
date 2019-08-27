@@ -7,15 +7,13 @@
   >
     <template slot="header-slot">
       Model List
-      <div
-        id="add-button"
-        @click="showModal({add_both: true})"
-      >
-        <i
-          class="fa fa-plus"
-          aria-hidden="true"
+      <div id="add-button">
+        <rnc-button
+          :plus="true"
+          :button-label="'New'"
+          :button-size-change="true"
+          @click-button="showModal({add_both: true})"
         />
-        &nbsp;New
       </div>
     </template>
 
@@ -29,16 +27,6 @@
           @click="showModal({add_filter: true})"
         />
       </div>
-
-      <!--
-      TODO muraishi : not using currently
-      <div id="model-groupby">
-        Group by
-        <select v-on:change="setGoupingCategory" v-model="groupby">
-          <option :value="item.key" v-for='item of getGroupTitles'>{{item.title}}</option>
-        </select>
-      </div>
-      -->
 
       <div id="model-titles">
         <span class="title-row">
@@ -148,15 +136,16 @@
         <rnc-model-list-item
           v-if="getDeployedModel"
           :model="deployedModelListItem.Model"
-          :last-batch-loss="deployedModelListItem.LastBatchLoss"
+          :last-batch-loss="deployedModelListItem.BestBatchLoss"
           :result-of-metric1="deployedModelListItem.ResultOfMetric1"
           :result-of-metric2="deployedModelListItem.ResultOfMetric2"
           :selected-model-id="deployedModelListItem.SelectedModelId"
           :is-deployed-model="true"
+          :algorithm-title="getAlgorithmTitleFromId(deployedModelListItem.Model.algorithm_id)"
+          :color-class="getColorClass(deployedModelListItem.Model)"
+          :sort-order="sort_order"
           @clicked-model-item="updateSelectedModel($event)"
         />
-        <!-- CHANGE muraishi -->
-        <!-- @clicked-model-item="setSelectedModel($event)" -->
 
         <div
           v-else
@@ -183,16 +172,17 @@
           :key="index"
 
           :model="item.Model"
-          :last-batch-loss="item.LastBatchLoss"
+          :last-batch-loss="item.BestBatchLoss"
           :result-of-metric1="item.ResultOfMetric1"
           :result-of-metric2="item.ResultOfMetric2"
           :selected-model-id="item.SelectedModelId"
+          :algorithm-title="getAlgorithmTitleFromId(item.Model.algorithm_id)"
+          :color-class="getColorClass(item.Model)"
+          :sort-order="sort_order"
 
-          @rm-model="rmModel($event.id)"
+          @rm-model="rmModel($event)"
           @clicked-model-item="updateSelectedModel($event)"
         />
-        <!-- CHANGE muraishi -->
-        <!-- @clicked-model-item="setSelectedModel($event)" -->
 
       </div>
     </template>
@@ -201,6 +191,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import RncButton from './../../Atoms/rnc-button/rnc-button.vue'
 import RncTitleFrame from './../../Molecules/rnc-title-frame/rnc-title-frame.vue'
 import RncList from './../../Molecules/rnc-list/rnc-list.vue'
 import RncModelListItem from './../../Molecules/rnc-model-list-item/rnc-model-list-item.vue'
@@ -209,6 +200,7 @@ import { SORTBY, SORT_DIRECTION } from './../../../const.js'
 export default {
   name: 'RncTrainPanelModelList',
   components: {
+    'rnc-button': RncButton,
     'rnc-title-frame': RncTitleFrame,
     'rnc-list': RncList,
     'rnc-model-list-item': RncModelListItem
@@ -234,15 +226,13 @@ export default {
       'sort_order_direction'
     ]),
     ...mapGetters([
-      'getFilteredModelList',
       'getFilteredAndGroupedModelList',
-      'getSortTitle',
       'getDeployedModel',
       'getSelectedModel',
-      'getGroupTitles',
       'getTitleMetric1',
       'getTitleMetric2',
-      'getModelById'
+      'getAlgorithmTitleFromId',
+      'getColorClass'
     ]),
     isDescending: function () {
       return this.sort_order_direction === SORT_DIRECTION.DESCENDING
@@ -274,9 +264,7 @@ export default {
     ...mapMutations([
       'setSortOrder',
       'showModal',
-      'setSelectedModel',
       'showConfirm',
-      'setGoupBy',
       'selectPrevModel',
       'selectNextModel',
       'toggleSortOrder',
@@ -284,22 +272,9 @@ export default {
     // ADD muraishi
     ...mapActions([
       'removeModel',
-      'updateSelectedModel',
-      'loadModelsOfCurrentTaskDetail',
-      'loadDatasetsOfCurrentTaskDetail']),
+      'updateSelectedModel'
+    ]),
 
-    // TODO muraishi : not using currently
-    // setGoupingCategory: function () {
-    //   this.setGoupBy(this.groupby)
-    // },
-    clickedModelItem: function (model) {
-      this.loadModelsOfCurrentTaskDetail(model.id)
-      this.loadDatasetsOfCurrentTaskDetail(model.dataset_id)
-
-      // set selected_model form updated state.models
-      const selected_model = this.getModelById(model.id)
-      this.setSelectedModel(selected_model)
-    },
     setOrder: function (key) {
       if (this.isSortBy(key)) {
         this.toggleSortOrder()
@@ -310,15 +285,15 @@ export default {
     isSortBy: function (key) {
       return this.sort_order === SORTBY[key]
     },
-    rmModel: function (model_id) {
+    rmModel: function (model) {
       const func = this.removeModel
       this.showConfirm({
-        message: "Are you sure you want to <span style='color: #f00;}'>remove</span> this model?",
-        callback: function () { func(model_id) }
+        message: 'Are you sure you want to <span style="color: #FF5533;">remove</span> this model (id:' +
+          model.id + ') ?',
+        callback: function () { func(model.id) }
       })
     },
     makeModelListItem: function (model) {
-      // TODO LastBatchLoss -> BestLoss ??
       let model_item = {}
       model_item = {
         'Model': {
@@ -326,7 +301,7 @@ export default {
           'id': undefined,
           'state': undefined
         },
-        'LastBatchLoss': '-',
+        'BestBatchLoss': '-',
         'ResultOfMetric1': '-',
         'ResultOfMetric2': '-',
         'SelectedModelId': '-'
@@ -337,7 +312,7 @@ export default {
         // console.log(model)
         model_item.Model = model
 
-        model_item.LastBatchLoss = this.getLastBatchLoss(model)
+        model_item.BestBatchLoss = this.getBestBatchLoss(model)
         model_item.ResultOfMetric1 = model.getResultOfMetric1().value
         model_item.ResultOfMetric2 = model.getResultOfMetric2().value
         model_item.SelectedModelId = this.ensureSelectedModelId(this.getSelectedModel)
@@ -346,7 +321,7 @@ export default {
       // console.log(model_item)
       return model_item
     },
-    getLastBatchLoss (model) {
+    getBestBatchLoss (model) {
       if (model.getBestLoss()) {
         // console.log('*** model.getBestLoss(): ', model.getBestLoss())
         // console.log('*** model.getBestLoss().toFixed(2): ', model.getBestLoss().toFixed(2))
@@ -370,19 +345,11 @@ export default {
 @import './../../../../static/css/unified.scss';
 
 #add-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
   width: 35%;
-  background-color: $component-header-sub-color;
-  cursor: pointer;
-  &:hover {
-    background-color: $component-header-sub-color-hover;
-  }
 }
 
-#model-filter,#model-groupby,#model-titles {
+#model-filter,#model-titles {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -411,18 +378,6 @@ export default {
   }
 }
 
-#model-groupby {
-  select {
-    border: none;
-    background: transparent;
-    border: solid 1px #eeeeee;
-    height: 100%;
-    appearance: none;
-    line-height: 120%;
-    cursor: pointer;
-  }
-}
-
 #model-titles {
   font-size: 70%;
   color: gray;
@@ -431,7 +386,7 @@ export default {
   min-height: calc(#{$model-filter-min-height}*0.8);
 
   .selected {
-    color:  $component-header-sub-color;
+    color:  $blue;
     font-weight: bold;
   }
 
@@ -451,7 +406,7 @@ export default {
     color: lightgray;
   }
   .selected:hover {
-    color:  $component-header-sub-color;
+    color:  $blue;
   }
   .sort-icon {
     width: 10px;

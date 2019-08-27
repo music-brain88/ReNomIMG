@@ -11,7 +11,7 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-import RncModalFixmask from './../../Atoms/rnc-modal-fixmask/rnc-modal-fixmask.vue'
+import RncModalFixmask from './../../Molecules/rnc-modal-fixmask/rnc-modal-fixmask.vue'
 
 export default {
   name: 'RncModalConfirm',

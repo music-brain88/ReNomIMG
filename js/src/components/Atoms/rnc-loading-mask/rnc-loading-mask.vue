@@ -5,11 +5,11 @@
       id="rnc-loading-mask"
     >
       <div id="loader-container">
-        <div class="loader"/>
-        <div class="loader"/>
-        <div class="loader"/>
-        <div class="loader"/>
-        <div class="loader"/>
+        <div class="loader" />
+        <div class="loader" />
+        <div class="loader" />
+        <div class="loader" />
+        <div class="loader" />
         <div class="message">
           {{ text }}
         </div>
@@ -43,7 +43,7 @@ export default {
   width: 100%;
   height: 100vh;
   z-index: 1000;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: $modal-loading-mask-color;
   #loader-container{
     display: flex;
     flex-wrap: wrap;

@@ -17,7 +17,7 @@ import RncPredictionPanelModelDetail from './../../../Organisms/rnc-prediction-p
 import RncPredictionPanelPredictionResult from './../../../Organisms/rnc-prediction-panel-prediction-result/rnc-prediction-panel-prediction-result.vue'
 
 export default {
-  name: 'PredictionPage',
+  name: 'RncPredict',
   components: {
     'rnc-prediction-panel-prediction-result': RncPredictionPanelPredictionResult,
     'rnc-prediction-panel-model-detail': RncPredictionPanelModelDetail

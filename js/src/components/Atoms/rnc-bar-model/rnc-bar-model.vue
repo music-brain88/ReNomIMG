@@ -8,8 +8,7 @@
     <section
       v-for="(model, key) in modelInfo"
       :key="key"
-      :class="getColor(model[0])"
-      :style="getWidth(model[1])"
+      :style="getStyle(model)"
     >
       <transition name="fade">
         <div
@@ -38,8 +37,7 @@
 </template>
 
 <script>
-const RESERVED = -1
-const CREATED = -2
+import { getAlgorithmColor } from './../../../utils.js'
 
 export default {
   name: 'RncBarModel',
@@ -55,19 +53,10 @@ export default {
     }
   },
   methods: {
-    // think if better to use getter getAlgorithmColor()
-    getColor: function (model_idx) {
-      model_idx = Number(model_idx)
-      if (model_idx === CREATED) {
-        return 'color-created'
-      } else if (model_idx === RESERVED) {
-        return 'color-reserved'
-      } else {
-        return `color-${model_idx % 10}`
-      }
-    },
-    getWidth: function (model_rato) {
-      return `width : ${model_rato * 100}%;`
+    getStyle: function (model) {
+      const model_idx = model[0]
+      const model_rato = model[1]
+      return `width: ${model_rato * 100}%; background-color: ${getAlgorithmColor(model_idx)};`
     }
   }
 }
@@ -83,7 +72,7 @@ export default {
     overflow: hidden;
     section {
       height: 100%;
-      min-width: 10%;
+      min-width: 4%;
       line-height: 30px;
       display: flex;
       align-items: center;

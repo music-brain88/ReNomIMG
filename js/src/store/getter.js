@@ -331,39 +331,7 @@ export default {
       }
     }
   },
-  getAlgorithmColor (state, getters) {
-    return function (n) {
-      let color
-      switch (n % 10) {
-        // judge by first digit
-        // if n = 10
-        // the color will set case 0 variable
-        // this is using in d3
-        case 0:
-          color = '#903e84'
-          break
-        case 1:
-          color = '#423885'
-          break
-        case 2:
-          color = '#136eab'
-          break
-        case 3:
-          color = '#009453'
-          break
-        case 4:
-          color = '#93b447'
-          break
-        case 5:
-          color = '#dfd238'
-          break
-        default:
-          color = 'black'
-          break
-      }
-      return color
-    }
-  },
+
   getGroupTitles (state, getters) {
     return Object.values(GROUPBY)
   },
