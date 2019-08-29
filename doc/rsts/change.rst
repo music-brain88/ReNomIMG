@@ -2,6 +2,11 @@ Change Log
 ===========
 
 
+**v2.3b0**
+
+- Added Deeplabv3+ segmentation model to GUI
+- Revised GUI component details
+
 **v2.2b1**
 
 - Made GUI text selectable
@@ -9,7 +14,7 @@ Change Log
 
 **v2.2b0**
 
-- Added Deeplabv3 segmentation algorithm to API
+- Added Deeplabv3+ segmentation model to API
 - Refactored GUI components
 - Refactored backend server
 - Refactored CNN model architecture code

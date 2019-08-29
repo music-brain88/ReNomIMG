@@ -7,15 +7,15 @@ ReNomIMG is an image recognition model development tool.
 
 ## Version
 
-v2.2.1 beta
+v2.3.0 beta
 
 
 ## Changes
 
-v2.2b0 => v2.2b1
+v2.2b1 => v2.3b0
 
-- Made GUI text selectable
-- Fixed bugs
+- Added Deeplabv3+ segmentation model to GUI
+- Revised GUI component details
 
 Please refer to the change log at the renom.jp URL below for a complete change history:
 
@@ -32,7 +32,7 @@ Please refer to the change log at the renom.jp URL below for a complete change h
 
 ## Requirements
 
-ReNomIMG v2.2b1 requires ReNom version 2.7.3.
+ReNomIMG v2.3b0 requires ReNom version 2.7.3.
 If you haven't installed ReNom, first install it from https://github.com/ReNom-dev-team/ReNom.git.
 
 For required python modules please refer to requirements.txt.
@@ -45,7 +45,7 @@ ReNom products can only handle filenames with alphanumeric characters and hyphen
 
 ## Installation
 
-ReNomIMG v2.2b1 requires ReNom 2.7.3, which can be installed from https://github.com/ReNom-dev-team/ReNom.git.
+ReNomIMG v2.3b0 requires ReNom 2.7.3, which can be installed from https://github.com/ReNom-dev-team/ReNom.git.
 
 
 ### Installing the ReNomIMG package
@@ -63,15 +63,16 @@ The Wheel package is provided at:
 You can install the wheel package with pip3 command::
 
 - For Python3.5
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.2b1-cp35-cp35m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.3b0-cp35-cp35m-linux_x86_64.whl`
 
 - For Python3.6
-`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.2b1-cp36-cp36m-linux_x86_64.whl`
+`pip3 install https://grid-devs.gitlab.io/ReNomIMG/bin/renom_img-2.3b0-cp36-cp36m-linux_x86_64.whl`
 
 
 #### Wheels for past versions
 
 For python 3.5
+- [v2.2b1](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.2b1-cp35-cp35m-linux_x86_64.whl)
 - [v2.2b0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.2b0-cp35-cp35m-linux_x86_64.whl)
 - [v2.1b3](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b3-cp35-cp35m-linux_x86_64.whl)
 - [v2.1b2](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b2-cp35-cp35m-linux_x86_64.whl)
@@ -84,6 +85,7 @@ For python 3.5
 - [v2.0.0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.0.0-cp35-cp35m-linux_x86_64.whl)
 
 For python 3.6
+- [v2.2b1](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.2b1-cp36-cp36m-linux_x86_64.whl)
 - [v2.2b0](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.2b0-cp36-cp36m-linux_x86_64.whl)
 - [v2.1b3](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b3-cp36-cp36m-linux_x86_64.whl)
 - [v2.1b2](https://renom.jp/docs/downloads/wheels/renom_img/renom_img-2.1b2-cp36-cp36m-linux_x86_64.whl)
@@ -143,7 +145,7 @@ Type the following command in the ReNomIMG directory.
 
 `python -m renom_img`
 
-Alternatively, use the following command (available from 0.7beta onward).
+Alternatively, use the following command (available from version 0.7 beta onward).
 
 `renom_img`
 
