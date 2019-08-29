@@ -213,21 +213,21 @@ class XceptionBlock(rm.Model):
 
         self.conv1_depth = rm.GroupConv2d(
             channel=channels[0], filter=3, stride=1, padding=padding, dilation=dilation, groups=channels[0], ignore_bias=True)
-        self.bn1_depth = rm.BatchNormalize(mode='feature', epsilon=1e-3)
+        self.bn1_depth = rm.BatchNormalize(mode='feature', epsilon=1e-3, momentum=3e-4)
         self.conv1_point = rm.Conv2d(channel=channels[1], filter=1, ignore_bias=True)
-        self.bn1_point = rm.BatchNormalize(mode='feature', epsilon=1e-3)
+        self.bn1_point = rm.BatchNormalize(mode='feature', epsilon=1e-3, momentum=3e-4)
 
         self.conv2_depth = rm.GroupConv2d(
             channel=channels[1], filter=3, stride=1, padding=padding, dilation=dilation, groups=channels[1], ignore_bias=True)
-        self.bn2_depth = rm.BatchNormalize(mode='feature', epsilon=1e-3)
+        self.bn2_depth = rm.BatchNormalize(mode='feature', epsilon=1e-3, momentum=3e-4)
         self.conv2_point = rm.Conv2d(channel=channels[2], filter=1, ignore_bias=True)
-        self.bn2_point = rm.BatchNormalize(mode='feature', epsilon=1e-3)
+        self.bn2_point = rm.BatchNormalize(mode='feature', epsilon=1e-3, momentum=3e-4)
 
         self.conv3_depth = rm.GroupConv2d(
             channel=channels[2], filter=3, stride=stride, padding=padding, dilation=dilation, groups=channels[2], ignore_bias=True)
-        self.bn3_depth = rm.BatchNormalize(mode='feature', epsilon=1e-3)
+        self.bn3_depth = rm.BatchNormalize(mode='feature', epsilon=1e-3, momentum=3e-4)
         self.conv3_point = rm.Conv2d(channel=channels[3], filter=1, ignore_bias=True)
-        self.bn3_point = rm.BatchNormalize(mode='feature', epsilon=1e-3)
+        self.bn3_point = rm.BatchNormalize(mode='feature', epsilon=1e-3, momentum=3e-4)
         self.relu = rm.Relu()
 
     def forward(self, x):
@@ -272,23 +272,23 @@ class AsppModule(rm.Model):
 
         # aspp0
         self.aspp0_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
-        self.aspp0_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
+        self.aspp0_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5, momentum=3e-4)
         # aspp1
         self.aspp1_conv = rm.Conv2d(channel=256, filter=3, stride=1,
                                     padding=atrous_rates[0], dilation=atrous_rates[0], ignore_bias=True)
-        self.aspp1_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
+        self.aspp1_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5, momentum=3e-4)
         # aspp2
         self.aspp2_conv = rm.Conv2d(channel=256, filter=3, stride=1,
                                     padding=atrous_rates[1], dilation=atrous_rates[1], ignore_bias=True)
-        self.aspp2_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
+        self.aspp2_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5, momentum=3e-4)
         # aspp3
         self.aspp3_conv = rm.Conv2d(channel=256, filter=3, stride=1,
                                     padding=atrous_rates[2], dilation=atrous_rates[2], ignore_bias=True)
-        self.aspp3_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
+        self.aspp3_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5, momentum=3e-4)
         # Image Pooling
         self.avg_pool = rm.AveragePool2d(filter=filter_size)
         self.image_pool_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
-        self.image_pool_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
+        self.image_pool_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5, momentum=3e-4)
 
         self.image_pool_resize = rm.GroupConv2d(channel=256, filter=filter_size[0], stride=1, padding=int(
             filter_size[0] - 1), ignore_bias=True, initializer=np.ones, groups=256)
@@ -334,9 +334,9 @@ class CnnDeeplabv3plus(CnnBase):
         super(CnnDeeplabv3plus, self).__init__()
 
         self.conv1_1 = rm.Conv2d(32, filter=3, stride=2, padding=1, ignore_bias=True)
-        self.bn1_1 = rm.BatchNormalize(mode='feature', epsilon=1e-3)
+        self.bn1_1 = rm.BatchNormalize(mode='feature', epsilon=1e-3, momentum=3e-4)
         self.conv1_2 = rm.Conv2d(64, filter=3, stride=1, padding=1, ignore_bias=True)
-        self.bn1_2 = rm.BatchNormalize(mode='feature', epsilon=1e-3)
+        self.bn1_2 = rm.BatchNormalize(mode='feature', epsilon=1e-3, momentum=3e-4)
         self.relu = rm.Relu()
         self.dilation = int(32 / scale_factor)
 
@@ -351,7 +351,7 @@ class CnnDeeplabv3plus(CnnBase):
         self.aspp = AsppModule(num_class, self.avg_pool_filter, atrous_rates)
 
         self.concat_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
-        self.concat_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5)
+        self.concat_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5, momentum=3e-4)
         self.dropout = rm.Dropout(dropout_ratio=0.1)
         self.final_conv = rm.Conv2d(channel=num_class, filter=1, ignore_bias=False)
         self.final_resize = Deconv2d(num_class, filter=32, stride=16, padding=16,
@@ -368,7 +368,7 @@ class CnnDeeplabv3plus(CnnBase):
                 c = list([channels[i], channels[i + 1], channels[i + 1], channels[i + 1]])
                 downsample = rm.Sequential([
                     rm.Conv2d(c[-1], filter=1, stride=stride, ignore_bias=True),
-                    rm.BatchNormalize(epsilon=1e-3, mode='feature')])
+                    rm.BatchNormalize(epsilon=1e-3, mode='feature', momentum=3e-4)])
                 layers.append(block(c, stride, padding, dilation, downsample, residual))
 
             elif type == 'Middle':
@@ -380,7 +380,7 @@ class CnnDeeplabv3plus(CnnBase):
                     c = list([channels[i], channels[i], channels[i + 1], channels[i + 1]])
                     downsample = rm.Sequential([
                         rm.Conv2d(c[-1], filter=1, stride=stride, ignore_bias=True),
-                        rm.BatchNormalize(epsilon=1e-3, mode='feature')])
+                        rm.BatchNormalize(epsilon=1e-3, mode='feature', momentum=3e-4)])
                 else:
                     c = list([channels[i], channels[i + 1], channels[i + 1], channels[i + 2]])
                     residual = False
