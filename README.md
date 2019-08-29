@@ -45,7 +45,7 @@ ReNom products can only handle filenames with alphanumeric characters and hyphen
 
 ## Installation
 
-ReNomIMG v2.2b1 requires ReNom 2.7.3, which can be installed from https://github.com/ReNom-dev-team/ReNom.git.
+ReNomIMG v2.3b0 requires ReNom 2.7.3, which can be installed from https://github.com/ReNom-dev-team/ReNom.git.
 
 
 ### Installing the ReNomIMG package
