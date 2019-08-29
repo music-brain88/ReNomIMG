@@ -314,7 +314,7 @@ export const ALGORITHM = {
           options: ['8', '16', '32']
         }
       }
-    } /*,
+    },
     Deeplabv3plus: {
       id: 62,
       key: 'deeplabv3plus',
@@ -344,7 +344,6 @@ export const ALGORITHM = {
         })
       }
     }
-    */
     /*
     TernousNet: {
       id: 64,
