@@ -9,24 +9,22 @@
       <div
         v-if="getDeployedModel && getSelectedModel && getDeployedModel.id === getSelectedModel.id"
         id="deploy-button"
-        @click="undeploy"
       >
-        <i
-          class="fa fa-angle-right"
-          aria-hidden="true"
+        <rnc-button
+          :button-label="'> Un Deploy'"
+          :button-size-change="true"
+          @click-button="undeploy"
         />
-        &nbsp;Un Deploy
       </div>
       <div
         v-else
         id="deploy-button"
-        @click="deploy"
       >
-        <i
-          class="fa fa-angle-right"
-          aria-hidden="true"
+        <rnc-button
+          :button-label="'> Deploy'"
+          :button-size-change="true"
+          @click-button="deploy"
         />
-        &nbsp;Deploy
       </div>
     </template>
     <template slot="content-slot">
@@ -90,13 +88,15 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
-import RncTitleFrame from './../../Molecules/rnc-title-frame/rnc-title-frame.vue'
 import RncKeyValue from './../../Atoms/rnc-key-value/rnc-key-value.vue'
+import RncButton from './../../Atoms/rnc-button/rnc-button.vue'
+import RncTitleFrame from './../../Molecules/rnc-title-frame/rnc-title-frame.vue'
 
 export default {
   name: 'RncTrainPanelModelDetail',
   components: {
     'rnc-key-value': RncKeyValue,
+    'rnc-button': RncButton,
     'rnc-title-frame': RncTitleFrame
   },
   props: {
@@ -158,22 +158,22 @@ export default {
       'unDeployModel',
     ]),
     deploy: function () {
-      this.$emit('click-deploy')
       const model = this.getSelectedModel
       const func = this.deployModel
       this.showConfirm({
         message: '<span style="line-height: 1.2rem;">' +
-          'Are you sure you want to <span style="color: #f00;">deploy</span> this model?<br>' +
+          'Are you sure you want to <span style="color: #FF5533;">deploy</span> this model (id:' +
+          model.id + ') ?<br>' +
           '**This means undeploying current deployed model.</span>',
         callback: function () { func(model) }
       })
     },
     undeploy: function () {
-      this.$emit('click-undeploy')
       const model = this.getDeployedModel
       const func = this.unDeployModel
       this.showConfirm({
-        message: 'Are you sure you want to <span style="color: #f00;">undeploy</span> this model?',
+        message: 'Are you sure you want to <span style="color: #FF5533;">undeploy</span> this model (id:' +
+          model.id + ') ?',
         callback: function () { func(model) }
       })
     }
@@ -185,35 +185,29 @@ export default {
 @import './../../../../static/css/unified.scss';
 
 #deploy-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
   width: 25%;
-  background-color: $component-header-sub-color;
-  cursor: pointer;
-  &:hover {
-    background-color: $component-header-sub-color-hover;
-  }
-  &:active {
-    background-color: $component-header-sub-color;
-  }
 }
 
 #model-detail {
   width: 100%;
   height: 100%;
+  overflow: auto;
   padding: $padding-middle;
   display: flex;
   justify-content: space-around;
   .col {
     height: 100%;
-    font-size: 0.8rem;
+    font-size: $fs-small;
     max-width: 50%;
+    padding-left: $padding-small;
+    padding-right: $padding-small;
     .item {
       width: 100%;
+      padding-top: $padding-small;
+      padding-bottom: $padding-micro;
       text-align: center;
-      line-height: $text-height-middle;
+      line-height: $text-height-ex-micro;
     }
   }
 }

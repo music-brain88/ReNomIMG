@@ -1,12 +1,12 @@
 <template>
   <transition
-    v-if="ShowMenu"
+    v-if="showMenu"
     name="fade"
   >
     <div id="slide-menu">
       <div id="menu-list">
         <div
-          v-for="(menu, key) in MenuObj"
+          v-for="(menu, key) in menuObj"
           :key="key"
           :class="'RncDrawerMenu-button' + key"
           class="task-button"
@@ -30,17 +30,16 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
-import { TASK_ID, PAGE_ID } from '../../../const.js'
+import { PAGE_ID } from '../../../const.js'
 
 export default {
   name: 'RncDrawerMenu',
   props: {
-    MenuObj: {
+    menuObj: {
       type: Array,
       default: _ => [],
     },
-    ShowMenu: {
+    showMenu: {
       type: Boolean,
       default: false
     }
@@ -55,16 +54,7 @@ export default {
       }
     }
   },
-  computed: {
-    TASK: function () {
-      return TASK_ID
-    }
-  },
   methods: {
-    ...mapMutations([
-      'setCurrentPage'
-    ]),
-
     onItemClick: function (page_name) {
       const pageData = this.routerData[page_name.toLowerCase()]
 
@@ -73,16 +63,15 @@ export default {
       }
 
       const path = pageData.path
-      const page = pageData.page
+      const page_number = pageData.page
 
       if (this.$router != null) {
         this.$router.push({ path })
-        this.setCurrentPage(page)
       } else {
-        console.warn(`The '$router' is not present in the Component. The path is: ${path}, and the page is: ${page}`)
+        console.warn(`The '$router' is not present in the Component. The path is: ${path}, and the page is: ${page_number}`)
       }
 
-      this.$emit('show-drawer-menu')
+      this.$emit('show-drawer-menu', page_number)
 
       return path
     }
@@ -105,14 +94,14 @@ export default {
   #slide-mask {
     height: 100vh;
     width: 100%;
-    background-color: $slide-window-mask-color;
+    background-color: $modal-mask-color;
   }
 
   #menu-list {
     height: 100vh;
     width: 10%;
     min-width: $slide-window-width-min;
-    background-color: $slide-window-background-color;
+    background-color: $dark-blue;
 
     .task-button {
       font-size: 125%;

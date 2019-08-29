@@ -41,15 +41,9 @@ export default {
 @import './../../../../static/css/unified.scss';
 
 .rnc-color-label{
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
   font-family: $component-font-family;
-  font-size: $component-font-size-small;
-  color: $component-font-color-title;
+  font-size: $fs-small;
+  color: $gray;
   height: 100%;
   display: flex;
   flex-wrap: wrap;

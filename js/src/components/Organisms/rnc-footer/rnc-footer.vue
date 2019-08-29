@@ -21,7 +21,7 @@
 
 <script>
 export default {
-  name: 'AppFooter',
+  name: 'RncFooter',
   props: {
     version: {
       type: String,
@@ -42,7 +42,7 @@ footer {
   position: relative;
   width: 100%;
   height: $footer-height;
-  background: $footer-background;
+  background: $dark-blue;
   z-index: 1;
   .footer-content {
     max-width: $max-width;
@@ -69,7 +69,7 @@ footer {
     bottom: 0;
     width: 100%;
     height: 20px;
-    background: $footer-background-dark;
+    background: $copyright-blue;
     .copyright {
       max-width: $max-width;
       height: 20px;

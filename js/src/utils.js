@@ -1,18 +1,5 @@
-export function round (v, round_off) {
-  return Math.round(v * round_off) / round_off
-}
-
-export function round_percent (v) {
-  return Math.round(v * 100)
-}
-
-export function min (x, y) {
-  return x < y ? x : y
-}
-
-export function max (x, y) {
-  return x > y ? x : y
-}
+import * as d3 from 'd3'
+import { inner_axis_color, outer_axis_color, algorithm_colors } from './const_style'
 
 export function getTagColor (n) {
   if (n % 10 === 0) return '#E7009A'
@@ -25,6 +12,46 @@ export function getTagColor (n) {
   if (n % 10 === 7) return '#FFCC33'
   if (n % 10 === 8) return '#EF8200'
   if (n % 10 === 9) return '#E94C33'
+}
+
+export function getAlgorithmColor (n) {
+  let color
+  if (n === 4294967295) {
+    color = algorithm_colors.color_user_defined
+  } else if (Number(n) === -1) {
+    color = algorithm_colors.color_reserved// $color-reserved
+  } else if (Number(n) === -2) {
+    color = algorithm_colors.color_created// $color-created
+  } else {
+    switch (n % 10) {
+      // judge by first digit
+      // if n = 10
+      // the color will set case 0 variable
+      // this is using in d3
+      case 0:
+        color = algorithm_colors.color_0
+        break
+      case 1:
+        color = algorithm_colors.color_1
+        break
+      case 2:
+        color = algorithm_colors.color_2
+        break
+      case 3:
+        color = algorithm_colors.color_3
+        break
+      case 4:
+        color = algorithm_colors.color_4
+        break
+      case 5:
+        color = algorithm_colors.color_5
+        break
+      default:
+        color = algorithm_colors.color_no_model
+        break
+    }
+  }
+  return color
 }
 
 export function render_segmentation (item) {
@@ -124,4 +151,42 @@ export function setup_image_list (dataset, parent_width, parent_height, margin) 
     pages.push(one_page)
   }
   return pages
+}
+
+// 以下RGオリジナル
+
+export function max (array) {
+  return Math.max.apply(null, array)
+}
+
+export function min (array) {
+  return Math.min.apply(null, array)
+}
+
+export function round (v, round_off) {
+  return Math.round(v * round_off) / round_off
+}
+
+/**
+* d3
+*/
+export function getScale (domain, range) {
+  return d3.scaleLinear()
+    .domain(domain)
+    .range(range)
+}
+
+export function removeSvg (id) {
+  d3.select(id).selectAll('svg').remove()
+}
+
+export function styleAxis (axis) {
+  axis.selectAll('path')
+    .style('stroke', outer_axis_color)
+  axis.selectAll('line')
+    .style('stroke', inner_axis_color)
+    .style('stroke-dasharray', '2,2')
+  axis.selectAll('.tick').selectAll('text')
+    .style('fill', outer_axis_color)
+    .style('font-size', '0.60em')
 }

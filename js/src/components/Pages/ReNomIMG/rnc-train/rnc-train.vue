@@ -3,19 +3,19 @@
     <div id="components">
       <rnc-train-panel-progress
         :width-weight="7"
-        :height-weight="5"
+        :height-weight="5.5"
       />
       <rnc-train-panel-model-scatter
         :width-weight="5"
-        :height-weight="5"
+        :height-weight="5.5"
       />
       <rnc-train-panel-model-detail
         :width-weight="7"
-        :height-weight="5"
+        :height-weight="5.5"
       />
       <rnc-train-panel-learning-curve
         :width-weight="5"
-        :height-weight="5"
+        :height-weight="5.5"
       />
       <rnc-train-panel-prediction-result
         :width-weight="9"
@@ -81,6 +81,7 @@ export default {
     display: flex;
     align-content: flex-start;
     flex-wrap: wrap;
+    height: 100%;
     width: calc(9.5*#{$component-block-width});
   }
   #vertical-component {

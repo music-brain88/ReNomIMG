@@ -27,16 +27,19 @@
           :checked="show_image"
           :label="'Image'"
           :disabled="!isTaskSegmentation"
+          class="button-switch"
           @change="show_image = !show_image"
         />
         <rnc-button-switch
           :checked="show_prediction"
           :label="'Prediction'"
+          class="button-switch"
           @change="onChangePredictionCheckBox"
         />
         <rnc-button-switch
           :checked="show_target"
           :label="'Target'"
+          class="button-switch"
           @change="onChangeTargetCheckBox"
         />
       </div>
@@ -268,70 +271,33 @@ export default {
 <style lang='scss' scoped>
 @import './../../../../static/css/unified.scss';
 
-.rnc-title-frame {
-  .component-header {
-    #valid-prediction-button-area {
-      display: flex;
-      align-items: center;
+#valid-prediction-button-area {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  width: 30%;
+  .button-switch {
+    margin-right: 10px;
+  }
+}
+
+.frame-content {
+  .pager {
+    padding-right: $padding-small;
+    height: 5%;
+    #pager {
       justify-content: flex-end;
-      height: 100%;
-      width: 30%;
-      input {
-        display: none;
-        -webkit-appearance: none;
-      }
-      label {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: $component-header-font-family;
-        font-size: 90%;
-        margin-right: 10px;
-      }
-      input[type="checkbox"] {
-        content: "";
-        display: block;
-        height: 12px;
-        width: 12px;
-        border: 1px solid white;
-        border-radius: 6px;
-      }
-      input[type="checkbox"]:checked {
-        content: "";
-        display: block;
-        border: 1px solid white;
-        background-color: white;
-      }
-      input[type="checkbox"]:disabled {
-        content: "";
-        display: block;
-        border: 1px solid gray;
-        background-color: gray;
-      }
-      input[type="checkbox"]:focus {
-          outline:none;
-      }
     }
   }
 
-  .frame-content {
-    .pager {
-      padding-right: $padding-small;
-      height: 5%;
-      #pager {
-        justify-content: flex-end;
-      }
-    }
-
-    #img-container{
-      width: 100%;
-      height: 95%;
-      display: flex;
-      flex-wrap: wrap;
-      div:hover {
-        cursor: pointer;
-      }
+  #img-container{
+    width: 100%;
+    height: 95%;
+    display: flex;
+    flex-wrap: wrap;
+    div:hover {
+      cursor: pointer;
     }
   }
 }

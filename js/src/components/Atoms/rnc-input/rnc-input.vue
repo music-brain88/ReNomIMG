@@ -3,21 +3,23 @@
     <div class="input-value">
       <input
         v-if="!isTextarea"
+        v-model="internalValue"
         :type="inputType"
         :disabled="disabled"
         :class="{'form-warn': (invalidInput || length_error || value_error || text_type_error), 'checkbox': inputType === 'checkbox'}"
-        :place-holder="placeHolder"
-        v-model="internalValue"
+        :placeholder="placeHolder"
         class="input-in"
+        @change="userChangeFlg"
       >
       <textarea
         v-else
+        v-model="internalValue"
         :disabled="disabled"
         :class="{'form-warn': (invalidInput || length_error || value_error || text_type_error)}"
-        :place-holder="placeHolder"
+        :placeholder="placeHolder"
         :rows="rows"
-        v-model="internalValue"
         class="input-in"
+        @change="userChangeFlg"
       />
     </div>
   </div>
@@ -25,6 +27,7 @@
 
 <script>
 export default {
+  name: 'RncInput',
   props: {
     value: {
       type: [String, Number, Boolean],
@@ -98,7 +101,8 @@ export default {
         type_error: '',
         value_error: '',
         length_error: '',
-      }
+      },
+      user_change_flg: false
     }
   },
   computed: {
@@ -112,7 +116,24 @@ export default {
     },
   },
   watch: {
-    value: function () {
+    // ※ checkValue()の条件分岐で使用してる値は全てwatchに入れる
+    value: function () { this.checkValue() },
+    inputType: function () { this.checkValue() },
+    onlyNumber: function () { this.checkValue() },
+    onlyInt: function () { this.checkValue() },
+    inputMaxValue: function () { this.checkValue() },
+    inputMinValue: function () { this.checkValue() },
+    inputMaxLength: function () { this.checkValue() },
+    inputMinLength: function () { this.checkValue() }
+  },
+  methods: {
+    userChangeFlg: function () {
+      this.user_change_flg = true
+      // checkValue()は値変更時に実行されているためuserChangeFlg()では実行不要。
+      // ( userChangeFlg()はフォームからフォーカスが外れた時に実行される )
+      this.emitRncInput()
+    },
+    checkValue: function () {
       if (this.inputType !== 'checkbox') {
         // C. for any text-input=================================================================
         this.error_message.type_error = ''
@@ -183,9 +204,7 @@ export default {
         return
         // C. for any text-input=================================================================
       }
-    }
-  },
-  methods: {
+    },
     emitRncInput: function () {
       let ret_message = ''
       Object.values(this.error_message).forEach((message) => {
@@ -197,7 +216,8 @@ export default {
         'textTypeError': this.text_type_error,
         'valueError': this.value_error,
         'lengthError': this.length_error,
-        'errorMessage': ret_message
+        'errorMessage': ret_message,
+        'userChangeFlg': this.user_change_flg
       })
     }
   }
@@ -207,9 +227,26 @@ export default {
 <style lang="scss" scoped>
 @import './../../../../static/css/unified.scss';
 
-// .vali-params {
-//   color: $err_red;
-//   font-size: $fs-small;
-//   padding-top: 3px
-// }
+.rnc-input {
+  width: 100%;
+  align-items: center;
+  .input-value {
+    .input-in {
+      width: 100%;
+      &::placeHolder {
+        color: $light-gray;
+      }
+      &:disabled {
+        color: $gray;
+        background-color: $ex-light-gray;
+        border-color: $light-gray;
+        cursor: not-allowed;
+      }
+    }
+    .checkbox {
+      width: 10px;
+      cursor: pointer;
+    }
+  }
+}
 </style>

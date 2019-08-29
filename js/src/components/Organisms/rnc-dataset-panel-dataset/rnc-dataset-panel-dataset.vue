@@ -7,6 +7,13 @@
       >
         <template slot="header-slot">
           Dataset
+          <div id="setting-button">
+            <rnc-button
+              :button-label="'> Setting of Dataset'"
+              :button-size-change="true"
+              @click-button="showModal({add_both: true})"
+            />
+          </div>
         </template>
         <template slot="content-slot">
           <div id="container">
@@ -89,23 +96,20 @@
                   </span>
                 </div>
                 <div class="col">
-                  <div
-                    v-if="description"
-                    id="description-field"
-                  >
-                    {{ description }}
-                  </div>
-                  <div v-else-if="selected_dataset">
-                    No description
-                  </div>
-                  <div v-else />
+                  <rnc-input
+                    v-model="description"
+                    :is-textarea="true"
+                    :disabled="true"
+                    :place-holder="'No description'"
+                    :rows="5"
+                  />
                 </div>
               </div>
 
               <div
-                v-if="selected_dataset"
+                v-if="selected_dataset && bar_move"
                 id="dataset-num-bar"
-                :class="{'bar-anime': bar_move}"
+                :class="{'grow-x-anime': bar_move}"
               >
                 <div class="bar">
                   <rnc-bar-dataset
@@ -122,8 +126,9 @@
                   :key="key"
                 >
                   <div
+                    v-if="bar_move"
                     id="dataset-class-bars"
-                    :class="{'bar-anime': bar_move}"
+                    :class="{'grow-x-anime': bar_move}"
                   >
                     <div class="bar">
                       <rnc-bar-dataset
@@ -146,16 +151,20 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import RncBarDataset from './../../Atoms/rnc-bar-dataset/rnc-bar-dataset.vue'
 import RncKeyValue from './../../Atoms/rnc-key-value/rnc-key-value.vue'
+import RncInput from './../../Atoms/rnc-input/rnc-input.vue'
+import RncButton from './../../Atoms/rnc-button/rnc-button.vue'
 import RncTitleFrame from './../../Molecules/rnc-title-frame/rnc-title-frame.vue'
 
 export default {
-  name: 'DatasetPage',
+  name: 'RncDatasetPanelDataset',
   components: {
     'rnc-bar-dataset': RncBarDataset,
     'rnc-key-value': RncKeyValue,
+    'rnc-input': RncInput,
+    'rnc-button': RncButton,
     'rnc-title-frame': RncTitleFrame
   },
   props: {
@@ -171,8 +180,8 @@ export default {
   data: function () {
     return {
       clicked_dataset_id: undefined,
-      isHover: false,
-      bar_move: false
+      bar_move: false,
+      selected_id: undefined
     }
   },
   computed: {
@@ -277,19 +286,28 @@ export default {
       this.reset()
     },
     selected_dataset: function () {
-      this.bar_move = false
       // 少し時間を開けて、モーションが正常稼働しない不具合を解消
-      setTimeout(this.barMoveTrue, 50)
+      // ↓2度選択される現象が発生しているため、selected_id判定追加
+      if (this.selected_id !== this.selected_dataset.id) {
+        this.bar_move = false
+        this.selected_id = this.selected_dataset.id
+        setTimeout(this.barMoveTrue, 100)
+      }
     }
   },
   mounted: function () {
     if (this.datasets) {
-      this.bar_move = true
       this.clickedDatasetsItem(this.datasets[0])
     }
   },
   methods: {
-    ...mapActions(['loadDatasetsOfCurrentTaskDetail']),
+    ...mapActions([
+      'loadDatasetsOfCurrentTaskDetail'
+    ]),
+    ...mapMutations([
+      'showModal'
+    ]),
+
     reset: function () {
       this.selected_dataset = undefined
     },
@@ -299,7 +317,6 @@ export default {
     clickedDatasetsItem: function (dataset) {
       this.loadDatasetsOfCurrentTaskDetail(dataset.id)
       this.clicked_dataset_id = dataset.id
-      this.bar_move = false
     }
   }
 }
@@ -312,13 +329,13 @@ export default {
   display: flex;
   align-content: flex-start;
   flex-wrap: wrap;
-  font-size: $component-font-size-small;
+  font-size: $fs-small;
 
   .title {
     width: 100%;
     height: 5%;
     color: gray;
-    font-size: $component-font-size;
+    font-size: $fs-regular;
   }
 
   #components {
@@ -326,6 +343,12 @@ export default {
     align-content: flex-start;
     flex-wrap: wrap;
     width: calc(12*#{$component-block-width});
+
+    #setting-button {
+      height: 100%;
+      width: 15%;
+    }
+
     #container {
       width: 100%;
       height: 100%;
@@ -342,17 +365,7 @@ export default {
         align-content: center;
         width: 100%;
         height: 35px;
-        border-bottom: solid 1px #eee;
-        cursor: pointer;
-        &:hover {
-          background-color: #ddd;
-        }
-        &:active {
-          background-color: #eee;
-        }
-        &.selected {
-          color: $component-header-sub-color;
-        }
+        border-bottom: $border-width-regular solid $light-gray;
         span {
           display: flex;
           align-items: center;
@@ -370,16 +383,16 @@ export default {
           align-content: center;
           width: 100%;
           height: 35px;
-          border-bottom: solid 1px #eee;
+          border-bottom: $border-width-regular solid $light-gray;
           cursor: pointer;
           &:hover {
-            background-color: #ddd;
+            background-color: $item-hover-color;
           }
           &:active {
-            background-color: #eee;
+            background-color: $ex-light-gray;
           }
           &.selected {
-            color: $component-header-sub-color;
+            color: $blue;
           }
           span {
             display: flex;
@@ -395,7 +408,7 @@ export default {
       width: 70%;
       height: 100%;
       padding: 20px;
-      color: $component-font-color;
+      color: $black;
       .items {
         overflow: auto;
         height: 65%;
@@ -423,15 +436,6 @@ export default {
         }
         .col:nth-child(2) {
           width: 70%;
-          div {
-            width: calc(100% - 20px);
-            height: calc(100% - 20px);
-            word-wrap: break-word;
-            padding: 10px;
-            background-color: #eee;
-            border: solid 1px #ddd;
-            overflow: auto;
-          }
         }
       }
       #dataset-num-bar {
@@ -465,22 +469,9 @@ export default {
           }
         }
       }
-      .bar-anime {
-        animation: growX 0.8s;
-        animation-fill-mode: both;
-        animation-iteration-count: 1;
-      }
       .bar {
         height: 20px;
         width: 94%;
-      }
-      @keyframes growX {
-        0% {
-          transform: translateX(-50%) scaleX(0);
-        }
-        100% {
-          transform: translateX(0) scaleX(1);
-        }
       }
     }
   }
