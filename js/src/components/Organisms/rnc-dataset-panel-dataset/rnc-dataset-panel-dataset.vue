@@ -107,7 +107,7 @@
               </div>
 
               <div
-                v-if="selected_dataset"
+                v-if="selected_dataset && bar_move"
                 id="dataset-num-bar"
                 :class="{'grow-x-anime': bar_move}"
               >
@@ -126,6 +126,7 @@
                   :key="key"
                 >
                   <div
+                    v-if="bar_move"
                     id="dataset-class-bars"
                     :class="{'grow-x-anime': bar_move}"
                   >
@@ -179,7 +180,8 @@ export default {
   data: function () {
     return {
       clicked_dataset_id: undefined,
-      bar_move: false
+      bar_move: false,
+      selected_id: undefined
     }
   },
   computed: {
@@ -284,14 +286,17 @@ export default {
       this.reset()
     },
     selected_dataset: function () {
-      this.bar_move = false
       // 少し時間を開けて、モーションが正常稼働しない不具合を解消
-      setTimeout(this.barMoveTrue, 50)
+      // ↓2度選択される現象が発生しているため、selected_id判定追加
+      if (this.selected_id !== this.selected_dataset.id) {
+        this.bar_move = false
+        this.selected_id = this.selected_dataset.id
+        setTimeout(this.barMoveTrue, 100)
+      }
     }
   },
   mounted: function () {
     if (this.datasets) {
-      this.bar_move = true
       this.clickedDatasetsItem(this.datasets[0])
     }
   },
