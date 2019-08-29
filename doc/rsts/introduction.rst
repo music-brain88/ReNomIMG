@@ -72,10 +72,10 @@ ReNomIMG provides the following algorithms.
 
 * Segmentation
 
-  .. - U-Net
   - FCN
-  .. - Deeplabv3
+  - Deeplabv3+
   .. - TernousNet
+  .. - U-Net
 
 * Classification
 

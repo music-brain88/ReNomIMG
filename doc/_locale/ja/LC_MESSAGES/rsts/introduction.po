@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-05 02:24+0900\n"
+"POT-Creation-Date: 2019-08-29 17:59+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -156,8 +156,12 @@ msgstr ""
 msgid "Segmentation"
 msgstr "セグメンテーション"
 
-#: ../../rsts/introduction.rst:76
+#: ../../rsts/introduction.rst:75
 msgid "FCN"
+msgstr ""
+
+#: ../../rsts/introduction.rst:76
+msgid "Deeplabv3+"
 msgstr ""
 
 #: ../../rsts/introduction.rst:80
