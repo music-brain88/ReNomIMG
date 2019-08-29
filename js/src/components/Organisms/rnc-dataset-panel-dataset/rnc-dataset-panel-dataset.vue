@@ -286,10 +286,10 @@ export default {
       this.reset()
     },
     selected_dataset: function () {
-      this.bar_move = false
       // 少し時間を開けて、モーションが正常稼働しない不具合を解消
       // ↓2度選択される現象が発生しているため、selected_id判定追加
       if (this.selected_id !== this.selected_dataset.id) {
+        this.bar_move = false
         this.selected_id = this.selected_dataset.id
         setTimeout(this.barMoveTrue, 100)
       }
