@@ -1,10 +1,12 @@
 <template>
   <transition
     v-if="showModal"
-    class= "rnc-modal-togglemask"
     name="modal"
   >
-    <div id="modal-wrapper">
+    <div
+      id="modal-wrapper"
+      :style="styles"
+    >
       <div
         id="modal-mask"
         @click="toggle"
@@ -14,11 +16,6 @@
         <slot name="modal-contents">
           default: Hello World!
         </slot>
-        <!-- <add-both v-if="show_modal.add_both"/>
-        <add-dataset v-if="show_modal.add_dataset"/>
-        <add-filter v-if="show_modal.add_filter"/>
-        <show-image v-if="show_modal.show_image"/>
-        <show-prediction-image v-if="show_modal.show_prediction_image"/> -->
       </div>
     </div>
   </transition>
@@ -31,11 +28,27 @@ export default {
     showModal: {
       type: Boolean,
       default: false
+    },
+    widthWeight: {
+      type: Number,
+      default: 7.5,
+    },
+    heightWeight: {
+      type: Number,
+      default: 9.5,
     }
   },
   data: function () {
     return {
       close_modal: false
+    }
+  },
+  computed: {
+    styles () {
+      return {
+        '--width-weight': this.widthWeight,
+        '--height-weight': this.heightWeight
+      }
     }
   },
   methods: {
@@ -64,11 +77,14 @@ export default {
     background-color: $modal-mask-color;
   }
   #modal-container {
+    width: calc(var(--width-weight) * #{$component-block-width});
+    height: calc(var(--height-weight) * #{$component-block-height});
     position: fixed;
-    left: calc((100vw - 60vw) / 2);
-    top: calc((100vh - 60vh) / 2);
-    width: 60vw;
-    height: 60vh;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
     background-color: white;
     padding: $modal-content-padding;
   }

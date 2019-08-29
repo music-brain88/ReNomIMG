@@ -7,16 +7,13 @@
   >
     <template slot="header-slot">
       Model Detail
-      <div
-        id="prediction-run-button"
-        :class="{disabled: !isRunnable}"
-        @click="runPredictionThread(model.id)"
-      >
-        <i
-          class="fa fa-angle-right"
-          aria-hidden="true"
+      <div id="prediction-run-button">
+        <rnc-button
+          :button-label="'> Run Prediction'"
+          :button-size-change="true"
+          :disabled="!isRunnable"
+          @click-button="runPredictionThread(model.id)"
         />
-        &nbsp;Run Prediction
       </div>
     </template>
     <template slot="content-slot">
@@ -53,13 +50,15 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import RncTitleFrame from './../../Molecules/rnc-title-frame/rnc-title-frame.vue'
 import RncKeyValue from './../../Atoms/rnc-key-value/rnc-key-value.vue'
+import RncButton from './../../Atoms/rnc-button/rnc-button.vue'
+import RncTitleFrame from './../../Molecules/rnc-title-frame/rnc-title-frame.vue'
 
 export default {
   name: 'RncPredictionPanelModelDetail',
   components: {
     'rnc-key-value': RncKeyValue,
+    'rnc-button': RncButton,
     'rnc-title-frame': RncTitleFrame
   },
   props: {
@@ -102,20 +101,8 @@ export default {
 @import './../../../../static/css/unified.scss';
 
 #prediction-run-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
-  width: 56%;
-  background-color: $component-header-sub-color;
-  cursor: pointer;
-  &:hover {
-    background-color: $component-header-sub-color-hover;
-  }
-  &.disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-  }
+  width: 54%;
 }
 
   #deployed-model-datail {

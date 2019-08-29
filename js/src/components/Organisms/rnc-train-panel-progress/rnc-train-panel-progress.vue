@@ -104,7 +104,6 @@ export default {
     ...mapGetters([
       'getRunningModelList',
       'getFilteredModelList',
-      // 'getAlgorithmColor',
       'getCurrentTask',
       'getColorClass',
     ]),
@@ -116,11 +115,12 @@ export default {
     ...mapActions(['stopModelTrain']),
     ...mapMutations(['showConfirm']),
 
-    callModal: function (model_id) {
+    callModal: function (model) {
       const func = this.stopModelTrain
       this.showConfirm({
-        message: "Are you sure you want to <span style='color: #f00;}'>stop</span> this model?",
-        callback: function () { func(model_id) }
+        message: 'Are you sure you want to <span style="color: #FF5533;">stop</span> this model (id:' +
+          model.id + ') ?',
+        callback: function () { func(model) }
       })
     },
     reduceModelList: function (model_list) {
@@ -188,7 +188,7 @@ export default {
       height: 80%;
       display: flex;
       align-items: flex-end;
-      color: $component-font-color-title;
+      color: $gray;
     }
     #legend {
       width: 100%;
@@ -208,7 +208,7 @@ export default {
           height: $total-model-legend-box-width;
         }
         #legend-title {
-          font-size: $component-font-size-small;
+          font-size: $fs-small;
           margin-left: $total-model-legend-box-margin-left;
         }
       }
@@ -246,7 +246,7 @@ export default {
     #progress-title {
       width: 100%;
       margin-bottom: $total-model-title-padding-bottom;
-      color: $component-font-color-title;
+      color: $gray;
       #progress-bars {
         width: 100%;
       }

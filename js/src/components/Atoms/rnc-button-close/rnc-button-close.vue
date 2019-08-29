@@ -28,7 +28,7 @@ export default {
   }
   .fa-times {
     &:hover {
-      color: $model-item-remove-button-color;
+      color: $dark-red;
       cursor: pointer;
     }
   }

@@ -1,6 +1,9 @@
 <template>
   <div class="rcn-key-value">
-    <p class="key-text">
+    <p
+      :class="{'key-value-margin': (keyText && valueText)}"
+      class="key-text"
+    >
       {{ keyText }}
     </p>
     <p class="value-text">
@@ -15,11 +18,11 @@ export default {
   props: {
     keyText: {
       type: [String, Number, Boolean],
-      default: 'undefined'
+      default: undefined
     },
     valueText: {
       type: [String, Number, Boolean],
-      default: 'undefined'
+      default: undefined
     }
   },
   // computed: {
@@ -45,12 +48,15 @@ export default {
   font-family: $component-font-family;
   .key-text {
     text-align: center;
-    color: $component-font-color-title;
+    color: $gray;
+  }
+  /* keyとvalue両方指定された場合のみマージンを入れます */
+  .key-value-margin {
     margin-right: 10px;
   }
   .value-text {
     text-align: center;
-    color: $component-font-color;
+    color: $black;
   }
 }
 </style>

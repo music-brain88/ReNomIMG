@@ -15,8 +15,8 @@
       </div>
     </div>
 
-    <rnc-modal-alert v-if="$store.state.show_alert_modal" />
-    <rnc-modal-confirm v-if="$store.state.show_confirm_modal" />
+    <rnc-modal-alert v-if="show_alert_modal" />
+    <rnc-modal-confirm v-if="show_confirm_modal" />
     <rnc-modal-togglemask
       :show-modal="show"
       @show-modal="closeToggleModal"
@@ -95,10 +95,19 @@ export default {
     }
   },
   computed: {
-    ...mapState(['show_loading_mask', 'show_modal']),
-    ...mapGetters(['getShowSlideMenu']),
+    ...mapState([
+      'show_loading_mask',
+      'show_modal',
+      'current_page',
+      'show_alert_modal',
+      'show_confirm_modal'
+    ]),
+    ...mapGetters([
+      'getShowSlideMenu'
+    ]),
+
     currentPage: function () {
-      return this.$store.state.current_page
+      return this.current_page
     },
     show: function () {
       return Object.values(this.show_modal).some((d) => d)
@@ -124,9 +133,19 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['init']),
-    ...mapMutations(['setCurrentPage', 'showSlideMenu', 'showModal']),
-    showDrawerMenu: function (page_name) {
+    ...mapActions([
+      'init'
+    ]),
+    ...mapMutations([
+      'setCurrentPage',
+      'showSlideMenu',
+      'showModal'
+    ]),
+
+    showDrawerMenu: function (page_number) {
+      if (page_number !== null && page_number !== undefined) {
+        this.setCurrentPage(page_number)
+      }
       this.showSlideMenu(false)
     },
     closeToggleModal: function () {
@@ -167,8 +186,8 @@ export default {
   position: absolute;
   top: 0px;
   width: 100%;
-  font-size: $component-font-size;
-  color: $component-font-color;
+  font-size: $fs-regular;
+  color: $black;
   background-color: #f4f4f2;
 
   #app-content {

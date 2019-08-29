@@ -1,10 +1,13 @@
 <template>
-  <div id="learning-curve">
+  <div
+    id="learning-curve"
+    @mouseenter="TooltipDisplay = false"
+  >
     <div id="title-epoch">
-      {{ AxisNameXData }}
+      {{ axisNameXData }}
     </div>
     <div id="title-loss">
-      {{ AxisNameYData }}
+      {{ axisNameYData }}
     </div>
     <div
       ref="canvas"
@@ -14,7 +17,7 @@
         :top="TooltipTop"
         :left="TooltipLeft"
         :display="TooltipDisplay"
-        :text-array="TextArray"
+        :text-array="TooltipTextArray"
         :kind="TooltipKind"
       />
     </div>
@@ -22,10 +25,11 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
 import * as d3 from 'd3'
-import { train_color, valid_color, algorithm_colors } from './../../../const'
+import { train_color, valid_color } from './../../../const_style'
+import { STATE } from './../../../const'
 import RncTooltip from './../../Atoms/rnc-tooltip/rnc-tooltip.vue'
+import { getAlgorithmColor } from './../../../utils.js'
 
 export default {
   name: 'RncGridXY',
@@ -36,45 +40,67 @@ export default {
     kind: {
       type: String,
       default: 'learning-curve',
-      validator: val => ['learning-curve', 'model-scatter'].includes(val),
+      validator: val => ['learning-curve', 'model-scatter'].includes(val)
     },
-    AxisNameX: {
+    axisNameX: {
       type: String,
-      default: '',
+      default: ''
     },
-    AxisNameY: {
+    axisNameY: {
       type: String,
-      default: '',
+      default: ''
     },
-    SelectedModelObj: {
+    selectedModelObj: {
       type: Object,
-      default: function () { return undefined },
+      default: function () { return undefined }
     },
-    FilteredAndGroupedModelListArray: {
+    filteredAndGroupedModelListArray: {
       type: Array,
-      default: function () { return undefined },
+      default: function () { return undefined }
     },
     switchTrainGraph: {
       type: Boolean,
-      default: false,
+      default: false
     },
     switchValidGraph: {
       type: Boolean,
-      default: false,
+      default: false
+    },
+    algorithmTitleFunc: {
+      type: Function,
+      default: function () { return undefined }
+    },
+    percentMagnification: {
+      type: Boolean,
+      default: false
+    },
+    endOfAxisXY: {
+      type: Object,
+      default: function () {
+        return {
+          'x': {
+            'max': 100,
+            'min': 0
+          },
+          'y': {
+            'max': 100,
+            'min': 0
+          }
+        }
+      }
     }
   },
   data: function () {
     return {
-      tooltip: null,
       train_graph_flg: true,
       valid_graph_flg: true,
       TooltipTop: 0,
       TooltipLeft: 0,
       TooltipDisplay: false,
-      TextArray: undefined,
+      TooltipTextArray: undefined,
       TooltipKind: 'no-model',
-      AxisNameXData: '',
-      AxisNameYData: '',
+      axisNameXData: '',
+      axisNameYData: '',
 
       margin: { top: 15, left: 40, right: 20, bottom: 35 },
       TrainLine: undefined,
@@ -95,9 +121,8 @@ export default {
   },
   computed: {
     getTrainLossList: function () {
-      const model = this.SelectedModelObj
+      const model = this.selectedModelObj
       if (undefined !== model) {
-        // TODO muraishi: train_loss_list
         return model.train_loss_list
       } else {
         return []
@@ -106,14 +131,9 @@ export default {
     idKind () {
       return `${this.kind}-canvas`
     },
-    ...mapGetters([
-      'getAlgorithmTitleFromId',
-      'getSelectedModel',
-      'getModelById'
-    ]),
     zoom: function () {
       const zoom = d3.zoom()
-        .scaleExtent([1, 2])
+        .scaleExtent([1, 3])
         .translateExtent([[0, 0], [this.canvas_width, this.canvas_height]])
         .on('zoom', this.zoomed, { passive: true })
       return zoom
@@ -124,7 +144,7 @@ export default {
       // Watches the change of train_loss_list.
       this.drawLearningCurve()
     },
-    FilteredAndGroupedModelListArray: function () {
+    filteredAndGroupedModelListArray: function () {
       this.drawModelScatter()
     },
     switchTrainGraph: function () {
@@ -143,14 +163,14 @@ export default {
         d3.select('#valid-scatter').remove()
       }
     },
-    getSelectedModel: function () {
+    selectedModelObj: function () {
       this.drawModelScatter()
     }
   },
   mounted: function () {
     if (this.kind === 'learning-curve') {
-      this.AxisNameXData = this.AxisNameX
-      this.AxisNameYData = this.AxisNameY
+      this.axisNameXData = this.axisNameX
+      this.axisNameYData = this.axisNameY
       this.drawLearningCurve()
       window.addEventListener('resize', this.drawLearningCurve, false)
     } else if (this.kind === 'model-scatter') {
@@ -167,14 +187,6 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['setSelectedModel']),
-    // ADD muraishi
-    ...mapActions([
-      'loadModelsOfCurrentTaskDetail',
-      'loadDatasetsOfCurrentTaskDetail',
-      'updateSelectedModel'
-    ]),
-
     drawLearningCurve: function () {
       if (!this.kind) return
 
@@ -189,15 +201,12 @@ export default {
       let train_loss_list = []
       let valid_loss_list = []
 
-      if (this.SelectedModelObj) {
-        const model = this.SelectedModelObj
-        // TODO muraishi : best_epoch_valid_result
+      if (this.selectedModelObj) {
+        const model = this.selectedModelObj
         const best_epoch = model.best_epoch_valid_result
         best_epoch_nth = (best_epoch && best_epoch.nth_epoch) ? best_epoch.nth_epoch : 0
         best_epoch_loss = (best_epoch && best_epoch.loss) ? best_epoch.loss : 0
 
-        // TODO muraishi : train_loss_list
-        // TODO muraishi : valid_loss_list
         train_loss_list = model.train_loss_list
         valid_loss_list = model.valid_loss_list
         if (!train_loss_list) {
@@ -207,14 +216,11 @@ export default {
           valid_loss_list = []
         }
       }
-      const learning_epoch = train_loss_list.length
-      let maxX = Math.max(learning_epoch + 1, 10)
-      maxX = Math.ceil(maxX / 5) * 5
-      const minX = 0
-      let maxY = Math.max((Math.max.apply(null, [...train_loss_list, ...valid_loss_list]) * 1.1), 1)
-      maxY = Math.ceil(maxY)
-      let minY = Math.min(Math.min.apply(null, [...train_loss_list, ...valid_loss_list]), 0)
-      minY = Math.floor(minY)
+
+      const minX = this.endOfAxisXY.x.min
+      const maxX = this.endOfAxisXY.x.max
+      const minY = this.endOfAxisXY.y.min
+      const maxY = this.endOfAxisXY.y.max
 
       // if line chart axis overflow, clip the graph
       svg
@@ -226,14 +232,6 @@ export default {
         .attr('y', margin.top)
         .attr('width', this.canvas_width - (margin.left + margin.right))
         .attr('height', this.canvas_height - (margin.top + margin.bottom))
-
-      if (!this.tooltip) {
-        // Ensure only one tooltip is exists.
-        this.tooltip = d3.select('#learning-curve-canvas')
-          .append('div')
-          .append('display', 'none')
-          .style('position', 'absolute')
-      }
 
       // Set size.
       svg.attr('width', this.canvas_width)
@@ -320,7 +318,7 @@ export default {
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('fill', 'none')
         .attr('stroke', 'red')
-        .attr('stroke-width', 1)
+        .attr('stroke-width', 1.4)
         .attr('opacity', 0.7)
         .attr('x1', this.scaleX(best_epoch_nth))
         .attr('y1', this.scaleY(maxY))
@@ -329,12 +327,23 @@ export default {
 
         .on('mouseenter', (d, index) => {
           // find svg id and get mouse position
-          const x = d3.event.layerX + 10
-          const y = d3.event.layerY + 10
+          let x = d3.event.layerX
+          let y = d3.event.layerY
+          if (x >= this.canvas_width * 0.5) {
+            x -= 105
+          } else {
+            x += 10
+          }
+          if (y >= this.canvas_height * 0.5) {
+            // ↓約2行分
+            y -= 60
+          } else {
+            y += 10
+          }
 
           this.TooltipLeft = x
           this.TooltipTop = y
-          this.TextArray = [
+          this.TooltipTextArray = [
             {
               'key': 'Best Epoch',
               'value': best_epoch_nth
@@ -370,12 +379,23 @@ export default {
 
           .on('mouseenter', (d, index) => {
             // find svg id and get mouse position
-            const x = d3.event.layerX + 10
-            const y = d3.event.layerY + 10
+            let x = d3.event.layerX
+            let y = d3.event.layerY
+            if (x >= this.canvas_width * 0.5) {
+              x -= 105
+            } else {
+              x += 10
+            }
+            if (y >= this.canvas_height * 0.5) {
+              // ↓約2行分
+              y -= 60
+            } else {
+              y += 10
+            }
 
             this.TooltipLeft = x
             this.TooltipTop = y
-            this.TextArray = [
+            this.TooltipTextArray = [
               {
                 'key': 'Epoch',
                 'value': (index + 1)
@@ -407,12 +427,23 @@ export default {
           .attr('r', 1.5)
 
           .on('mousemove', (d, index) => {
-            const x = d3.event.layerX + 10
-            const y = d3.event.layerY + 10
+            let x = d3.event.layerX
+            let y = d3.event.layerY
+            if (x >= this.canvas_width * 0.5) {
+              x -= 105
+            } else {
+              x += 10
+            }
+            if (y >= this.canvas_height * 0.5) {
+              // ↓約2行分
+              y -= 60
+            } else {
+              y += 10
+            }
 
             this.TooltipLeft = x
             this.TooltipTop = y
-            this.TextArray = [
+            this.TooltipTextArray = [
               {
                 'key': 'Epoch',
                 'value': (index + 1)
@@ -429,21 +460,19 @@ export default {
             this.TooltipDisplay = false
           })
       }
-      // d3.select('#learning-curve-canvas')
-      //   .on('contextmenu', this.resetZoom)
     },
 
     drawModelScatter: function () {
       if (!this.kind) return
-      if (!this.FilteredAndGroupedModelListArray) return
+      if (!this.filteredAndGroupedModelListArray) return
 
       d3.select('#model-scatter-canvas').select('svg').remove() // Remove SVG if it has been created.
       const margin = this.margin
       const canvas = this.$refs.canvas
       this.canvas_width = canvas.clientWidth
       this.canvas_height = canvas.clientHeight
-      const circle_radius = Math.min(this.canvas_width * 0.02, this.canvas_height * 0.02)
-      const model_list = this.FilteredAndGroupedModelListArray
+      const circle_radius = Math.min(this.canvas_width * 0.016, this.canvas_height * 0.016)
+      const model_list = this.filteredAndGroupedModelListArray
       const svg = d3.select('#model-scatter-canvas').append('svg').attr('id', 'model-scatter-graph')
 
       // if line chart axis overflow, clip the graph
@@ -464,10 +493,19 @@ export default {
         .call(this.zoom)
 
       // Axis Settings
-      this.scaleX = d3.scaleLinear().domain([0, 100])
+      // 最小値と最大値が同じ場合（モデルが1つ）、値を調整する処理を追加
+      if (this.endOfAxisXY.x.min === this.endOfAxisXY.x.max) {
+        this.endOfAxisXY.x.max = this.endOfAxisXY.x.max * 1.1
+        this.endOfAxisXY.x.min = this.endOfAxisXY.x.min * 0.9
+      }
+      if (this.endOfAxisXY.y.min === this.endOfAxisXY.y.max) {
+        this.endOfAxisXY.y.max = this.endOfAxisXY.y.max * 1.1
+        this.endOfAxisXY.y.min = this.endOfAxisXY.y.min * 0.9
+      }
+      this.scaleX = d3.scaleLinear().domain([this.endOfAxisXY.x.min, this.endOfAxisXY.x.max])
         .range([0, this.canvas_width - margin.left - margin.right])
 
-      this.scaleY = d3.scaleLinear().domain([0, 100])
+      this.scaleY = d3.scaleLinear().domain([this.endOfAxisXY.y.min, this.endOfAxisXY.y.max])
         .range([this.canvas_height - margin.bottom - margin.top, 0])
 
       // Sublines.
@@ -493,13 +531,6 @@ export default {
             .scale(this.scaleX)
         )
 
-      if (!this.tooltip) {
-        this.tooltip = d3.select('#model-scatter-canvas')
-          .append('div')
-          .style('display', 'none')
-          .style('position', 'absolute')
-      }
-
       this.axX = d3.axisBottom(this.scaleX).ticks(5)
       this.axY = d3.axisLeft(this.scaleY).ticks(5)
 
@@ -515,9 +546,18 @@ export default {
       // Line graph
       const PlotLayer = svg.append('g').attr('clip-path', 'url(#model-scatter-clip)')
       let selected_model_id = 0
-      if (this.getSelectedModel) {
-        selected_model_id = this.getSelectedModel.id
+      if (this.selectedModelObj) {
+        selected_model_id = this.selectedModelObj.id
       }
+
+      // Check if it is in percent
+      let Magnification = 1
+      let Percent = ''
+      if (this.percentMagnification) {
+        Magnification = 100
+        Percent = ' [%]'
+      }
+
       // Plot Models.
       this.PlotModel = PlotLayer.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
@@ -533,48 +573,39 @@ export default {
           }
         })
         .attr('cx', (m) => {
-          // TODO: Modify data distribution
           const metric = m.getResultOfMetric1()
-          this.AxisNameXData = metric.metric + ' [%]'
+          if (metric.metric === 'RMSE') {
+            metric.metric = 'RMSE (Root Mean Squared Error)'
+          }
+          this.axisNameXData = metric.metric + Percent
           if (metric.value === '-') metric.value = 0
-          const total_width = this.canvas_width - margin.left - margin.right
-          const rescaled_point_x = metric.value * total_width
-          return rescaled_point_x
+          return this.scaleX(metric.value * Magnification)
         })
         .attr('cy', (m) => {
-          // TODO: Modify data distribution
           const metric = m.getResultOfMetric2()
-          this.AxisNameYData = metric.metric + ' [%]'
+          if (metric.metric === 'MaxAbsErr') {
+            metric.metric = 'Max Absolute Error'
+          }
+          this.axisNameYData = metric.metric + Percent
           if (metric.value === '-') metric.value = 0
-          const total_height = this.canvas_height - margin.top - margin.bottom
-          const rescaled_point_y = (1 - metric.value) * total_height
-          return rescaled_point_y
+          return this.scaleY(metric.value * Magnification)
         })
         .attr('fill', (m) => {
-          if (String(m.algorithm_id).slice(-1) === '0') {
-            return algorithm_colors.color_0
-          } else if (String(m.algorithm_id).slice(-1) === '1') {
-            return algorithm_colors.color_1
-          } else if (String(m.algorithm_id).slice(-1) === '2') {
-            return algorithm_colors.color_2
-          } else if (String(m.algorithm_id).slice(-1) === '3') {
-            return algorithm_colors.color_3
-          } else if (String(m.algorithm_id).slice(-1) === '4') {
-            return algorithm_colors.color_4
-          } else if (String(m.algorithm_id).slice(-1) === '5') {
-            return algorithm_colors.color_5
-          } else {
-            return algorithm_colors.color_no_model
-          }
+          return getAlgorithmColor(m.algorithm_id)
         })
         .on('mouseenter', (m, index) => {
-          let x = d3.event.layerX + 10
-          let y = d3.event.layerY + 10
-          if (x >= this.canvas_width * 0.8) {
-            x -= 100
+          let x = d3.event.layerX
+          let y = d3.event.layerY
+          if (x >= this.canvas_width * 0.5) {
+            x -= 105
+          } else {
+            x += 10
           }
-          if (y >= this.canvas_height * 0.8) {
-            y -= 80
+          if (y >= this.canvas_height * 0.5) {
+            // ↓約4行分
+            y -= 95
+          } else {
+            y += 10
           }
 
           const metric1 = m.getResultOfMetric1()
@@ -582,14 +613,14 @@ export default {
 
           this.TooltipLeft = x
           this.TooltipTop = y
-          this.TextArray = [
+          this.TooltipTextArray = [
             {
               'key': 'ID',
               'value': m.id
             },
             {
-              'key': 'Model',
-              'value': this.getAlgorithmTitleFromId(m.algorithm_id)
+              'key': 'Alg',
+              'value': this.algorithmTitleFunc(m.algorithm_id)
             },
             {
               'key': metric1.metric,
@@ -600,17 +631,28 @@ export default {
               'value': metric2.value
             },
           ]
-          this.TooltipKind = String(m.algorithm_id).slice(-1)
+          if (String(m.algorithm_id) === '4294967295') {
+            this.TooltipKind = 'user-defined'
+          } else {
+            this.TooltipKind = String(m.algorithm_id).slice(-1)
+          }
           this.TooltipDisplay = true
         })
         .on('mouseleave', () => {
           this.TooltipDisplay = false
         })
         .on('click', (m) => {
-          this.updateSelectedModel(m)
+          this.$emit('update-sel-mod', m)
         })
-      // d3.select('#model-scatter-canvas')
-      //   .on('contextmenu', this.resetZoom)
+        // トレーニング中モデルの点滅処理
+        .attr('class', (m) => {
+          if (m.state !== undefined && m.state !== STATE.STOPPED) {
+            return 'training-blink'
+          } else {
+            return ''
+          }
+        })
+        .style('stroke', (m) => { return getAlgorithmColor(m.algorithm_id) })
     },
 
     zoomed: function () {
@@ -629,27 +671,6 @@ export default {
       }
       this.gX.call(this.axX.scale(d3.event.transform.rescaleX(this.scaleX)))
       this.gY.call(this.axY.scale(d3.event.transform.rescaleY(this.scaleY)))
-    },
-    // TODO:おそらく使われていないためコメントアウト
-    // resetZoom: function () {
-    //   svg.transition().duration(1000).call(zoom.transform, d3.zoomIdentity)
-    //   if (this.kind == "learning-curve") {
-    //     this.TrainLine.attr('transform', 'translate(' + [this.margin.left, this.margin.top] + ')')
-    //     this.ValidLine.attr('transform', 'translate(' + [this.margin.left, this.margin.top] + ')')
-    //     this.TrainScatter.attr('transform', 'translate(' + [this.margin.left, this.margin.top] + ')')
-    //     this.ValidScatter.attr('transform', 'translate(' + [this.margin.left, this.margin.top] + ')')
-    //   } else {
-    //     this.PlotModel.attr('transform', 'translate(' + [this.margin.left, this.margin.top] + ')')
-    //   }
-    //   d3.event.preventDefault()
-    // }
-    clickedModelItem: function (model) {
-      this.loadModelsOfCurrentTaskDetail(model.id)
-      this.loadDatasetsOfCurrentTaskDetail(model.dataset_id)
-
-      // set selected_model form updated state.models
-      const selected_model = this.getModelById(model.id)
-      this.setSelectedModel(selected_model)
     }
   }
 }
@@ -662,7 +683,7 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
-  color: $component-font-color-title;
+  color: $gray;
   #title-epoch {
     position: absolute;
     top: calc(100% - #{$scatter-padding}*1.5);
@@ -670,7 +691,7 @@ export default {
     width: calc(100% - #{$scatter-padding});
     height: $scatter-padding;
     text-align: center;
-    font-size: $component-font-size-small;
+    font-size: $fs-small;
   }
   #title-loss {
     position: absolute;
@@ -680,7 +701,7 @@ export default {
     height: 100%;
     writing-mode: vertical-rl;
     text-align: center;
-    font-size: $component-font-size-small;
+    font-size: $fs-small;
   }
 
   #learning-curve-canvas {
@@ -690,17 +711,17 @@ export default {
     width: calc(100% - #{$scatter-padding}*2);
     height: calc(100% - #{$scatter-padding}*2);
     .grid-line line {
-      stroke: $scatter-grid-color;
+      stroke: $light-gray;
     }
     .axis path {
       stroke: lightgray;
     }
     .axis line {
-      stroke: $scatter-grid-color;
+      stroke: $light-gray;
     }
     .tick {
       text {
-        fill: $component-font-color-title;
+        fill: $gray;
       }
     }
   }
@@ -716,12 +737,12 @@ export default {
         stroke: lightgray;
       }
       line {
-        stroke: $scatter-grid-color;
+        stroke: $light-gray;
       }
     }
     .tick {
       text {
-        fill: $component-font-color-title;
+        fill: $gray;
       }
       line {
         stroke-dasharray: 2, 2;

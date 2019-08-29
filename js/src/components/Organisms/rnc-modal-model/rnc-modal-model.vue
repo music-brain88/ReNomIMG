@@ -91,7 +91,7 @@
       <rnc-button
         :disabled="isRunnable"
         button-label="Create"
-        @click="onCreateModel"
+        @click-button="onCreateModel"
       />
     </div>
   </div>
@@ -104,7 +104,7 @@ import RncSelect from '../../Atoms/rnc-select/rnc-select.vue'
 import RncInput from '../../Atoms/rnc-input/rnc-input.vue'
 
 export default {
-  name: 'RncModalMdel',
+  name: 'RncModalModel',
   components: {
     'rnc-button': RncButton,
     'rnc-select': RncSelect,
@@ -192,7 +192,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   padding: 10px;
-  font-size: $component-font-size;
+  font-size: $fs-regular;
 
   .title {
     display: flex;
@@ -201,7 +201,7 @@ export default {
     color: gray;
   }
   .label {
-    color: $component-font-color;
+    color: $black;
   }
 
   #generals {
@@ -238,7 +238,7 @@ export default {
         }
         .vali-mes {
           margin-top: $margin-micro;
-          color: $err_red;
+          color: $red;
           font-size: $fs-small;
           text-align: right;
         }
