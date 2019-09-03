@@ -5379,6 +5379,7 @@ div[class^='highlight'] pre {
   min-height: 100%;
   background: #343131;
   z-index: 200;
+  margin-top: 50px;
 }
 
 .wy-side-scroll {
