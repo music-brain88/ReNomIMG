@@ -11,7 +11,12 @@
     <template slot="content-slot">
       <rnc-grid-x-y
         :filtered-and-grouped-model-list-array="FilteredAndGroupedModelListArray"
+        :algorithm-title-func="getAlgorithmTitleFromId"
+        :selected-model-obj="getSelectedModel"
+        :percent-magnification="percentMagnification"
+        :end-of-axis-x-y="endOfAxisXY"
         kind="model-scatter"
+        @update-sel-mod="updateSelectedModel($event)"
       />
     </template>
   </rnc-title-frame>
@@ -19,7 +24,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import RncTitleFrame from './../../Molecules/rnc-title-frame/rnc-title-frame.vue'
 import RncGridXY from './../../Molecules/rnc-grid-x-y/rnc-grid-x-y.vue'
 
@@ -41,14 +46,25 @@ export default {
   },
   data: function () {
     return {
-      // AxisNameX: "Epoch [-]",
-      // AxisNameY: "Loss [-]",
-      FilteredAndGroupedModelListArray: []
+      FilteredAndGroupedModelListArray: [],
+      percentMagnification: true,
+      endOfAxisXY: {
+        'x': {
+          'max': 100,
+          'min': 0
+        },
+        'y': {
+          'max': 100,
+          'min': 0
+        }
+      }
     }
   },
   computed: {
     ...mapGetters([
-      'getFilteredAndGroupedModelList'
+      'getFilteredAndGroupedModelList',
+      'getAlgorithmTitleFromId',
+      'getSelectedModel'
     ])
   },
   watch: {
@@ -58,6 +74,11 @@ export default {
   },
   mounted: function () {
     this.FilteredAndGroupedModelListArray = this.getFilteredAndGroupedModelList
+  },
+  methods: {
+    ...mapActions([
+      'updateSelectedModel'
+    ])
   }
 }
 </script>

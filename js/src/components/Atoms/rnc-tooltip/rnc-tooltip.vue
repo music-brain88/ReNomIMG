@@ -13,7 +13,7 @@
         class="scatter-canvas"
       >
         <div
-          v-for="(item, index) in TextArray"
+          v-for="(item, index) in textArray"
           :key="index"
         >
           <div>
@@ -33,7 +33,7 @@ export default {
     kind: {
       type: [Number, String],
       default: 'no-model',
-      validator: val => ['no-model', 'train', 'valid', '0', '1', '2', '3', '4', '5'].includes(val)
+      validator: val => ['no-model', 'train', 'valid', 'user-defined', '0', '1', '2', '3', '4', '5'].includes(val)
     },
     top: {
       type: Number,
@@ -47,7 +47,7 @@ export default {
       type: Boolean,
       default: false
     },
-    TextArray: {
+    textArray: {
       type: Array,
       default: undefined
     }
@@ -83,6 +83,7 @@ export default {
 
 .tooltip-position{
   position: absolute;
+  z-index: 99;
   .scatter-canvas {
     -webkit-transition: all .2s;
     -moz-transition: all .2s;

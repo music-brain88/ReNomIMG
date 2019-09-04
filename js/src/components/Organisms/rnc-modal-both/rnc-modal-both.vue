@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 import RncModalTogglemask from '../../Atoms/rnc-modal-togglemask/rnc-modal-togglemask.vue'
 import RncModalModel from '../rnc-modal-model/rnc-modal-model.vue'
 import RncModalDataset from '../rnc-modal-dataset/rnc-modal-dataset.vue'
@@ -44,15 +44,25 @@ export default {
       isAddModelShown: true,
     }
   },
-
+  computed: {
+    ...mapState([
+      'current_page'
+    ])
+  },
+  created: function () {
+    if (this.current_page === 1) {
+      this.isAddModelShown = false
+    }
+  },
   methods: {
     ...mapMutations(['showModal']),
+
     showAddModel: function () {
       this.isAddModelShown = true
     },
     showAddDataset: function () {
       this.isAddModelShown = false
-    },
+    }
   }
 }
 </script>
@@ -73,7 +83,7 @@ export default {
       justify-content: center;
       height: 100%;
       width: 25%;
-      background-color: $modal-tab-color-not-selected;
+      background-color: $dark-blue;
       color: white;
       cursor: pointer;
     }

@@ -22,7 +22,7 @@ export default {
     colorClass: {
       type: String,
       default: 'color-0',
-      validator: val => ['color-created', 'color-reserved', 'color-0', 'color-1', 'color-2', 'color-3', 'color-4', 'color-5'].includes(val)
+      // validator: val => ['color-created', 'color-reserved', 'color-0', 'color-1', 'color-2', 'color-3', 'color-4', 'color-5'].includes(val)
     },
     totalBatch: {
       type: Number,
@@ -72,7 +72,7 @@ export default {
   #bar-background {
     width: 100%;
     height: calc(100% - #{$progress-bar-margin}*2);
-    background-color: $progress-bar-background-color;
+    background-color: $light-gray;
     #bar-front.training {
       position: relative;
       top: 0;

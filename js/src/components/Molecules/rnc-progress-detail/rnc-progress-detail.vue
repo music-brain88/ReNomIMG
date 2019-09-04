@@ -36,10 +36,26 @@
           Validating
         </span>
         <span v-else-if="model.isStopping()">
-          Stopping
+          <span
+            v-if="model.renom_rg"
+            class="rg-message"
+          >
+            Calculating Feature Importance
+          </span>
+          <span v-else>
+            Stopping
+          </span>
         </span>
         <span v-else-if="model.isWeightDownloading()">
-          Weight Downloading
+          <span
+            v-if="model.renom_rg"
+            class="rg-message"
+          >
+            Creating MachineLearning model
+          </span>
+          <span v-else>
+            Weight Downloading
+          </span>
         </span>
       </span>
     </div>
@@ -83,8 +99,8 @@ export default {
     colorClass: {
       type: String,
       default: 'color-0',
-      validator: val => ['color-created', 'color-reserved', 'color-0', 'color-1', 'color-2', 'color-3', 'color-4', 'color-5'].includes(val)
-    },
+      // validator: val => ['color-created', 'color-reserved', 'color-0', 'color-1', 'color-2', 'color-3', 'color-4', 'color-5'].includes(val)
+    }
   },
   computed: {
     model_id: function () {
@@ -156,7 +172,7 @@ export default {
       if (this.model === undefined) {
         return '-'
       } else {
-        return this.model.last_batch_loss.toFixed(3)
+        return parseFloat(this.model.last_batch_loss).toFixed(3)
       }
     }
   },
@@ -172,13 +188,6 @@ export default {
       if (this.model) {
         const model_id = this.model.id
         this.$emit('click-stop-button', model_id)
-
-        // TODO : commit mutaion in the parent
-        // const func = this.stopModelTrain
-        // this.showConfirm({
-        //   message: "Are you sure you want to <span style='color: #f00;}'>stop</span> this model?",
-        //   callback: function () { func(id) }
-        // })
       }
     }
   }
@@ -195,7 +204,7 @@ export default {
   width: 100%;
   height: $progress-bar-height;
   margin-bottom: $progress-bar-margin-bottom;
-  font-size: $component-font-size-small;
+  font-size: $fs-small;
 
   #model-id-area {
     display: flex;
@@ -222,15 +231,18 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 18%;
+    width: 19%;
     height: 100%;
+    .rg-message {
+      font-size: $fs-micro;
+    }
   }
 
   #bar-area {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 33%;
+    width: 29%;
     height: 70%;
   }
 }

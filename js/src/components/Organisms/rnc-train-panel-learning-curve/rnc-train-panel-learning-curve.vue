@@ -39,6 +39,7 @@
           :selected-model-obj="SelectedModelObj"
           :switch-train-graph="switchTrainGraph"
           :switch-valid-graph="switchValidGraph"
+          :end-of-axis-x-y="endOfAxisXY"
           kind="learning-curve"
           axis-name-x="Epoch [-]"
           axis-name-y="Loss [-]"
@@ -78,7 +79,17 @@ export default {
       // AxisNameY: "Loss [-]",
       SelectedModelObj: {},
       switchTrainGraph: false,
-      switchValidGraph: false
+      switchValidGraph: false,
+      endOfAxisXY: {
+        'x': {
+          'max': 10,
+          'min': 0
+        },
+        'y': {
+          'max': 10,
+          'min': 0
+        }
+      }
     }
   },
   computed: {
@@ -89,10 +100,12 @@ export default {
   watch: {
     getSelectedModel: function () {
       this.SelectedModelObj = this.getSelectedModel
+      this.shapeAxisXY()
     }
   },
   mounted: function () {
     this.SelectedModelObj = this.getSelectedModel
+    this.shapeAxisXY()
   },
   methods: {
     switch_train_graph: function () {
@@ -100,6 +113,32 @@ export default {
     },
     switch_valid_graph: function (flg) {
       this.switchValidGraph = !this.switchValidGraph
+    },
+    shapeAxisXY: function () {
+      if (!this.getSelectedModel) return
+
+      const train_loss_list = this.getSelectedModel.train_loss_list
+      const valid_loss_list = this.getSelectedModel.valid_loss_list
+      const learning_epoch = train_loss_list.length
+      let maxX = Math.max(learning_epoch + 1, 10)
+      maxX = Math.ceil(maxX / 5) * 5
+      const minX = 0
+      let maxY = Math.max((Math.max.apply(null, [...train_loss_list, ...valid_loss_list]) * 1.1), 1)
+      maxY = Math.ceil(maxY)
+      let minY = Math.min(Math.min.apply(null, [...train_loss_list, ...valid_loss_list]), 0)
+      minY = Math.floor(minY)
+
+      this.endOfAxisXY = {
+        'x': {
+          'max': maxX,
+          'min': minX
+        },
+        'y': {
+          'max': maxY,
+          'min': minY
+        }
+      }
+      // console.log('変換後endOfAxisXY：', this.endOfAxisXY)
     }
   }
 }
@@ -112,7 +151,7 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
-  color: $component-font-color-title;
+  color: $gray;
   .legend {
     position: absolute;
     width: calc(100% - #{$scatter-padding}*2);
@@ -121,7 +160,7 @@ export default {
     flex-wrap: nowrap;
     justify-content: flex-end;
     align-items: center;
-    font-size: $component-font-size-small;
+    font-size: $fs-small;
     .graph-off {
       text-decoration: line-through;
     }
@@ -137,7 +176,7 @@ export default {
         margin-right: 4px;
         font-size: 10px;
         font-weight: bold;
-        color: $color-best-epoch;
+        color: $red;
       }
     }
   }
