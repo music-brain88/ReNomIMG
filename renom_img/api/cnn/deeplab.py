@@ -332,7 +332,7 @@ class CnnDeeplabv3plus(CnnBase):
     def __init__(self, num_class, imsize=(513, 513), scale_factor=16, atrous_rates=[6, 12, 18], decoder=False):
 
         super(CnnDeeplabv3plus, self).__init__()
-
+        self.num_class = num_class
         self.conv1_1 = rm.Conv2d(32, filter=3, stride=2, padding=1, ignore_bias=True)
         self.bn1_1 = rm.BatchNormalize(mode='feature', epsilon=1e-3, momentum=3e-4)
         self.conv1_2 = rm.Conv2d(64, filter=3, stride=1, padding=1, ignore_bias=True)
@@ -348,13 +348,13 @@ class CnnDeeplabv3plus(CnnBase):
                                      728, 1024, 1536, 2048], stride=1, dilation=1, type='Exit')
         self.avg_pool_filter = (
             int(np.ceil(imsize[0] / scale_factor)), int(np.ceil(imsize[1] / scale_factor)))
-        self.aspp = AsppModule(num_class, self.avg_pool_filter, atrous_rates)
+        self.aspp = AsppModule(self.num_class, self.avg_pool_filter, atrous_rates)
 
         self.concat_conv = rm.Conv2d(channel=256, filter=1, ignore_bias=True)
         self.concat_bn = rm.BatchNormalize(mode='feature', epsilon=1e-5, momentum=3e-4)
         self.dropout = rm.Dropout(dropout_ratio=0.1)
-        self.final_conv = rm.Conv2d(channel=num_class, filter=1, ignore_bias=False)
-        self.final_resize = Deconv2d(num_class, filter=32, stride=16, padding=16,
+        self.final_conv = rm.Conv2d(channel=self.num_class, filter=1, ignore_bias=False)
+        self.final_resize = Deconv2d(self.num_class, filter=32, stride=16, padding=16,
                                      ignore_bias=True, initializer=DeconvInitializer(), ceil_mode=True)
 
     def _make_flow(self, block, units, channels, stride=1, padding=1, dilation=1, type=None):
@@ -391,6 +391,7 @@ class CnnDeeplabv3plus(CnnBase):
         return rm.Sequential(layers)
 
     def forward(self, x):
+        self._freeze()
         x = self.conv1_1(x)
         x = self.bn1_1(x)
         x = self.relu(x)
@@ -412,11 +413,11 @@ class CnnDeeplabv3plus(CnnBase):
 
         x = self.final_conv(x)
         x = self.final_resize(x)
-        self._freeze()
+
         return x
 
     def set_output_size(self, output_size):
-        self.output_size = output_size
+        self.num_class = output_size
 
     def _freeze(self):
         self.conv1_1.set_auto_update(self.train_whole)
