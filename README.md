@@ -24,6 +24,11 @@ Please refer to the change log at the renom.jp URL below for a complete change h
 
 ## Recommended Environment
 
+- OS: Ubuntu 16.04
+- Browser: Google Chrome(version 63.0.3239.132)
+- Python: 3.5 or 3.6
+- ReNom: 2.7.3
+
 
 ## Requirements
 
@@ -34,6 +39,8 @@ For required python modules please refer to requirements.txt.
 
 
 ### Important note
+
+ReNom products can only handle filenames with alphanumeric characters and hyphens.
 
 
 ## Installation
@@ -93,12 +100,44 @@ For python 3.6
 
 ### Installing from source
 
+For installing ReNomIMG from source, download the repository from the following URL.
+
+`git clone https://github.com/ReNom-dev-team/ReNomIMG.git`
+
+Next, move into the ReNomIMG directory.
+
+`cd ReNomIMG`
+
+First install all required packages via pip.
+
+`pip install -r requirements.txt`
+
+Next, install the ReNomIMG module using the following command.
+
+`pip install -e .`
+
+Finally, build the extension modules.
+
+`python setup.py build`
+
 
 ## How to use
+
+Please refer to the following link for detailed instructions: 
+
+- ReNomIMG - renom.jp
+
+http://renom.jp/packages/renomimg/index.html
 
 
 ### Quick start - Start with example data.
 
+The following command prepares an example dataset [PASCAL VOC].
+You can try ReNomIMG right away with this example dataset.
+
+`renom_img setup_example`
+
+This command will create the `datasrc` and `storage` directories.
 
 ### Quck start - How to start
 
@@ -124,3 +163,4 @@ After the server starts, you should see a message like the following.
 To use ReNomIMG for commercial purposes, you must first obtain a paid license. Please contact us or one of our resellers.  If you are an individual wishing to use ReNomIMG for academic, educational and/or product evaluation purposes, you may use ReNomIMG royalty-free.
 The ReNom Subscription agreements are subject to change without notice. You agree to be bound by any such revisions. You are responsible for visiting www.renom.jp to determine the latest terms to which you are bound.
 
+[PASCAL VOC]:http://host.robots.ox.ac.uk/pascal/VOC/
