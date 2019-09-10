@@ -137,6 +137,10 @@ class InceptionV1(Classification):
     def loss(self, x, y):
         return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3 * rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
 
+    def forward(self,x):
+        self._model.set_output_size(self.num_class)
+        return self._model(x)
+
     def predict(self, img_list, batch_size=1):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):
@@ -220,6 +224,9 @@ class InceptionV3(Classification):
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
 
+    def forward(self,x):
+        self._model.set_output_size(self.num_class)
+        return self._model(x)
 
 class InceptionV2(Classification):
     """ Inception V2 model
@@ -280,6 +287,9 @@ class InceptionV2(Classification):
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
 
+    def forward(self,x):
+        self._model.set_output_size(self.num_class)
+        return self._model(x)
 
 class InceptionV4(Classification):
     """ Inception V4 model
@@ -314,6 +324,10 @@ class InceptionV4(Classification):
 
         self.default_optimizer = OptimizerInception(4)
         self.decay_rate = 0.0005
+
+    def forward(self,x):
+        self._model.set_output_size(self.num_class)
+        return self._model(x)
 
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)

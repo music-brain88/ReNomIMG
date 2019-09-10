@@ -194,6 +194,9 @@ class ResNeXt50(Classification):
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
 
+    def forward(self,x):
+        self._model.set_output_size(self.num_class)
+        return self._model(x)
 
 @adddoc
 class ResNeXt101(Classification):
@@ -251,6 +254,10 @@ class ResNeXt101(Classification):
         self.default_optimizer = OptimizerResNeXt(plateau)
         self.decay_rate = 0.0001
         self._model.fc.params = {}
+
+    def forward(self,x):
+        self._model.set_output_size(self.num_class)
+        return self._model(x)
 
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)

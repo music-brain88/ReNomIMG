@@ -263,7 +263,7 @@ def check_missing_param(class_map):
         assert len(
             class_map) > 0, "class_map not defined. Please define a class_map or load pretrained weights that contain a class_map."
     except Exception as e:
-        raise MissingParamError(str(e))
+        raise MissingInputError(str(e))
 
 
 def check_segmentation_label(label, n):
