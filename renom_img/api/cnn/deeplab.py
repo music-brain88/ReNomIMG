@@ -429,8 +429,8 @@ class CnnDeeplabv3plus(CnnBase):
         self.flow1.set_auto_update(self.train_whole)
         self.flow2.set_auto_update(self.train_whole)
         self.flow3.set_auto_update(self.train_whole)
-        self.aspp.image_pool_resize.params.w._auto_update = False
-        self.final_resize.params.w._auto_update = False
+        self.aspp.image_pool_resize.set_auto_update(False)
+        self.final_resize.set_auto_update(False)
 
     def _freeze_bn(self):
         for l in self.iter_models():
