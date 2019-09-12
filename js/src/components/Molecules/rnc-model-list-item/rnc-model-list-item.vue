@@ -44,7 +44,7 @@
     </div>
     <div id="model-buttons">
       <rnc-button-close
-        v-if="!isDeployedModel && model.state == state_stopped"
+        v-if="!isDeployedModel && model.state != state_started"
         @click="$emit('rm-model', model)"
       />
       <div
@@ -114,8 +114,8 @@ export default {
     }
   },
   computed: {
-    state_stopped: function () {
-      return STATE.STOPPED
+    state_started: function () {
+      return STATE.STARTED
     }
   },
   created: function () {

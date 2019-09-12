@@ -636,18 +636,29 @@ export default {
           } else {
             this.TooltipKind = String(m.algorithm_id).slice(-1)
           }
-          this.TooltipDisplay = true
+          // 学習が始まっていないModelは表示させない
+          if (m.state !== undefined && (m.state === STATE.CREATED || m.state === STATE.CREATED)) {
+            this.TooltipDisplay = false
+          } else {
+            this.TooltipDisplay = true
+          }
         })
         .on('mouseleave', () => {
           this.TooltipDisplay = false
         })
         .on('click', (m) => {
-          this.$emit('update-sel-mod', m)
+          // 学習が始まっていないModelは表示させない
+          if (m.state !== undefined && (m.state !== STATE.CREATED && m.state !== STATE.CREATED)) {
+            this.$emit('update-sel-mod', m)
+          }
         })
         // トレーニング中モデルの点滅処理
         .attr('class', (m) => {
-          if (m.state !== undefined && m.state !== STATE.STOPPED) {
+          if (m.state !== undefined && m.state === STATE.STARTED) {
             return 'training-blink'
+          } else if (m.state !== undefined && (m.state === STATE.CREATED || m.state === STATE.CREATED)) {
+            // 学習が始まっていないModelは表示させない
+            return 'opacity-0'
           } else {
             return ''
           }
@@ -747,6 +758,9 @@ export default {
       line {
         stroke-dasharray: 2, 2;
       }
+    }
+    .opacity-0 {
+      opacity: 0;
     }
   }
 }
