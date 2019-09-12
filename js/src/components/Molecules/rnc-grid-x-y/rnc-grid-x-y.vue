@@ -637,7 +637,7 @@ export default {
             this.TooltipKind = String(m.algorithm_id).slice(-1)
           }
           // 学習が始まっていないModelは表示させない
-          if (m.state !== undefined && (m.state === STATE.CREATED || m.state === STATE.CREATED)) {
+          if (m.state !== undefined && (m.state === STATE.CREATED || m.state === STATE.RESERVED)) {
             this.TooltipDisplay = false
           } else {
             this.TooltipDisplay = true
@@ -648,7 +648,7 @@ export default {
         })
         .on('click', (m) => {
           // 学習が始まっていないModelは表示させない
-          if (m.state !== undefined && (m.state !== STATE.CREATED && m.state !== STATE.CREATED)) {
+          if (m.state !== undefined && (m.state !== STATE.CREATED && m.state !== STATE.RESERVED)) {
             this.$emit('update-sel-mod', m)
           }
         })
@@ -656,7 +656,7 @@ export default {
         .attr('class', (m) => {
           if (m.state !== undefined && m.state === STATE.STARTED) {
             return 'training-blink'
-          } else if (m.state !== undefined && (m.state === STATE.CREATED || m.state === STATE.CREATED)) {
+          } else if (m.state !== undefined && (m.state === STATE.CREATED || m.state === STATE.RESERVED)) {
             // 学習が始まっていないModelは表示させない
             return 'opacity-0'
           } else {
