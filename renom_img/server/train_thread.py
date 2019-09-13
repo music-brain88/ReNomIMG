@@ -203,7 +203,7 @@ class TrainThread(object):
         self.model = None
         self.stop_event = Event()
         self.model_id = model_id
-        self.state = State.CREATED
+        self.state = State.RESERVED
         self.running_state = RunningState.PREPARING
         self.sync_state()
 
