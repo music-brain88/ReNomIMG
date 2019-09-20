@@ -15,15 +15,17 @@ class Classification(Base):
     def preprocess(self, x):
         return x / 255.
 
-    def predict(self, img_list, batch_size=1):
+    def predict(self, img_list, batch_size=1, return_scores=False):
         """Perform prediction.
         Argument can be an image array, image path list or a image path.
 
         Args:
-            img_list(ndarray, list, string): Image array, image path list or image path.
+            img_list (ndarray, list, string): Image array, image path list or image path.
+            batch_size (int): Batch size for processing input images.
+            return_scores (bool): Optional flag to return prediction scores for all classes when set to True. Default is False.
 
         Return:
-            (list): List of class of each image.
+            (array): List of predicted class for each image. Also returns array of all probability scores if return_scores is set to True.
 
         """
         self.set_models(inference=True)
@@ -31,18 +33,34 @@ class Classification(Base):
             img_builder = self.build_data()
             if isinstance(img_list, (tuple, list)):
                 results = []
+                scores = []
                 bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
                 for batch_num in range(0, len(img_list), batch_size):
-                    results.extend(np.argmax(rm.softmax(
-                        self(img_builder(img_path_list=img_list[batch_num:batch_num + batch_size]))).as_ndarray(), axis=1))
+                    score = rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num + batch_size]))).as_ndarray()
+                    if return_scores:
+                        scores.extend(score)
+                    results.extend(np.argmax(score))
                     bar.update(1)
                 bar.close()
-                return results
+                if return_scores:
+                    return results, scores
+                else:
+                    return results
             else:
-                return np.argmax(rm.softmax(self(img_builder(img_path_list=[img_list]))).as_ndarray(), axis=1)[0]
+                score = rm.softmax(self(img_builder(img_path_list=[img_list]))).as_ndarray()
+                result = np.argmax(score, axis=1)[0]
+                if return_scores:
+                    return result, score
+                else:
+                    return result
         else:
             img_array = img_list
-        return np.argmax(rm.softmax(self(img_array)).as_ndarray(), axis=1)
+            score = rm.softmax(self(img_array)).as_ndarray()
+            result = np.argmax(score, axis=1)
+            if return_scores:
+                return result, score
+        return result
+
 
     def loss(self, x, y):
         """

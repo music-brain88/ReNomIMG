@@ -126,13 +126,20 @@ class PredictionThread(object):
         names = list(os.listdir(self.img_dir))
         N = len(names)
         results = []
+        scores = []
         sizes = []
         imgs = []
         self.total_batch = N
         for i, p in enumerate(names):
             self.nth_batch = i
             path = os.path.join(self.img_dir, p)
-            pred = self.model.predict(path)
+            if self.task_id == Task.CLASSIFICATION.value:
+                pred, score = self.model.predict(path, return_scores=True)
+                if not isinstance(score, list):
+                    score = score.tolist()
+                scores.append([{"class": i, "score": s} for (i,s) in enumerate(score[0])])
+            else:
+                pred = self.model.predict(path)
             if not isinstance(pred, list):
                 pred = pred.tolist()
             results.append(pred)
@@ -151,7 +158,10 @@ class PredictionThread(object):
             "img": imgs,
             "size": sizes,
             "prediction": results,
-        }
+            }
+        if self.task_id == Task.CLASSIFICATION.value:
+            self.prediction_result["scores"] = scores
+
         self.need_pull = True
         self.sync_result()
         return

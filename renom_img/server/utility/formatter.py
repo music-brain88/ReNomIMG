@@ -64,16 +64,19 @@ class ClassificationCsvFormatter(FormatterBase):
         img_path = data["img"]
         sizes = data["size"]
         prediction = data["prediction"]
+        scores = data["scores"]
 
         ret = []
-        for img, size, pred in zip(img_path, sizes, prediction):
+        for img, size, pred, score in zip(img_path, sizes, prediction, scores):
             ret.append({
                 'path': img,
                 'size': size,
-                'predictions': pred["class"]
+                'predictions': pred["class"],
+                'prediction scores': score
             })
 
         df = pd.DataFrame.from_dict(json_normalize(ret), orient='columns')
+        df = df[['path','predictions','size','prediction scores']]
         return df
 
 
