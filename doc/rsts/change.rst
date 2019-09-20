@@ -2,6 +2,15 @@ Change Log
 ===========
 
 
+**v2.3b1**
+
+- Added prediction scores column to prediction.csv output on "Predict" GUI page for Classification models
+- Changed Model Distribution plot to only show blinking point for model that is currently training
+- Changed Model Distribution plot to remove points for model in CREATED or RESERVED states
+- Fixed bug in classmap loading function for SSD object detection algorithm
+- Fixed bug in Deeplabv3+ segmentation algorithm classmap definition
+- Fixed bug in model state where model would not enter RESERVED state
+
 **v2.3b0**
 
 - Added Deeplabv3+ segmentation model to GUI
