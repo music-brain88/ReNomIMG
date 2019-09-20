@@ -39,7 +39,7 @@ class Classification(Base):
                     score = rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num + batch_size]))).as_ndarray()
                     if return_scores:
                         scores.extend(score)
-                    results.extend(np.argmax(score))
+                    results.extend(np.argmax(score, axis=1))
                     bar.update(1)
                 bar.close()
                 if return_scores:
