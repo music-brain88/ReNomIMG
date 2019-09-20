@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-03 22:02+0900\n"
+"POT-Creation-Date: 2019-09-20 15:11+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -199,10 +199,8 @@ msgid ""
 "would like to initialize your model with ImageNet pretrained weights, "
 "please use VGG16, VGG19 or any ResNet/ResNeXt model in ReNom."
 msgstr ""
-"VGG11には現在事前学習済みの重みが用意されていないため、"
-" ``load_pretrained_weight`` を ``False`` に設定する必要があります。"
-"ImageNetで学習された重みを初期値として利用するには、VGG16、VGG19"
-"またはResNet/ResNeXt系のReNomモデルを利用してください。"
+"VGG11には現在事前学習済みの重みが用意されていないため、 ``load_pretrained_weight`` を ``False`` "
+"に設定する必要があります。ImageNetで学習された重みを初期値として利用するには、VGG16、VGG19またはResNet/ResNeXt系のReNomモデルを利用してください。"
 
 #: of renom_img.api.classification.resnet.ResNet101:34
 #: renom_img.api.classification.resnet.ResNet152:34
@@ -651,18 +649,50 @@ msgstr "予測を実行します。引数には画像の配列、画像のパス
 msgid "Image array, image path list or image path."
 msgstr "画像の配列、画像のパスのリストもしくは画像のパス"
 
-#: of renom_img.api.classification.resnet.ResNet101.predict:7
-#: renom_img.api.classification.resnet.ResNet152.predict:7
-#: renom_img.api.classification.resnet.ResNet18.predict:7
-#: renom_img.api.classification.resnet.ResNet34.predict:7
-#: renom_img.api.classification.resnet.ResNet50.predict:7
-#: renom_img.api.classification.resnext.ResNeXt101.predict:7
-#: renom_img.api.classification.resnext.ResNeXt50.predict:7
-#: renom_img.api.classification.vgg.VGG11.predict:7
-#: renom_img.api.classification.vgg.VGG16.predict:7
-#: renom_img.api.classification.vgg.VGG19.predict:7
-msgid "List of class of each image."
-msgstr "クラス名の配列"
+#: of renom_img.api.classification.resnet.ResNet101.predict:6
+#: renom_img.api.classification.resnet.ResNet152.predict:6
+#: renom_img.api.classification.resnet.ResNet18.predict:6
+#: renom_img.api.classification.resnet.ResNet34.predict:6
+#: renom_img.api.classification.resnet.ResNet50.predict:6
+#: renom_img.api.classification.resnext.ResNeXt101.predict:6
+#: renom_img.api.classification.resnext.ResNeXt50.predict:6
+#: renom_img.api.classification.vgg.VGG11.predict:6
+#: renom_img.api.classification.vgg.VGG16.predict:6
+#: renom_img.api.classification.vgg.VGG19.predict:6
+msgid "Batch size for processing input images."
+msgstr "入力画像データの処理に使うバッチサイズ"
+
+#: of renom_img.api.classification.resnet.ResNet101.predict:8
+#: renom_img.api.classification.resnet.ResNet152.predict:8
+#: renom_img.api.classification.resnet.ResNet18.predict:8
+#: renom_img.api.classification.resnet.ResNet34.predict:8
+#: renom_img.api.classification.resnet.ResNet50.predict:8
+#: renom_img.api.classification.resnext.ResNeXt101.predict:8
+#: renom_img.api.classification.resnext.ResNeXt50.predict:8
+#: renom_img.api.classification.vgg.VGG11.predict:8
+#: renom_img.api.classification.vgg.VGG16.predict:8
+#: renom_img.api.classification.vgg.VGG19.predict:8
+msgid ""
+"Optional flag to return prediction scores for all classes when set to "
+"True. Default is False."
+msgstr "全クラスに対する推論結果のスコア値を返すかどうかのフラグ。デフォルトはFalse。"
+
+#: of renom_img.api.classification.resnet.ResNet101.predict:11
+#: renom_img.api.classification.resnet.ResNet152.predict:11
+#: renom_img.api.classification.resnet.ResNet18.predict:11
+#: renom_img.api.classification.resnet.ResNet34.predict:11
+#: renom_img.api.classification.resnet.ResNet50.predict:11
+#: renom_img.api.classification.resnext.ResNeXt101.predict:11
+#: renom_img.api.classification.resnext.ResNeXt50.predict:11
+#: renom_img.api.classification.vgg.VGG11.predict:11
+#: renom_img.api.classification.vgg.VGG16.predict:11
+#: renom_img.api.classification.vgg.VGG19.predict:11
+msgid ""
+"List of predicted class for each image. Also returns array of all "
+"probability scores if return_scores is set to True."
+msgstr ""
+"各画像に対する推論結果を返します。"
+"return_scoresフラグがTrueであれば、全クラスに対する推論スコア値も返します。"
 
 #: of renom_img.api.classification.resnet.ResNet101.preprocess:1
 #: renom_img.api.classification.resnet.ResNet152.preprocess:1
@@ -1322,7 +1352,7 @@ msgstr "ResNeXt50アルゴリズムの誤差関数"
 #~ msgstr "画像の配列、画像のパスのリストもしくは画像のパス"
 
 #~ msgid "List of class of each image."
-#~ msgstr "各画像のクラスのリスト"
+#~ msgstr "クラス名の配列"
 
 #~ msgid "Performs preprocessing for a given array."
 #~ msgstr "与えられた配列に対して、前処理を実行します。"

@@ -185,9 +185,6 @@ export default {
     const algorithm_id = payload.algorithm_id
     const dataset_id = payload.dataset_id
     const task_id = payload.task_id
-    const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
-    context.commit('addModel', model)
-    model.state = STATE.CREATED
 
     return axios.post(url, {
       hyper_parameters: hyper_params,
@@ -198,9 +195,13 @@ export default {
       .then(function (response) {
         if (response.status === 204) return
         const id = response.data.model.id
-        model.id = id
-        model.state = STATE.RESERVED
-        context.dispatch('runTrainThread', id)
+        context.dispatch('runTrainThread', {
+          model_id: id,
+          hyper_params: hyper_params,
+          algorithm_id: algorithm_id,
+          dataset_id: dataset_id,
+          task_id: task_id
+        })
       }, error_handler_creator(context))
   },
   /** ***
@@ -222,15 +223,21 @@ export default {
    */
   async runTrainThread (context, payload) {
     const task_name = context.getters.getCurrentTaskName
-    const model_id = payload
+    const model_id = payload.model_id
+    const hyper_params = payload.hyper_params
+    const algorithm_id = payload.algorithm_id
+    const dataset_id = payload.dataset_id
+    const task_id = payload.task_id
     const url = '/renom_img/v2/api/' + task_name + '/train'
 
     return axios.post(url, {
       model_id: model_id
     })
       .then(function (response) {
-        const model = context.getters.getModelById(model_id)
-        model.state = STATE.CREATED // TODO: Remove this line.
+        const model = new Model(algorithm_id, task_id, hyper_params, dataset_id)
+        model.id = model_id
+        model.state = STATE.CREATED
+        context.commit('addModel', model)
         context.dispatch('startAllPolling')
       }, error_handler_creator(context))
   },

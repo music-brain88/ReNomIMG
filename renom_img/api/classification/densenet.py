@@ -136,6 +136,9 @@ class DenseNet121(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
+    def forward(self,x):
+        self._model.set_output_size(self.num_class)
+        return self._model(x)
 
 class DenseNet169(Classification):
     """ DenseNet169 Model
@@ -178,6 +181,9 @@ class DenseNet169(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
+    def forward(self,x):
+        self._model.set_output_size(self.num_class)
+        return self._model(x)
 
 class DenseNet201(Classification):
     """ DenseNet201 Model
@@ -217,6 +223,10 @@ class DenseNet201(Classification):
         self._model.set_output_size(self.num_class)
         self.default_optimizer = OptimizerDenseNet()
         self.decay_rate = 0.0005
+
+    def forward(self,x):
+        self._model.set_output_size(self.num_class)
+        return self._model(x)
 
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
