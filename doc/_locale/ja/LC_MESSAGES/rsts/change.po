@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-29 18:03+0900\n"
+"POT-Creation-Date: 2019-09-20 15:11+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,167 +22,207 @@ msgid "Change Log"
 msgstr "変更履歴"
 
 #: ../../rsts/change.rst:5
-msgid "**v2.3b0**"
+msgid "**v2.3b1**"
 msgstr ""
 
 #: ../../rsts/change.rst:7
+msgid ""
+"Added prediction scores column to prediction.csv output on \"Predict\" "
+"GUI page for Classification models"
+msgstr ""
+"ClassificationのPredictページでダウンロードする推論結果CSVファイルに全クラスに対する推論スコア値の列を追加"
+
+#: ../../rsts/change.rst:8
+msgid ""
+"Changed Model Distribution plot to only show blinking point for model "
+"that is currently training"
+msgstr ""
+"Model Distributionプロット上で学習中のモデルのみの点が点滅する仕様に変更"
+
+#: ../../rsts/change.rst:9
+msgid ""
+"Changed Model Distribution plot to remove points for model in CREATED or "
+"RESERVED states"
+msgstr ""
+"Model Distributionプロット上でCREATED及びRESERVED状態にあるモデルの点を表示させない仕様に変更"
+
+#: ../../rsts/change.rst:10
+msgid "Fixed bug in classmap loading function for SSD object detection algorithm"
+msgstr ""
+"SSD Detectionモデルで学習済み重みをロードする際に発生したclassmap定義バグを修正"
+
+#: ../../rsts/change.rst:11
+msgid "Fixed bug in Deeplabv3+ segmentation algorithm classmap definition"
+msgstr ""
+"Deeplabv3+ Segmentationモデルのclassmapに基づいたクラス数定義に関するバグを修正"
+
+#: ../../rsts/change.rst:12
+msgid "Fixed bug in model state where model would not enter RESERVED state"
+msgstr ""
+"GUI上でモデル作成後に、モデルが正しくRESERVED状態に切り替わらないバグを修正"
+
+#: ../../rsts/change.rst:14
+msgid "**v2.3b0**"
+msgstr ""
+
+#: ../../rsts/change.rst:16
 msgid "Added Deeplabv3+ segmentation model to GUI"
 msgstr "Deeplabv3+セグメンテーションモデルをGUIに追加"
 
-#: ../../rsts/change.rst:8
+#: ../../rsts/change.rst:17
 msgid "Revised GUI component details"
 msgstr "GUIコンポーネントの修正"
 
-#: ../../rsts/change.rst:10
+#: ../../rsts/change.rst:19
 msgid "**v2.2b1**"
 msgstr ""
 
-#: ../../rsts/change.rst:12
+#: ../../rsts/change.rst:21
 msgid "Made GUI text selectable"
 msgstr "GUIテキストを選択可能に変更"
 
-#: ../../rsts/change.rst:13 ../../rsts/change.rst:23 ../../rsts/change.rst:27
-#: ../../rsts/change.rst:36
+#: ../../rsts/change.rst:22 ../../rsts/change.rst:32 ../../rsts/change.rst:36
+#: ../../rsts/change.rst:45
 msgid "Fixed bugs"
 msgstr "バグを修正"
 
-#: ../../rsts/change.rst:15
+#: ../../rsts/change.rst:24
 msgid "**v2.2b0**"
 msgstr ""
 
-#: ../../rsts/change.rst:17
+#: ../../rsts/change.rst:26
 msgid "Added Deeplabv3+ segmentation model to API"
 msgstr "Deeplabv3+セグメンテーションモデルをAPIに追加"
 
-#: ../../rsts/change.rst:18
+#: ../../rsts/change.rst:27
 msgid "Refactored GUI components"
 msgstr "GUIコンポーネントのリファクトリング"
 
-#: ../../rsts/change.rst:19
+#: ../../rsts/change.rst:28
 msgid "Refactored backend server"
 msgstr "バックエンドサーバのリファクトリング"
 
-#: ../../rsts/change.rst:20
+#: ../../rsts/change.rst:29
 msgid "Refactored CNN model architecture code"
 msgstr "CNNアルゴリズム内部構造のリファクトリング"
 
-#: ../../rsts/change.rst:21
+#: ../../rsts/change.rst:30
 msgid "Modified Yolov2 loss function"
 msgstr "Yolov2誤差関数を変更"
 
-#: ../../rsts/change.rst:22
+#: ../../rsts/change.rst:31
 msgid "Modified Yolov1 and Yolov2 pretrained weights"
 msgstr "Yolov2誤差関数及び事前学習済みの重みを更新"
 
-#: ../../rsts/change.rst:25
+#: ../../rsts/change.rst:34
 msgid "**v2.1b3**"
 msgstr ""
 
-#: ../../rsts/change.rst:28
+#: ../../rsts/change.rst:37
 msgid "Revised documentation"
 msgstr ""
 
-#: ../../rsts/change.rst:30
+#: ../../rsts/change.rst:39
 msgid "**v2.1b2**"
 msgstr ""
 
-#: ../../rsts/change.rst:32
+#: ../../rsts/change.rst:41
 msgid "Added Grad-CAM visualization tool"
 msgstr "Grad-CAM可視化ツールの追加"
 
-#: ../../rsts/change.rst:33
+#: ../../rsts/change.rst:42
 msgid "Added pytests"
 msgstr "pytest項目の追加"
 
-#: ../../rsts/change.rst:34
+#: ../../rsts/change.rst:43
 msgid "Revised README.md format"
 msgstr "README.mdフォーマットの変更"
 
-#: ../../rsts/change.rst:35
+#: ../../rsts/change.rst:44
 msgid "Added URLs to download past wheel packages to README.md"
 msgstr "過去wheelパッケージのダウンロードURLをREADME.mdに追加"
 
-#: ../../rsts/change.rst:38
+#: ../../rsts/change.rst:47
 msgid "**v2.1b1**"
 msgstr ""
 
-#: ../../rsts/change.rst:40
+#: ../../rsts/change.rst:49
 msgid "Modify img loader to accept binary image"
 msgstr "二値画像を読み込めるよう修正"
 
-#: ../../rsts/change.rst:42
+#: ../../rsts/change.rst:51
 msgid "**v2.1b0**"
 msgstr ""
 
-#: ../../rsts/change.rst:44
+#: ../../rsts/change.rst:53
 msgid "Add new augmentation methods"
 msgstr "画像オーギュメンテーション方法の追加"
 
-#: ../../rsts/change.rst:45
+#: ../../rsts/change.rst:54
 msgid "Add a function for downloading the prediction result as csv"
 msgstr "GUIアプリケーションから, モデルの予測結果をCSV形式でダウンロードする機能を追加"
 
-#: ../../rsts/change.rst:46
+#: ../../rsts/change.rst:55
 msgid "Modify image data preprocess pipeline"
 msgstr "画像データの前処理パイプラインを変更"
 
-#: ../../rsts/change.rst:47
+#: ../../rsts/change.rst:56
 msgid "Update Node.js and Python dependencies"
 msgstr "Node.js, Python関連の依存パッケージを更新"
 
-#: ../../rsts/change.rst:48 ../../rsts/change.rst:56
+#: ../../rsts/change.rst:57 ../../rsts/change.rst:65
 msgid "Fix UI Bugs"
 msgstr "バグを修正"
 
-#: ../../rsts/change.rst:50
+#: ../../rsts/change.rst:59
 msgid "**v2.0.4**"
 msgstr ""
 
-#: ../../rsts/change.rst:52
+#: ../../rsts/change.rst:61
 msgid "Update dependencies"
 msgstr "依存関係を更新"
 
-#: ../../rsts/change.rst:54
+#: ../../rsts/change.rst:63
 msgid "**v2.0.3**"
 msgstr ""
 
-#: ../../rsts/change.rst:58
+#: ../../rsts/change.rst:67
 msgid "**v2.0.2**"
 msgstr ""
 
-#: ../../rsts/change.rst:60
+#: ../../rsts/change.rst:69
 msgid ""
 "Add warning to dataset create modal(GUI) when illegal train valid ratio "
 "is inputted"
 msgstr "GUIでモデル作成時, 異常な入力値に注意を出すよう変更"
 
-#: ../../rsts/change.rst:61
+#: ../../rsts/change.rst:70
 msgid "Add error handler to renom_img.api.inference.detector.Detector"
 msgstr "Detectorクラスにエラーハンドラを追加"
 
-#: ../../rsts/change.rst:63
+#: ../../rsts/change.rst:72
 msgid "**v2.0.1**"
 msgstr ""
 
-#: ../../rsts/change.rst:65
+#: ../../rsts/change.rst:74
 msgid "Fixed UI bugs"
 msgstr "バグを修正"
 
-#: ../../rsts/change.rst:66
+#: ../../rsts/change.rst:75
 msgid "Updated webpack@3.x => webpack@4.x"
 msgstr "webpack@3.x => webpack@4.x"
 
-#: ../../rsts/change.rst:67
+#: ../../rsts/change.rst:76
 msgid "Modified eslint settings"
 msgstr "Eslint設定を変更"
 
-#: ../../rsts/change.rst:68
+#: ../../rsts/change.rst:77
 msgid ""
 "Modified Darknet architecture (Added BatchNormalization and removed bias "
 "term from convolution layer)"
 msgstr "Darknetアーキテクチャを変更（バッチ正規化層を追加し、畳み込み層のバイアス項を無効化）"
 
-#: ../../rsts/change.rst:69
+#: ../../rsts/change.rst:78
 msgid "Modified Yolov1 loss function"
 msgstr "Yolov1誤差関数を変更"
 
