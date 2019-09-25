@@ -35,7 +35,7 @@ class GuidedGradCam():
         >>> model = VGG16(class_map, load_pretrained_weight=False)
         >>>
         >>> #Provide pre-trained model weights for same dataset you are producing Grad-CAM visualizations on
-        >>> model.model.load("my_pretrained_weights.h5")
+        >>> model.load("my_pretrained_weights.h5")
         >>>
         >>> #Create Grad-CAM instance based on pre-trained model (VGG, ResNet, ResNeXt, or rm.Sequential)
         >>> grad_cam = GuidedGradCam(model)
@@ -117,7 +117,7 @@ class GuidedGradCam():
         assert any('Relu' in i for i in map(str, (i.__class__.__name__ for i in model._layers))), \
             'Model must contain at least one Relu'
 
-    def get_zoom_factor(self, size, L):
+    def get_scaling_factor(self, size, L):
         """ Calculates scaling factor for aligning Grad-CAM map and input image sizes
 
         Args:
@@ -125,9 +125,9 @@ class GuidedGradCam():
             L (ndarray): Grad-CAM saliency map
 
         Returns:
-            (int): scaling factor for aligning final array sizes
+            int, int: height and width scaling factors for aligning final array sizes
         """
-        return int(size[0] / L.shape[0])
+        return int(size[0] / L.shape[0]), int(size[1] / L.shape[1])
 
     # 1a. Forward pass (Grad-CAM)
     def forward_cam(self, x, class_id, mode, node):
@@ -256,8 +256,8 @@ class GuidedGradCam():
 
         # 3b. Grad-CAM (saliency map)
         L = rm.relu(rm.sum(A * w, axis=0)).as_ndarray()
-        zoom_factor = self.get_zoom_factor(size, L)
-        L = zoom(L, zoom_factor, order=1)
+        scale_w, scale_h = self.get_scaling_factor(size, L)
+        L = zoom(L, (scale_h, scale_w), order=1)
         L_big = np.expand_dims(L, 2)
         # 4. Guided Grad-CAM
         result = L_big * gb_map

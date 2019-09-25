@@ -8,7 +8,7 @@ mean = [103.939, 116.779, 123.68]
 
 def load_img(img_path, size):
     img = Image.open(img_path)
-    img = img.resize(size)
+    img = img.resize(size, Image.BILINEAR).convert('RGB')
     return img
 
 
