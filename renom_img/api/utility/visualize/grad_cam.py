@@ -24,15 +24,18 @@ class GuidedGradCam():
         (numpy.ndarray): Guided backpropagation array, Grad-CAM(++) saliency map array, Guided Grad-CAM(++) array
 
     Example:
+        >>> #This sample uses matplotlib to display files, so it is recommended to run this inside a Jupyter Notebook
+        >>>
         >>> import renom as rm
         >>> import numpy as np
         >>> from PIL import Image
+        >>> import matplotlib.pyplot as plt
+        >>> from matplotlib.pyplot import cm
         >>> from renom_img.api.classification.vgg import VGG16
         >>> from renom_img.api.utility.visualize.grad_cam import GuidedGradCam
         >>> from renom_img.api.utility.visualize.tools import load_img, preprocess_img, visualize_grad_cam
         >>>
-        >>> class_map = list(map(str, np.arange(1000)))
-        >>> model = VGG16(class_map, load_pretrained_weight=False)
+        >>> model = VGG16()
         >>>
         >>> #Provide pre-trained model weights for same dataset you are producing Grad-CAM visualizations on
         >>> model.load("my_pretrained_weights.h5")
@@ -54,7 +57,14 @@ class GuidedGradCam():
         >>>
         >>> #Generate Grad-CAM maps
         >>> input_map, L, result = grad_cam(x, size, class_id=class_id, mode='normal')
-        >>> #Visualize results (original image, guided backpropagation, Grad-CAM saliency map, Guided Grad-CAM visualization)
+        >>>
+        >>> #Overlay Grad-CAM saliency map on image using matplotlib
+        >>> plt.imshow(img)
+        >>> plt.imshow(L, cmap = cm.jet, alpha = 0.6)
+        >>> plt.axis("off")
+        >>> plt.savefig("grad_cam_sample.png", bbox_inches='tight', pad_inches=0)
+        >>>
+        >>> #Visualize Guided Grad-CAM (original image, guided backpropagation, Grad-CAM saliency map, Guided Grad-CAM visualization)
         >>> visualize_grad_cam(img, input_map, L, result)
         >>>
         >>> #Generate Grad-CAM++ maps
@@ -127,7 +137,7 @@ class GuidedGradCam():
         Returns:
             int, int: height and width scaling factors for aligning final array sizes
         """
-        return int(size[0] / L.shape[0]), int(size[1] / L.shape[1])
+        return float(size[1] / L.shape[0]), float(size[0] / L.shape[1])
 
     # 1a. Forward pass (Grad-CAM)
     def forward_cam(self, x, class_id, mode, node):
@@ -212,7 +222,10 @@ class GuidedGradCam():
         input_map = input_map.transpose(1, 2, 0)
         gb_viz = input_map.copy()
         input_map -= np.min(input_map)
-        input_map /= np.max(input_map)
+        if np.max(input_map) == 0:
+            input_map /= (np.max(input_map) + 1e-8)
+        else:
+            input_map /= np.max(input_map)
         return gb_viz, input_map
 
     def generate_map(self, y_c, final_conv, gb_map, mode, size):
@@ -257,15 +270,17 @@ class GuidedGradCam():
         # 3b. Grad-CAM (saliency map)
         L = rm.relu(rm.sum(A * w, axis=0)).as_ndarray()
         scale_w, scale_h = self.get_scaling_factor(size, L)
-        L = zoom(L, (scale_h, scale_w), order=1)
+        L = zoom(L, (scale_w, scale_h), order=1)
         L_big = np.expand_dims(L, 2)
         # 4. Guided Grad-CAM
         result = L_big * gb_map
         if result.shape[2] == 1:
             result = np.squeeze(result, axis=2)
         result -= np.min(result)
-        result /= np.max(result)
-
+        if np.max(result) == 0:
+            result /= (np.max(result) + 1e-8)
+        else:
+            result /= np.max(result)
         return L, result
 
     # function to actually run calculation

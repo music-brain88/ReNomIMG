@@ -1,3 +1,5 @@
+import sys
+sys.setrecursionlimit(5000)
 from renom.cuda import set_cuda_active
 import numpy as np
 import renom as rm
