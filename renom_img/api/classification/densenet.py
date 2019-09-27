@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 from renom_img.api.utility.optimizer import OptimizerDenseNet
 from renom_img.api.cnn.densenet import CNN_DenseNet
 from renom_img.api.utility.distributor.distributor import ImageDistributor
@@ -9,7 +10,6 @@ from PIL import Image
 from tqdm import tqdm
 import renom as rm
 import numpy as np
-from __future__ import print_function, division
 import os
 import sys
 sys.setrecursionlimit(5000)
