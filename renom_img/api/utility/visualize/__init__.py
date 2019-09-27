@@ -1,15 +1,15 @@
+import renom.cuda as cu
+from renom.debug_graph import showmark
+from renom.core.basic_ops import to_value
+from renom.core import UnaryOp, Node
+from renom.layers.function.parameterized import Sequential
+from renom.layers.activation.relu import Relu
+import renom
+import renom as rm
+import numpy as np
+from renom.cuda import set_cuda_active
 import sys
 sys.setrecursionlimit(5000)
-from renom.cuda import set_cuda_active
-import numpy as np
-import renom as rm
-import renom
-from renom.layers.activation.relu import Relu
-from renom.layers.function.parameterized import Sequential
-from renom.core import UnaryOp, Node
-from renom.core.basic_ops import to_value
-from renom.debug_graph import showmark
-import renom.cuda as cu
 if cu.has_cuda():
     from renom.cuda.gpuvalue import get_gpu
 

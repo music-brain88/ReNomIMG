@@ -135,7 +135,7 @@ class GuidedGradCam():
             L (ndarray): Grad-CAM saliency map
 
         Returns:
-            int, int: height and width scaling factors for aligning final array sizes
+            float, float: width and height scaling factors for aligning final array sizes
         """
         return float(size[1] / L.shape[0]), float(size[0] / L.shape[1])
 

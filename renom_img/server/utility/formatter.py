@@ -76,7 +76,7 @@ class ClassificationCsvFormatter(FormatterBase):
             })
 
         df = pd.DataFrame.from_dict(json_normalize(ret), orient='columns')
-        df = df[['path','predictions','size','prediction scores']]
+        df = df[['path', 'predictions', 'size', 'prediction scores']]
         return df
 
 

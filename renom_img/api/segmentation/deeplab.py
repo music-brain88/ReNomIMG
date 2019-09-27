@@ -160,7 +160,7 @@ class Deeplabv3plus(SemanticSegmentation):
     """
     WEIGHT_URL = CnnDeeplabv3plus.WEIGHT_URL
 
-    def __init__(self, class_map=None, imsize=(321, 321), scale_factor=16, atrous_rates = [6,12,18], lr_initial=7e-3, lr_power=0.9, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(321, 321), scale_factor=16, atrous_rates=[6, 12, 18], lr_initial=7e-3, lr_power=0.9, load_pretrained_weight=False, train_whole_network=False):
         check_deeplabv3plus_init(imsize, scale_factor, atrous_rates, lr_initial, lr_power)
         self.lr_initial = lr_initial
         self.lr_power = lr_power
@@ -180,7 +180,7 @@ class Deeplabv3plus(SemanticSegmentation):
     def build_data(self):
         return TargetBuilderDeeplab(self.class_map, self.imsize)
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
 

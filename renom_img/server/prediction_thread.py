@@ -1,3 +1,19 @@
+from renom_img.server import State, RunningState, MAX_THREAD_NUM, Algorithm, Task
+from renom_img.server.utility.storage import storage
+from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
+from renom_img.api.segmentation.deeplab import Deeplabv3plus
+from renom_img.api.segmentation.fcn import FCN8s, FCN16s, FCN32s
+from renom_img.api.segmentation.unet import UNet
+from renom_img.api.detection.ssd import SSD
+from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
+from renom_img.api.detection.yolo_v1 import Yolov1
+from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
+from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
+from renom_img.api.classification.resnext import ResNeXt50, ResNeXt101
+from renom_img.api.classification.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
+from renom_img.api.classification.vgg import VGG11, VGG16, VGG19
+from renom.cuda import set_cuda_active, release_mem_pool, use_device
+import numpy as np
 import os
 import sys
 import time
@@ -7,24 +23,6 @@ import traceback
 from threading import Event
 from PIL import Image
 sys.setrecursionlimit(10000)
-import numpy as np
-
-from renom.cuda import set_cuda_active, release_mem_pool, use_device
-from renom_img.api.classification.vgg import VGG11, VGG16, VGG19
-from renom_img.api.classification.resnet import ResNet18, ResNet34, ResNet50, ResNet101, ResNet152
-from renom_img.api.classification.resnext import ResNeXt50, ResNeXt101
-from renom_img.api.classification.densenet import DenseNet121, DenseNet169, DenseNet201
-from renom_img.api.classification.inception import InceptionV1, InceptionV2, InceptionV3, InceptionV4
-from renom_img.api.detection.yolo_v1 import Yolov1
-from renom_img.api.detection.yolo_v2 import Yolov2, create_anchor
-from renom_img.api.detection.ssd import SSD
-from renom_img.api.segmentation.unet import UNet
-from renom_img.api.segmentation.fcn import FCN8s, FCN16s, FCN32s
-from renom_img.api.segmentation.deeplab import Deeplabv3plus
-
-from renom_img.server.utility.semaphore import EventSemaphore, Semaphore
-from renom_img.server.utility.storage import storage
-from renom_img.server import State, RunningState, MAX_THREAD_NUM, Algorithm, Task
 
 
 class PredictionThread(object):
@@ -137,7 +135,7 @@ class PredictionThread(object):
                 pred, score = self.model.predict(path, return_scores=True)
                 if not isinstance(score, list):
                     score = score.tolist()
-                scores.append([{"class": i, "score": s} for (i,s) in enumerate(score[0])])
+                scores.append([{"class": i, "score": s} for (i, s) in enumerate(score[0])])
             else:
                 pred = self.model.predict(path)
             if not isinstance(pred, list):
@@ -158,7 +156,7 @@ class PredictionThread(object):
             "img": imgs,
             "size": sizes,
             "prediction": results,
-            }
+        }
         if self.task_id == Task.CLASSIFICATION.value:
             self.prediction_result["scores"] = scores
 

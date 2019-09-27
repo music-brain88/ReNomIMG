@@ -36,7 +36,8 @@ class Classification(Base):
                 scores = []
                 bar = tqdm(range(int(np.ceil(len(img_list) / batch_size))))
                 for batch_num in range(0, len(img_list), batch_size):
-                    score = rm.softmax(self(img_builder(img_path_list=img_list[batch_num:batch_num + batch_size]))).as_ndarray()
+                    score = rm.softmax(
+                        self(img_builder(img_path_list=img_list[batch_num:batch_num + batch_size]))).as_ndarray()
                     if return_scores:
                         scores.extend(score)
                     results.extend(np.argmax(score, axis=1))
@@ -60,7 +61,6 @@ class Classification(Base):
             if return_scores:
                 return result, score
         return result
-
 
     def loss(self, x, y):
         """
