@@ -3,6 +3,7 @@
     <div
       v-if="showLoadingMask"
       id="rnc-loading-mask"
+      data-cy="loading-mask"
     >
       <div id="loader-container">
         <div class="loader" />

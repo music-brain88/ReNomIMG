@@ -10,6 +10,7 @@
           :key="key"
           :class="'RncDrawerMenu-button' + key"
           class="task-button"
+          data-cy="menu-list-item"
           @click="onItemClick(menu.title)"
         >
           <i
@@ -23,6 +24,7 @@
       </div>
       <div
         id="slide-mask"
+        data-cy="slide-menu-slide-mask"
         @click="$emit('show-drawer-menu')"
       />
     </div>
