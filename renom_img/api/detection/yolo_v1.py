@@ -173,10 +173,10 @@ class Yolov1(Detection):
         self.default_optimizer = OptimizerYolov1()
         self.decay_rate = 0.0005
 
-    def forward(self,x):
-        self._model.set_output_size((self.num_class + 5 * self._bbox) * self._cells[0] * self._cells[1])
+    def forward(self, x):
+        self._model.set_output_size((self.num_class + 5 * self._bbox)
+                                    * self._cells[0] * self._cells[1])
         return self._model(x)
-
 
     def load(self, filename):
         """Load saved weights to model.

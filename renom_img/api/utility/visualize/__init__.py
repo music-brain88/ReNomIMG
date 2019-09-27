@@ -1,16 +1,15 @@
-from renom.cuda import set_cuda_active
-import numpy as np
-import renom as rm
-import renom
-from renom_img.api.classification.vgg import VGG16
-from renom_img.api.classification.resnet import ResNet50
-from renom_img.api.classification.resnext import ResNeXt50
-from renom.layers.activation.relu import Relu
-from renom.layers.function.parameterized import Sequential
-from renom.core import UnaryOp, Node
-from renom.core.basic_ops import to_value
-from renom.debug_graph import showmark
 import renom.cuda as cu
+from renom.debug_graph import showmark
+from renom.core.basic_ops import to_value
+from renom.core import UnaryOp, Node
+from renom.layers.function.parameterized import Sequential
+from renom.layers.activation.relu import Relu
+import renom
+import renom as rm
+import numpy as np
+from renom.cuda import set_cuda_active
+import sys
+sys.setrecursionlimit(5000)
 if cu.has_cuda():
     from renom.cuda.gpuvalue import get_gpu
 
@@ -113,16 +112,16 @@ def convert_relus(model):
 
 
 def vgg_cam(model, x, class_id, mode):
-    x = model.model.block1(x)
-    x = model.model.block2(x)
-    x = model.model.block3(x)
-    x = model.model.block4(x)
-    final_conv = rm.Sequential(model.model.block5[:-1])(x)
-    x = model.model.block5[-1](final_conv)
+    x = model._model.block1(x)
+    x = model._model.block2(x)
+    x = model._model.block3(x)
+    x = model._model.block4(x)
+    final_conv = rm.Sequential(model._model.block5[:-1])(x)
+    x = model._model.block5[-1](final_conv)
     x = rm.flatten(x)
-    x = rm.relu(model.model.fc1(x))
-    x = rm.relu(model.model.fc2(x))
-    x = model.model.fc3(x)
+    x = rm.relu(model._model.fc1(x))
+    x = rm.relu(model._model.fc2(x))
+    x = model._model.fc3(x)
     if mode == 'plus':
         x = rm.exp(x)
     x_c = x[:, class_id]
@@ -130,17 +129,17 @@ def vgg_cam(model, x, class_id, mode):
 
 
 def resnet_cam(model, x, class_id, mode):
-    x = model.model.conv1(x)
-    x = model.model.bn1(x)
-    x = model.model.relu(x)
-    x = model.model.maxpool(x)
-    x = model.model.layer1(x)
-    x = model.model.layer2(x)
-    x = model.model.layer3(x)
-    final_conv = model.model.layer4(x)
+    x = model._model.conv1(x)
+    x = model._model.bn1(x)
+    x = model._model.relu(x)
+    x = model._model.maxpool(x)
+    x = model._model.layer1(x)
+    x = model._model.layer2(x)
+    x = model._model.layer3(x)
+    final_conv = model._model.layer4(x)
     x = rm.average_pool2d(final_conv, filter=(final_conv.shape[2], final_conv.shape[3]))
-    x = model.model.flat(x)
-    x = model.model.fc(x)
+    x = model._model.flat(x)
+    x = model._model.fc(x)
     if mode == 'plus':
         x = rm.exp(x)
     x_c = x[:, class_id]

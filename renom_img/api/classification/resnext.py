@@ -174,7 +174,7 @@ class ResNeXt50(Classification):
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt50.h5".format(
         __version__)
 
-    def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
         # exceptions checking
         check_resnext_init(plateau, cardinality)
 
@@ -194,9 +194,10 @@ class ResNeXt50(Classification):
     def build_data(self):
         return TargetBuilderResNeXt(self.class_map, self.imsize)
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
+
 
 @adddoc
 class ResNeXt101(Classification):
@@ -238,7 +239,7 @@ class ResNeXt101(Classification):
     WEIGHT_URL = "http://renom.jp/docs/downloads/weights/{}/classification/ResNeXt101.h5".format(
         __version__)
 
-    def __init__(self, class_map=[], imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
+    def __init__(self, class_map=None, imsize=(224, 224), cardinality=32, plateau=False, load_pretrained_weight=False, train_whole_network=False):
         # exceptions checking
         check_resnext_init(plateau, cardinality)
 
@@ -255,7 +256,7 @@ class ResNeXt101(Classification):
         self.decay_rate = 0.0001
         self._model.fc.params = {}
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
 

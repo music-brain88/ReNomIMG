@@ -1,18 +1,18 @@
+from renom_img.api.cnn.inception import CNN_InceptionV1, CNN_InceptionV2, CNN_InceptionV3, CNN_InceptionV4
+from renom_img.api.utility.optimizer import OptimizerInception
+from renom_img.api.utility.target import DataBuilderClassification
+from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.load import prepare_detection_data, load_img
+from renom_img.api.classification import Classification
+from renom_img.api.utility.misc.download import download
+from renom_img import __version__
+from PIL import Image
+from tqdm import tqdm
+import numpy as np
+import renom as rm
 import os
 import sys
 sys.setrecursionlimit(3000)
-import renom as rm
-import numpy as np
-from tqdm import tqdm
-from PIL import Image
-from renom_img import __version__
-from renom_img.api.utility.misc.download import download
-from renom_img.api.classification import Classification
-from renom_img.api.utility.load import prepare_detection_data, load_img
-from renom_img.api.utility.distributor.distributor import ImageDistributor
-from renom_img.api.utility.target import DataBuilderClassification
-from renom_img.api.utility.optimizer import OptimizerInception
-from renom_img.api.cnn.inception import CNN_InceptionV1, CNN_InceptionV2, CNN_InceptionV3, CNN_InceptionV4
 
 RESIZE_METHOD = Image.BILINEAR
 
@@ -137,7 +137,7 @@ class InceptionV1(Classification):
     def loss(self, x, y):
         return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3 * rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
 
@@ -224,9 +224,10 @@ class InceptionV3(Classification):
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
+
 
 class InceptionV2(Classification):
     """ Inception V2 model
@@ -287,9 +288,10 @@ class InceptionV2(Classification):
     def build_data(self):
         return TargetBuilderInception(self.class_map, self.imsize)
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
+
 
 class InceptionV4(Classification):
     """ Inception V4 model
@@ -325,7 +327,7 @@ class InceptionV4(Classification):
         self.default_optimizer = OptimizerInception(4)
         self.decay_rate = 0.0005
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
 

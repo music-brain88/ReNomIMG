@@ -196,7 +196,7 @@ class TernausNet(SemanticSegmentation):
         self.decay_rate = 0
         self.default_optimizer = OptimizerTernausNet()
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
 

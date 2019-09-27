@@ -173,9 +173,10 @@ class VGG11(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
+
 
 @adddoc
 class VGG16(Classification):
@@ -232,9 +233,10 @@ class VGG16(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
+
 
 class VGG16_NODENSE(Classification):
 
@@ -258,9 +260,10 @@ class VGG16_NODENSE(Classification):
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
+
 
 @adddoc
 class VGG19(Classification):
@@ -314,10 +317,9 @@ class VGG19(Classification):
         self._model.fc2.params = {}
         self._model.fc3.params = {}
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
-
 
     def build_data(self):
         return TargetBuilderVGG(self.class_map, self.imsize)

@@ -125,7 +125,7 @@ def create_anchor(annotation_list, n_anchor=5, base_size=(320, 320)):
     Returns:
         (AnchorYolov2): Anchor list.
     """
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
     annotations = []
     for annot in annotation_list:
         for obj in annot:
@@ -749,7 +749,7 @@ class Yolov2(Detection):
 
         if imsize_list is None:
             imsize_list = [self.imsize]
-#           no need for checking here, cause it is already checked from init function. 
+#           no need for checking here, cause it is already checked from init function.
         else:
             for ims in imsize_list:
                 check_yolov2_init(ims)

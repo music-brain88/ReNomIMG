@@ -1,18 +1,16 @@
+from renom_img.api.cnn import CnnBase
+from renom_img.api.utility.target import DataBuilderClassification
+from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.load import prepare_detection_data, load_img
+from renom_img.api.classification import Classification
+from renom_img.api.utility.misc.download import download
+from renom_img import __version__
+from tqdm import tqdm
+import numpy as np
+import renom as rm
 import os
 import sys
 sys.setrecursionlimit(3000)
-import renom as rm
-import numpy as np
-from tqdm import tqdm
-
-from renom_img import __version__
-from renom_img.api.utility.misc.download import download
-from renom_img.api.classification import Classification
-from renom_img.api.utility.load import prepare_detection_data, load_img
-from renom_img.api.utility.distributor.distributor import ImageDistributor
-from renom_img.api.utility.target import DataBuilderClassification
-from renom_img.api.classification import Classification
-from renom_img.api.cnn import CnnBase
 
 
 class InceptionV1Block(rm.Model):
