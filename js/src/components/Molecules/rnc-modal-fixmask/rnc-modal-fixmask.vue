@@ -5,7 +5,10 @@
   >
     <div class="rnc-modal-fixmask">
       <div class="modal-wrapper">
-        <div class="modal-container">
+        <div
+          class="modal-container"
+          data-cy="modal-fixmask-contents"
+        >
           <slot
             name="modal-contents"
             class="modal-contents"
@@ -17,6 +20,7 @@
             <slot name="okbutton">
               <rnc-button
                 :button-label="'OK'"
+                data-cy="modal-ok-button"
                 @click-button="$emit('modal-ok')"
               />
             </slot>
@@ -25,6 +29,7 @@
               <rnc-button
                 :cancel="true"
                 :button-label="'Cancel'"
+                data-cy="modal-cancel-button"
                 @click-button="$emit('modal-cancel')"
               />
             </slot>

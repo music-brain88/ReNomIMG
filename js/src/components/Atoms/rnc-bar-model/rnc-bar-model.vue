@@ -14,6 +14,7 @@
         <div
           v-if="onHovering"
           class="bar-content"
+          data-cy="bar-model-hovering-content"
         >
           {{ model[2] }}
         </div>
