@@ -298,4 +298,6 @@ class Base(rm.Model):
             >>> y = model(x)  # Same as above result.
         """
         check_common_forward(x)
+        check_missing_param(self.class_map)
+        self._model.set_output_size(self.num_class)
         return self._model(x)

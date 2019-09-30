@@ -180,10 +180,6 @@ class Deeplabv3plus(SemanticSegmentation):
     def build_data(self):
         return TargetBuilderDeeplab(self.class_map, self.imsize)
 
-    def forward(self, x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
-
     def loss(self, x, y, class_weight=None):
         if class_weight is not None and class_weight:
             mask = np.concatenate(

@@ -137,10 +137,6 @@ class InceptionV1(Classification):
     def loss(self, x, y):
         return 0.3 * rm.softmax_cross_entropy(x[0], y) + 0.3 * rm.softmax_cross_entropy(x[1], y) + rm.softmax_cross_entropy(x[2], y)
 
-    def forward(self, x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
-
     def predict(self, img_list, batch_size=1):
         self.set_models(inference=True)
         if isinstance(img_list, (list, str)):

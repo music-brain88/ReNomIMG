@@ -174,6 +174,7 @@ class Yolov1(Detection):
         self.decay_rate = 0.0005
 
     def forward(self, x):
+        check_missing_param(self.class_map)
         self._model.set_output_size((self.num_class + 5 * self._bbox)
                                     * self._cells[0] * self._cells[1])
         return self._model(x)
