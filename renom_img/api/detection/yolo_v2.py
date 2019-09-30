@@ -427,6 +427,7 @@ class Yolov2(Detection):
         Args:
             x(ndarray, Node): Input to ${class}.
         """
+        check_missing_param(self.class_map)
         check_yolov2_forward(self.anchor, x)
         self._model.set_anchor(self.num_anchor)
         return self._model(x)

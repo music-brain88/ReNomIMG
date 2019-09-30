@@ -136,10 +136,6 @@ class DenseNet121(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
-    def forward(self, x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
-
 
 class DenseNet169(Classification):
     """ DenseNet169 Model
