@@ -193,9 +193,6 @@ class FCN32s(SemanticSegmentation):
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
 
-    def forward(self,x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
 
 @adddoc
 class FCN16s(SemanticSegmentation):
@@ -243,10 +240,6 @@ class FCN16s(SemanticSegmentation):
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)
 
-    def forward(self,x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
-
 
 @adddoc
 class FCN8s(SemanticSegmentation):
@@ -290,9 +283,6 @@ class FCN8s(SemanticSegmentation):
         self.decay_rate = 5e-4
         self.default_optimizer = FCN_Optimizer()
 
-    def forward(self,x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
 
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)

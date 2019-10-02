@@ -82,13 +82,13 @@ export default {
     align-content: flex-start;
     flex-wrap: wrap;
     height: 100%;
-    width: calc(9.5*#{$component-block-width});
+    width: calc(9.5 * #{$component-block-width});
   }
   #vertical-component {
     display: flex;
     align-content: flex-start;
     flex-wrap: wrap;
-    width: calc(2.5*#{$component-block-width});
+    width: calc(2.5 * #{$component-block-width});
   }
 }
 </style>

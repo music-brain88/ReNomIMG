@@ -288,18 +288,6 @@ class SSD(Detection):
         self.default_optimizer = OptimizerSSD()
         self.decay_rate = 0.00004
 
-    def forward(self, x):
-        """
-        Performs forward propagation.
-        You can call this function using the ``__call__`` method.
-
-        Args:
-            x(ndarray, Node): Input to ${class}.
-        """
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
-
-
     def build_data(self):
 
         return TargetBuilderSSD(self.class_map, self.imsize, self.prior, self.prior_box, self.num_prior, self.overlap_threshold)

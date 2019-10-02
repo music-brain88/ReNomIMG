@@ -4,7 +4,10 @@
       <span v-if="isTitle">
         Model
       </span>
-      <span v-else>
+      <span
+        v-else
+        data-cy="progress-detail-model-id"
+      >
         {{ model_id }}
       </span>
     </div>
@@ -12,7 +15,10 @@
       <span v-if="isTitle">
         Epoch
       </span>
-      <span v-else>
+      <span
+        v-else
+        data-cy="progress-detail-epoch"
+      >
         {{ current_epoch }} / {{ total_epoch }}
       </span>
     </div>
@@ -20,7 +26,10 @@
       <span v-if="isTitle">
         Batch
       </span>
-      <span v-else>
+      <span
+        v-else
+        data-cy="progress-detail-batch"
+      >
         {{ current_batch }} / {{ total_batch }}
       </span>
     </div>
@@ -28,7 +37,10 @@
       <span v-if="isTitle">
         Loss
       </span>
-      <span v-else-if="model">
+      <span
+        v-else-if="model"
+        data-cy="progress-detail-loss"
+      >
         <span v-if="model.isTraining()">
           {{ loss }}
         </span>
@@ -67,11 +79,13 @@
         :color-class="colorClass"
         :total-batch="convert_string_to_zero(total_batch)"
         :current-batch="convert_string_to_zero(current_batch)"
+        data-cy="progress-detail-bar-progress"
       />
     </div>
     <rnc-button-stop
-      v-if="!isTitle"
+      v-if="!isTitle && total_epoch > 0"
       :style="{width: '9%', height:'100%'}"
+      data-cy="progress-detail-button-stop"
       @click="onStop"
     />
   </div>

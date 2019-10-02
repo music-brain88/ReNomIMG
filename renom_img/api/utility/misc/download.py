@@ -13,7 +13,6 @@ def download(url, save_path=None):
         save_path (string): If not passed, the url's base name will be used and it'll be saved to current directory.
     """
 
-    # TODO: Write error handling.
     if url is None:
         raise WeightNotFoundError('Weight can not be downloaded, URL is None.')
     filename = os.path.basename(url)

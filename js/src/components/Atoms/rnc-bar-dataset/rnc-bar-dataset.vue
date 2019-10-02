@@ -14,6 +14,7 @@
         :style="'width:' + trainRatio + '%;'"
         :class="{'invisible': trainNum===0}"
         class="color-train"
+        data-cy="bar-dataset-data-train"
       >
         <span
           v-if="!(className)"
@@ -26,6 +27,7 @@
         :style="'width:' + validRatio + '%;'"
         :class="{'invisible': validNum===0}"
         class="color-valid"
+        data-cy="bar-dataset-data-valid"
       >
         <span
           v-if="!(className)"

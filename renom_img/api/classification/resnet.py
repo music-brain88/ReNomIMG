@@ -1,3 +1,4 @@
+from renom_img.api.utility.exceptions.check_exceptions import *
 import os
 import sys
 import renom as rm
@@ -15,7 +16,6 @@ from renom_img.api.utility.target import DataBuilderClassification
 from renom_img.api.utility.optimizer import OptimizerResNet
 
 RESIZE_METHOD = Image.BILINEAR
-from renom_img.api.utility.exceptions.check_exceptions import *
 
 
 class TargetBuilderResNet():
@@ -185,10 +185,6 @@ class ResNet18(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
 
-    def forward(self,x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
-
 
 @adddoc
 class ResNet34(Classification):
@@ -244,10 +240,6 @@ class ResNet34(Classification):
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
-
-    def forward(self,x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
 
 
 @adddoc
@@ -305,9 +297,6 @@ class ResNet50(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
 
-    def forward(self,x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
 
 @adddoc
 class ResNet101(Classification):
@@ -364,9 +353,6 @@ class ResNet101(Classification):
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)
 
-    def forward(self,x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
 
 @adddoc
 class ResNet152(Classification):
@@ -419,10 +405,6 @@ class ResNet152(Classification):
         self.decay_rate = 0.0001
         self.default_optimizer = OptimizerResNet(plateau)
         self._model.fc.params = {}
-
-    def forward(self,x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
 
     def build_data(self):
         return TargetBuilderResNet(self.class_map, self.imsize)

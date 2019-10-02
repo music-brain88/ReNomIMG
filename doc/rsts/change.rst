@@ -2,6 +2,11 @@ Change Log
 ===========
 
 
+**v2.3b2**
+
+- Fixed bug in Grad-CAM API that caused error when calculating forward propagation in model
+- Fixed bug in forward propagation method definition that allowed model to calculate output even when number of classes were undefined
+
 **v2.3b1**
 
 - Added prediction scores column to prediction.csv output on "Predict" GUI page for Classification models

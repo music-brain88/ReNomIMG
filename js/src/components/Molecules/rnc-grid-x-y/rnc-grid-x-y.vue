@@ -276,18 +276,24 @@ export default {
       this.gX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, this.canvas_height - margin.bottom] + ')')
         .attr('class', 'axis')
+        .attr('data-cy', 'learning-curve-x-axis')
         .call(this.axX)
 
       this.gY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('class', 'axis')
+        .attr('data-cy', 'learning-curve-y-axis')
         .call(this.axY)
 
       // Line graph
-      const LineLayer = svg.append('g').attr('clip-path', 'url(#learning-curve-clip)')
+      const LineLayer = svg.append('g')
+        .attr('data-cy', 'learning-curve-lines')
+        .attr('clip-path', 'url(#learning-curve-clip)')
+
       if (!this.switchTrainGraph) {
         this.TrainLine = LineLayer.append('path')
           .attr('id', 'train-line')
+          .attr('data-cy', 'learning-curve-train-line')
           .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
           .datum(train_loss_list)
           .attr('fill', 'none')
@@ -302,6 +308,7 @@ export default {
       if (!this.switchValidGraph) {
         this.ValidLine = LineLayer.append('path')
           .attr('id', 'valid-line')
+          .attr('data-cy', 'learning-curve-valid-line')
           .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
           .datum(valid_loss_list)
           .attr('fill', 'none')
@@ -315,6 +322,7 @@ export default {
       }
 
       this.BestEpoc = LineLayer.append('line')
+        .attr('data-cy', 'learning-curve-best-epoch-line')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('fill', 'none')
         .attr('stroke', 'red')
@@ -361,10 +369,13 @@ export default {
         })
 
       // Scatter graph
-      const ScatterLayer = svg.append('g').attr('clip-path', 'url(#learning-curve-clip)')
+      const ScatterLayer = svg.append('g')
+        .attr('data-cy', 'learning-curve-circles')
+        .attr('clip-path', 'url(#learning-curve-clip)')
       if (!this.switchTrainGraph) {
         this.TrainScatter = ScatterLayer.append('g')
           .attr('id', 'train-scatter')
+          .attr('data-cy', 'learning-curve-train-circles')
           .selectAll('circle')
           .data(train_loss_list)
           .enter()
@@ -416,6 +427,7 @@ export default {
       if (!this.switchValidGraph) {
         this.ValidScatter = ScatterLayer.append('g')
           .attr('id', 'valid-scatter')
+          .attr('data-cy', 'learning-curve-valid-circles')
           .selectAll('circle')
           .data(valid_loss_list)
           .enter()
@@ -537,10 +549,12 @@ export default {
       this.gX = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, this.canvas_height - margin.bottom] + ')')
         .attr('class', 'axis')
+        .attr('data-cy', 'model-map-x-axis')
         .call(this.axX)
       this.gY = svg.append('g')
         .attr('transform', 'translate(' + [margin.left, margin.top] + ')')
         .attr('class', 'axis')
+        .attr('data-cy', 'model-map-y-axis')
         .call(this.axY)
 
       // Line graph
@@ -565,6 +579,7 @@ export default {
         .data(model_list)
         .enter()
         .append('circle')
+        .attr('data-cy', 'model-map-circle')
         .attr('r', function (d) {
           if (d.id === selected_model_id) {
             return circle_radius * 1.6

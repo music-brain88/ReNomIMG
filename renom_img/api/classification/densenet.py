@@ -1,18 +1,18 @@
 from __future__ import print_function, division
+from renom_img.api.utility.optimizer import OptimizerDenseNet
+from renom_img.api.cnn.densenet import CNN_DenseNet
+from renom_img.api.utility.distributor.distributor import ImageDistributor
+from renom_img.api.utility.load import prepare_detection_data, load_img
+from renom_img.api.classification import Classification
+from renom_img.api.utility.misc.download import download
+from renom_img import __version__
+from PIL import Image
+from tqdm import tqdm
+import renom as rm
+import numpy as np
 import os
 import sys
 sys.setrecursionlimit(5000)
-import numpy as np
-import renom as rm
-from tqdm import tqdm
-from PIL import Image
-from renom_img import __version__
-from renom_img.api.utility.misc.download import download
-from renom_img.api.classification import Classification
-from renom_img.api.utility.load import prepare_detection_data, load_img
-from renom_img.api.utility.distributor.distributor import ImageDistributor
-from renom_img.api.cnn.densenet import CNN_DenseNet
-from renom_img.api.utility.optimizer import OptimizerDenseNet
 
 RESIZE_METHOD = Image.BILINEAR
 
@@ -136,9 +136,6 @@ class DenseNet121(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
-    def forward(self,x):
-        self._model.set_output_size(self.num_class)
-        return self._model(x)
 
 class DenseNet169(Classification):
     """ DenseNet169 Model
@@ -181,9 +178,10 @@ class DenseNet169(Classification):
     def build_data(self):
         return TargetBuilderDenseNet(self.class_map, self.imsize)
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
+
 
 class DenseNet201(Classification):
     """ DenseNet201 Model
@@ -224,7 +222,7 @@ class DenseNet201(Classification):
         self.default_optimizer = OptimizerDenseNet()
         self.decay_rate = 0.0005
 
-    def forward(self,x):
+    def forward(self, x):
         self._model.set_output_size(self.num_class)
         return self._model(x)
 

@@ -15,6 +15,7 @@
         <rnc-key-value
           :key-text="'ID:'"
           :value-text="model.id"
+          data-cy="model-list-model-id"
         />
         <span class="info-title">
           &nbsp;&nbsp;
@@ -25,19 +26,28 @@
         />
       </div>
       <div class="info-row">
-        <span :class="{'sorted-item': isSortBy('LOSS')}">
+        <span
+          :class="{'sorted-item': isSortBy('LOSS')}"
+          data-cy="model-list-loss"
+        >
           {{ lastBatchLoss }}
         </span>
         <span class="info-title">
           &nbsp;/&nbsp;
         </span>
-        <span :class="{'sorted-item': isSortBy('M1')}">
+        <span
+          :class="{'sorted-item': isSortBy('M1')}"
+          data-cy="model-list-metric1"
+        >
           {{ resultOfMetric1 }}
         </span>
         <span class="info-title">
           &nbsp;/&nbsp;
         </span>
-        <span :class="{'sorted-item': isSortBy('M2')}">
+        <span
+          :class="{'sorted-item': isSortBy('M2')}"
+          data-cy="model-list-metric2"
+        >
           {{ resultOfMetric2 }}
         </span>
       </div>
@@ -45,6 +55,7 @@
     <div id="model-buttons">
       <rnc-button-close
         v-if="!isDeployedModel && model.state != state_started"
+        data-cy="model-list-delete-button"
         @click="$emit('rm-model', model)"
       />
       <div
