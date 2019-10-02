@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-17 11:22+0900\n"
+"POT-Creation-Date: 2019-09-30 19:27+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -90,7 +90,7 @@ msgstr "ボックスが特定のサイズになるように座標とサイズを
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_model_type
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class
-#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_scaling_factor
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop
 msgid "Parameters"
 msgstr "パラメータ"
@@ -188,7 +188,7 @@ msgstr "引数のボックスは以下の例のようなフォーマットでな
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_model_type
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class
-#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_scaling_factor
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop
 msgid "Returns"
 msgstr "戻り値"
@@ -251,7 +251,7 @@ msgstr "フォームが変更されたバウンディングボックスを返し
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.generate_map
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_model_type
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_predicted_class
-#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_scaling_factor
 #: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop
 msgid "Return type"
 msgstr "戻り値の型"
@@ -355,7 +355,7 @@ msgid "**Example of the output.**"
 msgstr "**出力の例"
 
 #: ../../docstring of renom_img.api.utility.nms.soft_nms:45
-#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam:55
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam:65
 msgid "References"
 msgstr "引用"
 
@@ -1329,35 +1329,35 @@ msgstr ""
 "3つの配列が返されます：Guided backpropagationの配列、Grad-CAM(++)顕著性マップの配列及びGuided Grad-"
 "CAM(++)の配列です。"
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:56
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:66
 msgid ""
 "Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna "
 "Vedantam, Devi Parikh, Dhruv Batra"
 msgstr ""
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:57
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:67
 msgid ""
 "**Grad-CAM: Visual Explanations from Deep Networks via Gradient-based "
 "Localization**"
 msgstr ""
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:58
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:68
 msgid "https://arxiv.org/abs/1610.02391"
 msgstr ""
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:60
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:70
 msgid ""
 "Aditya Chattopadhyay, Anirban Sarkar, Prantik Howlader, Vineeth N "
 "Balasubramanian"
 msgstr ""
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:61
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:71
 msgid ""
 "**Grad-CAM++: Improved Visual Explanations for Deep Convolutional "
 "Networks**"
 msgstr ""
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:62
+#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam:72
 msgid "https://arxiv.org/abs/1710.11063"
 msgstr ""
 
@@ -1464,20 +1464,24 @@ msgstr "入力データに対するモデルの予測クラスを返します。
 msgid "np.argmax index of final model output"
 msgstr "モデル最終出力のnp.argmaxインデックスです。"
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor:1
+#: of
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_scaling_factor:1
 msgid "Calculates scaling factor for aligning Grad-CAM map and input image sizes"
 msgstr "Grad-CAMマップと入力画像のサイズを揃えるためのスケーリングを計算します。"
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor:3
+#: of
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_scaling_factor:3
 msgid "tuple of integers representing original image size"
 msgstr "入力画像サイズを表す整数のタプルです。"
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor:5
+#: of
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_scaling_factor:5
 msgid "Grad-CAM saliency map"
 msgstr "Grad-CAMの顕著性マップです。"
 
-#: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_zoom_factor:8
-msgid "scaling factor for aligning final array sizes"
+#: of
+#: renom_img.api.utility.visualize.grad_cam.GuidedGradCam.get_scaling_factor:8
+msgid "width and height scaling factors for aligning final array sizes"
 msgstr "出力配列のサイズを揃えるためのスケーリング要素です。"
 
 #: of renom_img.api.utility.visualize.grad_cam.GuidedGradCam.guided_backprop:1

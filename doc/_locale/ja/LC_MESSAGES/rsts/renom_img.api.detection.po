@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-20 15:11+0900\n"
+"POT-Creation-Date: 2019-09-30 19:27+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,6 +87,7 @@ msgstr "モデル全体を学習させる場合はTrue、そうでなければFa
 #: of renom_img.api.detection.ssd.SSD:21
 #: renom_img.api.detection.ssd.SSD.build_data:8
 #: renom_img.api.detection.ssd.SSD.fit:24
+#: renom_img.api.detection.ssd.SSD.forward:11
 #: renom_img.api.detection.ssd.SSD.get_bbox:4
 #: renom_img.api.detection.ssd.SSD.load:7
 #: renom_img.api.detection.ssd.SSD.loss:18
@@ -137,7 +138,8 @@ msgid ""
 msgstr "この関数はYolov1クラスでで指定された形式の入力データとターゲットデータを返却します。"
 
 #: of renom_img.api.detection.ssd.SSD.build_data
-#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.get_bbox
+#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.forward
+#: renom_img.api.detection.ssd.SSD.get_bbox
 #: renom_img.api.detection.ssd.SSD.loss renom_img.api.detection.ssd.SSD.predict
 #: renom_img.api.detection.yolo_v1.Yolov1.build_data
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
@@ -160,7 +162,8 @@ msgid "Returns function which creates input data and target data."
 msgstr "入力データとターゲットデータを作成する関数を返却します。"
 
 #: of renom_img.api.detection.ssd.SSD.build_data
-#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.get_bbox
+#: renom_img.api.detection.ssd.SSD.fit renom_img.api.detection.ssd.SSD.forward
+#: renom_img.api.detection.ssd.SSD.get_bbox
 #: renom_img.api.detection.ssd.SSD.predict
 #: renom_img.api.detection.yolo_v1.Yolov1.build_data
 #: renom_img.api.detection.yolo_v1.Yolov1.fit
@@ -569,6 +572,10 @@ msgstr "この関数はSSDで指定された入力データとターゲットデ
 #: of renom_img.api.detection.ssd.SSD.forward:4
 msgid "Input to SSD."
 msgstr "SSDへの入力"
+
+#: of renom_img.api.detection.ssd.SSD.forward:7
+msgid "Returns raw output of SSD."
+msgstr "SSDの生の出力を返却します。"
 
 #: of renom_img.api.detection.ssd.SSD.loss:1
 msgid "Loss function specified for SSD."

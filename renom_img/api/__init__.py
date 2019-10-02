@@ -7,6 +7,7 @@ import numpy as np
 import renom as rm
 from tqdm import tqdm
 
+from renom_img import __version__
 from renom_img.api.utility.optimizer import BaseOptimizer
 from renom_img.api.utility.misc.download import download
 from renom_img.api.utility.distributor.distributor import ImageDistributor
@@ -86,12 +87,14 @@ class Base(rm.Model):
 
             if not os.path.exists(weight_path):
                 download(self.WEIGHT_URL, weight_path)
-            try:
                 load_target.load_pretrained_weight(weight_path)
-            except:
-                weight_path_new = self.__class__.__name__ + '_v2_2b0.h5'
-                download(self.WEIGHT_URL, weight_path_new)
-                load_target.load_pretrained_weight(weight_path_new)
+            else:
+                try:
+                    load_target.load_pretrained_weight(weight_path)
+                except Exception as e:
+                    weight_path_new = weight_path + '_' + __version__
+                    download(self.WEIGHT_URL, weight_path_new)
+                    load_target.load_pretrained_weight(weight_path_new)
 
     def regularize(self):
         """

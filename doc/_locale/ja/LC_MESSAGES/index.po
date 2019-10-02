@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ReNomIMG \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-20 15:11+0900\n"
+"POT-Creation-Date: 2019-09-30 19:27+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Generated-By: Babel 2.6.0\n"
 
 #: ../../index.rst:3
-msgid "ReNom IMG 2.3.1 beta"
+msgid "ReNom IMG 2.3.2 beta"
 msgstr ""
 
 #~ msgid "ReNomImg version 0.0"
@@ -46,5 +46,8 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "ReNom IMG 2.3.0 beta"
+#~ msgstr ""
+
+#~ msgid "ReNom IMG 2.3.1 beta"
 #~ msgstr ""
 
