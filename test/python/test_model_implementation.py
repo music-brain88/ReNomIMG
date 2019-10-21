@@ -17,6 +17,7 @@ from renom_img.api.classification.densenet import DenseNet121, DenseNet169, Dens
 from renom_img.api.segmentation.unet import UNet
 from renom_img.api.segmentation.fcn import FCN16s, FCN8s, FCN32s
 from renom_img.api.segmentation.ternausnet import TernausNet
+from renom_img.api.segmentation.deeplab import Deeplabv3plus
 
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.augmentation.process import HorizontalFlip, ContrastNorm, WhiteNoise
@@ -234,7 +235,8 @@ def test_classification_model_implementation(algo):
     FCN8s,
     FCN16s,
     FCN32s,
-    TernausNet
+    TernausNet,
+    Deeplabv3plus
 ])
 def test_segmentation_model_implementation(algo):
     release_mem_pool()
