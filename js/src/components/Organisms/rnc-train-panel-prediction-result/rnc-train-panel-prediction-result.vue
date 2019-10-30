@@ -127,6 +127,7 @@ export default {
   computed: {
     ...mapState([
       'datasets',
+      'current_task'
     ]),
     ...mapGetters([
       'getSelectedModel',
@@ -178,6 +179,11 @@ export default {
         return this.dataset.page.length
       }
     },
+  },
+  watch: {
+    current_task: function () {
+      this.show_image = true
+    }
   },
   mounted: function () {
     const el = this.$refs.container
