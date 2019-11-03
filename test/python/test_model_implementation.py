@@ -17,11 +17,11 @@ from renom_img.api.classification.densenet import DenseNet121, DenseNet169, Dens
 from renom_img.api.segmentation.unet import UNet
 from renom_img.api.segmentation.fcn import FCN16s, FCN8s, FCN32s
 from renom_img.api.segmentation.ternausnet import TernausNet
+from renom_img.api.segmentation.deeplab import Deeplabv3plus
 
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.augmentation.process import HorizontalFlip, ContrastNorm, WhiteNoise
 from renom_img.api.utility.load import parse_xml_detection
-
 
 set_cuda_active(True)
 
@@ -36,8 +36,8 @@ def test_detection_model_implementation(algo):
     try:
         model = algo()
     except Exception as e:
-        # Model have to be initialized without no argument for using it with trained weight.
-        raise Exception("Model can initialize without no argument.")
+        # Model have to be initialized without argument for using it with trained weight.
+        raise Exception("Model can not be initialized without arguments.")
 
     methods = {k: v for k, v in inspect.getmembers(model) if inspect.ismethod(v)}
 
@@ -66,27 +66,17 @@ def test_detection_model_implementation(algo):
             "score_threshold",
             "nms_threshold"
         ],
-        "get_optimizer": [
-            ["current_loss", type(None)],
-            ["current_epoch", type(None)],
-            ["total_epoch", type(None)],
-            ["current_batch", type(None)],
-            ["total_batch", type(None)],
-            ["avg_valid_loss_list", type(None)],
-        ],
         "preprocess": [
             "x"
         ],
         "build_data": [],
-        "regularize": [],
-        "_freeze": [],
-        "set_last_layer_unit": ["unit_size"]
+        "regularize": []
     }
 
     for k, v in method_list.items():
         last_checked_index = -1
         assert k in methods
-        args = inspect.getargspec(getattr(model, k))
+        args = inspect.getfullargspec(getattr(model, k))
         for i, a in enumerate(v):
             if isinstance(a, list):
                 try:
@@ -116,17 +106,17 @@ def test_detection_model_implementation(algo):
 
     # 4. Check fit function.
     test_imgs = [
-        "voc.jpg",
-        "voc.jpg",
+        "utility/voc.jpg",
+        "utility/voc.jpg",
     ]
     test_xmls = [
-        "voc.xml",
-        "voc.xml"
+        "utility/voc.xml",
+        "utility/voc.xml"
     ]
     test_annotation, class_map = parse_xml_detection(test_xmls)
     if algo is Yolov2:
         # Yolo needs anchor.
-        model = algo(class_map, anchor=AnchorYolov2([[0.2, 0.3]], (224, 224)))
+        model = algo(class_map, anchor=AnchorYolov2(np.array([[0.2, 0.3],[0.3,0.4]]),(224, 224)))
     else:
         model = algo(class_map)
     model.fit(test_imgs, test_annotation, test_imgs, test_annotation, batch_size=2, epoch=2)
@@ -185,26 +175,16 @@ def test_classification_model_implementation(algo):
         "predict": [
             "img_list"
         ],
-        "get_optimizer": [
-            ["current_loss", type(None)],
-            ["current_epoch", type(None)],
-            ["total_epoch", type(None)],
-            ["current_batch", type(None)],
-            ["total_batch", type(None)],
-            ["avg_valid_loss_list", type(None)],
-        ],
         "preprocess": [
             "x"
         ],
-        "regularize": [],
-        "_freeze": [],
-        "set_last_layer_unit": ["unit_size"]
+        "regularize": []
     }
 
     for k, v in method_list.items():
         last_checked_index = -1
         assert k in methods
-        args = inspect.getargspec(getattr(model, k))
+        args = inspect.getfullargspec(getattr(model, k))
         for i, a in enumerate(v):
             if isinstance(a, list):
                 try:
@@ -235,8 +215,8 @@ def test_classification_model_implementation(algo):
 
     # 4. Check fit function.
     test_imgs = [
-        "voc.jpg",
-        "voc.jpg",
+        "utility/voc.jpg",
+        "utility/voc.jpg",
     ]
     test_annotation = [
         0, 0
@@ -255,7 +235,8 @@ def test_classification_model_implementation(algo):
     FCN8s,
     FCN16s,
     FCN32s,
-    TernausNet
+    TernausNet,
+    Deeplabv3plus
 ])
 def test_segmentation_model_implementation(algo):
     release_mem_pool()
@@ -289,26 +270,16 @@ def test_segmentation_model_implementation(algo):
         "predict": [
             "img_list"
         ],
-        "get_optimizer": [
-            ["current_loss", type(None)],
-            ["current_epoch", type(None)],
-            ["total_epoch", type(None)],
-            ["current_batch", type(None)],
-            ["total_batch", type(None)],
-            ["avg_valid_loss_list", type(None)],
-        ],
         "preprocess": [
             "x"
         ],
-        "regularize": [],
-        "_freeze": [],
-        "set_last_layer_unit": ["unit_size"]
+        "regularize": []
     }
 
     for k, v in method_list.items():
         last_checked_index = -1
         assert k in methods
-        args = inspect.getargspec(getattr(model, k))
+        args = inspect.getfullargspec(getattr(model, k))
         for i, a in enumerate(v):
             if isinstance(a, list):
                 try:
@@ -339,12 +310,12 @@ def test_segmentation_model_implementation(algo):
 
     # 4. Check fit function.
     test_imgs = [
-        "voc.jpg",
-        "voc.jpg",
+        "utility/voc.jpg",
+        "utility/voc.jpg",
     ]
     test_annotation = [
-        "segmentation_target.png",
-        "segmentation_target.png",
+        "utility/segmentation_target.png",
+        "utility/segmentation_target.png",
     ]
 
     class_map = ["background", "airplane"]
