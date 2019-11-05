@@ -116,7 +116,7 @@ def test_detection_model_implementation(algo):
     test_annotation, class_map = parse_xml_detection(test_xmls)
     if algo is Yolov2:
         # Yolo needs anchor.
-        model = algo(class_map, anchor=AnchorYolov2(np.array([[0.2, 0.3],[0.3,0.4]]),(224, 224)))
+        model = algo(class_map, anchor=AnchorYolov2(np.array([[0.2, 0.3], [0.3, 0.4]]), (224, 224)))
     else:
         model = algo(class_map)
     model.fit(test_imgs, test_annotation, test_imgs, test_annotation, batch_size=2, epoch=2)
