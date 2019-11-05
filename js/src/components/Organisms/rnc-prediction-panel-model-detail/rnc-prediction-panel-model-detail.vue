@@ -106,8 +106,8 @@ export default {
 }
 
   #deployed-model-datail {
-    height: calc(100% - $padding-middle);
-    width: calc(100% - $padding-middle);
+    height: 100%;
+    width: 100%;
     padding: $padding-middle;
 
     .item {
