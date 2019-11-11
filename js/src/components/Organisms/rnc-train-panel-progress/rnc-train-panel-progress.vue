@@ -175,7 +175,7 @@ export default {
 @import './../../../../static/css/unified.scss';
 
 #component-progress-model-num {
-  width:calc(100% - 2 * $padding-extra-large);
+  width: 100%;
   height: 100%;
   display: flex;
   flex-wrap: wrap;
