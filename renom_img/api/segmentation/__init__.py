@@ -89,7 +89,8 @@ class SemanticSegmentation(Base):
         else:
             opt = optimizer
         if opt is None:
-            raise InvalidOptimizerError("Provided Optimizer is not valid. Optimizer must an instance of rm.optimizer. Provided {}".format(opt))
+            raise InvalidOptimizerError(
+                "Provided Optimizer is not valid. Optimizer must an instance of rm.optimizer. Provided {}".format(opt))
         if isinstance(opt, BaseOptimizer):
             opt.setup(batch_loop, epoch)
 
