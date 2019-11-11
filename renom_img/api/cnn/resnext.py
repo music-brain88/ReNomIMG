@@ -22,12 +22,12 @@ class Bottleneck(rm.Model):
         super(Bottleneck, self).__init__()
         self.cardinality = cardinality
         self.conv1 = rm.Conv2d(planes, filter=1, ignore_bias=True)
-        self.bn1 = rm.BatchNormalize(epsilon=0.00001, mode='feature')
+        self.bn1 = rm.BatchNormalize(momentum=0.1, epsilon=0.00001, mode='feature')
         self.conv2 = rm.GroupConv2d(planes, filter=3, stride=stride,
                                     padding=1, ignore_bias=True, groups=self.cardinality)
-        self.bn2 = rm.BatchNormalize(epsilon=0.00001, mode='feature')
+        self.bn2 = rm.BatchNormalize(momentum=0.1, epsilon=0.00001, mode='feature')
         self.conv3 = rm.Conv2d(planes * self.expansion, filter=1, ignore_bias=True)
-        self.bn3 = rm.BatchNormalize(epsilon=0.00001, mode='feature')
+        self.bn3 = rm.BatchNormalize(momentum=0.1, epsilon=0.00001, mode='feature')
         self.relu = rm.Relu()
         self.downsample = downsample
         self.stride = stride
@@ -61,7 +61,7 @@ class CnnResNeXt(CnnBase):
         self.cardinality = cardinality
         super(CnnResNeXt, self).__init__()
         self.conv1 = rm.Conv2d(64, filter=7, stride=2, padding=3, ignore_bias=True)
-        self.bn1 = rm.BatchNormalize(epsilon=0.00001, mode='feature')
+        self.bn1 = rm.BatchNormalize(momentum=0.1, epsilon=0.00001, mode='feature')
         self.relu = rm.Relu()
         self.maxpool = rm.MaxPool2d(filter=3, stride=2, padding=1)
         self.layer1 = self._make_layer(
@@ -80,7 +80,7 @@ class CnnResNeXt(CnnBase):
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = rm.Sequential([
                 rm.Conv2d(planes * block.expansion, filter=1, stride=stride, ignore_bias=True),
-                rm.BatchNormalize(epsilon=0.00001, mode='feature')
+                rm.BatchNormalize(momentum=0.1, epsilon=0.00001, mode='feature')
             ])
 
         layers = []
