@@ -154,8 +154,11 @@ ReNomIMG accepts the PASCAL VOC format for classification data.
 
 | **The PASCAL Visual Object Classes**
 | http://host.robots.ox.ac.uk/pascal/VOC/
-| 
 |
+|
+
+Class numbers are assigned to each class based on the alphabetical order of the class names, beginning with 0.
+
 
 Format of Segmentation data
 ~~~~~~~~~~~~~~~~~~~
