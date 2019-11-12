@@ -26,10 +26,10 @@ class BasicBlock(rm.Model):
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(planes, stride)
-        self.bn1 = rm.BatchNormalize(mode='feature')
+        self.bn1 = rm.BatchNormalize(momentum=0.1, mode='feature')
         self.relu = rm.Relu()
         self.conv2 = conv3x3(planes)
-        self.bn2 = rm.BatchNormalize(mode='feature')
+        self.bn2 = rm.BatchNormalize(momentum=0.1, mode='feature')
         self.downsample = downsample
         self.stride = stride
 
@@ -58,11 +58,11 @@ class Bottleneck(rm.Model):
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
         self.conv1 = rm.Conv2d(planes, filter=1, ignore_bias=True)
-        self.bn1 = rm.BatchNormalize(mode='feature')
+        self.bn1 = rm.BatchNormalize(momentum=0.1, mode='feature')
         self.conv2 = rm.Conv2d(planes, filter=3, stride=stride, padding=1, ignore_bias=True)
-        self.bn2 = rm.BatchNormalize(mode='feature')
+        self.bn2 = rm.BatchNormalize(momentum=0.1, mode='feature')
         self.conv3 = rm.Conv2d(planes * self.expansion, filter=1, ignore_bias=True)
-        self.bn3 = rm.BatchNormalize(mode='feature')
+        self.bn3 = rm.BatchNormalize(momentum=0.1, mode='feature')
         self.relu = rm.Relu()
         self.downsample = downsample
         self.stride = stride
@@ -96,7 +96,7 @@ class CnnResNet(CnnBase):
         self.inplanes = 64
         super(CnnResNet, self).__init__()
         self.conv1 = rm.Conv2d(64, filter=7, stride=2, padding=3, ignore_bias=True)
-        self.bn1 = rm.BatchNormalize(mode='feature')
+        self.bn1 = rm.BatchNormalize(momentum=0.1, mode='feature')
         self.relu = rm.Relu()
         self.maxpool = rm.MaxPool2d(filter=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0])
@@ -111,7 +111,7 @@ class CnnResNet(CnnBase):
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = rm.Sequential([
                 rm.Conv2d(planes * block.expansion, filter=1, stride=stride, ignore_bias=True),
-                rm.BatchNormalize(mode='feature')
+                rm.BatchNormalize(momentum=0.1, mode='feature')
             ])
 
         layers = []

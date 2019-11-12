@@ -419,7 +419,7 @@ export default {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          width: calc(100% - $margin-middle);
+          width: 100%;
           .input-value {
             width: 50%;
           }
@@ -461,7 +461,7 @@ export default {
         }
       }
       .dataset-params {
-        width: calc(100% - $margin-middle);
+        width: 100%;
         height: 10%;
         display: flex;
         margin: $margin-middle;
@@ -470,7 +470,7 @@ export default {
         }
       }
       .dataset-numbers {
-        width: calc(100% - $margin-middle);
+        width: 100%;
         display: flex;
         margin: 16px 16px 3px 16px;
 

@@ -283,6 +283,5 @@ class FCN8s(SemanticSegmentation):
         self.decay_rate = 5e-4
         self.default_optimizer = FCN_Optimizer()
 
-
     def build_data(self):
         return TargetBuilderFCN(self.class_map, self.imsize)

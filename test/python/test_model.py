@@ -20,6 +20,7 @@ from renom_img.api.classification.densenet import DenseNet121, DenseNet169, Dens
 from renom_img.api.segmentation.fcn import FCN8s, FCN16s, FCN32s
 from renom_img.api.segmentation.unet import UNet
 from renom_img.api.segmentation.ternausnet import TernausNet
+from renom_img.api.segmentation.deeplab import Deeplabv3plus
 
 from renom_img.api.utility.augmentation import Augmentation
 from renom_img.api.utility.load import parse_xml_detection
@@ -44,7 +45,8 @@ set_cuda_active(True)
     FCN8s,
     FCN16s,
     FCN32s,
-    TernausNet
+    TernausNet,
+    Deeplabv3plus
 ])
 def test_weight_download(algo):
     path = Path(algo.__name__ + ".h5")

@@ -56,7 +56,7 @@
               :key="key"
               :model="item"
               :color-class="getColorClass(item)"
-              @click-stop-button="callModal"
+              @click-stop-button="callModal(item)"
             />
           </div>
         </div>
@@ -120,7 +120,7 @@ export default {
       this.showConfirm({
         message: 'Are you sure you want to <span style="color: #FF5533;">stop</span> this model (id:' +
           model.id + ') ?',
-        callback: function () { func(model) }
+        callback: function () { func(model.id) }
       })
     },
     reduceModelList: function (model_list) {
@@ -175,7 +175,7 @@ export default {
 @import './../../../../static/css/unified.scss';
 
 #component-progress-model-num {
-  width:calc(100% - 2 * $padding-extra-large);
+  width: 100%;
   height: 100%;
   display: flex;
   flex-wrap: wrap;

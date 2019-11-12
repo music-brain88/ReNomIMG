@@ -555,7 +555,10 @@ class Yolov2(Detection):
 
     def get_cell_grid(self, grid_w, grid_h, batch, box):
         cell_x = np.reshape(np.tile(range(grid_w), grid_h), (1, 1, 1, grid_h, grid_w))
-        cell_y = np.transpose(cell_x, (0, 1, 2, 4, 3))
+        if grid_w == grid_h:
+            cell_y = np.transpose(cell_x, (0, 1, 2, 4, 3))
+        else:
+            cell_y = cell_x
         cell_grid = np.tile(np.concatenate([cell_x, cell_y], 2), [batch, box, 1, 1, 1])
         return cell_grid
 
