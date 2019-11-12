@@ -6,7 +6,7 @@ Change Log
 
 - Fixed bug where model ID information was displayed as 'undefined' when stopping model training on GUI
 - Fixed bug in GUI Prediction Result display where 'Image' toggle status on Segmentation Page affected whether or not images were displayed on the Classification and Detection pages
-- Modified error message displayed on GUI when training diverges and model parameters cause a numerical overflow to be more descriptive and suggest alternative actions to take.
+- Modified error message displayed on GUI when training diverges and model parameters cause a numerical overflow to be more descriptive and suggest alternative actions to take
 - Fixed incorrect batch normalization layer momentum value for Yolo v1, Yolo v2, ResNet and ResNeXt models
 - Fixed bug in Yolo v2 Python API loss function that caused error when image height and width were not equal to each other
 
